@@ -13,7 +13,7 @@
 
 ## Estado Actual del Proyecto (2026-03-18)
 
-### Completado (Fase 0: pasos 0.1–0.4)
+### Completado (Fase 0: pasos 0.1–0.7)
 
 | Paso | Descripción | Estado |
 |------|-------------|--------|
@@ -21,17 +21,21 @@
 | 0.2 | SQLite nativo compilado (prebuilt Electron 33) | ✅ |
 | 0.3 | App.tsx shell vacío (Dashboard placeholder) | ✅ |
 | 0.4 | Schemas Zod `.strict()` + Drizzle DB layer | ✅ |
+| 0.5 | Intake Express — 5 preguntas, IPC save, React shell (sin styling) | ✅ |
+| 0.6 | Provider LLM — `provider-factory.ts` con Vercel AI SDK (`ai` + `@ai-sdk/openai`) | ✅ |
+| 0.7 | Plan Builder Core — skill que genera plan a 1 mes vía LLM → SQLite | ✅ |
 
 ### Pendiente (siguiente en orden)
 
 | Paso | Descripción | Responsable |
 |------|-------------|-------------|
-| 0.5 | **Intake Express** — 5 preguntas rápidas en React | Frontend (UI) |
-| 0.6 | **Provider LLM Base** — `openai-provider.ts` con Vercel AI SDK | Backend |
-| 0.7 | **Plan Builder Core** — Skill que genera plan a 1 mes vía LLM → SQLite | Backend |
 | 1.1 | Check-in de tareas (botones Dashboard → tRPC) | Full-stack |
 | 1.2 | Tracking de hábitos y rachas | Full-stack |
+| 1.3 | Micro-animaciones y Abuela-Proof (framer-motion + i18n completo) | Frontend |
+| 1.4 | Exportación .ics (ics-generator.ts) | Backend |
 | 2.1 | Provider Lightning (NWC con `@getalby/sdk`) | Backend |
+| 2.2 | Pay-Per-Token Tracking | Backend |
+| 2.3 | Ollama Fallback Local | Backend |
 
 ---
 
@@ -55,20 +59,22 @@
 ```
 src/
 ├── main/                  # Electron main process
-│   ├── index.ts           # Entry point — crea BrowserWindow, inicia DB
+│   ├── index.ts           # Entry point — crea BrowserWindow, inicia DB, registra IPC
+│   ├── ipc-handlers.ts    # IPC: intake:save, plan:build, profile:get
 │   └── db/
 │       ├── connection.ts  # better-sqlite3 init (WAL, integrity check)
 │       ├── schema.ts      # Drizzle table definitions (6 tablas)
 │       └── db-helpers.ts  # CRUD helpers (profiles, plans, progress, settings, analytics)
 ├── preload/
-│   ├── index.ts           # contextBridge — expone API segura al renderer
-│   └── index.d.ts         # Tipos Window.electron / Window.api
+│   ├── index.ts           # contextBridge — expone window.api (intake, plan, profile)
+│   └── index.d.ts         # Tipos LapAPI para Window.api
 ├── renderer/
 │   ├── index.html         # HTML con CSP
 │   └── src/
 │       ├── main.tsx       # ReactDOM entry
-│       ├── App.tsx        # Shell vacío (TU TRABAJO — Dashboard "Hoy")
-│       ├── components/    # (vacío — para crear)
+│       ├── App.tsx        # View state machine (dashboard → intake → building → plan)
+│       ├── components/
+│       │   └── IntakeExpress.tsx  # 5-step form (funcional, sin styling — TU TRABAJO)
 │       ├── lib/           # (vacío — hooks, utils UI)
 │       ├── assets/        # (vacío — CSS, SVGs)
 │       └── env.d.ts
@@ -78,17 +84,25 @@ src/
 │   │   ├── perfil.ts      # Schema Zod completo del perfil (170+ campos)
 │   │   ├── rutina-base.ts # Schema de bloques horarios
 │   │   └── manifiesto.ts  # Schema del manifest del plan
-│   └── types/             # (vacío — tipos IPC compartidos)
-├── providers/             # (vacío — para openai-provider.ts, paso 0.6)
+│   └── types/
+│       └── ipc.ts         # IntakeExpressData, PlanBuildResult, etc.
+├── providers/
+│   └── provider-factory.ts # getProvider("openai:gpt-4o-mini", { apiKey }) → AgentRuntime
+├── skills/
+│   ├── skill-interface.ts  # Skill { name, tier, getSystemPrompt(), run() }
+│   ├── plan-intake.ts      # Intake Express: 5 preguntas → perfil Zod-valid
+│   └── plan-builder.ts     # Plan Builder: perfil → LLM → matriz eventos 1 mes
+├── runtime/
+│   └── types.ts            # LLMMessage, AgentRuntime, SkillContext, SkillResult
+├── i18n/
+│   ├── index.ts            # t(key, params?) — traducción con interpolación
+│   └── locales/
+│       └── es-AR.json      # Español rioplatense (voseo) — default
 ├── payments/              # (vacío — para nwc-provider.ts, paso 2.1)
-├── skills/                # (vacío — para plan-intake.ts, plan-builder.ts)
-├── runtime/               # (vacío — para agent-runtime.ts)
 ├── auth/                  # (vacío — para token-store.ts con safeStorage)
 ├── utils/                 # (vacío — para token-tracker.ts, path-slugifier.ts)
 ├── config/                # (vacío — para lap-config.ts)
-├── notifications/         # (vacío — para tray-service.ts)
-└── i18n/                  # (vacío — para t(), locale detection)
-    └── locales/           # (vacío — para es-AR.json, en-US.json)
+└── notifications/         # (vacío — para tray-service.ts)
 ```
 
 ---
