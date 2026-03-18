@@ -1,0 +1,61 @@
+{
+  "app": {
+    "name": "LAP",
+    "tagline": "Tu plan de vida, paso a paso"
+  },
+  "intake": {
+    "title": "Contame sobre vos",
+    "subtitle": "Unas pocas preguntas para armar tu plan personalizado",
+    "questions": {
+      "nombre": "¿Cómo te llamás?",
+      "edad": "¿Cuántos años tenés?",
+      "ubicacion": "¿En qué ciudad vivís?",
+      "ocupacion": "¿A qué te dedicás actualmente?",
+      "objetivo": "¿Qué te gustaría lograr en los próximos meses?"
+    },
+    "placeholders": {
+      "nombre": "Tu nombre",
+      "edad": "Ej: 32",
+      "ubicacion": "Ej: Buenos Aires, Argentina",
+      "ocupacion": "Ej: Trabajo en ventas, estudio de noche",
+      "objetivo": "Ej: Aprender a programar y conseguir mi primer trabajo tech"
+    },
+    "buttons": {
+      "next": "Siguiente",
+      "back": "Anterior",
+      "finish": "¡Listo, armá mi plan!",
+      "skip": "Prefiero no contestar"
+    },
+    "progress": "Pregunta {{current}} de {{total}}",
+    "saving": "Guardando tu perfil...",
+    "saved": "¡Perfil guardado!",
+    "error": "Hubo un problemita guardando. Intentá de nuevo."
+  },
+  "dashboard": {
+    "title": "Tu día",
+    "empty": "Todavía no tenés un plan armado. ¡Empecemos!",
+    "start": "Crear mi plan"
+  },
+  "builder": {
+    "thinking": "Estoy pensando tu plan...",
+    "generating": "Armando tu plan personalizado...",
+    "done": "¡Tu plan está listo!",
+    "error": "No pude armar el plan. ¿Querés intentar de nuevo?",
+    "retry": "Intentar de nuevo",
+    "preview": "Vista previa de tu plan"
+  },
+  "ui": {
+    "thinking": "Dame un segundito...",
+    "loading": "Cargando...",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "save": "Guardar"
+  },
+  "errors": {
+    "connection_busy": "El asistente está un poquito ocupado. Dame un segundito.",
+    "generic": "Algo salió mal. Intentá de nuevo en un ratito.",
+    "no_api_key": "Necesitás configurar tu conexión primero.",
+    "budget_exceeded": "Se acabaron las consultas disponibles por ahora."
+  }
+}

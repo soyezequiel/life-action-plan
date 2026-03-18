@@ -1,0 +1,50 @@
+import esAR from './locales/es-AR.json'
+
+type NestedKeyOf<T, Prefix extends string = ''> = T extends object
+  ? {
+      [K in keyof T & string]: T[K] extends object
+        ? NestedKeyOf<T[K], `${Prefix}${K}.`>
+        : `${Prefix}${K}`
+    }[keyof T & string]
+  : never
+
+export type TranslationKey = NestedKeyOf<typeof esAR>
+
+const locales: Record<string, Record<string, unknown>> = {
+  'es-AR': esAR
+}
+
+let currentLocale = 'es-AR'
+
+export function setLocale(locale: string): void {
+  if (locales[locale]) {
+    currentLocale = locale
+  }
+}
+
+export function getCurrentLocale(): string {
+  return currentLocale
+}
+
+export function t(key: string, params?: Record<string, string | number>): string {
+  const keys = key.split('.')
+  let value: unknown = locales[currentLocale] ?? locales['es-AR']
+
+  for (const k of keys) {
+    if (value && typeof value === 'object' && k in value) {
+      value = (value as Record<string, unknown>)[k]
+    } else {
+      return key // Fallback: devolver la key si no existe
+    }
+  }
+
+  if (typeof value !== 'string') return key
+
+  if (params) {
+    return value.replace(/\{\{(\w+)\}\}/g, (_, paramKey) =>
+      params[paramKey] !== undefined ? String(params[paramKey]) : `{{${paramKey}}}`
+    )
+  }
+
+  return value
+}
