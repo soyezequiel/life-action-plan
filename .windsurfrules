@@ -1,0 +1,16 @@
+# Reglas del Proyecto LAP (Life Action Plan)
+
+Estas reglas son obligatorias para Windsurf.
+
+## Contexto del Proyecto
+Estás desarrollando **LAP (Life Action Plan)**, una aplicación standalone en Node.js/TypeScript con UI Desktop (Electron + React).
+
+## Reglas Críticas (Source of Truth)
+EL ÚNICO documento de referencia valido es `PLAN_LAP_FINAL.md`. Léelo antes de programar y sigue todas las reglas arquitectónicas y UX descritas ahí.
+
+1. **i18n-Ready Obligatorio**: NUNCA hardcodees strings en español u otro idioma en la UI. TODO debe pasar por la función `t()` de `src/i18n/index.ts`.
+2. **Cero Jerga Técnica ("Abuela-Proof")**: Modela la interacción en lenguaje empático, sin modales de error rojos o exposición de JSON a los usuarios.
+3. **SQLite vs JSON**: Memoria y state persistente se debe usar `better-sqlite3` en WAL mode, usando `drizzle-orm`. No uses JSON files planos.
+4. **Seguridad Absoluta**: Evita `bash` execution. Cero strings del usuario concatenadas ciegamente a APIs.
+5. **Timezones Estrictas**: Usar librerías como `luxon` o `date-fns-tz` y NUNCA usar la Timezone del sistema cliente para comparaciones.
+6. **Rutas**: Cero backslashes, usar siempre `path.posix`.
