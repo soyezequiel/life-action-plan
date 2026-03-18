@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "electron-vite-dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/electron-vite/bin/electron-vite.js", "dev"],
+      "port": 5173
+    }
+  ]
+}
