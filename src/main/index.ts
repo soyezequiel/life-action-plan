@@ -1,8 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { initDatabase } from './db/connection'
+import { registerIpcHandlers } from './ipc-handlers'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -44,8 +45,8 @@ app.whenReady().then(() => {
   const db = initDatabase()
   console.log('LAP database initialized:', db ? 'OK' : 'FAILED')
 
-  // IPC handlers will be registered here
-  ipcMain.on('ping', () => console.log('pong'))
+  // Register IPC handlers for intake, plan builder, etc.
+  registerIpcHandlers()
 
   createWindow()
 

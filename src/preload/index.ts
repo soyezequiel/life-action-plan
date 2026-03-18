@@ -1,8 +1,19 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import type { IntakeExpressData } from '../shared/types/ipc'
 
-// Custom APIs for renderer — will expose IPC methods for DB, auth, payments
-const api = {}
+const api = {
+  intake: {
+    save: (data: IntakeExpressData) => ipcRenderer.invoke('intake:save', data)
+  },
+  plan: {
+    build: (profileId: string, apiKey: string) =>
+      ipcRenderer.invoke('plan:build', profileId, apiKey)
+  },
+  profile: {
+    get: (profileId: string) => ipcRenderer.invoke('profile:get', profileId)
+  }
+}
 
 if (process.contextIsolated) {
   try {
