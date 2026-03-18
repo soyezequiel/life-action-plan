@@ -1,22 +1,9 @@
-# Reglas del Proyecto LAP (Life Action Plan)
+# Reglas del Proyecto LAP — Cursor
 
-Estas reglas son obligatorias para cualquier IA o Agente (Codex, Copilot, Cursor, Aider, Windsurf) trabajando en este repositorio.
+> **OBLIGATORIO**: Leé `AGENTS.md` antes de escribir código. Contiene el estado actual, estructura, stack, y reglas.
+> Source of truth arquitectónica: `PLAN_LAP_FINAL.md`
 
-## Contexto del Proyecto
-Estás desarrollando **LAP (Life Action Plan)**, una aplicación standalone en Node.js/TypeScript con UI Desktop (Electron + React).
-
-## Reglas Críticas (Source of Truth)
-EL ÚNICO documento de referencia valido es `PLAN_LAP_FINAL.md`. Debes leerlo en su totalidad o consultar sus secciones específicas antes de implementar cualquier feature o tomar una decisión arquitectónica.
-
-1. **i18n-Ready Obligatorio**: NUNCA hardcodees strings en español u otro idioma en la UI o en los mensajes de consola dirigidos al usuario. TODO debe pasar por la función `t()` de `src/i18n/index.ts`.
-2. **Cero Jerga Técnica ("Abuela-Proof")**: La interfaz nunca debe mencionar "LLM", "API", "JSON", "Tokens". Modela la interacción en lenguaje empático y amigable, utilizando animaciones suaves y evitando modales agresivos.
-3. **SQLite vs JSON**: El progreso dinámico y memoria del estado (progreso.json) SE MIGRA a `better-sqlite3` en WAL mode usando `drizzle-orm`. No uses JSONs planos para datos en escritura concurrente.
-4. **Rutas POSIX**: Usa siempre `path.posix` para asegurar interoperabilidad Windows/Mac. Cero backslashes en strings internas.
-5. **Timezones Estrictas**: Usar `luxon` (o similar) para cualquier cálculo de fechas respetando `profile.datosPersonales.ubicacion.zonaHoraria`. No utilices la timezone del sistema operativo cliente.
-6. **Seguridad Absoluta**: Evita `bash`, ejecución de shell, modulos de OS externos. Cero código RCE por prompts. Aplica protección Path Traversal LFI estricta para manipulación de archivos del plan de usuario.
-7. **Diseño de Interfaz Premium / Full-Canvas**: La UI no debe ser una típica ventana de chat. Es un Dashboard central con Chat colapsable en Glassmorphism.
-
-## Estructura Esperada
-- `src/` contiene todo el backend y lógica TS de negocio, rutinas de servidor y CLI headless.
-- `src/ui/` contiene la UI de React.
-- `src/i18n/` y `src/skills/` manejan la lógica de traducción y de prompts, respectivamente.
+## Carga Determinística
+1. Abrí y leé `AGENTS.md` (contexto completo del proyecto, estado, decisiones técnicas)
+2. Consultá `PLAN_LAP_FINAL.md` para detalles de arquitectura y specs de schemas
+3. Respetá las 8 reglas inquebrantables listadas en `AGENTS.md` sección "Reglas INQUEBRANTABLES"
