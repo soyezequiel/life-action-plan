@@ -21,7 +21,7 @@ interface LapAPI {
   plan: {
     build: (profileId: string, apiKey: string, provider?: string) => Promise<PlanBuildResult>
     list: (profileId: string) => Promise<PlanRow[]>
-    simulate: (planId: string) => Promise<PlanSimulationResult>
+    simulate: (planId: string, mode?: 'interactive' | 'automatic') => Promise<PlanSimulationResult>
     exportCalendar: (planId: string) => Promise<PlanExportCalendarResult>
   }
   profile: {

@@ -91,12 +91,34 @@
   "simulation": {
     "title": "Revisión del plan",
     "empty": "Todavía no revisaste este plan.",
+    "mode_label": "Modo de revisión",
+    "mode": {
+      "interactive": "Paso a paso",
+      "automatic": "Completa"
+    },
+    "mode_hint": {
+      "interactive": "Te muestro primero los puntos más importantes para corregir.",
+      "automatic": "Reviso todo el plan de una y te dejo el panorama completo."
+    },
+    "mode_last": {
+      "interactive": "Última revisión: paso a paso",
+      "automatic": "Última revisión: completa"
+    },
     "period": "Período revisado: {{period}}",
     "last_review": "Última revisión: {{date}}",
     "count_pass": "Bien {{count}}",
     "count_warn": "Ojo {{count}}",
     "count_fail": "Choques {{count}}",
     "count_missing": "Faltan {{count}}",
+    "progress": {
+      "current": "Estoy revisando estas partes",
+      "steps": {
+        "schedule": "Mirando tus horarios",
+        "work": "Chequeando tu jornada",
+        "load": "Midiendo la carga del día",
+        "summary": "Armando el resumen"
+      }
+    },
     "overall": {
       "PASS": "Tu plan se ve posible",
       "WARN": "Tu plan necesita un par de ajustes",

@@ -74,6 +74,7 @@ const simulationSummarySchema = z.object({
 
 const ultimaSimulacionSchema = z.object({
   ranAt: z.string(),
+  mode: z.enum(['interactive', 'automatic']),
   periodLabel: z.string().min(1).max(80),
   summary: simulationSummarySchema,
   findings: z.array(simulationFindingSchema).max(24)

@@ -2,7 +2,7 @@
 // Returns fake data so the UI can be developed without the main process
 
 import { DateTime } from 'luxon'
-import type { CostSummary, IntakeExpressData, PlanSimulationSnapshot } from '../../shared/types/ipc'
+import type { CostSummary, IntakeExpressData, PlanSimulationSnapshot, SimulationMode } from '../../shared/types/ipc'
 import { calculateHabitStreak } from '../../utils/streaks'
 
 const MOCK_PROFILE_ID = 'mock-profile-1'
@@ -125,25 +125,32 @@ const mockApi = {
         }
       ]
     },
-    simulate: async (_planId: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 1200))
+    simulate: async (_planId: string, mode: SimulationMode = 'interactive') => {
+      await new Promise((resolve) => setTimeout(resolve, mode === 'automatic' ? 1800 : 1400))
 
       mockSimulation = {
         ranAt: DateTime.now().toISO() ?? `${TODAY}T10:00:00`,
+        mode,
         periodLabel: DateTime.now().setLocale('es-AR').toFormat('LLLL yyyy'),
         summary: {
-          overallStatus: 'WARN',
+          overallStatus: mode === 'automatic' ? 'WARN' : 'FAIL',
           pass: 2,
-          warn: 2,
-          fail: 0,
+          warn: mode === 'automatic' ? 2 : 1,
+          fail: mode === 'automatic' ? 0 : 1,
           missing: 0
         },
-        findings: [
-          { status: 'WARN', code: 'day_high_load', params: { dayLabel: 'viernes 20/03', planned: 180, available: 240 } },
-          { status: 'WARN', code: 'too_many_activities', params: { dayLabel: 'sábado 21/03', count: 4 } },
-          { status: 'PASS', code: 'schedule_ok' },
-          { status: 'PASS', code: 'metadata_ok' }
-        ]
+        findings: mode === 'automatic'
+          ? [
+              { status: 'WARN', code: 'day_high_load', params: { dayLabel: 'viernes 20/03', planned: 180, available: 240 } },
+              { status: 'WARN', code: 'too_many_activities', params: { dayLabel: 'sábado 21/03', count: 4 } },
+              { status: 'PASS', code: 'schedule_ok' },
+              { status: 'PASS', code: 'metadata_ok' }
+            ]
+          : [
+              { status: 'FAIL', code: 'day_over_capacity', params: { dayLabel: 'viernes 20/03', planned: 310, available: 240 } },
+              { status: 'WARN', code: 'too_many_activities', params: { dayLabel: 'sábado 21/03', count: 4 } },
+              { status: 'PASS', code: 'metadata_ok' }
+            ]
       }
 
       return {

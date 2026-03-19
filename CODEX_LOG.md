@@ -153,3 +153,46 @@ Pendiente
 Bug o edge case
 - Si el usuario declara muy pocas horas libres, el simulador puede marcar `FAIL` legitimo aun cuando el plan sea "corto"; el chequeo hoy usa solo lo declarado en el perfil.
 - El mock guarda una revision demo fija de tipo `WARN`; sirve para UI, no para validar la logica real del main process.
+
+[2026-03-19 01:28 ART] — Paso 2.4: Modo interactivo y progreso visible
+Completado parcial
+- Agregue selector de modo `Paso a paso` / `Completa` para la revision del plan y persisto el modo usado dentro de `ultimaSimulacion`.
+- La tarjeta de revision ahora muestra progreso visible por etapas mientras corre la simulacion.
+- El backend del simulador distingue entre modo interactivo y automatico: el interactivo prioriza un hallazgo clave por bloque y evita mezclar mensajes `PASS` si ya hay problemas reales.
+- Revalide la UI en `dev:browser` con mocks para ambos modos y corregi una regresion de orden de hooks en `Dashboard.tsx`.
+
+Archivos tocados
+- `src/skills/plan-simulator.ts`
+- `src/main/ipc-handlers.ts`
+- `src/shared/types/ipc.ts`
+- `src/shared/schemas/manifiesto.ts`
+- `src/preload/index.ts`
+- `src/preload/index.d.ts`
+- `src/renderer/src/components/Dashboard.tsx`
+- `src/renderer/src/assets/global.css`
+- `src/renderer/src/mock-api.ts`
+- `src/i18n/locales/es-AR.json`
+- `tests/plan-simulator.test.ts`
+
+Tests
+- 2 tests nuevos en `tests/plan-simulator.test.ts`:
+  - `en modo paso a paso devuelve un hallazgo clave por bloque`
+  - `en modo completo conserva mas hallazgos del panorama general`
+- Suite completa revalidada: `68` tests pasando.
+- `npm run typecheck`: OK
+- `npm run build`: OK
+- Smoke visual en `dev:browser`: OK para selector de modo, progreso visible y resultados distintos por modo.
+
+Decisiones
+- Mantengo `interactive` como default de producto en UI/IPC, pero el modo `automatic` conserva el panorama amplio de hallazgos.
+- El progreso visible es una secuencia de etapas de UI, no streaming real del backend; sirve para la demo sin introducir todavia eventos incrementales en IPC.
+- En modo interactivo filtro hallazgos `PASS` cuando ya hay `FAIL/WARN/MISSING`, para no diluir la primera accion sugerida al usuario.
+
+Pendiente
+- Falta progreso real por streaming desde main process si se quiere alinear al 100% con `PLAN_LAP_FINAL.md`.
+- Falta modo verdaderamente interactivo con confirmaciones por iteracion.
+- Falta integrar simulacion con LLM/contexto aislado y proponer ajustes automaticos despues de `FAIL`.
+
+Bug o edge case
+- Durante el desarrollo aparecio un bug de hooks por un `useEffect` debajo del `return` condicional de carga en `Dashboard.tsx`; ya quedo corregido.
+- El mock de browser representa duraciones y resultados distintos por modo, pero no reproduce todavia una simulacion incremental real del backend.

@@ -70,7 +70,8 @@ describe('simulatePlanViability', () => {
       row('d', '2026-03-23', '21:00', 90, 'Carga 2')
     ], {
       timezone: 'America/Argentina/Buenos_Aires',
-      locale: 'es-AR'
+      locale: 'es-AR',
+      mode: 'automatic'
     })
 
     expect(result.summary.overallStatus).toBe('FAIL')
@@ -79,6 +80,27 @@ describe('simulatePlanViability', () => {
       'outside_awake_hours',
       'day_over_capacity',
       'too_many_activities'
+    ]))
+  })
+
+  it('en modo paso a paso devuelve un hallazgo clave por bloque', () => {
+    const result = simulatePlanViability(profile, [
+      row('a', '2026-03-23', '10:00', 120, 'Trabajo cruzado'),
+      row('b', '2026-03-23', '22:30', 90, 'Muy tarde'),
+      row('c', '2026-03-23', '19:30', 90, 'Carga 1'),
+      row('d', '2026-03-23', '21:00', 90, 'Carga 2')
+    ], {
+      timezone: 'America/Argentina/Buenos_Aires',
+      locale: 'es-AR',
+      mode: 'interactive'
+    })
+
+    expect(result.mode).toBe('interactive')
+    expect(result.findings).toHaveLength(3)
+    expect(result.findings.map((finding) => finding.code)).toEqual(expect.arrayContaining([
+      'outside_awake_hours',
+      'overlaps_work',
+      'day_over_capacity'
     ]))
   })
 
@@ -117,5 +139,21 @@ describe('simulatePlanViability', () => {
     expect(result.summary.overallStatus).toBe('MISSING')
     expect(result.findings.map((finding) => finding.code)).toContain('missing_schedule')
     expect(result.findings.map((finding) => finding.code)).not.toContain('schedule_ok')
+  })
+
+  it('en modo completo conserva mas hallazgos del panorama general', () => {
+    const result = simulatePlanViability(profile, [
+      row('a', '2026-03-23', '10:00', 120, 'Trabajo cruzado'),
+      row('b', '2026-03-23', '22:30', 90, 'Muy tarde'),
+      row('c', '2026-03-23', '19:30', 90, 'Carga 1'),
+      row('d', '2026-03-23', '21:00', 90, 'Carga 2')
+    ], {
+      timezone: 'America/Argentina/Buenos_Aires',
+      locale: 'es-AR',
+      mode: 'automatic'
+    })
+
+    expect(result.mode).toBe('automatic')
+    expect(result.findings.length).toBeGreaterThan(3)
   })
 })

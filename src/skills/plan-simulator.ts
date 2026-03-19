@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import type { Perfil } from '../shared/schemas/perfil'
 import type {
+  SimulationMode,
   PlanSimulationSnapshot,
   ProgressRow,
   SimulationFinding,
@@ -23,6 +24,7 @@ interface DaySummary {
 interface SimulationOptions {
   timezone: string
   locale?: string
+  mode?: SimulationMode
 }
 
 const statusPriority: Record<SimulationStatus, number> = {
@@ -137,6 +139,57 @@ function sortedFindings(findings: SimulationFinding[]): SimulationFinding[] {
   return [...findings].sort((left, right) => statusPriority[left.status] - statusPriority[right.status])
 }
 
+function findingBucket(code: SimulationFinding['code']): string {
+  switch (code) {
+    case 'no_plan_items':
+    case 'missing_schedule':
+    case 'metadata_ok':
+      return 'datos'
+    case 'outside_awake_hours':
+    case 'schedule_ok':
+      return 'horarios'
+    case 'overlaps_work':
+    case 'work_balance_ok':
+      return 'trabajo'
+    case 'day_over_capacity':
+    case 'day_high_load':
+    case 'too_many_activities':
+    case 'capacity_ok':
+      return 'carga'
+    default:
+      return code
+  }
+}
+
+function findingsForMode(findings: SimulationFinding[], mode: SimulationMode): SimulationFinding[] {
+  if (mode === 'automatic') {
+    return findings.slice(0, 12)
+  }
+
+  const preferredFindings = findings.some((finding) => finding.status !== 'PASS')
+    ? findings.filter((finding) => finding.status !== 'PASS')
+    : findings
+  const selected: SimulationFinding[] = []
+  const usedBuckets = new Set<string>()
+
+  for (const finding of preferredFindings) {
+    const bucket = findingBucket(finding.code)
+
+    if (usedBuckets.has(bucket)) {
+      continue
+    }
+
+    usedBuckets.add(bucket)
+    selected.push(finding)
+
+    if (selected.length >= 4) {
+      break
+    }
+  }
+
+  return selected
+}
+
 export function simulatePlanViability(
   profile: Perfil,
   rows: ProgressRow[],
@@ -144,6 +197,7 @@ export function simulatePlanViability(
 ): PlanSimulationSnapshot {
   const locale = options.locale ?? 'es-AR'
   const timezone = options.timezone
+  const mode = options.mode ?? 'interactive'
   const participant = profile.participantes[0]
   const wakeStart = parseMinutes(participant?.rutinaDiaria?.porDefecto?.despertar) ?? 7 * 60
   const sleepStart = parseMinutes(participant?.rutinaDiaria?.porDefecto?.dormir) ?? 23 * 60
@@ -169,6 +223,7 @@ export function simulatePlanViability(
 
     return {
       ranAt: DateTime.now().setZone(timezone).toISO() ?? DateTime.utc().toISO() ?? '',
+      mode,
       periodLabel: buildPeriodLabel(rows, timezone, locale),
       summary: buildSummary([noPlanFinding]),
       findings: [noPlanFinding]
@@ -311,9 +366,10 @@ export function simulatePlanViability(
 
   return {
     ranAt: DateTime.now().setZone(timezone).toISO() ?? DateTime.utc().toISO() ?? '',
+    mode,
     periodLabel: buildPeriodLabel(rows, timezone, locale),
     summary: buildSummary(sorted),
-    findings: sorted.slice(0, 12)
+    findings: findingsForMode(sorted, mode)
   }
 }
 

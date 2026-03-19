@@ -8,6 +8,7 @@ import type {
   PlanRow,
   PlanSimulationSnapshot,
   ProgressRow,
+  SimulationMode,
   StreakResult,
   WalletStatus,
   SimulationFinding
@@ -35,6 +36,8 @@ const cardTransition = {
   duration: 0.24,
   ease: [0.22, 1, 0.36, 1] as const
 }
+
+const simulationStageKeys = ['schedule', 'work', 'load', 'summary'] as const
 
 function parseMeta(notas: string | null): TaskMeta {
   if (!notas) return {}
@@ -93,9 +96,14 @@ function Dashboard({
   const [walletNotice, setWalletNotice] = useState<'connected' | 'disconnected' | 'error' | null>(null)
   const [isSimulating, setIsSimulating] = useState(false)
   const [simulationError, setSimulationError] = useState('')
+  const [simulationMode, setSimulationMode] = useState<SimulationMode>('interactive')
+  const [simulationStageIndex, setSimulationStageIndex] = useState(0)
 
   const hasPlan = plans.length > 0
   const latestPlan = hasPlan ? plans[plans.length - 1] : null
+  const latestPlanMeta = latestPlan ? parseManifestMeta(latestPlan.manifest) : {}
+  const latestSimulation = latestPlanMeta.ultimaSimulacion ?? null
+  const activeSimulationStageKey = simulationStageKeys[Math.min(simulationStageIndex, simulationStageKeys.length - 1)]
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -148,6 +156,31 @@ function Dashboard({
     void loadData()
   }, [loadData])
 
+  useEffect(() => {
+    if (!isSimulating) {
+      setSimulationStageIndex(0)
+      return
+    }
+
+    setSimulationStageIndex(0)
+
+    const intervalId = window.setInterval(() => {
+      setSimulationStageIndex((current) => (
+        current >= simulationStageKeys.length - 1 ? current : current + 1
+      ))
+    }, 650)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [isSimulating])
+
+  useEffect(() => {
+    if (latestSimulation?.mode) {
+      setSimulationMode(latestSimulation.mode)
+    }
+  }, [latestSimulation?.mode])
+
   async function handleToggle(taskId: string): Promise<void> {
     const toggledTask = tasks.find((task) => task.id === taskId)
     const result = await window.api.progress.toggle(taskId)
@@ -190,7 +223,7 @@ function Dashboard({
     setSimulationError('')
 
     try {
-      const result = await window.api.plan.simulate(latestPlan.id)
+      const result = await window.api.plan.simulate(latestPlan.id, simulationMode)
       if (result.success) {
         await loadData()
       } else {
@@ -275,8 +308,6 @@ function Dashboard({
   const formattedWalletBalance = typeof walletStatus.balanceSats === 'number'
     ? numberFormatter.format(walletStatus.balanceSats)
     : null
-  const latestPlanMeta = latestPlan ? parseManifestMeta(latestPlan.manifest) : {}
-  const latestSimulation = latestPlanMeta.ultimaSimulacion ?? null
 
   function renderWalletCard(): JSX.Element {
     const walletLabel = walletStatus.connected
@@ -413,7 +444,32 @@ function Dashboard({
     return (
       <div className="dashboard-simulation">
         <div className="dashboard-simulation__header">
-          <span className="dashboard-simulation__label">{t('simulation.title')}</span>
+          <div className="dashboard-simulation__heading">
+            <span className="dashboard-simulation__label">{t('simulation.title')}</span>
+            <div className="dashboard-simulation__modes" role="tablist" aria-label={t('simulation.mode_label')}>
+              <button
+                className={[
+                  'dashboard-simulation__mode',
+                  simulationMode === 'interactive' ? 'dashboard-simulation__mode--active' : ''
+                ].join(' ')}
+                onClick={() => setSimulationMode('interactive')}
+                disabled={isSimulating}
+              >
+                {t('simulation.mode.interactive')}
+              </button>
+              <button
+                className={[
+                  'dashboard-simulation__mode',
+                  simulationMode === 'automatic' ? 'dashboard-simulation__mode--active' : ''
+                ].join(' ')}
+                onClick={() => setSimulationMode('automatic')}
+                disabled={isSimulating}
+              >
+                {t('simulation.mode.automatic')}
+              </button>
+            </div>
+            <span className="dashboard-simulation__hint">{t(`simulation.mode_hint.${simulationMode}`)}</span>
+          </div>
           <button
             className="app-button app-button--secondary"
             onClick={() => {
@@ -425,11 +481,36 @@ function Dashboard({
           </button>
         </div>
 
+        {isSimulating && (
+          <div className="dashboard-simulation__progress">
+            <div
+              className="dashboard-simulation__progress-bar"
+              aria-hidden="true"
+            >
+              <span
+                className={[
+                  'dashboard-simulation__progress-fill',
+                  `dashboard-simulation__progress-fill--${simulationStageIndex + 1}`
+                ].join(' ')}
+              />
+            </div>
+            <strong className="dashboard-simulation__progress-title">
+              {t('simulation.progress.current')}
+            </strong>
+            <span className="dashboard-simulation__progress-step">
+              {t(`simulation.progress.steps.${activeSimulationStageKey}`)}
+            </span>
+          </div>
+        )}
+
         {latestSimulation ? (
           <>
             <strong className="dashboard-simulation__value">
               {t(`simulation.overall.${latestSimulation.summary.overallStatus}`)}
             </strong>
+            <span className="dashboard-simulation__meta">
+              {t(`simulation.mode_last.${latestSimulation.mode}`)}
+            </span>
             <span className="dashboard-simulation__meta">
               {t('simulation.period', { period: latestSimulation.periodLabel })}
             </span>

@@ -18,7 +18,7 @@ import { t } from '../i18n'
 import { getPaymentProvider } from '../providers/payment-provider'
 import { clearSecureToken, isSecureStorageAvailable, loadSecureToken, saveSecureToken } from '../auth/token-store'
 import type { PaymentProviderStatus } from '../providers/payment-provider'
-import type { WalletStatus } from '../shared/types/ipc'
+import type { SimulationMode, WalletStatus } from '../shared/types/ipc'
 import { buildWithOllamaFallback } from '../utils/plan-build-fallback'
 import { simulatePlanViability } from '../skills/plan-simulator'
 
@@ -349,7 +349,7 @@ export function registerIpcHandlers(): void {
   })
 
   // --- Simulate current plan viability ---
-  ipcMain.handle('plan:simulate', async (_event, planId: string) => {
+  ipcMain.handle('plan:simulate', async (_event, planId: string, mode: SimulationMode = 'interactive') => {
     try {
       const planRow = getPlan(planId)
       if (!planRow) {
@@ -364,7 +364,7 @@ export function registerIpcHandlers(): void {
       const profile: Perfil = JSON.parse(profileRow.data)
       const timezone = profile.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria || 'America/Argentina/Buenos_Aires'
       const rows = getProgressByPlan(planId)
-      const simulation = simulatePlanViability(profile, rows, { timezone, locale: 'es-AR' })
+      const simulation = simulatePlanViability(profile, rows, { timezone, locale: 'es-AR', mode })
       const manifest = parseManifest(planRow.manifest)
       const periodKey = DateTime.now().setZone(timezone).toFormat('yyyy-MM')
       const findings = simulation.findings
@@ -413,6 +413,7 @@ export function registerIpcHandlers(): void {
       updatePlanManifest(planId, JSON.stringify(nextManifest))
       trackEvent('SIMULATION_RAN', {
         planId,
+        mode,
         overallStatus: simulation.summary.overallStatus,
         pass: simulation.summary.pass,
         warn: simulation.summary.warn,

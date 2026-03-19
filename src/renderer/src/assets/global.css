@@ -620,12 +620,114 @@ textarea::placeholder {
   gap: 1rem;
 }
 
+.dashboard-simulation__heading {
+  display: grid;
+  gap: 0.7rem;
+}
+
 .dashboard-simulation__label {
   display: inline-block;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.8rem;
+}
+
+.dashboard-simulation__modes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dashboard-simulation__mode {
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(138, 148, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+.dashboard-simulation__mode:hover:not(:disabled) {
+  border-color: rgba(138, 148, 255, 0.35);
+  color: var(--text-primary);
+}
+
+.dashboard-simulation__mode:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.dashboard-simulation__mode:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.dashboard-simulation__mode--active {
+  border-color: rgba(138, 148, 255, 0.45);
+  background: rgba(104, 123, 255, 0.16);
+  color: var(--text-primary);
+}
+
+.dashboard-simulation__hint {
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.dashboard-simulation__progress {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(138, 148, 255, 0.14);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.dashboard-simulation__progress-bar {
+  width: 100%;
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-simulation__progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6b84ff 0%, #8cb4ff 100%);
+  transition: width 220ms ease;
+}
+
+.dashboard-simulation__progress-fill--1 {
+  width: 25%;
+}
+
+.dashboard-simulation__progress-fill--2 {
+  width: 50%;
+}
+
+.dashboard-simulation__progress-fill--3 {
+  width: 75%;
+}
+
+.dashboard-simulation__progress-fill--4 {
+  width: 100%;
+}
+
+.dashboard-simulation__progress-title {
+  display: block;
+  margin-top: 0.85rem;
+}
+
+.dashboard-simulation__progress-step {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--text-soft);
 }
 
 .dashboard-simulation__value {

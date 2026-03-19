@@ -95,6 +95,7 @@ export interface CostSummary {
 }
 
 export type SimulationStatus = 'PASS' | 'WARN' | 'FAIL' | 'MISSING'
+export type SimulationMode = 'interactive' | 'automatic'
 
 export type SimulationFindingCode =
   | 'no_plan_items'
@@ -125,6 +126,7 @@ export interface SimulationSummary {
 
 export interface PlanSimulationSnapshot {
   ranAt: string
+  mode: SimulationMode
   periodLabel: string
   summary: SimulationSummary
   findings: SimulationFinding[]
