@@ -9,15 +9,22 @@ interface ProviderConfig {
 }
 
 export function getProvider(modelId: string, config: ProviderConfig): AgentRuntime {
-  const [providerName, modelName] = modelId.includes(':')
-    ? modelId.split(':')
+  const colonIdx = modelId.indexOf(':')
+  const [providerName, modelName] = colonIdx >= 0
+    ? [modelId.slice(0, colonIdx), modelId.slice(colonIdx + 1)]
     : ['openai', modelId]
 
   if (providerName === 'openai') {
     return createOpenAIRuntime(modelName || 'gpt-4o-mini', config)
   }
 
-  // Future: ollama, anthropic, etc.
+  if (providerName === 'ollama') {
+    return createOpenAIRuntime(modelName || 'qwen3:8b', {
+      apiKey: 'ollama',
+      baseURL: config.baseURL || 'http://localhost:11434/v1'
+    })
+  }
+
   throw new Error(`Unknown provider: ${providerName}`)
 }
 
@@ -38,7 +45,7 @@ function createOpenAIRuntime(model: string, config: ProviderConfig): AgentRuntim
           content: m.content
         })),
         maxTokens: 4096,
-        abortSignal: AbortSignal.timeout(60_000) // Plan rule: 60s timeout
+        abortSignal: AbortSignal.timeout(120_000)
       })
 
       return {

@@ -34,7 +34,29 @@
   "dashboard": {
     "title": "Tu día",
     "empty": "Todavía no tenés un plan armado. ¡Empecemos!",
-    "start": "Crear mi plan"
+    "start": "Crear mi plan",
+    "greeting": "¡Hola, {{nombre}}!",
+    "today_tasks": "Actividades de hoy",
+    "no_tasks_today": "Hoy no tenés actividades pendientes. ¡Descansá tranqui!",
+    "completed": "Completada",
+    "pending": "Pendiente",
+    "done_count": "{{done}} de {{total}} listas",
+    "all_done": "¡Completaste todo por hoy! 🎉",
+    "check_in": "¡Listo!",
+    "undo": "Deshacer",
+    "minutes": "{{min}} min",
+    "plan_name": "Plan: {{nombre}}",
+    "build_plan": "Armar mi plan",
+    "build_openai": "Armar con asistente en línea",
+    "build_ollama": "Armar con asistente local",
+    "category": {
+      "estudio": "Estudio",
+      "ejercicio": "Ejercicio",
+      "trabajo": "Trabajo",
+      "habito": "Hábito",
+      "descanso": "Descanso",
+      "otro": "Otro"
+    }
   },
   "builder": {
     "thinking": "Estoy pensando tu plan...",
@@ -51,6 +73,12 @@
     "confirm": "Confirmar",
     "close": "Cerrar",
     "save": "Guardar"
+  },
+  "settings": {
+    "apikey_title": "Conectá tu asistente",
+    "apikey_hint": "Ingresá tu clave de acceso. No la compartimos con nadie.",
+    "apikey_placeholder": "sk-...",
+    "apikey_confirm": "Armar mi plan"
   },
   "errors": {
     "connection_busy": "El asistente está un poquito ocupado. Dame un segundito.",

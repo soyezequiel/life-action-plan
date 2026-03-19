@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '../../../i18n'
 
 interface IntakeExpressProps {
   onComplete: (profileId: string) => void
@@ -73,6 +74,7 @@ function IntakeExpress({ onComplete }: IntakeExpressProps): JSX.Element {
   return (
     <div data-component="intake-express">
       <p>{step + 1} / {QUESTIONS.length}</p>
+      <label>{t(`intake.questions.${current.key}`)}</label>
 
       {current.type === 'textarea' ? (
         <textarea

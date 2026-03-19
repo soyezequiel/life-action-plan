@@ -7,11 +7,17 @@ const api = {
     save: (data: IntakeExpressData) => ipcRenderer.invoke('intake:save', data)
   },
   plan: {
-    build: (profileId: string, apiKey: string) =>
-      ipcRenderer.invoke('plan:build', profileId, apiKey)
+    build: (profileId: string, apiKey: string, provider?: string) =>
+      ipcRenderer.invoke('plan:build', profileId, apiKey, provider),
+    list: (profileId: string) => ipcRenderer.invoke('plan:list', profileId)
   },
   profile: {
-    get: (profileId: string) => ipcRenderer.invoke('profile:get', profileId)
+    get: (profileId: string) => ipcRenderer.invoke('profile:get', profileId),
+    latest: () => ipcRenderer.invoke('profile:latest')
+  },
+  progress: {
+    list: (planId: string, fecha: string) => ipcRenderer.invoke('progress:list', planId, fecha),
+    toggle: (progressId: string) => ipcRenderer.invoke('progress:toggle', progressId)
   }
 }
 

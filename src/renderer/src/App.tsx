@@ -1,53 +1,111 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import IntakeExpress from './components/IntakeExpress'
+import Dashboard from './components/Dashboard'
+import { t } from '../../i18n'
 
-type AppView = 'dashboard' | 'intake' | 'building' | 'plan'
+type AppView = 'dashboard' | 'intake' | 'building' | 'plan' | 'apikey'
 
 function App(): JSX.Element {
   const [view, setView] = useState<AppView>('dashboard')
   const [profileId, setProfileId] = useState<string | null>(null)
   const [plan, setPlan] = useState<{ nombre: string; resumen: string } | null>(null)
   const [buildError, setBuildError] = useState('')
+  const [pendingProvider, setPendingProvider] = useState<'openai' | 'ollama' | null>(null)
+  const [apiKey, setApiKey] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  // Restore session on mount
+  useEffect(() => {
+    window.api.profile.latest().then((id) => {
+      if (id) setProfileId(id)
+    }).finally(() => setLoading(false))
+  }, [])
 
   function handleIntakeComplete(id: string): void {
     setProfileId(id)
     setView('dashboard')
   }
 
-  async function handleBuildPlan(): Promise<void> {
+  function handleBuildPlan(provider: 'openai' | 'ollama'): void {
     if (!profileId) return
+    if (provider === 'openai') {
+      setPendingProvider('openai')
+      setView('apikey')
+    } else {
+      runBuildPlan('ollama', '')
+    }
+  }
 
-    // TODO: Get API key from secure storage (electron.safeStorage)
-    // For hackathon, prompt user or use env
-    const apiKey = prompt('API Key de OpenAI:') || ''
-    if (!apiKey) return
+  async function runBuildPlan(provider: 'openai' | 'ollama', key: string): Promise<void> {
+    if (!profileId) return
+    const modelId = provider === 'ollama' ? 'ollama:qwen3:8b' : 'openai:gpt-4o-mini'
 
     setView('building')
     setBuildError('')
 
     try {
-      const result = await window.api.plan.build(profileId, apiKey)
+      const result = await window.api.plan.build(profileId, key, modelId)
       if (result.success) {
         setPlan({ nombre: result.nombre!, resumen: result.resumen! })
         setView('plan')
       } else {
-        setBuildError(result.error || 'Error')
+        setBuildError(result.error || t('errors.generic'))
         setView('dashboard')
       }
     } catch {
-      setBuildError('Error de conexión')
+      setBuildError(t('errors.connection_busy'))
       setView('dashboard')
     }
+  }
+
+  if (loading) {
+    return (
+      <div id="app">
+        <p>{t('ui.loading')}</p>
+      </div>
+    )
   }
 
   if (view === 'intake') {
     return <IntakeExpress onComplete={handleIntakeComplete} />
   }
 
+  if (view === 'apikey') {
+    return (
+      <div id="app">
+        <h2>{t('settings.apikey_title')}</h2>
+        <p>{t('settings.apikey_hint')}</p>
+        <input
+          type="password"
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          placeholder={t('settings.apikey_placeholder')}
+          autoFocus
+        />
+        <div style={{ marginTop: 12 }}>
+          <button
+            onClick={() => {
+              if (!apiKey.trim()) return
+              runBuildPlan(pendingProvider!, apiKey.trim())
+              setApiKey('')
+            }}
+            disabled={!apiKey.trim()}
+          >
+            {t('settings.apikey_confirm')}
+          </button>
+          {' '}
+          <button onClick={() => { setView('dashboard'); setApiKey('') }}>
+            {t('ui.cancel')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (view === 'building') {
     return (
       <div id="app">
-        <p>Armando tu plan personalizado...</p>
+        <p>{t('builder.generating')}</p>
       </div>
     )
   }
@@ -57,28 +115,28 @@ function App(): JSX.Element {
       <div id="app">
         <h1>{plan.nombre}</h1>
         <p>{plan.resumen}</p>
-        <button onClick={() => setView('dashboard')}>Volver</button>
+        <button onClick={() => setView('dashboard')}>{t('ui.close')}</button>
       </div>
     )
   }
 
-  // Dashboard
+  if (profileId) {
+    return (
+      <Dashboard
+        profileId={profileId}
+        onStartIntake={() => setView('intake')}
+        onBuildPlan={handleBuildPlan}
+        buildError={buildError}
+      />
+    )
+  }
+
   return (
     <div id="app">
-      <h1>LAP</h1>
-
-      {!profileId ? (
-        <div>
-          <p>Todavía no tenés un plan armado.</p>
-          <button onClick={() => setView('intake')}>Crear mi plan</button>
-        </div>
-      ) : (
-        <div>
-          <p>Perfil listo.</p>
-          <button onClick={handleBuildPlan}>Armar mi plan</button>
-          {buildError && <p style={{ color: '#c47a20' }}>{buildError}</p>}
-        </div>
-      )}
+      <h1>{t('app.name')}</h1>
+      <p>{t('app.tagline')}</p>
+      <p>{t('dashboard.empty')}</p>
+      <button onClick={() => setView('intake')}>{t('dashboard.start')}</button>
     </div>
   )
 }
