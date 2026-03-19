@@ -13,3 +13,4 @@ out
 *.node
 _referencia_lightning
 .claude/settings.local.json
+.claude/launch.json
