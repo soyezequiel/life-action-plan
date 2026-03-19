@@ -20,6 +20,7 @@ import { clearSecureToken, isSecureStorageAvailable, loadSecureToken, saveSecure
 import type { PaymentProviderStatus } from '../providers/payment-provider'
 import type { WalletStatus } from '../shared/types/ipc'
 import { buildWithOllamaFallback } from '../utils/plan-build-fallback'
+import { simulatePlanViability } from '../skills/plan-simulator'
 
 function toPosixPath(value: string): string {
   return value.replace(/\\/g, '/')
@@ -52,6 +53,19 @@ function toWalletStatus(
     budgetSats: toSats(snapshot?.budgetTotalMsats ?? null),
     budgetUsedSats: toSats(snapshot?.budgetUsedMsats ?? null)
   }
+}
+
+function parseManifest(manifest: string): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(manifest) as Record<string, unknown>
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+function simulationStatusToManifestValue(value: 'PASS' | 'WARN' | 'FAIL' | 'MISSING') {
+  return value === 'MISSING' ? 'PENDIENTE' : value
 }
 
 export function registerIpcHandlers(): void {
@@ -137,6 +151,7 @@ export function registerIpcHandlers(): void {
         checkpoint: { operacion: 'build', iteracionActual: 1, maxIteraciones: 5, itemsPendientes: [], ultimoPasoCompletado: 'plan-builder', granularidad: 'mensual', periodoObjetivo: null, periodosValidados: [], periodosPendientes: [] },
         ramas: {},
         archivados: {},
+        ultimaSimulacion: null,
         costoAcumulado: {
           llamadasModelo: { alto: 1, medio: 0, bajo: 0 },
           tokensInput: result.tokensUsed.input,
@@ -287,6 +302,89 @@ export function registerIpcHandlers(): void {
   // --- Cost summary for active plan ---
   ipcMain.handle('cost:summary', async (_event, planId: string) => {
     return getCostSummary(planId)
+  })
+
+  // --- Simulate current plan viability ---
+  ipcMain.handle('plan:simulate', async (_event, planId: string) => {
+    try {
+      const planRow = getPlan(planId)
+      if (!planRow) {
+        return { success: false, error: 'PLAN_NOT_FOUND' }
+      }
+
+      const profileRow = getProfile(planRow.profileId)
+      if (!profileRow) {
+        return { success: false, error: 'PROFILE_NOT_FOUND' }
+      }
+
+      const profile: Perfil = JSON.parse(profileRow.data)
+      const timezone = profile.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria || 'America/Argentina/Buenos_Aires'
+      const rows = getProgressByPlan(planId)
+      const simulation = simulatePlanViability(profile, rows, { timezone, locale: 'es-AR' })
+      const manifest = parseManifest(planRow.manifest)
+      const periodKey = DateTime.now().setZone(timezone).toFormat('yyyy-MM')
+      const findings = simulation.findings
+      const hasMissingSimulationData = findings.some((finding) => finding.code === 'missing_schedule' || finding.code === 'no_plan_items')
+      const nextManifest = {
+        ...manifest,
+        ultimaModificacion: simulation.ranAt,
+        estadoSimulacion: {
+          ...(manifest.estadoSimulacion && typeof manifest.estadoSimulacion === 'object' ? manifest.estadoSimulacion : {}),
+          'viabilidad-general': simulationStatusToManifestValue(simulation.summary.overallStatus),
+          horarios: hasMissingSimulationData
+            ? 'PENDIENTE'
+            : findings.some((finding) => finding.code === 'outside_awake_hours')
+              ? 'FAIL'
+              : 'PASS',
+          trabajo: hasMissingSimulationData
+            ? 'PENDIENTE'
+            : findings.some((finding) => finding.code === 'overlaps_work')
+              ? 'FAIL'
+              : 'PASS',
+          carga: hasMissingSimulationData
+            ? 'PENDIENTE'
+            : findings.some((finding) => finding.code === 'day_over_capacity')
+              ? 'FAIL'
+              : findings.some((finding) => finding.code === 'day_high_load' || finding.code === 'too_many_activities')
+                ? 'WARN'
+                : 'PASS',
+          datos: hasMissingSimulationData
+            ? 'PENDIENTE'
+            : 'PASS'
+        },
+        checkpoint: {
+          ...(manifest.checkpoint && typeof manifest.checkpoint === 'object' ? manifest.checkpoint : {}),
+          operacion: simulation.summary.missing > 0 ? 'simulacion-parcial' : 'simulacion',
+          iteracionActual: 1,
+          maxIteraciones: 5,
+          ultimoPasoCompletado: 'plan-simulator',
+          granularidad: 'mensual',
+          periodoObjetivo: periodKey,
+          periodosValidados: simulation.summary.overallStatus === 'FAIL' ? [] : [periodKey],
+          periodosPendientes: simulation.summary.overallStatus === 'FAIL' || simulation.summary.missing > 0 ? [periodKey] : []
+        },
+        ultimaSimulacion: simulation
+      }
+
+      updatePlanManifest(planId, JSON.stringify(nextManifest))
+      trackEvent('SIMULATION_RAN', {
+        planId,
+        overallStatus: simulation.summary.overallStatus,
+        pass: simulation.summary.pass,
+        warn: simulation.summary.warn,
+        fail: simulation.summary.fail,
+        missing: simulation.summary.missing
+      })
+
+      return {
+        success: true,
+        simulation
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      trackEvent('ERROR_OCCURRED', { code: 'PLAN_SIMULATION_FAILED', message, planId })
+      return { success: false, error: message }
+    }
   })
 
   // --- Export plan progress as calendar file ---

@@ -110,3 +110,46 @@ Pendiente
 
 Bug o edge case
 - Si el modelo devuelve una categoria fuera del set permitido o una hora imposible, el build seguira fallando por validacion. Eso es intencional para no sembrar progreso corrupto.
+
+[2026-03-19 00:34:13 -03:00] - Paso 2.4: Simulador basico de viabilidad (MVP)
+Completado parcial
+- Agregado `plan:simulate` en IPC para revisar un plan ya armado y persistir el resultado en el manifest.
+- Creado `src/skills/plan-simulator.ts` con chequeos locales de viabilidad: horario despierto, cruces con jornada, carga diaria, exceso de actividades y faltantes de metadata.
+- Integrada una tarjeta de "Revision del plan" en dashboard con resumen, hallazgos y boton para volver a revisar.
+- Mock browser actualizado y smoke visual verificada en `dev:browser`.
+
+Archivos tocados
+- `src/skills/plan-simulator.ts`
+- `src/main/ipc-handlers.ts`
+- `src/shared/types/ipc.ts`
+- `src/shared/schemas/manifiesto.ts`
+- `src/preload/index.ts`
+- `src/preload/index.d.ts`
+- `src/renderer/src/components/Dashboard.tsx`
+- `src/renderer/src/assets/global.css`
+- `src/renderer/src/mock-api.ts`
+- `src/i18n/locales/es-AR.json`
+- `tests/plan-simulator.test.ts`
+
+Tests
+- 4 tests nuevos en `tests/plan-simulator.test.ts`
+- Suite completa revalidada: `64` tests pasando.
+- `npm run typecheck`: OK
+- `npm run build`: OK
+- Smoke visual en `dev:browser`: OK
+
+Decisiones
+- El simulador de esta iteracion es determinista y local; no usa LLM ni streaming. La idea fue tener una primera revision util sin abrir todavia el runtime conversacional completo.
+- Mantengo el resultado visible en UI via `ultimaSimulacion` dentro del manifest, asi persiste al recargar.
+- Los hallazgos del backend vuelven como `code + params` y el renderer traduce con `t()`. Asi no hay strings hardcodeadas en la UI ni acoplamiento de copy en main process.
+- El manifest ahora refleja mejor el estado real con `PENDIENTE` cuando faltan horarios o duraciones para simular bien.
+
+Pendiente
+- Falta modo interactivo vs automatico.
+- Falta barra de progreso real o streaming del avance de la revision.
+- Falta integrar simulacion con LLM/contexto aislado como describe `PLAN_LAP_FINAL.md`.
+- Falta boton/flujo para proponer ajustes automaticos despues de un `FAIL`.
+
+Bug o edge case
+- Si el usuario declara muy pocas horas libres, el simulador puede marcar `FAIL` legitimo aun cuando el plan sea "corto"; el chequeo hoy usa solo lo declarado en el perfil.
+- El mock guarda una revision demo fija de tipo `WARN`; sirve para UI, no para validar la logica real del main process.

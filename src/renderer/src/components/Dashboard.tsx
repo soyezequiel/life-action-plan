@@ -3,7 +3,15 @@ import type { JSX } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getCurrentLocale, t } from '../../../i18n'
 import { DateTime } from 'luxon'
-import type { CostSummary, ProgressRow, PlanRow, StreakResult, WalletStatus } from '../../../shared/types/ipc'
+import type {
+  CostSummary,
+  PlanRow,
+  PlanSimulationSnapshot,
+  ProgressRow,
+  StreakResult,
+  WalletStatus,
+  SimulationFinding
+} from '../../../shared/types/ipc'
 
 interface DashboardProps {
   profileId: string
@@ -20,6 +28,7 @@ interface TaskMeta {
 
 interface PlanManifestMeta {
   fallbackUsed?: boolean
+  ultimaSimulacion?: PlanSimulationSnapshot | null
 }
 
 const cardTransition = {
@@ -46,6 +55,19 @@ function parseManifestMeta(manifest: string): PlanManifestMeta {
   }
 }
 
+function formatSimulationDate(value: string): string {
+  const date = DateTime.fromISO(value).setLocale(getCurrentLocale())
+  return date.isValid ? date.toFormat('dd/LL HH:mm') : value
+}
+
+function renderFindingTitle(finding: SimulationFinding): string {
+  return t(`simulation.findings.${finding.code}.title`, finding.params)
+}
+
+function renderFindingDetail(finding: SimulationFinding): string {
+  return t(`simulation.findings.${finding.code}.detail`, finding.params)
+}
+
 function Dashboard({
   profileId,
   onStartIntake,
@@ -69,6 +91,8 @@ function Dashboard({
   const [isWalletEditorOpen, setIsWalletEditorOpen] = useState(false)
   const [isWalletSaving, setIsWalletSaving] = useState(false)
   const [walletNotice, setWalletNotice] = useState<'connected' | 'disconnected' | 'error' | null>(null)
+  const [isSimulating, setIsSimulating] = useState(false)
+  const [simulationError, setSimulationError] = useState('')
 
   const hasPlan = plans.length > 0
   const latestPlan = hasPlan ? plans[plans.length - 1] : null
@@ -98,14 +122,18 @@ function Dashboard({
 
       if (planList.length > 0) {
         const nextPlan = planList[planList.length - 1]
-        const [progressList, streakResult, nextCostSummary] = await Promise.all([
+        const [progressList, streakResult] = await Promise.all([
           window.api.progress.list(nextPlan.id, today),
-          window.api.streak.get(nextPlan.id),
-          window.api.cost.summary(nextPlan.id)
+          window.api.streak.get(nextPlan.id)
         ])
         setTasks(progressList)
         setStreak(streakResult)
-        setCostSummary(nextCostSummary)
+
+        try {
+          setCostSummary(await window.api.cost.summary(nextPlan.id))
+        } catch {
+          setCostSummary(null)
+        }
       } else {
         setTasks([])
         setStreak({ current: 0, best: 0 })
@@ -152,6 +180,26 @@ function Dashboard({
       setExportStatus('error')
     } finally {
       setIsExporting(false)
+    }
+  }
+
+  async function handleSimulatePlan(): Promise<void> {
+    if (!latestPlan) return
+
+    setIsSimulating(true)
+    setSimulationError('')
+
+    try {
+      const result = await window.api.plan.simulate(latestPlan.id)
+      if (result.success) {
+        await loadData()
+      } else {
+        setSimulationError(result.error || t('errors.generic'))
+      }
+    } catch {
+      setSimulationError(t('errors.connection_busy'))
+    } finally {
+      setIsSimulating(false)
     }
   }
 
@@ -228,6 +276,7 @@ function Dashboard({
     ? numberFormatter.format(walletStatus.balanceSats)
     : null
   const latestPlanMeta = latestPlan ? parseManifestMeta(latestPlan.manifest) : {}
+  const latestSimulation = latestPlanMeta.ultimaSimulacion ?? null
 
   function renderWalletCard(): JSX.Element {
     const walletLabel = walletStatus.connected
@@ -360,6 +409,65 @@ function Dashboard({
     )
   }
 
+  function renderSimulationCard(): JSX.Element {
+    return (
+      <div className="dashboard-simulation">
+        <div className="dashboard-simulation__header">
+          <span className="dashboard-simulation__label">{t('simulation.title')}</span>
+          <button
+            className="app-button app-button--secondary"
+            onClick={() => {
+              void handleSimulatePlan()
+            }}
+            disabled={isSimulating}
+          >
+            {isSimulating ? t('dashboard.reviewing_plan') : t('dashboard.review_plan')}
+          </button>
+        </div>
+
+        {latestSimulation ? (
+          <>
+            <strong className="dashboard-simulation__value">
+              {t(`simulation.overall.${latestSimulation.summary.overallStatus}`)}
+            </strong>
+            <span className="dashboard-simulation__meta">
+              {t('simulation.period', { period: latestSimulation.periodLabel })}
+            </span>
+            <span className="dashboard-simulation__meta">
+              {t('simulation.last_review', { date: formatSimulationDate(latestSimulation.ranAt) })}
+            </span>
+            <div className="dashboard-simulation__counts">
+              <span>{t('simulation.count_pass', { count: latestSimulation.summary.pass })}</span>
+              <span>{t('simulation.count_warn', { count: latestSimulation.summary.warn })}</span>
+              <span>{t('simulation.count_fail', { count: latestSimulation.summary.fail })}</span>
+              <span>{t('simulation.count_missing', { count: latestSimulation.summary.missing })}</span>
+            </div>
+            <ul className="dashboard-simulation__list">
+              {latestSimulation.findings.map((finding, index) => (
+                <li
+                  key={`${finding.code}-${index}`}
+                  className={`dashboard-simulation__item dashboard-simulation__item--${finding.status.toLowerCase()}`}
+                >
+                  <span className="dashboard-simulation__badge">
+                    {t(`simulation.finding_status.${finding.status}`)}
+                  </span>
+                  <div className="dashboard-simulation__copy">
+                    <strong>{renderFindingTitle(finding)}</strong>
+                    <span>{renderFindingDetail(finding)}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <strong className="dashboard-simulation__value">{t('simulation.empty')}</strong>
+        )}
+
+        {simulationError && <p className="status-message status-message--warning">{simulationError}</p>}
+      </div>
+    )
+  }
+
   return (
     <div id="app" className="app-shell dashboard-shell">
       <div className="dashboard-layout">
@@ -406,6 +514,7 @@ function Dashboard({
                 {renderCostCard()}
               </div>
             </div>
+            {renderSimulationCard()}
 
             {latestPlanMeta.fallbackUsed && (
               <p className="status-message status-message--success">{t('builder.fallback_notice')}</p>

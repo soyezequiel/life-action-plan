@@ -10,6 +10,7 @@ const api = {
     build: (profileId: string, apiKey: string, provider?: string) =>
       ipcRenderer.invoke('plan:build', profileId, apiKey, provider),
     list: (profileId: string) => ipcRenderer.invoke('plan:list', profileId),
+    simulate: (planId: string) => ipcRenderer.invoke('plan:simulate', planId),
     exportCalendar: (planId: string) => ipcRenderer.invoke('plan:export-ics', planId)
   },
   profile: {

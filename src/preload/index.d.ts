@@ -1,6 +1,7 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type {
   IntakeExpressData, IntakeSaveResult, PlanBuildResult,
+  PlanSimulationResult,
   PlanExportCalendarResult,
   CostSummary,
   PlanRow,
@@ -20,6 +21,7 @@ interface LapAPI {
   plan: {
     build: (profileId: string, apiKey: string, provider?: string) => Promise<PlanBuildResult>
     list: (profileId: string) => Promise<PlanRow[]>
+    simulate: (planId: string) => Promise<PlanSimulationResult>
     exportCalendar: (planId: string) => Promise<PlanExportCalendarResult>
   }
   profile: {

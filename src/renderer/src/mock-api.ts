@@ -2,12 +2,12 @@
 // Returns fake data so the UI can be developed without the main process
 
 import { DateTime } from 'luxon'
-import type { CostSummary, IntakeExpressData } from '../../shared/types/ipc'
+import type { CostSummary, IntakeExpressData, PlanSimulationSnapshot } from '../../shared/types/ipc'
 import { calculateHabitStreak } from '../../utils/streaks'
 
 const MOCK_PROFILE_ID = 'mock-profile-1'
 const MOCK_PLAN_ID = 'mock-plan-1'
-const TODAY = DateTime.now().toISODate() ?? '2026-03-18'
+const TODAY = DateTime.now().toISODate() ?? '2026-03-19'
 const YESTERDAY = DateTime.fromISO(TODAY).minus({ days: 1 }).toISODate() ?? TODAY
 const TWO_DAYS_AGO = DateTime.fromISO(TODAY).minus({ days: 2 }).toISODate() ?? TODAY
 
@@ -17,13 +17,44 @@ const mockHabitHistory = [
 ]
 
 const mockTasks = [
-  { id: 'task-1', planId: MOCK_PLAN_ID, fecha: TODAY, tipo: 'tarea', objetivoId: 'obj1', descripcion: 'Estudiar JavaScript 30 min', completado: false, notas: JSON.stringify({ hora: '08:00', duracion: 30, categoria: 'estudio' }), createdAt: TODAY },
-  { id: 'task-2', planId: MOCK_PLAN_ID, fecha: TODAY, tipo: 'habito', objetivoId: 'obj1', descripcion: 'Salir a caminar', completado: false, notas: JSON.stringify({ hora: '07:00', duracion: 20, categoria: 'ejercicio' }), createdAt: TODAY },
-  { id: 'task-3', planId: MOCK_PLAN_ID, fecha: TODAY, tipo: 'tarea', objetivoId: 'obj1', descripcion: 'Leer un capítulo del libro', completado: true, notas: JSON.stringify({ hora: '21:00', duracion: 20, categoria: 'estudio' }), createdAt: TODAY }
+  {
+    id: 'task-1',
+    planId: MOCK_PLAN_ID,
+    fecha: TODAY,
+    tipo: 'tarea',
+    objetivoId: 'obj1',
+    descripcion: 'Estudiar JavaScript 30 min',
+    completado: false,
+    notas: JSON.stringify({ hora: '08:00', duracion: 30, categoria: 'estudio' }),
+    createdAt: TODAY
+  },
+  {
+    id: 'task-2',
+    planId: MOCK_PLAN_ID,
+    fecha: TODAY,
+    tipo: 'habito',
+    objetivoId: 'obj1',
+    descripcion: 'Salir a caminar',
+    completado: false,
+    notas: JSON.stringify({ hora: '07:00', duracion: 20, categoria: 'ejercicio' }),
+    createdAt: TODAY
+  },
+  {
+    id: 'task-3',
+    planId: MOCK_PLAN_ID,
+    fecha: TODAY,
+    tipo: 'tarea',
+    objetivoId: 'obj1',
+    descripcion: 'Leer un capítulo del libro',
+    completado: true,
+    notas: JSON.stringify({ hora: '21:00', duracion: 20, categoria: 'estudio' }),
+    createdAt: TODAY
+  }
 ]
 
 let mockWalletConnected = false
 let mockFallbackUsed = false
+let mockSimulation: PlanSimulationSnapshot | null = null
 let mockCostSummary: CostSummary = {
   planId: MOCK_PLAN_ID,
   tokensInput: 3600,
@@ -44,8 +75,11 @@ const mockApi = {
       console.log('[mock] plan:build', { profileId, provider })
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      mockFallbackUsed = provider?.startsWith('openai:') ?? false
-      mockCostSummary = mockFallbackUsed
+      const isLocalBuild = provider?.startsWith('ollama:') ?? false
+
+      mockFallbackUsed = false
+      mockSimulation = null
+      mockCostSummary = isLocalBuild
         ? {
             planId: MOCK_PLAN_ID,
             tokensInput: 2800,
@@ -76,15 +110,46 @@ const mockApi = {
     },
     list: async (profileId: string) => {
       console.log('[mock] plan:list', profileId)
-      return [{
-        id: MOCK_PLAN_ID,
-        profileId,
-        nombre: 'Mi Plan de Acción (demo)',
-        slug: 'mi-plan-demo',
-        manifest: JSON.stringify({ fallbackUsed: mockFallbackUsed }),
-        createdAt: TODAY,
-        updatedAt: TODAY
-      }]
+      return [
+        {
+          id: MOCK_PLAN_ID,
+          profileId,
+          nombre: 'Mi Plan de Acción (demo)',
+          slug: 'mi-plan-demo',
+          manifest: JSON.stringify({
+            fallbackUsed: mockFallbackUsed,
+            ultimaSimulacion: mockSimulation
+          }),
+          createdAt: TODAY,
+          updatedAt: TODAY
+        }
+      ]
+    },
+    simulate: async (_planId: string) => {
+      await new Promise((resolve) => setTimeout(resolve, 1200))
+
+      mockSimulation = {
+        ranAt: DateTime.now().toISO() ?? `${TODAY}T10:00:00`,
+        periodLabel: DateTime.now().setLocale('es-AR').toFormat('LLLL yyyy'),
+        summary: {
+          overallStatus: 'WARN',
+          pass: 2,
+          warn: 2,
+          fail: 0,
+          missing: 0
+        },
+        findings: [
+          { status: 'WARN', code: 'day_high_load', params: { dayLabel: 'viernes 20/03', planned: 180, available: 240 } },
+          { status: 'WARN', code: 'too_many_activities', params: { dayLabel: 'sábado 21/03', count: 4 } },
+          { status: 'PASS', code: 'schedule_ok' },
+          { status: 'PASS', code: 'metadata_ok' }
+        ]
+      }
+
+      return {
+        success: true,
+        simulation: mockSimulation
+      }
     },
     exportCalendar: async (_planId: string) => {
       await new Promise((resolve) => setTimeout(resolve, 350))
@@ -95,14 +160,16 @@ const mockApi = {
     get: async (_profileId: string) => {
       return {
         version: '3.0',
-        participantes: [{
-          datosPersonales: {
-            nombre: 'María',
-            ubicacion: {
-              zonaHoraria: 'America/Argentina/Buenos_Aires'
+        participantes: [
+          {
+            datosPersonales: {
+              nombre: 'María',
+              ubicacion: {
+                zonaHoraria: 'America/Argentina/Buenos_Aires'
+              }
             }
           }
-        }]
+        ]
       }
     },
     latest: async (): Promise<string | null> => {
@@ -177,6 +244,6 @@ const mockApi = {
 export function installMockApi(): void {
   if (typeof window !== 'undefined' && !window.api) {
     ;(window as unknown as { api?: typeof mockApi }).api = mockApi
-    console.log('[LAP] Running in browser mode — using mock API')
+    console.log('[LAP] Running in browser mode - using mock API')
   }
 }

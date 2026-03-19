@@ -94,5 +94,47 @@ export interface CostSummary {
   costSats: number
 }
 
+export type SimulationStatus = 'PASS' | 'WARN' | 'FAIL' | 'MISSING'
+
+export type SimulationFindingCode =
+  | 'no_plan_items'
+  | 'missing_schedule'
+  | 'outside_awake_hours'
+  | 'overlaps_work'
+  | 'day_over_capacity'
+  | 'day_high_load'
+  | 'too_many_activities'
+  | 'schedule_ok'
+  | 'work_balance_ok'
+  | 'capacity_ok'
+  | 'metadata_ok'
+
+export interface SimulationFinding {
+  status: SimulationStatus
+  code: SimulationFindingCode
+  params?: Record<string, string | number>
+}
+
+export interface SimulationSummary {
+  overallStatus: SimulationStatus
+  pass: number
+  warn: number
+  fail: number
+  missing: number
+}
+
+export interface PlanSimulationSnapshot {
+  ranAt: string
+  periodLabel: string
+  summary: SimulationSummary
+  findings: SimulationFinding[]
+}
+
+export interface PlanSimulationResult {
+  success: boolean
+  simulation?: PlanSimulationSnapshot
+  error?: string
+}
+
 // Re-export for convenience
 export type { IntakeExpressData, PlanEvent }

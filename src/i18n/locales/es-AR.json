@@ -41,7 +41,7 @@
     "completed": "Completada",
     "pending": "Pendiente",
     "done_count": "{{done}} de {{total}} listas",
-    "all_done": "¡Completaste todo por hoy! 🎉",
+    "all_done": "¡Completaste todo por hoy!",
     "check_in": "¡Listo!",
     "undo": "Deshacer",
     "minutes": "{{min}} min",
@@ -64,6 +64,8 @@
     "exporting_calendar": "Preparando calendario...",
     "export_calendar_success": "Tu calendario ya está listo.",
     "export_calendar_error": "No pude preparar el calendario. Intentá de nuevo.",
+    "review_plan": "Revisar mi plan",
+    "reviewing_plan": "Revisando tu plan...",
     "build_plan": "Armar mi plan",
     "build_openai": "Armar con asistente en línea",
     "build_ollama": "Armar con asistente local",
@@ -85,6 +87,74 @@
     "error": "No pude armar el plan. ¿Querés intentar de nuevo?",
     "retry": "Intentar de nuevo",
     "preview": "Vista previa de tu plan"
+  },
+  "simulation": {
+    "title": "Revisión del plan",
+    "empty": "Todavía no revisaste este plan.",
+    "period": "Período revisado: {{period}}",
+    "last_review": "Última revisión: {{date}}",
+    "count_pass": "Bien {{count}}",
+    "count_warn": "Ojo {{count}}",
+    "count_fail": "Choques {{count}}",
+    "count_missing": "Faltan {{count}}",
+    "overall": {
+      "PASS": "Tu plan se ve posible",
+      "WARN": "Tu plan necesita un par de ajustes",
+      "FAIL": "Tu plan tiene choques para corregir",
+      "MISSING": "Faltan algunos datos para revisarlo bien"
+    },
+    "finding_status": {
+      "PASS": "Bien",
+      "WARN": "Ojo",
+      "FAIL": "Choque",
+      "MISSING": "Falta dato"
+    },
+    "findings": {
+      "no_plan_items": {
+        "title": "Todavía no hay suficiente para revisar",
+        "detail": "Primero necesitás un plan con actividades fechadas."
+      },
+      "missing_schedule": {
+        "title": "Hay actividades sin horario claro",
+        "detail": "{{count}} actividad(es) no tienen hora o duración completas."
+      },
+      "outside_awake_hours": {
+        "title": "Hay actividades en horario incómodo",
+        "detail": "\"{{actividad}}\" cae fuera de tu horario cómodo en {{dayLabel}}."
+      },
+      "overlaps_work": {
+        "title": "Hay un choque con tu jornada",
+        "detail": "\"{{actividad}}\" se cruza con tu horario principal en {{dayLabel}}."
+      },
+      "day_over_capacity": {
+        "title": "Un día quedó demasiado cargado",
+        "detail": "{{dayLabel}} tiene {{planned}} min planificados y vos habías marcado {{available}} min libres."
+      },
+      "day_high_load": {
+        "title": "Un día quedó bastante ajustado",
+        "detail": "{{dayLabel}} ya usa {{planned}} de {{available}} min libres."
+      },
+      "too_many_activities": {
+        "title": "Hay demasiadas cosas en un mismo día",
+        "detail": "{{dayLabel}} tiene {{count}} actividades. Capaz conviene repartir mejor."
+      },
+      "schedule_ok": {
+        "title": "Los horarios se ven razonables",
+        "detail": "Las actividades entran dentro de tus horas despiertas."
+      },
+      "work_balance_ok": {
+        "title": "El plan respeta tu jornada",
+        "detail": "No encontré actividades mezcladas con tu horario principal."
+      },
+      "capacity_ok": {
+        "title": "La carga diaria entra en tu tiempo",
+        "detail": "Las actividades del día no superan el tiempo libre que declaraste."
+      },
+      "metadata_ok": {
+        "title": "Los datos base están completos",
+        "detail": "Cada actividad tiene horario y duración para poder revisarla bien."
+      }
+    }
   },
   "ui": {
     "thinking": "Dame un segundito...",
