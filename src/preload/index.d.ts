@@ -2,6 +2,7 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 import type {
   IntakeExpressData, IntakeSaveResult, PlanBuildResult,
   PlanExportCalendarResult,
+  CostSummary,
   PlanRow,
   ProgressRow,
   ProgressToggleResult,
@@ -36,6 +37,9 @@ interface LapAPI {
     status: () => Promise<WalletStatus>
     connect: (connectionUrl: string) => Promise<WalletConnectResult>
     disconnect: () => Promise<WalletDisconnectResult>
+  }
+  cost: {
+    summary: (planId: string) => Promise<CostSummary>
   }
 }
 

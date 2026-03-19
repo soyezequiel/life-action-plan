@@ -1,5 +1,6 @@
 import type { Skill, AgentRuntime, SkillContext, SkillResult } from './skill-interface'
 import type { Perfil } from '../shared/schemas/perfil'
+import { z } from 'zod'
 
 /**
  * Plan Builder Core — Genera un plan de acción a 1 mes.
@@ -24,6 +25,142 @@ export interface GeneratedPlan {
   resumen: string
   eventos: PlanEvent[]
   tokensUsed: { input: number; output: number }
+}
+
+const planEventSchema = z.object({
+  semana: z.number().int().min(1),
+  dia: z.string().min(1),
+  hora: z.string().regex(/^\d{2}:\d{2}$/),
+  duracion: z.number().int().positive(),
+  actividad: z.string().min(1),
+  categoria: z.enum(['estudio', 'ejercicio', 'trabajo', 'habito', 'descanso', 'otro']),
+  objetivoId: z.string().min(1)
+}).strict()
+
+const generatedPlanSchema = z.object({
+  nombre: z.string().min(1),
+  resumen: z.string().min(1),
+  eventos: z.array(planEventSchema).default([])
+}).strict()
+
+function normalizeText(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function normalizeInteger(value: unknown): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return Math.trunc(value)
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number.parseInt(value.trim(), 10)
+    return Number.isFinite(parsed) ? parsed : Number.NaN
+  }
+
+  return Number.NaN
+}
+
+function normalizeHora(value: unknown): string {
+  if (typeof value !== 'string') {
+    return ''
+  }
+
+  const trimmed = value.trim()
+  const match = trimmed.match(/^(\d{1,2}):(\d{2})$/)
+  if (!match) {
+    return trimmed
+  }
+
+  return `${match[1].padStart(2, '0')}:${match[2]}`
+}
+
+function normalizeCategoria(value: unknown): PlanEvent['categoria'] | '' {
+  const normalized = normalizeText(value).toLowerCase()
+  const categorias: PlanEvent['categoria'][] = ['estudio', 'ejercicio', 'trabajo', 'habito', 'descanso', 'otro']
+
+  return categorias.includes(normalized as PlanEvent['categoria'])
+    ? normalized as PlanEvent['categoria']
+    : ''
+}
+
+function normalizeGeneratedPlan(input: unknown) {
+  const source = input && typeof input === 'object' ? input as Record<string, unknown> : {}
+  const rawEventos = Array.isArray(source.eventos) ? source.eventos : []
+
+  return {
+    nombre: normalizeText(source.nombre),
+    resumen: normalizeText(source.resumen),
+    eventos: rawEventos.map((event) => {
+      const rawEvent = event && typeof event === 'object' ? event as Record<string, unknown> : {}
+
+      return {
+        semana: normalizeInteger(rawEvent.semana),
+        dia: normalizeText(rawEvent.dia).toLowerCase(),
+        hora: normalizeHora(rawEvent.hora),
+        duracion: normalizeInteger(rawEvent.duracion),
+        actividad: normalizeText(rawEvent.actividad),
+        categoria: normalizeCategoria(rawEvent.categoria),
+        objetivoId: normalizeText(rawEvent.objetivoId)
+      }
+    })
+  }
+}
+
+function stripFormatting(content: string): string {
+  return content
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/```json\s*/gi, '')
+    .replace(/```\s*/g, '')
+    .trim()
+}
+
+function extractFirstJsonObject(content: string): string {
+  const cleaned = stripFormatting(content)
+  const firstBrace = cleaned.indexOf('{')
+
+  if (firstBrace < 0) {
+    return cleaned
+  }
+
+  let depth = 0
+  let inString = false
+  let escaping = false
+
+  for (let index = firstBrace; index < cleaned.length; index += 1) {
+    const char = cleaned[index]
+
+    if (inString) {
+      if (escaping) {
+        escaping = false
+      } else if (char === '\\') {
+        escaping = true
+      } else if (char === '"') {
+        inString = false
+      }
+
+      continue
+    }
+
+    if (char === '"') {
+      inString = true
+      continue
+    }
+
+    if (char === '{') {
+      depth += 1
+      continue
+    }
+
+    if (char === '}') {
+      depth -= 1
+
+      if (depth === 0) {
+        return cleaned.slice(firstBrace, index + 1)
+      }
+    }
+  }
+
+  return cleaned.slice(firstBrace)
 }
 
 function buildUserPrompt(profile: Perfil): string {
@@ -114,25 +251,21 @@ export async function generatePlan(
   ])
 
   // Parse the JSON response
-  let parsed: { nombre: string; resumen: string; eventos: PlanEvent[] }
   try {
-    // Strip markdown code fences if present
-    const cleaned = response.content
-      .replace(/```json\s*/g, '')
-      .replace(/```\s*/g, '')
-      .trim()
-    parsed = JSON.parse(cleaned)
+    const extractedJson = extractFirstJsonObject(response.content)
+    const parsed = JSON.parse(extractedJson)
+    const validated = generatedPlanSchema.parse(normalizeGeneratedPlan(parsed))
+
+    return {
+      nombre: validated.nombre,
+      resumen: validated.resumen,
+      eventos: validated.eventos,
+      tokensUsed: {
+        input: response.usage.promptTokens,
+        output: response.usage.completionTokens
+      }
+    }
   } catch {
     throw new Error('El asistente no pudo generar un plan válido. Intentá de nuevo.')
-  }
-
-  return {
-    nombre: parsed.nombre,
-    resumen: parsed.resumen,
-    eventos: parsed.eventos ?? [],
-    tokensUsed: {
-      input: response.usage.promptTokens,
-      output: response.usage.completionTokens
-    }
   }
 }

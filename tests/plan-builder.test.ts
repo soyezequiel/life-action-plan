@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { planBuilder } from '../src/skills/plan-builder'
-import type { SkillContext } from '../src/runtime/types'
+import { describe, expect, it } from 'vitest'
+import { generatePlan, planBuilder } from '../src/skills/plan-builder'
+import type { AgentRuntime, SkillContext } from '../src/runtime/types'
+import type { Perfil } from '../src/shared/schemas/perfil'
 
 const ctx: SkillContext = {
   planDir: '',
@@ -8,6 +9,61 @@ const ctx: SkillContext = {
   userLocale: 'es-AR',
   formalityLevel: 'informal',
   tokenMultiplier: 1.22
+}
+
+const profile = {
+  participantes: [
+    {
+      datosPersonales: {
+        nombre: 'Ezequiel',
+        edad: 30,
+        ubicacion: {
+          ciudad: 'Buenos Aires'
+        },
+        narrativaPersonal: 'Programador'
+      },
+      rutinaDiaria: {
+        porDefecto: {
+          despertar: '07:00',
+          dormir: '23:00',
+          trabajoInicio: '09:00',
+          trabajoFin: '18:00'
+        }
+      },
+      calendario: {
+        horasLibresEstimadas: {
+          diasLaborales: 3,
+          diasDescanso: 6
+        }
+      }
+    }
+  ],
+  objetivos: [
+    {
+      descripcion: 'Aprender TypeScript',
+      id: 'obj1'
+    }
+  ]
+} as unknown as Perfil
+
+function createRuntime(content: string): AgentRuntime {
+  return {
+    async chat() {
+      return {
+        content,
+        usage: {
+          promptTokens: 123,
+          completionTokens: 456
+        }
+      }
+    },
+    async *stream() {
+      yield content
+    },
+    newContext() {
+      return createRuntime(content)
+    }
+  }
 }
 
 describe('planBuilder', () => {
@@ -56,6 +112,80 @@ describe('planBuilder', () => {
       expect(prompt).toContain('ejercicio')
       expect(prompt).toContain('habito')
       expect(prompt).toContain('descanso')
+    })
+  })
+
+  describe('generatePlan', () => {
+    it('parsea JSON dentro de code fences', async () => {
+      const runtime = createRuntime([
+        '```json',
+        '{"nombre":"Plan simple","resumen":"Resumen corto","eventos":[{"semana":1,"dia":"lunes","hora":"08:00","duracion":30,"actividad":"Estudiar","categoria":"estudio","objetivoId":"obj1"}]}',
+        '```'
+      ].join('\n'))
+
+      const result = await generatePlan(runtime, profile, ctx)
+
+      expect(result.nombre).toBe('Plan simple')
+      expect(result.eventos).toHaveLength(1)
+      expect(result.tokensUsed).toEqual({ input: 123, output: 456 })
+    })
+
+    it('parsea JSON aunque el modelo devuelva think blocks y texto extra', async () => {
+      const runtime = createRuntime([
+        '<think>Voy a revisar trabajo, descanso y hábitos antes de responder.</think>',
+        'Acá va tu plan:',
+        '{"nombre":"Plan con fallback","resumen":"Plan ordenado","eventos":[{"semana":1,"dia":"martes","hora":"19:00","duracion":45,"actividad":"Caminar","categoria":"ejercicio","objetivoId":"obj1"}]}',
+        'Espero que te sirva.'
+      ].join('\n'))
+
+      const result = await generatePlan(runtime, profile, ctx)
+
+      expect(result.nombre).toBe('Plan con fallback')
+      expect(result.eventos[0]?.categoria).toBe('ejercicio')
+    })
+
+    it('normaliza campos extra y números serializados como texto', async () => {
+      const runtime = createRuntime(JSON.stringify({
+        nombre: ' Plan tolerante ',
+        resumen: ' Resumen válido ',
+        comentario: 'ignorar',
+        eventos: [
+          {
+            semana: '1',
+            dia: ' MiErCoLeS ',
+            hora: '8:05',
+            duracion: '30',
+            actividad: ' Respirar tranquilo ',
+            categoria: ' HABITO ',
+            objetivoId: ' obj1 ',
+            detalle: 'ignorar'
+          }
+        ]
+      }))
+
+      const result = await generatePlan(runtime, profile, ctx)
+
+      expect(result).toMatchObject({
+        nombre: 'Plan tolerante',
+        resumen: 'Resumen válido',
+        eventos: [
+          {
+            semana: 1,
+            dia: 'miercoles',
+            hora: '08:05',
+            duracion: 30,
+            actividad: 'Respirar tranquilo',
+            categoria: 'habito',
+            objetivoId: 'obj1'
+          }
+        ]
+      })
+    })
+
+    it('falla con mensaje controlado si la estructura no es válida', async () => {
+      const runtime = createRuntime('{"nombre":"Plan roto","resumen":"Sin eventos válidos","eventos":[{"semana":1}]}')
+
+      await expect(generatePlan(runtime, profile, ctx)).rejects.toThrow('El asistente no pudo generar un plan válido. Intentá de nuevo.')
     })
   })
 })

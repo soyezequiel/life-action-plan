@@ -1,9 +1,13 @@
 import { eq } from 'drizzle-orm'
 import { getDatabase } from './connection'
-import { profiles, plans, planProgress, settings, analyticsEvents } from './schema'
+import { profiles, plans, planProgress, settings, analyticsEvents, costTracking } from './schema'
 import { DateTime } from 'luxon'
-import type { StreakResult } from '../../shared/types/ipc'
+import type { CostSummary, StreakResult } from '../../shared/types/ipc'
 import { calculateHabitStreak } from '../../utils/streaks'
+
+const OPENAI_INPUT_USD_PER_MILLION = 0.15
+const OPENAI_OUTPUT_USD_PER_MILLION = 0.6
+const SATS_PER_USD = 1000
 
 function now(): string {
   return DateTime.utc().toISO()!
@@ -122,7 +126,7 @@ export function toggleProgress(id: string): boolean {
   if (!row) return false
   const newValue = !row.completado
   db.update(planProgress)
-    .set({ completado: newValue, notas: newValue ? now() : null })
+    .set({ completado: newValue })
     .where(eq(planProgress.id, id))
     .run()
   return newValue
@@ -130,6 +134,75 @@ export function toggleProgress(id: string): boolean {
 
 export function getHabitStreak(planId: string, todayISO: string): StreakResult {
   return calculateHabitStreak(getProgressByPlan(planId), todayISO)
+}
+
+export function estimateCostUsd(model: string, tokensInput: number, tokensOutput: number): number {
+  if (model.startsWith('openai:')) {
+    return Number(
+      (((tokensInput * OPENAI_INPUT_USD_PER_MILLION) + (tokensOutput * OPENAI_OUTPUT_USD_PER_MILLION)) / 1_000_000)
+        .toFixed(8)
+    )
+  }
+
+  return 0
+}
+
+export function estimateCostSats(costUsd: number): number {
+  if (costUsd <= 0) return 0
+  return Math.max(1, Math.ceil(costUsd * SATS_PER_USD))
+}
+
+export function trackCost(
+  planId: string,
+  operation: string,
+  model: string,
+  tokensInput: number,
+  tokensOutput: number
+): { costUsd: number; costSats: number } {
+  const db = getDatabase()
+  const costUsd = estimateCostUsd(model, tokensInput, tokensOutput)
+  const costSats = estimateCostSats(costUsd)
+
+  db.insert(costTracking).values({
+    planId,
+    operation,
+    model,
+    tokensInput,
+    tokensOutput,
+    costUsd,
+    timestamp: now()
+  }).run()
+
+  return { costUsd, costSats }
+}
+
+export function getCostSummary(planId: string): CostSummary {
+  const db = getDatabase()
+  const rows = db.select().from(costTracking).where(eq(costTracking.planId, planId)).all()
+
+  const summary = rows.reduce(
+    (acc, row) => {
+      acc.tokensInput += row.tokensInput
+      acc.tokensOutput += row.tokensOutput
+      acc.costUsd += row.costUsd
+      return acc
+    },
+    {
+      tokensInput: 0,
+      tokensOutput: 0,
+      costUsd: 0
+    }
+  )
+
+  const roundedUsd = Number(summary.costUsd.toFixed(8))
+
+  return {
+    planId,
+    tokensInput: summary.tokensInput,
+    tokensOutput: summary.tokensOutput,
+    costUsd: roundedUsd,
+    costSats: estimateCostSats(roundedUsd)
+  }
 }
 
 export function seedProgressFromEvents(

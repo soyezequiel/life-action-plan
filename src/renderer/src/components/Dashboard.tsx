@@ -3,7 +3,7 @@ import type { JSX } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getCurrentLocale, t } from '../../../i18n'
 import { DateTime } from 'luxon'
-import type { ProgressRow, PlanRow, StreakResult, WalletStatus } from '../../../shared/types/ipc'
+import type { CostSummary, ProgressRow, PlanRow, StreakResult, WalletStatus } from '../../../shared/types/ipc'
 
 interface DashboardProps {
   profileId: string
@@ -16,6 +16,10 @@ interface TaskMeta {
   hora?: string
   duracion?: number
   categoria?: string
+}
+
+interface PlanManifestMeta {
+  fallbackUsed?: boolean
 }
 
 const cardTransition = {
@@ -33,15 +37,25 @@ function parseMeta(notas: string | null): TaskMeta {
   }
 }
 
+function parseManifestMeta(manifest: string): PlanManifestMeta {
+  try {
+    const parsed = JSON.parse(manifest) as PlanManifestMeta
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
 function Dashboard({
   profileId,
-  onStartIntake: _onStartIntake,
+  onStartIntake,
   onBuildPlan,
   buildError
 }: DashboardProps): JSX.Element {
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [tasks, setTasks] = useState<ProgressRow[]>([])
   const [streak, setStreak] = useState<StreakResult>({ current: 0, best: 0 })
+  const [costSummary, setCostSummary] = useState<CostSummary | null>(null)
   const [walletStatus, setWalletStatus] = useState<WalletStatus>({
     configured: false,
     connected: false,
@@ -56,7 +70,6 @@ function Dashboard({
   const [isWalletSaving, setIsWalletSaving] = useState(false)
   const [walletNotice, setWalletNotice] = useState<'connected' | 'disconnected' | 'error' | null>(null)
 
-  const today = DateTime.now().toISODate()!
   const hasPlan = plans.length > 0
   const latestPlan = hasPlan ? plans[plans.length - 1] : null
 
@@ -70,8 +83,14 @@ function Dashboard({
         window.api.wallet.status()
       ])
 
+      let today = DateTime.now().toISODate() ?? '2026-03-18'
+
       if (profile) {
         setNombre(profile.participantes[0]?.datosPersonales?.nombre || '')
+        const timezone = profile.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria
+        if (timezone) {
+          today = DateTime.now().setZone(timezone).toISODate() ?? today
+        }
       }
 
       setPlans(planList)
@@ -79,20 +98,23 @@ function Dashboard({
 
       if (planList.length > 0) {
         const nextPlan = planList[planList.length - 1]
-        const [progressList, streakResult] = await Promise.all([
+        const [progressList, streakResult, nextCostSummary] = await Promise.all([
           window.api.progress.list(nextPlan.id, today),
-          window.api.streak.get(nextPlan.id)
+          window.api.streak.get(nextPlan.id),
+          window.api.cost.summary(nextPlan.id)
         ])
         setTasks(progressList)
         setStreak(streakResult)
+        setCostSummary(nextCostSummary)
       } else {
         setTasks([])
         setStreak({ current: 0, best: 0 })
+        setCostSummary(null)
       }
     } finally {
       setLoading(false)
     }
-  }, [profileId, today])
+  }, [profileId])
 
   useEffect(() => {
     void loadData()
@@ -201,9 +223,11 @@ function Dashboard({
     const metaB = parseMeta(b.notas)
     return (metaA.hora || '').localeCompare(metaB.hora || '')
   })
+  const numberFormatter = new Intl.NumberFormat(getCurrentLocale())
   const formattedWalletBalance = typeof walletStatus.balanceSats === 'number'
-    ? new Intl.NumberFormat(getCurrentLocale()).format(walletStatus.balanceSats)
+    ? numberFormatter.format(walletStatus.balanceSats)
     : null
+  const latestPlanMeta = latestPlan ? parseManifestMeta(latestPlan.manifest) : {}
 
   function renderWalletCard(): JSX.Element {
     const walletLabel = walletStatus.connected
@@ -311,6 +335,31 @@ function Dashboard({
     )
   }
 
+  function renderCostCard(): JSX.Element {
+    const hasCost = Boolean(costSummary && (costSummary.tokensInput > 0 || costSummary.tokensOutput > 0))
+
+    return (
+      <div className="dashboard-cost">
+        <span className="dashboard-cost__label">{t('dashboard.cost_title')}</span>
+        {hasCost && costSummary ? (
+          <>
+            <strong className="dashboard-cost__value">
+              {t('dashboard.cost_sats', { sats: numberFormatter.format(costSummary.costSats) })}
+            </strong>
+            <span className="dashboard-cost__meta">
+              {t('dashboard.cost_tokens', {
+                input: numberFormatter.format(costSummary.tokensInput),
+                output: numberFormatter.format(costSummary.tokensOutput)
+              })}
+            </span>
+          </>
+        ) : (
+          <strong className="dashboard-cost__value">{t('dashboard.cost_empty')}</strong>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div id="app" className="app-shell dashboard-shell">
       <div className="dashboard-layout">
@@ -352,8 +401,15 @@ function Dashboard({
                   </span>
                 )}
               </div>
-              {renderWalletCard()}
+              <div className="dashboard-summary-stack">
+                {renderWalletCard()}
+                {renderCostCard()}
+              </div>
             </div>
+
+            {latestPlanMeta.fallbackUsed && (
+              <p className="status-message status-message--success">{t('builder.fallback_notice')}</p>
+            )}
 
             {tasks.length === 0 ? (
               <p className="dashboard-copy">{t('dashboard.no_tasks_today')}</p>
@@ -449,6 +505,9 @@ function Dashboard({
               </button>
               <button className="app-button app-button--secondary" onClick={() => onBuildPlan('ollama')}>
                 {t('dashboard.build_ollama')}
+              </button>
+              <button className="app-button app-button--secondary" onClick={onStartIntake}>
+                {t('dashboard.redo_intake')}
               </button>
             </div>
             {exportStatus && (

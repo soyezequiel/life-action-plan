@@ -22,6 +22,7 @@ export interface PlanBuildResult {
   resumen?: string
   eventos?: PlanEvent[]
   tokensUsed?: { input: number; output: number }
+  fallbackUsed?: boolean
   error?: string
 }
 
@@ -83,6 +84,14 @@ export interface PlanExportCalendarResult {
   cancelled?: boolean
   filePath?: string
   error?: string
+}
+
+export interface CostSummary {
+  planId: string
+  tokensInput: number
+  tokensOutput: number
+  costUsd: number
+  costSats: number
 }
 
 // Re-export for convenience

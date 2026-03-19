@@ -360,6 +360,11 @@ textarea::placeholder {
   margin-top: 1.2rem;
 }
 
+.dashboard-summary-stack {
+  display: grid;
+  gap: 0.9rem;
+}
+
 .dashboard-streak {
   display: grid;
   gap: 0.35rem;
@@ -382,30 +387,46 @@ textarea::placeholder {
     rgba(255, 255, 255, 0.02);
 }
 
+.dashboard-cost {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(89, 215, 154, 0.2);
+  background:
+    linear-gradient(135deg, rgba(89, 215, 154, 0.12), rgba(255, 255, 255, 0.03)),
+    rgba(255, 255, 255, 0.02);
+}
+
 .dashboard-streak__label,
 .dashboard-streak__best,
 .dashboard-wallet__label,
 .dashboard-wallet__meta,
-.dashboard-wallet__hint {
+.dashboard-wallet__hint,
+.dashboard-cost__label,
+.dashboard-cost__meta {
   color: var(--text-secondary);
 }
 
 .dashboard-streak__label,
-.dashboard-wallet__label {
+.dashboard-wallet__label,
+.dashboard-cost__label {
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .dashboard-streak__value,
-.dashboard-wallet__value {
+.dashboard-wallet__value,
+.dashboard-cost__value {
   font-size: clamp(1.05rem, 2.2vw, 1.35rem);
   line-height: 1.3;
 }
 
 .dashboard-streak__best,
 .dashboard-wallet__meta,
-.dashboard-wallet__hint {
+.dashboard-wallet__hint,
+.dashboard-cost__meta {
   font-size: 0.92rem;
 }
 

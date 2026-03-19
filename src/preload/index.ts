@@ -27,6 +27,9 @@ const api = {
     status: () => ipcRenderer.invoke('wallet:status'),
     connect: (connectionUrl: string) => ipcRenderer.invoke('wallet:connect', connectionUrl),
     disconnect: () => ipcRenderer.invoke('wallet:disconnect')
+  },
+  cost: {
+    summary: (planId: string) => ipcRenderer.invoke('cost:summary', planId)
   }
 }
 

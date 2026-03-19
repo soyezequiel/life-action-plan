@@ -56,6 +56,10 @@
     "wallet_connect": "Conectar billetera",
     "wallet_change": "Cambiar conexión",
     "wallet_balance": "Saldo disponible: {{sats}} sats",
+    "cost_title": "Gasto del plan",
+    "cost_tokens": "Entrada {{input}} · Salida {{output}}",
+    "cost_sats": "{{sats}} sats",
+    "cost_empty": "Todavía no hubo gasto",
     "export_calendar": "Exportar calendario",
     "exporting_calendar": "Preparando calendario...",
     "export_calendar_success": "Tu calendario ya está listo.",
@@ -63,6 +67,7 @@
     "build_plan": "Armar mi plan",
     "build_openai": "Armar con asistente en línea",
     "build_ollama": "Armar con asistente local",
+    "redo_intake": "Rehacer mi perfil",
     "category": {
       "estudio": "Estudio",
       "ejercicio": "Ejercicio",
@@ -75,6 +80,7 @@
   "builder": {
     "thinking": "Estoy pensando tu plan...",
     "generating": "Armando tu plan personalizado...",
+    "fallback_notice": "El asistente en línea no respondió, usé el asistente local.",
     "done": "¡Tu plan está listo!",
     "error": "No pude armar el plan. ¿Querés intentar de nuevo?",
     "retry": "Intentar de nuevo",

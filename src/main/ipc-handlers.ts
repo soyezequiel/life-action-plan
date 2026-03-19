@@ -5,9 +5,9 @@ import { intakeExpressToProfile } from '../skills/plan-intake'
 import { generatePlan } from '../skills/plan-builder'
 import { getProvider } from '../providers/provider-factory'
 import {
-  createProfile, getProfile, createPlan, getPlan,
+  createProfile, getProfile, createPlan, getPlan, updatePlanManifest,
   getPlansByProfile, getProgressByPlan, getProgressByPlanAndDate, toggleProgress,
-  seedProgressFromEvents, trackEvent, getSetting, setSetting, getHabitStreak
+  seedProgressFromEvents, trackEvent, getSetting, setSetting, getHabitStreak, getCostSummary, trackCost
 } from './db/db-helpers'
 import type { IntakeExpressData } from '../shared/types/ipc'
 import type { Perfil } from '../shared/schemas/perfil'
@@ -19,6 +19,7 @@ import { getPaymentProvider } from '../providers/payment-provider'
 import { clearSecureToken, isSecureStorageAvailable, loadSecureToken, saveSecureToken } from '../auth/token-store'
 import type { PaymentProviderStatus } from '../providers/payment-provider'
 import type { WalletStatus } from '../shared/types/ipc'
+import { buildWithOllamaFallback } from '../utils/plan-build-fallback'
 
 function toPosixPath(value: string): string {
   return value.replace(/\\/g, '/')
@@ -82,8 +83,6 @@ export function registerIpcHandlers(): void {
       const profile: Perfil = JSON.parse(profileRow.data)
 
       const modelId = provider || 'openai:gpt-4o-mini'
-      const runtime = getProvider(modelId, { apiKey })
-
       const ctx: SkillContext = {
         planDir: '',
         profileId,
@@ -92,9 +91,27 @@ export function registerIpcHandlers(): void {
         tokenMultiplier: 1.22
       }
 
-      trackEvent('PLAN_BUILD_STARTED', { profileId })
+      trackEvent('PLAN_BUILD_STARTED', { profileId, modelId })
 
-      const result = await generatePlan(runtime, profile, ctx)
+      const buildResult = await buildWithOllamaFallback(
+        modelId,
+        async (nextModelId) => {
+          const runtime = getProvider(nextModelId, {
+            apiKey: nextModelId.startsWith('ollama:') ? '' : apiKey
+          })
+          return generatePlan(runtime, profile, ctx)
+        },
+        (originalError) => {
+          trackEvent('PLAN_BUILD_FALLBACK', {
+            profileId,
+            originalModel: modelId,
+            originalError: originalError.message
+          })
+        }
+      )
+      const result = buildResult.result
+      const fallbackUsed = buildResult.fallbackUsed
+      const finalModelId = buildResult.modelId
 
       // Save plan to DB
       const now = DateTime.utc().toISO()!
@@ -111,6 +128,8 @@ export function registerIpcHandlers(): void {
         versionGlobal: 1,
         modo: 'individual',
         planGeneral: 'plan-general.md',
+        fallbackUsed,
+        ultimoModeloUsado: finalModelId,
         horizontePlan: { anosTotal: 1, estrategia: 'completo' },
         granularidadCompletada: { anual: false, mensual: [], diario: [] },
         estadoSimulacion: {},
@@ -122,11 +141,29 @@ export function registerIpcHandlers(): void {
           llamadasModelo: { alto: 1, medio: 0, bajo: 0 },
           tokensInput: result.tokensUsed.input,
           tokensOutput: result.tokensUsed.output,
-          estimacionUSD: ((result.tokensUsed.input * 0.15 + result.tokensUsed.output * 0.6) / 1_000_000)
+          estimacionUSD: 0,
+          estimacionSats: 0
         }
       })
 
       const planId = createPlan(profileId, result.nombre, slug, manifest)
+      const costEntry = trackCost(
+        planId,
+        'plan_build',
+        finalModelId,
+        result.tokensUsed.input,
+        result.tokensUsed.output
+      )
+      updatePlanManifest(planId, JSON.stringify({
+        ...JSON.parse(manifest),
+        costoAcumulado: {
+          llamadasModelo: { alto: 1, medio: 0, bajo: 0 },
+          tokensInput: result.tokensUsed.input,
+          tokensOutput: result.tokensUsed.output,
+          estimacionUSD: costEntry.costUsd,
+          estimacionSats: costEntry.costSats
+        }
+      }))
 
       // Seed individual progress rows from plan events
       const tz = profile.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria || 'America/Argentina/Buenos_Aires'
@@ -134,10 +171,14 @@ export function registerIpcHandlers(): void {
 
       trackEvent('PLAN_BUILT', {
         planId,
+        modelId: finalModelId,
+        fallbackUsed,
         eventCount: result.eventos.length,
         progressSeeded: seeded,
         tokensInput: result.tokensUsed.input,
-        tokensOutput: result.tokensUsed.output
+        tokensOutput: result.tokensUsed.output,
+        costUsd: costEntry.costUsd,
+        costSats: costEntry.costSats
       })
 
       return {
@@ -146,7 +187,8 @@ export function registerIpcHandlers(): void {
         nombre: result.nombre,
         resumen: result.resumen,
         eventos: result.eventos,
-        tokensUsed: result.tokensUsed
+        tokensUsed: result.tokensUsed,
+        fallbackUsed
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error'
@@ -240,6 +282,11 @@ export function registerIpcHandlers(): void {
   // --- List plans for profile ---
   ipcMain.handle('plan:list', async (_event, profileId: string) => {
     return getPlansByProfile(profileId)
+  })
+
+  // --- Cost summary for active plan ---
+  ipcMain.handle('cost:summary', async (_event, planId: string) => {
+    return getCostSummary(planId)
   })
 
   // --- Export plan progress as calendar file ---

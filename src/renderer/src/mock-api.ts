@@ -2,7 +2,7 @@
 // Returns fake data so the UI can be developed without the main process
 
 import { DateTime } from 'luxon'
-import type { IntakeExpressData } from '../../shared/types/ipc'
+import type { CostSummary, IntakeExpressData } from '../../shared/types/ipc'
 import { calculateHabitStreak } from '../../utils/streaks'
 
 const MOCK_PROFILE_ID = 'mock-profile-1'
@@ -23,6 +23,14 @@ const mockTasks = [
 ]
 
 let mockWalletConnected = false
+let mockFallbackUsed = false
+let mockCostSummary: CostSummary = {
+  planId: MOCK_PLAN_ID,
+  tokensInput: 3600,
+  tokensOutput: 900,
+  costUsd: 0.00108,
+  costSats: 2
+}
 
 const mockApi = {
   intake: {
@@ -34,14 +42,36 @@ const mockApi = {
   plan: {
     build: async (profileId: string, _apiKey: string, provider?: string) => {
       console.log('[mock] plan:build', { profileId, provider })
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      mockFallbackUsed = provider?.startsWith('openai:') ?? false
+      mockCostSummary = mockFallbackUsed
+        ? {
+            planId: MOCK_PLAN_ID,
+            tokensInput: 2800,
+            tokensOutput: 700,
+            costUsd: 0,
+            costSats: 0
+          }
+        : {
+            planId: MOCK_PLAN_ID,
+            tokensInput: 4200,
+            tokensOutput: 1100,
+            costUsd: 0.00129,
+            costSats: 2
+          }
+
       return {
         success: true,
         planId: MOCK_PLAN_ID,
         nombre: 'Mi Plan de Acción (demo)',
         resumen: 'Este es un plan simulado para desarrollo en navegador. Conectá Electron para generar uno real con IA.',
         eventos: [],
-        tokensUsed: { input: 0, output: 0 }
+        tokensUsed: {
+          input: mockCostSummary.tokensInput,
+          output: mockCostSummary.tokensOutput
+        },
+        fallbackUsed: mockFallbackUsed
       }
     },
     list: async (profileId: string) => {
@@ -51,7 +81,7 @@ const mockApi = {
         profileId,
         nombre: 'Mi Plan de Acción (demo)',
         slug: 'mi-plan-demo',
-        manifest: '{}',
+        manifest: JSON.stringify({ fallbackUsed: mockFallbackUsed }),
         createdAt: TODAY,
         updatedAt: TODAY
       }]
@@ -65,7 +95,14 @@ const mockApi = {
     get: async (_profileId: string) => {
       return {
         version: '3.0',
-        participantes: [{ datosPersonales: { nombre: 'María' } }]
+        participantes: [{
+          datosPersonales: {
+            nombre: 'María',
+            ubicacion: {
+              zonaHoraria: 'America/Argentina/Buenos_Aires'
+            }
+          }
+        }]
       }
     },
     latest: async (): Promise<string | null> => {
@@ -128,6 +165,11 @@ const mockApi = {
     disconnect: async () => {
       mockWalletConnected = false
       return { success: true }
+    }
+  },
+  cost: {
+    summary: async (_planId: string) => {
+      return mockCostSummary
     }
   }
 }

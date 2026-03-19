@@ -1,4 +1,4 @@
-import { nwc } from '@getalby/sdk'
+import type { nwc } from '@getalby/sdk'
 import type {
   CreateInvoiceParams,
   CreateInvoiceResult,
@@ -8,9 +8,21 @@ import type {
   PayInvoiceResult
 } from '../providers/payment-provider'
 
+type NwcModule = typeof import('@getalby/sdk')
+type NwcClient = nwc.NWCClient
 type InvoiceResponseLike = nwc.Nip47Transaction & {
   paymentRequest?: string
   paymentHash?: string
+}
+
+let nwcModulePromise: Promise<NwcModule> | null = null
+
+async function loadNwcModule(): Promise<NwcModule> {
+  if (!nwcModulePromise) {
+    nwcModulePromise = import('@getalby/sdk')
+  }
+
+  return nwcModulePromise
 }
 
 function normalizeBudget(budget: nwc.Nip47GetBudgetResponse): Pick<
@@ -39,7 +51,9 @@ function toMilliSats(amountSats: number): number {
 }
 
 export class NwcPaymentProvider implements PaymentProvider {
-  private readonly client: nwc.NWCClient
+  private readonly connectionUrl: string
+  private clientPromise: Promise<NwcClient> | null = null
+  private client: NwcClient | null = null
 
   constructor(connectionUrl: string) {
     const normalizedConnectionUrl = connectionUrl.trim()
@@ -48,16 +62,35 @@ export class NwcPaymentProvider implements PaymentProvider {
       throw new Error('INVALID_NWC_URL')
     }
 
-    this.client = new nwc.NWCClient({
-      nostrWalletConnectUrl: normalizedConnectionUrl
-    })
+    this.connectionUrl = normalizedConnectionUrl
+  }
+
+  private async getClient(): Promise<NwcClient> {
+    if (!this.clientPromise) {
+      this.clientPromise = loadNwcModule()
+        .then(({ nwc }) => {
+          const client = new nwc.NWCClient({
+            nostrWalletConnectUrl: this.connectionUrl
+          })
+          this.client = client
+          return client
+        })
+        .catch((error) => {
+          this.clientPromise = null
+          this.client = null
+          throw error
+        })
+    }
+
+    return this.clientPromise
   }
 
   async getStatus(): Promise<PaymentProviderStatus> {
+    const client = await this.getClient()
     const [info, balance, budget] = await Promise.all([
-      this.client.getInfo(),
-      this.client.getBalance(),
-      this.client.getBudget().catch(() => ({}))
+      client.getInfo(),
+      client.getBalance(),
+      client.getBudget().catch(() => ({}))
     ])
 
     return {
@@ -75,7 +108,8 @@ export class NwcPaymentProvider implements PaymentProvider {
       throw new Error('INVALID_AMOUNT')
     }
 
-    const invoice = await this.client.makeInvoice({
+    const client = await this.getClient()
+    const invoice = await client.makeInvoice({
       amount: toMilliSats(params.amountSats),
       description: params.description,
       expiry: params.expirySeconds
@@ -89,7 +123,8 @@ export class NwcPaymentProvider implements PaymentProvider {
   }
 
   async payInvoice(params: PayInvoiceParams): Promise<PayInvoiceResult> {
-    const response = await this.client.payInvoice({
+    const client = await this.getClient()
+    const response = await client.payInvoice({
       invoice: params.invoice,
       amount: typeof params.amountSats === 'number' ? toMilliSats(params.amountSats) : undefined
     })
@@ -100,6 +135,8 @@ export class NwcPaymentProvider implements PaymentProvider {
   }
 
   close(): void {
-    this.client.close()
+    this.client?.close()
+    this.client = null
+    this.clientPromise = null
   }
 }
