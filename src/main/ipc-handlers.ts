@@ -68,6 +68,50 @@ function simulationStatusToManifestValue(value: 'PASS' | 'WARN' | 'FAIL' | 'MISS
   return value === 'MISSING' ? 'PENDIENTE' : value
 }
 
+function toPlanBuildErrorMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : 'Unknown error'
+  const normalized = message.toLowerCase()
+
+  if (
+    normalized.includes('api key') ||
+    normalized.includes('unauthorized') ||
+    normalized.includes('authentication') ||
+    normalized.includes('401') ||
+    normalized.includes('403')
+  ) {
+    return t('errors.no_api_key')
+  }
+
+  if (
+    normalized.includes('budget') ||
+    normalized.includes('quota') ||
+    normalized.includes('insufficient')
+  ) {
+    return t('errors.budget_exceeded')
+  }
+
+  if (
+    normalized.includes('timeout') ||
+    normalized.includes('timed out') ||
+    normalized.includes('tard') ||
+    normalized.includes('fetch failed') ||
+    normalized.includes('connect') ||
+    normalized.includes('econnrefused')
+  ) {
+    return t('errors.connection_busy')
+  }
+
+  if (
+    message.startsWith('El asistente ') ||
+    message.startsWith('No pude ') ||
+    message === 'Perfil no encontrado'
+  ) {
+    return message
+  }
+
+  return t('errors.generic')
+}
+
 export function registerIpcHandlers(): void {
   // --- Intake Express: save profile ---
   ipcMain.handle('intake:save', async (_event, data: IntakeExpressData) => {
@@ -208,7 +252,7 @@ export function registerIpcHandlers(): void {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error'
       trackEvent('ERROR_OCCURRED', { code: 'PLAN_BUILD_FAILED', message })
-      return { success: false, error: message }
+      return { success: false, error: toPlanBuildErrorMessage(error) }
     }
   })
 

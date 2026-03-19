@@ -8,6 +8,10 @@ interface ProviderConfig {
   model?: string
 }
 
+const CHAT_TIMEOUT_MS = 20_000
+const STREAM_TIMEOUT_MS = 20_000
+const MODEL_TIMEOUT_MESSAGE = 'El asistente tardó demasiado en responder. Intentá de nuevo.'
+
 export function getProvider(modelId: string, config: ProviderConfig): AgentRuntime {
   const colonIdx = modelId.indexOf(':')
   const [providerName, modelName] = colonIdx >= 0
@@ -28,6 +32,44 @@ export function getProvider(modelId: string, config: ProviderConfig): AgentRunti
   throw new Error(`Unknown provider: ${providerName}`)
 }
 
+async function runWithTimeout<T>(
+  operation: (abortSignal: AbortSignal) => Promise<T>,
+  timeoutMs: number,
+  timeoutMessage: string
+): Promise<T> {
+  const controller = new AbortController()
+  const abortId = setTimeout(() => {
+    controller.abort()
+  }, timeoutMs)
+
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    const rejectId = setTimeout(() => {
+      clearTimeout(abortId)
+      reject(new Error(timeoutMessage))
+    }, timeoutMs)
+
+    controller.signal.addEventListener('abort', () => {
+      clearTimeout(rejectId)
+      reject(new Error(timeoutMessage))
+    }, { once: true })
+  })
+
+  try {
+    return await Promise.race([
+      operation(controller.signal),
+      timeoutPromise
+    ])
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(timeoutMessage)
+    }
+
+    throw error
+  } finally {
+    clearTimeout(abortId)
+  }
+}
+
 function createOpenAIRuntime(model: string, config: ProviderConfig): AgentRuntime {
   const openai = createOpenAI({
     apiKey: config.apiKey,
@@ -38,15 +80,20 @@ function createOpenAIRuntime(model: string, config: ProviderConfig): AgentRuntim
 
   return {
     async chat(messages: LLMMessage[]): Promise<LLMResponse> {
-      const result = await generateText({
-        model: llmModel,
-        messages: messages.map((m) => ({
-          role: m.role as 'system' | 'user' | 'assistant',
-          content: m.content
-        })),
-        maxOutputTokens: 4096,
-        abortSignal: AbortSignal.timeout(120_000)
-      })
+      const result = await runWithTimeout(
+        (abortSignal) => generateText({
+          model: llmModel,
+          messages: messages.map((m) => ({
+            role: m.role as 'system' | 'user' | 'assistant',
+            content: m.content
+          })),
+          maxOutputTokens: 4096,
+          abortSignal,
+          timeout: CHAT_TIMEOUT_MS
+        }),
+        CHAT_TIMEOUT_MS,
+        MODEL_TIMEOUT_MESSAGE
+      )
 
       return {
         content: result.text,
@@ -65,7 +112,7 @@ function createOpenAIRuntime(model: string, config: ProviderConfig): AgentRuntim
           content: m.content
         })),
         maxOutputTokens: 4096,
-        abortSignal: AbortSignal.timeout(60_000)
+        timeout: STREAM_TIMEOUT_MS
       })
 
       for await (const chunk of result.textStream) {

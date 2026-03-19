@@ -55,4 +55,22 @@ describe('buildWithOllamaFallback', () => {
     await expect(buildWithOllamaFallback('ollama:qwen3:8b', buildPlan)).rejects.toThrow('ollama down')
     expect(buildPlan).toHaveBeenCalledTimes(1)
   })
+
+  it('no usa fallback cuando falla la autenticacion de OpenAI', async () => {
+    const buildPlan = vi.fn(async () => {
+      throw new Error('Invalid API key provided')
+    })
+
+    await expect(buildWithOllamaFallback('openai:gpt-4o-mini', buildPlan)).rejects.toThrow('Invalid API key provided')
+    expect(buildPlan).toHaveBeenCalledTimes(1)
+  })
+
+  it('no usa fallback cuando se excedio el presupuesto', async () => {
+    const buildPlan = vi.fn(async () => {
+      throw new Error('Budget exceeded for this workspace')
+    })
+
+    await expect(buildWithOllamaFallback('openai:gpt-4o-mini', buildPlan)).rejects.toThrow('Budget exceeded for this workspace')
+    expect(buildPlan).toHaveBeenCalledTimes(1)
+  })
 })

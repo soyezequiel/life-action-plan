@@ -1,9 +1,24 @@
 export const DEFAULT_OLLAMA_FALLBACK_MODEL = 'ollama:qwen3:8b'
 
+const NON_FALLBACK_ERROR_PATTERNS = [
+  /api key/i,
+  /unauthorized/i,
+  /authentication/i,
+  /\b401\b/,
+  /\b403\b/,
+  /budget/i,
+  /quota/i,
+  /insufficient/i
+]
+
 interface BuildWithFallbackResult<T> {
   result: T
   fallbackUsed: boolean
   modelId: string
+}
+
+function shouldFallbackToOllama(error: Error): boolean {
+  return !NON_FALLBACK_ERROR_PATTERNS.some((pattern) => pattern.test(error.message))
 }
 
 export async function buildWithOllamaFallback<T>(
@@ -20,7 +35,7 @@ export async function buildWithOllamaFallback<T>(
   } catch (error) {
     const originalError = error instanceof Error ? error : new Error('Unknown error')
 
-    if (!modelId.startsWith('openai:')) {
+    if (!modelId.startsWith('openai:') || !shouldFallbackToOllama(originalError)) {
       throw originalError
     }
 
