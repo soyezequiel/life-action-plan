@@ -53,5 +53,10 @@ export interface ProgressToggleResult {
   completado: boolean
 }
 
+export interface StreakResult {
+  current: number
+  best: number
+}
+
 // Re-export for convenience
 export type { IntakeExpressData, PlanEvent }

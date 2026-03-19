@@ -2,6 +2,8 @@ import { eq } from 'drizzle-orm'
 import { getDatabase } from './connection'
 import { profiles, plans, planProgress, settings, analyticsEvents } from './schema'
 import { DateTime } from 'luxon'
+import type { StreakResult } from '../../shared/types/ipc'
+import { calculateHabitStreak } from '../../utils/streaks'
 
 function now(): string {
   return DateTime.utc().toISO()!
@@ -94,6 +96,76 @@ export function markProgressComplete(id: string, notas?: string): void {
     .set({ completado: true, notas: notas ?? null })
     .where(eq(planProgress.id, id))
     .run()
+}
+
+export function getPlansByProfile(profileId: string) {
+  const db = getDatabase()
+  return db.select().from(plans).where(eq(plans.profileId, profileId)).all()
+}
+
+export function getProgressByPlan(planId: string) {
+  const db = getDatabase()
+  return db.select().from(planProgress).where(eq(planProgress.planId, planId)).all()
+}
+
+export function getProgressByPlanAndDate(planId: string, fecha: string) {
+  const db = getDatabase()
+  return db.select().from(planProgress)
+    .where(eq(planProgress.planId, planId))
+    .all()
+    .filter((row) => row.fecha === fecha)
+}
+
+export function toggleProgress(id: string): boolean {
+  const db = getDatabase()
+  const row = db.select().from(planProgress).where(eq(planProgress.id, id)).get()
+  if (!row) return false
+  const newValue = !row.completado
+  db.update(planProgress)
+    .set({ completado: newValue, notas: newValue ? now() : null })
+    .where(eq(planProgress.id, id))
+    .run()
+  return newValue
+}
+
+export function getHabitStreak(planId: string, todayISO: string): StreakResult {
+  return calculateHabitStreak(getProgressByPlan(planId), todayISO)
+}
+
+export function seedProgressFromEvents(
+  planId: string,
+  eventos: Array<{ semana: number; dia: string; hora: string; duracion: number; actividad: string; categoria: string; objetivoId: string }>,
+  zonaHoraria: string
+): number {
+  const db = getDatabase()
+  const diasMap: Record<string, number> = {
+    lunes: 1, martes: 2, miercoles: 3, miércoles: 3,
+    jueves: 4, viernes: 5, sabado: 6, sábado: 6, domingo: 7
+  }
+
+  let seeded = 0
+  const planStart = DateTime.now().setZone(zonaHoraria).startOf('week')
+
+  for (const ev of eventos) {
+    const weekOffset = (ev.semana - 1) * 7
+    const dayOffset = (diasMap[ev.dia.toLowerCase()] ?? 1) - 1
+    const fecha = planStart.plus({ days: weekOffset + dayOffset }).toISODate()!
+
+    db.insert(planProgress).values({
+      id: generateId(),
+      planId,
+      fecha,
+      tipo: ev.categoria === 'habito' ? 'habito' : 'tarea',
+      objetivoId: ev.objetivoId || null,
+      descripcion: ev.actividad,
+      completado: false,
+      notas: JSON.stringify({ hora: ev.hora, duracion: ev.duracion, categoria: ev.categoria }),
+      createdAt: now()
+    }).run()
+    seeded++
+  }
+
+  return seeded
 }
 
 // --- Settings ---

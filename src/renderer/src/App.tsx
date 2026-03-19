@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react'
+import type { JSX } from 'react'
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import IntakeExpress from './components/IntakeExpress'
 import Dashboard from './components/Dashboard'
 import { t } from '../../i18n'
 
 type AppView = 'dashboard' | 'intake' | 'building' | 'plan' | 'apikey'
+
+const viewTransition = {
+  duration: 0.28,
+  ease: [0.22, 1, 0.36, 1] as const
+}
 
 function App(): JSX.Element {
   const [view, setView] = useState<AppView>('dashboard')
@@ -14,7 +21,6 @@ function App(): JSX.Element {
   const [apiKey, setApiKey] = useState('')
   const [loading, setLoading] = useState(true)
 
-  // Restore session on mount
   useEffect(() => {
     window.api.profile.latest().then((id) => {
       if (id) setProfileId(id)
@@ -28,12 +34,14 @@ function App(): JSX.Element {
 
   function handleBuildPlan(provider: 'openai' | 'ollama'): void {
     if (!profileId) return
+
     if (provider === 'openai') {
       setPendingProvider('openai')
       setView('apikey')
-    } else {
-      runBuildPlan('ollama', '')
+      return
     }
+
+    void runBuildPlan('ollama', '')
   }
 
   async function runBuildPlan(provider: 'openai' | 'ollama', key: string): Promise<void> {
@@ -45,6 +53,7 @@ function App(): JSX.Element {
 
     try {
       const result = await window.api.plan.build(profileId, key, modelId)
+
       if (result.success) {
         setPlan({ nombre: result.nombre!, resumen: result.resumen! })
         setView('plan')
@@ -58,70 +67,88 @@ function App(): JSX.Element {
     }
   }
 
+  let activeViewKey = 'landing'
+  let activeView: JSX.Element
+
   if (loading) {
-    return (
-      <div id="app">
-        <p>{t('ui.loading')}</p>
-      </div>
-    )
-  }
-
-  if (view === 'intake') {
-    return <IntakeExpress onComplete={handleIntakeComplete} />
-  }
-
-  if (view === 'apikey') {
-    return (
-      <div id="app">
-        <h2>{t('settings.apikey_title')}</h2>
-        <p>{t('settings.apikey_hint')}</p>
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder={t('settings.apikey_placeholder')}
-          autoFocus
-        />
-        <div style={{ marginTop: 12 }}>
-          <button
-            onClick={() => {
-              if (!apiKey.trim()) return
-              runBuildPlan(pendingProvider!, apiKey.trim())
-              setApiKey('')
-            }}
-            disabled={!apiKey.trim()}
-          >
-            {t('settings.apikey_confirm')}
-          </button>
-          {' '}
-          <button onClick={() => { setView('dashboard'); setApiKey('') }}>
-            {t('ui.cancel')}
-          </button>
+    activeViewKey = 'loading'
+    activeView = (
+      <div id="app" className="app-shell app-shell--centered">
+        <div className="app-screen app-screen--card app-screen--loading">
+          <p className="app-status">{t('ui.loading')}</p>
         </div>
       </div>
     )
-  }
-
-  if (view === 'building') {
-    return (
-      <div id="app">
-        <p>{t('builder.generating')}</p>
+  } else if (view === 'intake') {
+    activeViewKey = 'intake'
+    activeView = <IntakeExpress onComplete={handleIntakeComplete} />
+  } else if (view === 'apikey') {
+    activeViewKey = 'apikey'
+    activeView = (
+      <div id="app" className="app-shell app-shell--centered">
+        <div className="app-screen app-screen--card app-screen--compact">
+          <h2 className="app-title app-title--section">{t('settings.apikey_title')}</h2>
+          <p className="app-copy">{t('settings.apikey_hint')}</p>
+          <input
+            className="app-input"
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder={t('settings.apikey_placeholder')}
+            autoFocus
+          />
+          <div className="app-actions">
+            <button
+              className="app-button app-button--primary"
+              onClick={() => {
+                if (!apiKey.trim()) return
+                void runBuildPlan(pendingProvider!, apiKey.trim())
+                setApiKey('')
+              }}
+              disabled={!apiKey.trim()}
+            >
+              {t('settings.apikey_confirm')}
+            </button>
+            <button
+              className="app-button app-button--secondary"
+              onClick={() => {
+                setView('dashboard')
+                setApiKey('')
+              }}
+            >
+              {t('ui.cancel')}
+            </button>
+          </div>
+        </div>
       </div>
     )
-  }
-
-  if (view === 'plan' && plan) {
-    return (
-      <div id="app">
-        <h1>{plan.nombre}</h1>
-        <p>{plan.resumen}</p>
-        <button onClick={() => setView('dashboard')}>{t('ui.close')}</button>
+  } else if (view === 'building') {
+    activeViewKey = 'building'
+    activeView = (
+      <div id="app" className="app-shell app-shell--centered">
+        <div className="app-screen app-screen--card app-screen--loading">
+          <p className="app-status app-status--busy">{t('builder.generating')}</p>
+        </div>
       </div>
     )
-  }
-
-  if (profileId) {
-    return (
+  } else if (view === 'plan' && plan) {
+    activeViewKey = 'plan'
+    activeView = (
+      <div id="app" className="app-shell app-shell--centered">
+        <div className="app-screen app-screen--card app-screen--plan">
+          <h1 className="app-title">{plan.nombre}</h1>
+          <p className="app-copy">{plan.resumen}</p>
+          <div className="app-actions">
+            <button className="app-button app-button--secondary" onClick={() => setView('dashboard')}>
+              {t('ui.close')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  } else if (profileId) {
+    activeViewKey = 'dashboard'
+    activeView = (
       <Dashboard
         profileId={profileId}
         onStartIntake={() => setView('intake')}
@@ -129,15 +156,39 @@ function App(): JSX.Element {
         buildError={buildError}
       />
     )
+  } else {
+    activeViewKey = 'landing'
+    activeView = (
+      <div id="app" className="app-shell app-shell--centered">
+        <div className="app-screen app-screen--card app-screen--hero">
+          <h1 className="app-title">{t('app.name')}</h1>
+          <p className="app-subtitle">{t('app.tagline')}</p>
+          <p className="app-copy">{t('dashboard.empty')}</p>
+          <div className="app-actions">
+            <button className="app-button app-button--primary" onClick={() => setView('intake')}>
+              {t('dashboard.start')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div id="app">
-      <h1>{t('app.name')}</h1>
-      <p>{t('app.tagline')}</p>
-      <p>{t('dashboard.empty')}</p>
-      <button onClick={() => setView('intake')}>{t('dashboard.start')}</button>
-    </div>
+    <MotionConfig reducedMotion="user">
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={activeViewKey}
+          className="view-layer"
+          initial={{ opacity: 0, y: 18, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -12, scale: 0.99 }}
+          transition={viewTransition}
+        >
+          {activeView}
+        </motion.div>
+      </AnimatePresence>
+    </MotionConfig>
   )
 }
 

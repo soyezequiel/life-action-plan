@@ -84,7 +84,7 @@ export const planBuilder: Skill = {
     ].join('\n')
   },
 
-  async run(runtime: AgentRuntime, ctx: SkillContext): Promise<SkillResult> {
+  async run(_runtime: AgentRuntime, _ctx: SkillContext): Promise<SkillResult> {
     // This is called from the IPC handler with the profile already loaded
     // The actual execution is in generatePlan() below
     return {

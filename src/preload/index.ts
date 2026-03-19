@@ -18,6 +18,9 @@ const api = {
   progress: {
     list: (planId: string, fecha: string) => ipcRenderer.invoke('progress:list', planId, fecha),
     toggle: (progressId: string) => ipcRenderer.invoke('progress:toggle', progressId)
+  },
+  streak: {
+    get: (planId: string) => ipcRenderer.invoke('streak:get', planId)
   }
 }
 

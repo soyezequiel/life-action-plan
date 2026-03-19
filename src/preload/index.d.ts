@@ -1,7 +1,7 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type {
   IntakeExpressData, IntakeSaveResult, PlanBuildResult,
-  PlanRow, ProgressRow, ProgressToggleResult
+  PlanRow, ProgressRow, ProgressToggleResult, StreakResult
 } from '../shared/types/ipc'
 import type { Perfil } from '../shared/schemas/perfil'
 
@@ -20,6 +20,9 @@ interface LapAPI {
   progress: {
     list: (planId: string, fecha: string) => Promise<ProgressRow[]>
     toggle: (progressId: string) => Promise<ProgressToggleResult>
+  }
+  streak: {
+    get: (planId: string) => Promise<StreakResult>
   }
 }
 

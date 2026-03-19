@@ -8,6 +8,7 @@
   ],
   "compilerOptions": {
     "composite": true,
+    "baseUrl": ".",
     "types": ["electron-vite/node"],
     "paths": {
       "@shared/*": ["src/shared/*"]

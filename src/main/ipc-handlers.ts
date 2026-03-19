@@ -3,9 +3,9 @@ import { intakeExpressToProfile } from '../skills/plan-intake'
 import { generatePlan } from '../skills/plan-builder'
 import { getProvider } from '../providers/provider-factory'
 import {
-  createProfile, getProfile, createPlan,
+  createProfile, getProfile, createPlan, getPlan,
   getPlansByProfile, getProgressByPlanAndDate, toggleProgress,
-  seedProgressFromEvents, trackEvent, getSetting, setSetting
+  seedProgressFromEvents, trackEvent, getSetting, setSetting, getHabitStreak
 } from './db/db-helpers'
 import type { IntakeExpressData } from '../shared/types/ipc'
 import type { Perfil } from '../shared/schemas/perfil'
@@ -134,6 +134,27 @@ export function registerIpcHandlers(): void {
   // --- List progress for plan + date ---
   ipcMain.handle('progress:list', async (_event, planId: string, fecha: string) => {
     return getProgressByPlanAndDate(planId, fecha)
+  })
+
+  // --- Get current/best streak for habits in a plan ---
+  ipcMain.handle('streak:get', async (_event, planId: string) => {
+    const planRow = getPlan(planId)
+    if (!planRow) return { current: 0, best: 0 }
+
+    let timezone = 'America/Argentina/Buenos_Aires'
+    const profileRow = getProfile(planRow.profileId)
+
+    if (profileRow) {
+      try {
+        const profile: Perfil = JSON.parse(profileRow.data)
+        timezone = profile.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria || timezone
+      } catch {
+        timezone = 'America/Argentina/Buenos_Aires'
+      }
+    }
+
+    const todayISO = DateTime.now().setZone(timezone).toISODate() ?? DateTime.now().toISODate()!
+    return getHabitStreak(planId, todayISO)
   })
 
   // --- Toggle progress completion ---

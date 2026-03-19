@@ -44,15 +44,15 @@ function createOpenAIRuntime(model: string, config: ProviderConfig): AgentRuntim
           role: m.role as 'system' | 'user' | 'assistant',
           content: m.content
         })),
-        maxTokens: 4096,
+        maxOutputTokens: 4096,
         abortSignal: AbortSignal.timeout(120_000)
       })
 
       return {
         content: result.text,
         usage: {
-          promptTokens: result.usage?.promptTokens ?? 0,
-          completionTokens: result.usage?.completionTokens ?? 0
+          promptTokens: result.usage?.inputTokens ?? 0,
+          completionTokens: result.usage?.outputTokens ?? 0
         }
       }
     },
@@ -64,7 +64,7 @@ function createOpenAIRuntime(model: string, config: ProviderConfig): AgentRuntim
           role: m.role as 'system' | 'user' | 'assistant',
           content: m.content
         })),
-        maxTokens: 4096,
+        maxOutputTokens: 4096,
         abortSignal: AbortSignal.timeout(60_000)
       })
 

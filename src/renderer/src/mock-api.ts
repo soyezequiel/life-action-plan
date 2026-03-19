@@ -1,11 +1,20 @@
 // Mock window.api for browser-only dev (no Electron)
 // Returns fake data so the UI can be developed without the main process
 
+import { DateTime } from 'luxon'
 import type { IntakeExpressData } from '../../shared/types/ipc'
+import { calculateHabitStreak } from '../../utils/streaks'
 
 const MOCK_PROFILE_ID = 'mock-profile-1'
 const MOCK_PLAN_ID = 'mock-plan-1'
-const TODAY = new Date().toISOString().slice(0, 10)
+const TODAY = DateTime.now().toISODate() ?? '2026-03-18'
+const YESTERDAY = DateTime.fromISO(TODAY).minus({ days: 1 }).toISODate() ?? TODAY
+const TWO_DAYS_AGO = DateTime.fromISO(TODAY).minus({ days: 2 }).toISODate() ?? TODAY
+
+const mockHabitHistory = [
+  { fecha: TWO_DAYS_AGO, tipo: 'habito', completado: true },
+  { fecha: YESTERDAY, tipo: 'habito', completado: true }
+]
 
 const mockTasks = [
   { id: 'task-1', planId: MOCK_PLAN_ID, fecha: TODAY, tipo: 'tarea', objetivoId: 'obj1', descripcion: 'Estudiar JavaScript 30 min', completado: false, notas: JSON.stringify({ hora: '08:00', duracion: 30, categoria: 'estudio' }), createdAt: TODAY },
@@ -23,7 +32,7 @@ const mockApi = {
   plan: {
     build: async (profileId: string, _apiKey: string, provider?: string) => {
       console.log('[mock] plan:build', { profileId, provider })
-      await new Promise((r) => setTimeout(r, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
       return {
         success: true,
         planId: MOCK_PLAN_ID,
@@ -62,16 +71,21 @@ const mockApi = {
       return mockTasks
     },
     toggle: async (progressId: string) => {
-      const task = mockTasks.find((t) => t.id === progressId)
+      const task = mockTasks.find((entry) => entry.id === progressId)
       if (task) task.completado = !task.completado
       return { success: true, completado: task?.completado ?? false }
+    }
+  },
+  streak: {
+    get: async (_planId: string) => {
+      return calculateHabitStreak([...mockHabitHistory, ...mockTasks], TODAY)
     }
   }
 }
 
 export function installMockApi(): void {
   if (typeof window !== 'undefined' && !window.api) {
-    ;(window as Record<string, unknown>).api = mockApi
+    ;(window as unknown as { api?: typeof mockApi }).api = mockApi
     console.log('[LAP] Running in browser mode — using mock API')
   }
 }
