@@ -7,7 +7,9 @@ out
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+*.tsbuildinfo
 .env
 .env.*
 *.node
 _referencia_lightning
+.claude/settings.local.json
