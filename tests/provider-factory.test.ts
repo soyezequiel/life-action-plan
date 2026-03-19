@@ -1,7 +1,34 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getProvider, getProviderTimeouts } from '../src/providers/provider-factory'
 
+function createJsonResponse(body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+}
+
+function createNdjsonResponse(lines: unknown[]): Response {
+  return new Response(`${lines.map((line) => JSON.stringify(line)).join('\n')}\n`, {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/x-ndjson'
+    }
+  })
+}
+
 describe('getProvider', () => {
+  beforeEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
+
   it('crea un runtime OpenAI con modelo default', () => {
     const runtime = getProvider('openai:gpt-4o-mini', { apiKey: 'test-key' })
     expect(runtime).toBeDefined()
@@ -15,6 +42,7 @@ describe('getProvider', () => {
     const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
     expect(runtime).toBeDefined()
     expect(runtime.chat).toBeTypeOf('function')
+    expect(runtime.streamChat).toBeTypeOf('function')
   })
 
   it('soporta modelo sin prefijo (default openai)', () => {
@@ -23,7 +51,6 @@ describe('getProvider', () => {
   })
 
   it('parsea correctamente modelId con múltiples ":" (ollama:qwen3:8b)', () => {
-    // Verifica que "ollama:qwen3:8b" no pierda ":8b"
     const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
     expect(runtime).toBeDefined()
     expect(runtime.chat).toBeTypeOf('function')
@@ -41,7 +68,7 @@ describe('getProvider', () => {
     expect(newRuntime).not.toBe(runtime)
   })
 
-  it('usa timeouts mas amplios para Ollama local', () => {
+  it('usa timeouts más amplios para Ollama local', () => {
     expect(getProviderTimeouts('ollama:qwen3:8b')).toEqual({
       chatMs: 180_000,
       streamMs: 180_000
@@ -53,5 +80,116 @@ describe('getProvider', () => {
       chatMs: 20_000,
       streamMs: 20_000
     })
+  })
+
+  it('usa la API nativa de Ollama para chat y preserva thinking + tool calls', async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      expect(String(input)).toBe('http://localhost:11434/api/chat')
+
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
+      expect(body.model).toBe('qwen3:8b')
+      expect(body.stream).toBe(false)
+      expect(body.think).toBe(true)
+
+      return createJsonResponse({
+        message: {
+          thinking: 'pienso primero',
+          content: '{"ok":true}',
+          tool_calls: [
+            {
+              function: {
+                name: 'buscar_dato',
+                arguments: { ciudad: 'Buenos Aires' }
+              }
+            }
+          ]
+        },
+        prompt_eval_count: 12,
+        eval_count: 34
+      })
+    })
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '', baseURL: 'http://localhost:11434/v1' })
+    const result = await runtime.chat([
+      { role: 'system', content: 'solo json' },
+      { role: 'user', content: 'hola' }
+    ])
+
+    expect(result.content).toBe('<think>pienso primero</think>{"ok":true}')
+    expect(result.toolCalls).toEqual([
+      {
+        id: 'ollama-tool-0',
+        name: 'buscar_dato',
+        arguments: { ciudad: 'Buenos Aires' }
+      }
+    ])
+    expect(result.usage).toEqual({ promptTokens: 12, completionTokens: 34 })
+  })
+
+  it('streamChat de Ollama emite thinking y contenido en el orden correcto', async () => {
+    const fetchMock = vi.fn(async () => createNdjsonResponse([
+      {
+        message: {
+          thinking: 'analizo'
+        }
+      },
+      {
+        message: {
+          content: '{"nombre":"Plan"}'
+        }
+      },
+      {
+        message: {},
+        prompt_eval_count: 7,
+        eval_count: 9
+      }
+    ]))
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
+    const chunks: string[] = []
+
+    const result = await runtime.streamChat!([
+      { role: 'system', content: 'solo json' },
+      { role: 'user', content: 'hola' }
+    ], (chunk) => {
+      chunks.push(chunk)
+    })
+
+    expect(chunks).toEqual(['<think>', 'analizo', '</think>', '{"nombre":"Plan"}'])
+    expect(result.content).toBe('<think>analizo</think>{"nombre":"Plan"}')
+    expect(result.usage).toEqual({ promptTokens: 7, completionTokens: 9 })
+  })
+
+  it('stream de Ollama también expone thinking como tags <think>', async () => {
+    const fetchMock = vi.fn(async () => createNdjsonResponse([
+      {
+        message: {
+          thinking: 'razono'
+        }
+      },
+      {
+        message: {
+          content: 'respuesta final'
+        }
+      }
+    ]))
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
+    const chunks: string[] = []
+
+    for await (const chunk of runtime.stream([
+      { role: 'system', content: 'solo json' },
+      { role: 'user', content: 'hola' }
+    ])) {
+      chunks.push(chunk)
+    }
+
+    expect(chunks).toEqual(['<think>', 'razono', '</think>', 'respuesta final'])
   })
 })
