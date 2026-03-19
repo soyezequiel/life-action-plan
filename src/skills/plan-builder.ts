@@ -3,9 +3,9 @@ import type { Perfil } from '../shared/schemas/perfil'
 import { z } from 'zod'
 
 /**
- * Plan Builder Core — Genera un plan de acción a 1 mes.
+ * Plan Builder Core - Genera un plan de accion a 1 mes.
  *
- * Toma el perfil del Intake Express, lo envía al LLM con un system prompt
+ * Toma el perfil del Intake Express, lo envia al LLM con un system prompt
  * que genera una matriz de tareas/eventos semanales, y devuelve JSON
  * parseado para insertar en SQLite.
  */
@@ -27,13 +27,38 @@ export interface GeneratedPlan {
   tokensUsed: { input: number; output: number }
 }
 
+const validCategories = ['estudio', 'ejercicio', 'trabajo', 'habito', 'descanso', 'otro'] as const
+
+const categoryAliases: Record<string, PlanEvent['categoria']> = {
+  'habito': 'habito',
+  'habitos': 'habito',
+  'habit': 'habito',
+  'habito diario': 'habito',
+  'rutina': 'habito',
+  'estudio': 'estudio',
+  'estudiar': 'estudio',
+  'aprendizaje': 'estudio',
+  'ejercicio': 'ejercicio',
+  'salud': 'ejercicio',
+  'fitness': 'ejercicio',
+  'entrenamiento': 'ejercicio',
+  'trabajo': 'trabajo',
+  'laboral': 'trabajo',
+  'laburo': 'trabajo',
+  'descanso': 'descanso',
+  'recuperacion': 'descanso',
+  'pausa': 'descanso',
+  'ocio': 'descanso',
+  'otro': 'otro'
+}
+
 const planEventSchema = z.object({
   semana: z.number().int().min(1),
   dia: z.string().min(1),
   hora: z.string().regex(/^\d{2}:\d{2}$/),
   duracion: z.number().int().positive(),
   actividad: z.string().min(1),
-  categoria: z.enum(['estudio', 'ejercicio', 'trabajo', 'habito', 'descanso', 'otro']),
+  categoria: z.enum(validCategories),
   objetivoId: z.string().min(1)
 }).strict()
 
@@ -45,6 +70,13 @@ const generatedPlanSchema = z.object({
 
 function normalizeText(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function normalizeComparableText(value: unknown): string {
+  return normalizeText(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
 }
 
 function normalizeInteger(value: unknown): number {
@@ -74,35 +106,87 @@ function normalizeHora(value: unknown): string {
   return `${match[1].padStart(2, '0')}:${match[2]}`
 }
 
-function normalizeCategoria(value: unknown): PlanEvent['categoria'] | '' {
-  const normalized = normalizeText(value).toLowerCase()
-  const categorias: PlanEvent['categoria'][] = ['estudio', 'ejercicio', 'trabajo', 'habito', 'descanso', 'otro']
+function inferCategoriaFromActividad(value: unknown): PlanEvent['categoria'] | '' {
+  const activity = normalizeComparableText(value)
 
-  return categorias.includes(normalized as PlanEvent['categoria'])
-    ? normalized as PlanEvent['categoria']
-    : ''
+  if (!activity) {
+    return ''
+  }
+
+  if (/(leer|estudi|practicar|aprender|curso|investigar|repasar)/.test(activity)) {
+    return 'estudio'
+  }
+
+  if (/(caminar|correr|gim|entren|yoga|ejercicio|movilidad)/.test(activity)) {
+    return 'ejercicio'
+  }
+
+  if (/(trabajo|laburo|cliente|reunion|reunion|oficina|proyecto)/.test(activity)) {
+    return 'trabajo'
+  }
+
+  if (/(habito|rutina|constancia|diario|meditar|ordenar|hidratar)/.test(activity)) {
+    return 'habito'
+  }
+
+  if (/(descans|pausa|siesta|ocio|desconectar|relajar)/.test(activity)) {
+    return 'descanso'
+  }
+
+  return ''
 }
 
-function normalizeGeneratedPlan(input: unknown) {
+function normalizeCategoria(value: unknown, actividad?: unknown): PlanEvent['categoria'] | '' {
+  const normalized = normalizeComparableText(value)
+
+  if (normalized in categoryAliases) {
+    return categoryAliases[normalized]
+  }
+
+  if (validCategories.includes(normalized as PlanEvent['categoria'])) {
+    return normalized as PlanEvent['categoria']
+  }
+
+  return inferCategoriaFromActividad(actividad)
+}
+
+function normalizeGeneratedPlan(input: unknown, fallbackObjectiveId: string) {
   const source = input && typeof input === 'object' ? input as Record<string, unknown> : {}
-  const rawEventos = Array.isArray(source.eventos) ? source.eventos : []
+  const rawEventos = Array.isArray(source.eventos)
+    ? source.eventos
+    : Array.isArray(source.actividades)
+      ? source.actividades
+      : []
+
+  const normalizedEvents: PlanEvent[] = rawEventos
+    .map((event) => {
+      const rawEvent = event && typeof event === 'object' ? event as Record<string, unknown> : {}
+      const actividad = normalizeText(
+        rawEvent.actividad ?? rawEvent.descripcion ?? rawEvent.tarea ?? rawEvent.nombre
+      )
+
+      return {
+        semana: normalizeInteger(rawEvent.semana ?? rawEvent.week ?? rawEvent.orden),
+        dia: normalizeComparableText(rawEvent.dia ?? rawEvent.día ?? rawEvent.day),
+        hora: normalizeHora(rawEvent.hora ?? rawEvent.horario ?? rawEvent.inicio),
+        duracion: normalizeInteger(rawEvent.duracion ?? rawEvent.duración ?? rawEvent.minutos),
+        actividad,
+        categoria: normalizeCategoria(rawEvent.categoria ?? rawEvent.tipo ?? rawEvent.area, actividad),
+        objetivoId: normalizeText(
+          rawEvent.objetivoId ?? rawEvent.objetivo_id ?? rawEvent.objetivo ?? fallbackObjectiveId
+        ) || fallbackObjectiveId
+      }
+    })
+    .flatMap((event) => {
+      const parsed = planEventSchema.safeParse(event)
+      return parsed.success ? [parsed.data] : []
+    })
 
   return {
     nombre: normalizeText(source.nombre),
     resumen: normalizeText(source.resumen),
-    eventos: rawEventos.map((event) => {
-      const rawEvent = event && typeof event === 'object' ? event as Record<string, unknown> : {}
-
-      return {
-        semana: normalizeInteger(rawEvent.semana),
-        dia: normalizeText(rawEvent.dia).toLowerCase(),
-        hora: normalizeHora(rawEvent.hora),
-        duracion: normalizeInteger(rawEvent.duracion),
-        actividad: normalizeText(rawEvent.actividad),
-        categoria: normalizeCategoria(rawEvent.categoria),
-        objetivoId: normalizeText(rawEvent.objetivoId)
-      }
-    })
+    eventos: normalizedEvents,
+    rawEventCount: rawEventos.length
   }
 }
 
@@ -171,11 +255,11 @@ function buildUserPrompt(profile: Perfil): string {
     `Nombre: ${p.datosPersonales.nombre}`,
     `Edad: ${p.datosPersonales.edad}`,
     `Ciudad: ${p.datosPersonales.ubicacion.ciudad}`,
-    `Ocupación: ${p.datosPersonales.narrativaPersonal}`,
+    `Ocupacion: ${p.datosPersonales.narrativaPersonal}`,
     `Objetivo principal: ${obj?.descripcion ?? 'No especificado'}`,
     `Horario: despierta ${p.rutinaDiaria.porDefecto.despertar}, duerme ${p.rutinaDiaria.porDefecto.dormir}`,
     `Trabajo: ${p.rutinaDiaria.porDefecto.trabajoInicio ?? 'sin horario fijo'} a ${p.rutinaDiaria.porDefecto.trabajoFin ?? ''}`,
-    `Horas libres estimadas: ${p.calendario.horasLibresEstimadas.diasLaborales}h en días laborales, ${p.calendario.horasLibresEstimadas.diasDescanso}h fines de semana`
+    `Horas libres estimadas: ${p.calendario.horasLibresEstimadas.diasLaborales}h en dias laborales, ${p.calendario.horasLibresEstimadas.diasDescanso}h fines de semana`
   ].join('\n')
 }
 
@@ -222,8 +306,6 @@ export const planBuilder: Skill = {
   },
 
   async run(_runtime: AgentRuntime, _ctx: SkillContext): Promise<SkillResult> {
-    // This is called from the IPC handler with the profile already loaded
-    // The actual execution is in generatePlan() below
     return {
       success: true,
       filesWritten: [],
@@ -244,17 +326,27 @@ export async function generatePlan(
 ): Promise<GeneratedPlan> {
   const systemPrompt = planBuilder.getSystemPrompt(ctx)
   const userPrompt = buildUserPrompt(profile)
+  const fallbackObjectiveId = profile.objetivos[0]?.id ?? 'obj1'
 
   const response = await runtime.chat([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt }
   ])
 
-  // Parse the JSON response
   try {
     const extractedJson = extractFirstJsonObject(response.content)
     const parsed = JSON.parse(extractedJson)
-    const validated = generatedPlanSchema.parse(normalizeGeneratedPlan(parsed))
+    const normalized = normalizeGeneratedPlan(parsed, fallbackObjectiveId)
+
+    if (normalized.rawEventCount > 0 && normalized.eventos.length === 0) {
+      throw new Error('No valid events after normalization')
+    }
+
+    const validated = generatedPlanSchema.parse({
+      nombre: normalized.nombre,
+      resumen: normalized.resumen,
+      eventos: normalized.eventos
+    })
 
     return {
       nombre: validated.nombre,

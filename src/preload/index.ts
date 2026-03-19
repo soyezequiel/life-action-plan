@@ -1,8 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import type { IntakeExpressData } from '../shared/types/ipc'
+import type { DebugEvent, DebugSnapshotResult, IntakeExpressData, PlanSimulationProgress } from '../shared/types/ipc'
+import type { LapAPI } from '../shared/types/lap-api'
 
-const api = {
+const api: LapAPI = {
   intake: {
     save: (data: IntakeExpressData) => ipcRenderer.invoke('intake:save', data)
   },
@@ -11,6 +12,17 @@ const api = {
       ipcRenderer.invoke('plan:build', profileId, apiKey, provider),
     list: (profileId: string) => ipcRenderer.invoke('plan:list', profileId),
     simulate: (planId: string, mode?: 'interactive' | 'automatic') => ipcRenderer.invoke('plan:simulate', planId, mode),
+    onSimulationProgress: (listener: (progress: PlanSimulationProgress) => void) => {
+      const wrappedListener = (_event: Electron.IpcRendererEvent, progress: PlanSimulationProgress) => {
+        listener(progress)
+      }
+
+      ipcRenderer.on('plan:simulate:progress', wrappedListener)
+
+      return () => {
+        ipcRenderer.removeListener('plan:simulate:progress', wrappedListener)
+      }
+    },
     exportCalendar: (planId: string) => ipcRenderer.invoke('plan:export-ics', planId)
   },
   profile: {
@@ -31,6 +43,23 @@ const api = {
   },
   cost: {
     summary: (planId: string) => ipcRenderer.invoke('cost:summary', planId)
+  },
+  debug: {
+    enable: () => ipcRenderer.invoke('debug:enable'),
+    disable: () => ipcRenderer.invoke('debug:disable'),
+    status: () => ipcRenderer.invoke('debug:status'),
+    snapshot: (): Promise<DebugSnapshotResult> => ipcRenderer.invoke('debug:snapshot'),
+    onEvent: (listener: (event: DebugEvent) => void) => {
+      const wrappedListener = (_event: Electron.IpcRendererEvent, event: DebugEvent) => {
+        listener(event)
+      }
+
+      ipcRenderer.on('debug:event', wrappedListener)
+
+      return () => {
+        ipcRenderer.removeListener('debug:event', wrappedListener)
+      }
+    }
   }
 }
 

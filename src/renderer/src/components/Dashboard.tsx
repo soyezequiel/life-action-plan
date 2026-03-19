@@ -3,9 +3,11 @@ import type { JSX } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getCurrentLocale, t } from '../../../i18n'
 import { DateTime } from 'luxon'
+import { useLapClient } from '../app-services'
 import type {
   CostSummary,
   PlanRow,
+  PlanSimulationProgress,
   PlanSimulationSnapshot,
   ProgressRow,
   SimulationMode,
@@ -77,6 +79,7 @@ function Dashboard({
   onBuildPlan,
   buildError
 }: DashboardProps): JSX.Element {
+  const client = useLapClient()
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [tasks, setTasks] = useState<ProgressRow[]>([])
   const [streak, setStreak] = useState<StreakResult>({ current: 0, best: 0 })
@@ -97,22 +100,26 @@ function Dashboard({
   const [isSimulating, setIsSimulating] = useState(false)
   const [simulationError, setSimulationError] = useState('')
   const [simulationMode, setSimulationMode] = useState<SimulationMode>('interactive')
-  const [simulationStageIndex, setSimulationStageIndex] = useState(0)
+  const [simulationProgress, setSimulationProgress] = useState<PlanSimulationProgress | null>(null)
 
   const hasPlan = plans.length > 0
   const latestPlan = hasPlan ? plans[plans.length - 1] : null
   const latestPlanMeta = latestPlan ? parseManifestMeta(latestPlan.manifest) : {}
   const latestSimulation = latestPlanMeta.ultimaSimulacion ?? null
-  const activeSimulationStageKey = simulationStageKeys[Math.min(simulationStageIndex, simulationStageKeys.length - 1)]
+  const simulationStageIndex = Math.min(
+    Math.max((simulationProgress?.current ?? 1) - 1, 0),
+    simulationStageKeys.length - 1
+  )
+  const activeSimulationStageKey = simulationProgress?.stage ?? simulationStageKeys[0]
 
   const loadData = useCallback(async () => {
     setLoading(true)
 
     try {
       const [profile, planList, nextWalletStatus] = await Promise.all([
-        window.api.profile.get(profileId),
-        window.api.plan.list(profileId),
-        window.api.wallet.status()
+        client.profile.get(profileId),
+        client.plan.list(profileId),
+        client.wallet.status()
       ])
 
       let today = DateTime.now().toISODate() ?? '2026-03-18'
@@ -131,14 +138,14 @@ function Dashboard({
       if (planList.length > 0) {
         const nextPlan = planList[planList.length - 1]
         const [progressList, streakResult] = await Promise.all([
-          window.api.progress.list(nextPlan.id, today),
-          window.api.streak.get(nextPlan.id)
+          client.progress.list(nextPlan.id, today),
+          client.streak.get(nextPlan.id)
         ])
         setTasks(progressList)
         setStreak(streakResult)
 
         try {
-          setCostSummary(await window.api.cost.summary(nextPlan.id))
+          setCostSummary(await client.cost.summary(nextPlan.id))
         } catch {
           setCostSummary(null)
         }
@@ -150,30 +157,28 @@ function Dashboard({
     } finally {
       setLoading(false)
     }
-  }, [profileId])
+  }, [client, profileId])
 
   useEffect(() => {
     void loadData()
   }, [loadData])
 
   useEffect(() => {
-    if (!isSimulating) {
-      setSimulationStageIndex(0)
+    const latestPlanId = latestPlan?.id
+
+    if (!latestPlanId) {
+      setSimulationProgress(null)
       return
     }
 
-    setSimulationStageIndex(0)
+    return client.plan.onSimulationProgress((progress) => {
+      if (progress.planId !== latestPlanId) {
+        return
+      }
 
-    const intervalId = window.setInterval(() => {
-      setSimulationStageIndex((current) => (
-        current >= simulationStageKeys.length - 1 ? current : current + 1
-      ))
-    }, 650)
-
-    return () => {
-      window.clearInterval(intervalId)
-    }
-  }, [isSimulating])
+      setSimulationProgress(progress)
+    })
+  }, [client, latestPlan?.id])
 
   useEffect(() => {
     if (latestSimulation?.mode) {
@@ -183,14 +188,14 @@ function Dashboard({
 
   async function handleToggle(taskId: string): Promise<void> {
     const toggledTask = tasks.find((task) => task.id === taskId)
-    const result = await window.api.progress.toggle(taskId)
+    const result = await client.progress.toggle(taskId)
     if (result.success) {
       setTasks((prev) =>
         prev.map((task) => (task.id === taskId ? { ...task, completado: result.completado } : task))
       )
 
       if (toggledTask?.tipo === 'habito') {
-        const nextStreak = await window.api.streak.get(toggledTask.planId)
+        const nextStreak = await client.streak.get(toggledTask.planId)
         setStreak(nextStreak)
       }
     }
@@ -203,7 +208,7 @@ function Dashboard({
     setExportStatus(null)
 
     try {
-      const result = await window.api.plan.exportCalendar(latestPlan.id)
+      const result = await client.plan.exportCalendar(latestPlan.id)
       if (result.success) {
         setExportStatus('success')
       } else if (!result.cancelled) {
@@ -221,9 +226,10 @@ function Dashboard({
 
     setIsSimulating(true)
     setSimulationError('')
+    setSimulationProgress(null)
 
     try {
-      const result = await window.api.plan.simulate(latestPlan.id, simulationMode)
+      const result = await client.plan.simulate(latestPlan.id, simulationMode)
       if (result.success) {
         await loadData()
       } else {
@@ -233,6 +239,7 @@ function Dashboard({
       setSimulationError(t('errors.connection_busy'))
     } finally {
       setIsSimulating(false)
+      setSimulationProgress(null)
     }
   }
 
@@ -243,7 +250,7 @@ function Dashboard({
     setWalletNotice(null)
 
     try {
-      const result = await window.api.wallet.connect(walletConnection.trim())
+      const result = await client.wallet.connect(walletConnection.trim())
       if (result.success) {
         setWalletStatus(result.status)
         setWalletConnection('')
@@ -265,7 +272,7 @@ function Dashboard({
     setWalletNotice(null)
 
     try {
-      const result = await window.api.wallet.disconnect()
+      const result = await client.wallet.disconnect()
       if (result.success) {
         setWalletStatus({
           configured: false,

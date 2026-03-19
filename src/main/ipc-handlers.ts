@@ -6,7 +6,7 @@ import { generatePlan } from '../skills/plan-builder'
 import { getProvider } from '../providers/provider-factory'
 import {
   createProfile, getProfile, createPlan, getPlan, updatePlanManifest,
-  getPlansByProfile, getProgressByPlan, getProgressByPlanAndDate, toggleProgress,
+  getPlanBySlug, getPlansByProfile, getProgressByPlan, getProgressByPlanAndDate, toggleProgress,
   seedProgressFromEvents, trackEvent, getSetting, setSetting, getHabitStreak, getCostSummary, trackCost
 } from './db/db-helpers'
 import type { IntakeExpressData } from '../shared/types/ipc'
@@ -20,7 +20,9 @@ import { clearSecureToken, isSecureStorageAvailable, loadSecureToken, saveSecure
 import type { PaymentProviderStatus } from '../providers/payment-provider'
 import type { SimulationMode, WalletStatus } from '../shared/types/ipc'
 import { buildWithOllamaFallback } from '../utils/plan-build-fallback'
-import { simulatePlanViability } from '../skills/plan-simulator'
+import { simulatePlanViabilityWithProgress } from '../skills/plan-simulator'
+import { traceCollector } from '../debug/trace-collector'
+import { createInstrumentedRuntime } from '../debug/instrumented-runtime'
 
 function toPosixPath(value: string): string {
   return value.replace(/\\/g, '/')
@@ -34,6 +36,18 @@ function sanitizeFileName(value: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
     .slice(0, 64) || 'mi-plan'
+}
+
+function createUniquePlanSlug(baseSlug: string): string {
+  let candidate = baseSlug
+  let suffix = 2
+
+  while (getPlanBySlug(candidate)) {
+    candidate = `${baseSlug}-${suffix}`
+    suffix += 1
+  }
+
+  return candidate
 }
 
 function toSats(valueMsats: number | null): number | undefined {
@@ -66,6 +80,12 @@ function parseManifest(manifest: string): Record<string, unknown> {
 
 function simulationStatusToManifestValue(value: 'PASS' | 'WARN' | 'FAIL' | 'MISSING') {
   return value === 'MISSING' ? 'PENDIENTE' : value
+}
+
+function flushRendererFrame(): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 120)
+  })
 }
 
 function toPlanBuildErrorMessage(error: unknown): string {
@@ -113,6 +133,39 @@ function toPlanBuildErrorMessage(error: unknown): string {
 }
 
 export function registerIpcHandlers(): void {
+  ipcMain.handle('debug:enable', async (event) => {
+    traceCollector.enable(event.sender)
+    setSetting('debugPanelVisible', 'true')
+
+    return {
+      enabled: traceCollector.isEnabled(),
+      panelVisible: true
+    }
+  })
+
+  ipcMain.handle('debug:disable', async () => {
+    traceCollector.disable()
+    setSetting('debugPanelVisible', 'false')
+
+    return {
+      enabled: false,
+      panelVisible: false
+    }
+  })
+
+  ipcMain.handle('debug:status', async () => {
+    return {
+      enabled: traceCollector.isEnabled(),
+      panelVisible: getSetting('debugPanelVisible') === 'true'
+    }
+  })
+
+  ipcMain.handle('debug:snapshot', async () => {
+    return {
+      traces: traceCollector.getSnapshot()
+    }
+  })
+
   // --- Intake Express: save profile ---
   ipcMain.handle('intake:save', async (_event, data: IntakeExpressData) => {
     try {
@@ -131,7 +184,9 @@ export function registerIpcHandlers(): void {
 
   // --- Plan Builder: generate plan from profile ---
   // provider: "openai:gpt-4o-mini" or "ollama:qwen3:8b"
-  ipcMain.handle('plan:build', async (_event, profileId: string, apiKey: string, provider?: string) => {
+  ipcMain.handle('plan:build', async (event, profileId: string, apiKey: string, provider?: string) => {
+    let traceId: string | null = null
+
     try {
       const profileRow = getProfile(profileId)
       if (!profileRow) {
@@ -151,13 +206,25 @@ export function registerIpcHandlers(): void {
 
       trackEvent('PLAN_BUILD_STARTED', { profileId, modelId })
 
+      if (getSetting('debugPanelVisible') === 'true' && !traceCollector.isEnabled()) {
+        traceCollector.enable(event.sender)
+      }
+
+      traceId = traceCollector.startTrace('plan-builder', modelId, { profileId })
       const buildResult = await buildWithOllamaFallback(
         modelId,
         async (nextModelId) => {
           const runtime = getProvider(nextModelId, {
             apiKey: nextModelId.startsWith('ollama:') ? '' : apiKey
           })
-          return generatePlan(runtime, profile, ctx)
+          const instrumentedRuntime = createInstrumentedRuntime(
+            runtime,
+            traceId,
+            'plan-builder',
+            nextModelId
+          )
+
+          return generatePlan(instrumentedRuntime, profile, ctx)
         },
         (originalError) => {
           trackEvent('PLAN_BUILD_FALLBACK', {
@@ -167,17 +234,19 @@ export function registerIpcHandlers(): void {
           })
         }
       )
+      traceCollector.completeTrace(traceId)
       const result = buildResult.result
       const fallbackUsed = buildResult.fallbackUsed
       const finalModelId = buildResult.modelId
 
       // Save plan to DB
       const now = DateTime.utc().toISO()!
-      const slug = result.nombre
+      const baseSlug = result.nombre
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '')
         .substring(0, 50) || 'mi-plan'
+      const slug = createUniquePlanSlug(baseSlug)
 
       const manifest = JSON.stringify({
         nombrePlan: result.nombre,
@@ -250,7 +319,11 @@ export function registerIpcHandlers(): void {
         fallbackUsed
       }
     } catch (error) {
+      traceCollector.failTrace(traceId, error)
       const message = error instanceof Error ? error.message : 'Unknown error'
+      const stack = error instanceof Error ? error.stack : ''
+      console.error('[LAP] plan:build failed —', message)
+      if (stack) console.error('[LAP] stack:', stack)
       trackEvent('ERROR_OCCURRED', { code: 'PLAN_BUILD_FAILED', message })
       return { success: false, error: toPlanBuildErrorMessage(error) }
     }
@@ -349,7 +422,7 @@ export function registerIpcHandlers(): void {
   })
 
   // --- Simulate current plan viability ---
-  ipcMain.handle('plan:simulate', async (_event, planId: string, mode: SimulationMode = 'interactive') => {
+  ipcMain.handle('plan:simulate', async (event, planId: string, mode: SimulationMode = 'interactive') => {
     try {
       const planRow = getPlan(planId)
       if (!planRow) {
@@ -364,7 +437,18 @@ export function registerIpcHandlers(): void {
       const profile: Perfil = JSON.parse(profileRow.data)
       const timezone = profile.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria || 'America/Argentina/Buenos_Aires'
       const rows = getProgressByPlan(planId)
-      const simulation = simulatePlanViability(profile, rows, { timezone, locale: 'es-AR', mode })
+      const simulation = await simulatePlanViabilityWithProgress(profile, rows, {
+        timezone,
+        locale: 'es-AR',
+        mode,
+        onProgress: async (progress) => {
+          event.sender.send('plan:simulate:progress', {
+            planId,
+            ...progress
+          })
+          await flushRendererFrame()
+        }
+      })
       const manifest = parseManifest(planRow.manifest)
       const periodKey = DateTime.now().setZone(timezone).toFormat('yyyy-MM')
       const findings = simulation.findings

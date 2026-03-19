@@ -1,5 +1,6 @@
 import type { IntakeExpressData } from '../../skills/plan-intake'
 import type { PlanEvent } from '../../skills/plan-builder'
+import type { DebugEvent, DebugSpan, DebugTraceSnapshot } from './debug'
 
 // Intake Express
 export interface IntakeSaveResult {
@@ -94,8 +95,18 @@ export interface CostSummary {
   costSats: number
 }
 
+export interface DebugStatusResult {
+  enabled: boolean
+  panelVisible: boolean
+}
+
+export interface DebugSnapshotResult {
+  traces: DebugTraceSnapshot[]
+}
+
 export type SimulationStatus = 'PASS' | 'WARN' | 'FAIL' | 'MISSING'
 export type SimulationMode = 'interactive' | 'automatic'
+export type SimulationProgressStage = 'schedule' | 'work' | 'load' | 'summary'
 
 export type SimulationFindingCode =
   | 'no_plan_items'
@@ -132,6 +143,14 @@ export interface PlanSimulationSnapshot {
   findings: SimulationFinding[]
 }
 
+export interface PlanSimulationProgress {
+  planId: string
+  mode: SimulationMode
+  stage: SimulationProgressStage
+  current: number
+  total: number
+}
+
 export interface PlanSimulationResult {
   success: boolean
   simulation?: PlanSimulationSnapshot
@@ -140,3 +159,4 @@ export interface PlanSimulationResult {
 
 // Re-export for convenience
 export type { IntakeExpressData, PlanEvent }
+export type { DebugEvent, DebugSpan, DebugTraceSnapshot }

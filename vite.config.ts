@@ -1,8 +1,8 @@
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { createLapBrowserDevPlugin } from './src/server/browser-dev-server'
 
-// Browser-only dev config (no Electron)
 export default defineConfig({
   root: resolve('src/renderer'),
   resolve: {
@@ -11,8 +11,5 @@ export default defineConfig({
       '@shared': resolve('src/shared')
     }
   },
-  plugins: [react()],
-  server: {
-    port: 5173
-  }
+  plugins: [react(), createLapBrowserDevPlugin()]
 })

@@ -196,3 +196,131 @@ Pendiente
 Bug o edge case
 - Durante el desarrollo aparecio un bug de hooks por un `useEffect` debajo del `return` condicional de carga en `Dashboard.tsx`; ya quedo corregido.
 - El mock de browser representa duraciones y resultados distintos por modo, pero no reproduce todavia una simulacion incremental real del backend.
+
+[2026-03-19 01:39 ART] — Paso 2.4: Streaming real de revision desde backend
+Completado parcial
+- Reemplace el progreso inventado en frontend por un stream real de etapas emitidas durante `plan:simulate`.
+- El simulador ahora corre en cuatro fases compartidas (`schedule`, `work`, `load`, `summary`) y puede emitir progreso sin duplicar logica.
+- Agregue listener seguro en preload para que el renderer reciba eventos IPC de revision en tiempo real.
+- El mock browser ahora emite esas mismas etapas con demoras controladas para poder verificar visualmente el flujo en `dev:browser`.
+
+Archivos tocados
+- `src/skills/plan-simulator.ts`
+- `src/main/ipc-handlers.ts`
+- `src/preload/index.ts`
+- `src/preload/index.d.ts`
+- `src/shared/types/ipc.ts`
+- `src/renderer/src/components/Dashboard.tsx`
+- `src/renderer/src/mock-api.ts`
+- `tests/plan-simulator.test.ts`
+
+Tests
+- 1 test nuevo en `tests/plan-simulator.test.ts`:
+  - `emite progreso real por etapas en orden`
+- Suite completa revalidada: `69` tests pasando.
+- `npm run typecheck`: OK
+- `npm run build`: OK
+- Smoke visual en `dev:browser`: OK, con secuencia observada `Mirando tus horarios -> Chequeando tu jornada -> Midiendo la carga del dia -> Armando el resumen`.
+
+Decisiones
+- Mantengo el contrato principal de `plan:simulate` via `invoke`, pero agrego un canal complementario `plan:simulate:progress` para no romper el flujo actual del dashboard.
+- El backend cede el event loop entre etapas con una pausa minima para que Electron pinte el avance en pantalla; sin eso, la simulacion local era demasiado rapida y el stream existia pero no se llegaba a ver.
+- Extraigo una variante async del simulador (`simulatePlanViabilityWithProgress`) que comparte las mismas reglas que la version sync, asi los tests existentes no divergen del runtime real.
+
+Pendiente
+- Falta streaming verdaderamente incremental si mas adelante la simulacion deja de ser local y pasa a usar runtime/LLM.
+- Falta modo interactivo con confirmaciones humanas por iteracion.
+- Falta propuesta automatica de ajustes despues de un `FAIL`.
+
+Bug o edge case
+- En Electron real, el stream depende de que el renderer siga suscrito al plan activo; por ahora el listener filtra por `planId`, que cubre el caso de una sola revision visible a la vez.
+- El smoke en browser sigue mostrando un `404` de `favicon.ico`, pero no afecta el flujo funcional de la simulacion.
+
+[2026-03-19 01:46 ART] — Fix tecnico: timeout mas amplio para Ollama local
+Completado
+- Aumente los timeouts del runtime local `ollama:qwen3:8b` de `20s` a `90s` para chat y stream.
+- Mantengo OpenAI en `20s`; el cambio aplica solo al provider local, que era el cuello mas probable de los errores "ocupado" durante el armado del plan.
+
+Archivos tocados
+- `src/providers/provider-factory.ts`
+- `tests/provider-factory.test.ts`
+
+Tests
+- 2 tests nuevos en `tests/provider-factory.test.ts`:
+  - `usa timeouts mas amplios para Ollama local`
+  - `mantiene timeouts cortos para OpenAI`
+- Suite completa revalidada: `71` tests pasando.
+- `npm run typecheck`: OK
+- `npm run build`: OK
+
+Decisiones
+- No subi el timeout global de todos los providers; separo OpenAI y Ollama porque los tiempos de respuesta son muy distintos.
+- El objetivo es evitar falsos "busy" en modelos locales sin volver perezoso el manejo de fallas remotas.
+
+Pendiente
+- Si el usuario sigue viendo el mismo mensaje despues de este cambio, el siguiente paso es instrumentar el error crudo en renderer para distinguir timeout real de rechazo IPC/preload.
+
+Bug o edge case
+- El mensaje visible sigue siendo el friendly `errors.connection_busy`; este cambio ataca la causa mas probable, no el copy.
+
+[2026-03-19 02:25 ART] — Fix critico: Qwen3 thinking model + maxOutputTokens + error logging
+### Completado
+- Diagnosticado el bug real del plan:build con Ollama: `qwen3:8b` es un modelo "thinking" que gasta tokens en `reasoning` antes de generar `content`. Con `maxOutputTokens: 4096`, el razonamiento consumía todo y `content` volvía vacío → JSON parse fallaba.
+- Subido `maxOutputTokens` a 16384 para Ollama (el content real usa ~600-2000 tokens, pero el reasoning puede usar 3000-5000).
+- Subido timeout de Ollama de 90s a 180s para dar margen al reasoning + generación.
+- Agregado `console.error` con message y stack en el catch de `plan:build` para diagnóstico futuro.
+- Verificado end-to-end con curl → Vercel AI SDK → prompt real del builder. Plan se genera en ~9s con JSON válido.
+
+### Archivos tocados
+- `src/providers/provider-factory.ts` (maxOutputTokens configurable por provider, 16384 para Ollama)
+- `src/main/ipc-handlers.ts` (error logging con stack trace)
+- `tests/provider-factory.test.ts` (timeout test actualizado a 180s)
+
+### Tests
+- Suite completa revalidada: 73 tests pasando
+- `npm run typecheck`: no verificado (pendiente Codex)
+- Timeout test actualizado
+
+### Decisiones
+- No subí maxOutputTokens global; solo Ollama lo necesita por ser "thinking model"
+- 16384 es suficiente: el reasoning de qwen3:8b usa ~3000-5000 tokens, el content ~600-2000
+- El timeout de 180s cubre el peor caso de modelos locales lentos sin afectar OpenAI (sigue en 20s)
+- El error logging NO expone info sensible; solo message + stack del error de Node
+
+### Pendiente
+- Confirmar el fix en Electron real con `npm run dev` + click "Armar con asistente local"
+- Considerar agregar detección explícita de `content` vacío en plan-builder como fallback
+- typecheck pendiente
+
+### Bug o edge case
+- Si Qwen3 cambia el formato de reasoning en futuras versiones de Ollama, el SDK podría dejar de extraer content correctamente
+- El `runWithTimeout` tiene un timer leak menor: `rejectId` no se limpia cuando la operación termina exitosamente antes del timeout
+
+[2026-03-19 01:58 ART] — Fix tecnico: builder tolerante por evento
+Completado
+- Reescribi `plan-builder.ts` para no tirar abajo todo el plan cuando un evento viene "casi bien".
+- Ahora normalizo por evento, acepto aliases como `actividades`, `descripcion`, `tarea`, `horario`, `minutos` y completo `objetivoId` con el objetivo principal del perfil cuando falta.
+- Agregue tolerancia de categorias (`salud` -> `ejercicio`, etc.) y filtro solo los eventos realmente inutiles.
+- Si el modelo manda eventos pero ninguno sobrevive a la normalizacion, el builder sigue fallando con mensaje controlado para no guardar un plan vacio por accidente.
+
+Archivos tocados
+- `src/skills/plan-builder.ts`
+- `tests/plan-builder.test.ts`
+
+Tests
+- 2 tests nuevos en `tests/plan-builder.test.ts`:
+  - `recupera eventos si falta objetivoId y usa aliases de categoria`
+  - `acepta la clave alternativa "actividades" y filtra eventos rotos`
+- Suite completa revalidada: `73` tests pasando.
+- `npm run typecheck`: OK
+- `npm run build`: OK
+
+Decisiones
+- Mantengo estricta la validacion final del plan, pero la hago despues de normalizar y rescatar lo aprovechable por evento.
+- No acepto un plan con eventos originales si despues de normalizar no queda ninguno valido; prefiero fallar ahi antes que sembrar un plan silenciosamente vacio.
+
+Pendiente
+- Falta una reproduccion automatizada contra la respuesta cruda real de Ollama con el perfil actual; el intento de diagnostico fuera de la app quedo trabado por tooling local y no por el codigo del repo.
+
+Bug o edge case
+- Durante el diagnostico dispare un popup de Electron con un script temporal mal resuelto desde `%TEMP%`; no fue un bug del repo, sino de la prueba ad-hoc.

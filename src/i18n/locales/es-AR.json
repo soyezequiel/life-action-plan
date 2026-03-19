@@ -178,6 +178,46 @@
       }
     }
   },
+  "debug": {
+    "panel_title": "Inspector LLM",
+    "enable": "Activar",
+    "disable": "Desactivar",
+    "clear": "Limpiar",
+    "no_traces": "Sin actividad. Ejecuta una operacion del plan.",
+    "no_selection": "Elegi un intento para ver el detalle.",
+    "trace_count": "{{count}} trazas",
+    "pause_scroll": "Pausar scroll",
+    "resume_scroll": "Seguir scroll",
+    "stream_empty": "Todavia no llegaron tokens.",
+    "messages_empty": "No hay mensajes para mostrar.",
+    "characters": "{{count}} caracteres",
+    "tokens_per_second": "{{value}} tokens/s",
+    "timing_started": "Inicio",
+    "timing_completed": "Fin",
+    "timing_duration": "Duracion",
+    "timing_prompt_tokens": "Tokens de entrada",
+    "timing_completion_tokens": "Tokens de salida",
+    "timing_provider": "Provider",
+    "timing_skill": "Skill",
+    "tabs": {
+      "messages": "Mensajes",
+      "stream": "Stream",
+      "timing": "Tiempos",
+      "raw": "Raw"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "streaming": "Streaming",
+      "completed": "Completo",
+      "error": "Error"
+    },
+    "role": {
+      "system": "System",
+      "user": "User",
+      "assistant": "Assistant",
+      "tool": "Tool"
+    }
+  },
   "ui": {
     "thinking": "Dame un segundito...",
     "loading": "Cargando...",

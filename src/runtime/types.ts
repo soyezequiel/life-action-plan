@@ -24,6 +24,7 @@ export interface LLMResponse {
 export interface AgentRuntime {
   chat(messages: LLMMessage[]): Promise<LLMResponse>
   stream(messages: LLMMessage[]): AsyncIterable<string>
+  streamChat?(messages: LLMMessage[], onToken: (token: string) => void): Promise<LLMResponse>
   newContext(): AgentRuntime
 }
 

@@ -1,10 +1,12 @@
 import { DateTime } from 'luxon'
 import type { Perfil } from '../shared/schemas/perfil'
 import type {
-  SimulationMode,
+  PlanSimulationProgress,
   PlanSimulationSnapshot,
   ProgressRow,
   SimulationFinding,
+  SimulationMode,
+  SimulationProgressStage,
   SimulationStatus
 } from '../shared/types/ipc'
 import type { Skill, AgentRuntime, SkillContext, SkillResult } from './skill-interface'
@@ -21,10 +23,45 @@ interface DaySummary {
   dayLabel: string
 }
 
+interface ScheduledEntry {
+  row: ProgressRow
+  startMinutes: number
+  duration: number
+  weekday: number
+  dayLabel: string
+}
+
+type SimulationProgressUpdate = Omit<PlanSimulationProgress, 'planId'>
+type SimulationProgressListener = (progress: SimulationProgressUpdate) => Promise<void> | void
+
 interface SimulationOptions {
   timezone: string
   locale?: string
   mode?: SimulationMode
+  onProgress?: SimulationProgressListener
+}
+
+interface SimulationState {
+  rows: ProgressRow[]
+  locale: string
+  timezone: string
+  mode: SimulationMode
+  wakeStart: number
+  sleepStart: number
+  workStart: number | null
+  workEnd: number | null
+  weekdayFreeMinutes: number
+  weekendFreeMinutes: number
+  findings: SimulationFinding[]
+  scheduledEntries: ScheduledEntry[]
+  daySummaries: Map<string, DaySummary>
+  missingScheduleCount: number
+  hasAwakeConflicts: boolean
+  hasWorkConflicts: boolean
+  hasCapacityConflicts: boolean
+  hasCapacityWarnings: boolean
+  hasCrowdedDays: boolean
+  scheduledItemsCount: number
 }
 
 const statusPriority: Record<SimulationStatus, number> = {
@@ -190,62 +227,61 @@ function findingsForMode(findings: SimulationFinding[], mode: SimulationMode): S
   return selected
 }
 
-export function simulatePlanViability(
+function createTimestamp(timezone: string): string {
+  return DateTime.now().setZone(timezone).toISO() ?? DateTime.utc().toISO() ?? ''
+}
+
+function createSimulationState(
   profile: Perfil,
   rows: ProgressRow[],
   options: SimulationOptions
-): PlanSimulationSnapshot {
+): SimulationState {
   const locale = options.locale ?? 'es-AR'
   const timezone = options.timezone
   const mode = options.mode ?? 'interactive'
   const participant = profile.participantes[0]
-  const wakeStart = parseMinutes(participant?.rutinaDiaria?.porDefecto?.despertar) ?? 7 * 60
-  const sleepStart = parseMinutes(participant?.rutinaDiaria?.porDefecto?.dormir) ?? 23 * 60
-  const workStart = parseMinutes(participant?.rutinaDiaria?.porDefecto?.trabajoInicio ?? undefined)
-  const workEnd = parseMinutes(participant?.rutinaDiaria?.porDefecto?.trabajoFin ?? undefined)
-  const weekdayFreeMinutes = Math.max(0, (participant?.calendario?.horasLibresEstimadas?.diasLaborales ?? 0) * 60)
-  const weekendFreeMinutes = Math.max(0, (participant?.calendario?.horasLibresEstimadas?.diasDescanso ?? 0) * 60)
-  const findings: SimulationFinding[] = []
-  const daySummaries = new Map<string, DaySummary>()
-  let missingScheduleCount = 0
-  let hasAwakeConflicts = false
-  let hasWorkConflicts = false
-  let hasCapacityConflicts = false
-  let hasCapacityWarnings = false
-  let hasCrowdedDays = false
-  let scheduledItemsCount = 0
 
-  if (rows.length === 0) {
-    const noPlanFinding: SimulationFinding = {
-      status: 'MISSING',
-      code: 'no_plan_items'
-    }
-
-    return {
-      ranAt: DateTime.now().setZone(timezone).toISO() ?? DateTime.utc().toISO() ?? '',
-      mode,
-      periodLabel: buildPeriodLabel(rows, timezone, locale),
-      summary: buildSummary([noPlanFinding]),
-      findings: [noPlanFinding]
-    }
+  return {
+    rows,
+    locale,
+    timezone,
+    mode,
+    wakeStart: parseMinutes(participant?.rutinaDiaria?.porDefecto?.despertar) ?? 7 * 60,
+    sleepStart: parseMinutes(participant?.rutinaDiaria?.porDefecto?.dormir) ?? 23 * 60,
+    workStart: parseMinutes(participant?.rutinaDiaria?.porDefecto?.trabajoInicio ?? undefined),
+    workEnd: parseMinutes(participant?.rutinaDiaria?.porDefecto?.trabajoFin ?? undefined),
+    weekdayFreeMinutes: Math.max(0, (participant?.calendario?.horasLibresEstimadas?.diasLaborales ?? 0) * 60),
+    weekendFreeMinutes: Math.max(0, (participant?.calendario?.horasLibresEstimadas?.diasDescanso ?? 0) * 60),
+    findings: [],
+    scheduledEntries: [],
+    daySummaries: new Map<string, DaySummary>(),
+    missingScheduleCount: 0,
+    hasAwakeConflicts: false,
+    hasWorkConflicts: false,
+    hasCapacityConflicts: false,
+    hasCapacityWarnings: false,
+    hasCrowdedDays: false,
+    scheduledItemsCount: 0
   }
+}
 
-  for (const row of rows) {
+function runScheduleStage(state: SimulationState): void {
+  for (const row of state.rows) {
     const meta = parseTaskMeta(row.notas)
     const startMinutes = parseMinutes(meta.hora)
     const duration = typeof meta.duracion === 'number' ? Math.max(0, Math.trunc(meta.duracion)) : Number.NaN
 
     if (startMinutes === null || !Number.isFinite(duration) || duration <= 0) {
-      missingScheduleCount += 1
+      state.missingScheduleCount += 1
       continue
     }
 
-    scheduledItemsCount += 1
+    state.scheduledItemsCount += 1
 
-    const dt = DateTime.fromISO(row.fecha, { zone: timezone })
-    const dayLabel = buildDayLabel(row.fecha, timezone, locale)
+    const dt = DateTime.fromISO(row.fecha, { zone: state.timezone })
+    const dayLabel = buildDayLabel(row.fecha, state.timezone, state.locale)
     const weekday = dt.isValid ? dt.weekday : 1
-    const daySummary = daySummaries.get(row.fecha) ?? {
+    const daySummary = state.daySummaries.get(row.fecha) ?? {
       count: 0,
       plannedMinutes: 0,
       weekday,
@@ -254,11 +290,19 @@ export function simulatePlanViability(
 
     daySummary.count += 1
     daySummary.plannedMinutes += duration
-    daySummaries.set(row.fecha, daySummary)
+    state.daySummaries.set(row.fecha, daySummary)
 
-    if (isOutsideAwakeWindow(startMinutes, duration, wakeStart, sleepStart)) {
-      hasAwakeConflicts = true
-      findings.push({
+    state.scheduledEntries.push({
+      row,
+      startMinutes,
+      duration,
+      weekday,
+      dayLabel
+    })
+
+    if (isOutsideAwakeWindow(startMinutes, duration, state.wakeStart, state.sleepStart)) {
+      state.hasAwakeConflicts = true
+      state.findings.push({
         status: 'FAIL',
         code: 'outside_awake_hours',
         params: {
@@ -267,39 +311,37 @@ export function simulatePlanViability(
         }
       })
     }
+  }
+}
 
+function runWorkStage(state: SimulationState): void {
+  for (const entry of state.scheduledEntries) {
     if (
-      weekday <= 5 &&
-      workStart !== null &&
-      workEnd !== null &&
-      overlapsWindow(startMinutes, duration, workStart, workEnd)
+      entry.weekday <= 5 &&
+      state.workStart !== null &&
+      state.workEnd !== null &&
+      overlapsWindow(entry.startMinutes, entry.duration, state.workStart, state.workEnd)
     ) {
-      hasWorkConflicts = true
-      findings.push({
+      state.hasWorkConflicts = true
+      state.findings.push({
         status: 'FAIL',
         code: 'overlaps_work',
         params: {
-          actividad: row.descripcion,
-          dayLabel
+          actividad: entry.row.descripcion,
+          dayLabel: entry.dayLabel
         }
       })
     }
   }
+}
 
-  if (missingScheduleCount > 0) {
-    findings.push({
-      status: 'MISSING',
-      code: 'missing_schedule',
-      params: { count: missingScheduleCount }
-    })
-  }
-
-  for (const [, daySummary] of daySummaries) {
-    const availableMinutes = daySummary.weekday >= 6 ? weekendFreeMinutes : weekdayFreeMinutes
+function runLoadStage(state: SimulationState): void {
+  for (const [, daySummary] of state.daySummaries) {
+    const availableMinutes = daySummary.weekday >= 6 ? state.weekendFreeMinutes : state.weekdayFreeMinutes
 
     if (availableMinutes > 0 && daySummary.plannedMinutes > availableMinutes) {
-      hasCapacityConflicts = true
-      findings.push({
+      state.hasCapacityConflicts = true
+      state.findings.push({
         status: 'FAIL',
         code: 'day_over_capacity',
         params: {
@@ -309,8 +351,8 @@ export function simulatePlanViability(
         }
       })
     } else if (availableMinutes > 0 && daySummary.plannedMinutes >= Math.ceil(availableMinutes * 0.8)) {
-      hasCapacityWarnings = true
-      findings.push({
+      state.hasCapacityWarnings = true
+      state.findings.push({
         status: 'WARN',
         code: 'day_high_load',
         params: {
@@ -322,8 +364,8 @@ export function simulatePlanViability(
     }
 
     if (daySummary.count > 3) {
-      hasCrowdedDays = true
-      findings.push({
+      state.hasCrowdedDays = true
+      state.findings.push({
         status: 'WARN',
         code: 'too_many_activities',
         params: {
@@ -333,44 +375,121 @@ export function simulatePlanViability(
       })
     }
   }
+}
 
-  if (!hasAwakeConflicts && scheduledItemsCount > 0) {
-    findings.push({
+function finalizeSimulation(state: SimulationState): PlanSimulationSnapshot {
+  if (state.rows.length === 0) {
+    const noPlanFinding: SimulationFinding = {
+      status: 'MISSING',
+      code: 'no_plan_items'
+    }
+
+    return {
+      ranAt: createTimestamp(state.timezone),
+      mode: state.mode,
+      periodLabel: buildPeriodLabel(state.rows, state.timezone, state.locale),
+      summary: buildSummary([noPlanFinding]),
+      findings: [noPlanFinding]
+    }
+  }
+
+  if (state.missingScheduleCount > 0) {
+    state.findings.push({
+      status: 'MISSING',
+      code: 'missing_schedule',
+      params: { count: state.missingScheduleCount }
+    })
+  }
+
+  if (!state.hasAwakeConflicts && state.scheduledItemsCount > 0) {
+    state.findings.push({
       status: 'PASS',
       code: 'schedule_ok'
     })
   }
 
-  if (!hasWorkConflicts && workStart !== null && workEnd !== null && scheduledItemsCount > 0) {
-    findings.push({
+  if (!state.hasWorkConflicts && state.workStart !== null && state.workEnd !== null && state.scheduledItemsCount > 0) {
+    state.findings.push({
       status: 'PASS',
       code: 'work_balance_ok'
     })
   }
 
-  if (!hasCapacityConflicts && !hasCapacityWarnings && !hasCrowdedDays && daySummaries.size > 0) {
-    findings.push({
+  if (!state.hasCapacityConflicts && !state.hasCapacityWarnings && !state.hasCrowdedDays && state.daySummaries.size > 0) {
+    state.findings.push({
       status: 'PASS',
       code: 'capacity_ok'
     })
   }
 
-  if (missingScheduleCount === 0) {
-    findings.push({
+  if (state.missingScheduleCount === 0) {
+    state.findings.push({
       status: 'PASS',
       code: 'metadata_ok'
     })
   }
 
-  const sorted = sortedFindings(findings)
+  const sorted = sortedFindings(state.findings)
 
   return {
-    ranAt: DateTime.now().setZone(timezone).toISO() ?? DateTime.utc().toISO() ?? '',
-    mode,
-    periodLabel: buildPeriodLabel(rows, timezone, locale),
+    ranAt: createTimestamp(state.timezone),
+    mode: state.mode,
+    periodLabel: buildPeriodLabel(state.rows, state.timezone, state.locale),
     summary: buildSummary(sorted),
-    findings: findingsForMode(sorted, mode)
+    findings: findingsForMode(sorted, state.mode)
   }
+}
+
+async function emitProgress(
+  listener: SimulationProgressListener | undefined,
+  mode: SimulationMode,
+  stage: SimulationProgressStage,
+  current: number,
+  total: number
+): Promise<void> {
+  if (!listener) {
+    return
+  }
+
+  await listener({
+    mode,
+    stage,
+    current,
+    total
+  })
+}
+
+export function simulatePlanViability(
+  profile: Perfil,
+  rows: ProgressRow[],
+  options: SimulationOptions
+): PlanSimulationSnapshot {
+  const state = createSimulationState(profile, rows, options)
+  runScheduleStage(state)
+  runWorkStage(state)
+  runLoadStage(state)
+  return finalizeSimulation(state)
+}
+
+export async function simulatePlanViabilityWithProgress(
+  profile: Perfil,
+  rows: ProgressRow[],
+  options: SimulationOptions
+): Promise<PlanSimulationSnapshot> {
+  const state = createSimulationState(profile, rows, options)
+  const totalStages = 4
+
+  await emitProgress(options.onProgress, state.mode, 'schedule', 1, totalStages)
+  runScheduleStage(state)
+
+  await emitProgress(options.onProgress, state.mode, 'work', 2, totalStages)
+  runWorkStage(state)
+
+  await emitProgress(options.onProgress, state.mode, 'load', 3, totalStages)
+  runLoadStage(state)
+
+  await emitProgress(options.onProgress, state.mode, 'summary', 4, totalStages)
+  return finalizeSimulation(state)
 }
 
 export const planSimulator: Skill = {

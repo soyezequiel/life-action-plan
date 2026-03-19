@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { JSX } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { t } from '../../../i18n'
+import { useLapClient } from '../app-services'
 
 interface IntakeExpressProps {
   onComplete: (profileId: string) => void
@@ -23,6 +24,7 @@ const stepTransition = {
 }
 
 function IntakeExpress({ onComplete }: IntakeExpressProps): JSX.Element {
+  const client = useLapClient()
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<QuestionKey, string>>({
     nombre: '',
@@ -62,7 +64,7 @@ function IntakeExpress({ onComplete }: IntakeExpressProps): JSX.Element {
     setError('')
 
     try {
-      const result = await window.api.intake.save({
+      const result = await client.intake.save({
         nombre: answers.nombre,
         edad: parseInt(answers.edad) || 25,
         ubicacion: answers.ubicacion,

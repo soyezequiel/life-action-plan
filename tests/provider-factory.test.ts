@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getProvider } from '../src/providers/provider-factory'
+import { getProvider, getProviderTimeouts } from '../src/providers/provider-factory'
 
 describe('getProvider', () => {
   it('crea un runtime OpenAI con modelo default', () => {
@@ -7,6 +7,7 @@ describe('getProvider', () => {
     expect(runtime).toBeDefined()
     expect(runtime.chat).toBeTypeOf('function')
     expect(runtime.stream).toBeTypeOf('function')
+    expect(runtime.streamChat).toBeTypeOf('function')
     expect(runtime.newContext).toBeTypeOf('function')
   })
 
@@ -38,5 +39,19 @@ describe('getProvider', () => {
     expect(newRuntime).toBeDefined()
     expect(newRuntime.chat).toBeTypeOf('function')
     expect(newRuntime).not.toBe(runtime)
+  })
+
+  it('usa timeouts mas amplios para Ollama local', () => {
+    expect(getProviderTimeouts('ollama:qwen3:8b')).toEqual({
+      chatMs: 180_000,
+      streamMs: 180_000
+    })
+  })
+
+  it('mantiene timeouts cortos para OpenAI', () => {
+    expect(getProviderTimeouts('openai:gpt-4o-mini')).toEqual({
+      chatMs: 20_000,
+      streamMs: 20_000
+    })
   })
 })

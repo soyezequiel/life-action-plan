@@ -81,7 +81,7 @@ describe('planBuilder', () => {
       expect(prompt).toContain('"hora"')
     })
 
-    it('incluye reglas de planificación realista', () => {
+    it('incluye reglas de planificacion realista', () => {
       const prompt = planBuilder.getSystemPrompt(ctx)
       expect(prompt).toContain('sleep')
       expect(prompt).toContain('work')
@@ -100,13 +100,13 @@ describe('planBuilder', () => {
       expect(prompt).not.toContain('voseo')
     })
 
-    it('prohíbe jargon técnico', () => {
+    it('prohibe jargon tecnico', () => {
       const prompt = planBuilder.getSystemPrompt(ctx)
       expect(prompt).toContain('Never use jargon')
       expect(prompt).toContain('Q1')
     })
 
-    it('requiere categorías válidas', () => {
+    it('requiere categorias validas', () => {
       const prompt = planBuilder.getSystemPrompt(ctx)
       expect(prompt).toContain('estudio')
       expect(prompt).toContain('ejercicio')
@@ -132,8 +132,8 @@ describe('planBuilder', () => {
 
     it('parsea JSON aunque el modelo devuelva think blocks y texto extra', async () => {
       const runtime = createRuntime([
-        '<think>Voy a revisar trabajo, descanso y hábitos antes de responder.</think>',
-        'Acá va tu plan:',
+        '<think>Voy a revisar trabajo, descanso y habitos antes de responder.</think>',
+        'Aca va tu plan:',
         '{"nombre":"Plan con fallback","resumen":"Plan ordenado","eventos":[{"semana":1,"dia":"martes","hora":"19:00","duracion":45,"actividad":"Caminar","categoria":"ejercicio","objetivoId":"obj1"}]}',
         'Espero que te sirva.'
       ].join('\n'))
@@ -144,10 +144,10 @@ describe('planBuilder', () => {
       expect(result.eventos[0]?.categoria).toBe('ejercicio')
     })
 
-    it('normaliza campos extra y números serializados como texto', async () => {
+    it('normaliza campos extra y numeros serializados como texto', async () => {
       const runtime = createRuntime(JSON.stringify({
         nombre: ' Plan tolerante ',
-        resumen: ' Resumen válido ',
+        resumen: ' Resumen valido ',
         comentario: 'ignorar',
         eventos: [
           {
@@ -167,7 +167,7 @@ describe('planBuilder', () => {
 
       expect(result).toMatchObject({
         nombre: 'Plan tolerante',
-        resumen: 'Resumen válido',
+        resumen: 'Resumen valido',
         eventos: [
           {
             semana: 1,
@@ -182,8 +182,73 @@ describe('planBuilder', () => {
       })
     })
 
-    it('falla con mensaje controlado si la estructura no es válida', async () => {
-      const runtime = createRuntime('{"nombre":"Plan roto","resumen":"Sin eventos válidos","eventos":[{"semana":1}]}')
+    it('recupera eventos si falta objetivoId y usa aliases de categoria', async () => {
+      const runtime = createRuntime(JSON.stringify({
+        nombre: 'Plan recuperable',
+        resumen: 'Resumen util',
+        eventos: [
+          {
+            semana: 1,
+            dia: 'Viernes',
+            hora: '19:30',
+            duracion: 40,
+            descripcion: 'Caminar por el barrio',
+            categoria: 'salud'
+          }
+        ]
+      }))
+
+      const result = await generatePlan(runtime, profile, ctx)
+
+      expect(result.eventos).toEqual([
+        {
+          semana: 1,
+          dia: 'viernes',
+          hora: '19:30',
+          duracion: 40,
+          actividad: 'Caminar por el barrio',
+          categoria: 'ejercicio',
+          objetivoId: 'obj1'
+        }
+      ])
+    })
+
+    it('acepta la clave alternativa "actividades" y filtra eventos rotos', async () => {
+      const runtime = createRuntime(JSON.stringify({
+        nombre: 'Plan mixto',
+        resumen: 'Resumen mixto',
+        actividades: [
+          {
+            semana: 1,
+            dia: 'lunes',
+            horario: '08:00',
+            minutos: 30,
+            tarea: 'Leer media hora',
+            tipo: 'estudio'
+          },
+          {
+            semana: 2
+          }
+        ]
+      }))
+
+      const result = await generatePlan(runtime, profile, ctx)
+
+      expect(result.eventos).toEqual([
+        {
+          semana: 1,
+          dia: 'lunes',
+          hora: '08:00',
+          duracion: 30,
+          actividad: 'Leer media hora',
+          categoria: 'estudio',
+          objetivoId: 'obj1'
+        }
+      ])
+    })
+
+    it('falla con mensaje controlado si la estructura no es valida', async () => {
+      const runtime = createRuntime('{"nombre":"Plan roto","resumen":"Sin eventos validos","eventos":[{"semana":1}]}')
 
       await expect(generatePlan(runtime, profile, ctx)).rejects.toThrow('El asistente no pudo generar un plan válido. Intentá de nuevo.')
     })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { simulatePlanViability } from '../src/skills/plan-simulator'
+import { simulatePlanViability, simulatePlanViabilityWithProgress } from '../src/skills/plan-simulator'
 import type { Perfil } from '../src/shared/schemas/perfil'
 import type { ProgressRow } from '../src/shared/types/ipc'
 
@@ -155,5 +155,29 @@ describe('simulatePlanViability', () => {
 
     expect(result.mode).toBe('automatic')
     expect(result.findings.length).toBeGreaterThan(3)
+  })
+
+  it('emite progreso real por etapas en orden', async () => {
+    const progressStages: string[] = []
+
+    const result = await simulatePlanViabilityWithProgress(profile, [
+      row('a', '2026-03-24', '07:30', 30, 'Caminar'),
+      row('b', '2026-03-24', '19:00', 45, 'Leer')
+    ], {
+      timezone: 'America/Argentina/Buenos_Aires',
+      locale: 'es-AR',
+      mode: 'interactive',
+      onProgress: async (progress) => {
+        progressStages.push(`${progress.current}/${progress.total}:${progress.stage}`)
+      }
+    })
+
+    expect(progressStages).toEqual([
+      '1/4:schedule',
+      '2/4:work',
+      '3/4:load',
+      '4/4:summary'
+    ])
+    expect(result.summary.overallStatus).toBe('PASS')
   })
 })

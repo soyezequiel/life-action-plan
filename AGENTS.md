@@ -7,11 +7,11 @@
 
 ## Qué es LAP
 
-**Life Action Plan** — App desktop Electron + React + TypeScript para crear, simular y ejecutar planes de acción personales con asistencia de LLM. Hackathon La Crypta FOUNDATIONS (Marzo 2026). Pagos Lightning via NWC.
+**Life Action Plan** — App browser-first con React + TypeScript y backend local compartido para crear, simular y ejecutar planes de acción personales con asistencia de LLM. Electron queda como shell opcional de escritorio. Hackathon La Crypta FOUNDATIONS (Marzo 2026). Pagos Lightning via NWC.
 
 ---
 
-## Estado Actual del Proyecto (2026-03-18)
+## Estado Actual del Proyecto (2026-03-19)
 
 ### Completado
 
@@ -25,21 +25,47 @@
 | 0.6 | Provider LLM — `provider-factory.ts` con Vercel AI SDK (OpenAI + Ollama) | ✅ |
 | 0.7 | Plan Builder Core — skill que genera plan a 1 mes vía LLM → SQLite | ✅ |
 | 1.1 | Check-in de tareas — Dashboard con botones ¡Listo!/Deshacer → IPC toggle → SQLite | ✅ |
+| 1.2 | Tracking de hábitos y rachas | ✅ |
+| 1.4 | Exportación `.ics` | ✅ |
 | — | Session restore — `profile:latest` IPC, guarda `lastProfileId` en settings | ✅ |
 | — | API key screen — reemplaza `prompt()` nativo con pantalla i18n Abuela-Proof | ✅ |
-| — | Mock API completa — `mock-api.ts` con datos de prueba para dev en browser | ✅ |
-| — | Tests — 36 tests (i18n, intake, builder, schemas, provider-factory) | ✅ |
+| — | Simulación de plan con progreso en vivo | ✅ |
+| — | Inspector LLM / debug panel con tracing | ✅ |
+| — | Cost summary y tracking base por operación | ✅ |
+| — | Wallet status + conexión NWC con secure storage desktop | ✅ |
+| — | Ollama fallback automático | ✅ |
+| — | Backend local compartido en `src/server/` | ✅ |
+| — | Cliente browser-first compartido + `AppServicesProvider` | ✅ |
+| — | Mock API reducida a fallback/demo explícito | ✅ |
+| — | Migración browser-first — `npm run dev` web, backend local compartido, Electron secundario | ✅ |
+| — | Tests — 93 tests actuales | ✅ |
 
-### Pendiente (siguiente en orden)
+### Pendiente Real Desde El Estado Browser-First
 
 | Paso | Descripción | Responsable | Notas |
 |------|-------------|-------------|-------|
-| 1.2 | Tracking de hábitos y rachas (streaks) | Full-stack | Consultar `plan_progress` por días consecutivos completados. Mostrar racha en Dashboard |
-| 1.3 | CSS + Micro-animaciones Abuela-Proof | Frontend | `framer-motion`. La app funciona pero NO tiene CSS. Prioridad alta para demo |
-| 1.4 | Exportación .ics | Backend | `src/utils/ics-generator.ts`. Generar archivo calendario desde plan_progress |
-| 2.1 | Provider Lightning (NWC) | Backend | `@getalby/sdk` ya instalado. Ver `_referencia_lightning/` para ejemplos |
-| 2.2 | Pay-Per-Token Tracking | Backend | Tabla `cost_tracking` ya existe. Falta UI y lógica de budget |
-| 2.3 | Ollama Fallback automático | Backend | Si OpenAI falla, intentar Ollama. Provider factory ya soporta ambos |
+| 3.1 | Pulido visual browser-first + accesibilidad real | Frontend | Ya hay UI funcional, pero falta refinar jerarquía visual, motion, estados vacíos y `prefers-reduced-motion` |
+| 3.2 | QA matrix browser/Electron con smoke reproducible | Full-stack | Cada feature crítica debe validarse en web y shell desktop con evidencia observable |
+| 3.3 | Provider Lightning productizado | Backend | La base NWC existe, pero falta cerrar UX, errores, budget y cobro real por operación |
+| 3.4 | Endurecimiento del inspector LLM y observabilidad | Full-stack | El debug panel existe; falta volverlo criterio de aceptación para features largas y rutas de error |
+| 3.5 | Remoción de últimos placeholders / modo demo explícito | Full-stack | Ninguna ruta real debe esconderse detrás del mock sin señal visible |
+
+### Actualizacion Browser-First (2026-03-19)
+
+- `npm run dev` es el entrypoint principal y levanta la app web con backend local.
+- `npm run dev:electron` existe para validar la shell desktop y las integraciones nativas.
+- El renderer no debe tomar `window.api` como contrato principal. La capa base es el cliente compartido/browser-first.
+- `src/server/` concentra el backend local reutilizable por web y Electron.
+- `src/main/` y `src/preload/` deben mantenerse finos: adaptadores de desktop, no centro de la logica de negocio.
+
+### Protocolo de Ejecucion Para IDEs Agenticos
+
+- No continuar una unidad si no produce feedback verificable.
+- Cada unidad debe cerrar con una evidencia automática y una visible.
+- Si el cambio toca `src/server/`, `src/main/`, `src/preload/`, contratos compartidos o transporte, reiniciar en limpio; HMR no alcanza.
+- Diferenciar siempre validación en ruta real vs fallback/demo.
+- Persistir el progreso de continuación en un plan atomizado y actualizarlo al cerrar cada unidad.
+- Documento operativo vigente para esa continuación: `continuacion-browser-first-divs.md`.
 
 ---
 
@@ -88,6 +114,8 @@
 ---
 
 ## Estructura de Carpetas
+
+> Nota de vigencia: el bloque de abajo conserva parte de la estructura original Electron-first. Para trabajar sobre el repo actual, pensá la arquitectura así: `src/renderer` = app principal browser-first, `src/server` = backend local compartido, `src/main`/`src/preload` = shell Electron y extras nativos.
 
 ```
 src/
@@ -246,8 +274,9 @@ En `_referencia_lightning/` (gitignored). Contiene ejemplos funcionales de `@get
 npm install --ignore-scripts          # Instalar deps sin compilar nativos
 cd node_modules/better-sqlite3 && npx prebuild-install --runtime electron --target 33.4.0 --arch x64  # Binario nativo
 cd ../.. && node node_modules/electron/install.js   # Binario Electron
-npm run dev                            # Abre la ventana Electron
-npm run dev:browser                    # Solo renderer en browser (usa mock API)
+npm run dev                            # Modo web browser-first
+npm run dev:electron                   # Abre la shell Electron
+npm run dev:browser                    # Alias web (mismo backend local del modo browser-first)
 npm run test                           # 36 tests con Vitest
 ```
 
@@ -257,8 +286,10 @@ npm run test                           # 36 tests con Vitest
 
 | Comando | Qué hace |
 |---------|----------|
-| `npm run dev` | electron-vite dev (HMR + Electron) |
-| `npm run dev:browser` | Solo Vite renderer (mock API, sin Electron) |
+| `npm run dev` | Vite web browser-first |
+| `npm run dev:browser` | Alias del modo web browser-first |
+| `npm run dev:electron` | electron-vite dev (HMR + Electron) |
+| `npm run dev:desktop` | Alias de Electron |
 | `npm run build` | Build producción |
 | `npm run build:win` | Build + empaquetado Windows |
 | `npm run build:mac` | Build + empaquetado macOS |

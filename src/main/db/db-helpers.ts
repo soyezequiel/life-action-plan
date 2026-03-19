@@ -68,6 +68,11 @@ export function getPlan(id: string) {
   return db.select().from(plans).where(eq(plans.id, id)).get()
 }
 
+export function getPlanBySlug(slug: string) {
+  const db = getDatabase()
+  return db.select().from(plans).where(eq(plans.slug, slug)).get()
+}
+
 export function updatePlanManifest(id: string, manifest: string): void {
   const db = getDatabase()
   db.update(plans)

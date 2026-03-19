@@ -3,6 +3,8 @@ import type { JSX } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import IntakeExpress from './components/IntakeExpress'
 import Dashboard from './components/Dashboard'
+import DebugPanel from './components/DebugPanel'
+import { useLapClient } from './app-services'
 import { t } from '../../i18n'
 
 type AppView = 'dashboard' | 'intake' | 'building' | 'plan' | 'apikey'
@@ -13,6 +15,7 @@ const viewTransition = {
 }
 
 function App(): JSX.Element {
+  const client = useLapClient()
   const [view, setView] = useState<AppView>('dashboard')
   const [profileId, setProfileId] = useState<string | null>(null)
   const [plan, setPlan] = useState<{ nombre: string; resumen: string } | null>(null)
@@ -20,11 +23,46 @@ function App(): JSX.Element {
   const [pendingProvider, setPendingProvider] = useState<'openai' | 'ollama' | null>(null)
   const [apiKey, setApiKey] = useState('')
   const [loading, setLoading] = useState(true)
+  const [debugPanelVisible, setDebugPanelVisible] = useState(false)
 
   useEffect(() => {
-    window.api.profile.latest().then((id) => {
-      if (id) setProfileId(id)
-    }).finally(() => setLoading(false))
+    async function init(): Promise<void> {
+      try {
+        const [id, debugStatus] = await Promise.all([
+          client.profile.latest().catch(() => null),
+          client.debug.status().catch(() => ({ enabled: false, panelVisible: false }))
+        ])
+
+        if (id) setProfileId(id)
+
+        setDebugPanelVisible(debugStatus.panelVisible)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void init()
+  }, [client])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isToggleShortcut = (event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'd'
+
+      if (!isToggleShortcut) {
+        return
+      }
+
+      event.preventDefault()
+      setDebugPanelVisible((current) => {
+        return !current
+      })
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
   }, [])
 
   function handleIntakeComplete(id: string): void {
@@ -52,7 +90,7 @@ function App(): JSX.Element {
     setBuildError('')
 
     try {
-      const result = await window.api.plan.build(profileId, key, modelId)
+      const result = await client.plan.build(profileId, key, modelId)
 
       if (result.success) {
         setPlan({ nombre: result.nombre!, resumen: result.resumen! })
@@ -176,18 +214,30 @@ function App(): JSX.Element {
 
   return (
     <MotionConfig reducedMotion="user">
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={activeViewKey}
-          className="view-layer"
-          initial={{ opacity: 0, y: 18, scale: 0.985 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -12, scale: 0.99 }}
-          transition={viewTransition}
-        >
-          {activeView}
-        </motion.div>
-      </AnimatePresence>
+      <>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={activeViewKey}
+            className="view-layer"
+            initial={{ opacity: 0, y: 18, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.99 }}
+            transition={viewTransition}
+          >
+            {activeView}
+          </motion.div>
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {debugPanelVisible && (
+            <DebugPanel
+              onClose={() => {
+                setDebugPanelVisible(false)
+              }}
+            />
+          )}
+        </AnimatePresence>
+      </>
     </MotionConfig>
   )
 }

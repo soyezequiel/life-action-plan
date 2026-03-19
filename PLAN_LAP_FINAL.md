@@ -1,6 +1,6 @@
 # Plan Final: Sistema de Life Action Plan (LAP)
 
-> **Version consolidada v8.2** — Aplicación standalone directa (sin IDEs agenticos). Skills como módulos TypeScript, runtime propio, UI Electron + React Desktop. **i18n-ready** (español por defecto, arquitectura preparada para multi-idioma). **DevOps-ready** (CI/CD GitHub Actions, code signing, OTA updates vía GitHub Releases).
+> **Version consolidada v8.3** — Aplicación standalone directa (sin IDEs agenticos). Skills como módulos TypeScript, runtime propio, arquitectura **browser-first** con frontend React web, backend local compartido y Electron como shell opcional de escritorio. **i18n-ready** (español por defecto, arquitectura preparada para multi-idioma). **DevOps-ready** (CI/CD GitHub Actions, code signing, OTA updates vía GitHub Releases).
 
 ---
 
@@ -10,6 +10,7 @@ Aplicación Node.js/TypeScript que crea, simula, refina y ejecuta planes de acci
 
 **Decisiones clave**:
 - **Aplicación standalone**: sin depender de ningún IDE agentico (Claude Code, Codex, Antigravity)
+- **Arquitectura browser-first**: el contrato principal del producto es el renderer web consumiendo un backend HTTP local compartido. Electron queda como wrapper de escritorio para capacidades nativas (safeStorage, dialogs, empaquetado, tray, etc.).
 - Skills son **módulos TypeScript** con prompt templates internos, no archivos .md
 - **Diseño Absoluto 0% Jerga ("Abuela-Proof")**: UI en lenguaje empático, ocultando todo término técnico (APIs, tokens, .ics, LLM). Las llaves de API y config complejas van ocultas o se gestionan por un usuario administrador (hijo/mentor).
 - Todo en lenguaje llano localizado vía `t()` (no "Q1" → `t('time.q1')` → "enero-marzo" / "Jan-Mar" según locale). Cero strings hardcodeadas en código fuente.
@@ -21,7 +22,38 @@ Aplicación Node.js/TypeScript que crea, simula, refina y ejecuta planes de acci
 - **Offline-first** para usuarios con Ollama local
 - **Escalable**: la app puede crecer sin limitaciones de ventana de contexto de un IDE
 
-**Entorno**: Proyecto en `F:\proyectos\calendario`. Windows 11, 3080 Ti 12GB VRAM. **Target de Build**: Windows + macOS (via `electron-builder` con runners CI separados por OS — **cross-compilation es imposible** para módulos nativos C++). macOS es obligatorio para alcanzar early-adopters de productividad.
+**Entorno**: Proyecto en `F:\proyectos\planificador-vida`. Windows 11, 3080 Ti 12GB VRAM. **Modo de desarrollo por defecto**: web browser-first via Vite (`npm run dev`). **Shell de escritorio**: Electron (`npm run dev:electron`). **Target de Build**: Windows + macOS (via `electron-builder` con runners CI separados por OS — **cross-compilation es imposible** para módulos nativos C++). macOS sigue siendo obligatorio para distribución desktop.
+
+## Actualizacion Arquitectonica (2026-03-19)
+
+- El renderer web es ahora la superficie principal del producto y del desarrollo diario.
+- `npm run dev` levanta el modo browser-first; `npm run dev:electron` queda para validar la shell desktop.
+- El backend local reutilizable vive fuera de `main` y debe pensarse como capa compartida entre web y Electron.
+- Las capacidades exclusivas de escritorio (safeStorage, file dialogs, tray, empaquetado, code signing) son adaptadores secundarios, no el contrato base de la app.
+- Toda decision nueva de arquitectura debe preservar esta direccion: primero web, despues shell desktop.
+
+## Riesgos Reales de Ejecucion con IDEs Agenticos y Correcciones al Plan
+
+- **Riesgo 1: plan viejo contra repo nuevo**. Un IDE agéntico arranca leyendo un backlog Electron-first aunque el repo ya corre browser-first. **Corrección**: antes de cualquier feature, sincronizar documentación, scripts y estado real del repo; no asumir que el backlog histórico sigue vigente.
+- **Riesgo 2: pasos demasiado grandes para vibe coding**. Un bloque como "hacer streaks y UI y persistencia" deja al agente sin evidencia intermedia. **Corrección**: ejecutar solo unidades atómicas con una sola responsabilidad y criterio de finalización observable.
+- **Riesgo 3: feedback invisible durante tareas largas**. Si una feature no emite nada visible, el agente no sabe si rompió transporte, UI o backend. **Corrección**: cada unidad debe producir al menos un artefacto de feedback visible para humanos y agentes: test verde, endpoint, evento SSE, debug snapshot, badge de UI, archivo exportado o log verificable.
+- **Riesgo 4: HMR da falsos positivos**. Cambios en `src/server`, `src/main`, `src/preload`, contratos compartidos o transporte pueden parecer sanos bajo hot reload y fallar en una corrida limpia. **Corrección**: esos cambios exigen reinicio limpio y smoke check fuera de HMR.
+- **Riesgo 5: mezcla confusa entre ruta real y mock**. Un agente puede creer que validó backend real cuando en realidad consumió fallback demo. **Corrección**: el plan debe exigir diferenciar explícitamente modo real, modo fallback y evidencia de cuál corrió.
+- **Riesgo 6: deriva entre browser y Electron**. Si una feature se prueba solo en una superficie, el contrato compartido se desalineará. **Corrección**: toda operación crítica debe tener una verificación de paridad de contrato entre web y shell desktop.
+- **Riesgo 7: pérdida de contexto entre sesiones**. El IDE agéntico reinicia, pierde memoria local y repite trabajo. **Corrección**: persistir un plan de continuación atomizado y actualizar el estado después de cada unidad cerrada.
+- **Riesgo 8: progreso sin criterio de corte**. El agente sigue parchando sin saber cuándo detenerse. **Corrección**: ningún bloque puede cerrarse con "parece funcionar"; debe terminar con evidencia observable y un siguiente paso mínimo.
+
+## Protocolo Feedback-First para Continuar la Implementacion
+
+1. Antes de escribir código, definir cuál será el feedback mínimo observable de la unidad.
+2. Cada unidad debe cerrar con dos evidencias:
+   - una evidencia automática, por ejemplo `vitest`, `typecheck` o smoke test HTTP;
+   - una evidencia visible, por ejemplo screenshot, texto UI, traza del inspector, payload SSE, fila SQLite o archivo exportado.
+3. Si la unidad toca transporte, backend local, preload, Electron o contratos compartidos, el feedback visible debe venir de una corrida limpia y no solo de HMR.
+4. Si no existe una superficie de feedback para la feature, la siguiente unidad obligatoria es crear esa superficie antes de seguir implementando la feature.
+5. El progreso debe persistirse en un documento de unidades atómicas para que otro agente retome sin reinterpretar el proyecto completo.
+
+Documento operativo recomendado para esta etapa del repo: `continuacion-browser-first-divs.md`.
 
 ## Lineamientos Core de Ingeniería (Escalabilidad & Casos Límite)
 1. **Rutas POSIX**: Todas las rutas internas guardadas en JSONs o memoria usan SIEMPRE forward-slash `/` (`path.posix`) para asegurar compatibilidad Windows/Mac cruzada al sincronizar.
@@ -100,6 +132,8 @@ Aplicación Node.js/TypeScript que crea, simula, refina y ejecuta planes de acci
 ---
 
 ## Arquitectura General
+
+> Nota de vigencia: este documento mezcla vision de largo plazo con partes historicas del prototipo. Para el repo actual, la lectura correcta es: `src/renderer` y el cliente compartido son browser-first; `src/server` concentra el backend local reutilizable; `src/main` y `src/preload` existen para la shell Electron y capacidades nativas.
 
 ```text
 F:\proyectos\calendario\

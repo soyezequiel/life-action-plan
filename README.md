@@ -1,6 +1,6 @@
 # LAP (Life Action Plan)
 
-> Aplicación standalone Node.js/TypeScript (con UI React Desktop en Electron) para la gestión personal automatizada y local-first.
+> Aplicacion standalone Node.js/TypeScript browser-first para la gestion personal automatizada y local-first. La interfaz principal corre en web/renderer React y Electron queda como shell opcional de escritorio.
 
 Este repositorio está preparado para ser desarrollado mediante IDEs y agentes basados en inteligencia artificial (Claude Code, Cursor, Aider, Windsurf, Copilot, Antigravity, etc.).
 
@@ -25,7 +25,12 @@ Todos estos dictan las mismas reglas base:
 ```bash
 npm install
 # Luego de instalar, reconstruir SQLite si hace conflicto con el header de NodeJS local.
-npm run dev
+npm run dev           # Web-first
+npm run dev:electron  # Shell Electron
 ```
+
+Arquitectura actual, en una linea:
+- Browser-first por defecto: renderer React + backend local compartido.
+- Electron solo agrega capacidades nativas de escritorio y empaquetado.
 
 Este proyecto no depende de comandos bash para su desarrollo y se rige por un esquema estándar `src/` modular en Typecript puro.
