@@ -58,5 +58,32 @@ export interface StreakResult {
   best: number
 }
 
+export interface WalletStatus {
+  configured: boolean
+  connected: boolean
+  canUseSecureStorage: boolean
+  alias?: string
+  balanceSats?: number
+  budgetSats?: number
+  budgetUsedSats?: number
+}
+
+export interface WalletConnectResult {
+  success: boolean
+  status: WalletStatus
+  error?: string
+}
+
+export interface WalletDisconnectResult {
+  success: boolean
+}
+
+export interface PlanExportCalendarResult {
+  success: boolean
+  cancelled?: boolean
+  filePath?: string
+  error?: string
+}
+
 // Re-export for convenience
 export type { IntakeExpressData, PlanEvent }

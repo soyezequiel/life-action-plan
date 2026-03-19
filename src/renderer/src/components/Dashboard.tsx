@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { JSX } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { t } from '../../../i18n'
+import { getCurrentLocale, t } from '../../../i18n'
 import { DateTime } from 'luxon'
-import type { ProgressRow, PlanRow, StreakResult } from '../../../shared/types/ipc'
+import type { ProgressRow, PlanRow, StreakResult, WalletStatus } from '../../../shared/types/ipc'
 
 interface DashboardProps {
   profileId: string
@@ -42,28 +42,46 @@ function Dashboard({
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [tasks, setTasks] = useState<ProgressRow[]>([])
   const [streak, setStreak] = useState<StreakResult>({ current: 0, best: 0 })
+  const [walletStatus, setWalletStatus] = useState<WalletStatus>({
+    configured: false,
+    connected: false,
+    canUseSecureStorage: true
+  })
   const [loading, setLoading] = useState(true)
   const [nombre, setNombre] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportStatus, setExportStatus] = useState<'success' | 'error' | null>(null)
+  const [walletConnection, setWalletConnection] = useState('')
+  const [isWalletEditorOpen, setIsWalletEditorOpen] = useState(false)
+  const [isWalletSaving, setIsWalletSaving] = useState(false)
+  const [walletNotice, setWalletNotice] = useState<'connected' | 'disconnected' | 'error' | null>(null)
 
   const today = DateTime.now().toISODate()!
+  const hasPlan = plans.length > 0
+  const latestPlan = hasPlan ? plans[plans.length - 1] : null
 
   const loadData = useCallback(async () => {
     setLoading(true)
 
     try {
-      const profile = await window.api.profile.get(profileId)
+      const [profile, planList, nextWalletStatus] = await Promise.all([
+        window.api.profile.get(profileId),
+        window.api.plan.list(profileId),
+        window.api.wallet.status()
+      ])
+
       if (profile) {
         setNombre(profile.participantes[0]?.datosPersonales?.nombre || '')
       }
 
-      const planList = await window.api.plan.list(profileId)
       setPlans(planList)
+      setWalletStatus(nextWalletStatus)
 
       if (planList.length > 0) {
-        const latestPlan = planList[planList.length - 1]
+        const nextPlan = planList[planList.length - 1]
         const [progressList, streakResult] = await Promise.all([
-          window.api.progress.list(latestPlan.id, today),
-          window.api.streak.get(latestPlan.id)
+          window.api.progress.list(nextPlan.id, today),
+          window.api.streak.get(nextPlan.id)
         ])
         setTasks(progressList)
         setStreak(streakResult)
@@ -95,6 +113,75 @@ function Dashboard({
     }
   }
 
+  async function handleExportCalendar(): Promise<void> {
+    if (!latestPlan) return
+
+    setIsExporting(true)
+    setExportStatus(null)
+
+    try {
+      const result = await window.api.plan.exportCalendar(latestPlan.id)
+      if (result.success) {
+        setExportStatus('success')
+      } else if (!result.cancelled) {
+        setExportStatus('error')
+      }
+    } catch {
+      setExportStatus('error')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  async function handleConnectWallet(): Promise<void> {
+    if (!walletConnection.trim()) return
+
+    setIsWalletSaving(true)
+    setWalletNotice(null)
+
+    try {
+      const result = await window.api.wallet.connect(walletConnection.trim())
+      if (result.success) {
+        setWalletStatus(result.status)
+        setWalletConnection('')
+        setIsWalletEditorOpen(false)
+        setWalletNotice('connected')
+      } else {
+        setWalletStatus(result.status)
+        setWalletNotice('error')
+      }
+    } catch {
+      setWalletNotice('error')
+    } finally {
+      setIsWalletSaving(false)
+    }
+  }
+
+  async function handleDisconnectWallet(): Promise<void> {
+    setIsWalletSaving(true)
+    setWalletNotice(null)
+
+    try {
+      const result = await window.api.wallet.disconnect()
+      if (result.success) {
+        setWalletStatus({
+          configured: false,
+          connected: false,
+          canUseSecureStorage: walletStatus.canUseSecureStorage
+        })
+        setWalletConnection('')
+        setIsWalletEditorOpen(false)
+        setWalletNotice('disconnected')
+      } else {
+        setWalletNotice('error')
+      }
+    } catch {
+      setWalletNotice('error')
+    } finally {
+      setIsWalletSaving(false)
+    }
+  }
+
   if (loading) {
     return (
       <div id="app" className="app-shell app-shell--centered">
@@ -106,8 +193,6 @@ function Dashboard({
   }
 
   const doneCount = tasks.filter((task) => task.completado).length
-  const hasPlan = plans.length > 0
-  const latestPlan = hasPlan ? plans[plans.length - 1] : null
   const progressMessage = doneCount === tasks.length
     ? t('dashboard.all_done')
     : t('dashboard.done_count', { done: doneCount, total: tasks.length })
@@ -116,6 +201,115 @@ function Dashboard({
     const metaB = parseMeta(b.notas)
     return (metaA.hora || '').localeCompare(metaB.hora || '')
   })
+  const formattedWalletBalance = typeof walletStatus.balanceSats === 'number'
+    ? new Intl.NumberFormat(getCurrentLocale()).format(walletStatus.balanceSats)
+    : null
+
+  function renderWalletCard(): JSX.Element {
+    const walletLabel = walletStatus.connected
+      ? walletStatus.alias || t('dashboard.wallet_ready')
+      : t('dashboard.wallet_not_connected')
+
+    return (
+      <div className="dashboard-wallet">
+        <span className="dashboard-wallet__label">{t('dashboard.wallet_title')}</span>
+        <strong className="dashboard-wallet__value">{walletLabel}</strong>
+        {formattedWalletBalance && (
+          <span className="dashboard-wallet__meta">
+            {t('dashboard.wallet_balance', { sats: formattedWalletBalance })}
+          </span>
+        )}
+        {!walletStatus.canUseSecureStorage && (
+          <p className="status-message status-message--warning">{t('settings.wallet_unavailable')}</p>
+        )}
+        {walletNotice && (
+          <p
+            className={[
+              'status-message',
+              walletNotice === 'error' ? 'status-message--warning' : 'status-message--success'
+            ].join(' ')}
+          >
+            {walletNotice === 'connected' && t('settings.wallet_success')}
+            {walletNotice === 'disconnected' && t('settings.wallet_disconnect_success')}
+            {walletNotice === 'error' && t('settings.wallet_error')}
+          </p>
+        )}
+
+        {walletStatus.canUseSecureStorage && (
+          <>
+            {isWalletEditorOpen ? (
+              <div className="dashboard-wallet__form">
+                <p className="dashboard-wallet__hint">{t('settings.wallet_hint')}</p>
+                <input
+                  className="app-input dashboard-wallet__input"
+                  type="password"
+                  value={walletConnection}
+                  onChange={(event) => setWalletConnection(event.target.value)}
+                  placeholder={t('settings.wallet_placeholder')}
+                  autoFocus
+                />
+                <div className="dashboard-actions dashboard-actions--compact">
+                  <button
+                    className="app-button app-button--primary"
+                    onClick={() => {
+                      void handleConnectWallet()
+                    }}
+                    disabled={!walletConnection.trim() || isWalletSaving}
+                  >
+                    {isWalletSaving ? t('settings.wallet_connecting') : t('settings.wallet_confirm')}
+                  </button>
+                  <button
+                    className="app-button app-button--secondary"
+                    onClick={() => {
+                      setIsWalletEditorOpen(false)
+                      setWalletConnection('')
+                    }}
+                    disabled={isWalletSaving}
+                  >
+                    {t('ui.cancel')}
+                  </button>
+                  {walletStatus.configured && (
+                    <button
+                      className="app-button app-button--secondary"
+                      onClick={() => {
+                        void handleDisconnectWallet()
+                      }}
+                      disabled={isWalletSaving}
+                    >
+                      {t('settings.wallet_disconnect')}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="dashboard-actions dashboard-actions--compact">
+                <button
+                  className="app-button app-button--secondary"
+                  onClick={() => {
+                    setIsWalletEditorOpen(true)
+                    setWalletNotice(null)
+                  }}
+                >
+                  {walletStatus.connected ? t('dashboard.wallet_change') : t('dashboard.wallet_connect')}
+                </button>
+                {walletStatus.configured && (
+                  <button
+                    className="app-button app-button--secondary"
+                    onClick={() => {
+                      void handleDisconnectWallet()
+                    }}
+                    disabled={isWalletSaving}
+                  >
+                    {t('settings.wallet_disconnect')}
+                  </button>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div id="app" className="app-shell dashboard-shell">
@@ -136,6 +330,9 @@ function Dashboard({
                 {t('dashboard.build_ollama')}
               </button>
             </div>
+            <div className="dashboard-summary-grid dashboard-summary-grid--single">
+              {renderWalletCard()}
+            </div>
             {buildError && <p className="status-message status-message--warning">{buildError}</p>}
           </section>
         ) : (
@@ -155,6 +352,7 @@ function Dashboard({
                   </span>
                 )}
               </div>
+              {renderWalletCard()}
             </div>
 
             {tasks.length === 0 ? (
@@ -237,6 +435,15 @@ function Dashboard({
 
             <hr className="dashboard-divider" />
             <div className="dashboard-actions">
+              <button
+                className="app-button app-button--secondary"
+                onClick={() => {
+                  void handleExportCalendar()
+                }}
+                disabled={isExporting}
+              >
+                {isExporting ? t('dashboard.exporting_calendar') : t('dashboard.export_calendar')}
+              </button>
               <button className="app-button app-button--primary" onClick={() => onBuildPlan('openai')}>
                 {t('dashboard.build_openai')}
               </button>
@@ -244,6 +451,18 @@ function Dashboard({
                 {t('dashboard.build_ollama')}
               </button>
             </div>
+            {exportStatus && (
+              <p
+                className={[
+                  'status-message',
+                  exportStatus === 'success' ? 'status-message--success' : 'status-message--warning'
+                ].join(' ')}
+              >
+                {exportStatus === 'success'
+                  ? t('dashboard.export_calendar_success')
+                  : t('dashboard.export_calendar_error')}
+              </p>
+            )}
             {buildError && <p className="status-message status-message--warning">{buildError}</p>}
           </section>
         )}

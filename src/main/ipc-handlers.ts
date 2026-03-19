@@ -1,16 +1,57 @@
-import { ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { writeFile } from 'node:fs/promises'
+import { posix as pathPosix } from 'node:path'
 import { intakeExpressToProfile } from '../skills/plan-intake'
 import { generatePlan } from '../skills/plan-builder'
 import { getProvider } from '../providers/provider-factory'
 import {
   createProfile, getProfile, createPlan, getPlan,
-  getPlansByProfile, getProgressByPlanAndDate, toggleProgress,
+  getPlansByProfile, getProgressByPlan, getProgressByPlanAndDate, toggleProgress,
   seedProgressFromEvents, trackEvent, getSetting, setSetting, getHabitStreak
 } from './db/db-helpers'
 import type { IntakeExpressData } from '../shared/types/ipc'
 import type { Perfil } from '../shared/schemas/perfil'
 import type { SkillContext } from '../runtime/types'
 import { DateTime } from 'luxon'
+import { generateIcsCalendar } from '../utils/ics-generator'
+import { t } from '../i18n'
+import { getPaymentProvider } from '../providers/payment-provider'
+import { clearSecureToken, isSecureStorageAvailable, loadSecureToken, saveSecureToken } from '../auth/token-store'
+import type { PaymentProviderStatus } from '../providers/payment-provider'
+import type { WalletStatus } from '../shared/types/ipc'
+
+function toPosixPath(value: string): string {
+  return value.replace(/\\/g, '/')
+}
+
+function sanitizeFileName(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 64) || 'mi-plan'
+}
+
+function toSats(valueMsats: number | null): number | undefined {
+  return typeof valueMsats === 'number' ? Math.floor(valueMsats / 1000) : undefined
+}
+
+function toWalletStatus(
+  snapshot: PaymentProviderStatus | null,
+  options: { configured: boolean; connected: boolean; canUseSecureStorage?: boolean }
+): WalletStatus {
+  return {
+    configured: options.configured,
+    connected: options.connected,
+    canUseSecureStorage: options.canUseSecureStorage ?? isSecureStorageAvailable(),
+    alias: snapshot?.alias ?? undefined,
+    balanceSats: toSats(snapshot?.balanceMsats ?? null),
+    budgetSats: toSats(snapshot?.budgetTotalMsats ?? null),
+    budgetUsedSats: toSats(snapshot?.budgetUsedMsats ?? null)
+  }
+}
 
 export function registerIpcHandlers(): void {
   // --- Intake Express: save profile ---
@@ -126,9 +167,136 @@ export function registerIpcHandlers(): void {
     return JSON.parse(row.data)
   })
 
+  // --- Wallet secure status ---
+  ipcMain.handle('wallet:status', async () => {
+    if (!isSecureStorageAvailable()) {
+      return toWalletStatus(null, { configured: false, connected: false, canUseSecureStorage: false })
+    }
+
+    const connectionUrl = await loadSecureToken('wallet-nwc')
+    if (!connectionUrl) {
+      return toWalletStatus(null, { configured: false, connected: false })
+    }
+
+    let provider: ReturnType<typeof getPaymentProvider> | null = null
+
+    try {
+      provider = getPaymentProvider('nwc', { connectionUrl })
+      const snapshot = await provider.getStatus()
+      return toWalletStatus(snapshot, { configured: true, connected: true })
+    } catch {
+      return toWalletStatus(null, { configured: true, connected: false })
+    } finally {
+      provider?.close()
+    }
+  })
+
+  // --- Wallet connect + save secure secret ---
+  ipcMain.handle('wallet:connect', async (_event, connectionUrl: string) => {
+    const canUseSecureStorage = isSecureStorageAvailable()
+    if (!canUseSecureStorage) {
+      return {
+        success: false,
+        status: toWalletStatus(null, { configured: false, connected: false, canUseSecureStorage: false }),
+        error: 'SECURE_STORAGE_UNAVAILABLE'
+      }
+    }
+
+    let provider: ReturnType<typeof getPaymentProvider> | null = null
+
+    try {
+      provider = getPaymentProvider('nwc', { connectionUrl })
+      const snapshot = await provider.getStatus()
+      await saveSecureToken('wallet-nwc', connectionUrl)
+      trackEvent('WALLET_CONNECTED', {
+        alias: snapshot.alias,
+        network: snapshot.network
+      })
+
+      return {
+        success: true,
+        status: toWalletStatus(snapshot, { configured: true, connected: true })
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      trackEvent('ERROR_OCCURRED', { code: 'WALLET_CONNECT_FAILED', message })
+      return {
+        success: false,
+        status: toWalletStatus(null, { configured: false, connected: false }),
+        error: message
+      }
+    } finally {
+      provider?.close()
+    }
+  })
+
+  // --- Wallet disconnect ---
+  ipcMain.handle('wallet:disconnect', async () => {
+    await clearSecureToken('wallet-nwc')
+    trackEvent('WALLET_DISCONNECTED')
+    return { success: true }
+  })
+
   // --- List plans for profile ---
   ipcMain.handle('plan:list', async (_event, profileId: string) => {
     return getPlansByProfile(profileId)
+  })
+
+  // --- Export plan progress as calendar file ---
+  ipcMain.handle('plan:export-ics', async (event, planId: string) => {
+    try {
+      const planRow = getPlan(planId)
+      if (!planRow) {
+        return { success: false, error: 'PLAN_NOT_FOUND' }
+      }
+
+      let timezone = 'America/Argentina/Buenos_Aires'
+      const profileRow = getProfile(planRow.profileId)
+
+      if (profileRow) {
+        try {
+          const profile: Perfil = JSON.parse(profileRow.data)
+          timezone = profile.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria || timezone
+        } catch {
+          timezone = 'America/Argentina/Buenos_Aires'
+        }
+      }
+
+      const calendar = generateIcsCalendar({
+        planName: planRow.nombre,
+        timezone,
+        rows: getProgressByPlan(planId)
+      })
+
+      const nowInZone = DateTime.now().setZone(timezone)
+      const exportDate = nowInZone.isValid
+        ? nowInZone.toISODate()
+        : DateTime.now().toISODate()
+      const defaultFileName = `lap-${sanitizeFileName(planRow.nombre)}-${exportDate || 'plan'}.ics`
+      const defaultPath = pathPosix.join(toPosixPath(app.getPath('documents')), defaultFileName)
+      const browserWindow = BrowserWindow.fromWebContents(event.sender) ?? undefined
+      const saveDialogOptions = {
+        defaultPath,
+        filters: [{ name: t('calendar.file_type'), extensions: ['ics'] }]
+      }
+      const saveResult = browserWindow
+        ? await dialog.showSaveDialog(browserWindow, saveDialogOptions)
+        : await dialog.showSaveDialog(saveDialogOptions)
+
+      if (saveResult.canceled || !saveResult.filePath) {
+        return { success: false, cancelled: true }
+      }
+
+      const filePath = toPosixPath(saveResult.filePath)
+      await writeFile(filePath, calendar, 'utf8')
+
+      trackEvent('PLAN_CALENDAR_EXPORTED', { planId, filePath })
+      return { success: true, filePath }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      trackEvent('ERROR_OCCURRED', { code: 'PLAN_EXPORT_ICS_FAILED', message, planId })
+      return { success: false, error: message }
+    }
   })
 
   // --- List progress for plan + date ---

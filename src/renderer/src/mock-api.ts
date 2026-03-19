@@ -22,6 +22,8 @@ const mockTasks = [
   { id: 'task-3', planId: MOCK_PLAN_ID, fecha: TODAY, tipo: 'tarea', objetivoId: 'obj1', descripcion: 'Leer un capítulo del libro', completado: true, notas: JSON.stringify({ hora: '21:00', duracion: 20, categoria: 'estudio' }), createdAt: TODAY }
 ]
 
+let mockWalletConnected = false
+
 const mockApi = {
   intake: {
     save: async (data: IntakeExpressData) => {
@@ -53,6 +55,10 @@ const mockApi = {
         createdAt: TODAY,
         updatedAt: TODAY
       }]
+    },
+    exportCalendar: async (_planId: string) => {
+      await new Promise((resolve) => setTimeout(resolve, 350))
+      return { success: true, filePath: 'F:/mock/lap-demo.ics' }
     }
   },
   profile: {
@@ -79,6 +85,49 @@ const mockApi = {
   streak: {
     get: async (_planId: string) => {
       return calculateHabitStreak([...mockHabitHistory, ...mockTasks], TODAY)
+    }
+  },
+  wallet: {
+    status: async () => {
+      return {
+        configured: mockWalletConnected,
+        connected: mockWalletConnected,
+        canUseSecureStorage: true,
+        alias: mockWalletConnected ? 'Billetera demo' : undefined,
+        balanceSats: mockWalletConnected ? 21000 : undefined
+      }
+    },
+    connect: async (connectionUrl: string) => {
+      await new Promise((resolve) => setTimeout(resolve, 400))
+
+      if (!connectionUrl.trim().startsWith('nostr+walletconnect://')) {
+        return {
+          success: false,
+          status: {
+            configured: false,
+            connected: false,
+            canUseSecureStorage: true
+          },
+          error: 'INVALID_NWC_URL'
+        }
+      }
+
+      mockWalletConnected = true
+
+      return {
+        success: true,
+        status: {
+          configured: true,
+          connected: true,
+          canUseSecureStorage: true,
+          alias: 'Billetera demo',
+          balanceSats: 21000
+        }
+      }
+    },
+    disconnect: async () => {
+      mockWalletConnected = false
+      return { success: true }
     }
   }
 }

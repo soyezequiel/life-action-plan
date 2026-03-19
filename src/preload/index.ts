@@ -9,7 +9,8 @@ const api = {
   plan: {
     build: (profileId: string, apiKey: string, provider?: string) =>
       ipcRenderer.invoke('plan:build', profileId, apiKey, provider),
-    list: (profileId: string) => ipcRenderer.invoke('plan:list', profileId)
+    list: (profileId: string) => ipcRenderer.invoke('plan:list', profileId),
+    exportCalendar: (planId: string) => ipcRenderer.invoke('plan:export-ics', planId)
   },
   profile: {
     get: (profileId: string) => ipcRenderer.invoke('profile:get', profileId),
@@ -21,6 +22,11 @@ const api = {
   },
   streak: {
     get: (planId: string) => ipcRenderer.invoke('streak:get', planId)
+  },
+  wallet: {
+    status: () => ipcRenderer.invoke('wallet:status'),
+    connect: (connectionUrl: string) => ipcRenderer.invoke('wallet:connect', connectionUrl),
+    disconnect: () => ipcRenderer.invoke('wallet:disconnect')
   }
 }
 
