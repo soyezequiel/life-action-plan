@@ -1,6 +1,7 @@
 import type {
   DebugEvent,
   IntakeExpressData,
+  PlanBuildProgress,
   PlanExportCalendarResult,
   PlanSimulationProgress,
   SimulationMode
@@ -25,6 +26,7 @@ interface AvailabilityState {
 }
 
 const debugListeners = new Set<(event: DebugEvent) => void>()
+const buildProgressListeners = new Set<(progress: PlanBuildProgress) => void>()
 const simulationProgressListeners = new Set<(progress: PlanSimulationProgress) => void>()
 
 let availabilityState: AvailabilityState = {
@@ -32,6 +34,7 @@ let availabilityState: AvailabilityState = {
   value: null
 }
 let debugEventSource: EventSource | null = null
+let buildEventSource: EventSource | null = null
 let simulationEventSource: EventSource | null = null
 
 function markAvailability(value: boolean | null): void {
@@ -83,6 +86,12 @@ function resetDebugEventSource(): void {
   markAvailability(null)
 }
 
+function resetBuildEventSource(): void {
+  buildEventSource?.close()
+  buildEventSource = null
+  markAvailability(null)
+}
+
 function resetSimulationEventSource(): void {
   simulationEventSource?.close()
   simulationEventSource = null
@@ -110,6 +119,30 @@ function ensureDebugEventSource(): void {
   }
   debugEventSource.onerror = () => {
     resetDebugEventSource()
+  }
+}
+
+function ensureBuildEventSource(): void {
+  if (buildEventSource || typeof EventSource === 'undefined') {
+    return
+  }
+
+  buildEventSource = new EventSource(`${DEV_API_BASE}/plan/build/events`)
+  buildEventSource.onopen = () => {
+    markAvailability(true)
+  }
+  buildEventSource.onmessage = (message) => {
+    try {
+      const progress = JSON.parse(message.data) as PlanBuildProgress
+      for (const listener of buildProgressListeners) {
+        listener(progress)
+      }
+    } catch {
+      // Ignore malformed events and keep the stream open.
+    }
+  }
+  buildEventSource.onerror = () => {
+    resetBuildEventSource()
   }
 }
 
@@ -155,6 +188,23 @@ export const browserHttpLapClient: LapAPI = {
       }),
       () => mockLapApi.plan.build(profileId, apiKey, provider)
     ),
+    onBuildProgress: (listener: (progress: PlanBuildProgress) => void) => {
+      buildProgressListeners.add(listener)
+      ensureBuildEventSource()
+
+      const fallbackUnsubscribe = availabilityState.value === false
+        ? mockLapApi.plan.onBuildProgress(listener)
+        : null
+
+      return () => {
+        fallbackUnsubscribe?.()
+        buildProgressListeners.delete(listener)
+
+        if (buildProgressListeners.size === 0) {
+          resetBuildEventSource()
+        }
+      }
+    },
     list: async (profileId: string) => withDevApi(
       () => fetchDevApi(`/plan/list?profileId=${encodeURIComponent(profileId)}`),
       () => mockLapApi.plan.list(profileId)
@@ -271,7 +321,10 @@ export const browserHttpLapClient: LapAPI = {
   },
   debug: {
     enable: async () => withDevApi(
-      () => fetchDevApi('/debug/enable', { method: 'POST' }),
+      async () => {
+        ensureDebugEventSource()
+        return fetchDevApi('/debug/enable', { method: 'POST' })
+      },
       () => mockLapApi.debug.enable()
     ),
     disable: async () => withDevApi(

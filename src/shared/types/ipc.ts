@@ -27,6 +27,18 @@ export interface PlanBuildResult {
   error?: string
 }
 
+export type PlanBuildProgressStage = 'preparing' | 'generating' | 'validating' | 'saving'
+
+export interface PlanBuildProgress {
+  profileId: string
+  provider: string
+  stage: PlanBuildProgressStage
+  current: number
+  total: number
+  charCount: number
+  chunk?: string
+}
+
 // Progress
 export interface ProgressRow {
   id: string

@@ -18,7 +18,7 @@ import { t } from '../i18n'
 import { getPaymentProvider } from '../providers/payment-provider'
 import { clearSecureToken, isSecureStorageAvailable, loadSecureToken, saveSecureToken } from '../auth/token-store'
 import type { PaymentProviderStatus } from '../providers/payment-provider'
-import type { SimulationMode, WalletStatus } from '../shared/types/ipc'
+import type { PlanBuildProgress, SimulationMode, WalletStatus } from '../shared/types/ipc'
 import { buildWithOllamaFallback } from '../utils/plan-build-fallback'
 import { simulatePlanViabilityWithProgress } from '../skills/plan-simulator'
 import { traceCollector } from '../debug/trace-collector'
@@ -186,6 +186,24 @@ export function registerIpcHandlers(): void {
   // provider: "openai:gpt-4o-mini" or "ollama:qwen3:8b"
   ipcMain.handle('plan:build', async (event, profileId: string, apiKey: string, provider?: string) => {
     let traceId: string | null = null
+    let streamedCharCount = 0
+    const totalStages = 4
+    const emitBuildProgress = (
+      stage: PlanBuildProgress['stage'],
+      current: number,
+      buildProvider: string,
+      chunk?: string
+    ): void => {
+      event.sender.send('plan:build:progress', {
+        profileId,
+        provider: buildProvider,
+        stage,
+        current,
+        total: totalStages,
+        charCount: streamedCharCount,
+        ...(chunk ? { chunk } : {})
+      } satisfies PlanBuildProgress)
+    }
 
     try {
       const profileRow = getProfile(profileId)
@@ -205,6 +223,7 @@ export function registerIpcHandlers(): void {
       }
 
       trackEvent('PLAN_BUILD_STARTED', { profileId, modelId })
+      emitBuildProgress('preparing', 1, modelId)
 
       if (getSetting('debugPanelVisible') === 'true' && !traceCollector.isEnabled()) {
         traceCollector.enable(event.sender)
@@ -224,7 +243,19 @@ export function registerIpcHandlers(): void {
             nextModelId
           )
 
-          return generatePlan(instrumentedRuntime, profile, ctx)
+          return generatePlan(instrumentedRuntime, profile, ctx, {
+            onStageChange: (stage) => {
+              if (stage === 'generating') {
+                emitBuildProgress('generating', 2, nextModelId)
+              } else if (stage === 'validating') {
+                emitBuildProgress('validating', 3, nextModelId)
+              }
+            },
+            onToken: (chunk) => {
+              streamedCharCount += chunk.length
+              emitBuildProgress('generating', 2, nextModelId, chunk)
+            }
+          })
         },
         (originalError) => {
           trackEvent('PLAN_BUILD_FALLBACK', {
@@ -238,6 +269,8 @@ export function registerIpcHandlers(): void {
       const result = buildResult.result
       const fallbackUsed = buildResult.fallbackUsed
       const finalModelId = buildResult.modelId
+
+      emitBuildProgress('saving', 4, finalModelId)
 
       // Save plan to DB
       const now = DateTime.utc().toISO()!

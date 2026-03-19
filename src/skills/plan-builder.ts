@@ -27,6 +27,11 @@ export interface GeneratedPlan {
   tokensUsed: { input: number; output: number }
 }
 
+export interface GeneratePlanOptions {
+  onStageChange?: (stage: 'generating' | 'validating') => void
+  onToken?: (chunk: string) => void
+}
+
 const validCategories = ['estudio', 'ejercicio', 'trabajo', 'habito', 'descanso', 'otro'] as const
 
 const categoryAliases: Record<string, PlanEvent['categoria']> = {
@@ -322,18 +327,29 @@ export const planBuilder: Skill = {
 export async function generatePlan(
   runtime: AgentRuntime,
   profile: Perfil,
-  ctx: SkillContext
+  ctx: SkillContext,
+  options?: GeneratePlanOptions
 ): Promise<GeneratedPlan> {
   const systemPrompt = planBuilder.getSystemPrompt(ctx)
   const userPrompt = buildUserPrompt(profile)
   const fallbackObjectiveId = profile.objetivos[0]?.id ?? 'obj1'
+  const messages = [
+    { role: 'system' as const, content: systemPrompt },
+    { role: 'user' as const, content: userPrompt }
+  ]
 
-  const response = await runtime.chat([
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: userPrompt }
-  ])
+  options?.onStageChange?.('generating')
+
+  const response = options?.onToken && typeof runtime.streamChat === 'function'
+    ? await runtime.streamChat(messages, options.onToken)
+    : await runtime.chat(messages)
+
+  if (options?.onToken && typeof runtime.streamChat !== 'function' && response.content) {
+    options.onToken(response.content)
+  }
 
   try {
+    options?.onStageChange?.('validating')
     const extractedJson = extractFirstJsonObject(response.content)
     const parsed = JSON.parse(extractedJson)
     const normalized = normalizeGeneratedPlan(parsed, fallbackObjectiveId)

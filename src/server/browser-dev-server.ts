@@ -27,6 +27,7 @@ import {
 } from './store/browser-dev-store'
 import type {
   IntakeExpressData,
+  PlanBuildProgress,
   PlanExportCalendarResult,
   PlanBuildResult,
   PlanSimulationProgress,
@@ -46,12 +47,14 @@ const API_PREFIX = '/__lap/api'
 
 interface BrowserDevState {
   debugPanelVisible: boolean
+  buildListeners: Set<(progress: PlanBuildProgress) => void>
   debugHoldSubscription: (() => void) | null
   simulationListeners: Set<(progress: PlanSimulationProgress) => void>
 }
 
 const state: BrowserDevState = {
   debugPanelVisible: false,
+  buildListeners: new Set(),
   debugHoldSubscription: null,
   simulationListeners: new Set()
 }
@@ -177,9 +180,32 @@ async function handlePlanBuild(body: { profileId: string; apiKey: string; provid
   }
 
   let traceId: string | null = null
+  let streamedCharCount = 0
+  const totalStages = 4
+  const emitBuildProgress = (
+    stage: PlanBuildProgress['stage'],
+    current: number,
+    provider: string,
+    chunk?: string
+  ): void => {
+    const payload: PlanBuildProgress = {
+      profileId: body.profileId,
+      provider,
+      stage,
+      current,
+      total: totalStages,
+      charCount: streamedCharCount,
+      ...(chunk ? { chunk } : {})
+    }
+
+    for (const listener of state.buildListeners) {
+      listener(payload)
+    }
+  }
 
   try {
     traceId = traceCollector.startTrace('plan-builder', modelId, { profileId: body.profileId, transport: 'browser-dev' })
+    emitBuildProgress('preparing', 1, modelId)
 
     const buildResult = await buildWithOllamaFallback(
       modelId,
@@ -191,7 +217,20 @@ async function handlePlanBuild(body: { profileId: string; apiKey: string; provid
         return generatePlan(
           createInstrumentedRuntime(runtime, traceId, 'plan-builder', nextModelId),
           profile,
-          ctx
+          ctx,
+          {
+            onStageChange: (stage) => {
+              if (stage === 'generating') {
+                emitBuildProgress('generating', 2, nextModelId)
+              } else if (stage === 'validating') {
+                emitBuildProgress('validating', 3, nextModelId)
+              }
+            },
+            onToken: (chunk) => {
+              streamedCharCount += chunk.length
+              emitBuildProgress('generating', 2, nextModelId, chunk)
+            }
+          }
         )
       },
       () => {}
@@ -213,6 +252,7 @@ async function handlePlanBuild(body: { profileId: string; apiKey: string; provid
       fallbackUsed,
       ultimoModeloUsado: finalModelId
     })
+    emitBuildProgress('saving', 4, finalModelId)
     const planId = createBrowserPlan(
       body.profileId,
       result.nombre,
@@ -292,6 +332,28 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
 
   if (pathname === `${API_PREFIX}/plan/build` && method === 'POST') {
     json(res, 200, await handlePlanBuild(await readJsonBody<{ profileId: string; apiKey: string; provider?: string }>(req)))
+    return
+  }
+
+  if (pathname === `${API_PREFIX}/plan/build/events` && method === 'GET') {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive'
+    })
+    res.write(': connected\n\n')
+
+    const listener = (progress: PlanBuildProgress) => {
+      res.write(`data: ${JSON.stringify(progress)}\n\n`)
+    }
+
+    state.buildListeners.add(listener)
+
+    req.on('close', () => {
+      state.buildListeners.delete(listener)
+      res.end()
+    })
+
     return
   }
 

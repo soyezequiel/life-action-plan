@@ -13,6 +13,15 @@ interface TextSegment {
   isThink: boolean
 }
 
+function getMetadataNumber(span: DebugSpan, key: string): number | null {
+  const value = span.metadata[key]
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function formatSeconds(valueMs: number): string {
+  return (valueMs / 1000).toFixed(valueMs >= 10_000 ? 0 : 1)
+}
+
 function splitThinkSegments(content: string): TextSegment[] {
   if (!content) {
     return []
@@ -98,6 +107,14 @@ export default function DebugTokenStream({ span }: DebugTokenStreamProps): JSX.E
 
   const startedMs = DateTime.fromISO(span.startedAt).toMillis()
   const durationMs = span.durationMs ?? Math.max(nowMs - startedMs, 0)
+  const timeToFirstTokenMs = getMetadataNumber(span, 'timeToFirstTokenMs')
+  const waitingForFirstToken = !response && (span.status === 'pending' || span.status === 'streaming')
+  const liveWaitMs = waitingForFirstToken ? Math.max(nowMs - startedMs, 0) : null
+  const firstTokenLabel = timeToFirstTokenMs !== null
+    ? t('debug.first_token_ready', { seconds: formatSeconds(timeToFirstTokenMs) })
+    : waitingForFirstToken && liveWaitMs !== null
+      ? t('debug.first_token_pending', { seconds: formatSeconds(liveWaitMs) })
+      : null
   const tokensPerSecond = durationMs > 0
     ? estimateCompletionTokens(span) / Math.max(durationMs / 1000, 0.001)
     : 0
@@ -105,9 +122,16 @@ export default function DebugTokenStream({ span }: DebugTokenStreamProps): JSX.E
   return (
     <div className="debug-stream">
       <div className="debug-stream__toolbar">
-        <span className="debug-stream__rate">
-          {t('debug.tokens_per_second', { value: tokensPerSecond.toFixed(1) })}
-        </span>
+        <div className="debug-stream__toolbar-copy">
+          {firstTokenLabel && (
+            <span className="debug-stream__rate">
+              {firstTokenLabel}
+            </span>
+          )}
+          <span className="debug-stream__rate">
+            {t('debug.tokens_per_second', { value: tokensPerSecond.toFixed(1) })}
+          </span>
+        </div>
         <button
           className="debug-panel__ghost-button"
           onClick={() => setAutoScroll((current) => !current)}
@@ -129,6 +153,11 @@ export default function DebugTokenStream({ span }: DebugTokenStreamProps): JSX.E
             ))}
             {span.status === 'streaming' && <span className="debug-stream__cursor" aria-hidden="true" />}
           </pre>
+        ) : waitingForFirstToken && liveWaitMs !== null ? (
+          <div className="debug-panel__empty">
+            <div>{t('debug.stream_waiting')}</div>
+            <div>{t('debug.stream_waiting_elapsed', { seconds: formatSeconds(liveWaitMs) })}</div>
+          </div>
         ) : (
           <p className="debug-panel__empty">{t('debug.stream_empty')}</p>
         )}

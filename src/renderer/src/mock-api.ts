@@ -5,6 +5,7 @@ import type {
   DebugSpan,
   DebugTraceSnapshot,
   IntakeExpressData,
+  PlanBuildProgress,
   PlanExportCalendarResult,
   PlanSimulationProgress,
   PlanSimulationSnapshot,
@@ -175,11 +176,18 @@ let mockDebugEnabled = false
 let mockDebugPanelVisible = false
 let mockDebugTraces: DebugTraceSnapshot[] = []
 
+const buildProgressListeners = new Set<(progress: PlanBuildProgress) => void>()
 const simulationProgressListeners = new Set<(progress: PlanSimulationProgress) => void>()
 const debugListeners = new Set<(event: DebugEvent) => void>()
 
 function wait(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds))
+}
+
+function emitBuildProgress(progress: PlanBuildProgress): void {
+  for (const listener of buildProgressListeners) {
+    listener(progress)
+  }
 }
 
 function emitSimulationProgress(progress: PlanSimulationProgress): void {
@@ -340,9 +348,58 @@ export const mockLapApi: LapAPI = {
   plan: {
     build: async (_profileId: string, _apiKey: string, provider?: string) => {
       const resolvedProvider = provider ?? 'ollama:qwen3:8b'
+      const streamedDraft = JSON.stringify({
+        nombre: 'Mi Plan de Accion (demo)',
+        resumen: 'Este es un plan demo para seguir trabajando la UI cuando no hay backend web.',
+        eventos: []
+      })
+      const chunks = streamedDraft.match(/.{1,20}/g) ?? [streamedDraft]
+      let charCount = 0
+
+      emitBuildProgress({
+        profileId: MOCK_PROFILE_ID,
+        provider: resolvedProvider,
+        stage: 'preparing',
+        current: 1,
+        total: 4,
+        charCount
+      })
+      await wait(120)
+
+      emitBuildProgress({
+        profileId: MOCK_PROFILE_ID,
+        provider: resolvedProvider,
+        stage: 'generating',
+        current: 2,
+        total: 4,
+        charCount
+      })
+
+      for (const chunk of chunks) {
+        charCount += chunk.length
+        emitBuildProgress({
+          profileId: MOCK_PROFILE_ID,
+          provider: resolvedProvider,
+          stage: 'generating',
+          current: 2,
+          total: 4,
+          charCount,
+          chunk
+        })
+        await wait(45)
+      }
+
+      emitBuildProgress({
+        profileId: MOCK_PROFILE_ID,
+        provider: resolvedProvider,
+        stage: 'validating',
+        current: 3,
+        total: 4,
+        charCount
+      })
 
       await Promise.all([
-        wait(1200),
+        wait(240),
         emitMockDebugTrace(resolvedProvider)
       ])
 
@@ -365,6 +422,16 @@ export const mockLapApi: LapAPI = {
             costSats: 2
           }
 
+      emitBuildProgress({
+        profileId: MOCK_PROFILE_ID,
+        provider: resolvedProvider,
+        stage: 'saving',
+        current: 4,
+        total: 4,
+        charCount
+      })
+      await wait(90)
+
       return {
         success: true,
         planId: MOCK_PLAN_ID,
@@ -376,6 +443,12 @@ export const mockLapApi: LapAPI = {
           output: mockCostSummary.tokensOutput
         },
         fallbackUsed: mockFallbackUsed
+      }
+    },
+    onBuildProgress: (listener: (progress: PlanBuildProgress) => void) => {
+      buildProgressListeners.add(listener)
+      return () => {
+        buildProgressListeners.delete(listener)
       }
     },
     list: async (profileId: string) => [

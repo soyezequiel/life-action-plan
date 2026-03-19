@@ -1,6 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import type { DebugEvent, DebugSnapshotResult, IntakeExpressData, PlanSimulationProgress } from '../shared/types/ipc'
+import type {
+  DebugEvent,
+  DebugSnapshotResult,
+  IntakeExpressData,
+  PlanBuildProgress,
+  PlanSimulationProgress
+} from '../shared/types/ipc'
 import type { LapAPI } from '../shared/types/lap-api'
 
 const api: LapAPI = {
@@ -10,6 +16,17 @@ const api: LapAPI = {
   plan: {
     build: (profileId: string, apiKey: string, provider?: string) =>
       ipcRenderer.invoke('plan:build', profileId, apiKey, provider),
+    onBuildProgress: (listener: (progress: PlanBuildProgress) => void) => {
+      const wrappedListener = (_event: Electron.IpcRendererEvent, progress: PlanBuildProgress) => {
+        listener(progress)
+      }
+
+      ipcRenderer.on('plan:build:progress', wrappedListener)
+
+      return () => {
+        ipcRenderer.removeListener('plan:build:progress', wrappedListener)
+      }
+    },
     list: (profileId: string) => ipcRenderer.invoke('plan:list', profileId),
     simulate: (planId: string, mode?: 'interactive' | 'automatic') => ipcRenderer.invoke('plan:simulate', planId, mode),
     onSimulationProgress: (listener: (progress: PlanSimulationProgress) => void) => {

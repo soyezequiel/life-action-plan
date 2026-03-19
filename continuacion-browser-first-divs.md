@@ -112,3 +112,8 @@
 - Precondiciones: la paridad browser/Electron ya fue medida.
 - Criterio de finalizacion: la shell desktop queda documentada y validada como adaptador de capacidades nativas, sin volver a ser el contrato base de la aplicacion.
 - Notas para la siguiente unidad: deja preparado el proyecto para empaquetado y release sin romper la direccion browser-first.
+
+## Registro de avance
+
+- 2026-03-19 - DIV-003 observabilidad del inspector: el collector ahora guarda `firstTokenAt` y `timeToFirstTokenMs`; el panel muestra una espera inicial explicita y el dato del primer token cuando aparece; el cliente browser precalienta el stream de debug al habilitar el inspector. Evidencia automatica: `npx vitest run tests/trace-collector.test.ts tests/debug-panel-render.test.ts tests/browser-http-client.test.ts tests/i18n.test.ts` y `npm run typecheck`. Evidencia visible: durante `crear plan`, el inspector deja de quedar mudo y muestra "Esperando primer token..." hasta que entra el stream, luego informa el tiempo del primer token.
+- 2026-03-19 - DIV-003 observabilidad del inspector, ajuste de apertura tardia: el collector ahora captura spans y respuesta parcial aunque el panel no este abierto; al abrir el inspector despues de haber lanzado `crear plan`, el snapshot ya trae la traza en curso y el texto acumulado hasta ese momento. Evidencia automatica: `npx vitest run tests/trace-collector.test.ts tests/instrumented-runtime.test.ts`, `npx vitest run` y `npm run typecheck`. Evidencia visible: si abris el inspector unos segundos despues del click, igual ves la traza activa y el stream ya acumulado.

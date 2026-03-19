@@ -21,6 +21,24 @@ function renderTimingValue(value: string | number | null): string {
   return String(value)
 }
 
+function getMetadataNumber(span: DebugSpan, key: string): number | null {
+  const value = span.metadata[key]
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function renderFirstTokenValue(span: DebugSpan): string {
+  const timeToFirstTokenMs = getMetadataNumber(span, 'timeToFirstTokenMs')
+  if (timeToFirstTokenMs !== null) {
+    return t('debug.timing_first_token_value', { ms: timeToFirstTokenMs })
+  }
+
+  if (span.status === 'pending' || span.status === 'streaming') {
+    return t('debug.timing_first_token_pending')
+  }
+
+  return '-'
+}
+
 export default function DebugSpanDetail({ trace, span }: DebugSpanDetailProps): JSX.Element {
   const [activeTab, setActiveTab] = useState<DebugTab>('stream')
 
@@ -90,6 +108,10 @@ export default function DebugSpanDetail({ trace, span }: DebugSpanDetailProps): 
             <div className="debug-timing__row">
               <dt>{t('debug.timing_duration')}</dt>
               <dd>{renderTimingValue(span.durationMs)}</dd>
+            </div>
+            <div className="debug-timing__row">
+              <dt>{t('debug.timing_first_token')}</dt>
+              <dd>{renderFirstTokenValue(span)}</dd>
             </div>
             <div className="debug-timing__row">
               <dt>{t('debug.timing_prompt_tokens')}</dt>

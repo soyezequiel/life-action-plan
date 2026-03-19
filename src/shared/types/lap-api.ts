@@ -7,6 +7,7 @@ import type {
   DebugStatusResult,
   IntakeExpressData,
   IntakeSaveResult,
+  PlanBuildProgress,
   PlanBuildResult,
   PlanExportCalendarResult,
   PlanRow,
@@ -26,6 +27,7 @@ export interface LapAPI {
   }
   plan: {
     build: (profileId: string, apiKey: string, provider?: string) => Promise<PlanBuildResult>
+    onBuildProgress: (listener: (progress: PlanBuildProgress) => void) => () => void
     list: (profileId: string) => Promise<PlanRow[]>
     simulate: (planId: string, mode?: 'interactive' | 'automatic') => Promise<PlanSimulationResult>
     onSimulationProgress: (listener: (progress: PlanSimulationProgress) => void) => () => void

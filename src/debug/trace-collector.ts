@@ -52,6 +52,19 @@ function getDurationMs(startedAt: string, completedAt: string): number {
   return Math.max(completed.toMillis() - started.toMillis(), 0)
 }
 
+function withFirstTokenMetadata(span: DebugSpan): DebugSpan['metadata'] {
+  if (typeof span.metadata.firstTokenAt === 'string') {
+    return span.metadata
+  }
+
+  const firstTokenAt = nowIso()
+  return {
+    ...span.metadata,
+    firstTokenAt,
+    timeToFirstTokenMs: getDurationMs(span.startedAt, firstTokenAt)
+  }
+}
+
 class TraceCollector {
   private enabled = false
   private sender: WebContents | null = null
@@ -67,10 +80,6 @@ class TraceCollector {
   disable(): void {
     this.enabled = false
     this.sender = null
-
-    if (this.listeners.size === 0) {
-      this.resetState()
-    }
   }
 
   subscribe(listener: (event: DebugEvent) => void): () => void {
@@ -78,15 +87,15 @@ class TraceCollector {
 
     return () => {
       this.listeners.delete(listener)
-
-      if (!this.enabled && this.listeners.size === 0) {
-        this.resetState()
-      }
     }
   }
 
   listenerCount(): number {
     return this.listeners.size
+  }
+
+  clear(): void {
+    this.resetState()
   }
 
   private resetState(): void {
@@ -111,8 +120,6 @@ class TraceCollector {
   }
 
   startTrace(skillName: string, provider: string, metadata: Record<string, unknown> = {}): string | null {
-    if (!this.isEnabled()) return null
-
     this.evictOldestTraceIfNeeded()
 
     const traceId = crypto.randomUUID()
@@ -143,7 +150,7 @@ class TraceCollector {
   }
 
   completeTrace(traceId: string | null): void {
-    if (!this.isEnabled() || !traceId) return
+    if (!traceId) return
 
     const trace = this.activeTraces.get(traceId)
     if (!trace) return
@@ -166,7 +173,7 @@ class TraceCollector {
   }
 
   failTrace(traceId: string | null, error: unknown): void {
-    if (!this.isEnabled() || !traceId) return
+    if (!traceId) return
 
     const trace = this.activeTraces.get(traceId)
     if (!trace) return
@@ -198,7 +205,7 @@ class TraceCollector {
     messages: LLMMessage[]
     metadata?: Record<string, unknown>
   }): string | null {
-    if (!this.isEnabled() || !params.traceId) return null
+    if (!params.traceId) return null
 
     const trace = this.activeTraces.get(params.traceId)
     if (!trace) return null
@@ -241,13 +248,15 @@ class TraceCollector {
   }
 
   emitToken(traceId: string | null, spanId: string | null, token: string): void {
-    if (!this.isEnabled() || !traceId || !spanId || !token) return
+    if (!traceId || !spanId || !token) return
 
     const span = this.getSpan(traceId, spanId)
     if (!span) return
 
     this.updateSpan(traceId, spanId, {
-      status: 'streaming'
+      status: 'streaming',
+      response: `${span.response ?? ''}${token}`,
+      metadata: withFirstTokenMetadata(span)
     })
 
     const batch = this.tokenBatches.get(spanId) ?? {
@@ -273,7 +282,7 @@ class TraceCollector {
   }
 
   completeSpan(traceId: string | null, spanId: string | null, response: LLMResponse): void {
-    if (!this.isEnabled() || !traceId || !spanId) return
+    if (!traceId || !spanId) return
 
     this.flushTokenBatch(spanId)
 
@@ -298,7 +307,7 @@ class TraceCollector {
   }
 
   failSpan(traceId: string | null, spanId: string | null, error: unknown): void {
-    if (!this.isEnabled() || !traceId || !spanId) return
+    if (!traceId || !spanId) return
 
     this.flushTokenBatch(spanId)
 

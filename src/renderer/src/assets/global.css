@@ -188,6 +188,108 @@ textarea::placeholder {
   animation: pulse-text 1.6s ease-in-out infinite;
 }
 
+.app-status--eyebrow {
+  color: var(--brand);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app-screen--build {
+  width: min(100%, 720px);
+}
+
+.build-progress {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 560px);
+}
+
+.build-progress__title,
+.build-progress__copy {
+  margin-top: 0;
+}
+
+.build-progress__track {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 166, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.build-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6f8bff 0%, #8dd3ff 100%);
+  transition: width var(--transition-base);
+}
+
+.build-progress__steps {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.build-progress__step {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.build-progress__step--current {
+  border-color: rgba(125, 166, 255, 0.3);
+  background: rgba(125, 166, 255, 0.12);
+}
+
+.build-progress__step--done {
+  border-color: rgba(89, 215, 154, 0.26);
+  background: rgba(89, 215, 154, 0.1);
+}
+
+.build-progress__step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: rgba(9, 16, 31, 0.56);
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.build-progress__step--current .build-progress__step-index {
+  background: linear-gradient(135deg, var(--brand) 0%, #93c0ff 100%);
+  color: #09101f;
+}
+
+.build-progress__step--done .build-progress__step-index {
+  background: linear-gradient(135deg, var(--success) 0%, #97f6c3 100%);
+  color: #0b1a14;
+}
+
+.build-progress__step-label {
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.build-progress__meta {
+  text-align: left;
+}
+
 .app-actions,
 .dashboard-actions,
 .intake-actions {
@@ -839,7 +941,8 @@ textarea::placeholder {
   .task-card__row,
   .intake-actions,
   .dashboard-simulation__header,
-  .dashboard-simulation__item {
+  .dashboard-simulation__item,
+  .build-progress__step {
     flex-direction: column;
     align-items: stretch;
   }

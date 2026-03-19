@@ -1,9 +1,10 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { t } from '../src/i18n'
 import DebugMessageInspector from '../src/renderer/src/components/debug/DebugMessageInspector'
 import DebugSpanDetail from '../src/renderer/src/components/debug/DebugSpanDetail'
+import DebugTokenStream from '../src/renderer/src/components/debug/DebugTokenStream'
 import type { DebugSpan } from '../src/shared/types/ipc'
 import type { DebugTraceView } from '../src/renderer/src/hooks/useDebugTraces'
 
@@ -34,6 +35,10 @@ const baseSpan: DebugSpan = {
   durationMs: null,
   metadata: {}
 }
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 const baseTrace: DebugTraceView = {
   traceId,
@@ -83,5 +88,27 @@ describe('debug panel render', () => {
     expect(html).toContain(t('debug.role.user'))
     expect(html).toContain(t('debug.role.assistant'))
     expect(html).toContain(t('debug.characters', { count: baseSpan.messages[0].content.length }))
+  })
+
+  it('renders an explicit waiting state before the first token arrives', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-03-19T15:00:02.500Z'))
+
+    const waitingSpan: DebugSpan = {
+      ...baseSpan,
+      status: 'pending',
+      response: null,
+      usage: null,
+      metadata: {}
+    }
+
+    const html = renderToStaticMarkup(
+      createElement(DebugTokenStream, {
+        span: waitingSpan
+      })
+    )
+
+    expect(html).toContain(t('debug.stream_waiting'))
+    expect(html).toContain('Esperando primer token: 2.5 s')
   })
 })

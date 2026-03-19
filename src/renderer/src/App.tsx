@@ -6,13 +6,17 @@ import Dashboard from './components/Dashboard'
 import DebugPanel from './components/DebugPanel'
 import { useLapClient } from './app-services'
 import { t } from '../../i18n'
+import type { PlanBuildProgress } from '../../shared/types/ipc'
 
 type AppView = 'dashboard' | 'intake' | 'building' | 'plan' | 'apikey'
+type BuildStage = PlanBuildProgress['stage']
 
 const viewTransition = {
   duration: 0.28,
   ease: [0.22, 1, 0.36, 1] as const
 }
+
+const buildStages: BuildStage[] = ['preparing', 'generating', 'validating', 'saving']
 
 function App(): JSX.Element {
   const client = useLapClient()
@@ -24,6 +28,7 @@ function App(): JSX.Element {
   const [apiKey, setApiKey] = useState('')
   const [loading, setLoading] = useState(true)
   const [debugPanelVisible, setDebugPanelVisible] = useState(false)
+  const [buildProgress, setBuildProgress] = useState<PlanBuildProgress | null>(null)
 
   useEffect(() => {
     async function init(): Promise<void> {
@@ -65,6 +70,16 @@ function App(): JSX.Element {
     }
   }, [])
 
+  useEffect(() => {
+    return client.plan.onBuildProgress((progress) => {
+      if (!profileId || progress.profileId !== profileId) {
+        return
+      }
+
+      setBuildProgress(progress)
+    })
+  }, [client, profileId])
+
   function handleIntakeComplete(id: string): void {
     setProfileId(id)
     setView('dashboard')
@@ -86,6 +101,14 @@ function App(): JSX.Element {
     if (!profileId) return
     const modelId = provider === 'ollama' ? 'ollama:qwen3:8b' : 'openai:gpt-4o-mini'
 
+    setBuildProgress({
+      profileId,
+      provider: modelId,
+      stage: 'preparing',
+      current: 1,
+      total: buildStages.length,
+      charCount: 0
+    })
     setView('building')
     setBuildError('')
 
@@ -93,13 +116,16 @@ function App(): JSX.Element {
       const result = await client.plan.build(profileId, key, modelId)
 
       if (result.success) {
+        setBuildProgress(null)
         setPlan({ nombre: result.nombre!, resumen: result.resumen! })
         setView('plan')
       } else {
+        setBuildProgress(null)
         setBuildError(result.error || t('errors.generic'))
         setView('dashboard')
       }
     } catch {
+      setBuildProgress(null)
       setBuildError(t('errors.connection_busy'))
       setView('dashboard')
     }
@@ -107,6 +133,14 @@ function App(): JSX.Element {
 
   let activeViewKey = 'landing'
   let activeView: JSX.Element
+  const activeBuildProgress = buildProgress ?? {
+    profileId: profileId ?? '',
+    provider: pendingProvider === 'ollama' ? 'ollama:qwen3:8b' : 'openai:gpt-4o-mini',
+    stage: 'preparing' as BuildStage,
+    current: 1,
+    total: buildStages.length,
+    charCount: 0
+  }
 
   if (loading) {
     activeViewKey = 'loading'
@@ -164,8 +198,56 @@ function App(): JSX.Element {
     activeViewKey = 'building'
     activeView = (
       <div id="app" className="app-shell app-shell--centered">
-        <div className="app-screen app-screen--card app-screen--loading">
-          <p className="app-status app-status--busy">{t('builder.generating')}</p>
+        <div className="app-screen app-screen--card app-screen--loading app-screen--build" aria-live="polite">
+          <div className="build-progress">
+            <p className="app-status app-status--eyebrow">
+              {t('builder.progress_current', {
+                current: activeBuildProgress.current,
+                total: activeBuildProgress.total
+              })}
+            </p>
+            <h2 className="app-title app-title--section build-progress__title">
+              {t('builder.progress_title')}
+            </h2>
+            <p className="app-copy build-progress__copy">
+              {t(`builder.progress_steps.${activeBuildProgress.stage}`)}
+            </p>
+            <div
+              className="build-progress__track"
+              role="progressbar"
+              aria-valuemin={1}
+              aria-valuemax={activeBuildProgress.total}
+              aria-valuenow={activeBuildProgress.current}
+              aria-valuetext={t(`builder.progress_steps.${activeBuildProgress.stage}`)}
+            >
+              <div
+                className="build-progress__fill"
+                style={{ width: `${(activeBuildProgress.current / activeBuildProgress.total) * 100}%` }}
+              />
+            </div>
+            <div className="build-progress__steps">
+              {buildStages.map((stage, index) => {
+                const stepNumber = index + 1
+                const state = activeBuildProgress.current > stepNumber
+                  ? 'done'
+                  : activeBuildProgress.current === stepNumber
+                    ? 'current'
+                    : 'upcoming'
+
+                return (
+                  <div key={stage} className={`build-progress__step build-progress__step--${state}`}>
+                    <span className="build-progress__step-index">{stepNumber}</span>
+                    <span className="build-progress__step-label">{t(`builder.progress_steps.${stage}`)}</span>
+                  </div>
+                )
+              })}
+            </div>
+            {activeBuildProgress.charCount > 0 && (
+              <p className="app-status app-status--busy build-progress__meta">
+                {t('builder.progress_chars', { count: activeBuildProgress.charCount })}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     )

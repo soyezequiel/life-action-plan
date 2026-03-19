@@ -92,6 +92,7 @@ function createLapClientStub(): LapAPI {
     },
     plan: {
       build: vi.fn(async () => ({ success: true })),
+      onBuildProgress: vi.fn(() => () => {}),
       list: vi.fn(async () => [basePlan]),
       simulate: vi.fn(async () => ({ success: true })),
       onSimulationProgress: vi.fn(() => () => {}),

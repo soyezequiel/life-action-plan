@@ -41,6 +41,43 @@ describe('browserHttpLapClient', () => {
     unsubscribe()
   })
 
+  it('opens the build progress stream when a listener subscribes', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => null
+    }))
+    vi.stubGlobal('EventSource', FakeEventSource)
+
+    const { browserHttpLapClient } = await import('../src/renderer/src/lib/browser-http-client')
+
+    const unsubscribe = browserHttpLapClient.plan.onBuildProgress(() => {})
+
+    expect(FakeEventSource.instances).toHaveLength(1)
+    expect(FakeEventSource.instances[0]?.url).toBe('/__lap/api/plan/build/events')
+
+    unsubscribe()
+  })
+
+  it('prewarms the debug event stream when the inspector is enabled', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ enabled: true, panelVisible: true })
+    }))
+    vi.stubGlobal('EventSource', FakeEventSource)
+
+    const { browserHttpLapClient } = await import('../src/renderer/src/lib/browser-http-client')
+
+    await expect(browserHttpLapClient.debug.enable()).resolves.toEqual({
+      enabled: true,
+      panelVisible: true
+    })
+
+    expect(FakeEventSource.instances).toHaveLength(1)
+    expect(FakeEventSource.instances[0]?.url).toBe('/__lap/api/debug/events')
+  })
+
   it('surfaces dev-api http errors instead of silently falling back to placeholders', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: false,

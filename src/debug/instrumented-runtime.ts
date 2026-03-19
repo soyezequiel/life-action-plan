@@ -14,7 +14,7 @@ async function buildInstrumentedChatResponse(
   messages: LLMMessage[],
   onToken?: (token: string) => void
 ): Promise<LLMResponse> {
-  const canTrace = traceCollector.isEnabled() && Boolean(options.traceId)
+  const canTrace = Boolean(options.traceId)
   const traceId = options.traceId
 
   if (!canTrace || !traceId) {
@@ -70,7 +70,7 @@ export function createInstrumentedRuntime(
     },
 
     async *stream(messages: LLMMessage[]): AsyncIterable<string> {
-      const canTrace = traceCollector.isEnabled() && Boolean(traceId)
+      const canTrace = Boolean(traceId)
 
       if (!canTrace || !traceId) {
         for await (const chunk of runtime.stream(messages)) {

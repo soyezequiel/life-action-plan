@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { generatePlan, planBuilder } from '../src/skills/plan-builder'
 import type { AgentRuntime, SkillContext } from '../src/runtime/types'
 import type { Perfil } from '../src/shared/schemas/perfil'
@@ -62,6 +62,35 @@ function createRuntime(content: string): AgentRuntime {
     },
     newContext() {
       return createRuntime(content)
+    }
+  }
+}
+
+function createStreamingRuntime(chunks: string[], usage = { promptTokens: 12, completionTokens: 34 }): AgentRuntime {
+  return {
+    async chat() {
+      return {
+        content: chunks.join(''),
+        usage
+      }
+    },
+    async *stream() {
+      for (const chunk of chunks) {
+        yield chunk
+      }
+    },
+    async streamChat(_messages, onToken) {
+      for (const chunk of chunks) {
+        onToken(chunk)
+      }
+
+      return {
+        content: chunks.join(''),
+        usage
+      }
+    },
+    newContext() {
+      return createStreamingRuntime(chunks, usage)
     }
   }
 }
@@ -251,6 +280,29 @@ describe('planBuilder', () => {
       const runtime = createRuntime('{"nombre":"Plan roto","resumen":"Sin eventos validos","eventos":[{"semana":1}]}')
 
       await expect(generatePlan(runtime, profile, ctx)).rejects.toThrow('El asistente no pudo generar un plan válido. Intentá de nuevo.')
+    })
+    it('emite progreso real cuando el runtime soporta streamChat', async () => {
+      const runtime = createStreamingRuntime([
+        '{"nombre":"Plan stream","resumen":"Resumen stream","eventos":[',
+        '{"semana":1,"dia":"jueves","hora":"20:00","duracion":35,"actividad":"Repasar TS","categoria":"estudio","objetivoId":"obj1"}',
+        ']}'
+      ])
+      const onStageChange = vi.fn()
+      const onToken = vi.fn()
+
+      const result = await generatePlan(runtime, profile, ctx, {
+        onStageChange,
+        onToken
+      })
+
+      expect(result.nombre).toBe('Plan stream')
+      expect(result.tokensUsed).toEqual({ input: 12, output: 34 })
+      expect(onStageChange).toHaveBeenNthCalledWith(1, 'generating')
+      expect(onStageChange).toHaveBeenNthCalledWith(2, 'validating')
+      expect(onToken).toHaveBeenCalledTimes(3)
+      expect(onToken).toHaveBeenNthCalledWith(1, '{"nombre":"Plan stream","resumen":"Resumen stream","eventos":[')
+      expect(onToken).toHaveBeenNthCalledWith(2, '{"semana":1,"dia":"jueves","hora":"20:00","duracion":35,"actividad":"Repasar TS","categoria":"estudio","objetivoId":"obj1"}')
+      expect(onToken).toHaveBeenNthCalledWith(3, ']}')
     })
   })
 })

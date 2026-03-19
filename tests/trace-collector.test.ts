@@ -14,14 +14,29 @@ function createSenderMock() {
 
 afterEach(() => {
   traceCollector.disable()
+  traceCollector.clear()
   vi.useRealTimers()
 })
 
 describe('traceCollector', () => {
-  it('ignora emisiones cuando esta desactivado', () => {
+  it('captura trazas aunque el inspector todavia no este activo', () => {
     const traceId = traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { profileId: 'p1' })
+    const spanId = traceCollector.startSpan({
+      traceId,
+      skillName: 'plan-builder',
+      provider: 'ollama:qwen3:8b',
+      type: 'stream',
+      messages: [
+        { role: 'system', content: 'solo json' },
+        { role: 'user', content: 'perfil demo' }
+      ]
+    })
+    traceCollector.emitToken(traceId, spanId, '{"ok"')
 
-    expect(traceId).toBeNull()
+    const snapshot = traceCollector.getSnapshot()
+
+    expect(traceId).toMatch(/[0-9a-f-]{36}/)
+    expect(snapshot[0]?.spans[0]?.response).toBe('{"ok"')
   })
 
   it('emite eventos validados cuando esta activado', () => {
@@ -123,5 +138,35 @@ describe('traceCollector', () => {
     expect(snapshot[0]?.traceId).toBe(traceId)
     expect(snapshot[0]?.spans[0]?.spanId).toBe(spanId)
     expect(snapshot[0]?.spans[0]?.response).toBe('<think>{}')
+  })
+
+  it('guarda el tiempo al primer token en la metadata del span', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-03-19T15:00:00.000Z'))
+
+    const senderMock = createSenderMock()
+    traceCollector.enable(senderMock)
+
+    const traceId = traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', {})
+    const spanId = traceCollector.startSpan({
+      traceId,
+      skillName: 'plan-builder',
+      provider: 'openai:gpt-4o-mini',
+      type: 'stream',
+      messages: [
+        { role: 'system', content: 'solo json' },
+        { role: 'user', content: 'perfil demo' }
+      ]
+    })
+
+    vi.advanceTimersByTime(1200)
+    traceCollector.emitToken(traceId, spanId, '{')
+
+    const snapshot = traceCollector.getSnapshot()
+    const span = snapshot[0]?.spans[0]
+
+    expect(span?.metadata.firstTokenAt).toBe('2026-03-19T15:00:01.200Z')
+    expect(span?.metadata.timeToFirstTokenMs).toBe(1200)
+    expect(span?.response).toBe('{')
   })
 })

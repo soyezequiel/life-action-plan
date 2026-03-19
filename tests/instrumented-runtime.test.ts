@@ -45,6 +45,7 @@ function createRuntime(overrides: Partial<AgentRuntime> = {}): AgentRuntime {
 
 afterEach(() => {
   traceCollector.disable()
+  traceCollector.clear()
   vi.useRealTimers()
 })
 
@@ -57,6 +58,19 @@ describe('createInstrumentedRuntime', () => {
 
     expect(runtime.chat).toHaveBeenCalledWith(messages)
     expect(result.content).toBe('{"ok":true}')
+  })
+
+  it('sigue capturando la traza si el panel se abre despues de arrancar', async () => {
+    const runtime = createRuntime()
+    const traceId = traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', { profileId: 'p1' })
+    const instrumented = createInstrumentedRuntime(runtime, traceId, 'plan-builder', 'openai:gpt-4o-mini')
+
+    const result = await instrumented.chat(messages)
+    const snapshot = traceCollector.getSnapshot()
+
+    expect(runtime.streamChat).toHaveBeenCalled()
+    expect(result.content).toBe('{"ok":true}')
+    expect(snapshot[0]?.spans[0]?.response).toContain('{"ok":true}')
   })
 
   it('usa streamChat y emite tokens cuando debug esta activo', async () => {
@@ -104,6 +118,6 @@ describe('createInstrumentedRuntime', () => {
     await nextContext.chat(messages)
 
     expect(runtime.newContext).toHaveBeenCalled()
-    expect(childRuntime.chat).toHaveBeenCalledWith(messages)
+    expect(childRuntime.streamChat).toHaveBeenCalled()
   })
 })

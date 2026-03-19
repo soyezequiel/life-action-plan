@@ -48,4 +48,9 @@ describe('i18n', () => {
     expect(t('dashboard.category.ejercicio')).toBe('Ejercicio')
     expect(t('dashboard.minutes', { min: 30 })).toBe('30 min')
   })
+  it('tiene las keys del inspector para la espera inicial del stream', () => {
+    expect(t('debug.stream_waiting')).toContain('esperando')
+    expect(t('debug.first_token_ready', { seconds: '1.2' })).toBe('Primer token: 1.2 s')
+    expect(t('debug.timing_first_token_pending')).toBe('Todavia no llego')
+  })
 })
