@@ -75,7 +75,11 @@ const basePlan: PlanRow = {
   profileId: 'profile-1',
   nombre: 'Plan de constancia',
   slug: 'plan-de-constancia',
-  manifest: JSON.stringify({ fallbackUsed: false, ultimaSimulacion: null }),
+  manifest: JSON.stringify({
+    fallbackUsed: false,
+    ultimoModeloUsado: 'ollama:qwen3:8b',
+    ultimaSimulacion: null
+  }),
   createdAt: '2026-03-19',
   updatedAt: '2026-03-19'
 }
@@ -169,6 +173,7 @@ describe('dashboard interaction', () => {
     expect(await screen.findByText(t('dashboard.greeting', { nombre: 'Ada' }))).toBeTruthy()
     expect(screen.getByText(t('dashboard.done_count', { done: 0, total: 1 }))).toBeTruthy()
     expect(screen.getByText(t('dashboard.streak_best', { count: 2 }))).toBeTruthy()
+    expect(screen.getByText(t('builder.route_local_done'))).toBeTruthy()
 
     await user.click(screen.getByRole('button', { name: t('dashboard.check_in') }))
 

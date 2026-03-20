@@ -33,6 +33,7 @@ const simulationStages: PlanSimulationProgress['stage'][] = ['schedule', 'work',
 
 interface PlanManifestMeta {
   fallbackUsed?: boolean
+  ultimoModeloUsado?: string
   ultimaSimulacion?: PlanSimulationSnapshot | null
 }
 
@@ -74,6 +75,50 @@ function parseTaskMeta(notas: string | null): { hora?: string; duracion?: number
   }
 }
 
+type BuildRouteStatus = 'online' | 'local' | 'fallback' | 'unknown'
+
+function getBuildRouteStatus(modelId: string | undefined, fallbackUsed: boolean | undefined): BuildRouteStatus {
+  if (fallbackUsed) {
+    return 'fallback'
+  }
+
+  if (modelId?.startsWith('ollama:')) {
+    return 'local'
+  }
+
+  if (modelId?.startsWith('openai:')) {
+    return 'online'
+  }
+
+  return 'unknown'
+}
+
+function getBuildRouteLabel(modelId: string | undefined, fallbackUsed = false): string {
+  const routeStatus = getBuildRouteStatus(modelId, fallbackUsed)
+
+  if (routeStatus === 'fallback') {
+    return t('builder.route_fallback_done')
+  }
+
+  if (routeStatus === 'local') {
+    return t('builder.route_local_done')
+  }
+
+  if (routeStatus === 'online') {
+    return t('builder.route_online_done')
+  }
+
+  return ''
+}
+
+function getBuildProviderLabel(modelId: string | undefined): string {
+  if (modelId?.startsWith('ollama:')) {
+    return t('builder.provider_local')
+  }
+
+  return t('builder.provider_online')
+}
+
 export default function Dashboard(): JSX.Element {
   const client = useLapClient()
   const router = useRouter()
@@ -109,6 +154,9 @@ export default function Dashboard(): JSX.Element {
   const latestPlan = hasPlan ? plans[plans.length - 1] : null
   const latestPlanMeta = latestPlan ? parseManifestMeta(latestPlan.manifest) : {}
   const latestSimulation = latestPlanMeta.ultimaSimulacion ?? null
+  const latestBuildRouteLabel = latestPlan
+    ? getBuildRouteLabel(latestPlanMeta.ultimoModeloUsado, latestPlanMeta.fallbackUsed)
+    : ''
   const simulationStageIndex = Math.min(
     Math.max((simulationProgress?.current ?? 1) - 1, 0),
     simulationStages.length - 1
@@ -345,7 +393,7 @@ export default function Dashboard(): JSX.Element {
       const result = await client.plan.build(profileId, '', 'ollama:qwen3:8b')
 
       if (result.success) {
-        setBuildNotice(result.fallbackUsed ? t('builder.fallback_notice') : '')
+        setBuildNotice(getBuildRouteLabel('ollama:qwen3:8b', result.fallbackUsed))
         reloadData()
       } else {
         setBuildError(result.error || t('errors.generic'))
@@ -563,6 +611,13 @@ export default function Dashboard(): JSX.Element {
             <span className="dashboard-simulation__hint">
               {t(`builder.progress_steps.${currentStage}`)}
             </span>
+            {buildProgress && (
+              <span className="dashboard-simulation__hint">
+                {t('builder.progress_provider', {
+                  provider: getBuildProviderLabel(buildProgress.provider)
+                })}
+              </span>
+            )}
           </div>
         </div>
         <div className="dashboard-simulation__progress">
@@ -774,6 +829,9 @@ export default function Dashboard(): JSX.Element {
                 ) : (
                   <section className="dashboard-panel">
                     <p className="dashboard-plan-name">{t('dashboard.plan_name', { nombre: latestPlan!.nombre })}</p>
+                    {latestBuildRouteLabel && (
+                      <p className="status-message status-message--success">{latestBuildRouteLabel}</p>
+                    )}
                     {renderBuildProgressCard()}
                     <div className="dashboard-summary-grid">
                       <div className="dashboard-streak">

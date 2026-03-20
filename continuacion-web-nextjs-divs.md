@@ -43,6 +43,7 @@
 - Incluye: copy y estados visibles que diferencien backend real, fallback y demo
 - Excluye: rediseno general
 - Cierre: ninguna corrida puede confundirse con un mock silencioso
+- Estado: cerrado el 2026-03-20
 
 ### DIV-006 - Vercel readiness
 - Objetivo: separar claramente lo que vale para local y lo que vale para deploy
@@ -70,3 +71,4 @@
 - 2026-03-20 - Nota operativa: no correr `npm run typecheck` en paralelo con `npm run build` en Next.js 15 porque la regeneracion de `.next/types` puede producir falsos `TS6053`.
 - 2026-03-20 - DIV-003 cerrado. `drizzle.config.ts` ya carga `.env.local`, se agregan `npm run doctor:local` y `npm run smoke:local`, el smoke local verifica PostgreSQL, tablas base y Ollama, y la documentacion operativa queda alineada con ese flujo reproducible.
 - 2026-03-20 - DIV-004 cerrado. El inspector muestra estado explicito del snapshot, `Limpiar` borra trazas reales del servidor, y el smoke visible confirma apertura tardia, build con traza activa y limpieza efectiva desde UI.
+- 2026-03-20 - DIV-005 cerrado. Dashboard y settings muestran si el plan salio por ruta online, local o respaldo local, y el progreso expone la ruta activa para que fallback y exito real no se mezclen en la UI.

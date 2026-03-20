@@ -51,6 +51,7 @@ function SettingsPageContent() {
   const [walletNotice, setWalletNotice] = useState<'connected' | 'disconnected' | 'error' | null>(null)
   const [buildProgress, setBuildProgress] = useState<PlanBuildProgress | null>(null)
   const [buildError, setBuildError] = useState('')
+  const [buildNotice, setBuildNotice] = useState('')
   const [buildBusy, setBuildBusy] = useState(false)
   const [buildDone, setBuildDone] = useState(false)
 
@@ -116,6 +117,7 @@ function SettingsPageContent() {
 
     setBuildBusy(true)
     setBuildError('')
+    setBuildNotice('')
     setBuildDone(false)
 
     try {
@@ -150,7 +152,11 @@ function SettingsPageContent() {
       if (result.success) {
         setBuildDone(true)
         if (result.fallbackUsed) {
-          setBuildError(t('builder.fallback_notice'))
+          setBuildNotice(t('builder.route_fallback_done'))
+        } else if (provider.startsWith('ollama:')) {
+          setBuildNotice(t('builder.route_local_done'))
+        } else {
+          setBuildNotice(t('builder.route_online_done'))
         }
         router.push('/')
       } else {
@@ -295,6 +301,7 @@ function SettingsPageContent() {
                 </span>
               </div>
               {buildDone && <p className="status-message status-message--success">{t('builder.done')}</p>}
+              {buildNotice && <p className="status-message status-message--success">{buildNotice}</p>}
               {buildError && <p className="status-message status-message--warning">{buildError}</p>}
             </section>
           )}

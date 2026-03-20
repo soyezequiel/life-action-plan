@@ -26,7 +26,13 @@ const runtimeFallbacks: Record<string, string> = {
   'debug.snapshot_connecting': 'Conectando el inspector...',
   'debug.snapshot_ready': 'Snapshot activo.',
   'debug.snapshot_ready_at': 'Snapshot activo. Ultima actualizacion: {{date}}',
-  'debug.snapshot_error': 'No pude actualizar el inspector. Voy a seguir reintentando.'
+  'debug.snapshot_error': 'No pude actualizar el inspector. Voy a seguir reintentando.',
+  'builder.provider_online': 'asistente en linea',
+  'builder.provider_local': 'asistente local',
+  'builder.progress_provider': 'Ruta activa: {{provider}}',
+  'builder.route_online_done': 'Este plan se armo con el asistente en linea.',
+  'builder.route_local_done': 'Este plan se armo con el asistente local.',
+  'builder.route_fallback_done': 'Este plan se termino con el respaldo local.'
 }
 
 let currentLocale = 'es-AR'
