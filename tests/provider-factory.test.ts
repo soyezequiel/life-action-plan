@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getProvider, getProviderTimeouts } from '../src/providers/provider-factory'
+import { getProvider, getProviderTimeouts } from '../src/lib/providers/provider-factory'
 
 function createJsonResponse(body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -15,6 +15,15 @@ function createNdjsonResponse(lines: unknown[]): Response {
     status: 200,
     headers: {
       'Content-Type': 'application/x-ndjson'
+    }
+  })
+}
+
+function createSseResponse(events: unknown[]): Response {
+  return new Response(events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join(''), {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/event-stream'
     }
   })
 }
@@ -80,6 +89,180 @@ describe('getProvider', () => {
       chatMs: 20_000,
       streamMs: 20_000
     })
+  })
+
+  it('chat de OpenAI combina reasoning summary y respuesta visible', async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      expect(String(input)).toBe('https://api.openai.com/v1/responses')
+
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
+      expect(body.model).toBe('gpt-5-mini')
+      expect(body.stream).toBeUndefined()
+      expect(body.reasoning).toEqual({ summary: 'auto' })
+
+      return createJsonResponse({
+        id: 'resp_123',
+        created_at: 1_742_400_000,
+        model: 'gpt-5-mini',
+        output: [
+          {
+            type: 'reasoning',
+            id: 'rs_1',
+            encrypted_content: null,
+            summary: [
+              {
+                type: 'summary_text',
+                text: 'ordeno primero las prioridades'
+              }
+            ]
+          },
+          {
+            type: 'message',
+            role: 'assistant',
+            id: 'msg_1',
+            phase: 'final_answer',
+            content: [
+              {
+                type: 'output_text',
+                text: '{"ok":true}',
+                annotations: []
+              }
+            ]
+          }
+        ],
+        usage: {
+          input_tokens: 21,
+          output_tokens: 34,
+          output_tokens_details: {
+            reasoning_tokens: 8
+          }
+        }
+      })
+    })
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('openai:gpt-5-mini', {
+      apiKey: 'test-key',
+      baseURL: 'https://api.openai.com/v1'
+    })
+
+    const result = await runtime.chat([
+      { role: 'system', content: 'solo json' },
+      { role: 'user', content: 'hola' }
+    ])
+
+    expect(result.content).toBe('<think>ordeno primero las prioridades</think>{"ok":true}')
+    expect(result.usage).toEqual({ promptTokens: 21, completionTokens: 34 })
+  })
+
+  it('streamChat de OpenAI emite reasoning summary y respuesta en bloques separados', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
+      expect(body.model).toBe('gpt-5-mini')
+      expect(body.stream).toBe(true)
+      expect(body.reasoning).toEqual({ summary: 'auto' })
+
+      return createSseResponse([
+        {
+          type: 'response.created',
+          response: {
+            id: 'resp_456',
+            created_at: 1_742_400_000,
+            model: 'gpt-5-mini',
+            service_tier: null
+          }
+        },
+        {
+          type: 'response.output_item.added',
+          output_index: 0,
+          item: {
+            type: 'reasoning',
+            id: 'rs_1',
+            encrypted_content: null
+          }
+        },
+        {
+          type: 'response.reasoning_summary_text.delta',
+          item_id: 'rs_1',
+          summary_index: 0,
+          delta: 'reviso primero la estructura'
+        },
+        {
+          type: 'response.reasoning_summary_part.done',
+          item_id: 'rs_1',
+          summary_index: 0
+        },
+        {
+          type: 'response.output_item.done',
+          output_index: 0,
+          item: {
+            type: 'reasoning',
+            id: 'rs_1',
+            encrypted_content: null
+          }
+        },
+        {
+          type: 'response.output_item.added',
+          output_index: 1,
+          item: {
+            type: 'message',
+            id: 'msg_1',
+            phase: 'final_answer'
+          }
+        },
+        {
+          type: 'response.output_text.delta',
+          item_id: 'msg_1',
+          delta: '{"nombre":"Plan"}',
+          logprobs: null
+        },
+        {
+          type: 'response.output_item.done',
+          output_index: 1,
+          item: {
+            type: 'message',
+            id: 'msg_1',
+            phase: 'final_answer'
+          }
+        },
+        {
+          type: 'response.completed',
+          response: {
+            incomplete_details: null,
+            usage: {
+              input_tokens: 13,
+              output_tokens: 29,
+              output_tokens_details: {
+                reasoning_tokens: 5
+              }
+            },
+            service_tier: null
+          }
+        }
+      ])
+    })
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('openai:gpt-5-mini', { apiKey: 'test-key' })
+    const chunks: string[] = []
+
+    const result = await runtime.streamChat!([
+      { role: 'system', content: 'solo json' },
+      { role: 'user', content: 'hola' }
+    ], (chunk) => {
+      chunks.push(chunk)
+    })
+
+    expect(chunks).toEqual([
+      '<think>',
+      'reviso primero la estructura',
+      '</think>',
+      '{"nombre":"Plan"}'
+    ])
+    expect(result.content).toBe('<think>reviso primero la estructura</think>{"nombre":"Plan"}')
+    expect(result.usage).toEqual({ promptTokens: 13, completionTokens: 29 })
   })
 
   it('usa la API nativa de Ollama para chat y preserva thinking + tool calls', async () => {

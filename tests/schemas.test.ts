@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { perfilSchema } from '../src/shared/schemas/perfil'
-import { intakeExpressToProfile } from '../src/skills/plan-intake'
+import { intakeExpressToProfile } from '../src/lib/skills/plan-intake'
 
 describe('Zod schemas (.strict())', () => {
   it('perfilSchema rechaza campos extra (strict mode)', () => {

@@ -24,7 +24,7 @@ function shouldFallbackToOllama(error: Error): boolean {
 export async function buildWithOllamaFallback<T>(
   modelId: string,
   buildPlan: (nextModelId: string) => Promise<T>,
-  onFallback?: (originalError: Error) => void
+  onFallback?: (originalError: Error) => Promise<void> | void
 ): Promise<BuildWithFallbackResult<T>> {
   try {
     return {
@@ -39,7 +39,7 @@ export async function buildWithOllamaFallback<T>(
       throw originalError
     }
 
-    onFallback?.(originalError)
+    await onFallback?.(originalError)
 
     try {
       return {

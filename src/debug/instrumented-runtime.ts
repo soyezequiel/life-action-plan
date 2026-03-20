@@ -1,4 +1,4 @@
-import type { AgentRuntime, LLMMessage, LLMResponse } from '../runtime/types'
+import type { AgentRuntime, LLMMessage, LLMResponse } from '../lib/runtime/types'
 import { traceCollector } from './trace-collector'
 
 interface InstrumentedRuntimeOptions {

@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { t } from '../i18n'
-import type { ProgressRow } from '../shared/types/ipc'
+import type { ProgressRow } from '../shared/types/lap-api'
 
 type ProgressRowLike = Pick<ProgressRow, 'id' | 'fecha' | 'descripcion' | 'completado' | 'notas'>
 

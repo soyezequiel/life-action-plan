@@ -4,13 +4,20 @@ import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import Dashboard from '../src/renderer/src/components/Dashboard'
-import { AppServicesProvider } from '../src/renderer/src/app-services'
-import { createTestAppServices } from '../src/renderer/src/app-services/testing'
+import Dashboard from '../components/Dashboard'
+import { AppServicesProvider } from '../src/lib/client/app-services'
 import { t } from '../src/i18n'
 import type { LapAPI } from '../src/shared/types/lap-api'
 import type { Perfil } from '../src/shared/schemas/perfil'
-import type { PlanRow, ProgressRow } from '../src/shared/types/ipc'
+import type { PlanRow, ProgressRow } from '../src/shared/types/lap-api'
+
+const pushMock = vi.fn()
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: pushMock
+  })
+}))
 
 vi.mock('framer-motion', async () => {
   const ReactModule = await import('react')
@@ -37,7 +44,7 @@ vi.mock('framer-motion', async () => {
       void whileTap
       void whileHover
 
-      return ReactModule.createElement(tagName, { ...rest, ref }, children)
+      return ReactModule.createElement(tagName, { ...rest, ref }, children as React.ReactNode)
     })
   }
 
@@ -150,15 +157,11 @@ describe('dashboard interaction', () => {
   it('loads a plan and updates progress plus streak after completing a habit', async () => {
     const client = createLapClientStub()
     const user = userEvent.setup()
+    pushMock.mockReset()
 
     render(
-      <AppServicesProvider services={createTestAppServices(client)}>
-        <Dashboard
-          profileId="profile-1"
-          onStartIntake={vi.fn()}
-          onBuildPlan={vi.fn()}
-          buildError=""
-        />
+      <AppServicesProvider services={{ lapClient: client }}>
+        <Dashboard />
       </AppServicesProvider>
     )
 
@@ -181,7 +184,7 @@ describe('dashboard interaction', () => {
 
   it('surfaces build actions in the empty-plan state', async () => {
     const client = createLapClientStub()
-    const onBuildPlan = vi.fn()
+    pushMock.mockReset()
 
     client.plan.list = vi.fn(async () => [])
     client.progress.list = vi.fn(async () => [])
@@ -190,13 +193,8 @@ describe('dashboard interaction', () => {
     const user = userEvent.setup()
 
     render(
-      <AppServicesProvider services={createTestAppServices(client)}>
-        <Dashboard
-          profileId="profile-1"
-          onStartIntake={vi.fn()}
-          onBuildPlan={onBuildPlan}
-          buildError=""
-        />
+      <AppServicesProvider services={{ lapClient: client }}>
+        <Dashboard />
       </AppServicesProvider>
     )
 
@@ -205,7 +203,7 @@ describe('dashboard interaction', () => {
     await user.click(screen.getByRole('button', { name: t('dashboard.build_openai') }))
     await user.click(screen.getByRole('button', { name: t('dashboard.build_ollama') }))
 
-    expect(onBuildPlan).toHaveBeenNthCalledWith(1, 'openai')
-    expect(onBuildPlan).toHaveBeenNthCalledWith(2, 'ollama')
+    expect(pushMock).toHaveBeenCalledWith('/settings?intent=build&provider=openai')
+    expect(client.plan.build).toHaveBeenCalledWith('profile-1', '', 'ollama:qwen3:8b')
   })
 })

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import type { StreakResult } from '../shared/types/ipc'
+import type { StreakResult } from '../shared/types/lap-api'
 
 interface HabitProgressLike {
   fecha: string

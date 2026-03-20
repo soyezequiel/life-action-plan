@@ -14,6 +14,14 @@ const locales: Record<string, Record<string, unknown>> = {
   'es-AR': esAR
 }
 
+const runtimeFallbacks: Record<string, string> = {
+  'errors.request_timeout': 'La respuesta esta tardando demasiado. Intenta de nuevo en un ratito.',
+  'errors.network_unavailable': 'No pude conectarme. Revisa tu internet o el servicio local y volve a intentar.',
+  'errors.service_unavailable': 'Hay una configuracion pendiente del lado del servidor. Revisala y volve a intentar.',
+  'errors.dev_missing_env': 'Falta {{name}} en el servidor local. Revisalo y volve a intentar.',
+  'errors.save_failed': 'No pude guardar ese dato. Intenta de nuevo.'
+}
+
 let currentLocale = 'es-AR'
 
 export function setLocale(locale: string): void {
@@ -34,7 +42,8 @@ export function t(key: string, params?: Record<string, string | number>): string
     if (value && typeof value === 'object' && k in value) {
       value = (value as Record<string, unknown>)[k]
     } else {
-      return key // Fallback: devolver la key si no existe
+      value = runtimeFallbacks[key]
+      break
     }
   }
 

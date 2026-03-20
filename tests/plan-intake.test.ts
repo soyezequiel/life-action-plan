@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { intakeExpressToProfile } from '../src/skills/plan-intake'
-import type { IntakeExpressData } from '../src/skills/plan-intake'
+import { intakeExpressToProfile } from '../src/lib/skills/plan-intake'
+import type { IntakeExpressData } from '../src/lib/skills/plan-intake'
 
 const validData: IntakeExpressData = {
   nombre: 'María',

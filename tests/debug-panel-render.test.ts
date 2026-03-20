@@ -2,11 +2,11 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { t } from '../src/i18n'
-import DebugMessageInspector from '../src/renderer/src/components/debug/DebugMessageInspector'
-import DebugSpanDetail from '../src/renderer/src/components/debug/DebugSpanDetail'
-import DebugTokenStream from '../src/renderer/src/components/debug/DebugTokenStream'
-import type { DebugSpan } from '../src/shared/types/ipc'
-import type { DebugTraceView } from '../src/renderer/src/hooks/useDebugTraces'
+import DebugMessageInspector from '../components/debug/DebugMessageInspector'
+import DebugSpanDetail from '../components/debug/DebugSpanDetail'
+import DebugTokenStream from '../components/debug/DebugTokenStream'
+import type { DebugSpan } from '../src/shared/types/debug'
+import type { DebugTraceView } from '../src/lib/client/use-debug-traces'
 
 const traceId = '11111111-1111-4111-8111-111111111111'
 const spanId = '22222222-2222-4222-8222-222222222222'
@@ -47,6 +47,7 @@ const baseTrace: DebugTraceView = {
   startedAt: '2026-03-19T15:00:00.000Z',
   completedAt: null,
   error: null,
+  metadata: {},
   spans: [baseSpan]
 }
 
@@ -62,7 +63,7 @@ describe('debug panel render', () => {
     expect(html).toContain(t('debug.no_selection'))
   })
 
-  it('renders stream detail with think tags and provider metadata', () => {
+  it('renders stream detail with separated thinking and answer blocks', () => {
     const html = renderToStaticMarkup(
       createElement(DebugSpanDetail, {
         trace: baseTrace,
@@ -72,8 +73,11 @@ describe('debug panel render', () => {
 
     expect(html).toContain('plan-builder')
     expect(html).toContain('ollama:qwen3:8b')
-    expect(html).toContain('&lt;think&gt;')
+    expect(html).toContain(t('debug.stream_thinking_label'))
+    expect(html).toContain(t('debug.stream_answer_label'))
     expect(html).toContain('acomodo el horario')
+    expect(html).toContain('{&quot;nombre&quot;:&quot;Plan demo&quot;}')
+    expect(html).not.toContain('&lt;think&gt;')
     expect(html).toContain(t('debug.pause_scroll'))
   })
 

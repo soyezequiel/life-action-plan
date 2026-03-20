@@ -1,93 +1,95 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-class FakeEventSource {
-  static instances: FakeEventSource[] = []
-
-  url: string
-  onopen: (() => void) | null = null
-  onmessage: ((message: { data: string }) => void) | null = null
-  onerror: (() => void) | null = null
-
-  constructor(url: string) {
-    this.url = url
-    FakeEventSource.instances.push(this)
-  }
-
-  close(): void {
-    // No-op for tests.
-  }
-}
-
 describe('browserHttpLapClient', () => {
   beforeEach(() => {
     vi.resetModules()
     vi.unstubAllGlobals()
-    FakeEventSource.instances = []
   })
 
-  it('opens the debug event stream even after a previous availability fallback', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
-    vi.stubGlobal('EventSource', FakeEventSource)
-
-    const { browserHttpLapClient } = await import('../src/renderer/src/lib/browser-http-client')
-
-    await expect(browserHttpLapClient.profile.latest()).resolves.toBe('mock-profile-1')
-
-    const unsubscribe = browserHttpLapClient.debug.onEvent(() => {})
-
-    expect(FakeEventSource.instances).toHaveLength(1)
-    expect(FakeEventSource.instances[0]?.url).toBe('/__lap/api/debug/events')
-
-    unsubscribe()
-  })
-
-  it('opens the build progress stream when a listener subscribes', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
+  it('consume el stream SSE de build y emite progreso incremental', async () => {
+    const fetchMock = vi.fn(async () => new Response([
+      'data: {"type":"progress","progress":{"profileId":"profile-1","provider":"openai:gpt-4o-mini","stage":"preparing","current":1,"total":4,"charCount":0}}\n\n',
+      'data: {"type":"progress","progress":{"profileId":"profile-1","provider":"openai:gpt-4o-mini","stage":"generating","current":2,"total":4,"charCount":12,"chunk":"hola mundo"}}\n\n',
+      'data: {"type":"result","result":{"success":true,"planId":"plan-1","nombre":"Plan demo","resumen":"Resumen","eventos":[],"tokensUsed":{"input":10,"output":20},"fallbackUsed":false}}\n\n'
+    ].join(''), {
       status: 200,
-      json: async () => null
+      headers: {
+        'Content-Type': 'text/event-stream'
+      }
     }))
-    vi.stubGlobal('EventSource', FakeEventSource)
+    vi.stubGlobal('fetch', fetchMock)
 
-    const { browserHttpLapClient } = await import('../src/renderer/src/lib/browser-http-client')
-
-    const unsubscribe = browserHttpLapClient.plan.onBuildProgress(() => {})
-
-    expect(FakeEventSource.instances).toHaveLength(1)
-    expect(FakeEventSource.instances[0]?.url).toBe('/__lap/api/plan/build/events')
-
-    unsubscribe()
-  })
-
-  it('prewarms the debug event stream when the inspector is enabled', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({ enabled: true, panelVisible: true })
-    }))
-    vi.stubGlobal('EventSource', FakeEventSource)
-
-    const { browserHttpLapClient } = await import('../src/renderer/src/lib/browser-http-client')
-
-    await expect(browserHttpLapClient.debug.enable()).resolves.toEqual({
-      enabled: true,
-      panelVisible: true
+    const { browserLapClient } = await import('../src/lib/client/browser-http-client')
+    const progressEvents: string[] = []
+    const unsubscribe = browserLapClient.plan.onBuildProgress((progress) => {
+      progressEvents.push(`${progress.current}:${progress.stage}:${progress.charCount}`)
     })
 
-    expect(FakeEventSource.instances).toHaveLength(1)
-    expect(FakeEventSource.instances[0]?.url).toBe('/__lap/api/debug/events')
+    const result = await browserLapClient.plan.build('profile-1', '', 'openai:gpt-4o-mini')
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/plan/build', expect.objectContaining({
+      method: 'POST'
+    }))
+    expect(progressEvents).toEqual([
+      '1:preparing:0',
+      '1:preparing:0',
+      '2:generating:12'
+    ])
+    expect(result).toMatchObject({
+      success: true,
+      planId: 'plan-1',
+      nombre: 'Plan demo'
+    })
+
+    unsubscribe()
   })
 
-  it('surfaces dev-api http errors instead of silently falling back to placeholders', async () => {
+  it('consume el stream SSE de simulacion y emite progreso por etapas', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response([
+      'data: {"type":"progress","progress":{"planId":"plan-1","mode":"interactive","stage":"schedule","current":1,"total":4}}\n\n',
+      'data: {"type":"progress","progress":{"planId":"plan-1","mode":"interactive","stage":"summary","current":4,"total":4}}\n\n',
+      'data: {"type":"result","result":{"success":true,"simulation":{"ranAt":"2026-03-20T00:00:00.000Z","mode":"interactive","periodLabel":"marzo 2026","summary":{"overallStatus":"PASS","pass":1,"warn":0,"fail":0,"missing":0},"findings":[]}}}\n\n'
+    ].join(''), {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/event-stream'
+      }
+    })))
+
+    const { browserLapClient } = await import('../src/lib/client/browser-http-client')
+    const progressEvents: string[] = []
+    const unsubscribe = browserLapClient.plan.onSimulationProgress((progress) => {
+      progressEvents.push(`${progress.current}:${progress.stage}`)
+    })
+
+    const result = await browserLapClient.plan.simulate('plan-1', 'interactive')
+
+    expect(progressEvents).toEqual([
+      '1:schedule',
+      '1:schedule',
+      '4:summary'
+    ])
+    expect(result).toMatchObject({
+      success: true,
+      simulation: {
+        summary: {
+          overallStatus: 'PASS'
+        }
+      }
+    })
+
+    unsubscribe()
+  })
+
+  it('propaga errores HTTP de la API en vez de ocultarlos', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: false,
       status: 500,
       text: async () => 'boom'
     }))
-    vi.stubGlobal('EventSource', FakeEventSource)
 
-    const { browserHttpLapClient } = await import('../src/renderer/src/lib/browser-http-client')
+    const { browserLapClient } = await import('../src/lib/client/browser-http-client')
 
-    await expect(browserHttpLapClient.profile.latest()).rejects.toThrow('boom')
+    await expect(browserLapClient.profile.latest()).rejects.toThrow('boom')
   })
 })

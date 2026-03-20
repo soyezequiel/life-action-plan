@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { generatePlan, planBuilder } from '../src/skills/plan-builder'
-import type { AgentRuntime, SkillContext } from '../src/runtime/types'
+import { generatePlan, planBuilder } from '../src/lib/skills/plan-builder'
+import type { AgentRuntime, SkillContext } from '../src/lib/runtime/types'
 import type { Perfil } from '../src/shared/schemas/perfil'
 
 const ctx: SkillContext = {
@@ -279,7 +279,7 @@ describe('planBuilder', () => {
     it('falla con mensaje controlado si la estructura no es valida', async () => {
       const runtime = createRuntime('{"nombre":"Plan roto","resumen":"Sin eventos validos","eventos":[{"semana":1}]}')
 
-      await expect(generatePlan(runtime, profile, ctx)).rejects.toThrow('El asistente no pudo generar un plan válido. Intentá de nuevo.')
+      await expect(generatePlan(runtime, profile, ctx)).rejects.toThrow('El asistente no pudo generar un plan valido. Intentalo de nuevo.')
     })
     it('emite progreso real cuando el runtime soporta streamChat', async () => {
       const runtime = createStreamingRuntime([

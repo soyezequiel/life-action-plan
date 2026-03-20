@@ -1,6 +1,5 @@
-import type { WebContents } from 'electron'
 import { DateTime } from 'luxon'
-import type { LLMMessage, LLMResponse } from '../runtime/types'
+import type { LLMMessage, LLMResponse } from '../lib/runtime/types'
 import {
   debugEventSchema,
   debugSpanSchema,
@@ -31,6 +30,11 @@ interface TokenBatchState {
   spanId: string
   tokens: string[]
   timer: NodeJS.Timeout | null
+}
+
+interface DebugEventSender {
+  isDestroyed?: () => boolean
+  send?: (channel: string, event: DebugEvent) => void
 }
 
 function nowIso(): string {
@@ -67,13 +71,13 @@ function withFirstTokenMetadata(span: DebugSpan): DebugSpan['metadata'] {
 
 class TraceCollector {
   private enabled = false
-  private sender: WebContents | null = null
+  private sender: DebugEventSender | null = null
   private listeners = new Set<(event: DebugEvent) => void>()
   private activeTraces = new Map<string, TraceState>()
   private tokenBatches = new Map<string, TokenBatchState>()
 
-  enable(sender: WebContents): void {
-    this.sender = sender
+  enable(sender?: DebugEventSender): void {
+    this.sender = sender ?? null
     this.enabled = true
   }
 
@@ -464,14 +468,14 @@ class TraceCollector {
   private emitValidated(event: DebugEvent): void {
     if (!this.isEnabled()) return
 
-    if (this.sender?.isDestroyed()) {
+    if (typeof this.sender?.isDestroyed === 'function' && this.sender.isDestroyed()) {
       this.enabled = false
       this.sender = null
     }
 
     try {
       const validatedEvent = debugEventSchema.parse(event)
-      if (this.sender) {
+      if (typeof this.sender?.send === 'function') {
         this.sender.send('debug:event', validatedEvent)
       }
 
@@ -484,4 +488,13 @@ class TraceCollector {
   }
 }
 
-export const traceCollector = new TraceCollector()
+declare global {
+  // eslint-disable-next-line no-var
+  var __lapTraceCollector: TraceCollector | undefined
+}
+
+if (!globalThis.__lapTraceCollector) {
+  globalThis.__lapTraceCollector = new TraceCollector()
+}
+
+export const traceCollector: TraceCollector = globalThis.__lapTraceCollector

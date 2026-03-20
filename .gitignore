@@ -1,6 +1,8 @@
 node_modules
 dist
 out
+.next
+.codex
 .DS_Store
 .eslintcache
 *.log*

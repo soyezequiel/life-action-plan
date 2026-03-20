@@ -1,12 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { WebContents } from 'electron'
 import { traceCollector } from '../src/debug/trace-collector'
 
 function createSenderMock() {
   return {
     isDestroyed: vi.fn(() => false),
     send: vi.fn()
-  } as unknown as WebContents & {
+  } as {
     isDestroyed: ReturnType<typeof vi.fn>
     send: ReturnType<typeof vi.fn>
   }

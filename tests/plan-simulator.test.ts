@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { simulatePlanViability, simulatePlanViabilityWithProgress } from '../src/skills/plan-simulator'
+import { simulatePlanViability, simulatePlanViabilityWithProgress } from '../src/lib/skills/plan-simulator'
 import type { Perfil } from '../src/shared/schemas/perfil'
-import type { ProgressRow } from '../src/shared/types/ipc'
+import type { ProgressRow } from '../src/shared/types/lap-api'
 
 const profile = {
   participantes: [

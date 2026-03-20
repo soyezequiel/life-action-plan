@@ -1,12 +1,14 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { t } from '../src/i18n'
-import IntakeExpress from '../src/renderer/src/components/IntakeExpress'
-import { AppServicesProvider, useLapClient } from '../src/renderer/src/app-services'
-import { createTestAppServices } from '../src/renderer/src/app-services/testing'
-import { mockLapApi } from '../src/renderer/src/mock-api'
+import IntakeExpress from '../components/IntakeExpress'
+import { AppServicesProvider, useLapClient } from '../src/lib/client/app-services'
 import type { LapAPI } from '../src/shared/types/lap-api'
+
+const mockLapApi = {
+  intake: { save: async () => ({ success: true, profileId: 'profile-1' }) }
+} as unknown as LapAPI
 
 function Probe({ expectedClient }: { expectedClient: LapAPI }) {
   const client = useLapClient()
@@ -18,7 +20,7 @@ describe('app services render', () => {
     const html = renderToStaticMarkup(
       createElement(
         AppServicesProvider,
-        { services: createTestAppServices(mockLapApi) },
+        { services: { lapClient: mockLapApi } },
         createElement(Probe, { expectedClient: mockLapApi })
       )
     )
@@ -30,8 +32,8 @@ describe('app services render', () => {
     const html = renderToStaticMarkup(
       createElement(
         AppServicesProvider,
-        { services: createTestAppServices(mockLapApi) },
-        createElement(IntakeExpress, { onComplete: vi.fn() })
+        { services: { lapClient: mockLapApi } },
+        createElement(IntakeExpress, { onComplete: () => {} })
       )
     )
 
