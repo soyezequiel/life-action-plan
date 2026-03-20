@@ -550,8 +550,63 @@ textarea::placeholder {
   gap: 0.75rem;
 }
 
+.dashboard-wallet__budget {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
+}
+
+.dashboard-wallet__budget-bar {
+  width: 100%;
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-wallet__budget-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #59d79a 0%, #7da6ff 100%);
+  transition: width var(--transition-base);
+}
+
 .dashboard-wallet__input {
   margin-top: 0;
+}
+
+.dashboard-cost__operations {
+  list-style: none;
+  padding: 0;
+  margin: 0.35rem 0 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.dashboard-cost__operation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-cost__operation-name,
+.dashboard-cost__operation-value {
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.dashboard-cost__operation-name {
+  color: var(--text-soft);
+}
+
+.dashboard-cost__operation-value {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  text-align: right;
 }
 
 .dashboard-actions--compact {

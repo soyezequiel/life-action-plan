@@ -151,12 +151,20 @@ export interface PlanExportCalendarResult {
   error?: string
 }
 
+export interface CostOperationSummary {
+  operation: string
+  count: number
+  costUsd: number
+  costSats: number
+}
+
 export interface CostSummary {
   planId: string
   tokensInput: number
   tokensOutput: number
   costUsd: number
   costSats: number
+  operations: CostOperationSummary[]
 }
 
 export interface DebugStatusResult {

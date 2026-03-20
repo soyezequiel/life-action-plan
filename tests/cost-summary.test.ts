@@ -26,8 +26,8 @@ describe('getCostSummary', () => {
 
   it('resume tokens y costo acumulado por plan', async () => {
     where.mockReturnValue([
-      { tokensInput: 1200, tokensOutput: 800, costUsd: 0.001 },
-      { tokensInput: 300, tokensOutput: 200, costUsd: 0.0005 }
+      { operation: 'plan_build', tokensInput: 1200, tokensOutput: 800, costUsd: 0.001 },
+      { operation: 'plan_simulate', tokensInput: 300, tokensOutput: 200, costUsd: 0.0005 }
     ])
 
     await expect(getCostSummary('plan-1')).resolves.toEqual({
@@ -35,7 +35,21 @@ describe('getCostSummary', () => {
       tokensInput: 1500,
       tokensOutput: 1000,
       costUsd: 0.0015,
-      costSats: 2
+      costSats: 2,
+      operations: [
+        {
+          operation: 'plan_build',
+          count: 1,
+          costUsd: 0.001,
+          costSats: 1
+        },
+        {
+          operation: 'plan_simulate',
+          count: 1,
+          costUsd: 0.0005,
+          costSats: 1
+        }
+      ]
     })
   })
 
@@ -47,7 +61,8 @@ describe('getCostSummary', () => {
       tokensInput: 0,
       tokensOutput: 0,
       costUsd: 0,
-      costSats: 0
+      costSats: 0,
+      operations: []
     })
   })
 

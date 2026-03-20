@@ -64,6 +64,7 @@
 - Incluye: conexion, desconexion, presupuesto, errores y costo visible por operacion
 - Excluye: facturacion avanzada
 - Cierre: el usuario entiende si una accion gasto sats, estimo costo o no tuvo costo
+- Estado: cerrado el 2026-03-20
 
 ## Registro de avance
 
@@ -76,3 +77,4 @@
 - 2026-03-20 - DIV-005 cerrado. Dashboard y settings muestran si el plan salio por ruta online, local o respaldo local, y el progreso expone la ruta activa para que fallback y exito real no se mezclen en la UI.
 - 2026-03-20 - DIV-006 cerrado. Vercel queda separado de local: el frontend oculta el build local en cloud, el backend bloquea Ollama y fallback local en deploy, las rutas largas exportan `maxDuration`, y se agregan `doctor:deploy` y `smoke:deploy` para readiness.
 - 2026-03-20 - DIV-007 cerrado. Dashboard, intake y settings quedan con mejor jerarquia visual, hints de contexto, avance por teclado, reduced motion y estados mas claros; el smoke visible se revalida con restart limpio de `npm run dev` en `localhost:3000`.
+- 2026-03-20 - DIV-008 cerrado. Dashboard muestra estado de billetera mas claro, alias/saldo/presupuesto cuando existen, y el costo del plan diferencia entre estimacion y resolucion local sin costo; `getCostSummary()` ahora entrega desglose por operacion y el smoke visible confirma el caso local sin gasto tras restart limpio de `npm run dev`.

@@ -144,7 +144,15 @@ function createLapClientStub(): LapAPI {
         tokensInput: 120,
         tokensOutput: 40,
         costUsd: 0.001,
-        costSats: 2
+        costSats: 2,
+        operations: [
+          {
+            operation: 'plan_build',
+            count: 1,
+            costUsd: 0.001,
+            costSats: 2
+          }
+        ]
       }))
     },
     debug: {
@@ -188,6 +196,86 @@ describe('dashboard interaction', () => {
 
     expect(client.progress.toggle).toHaveBeenCalledWith('progress-1')
     expect(client.streak.get).toHaveBeenCalledTimes(2)
+  })
+
+  it('muestra el costo estimado por operacion cuando el plan uso el asistente en linea', async () => {
+    const client = createLapClientStub()
+
+    client.plan.list = vi.fn(async () => [{
+      ...basePlan,
+      manifest: JSON.stringify({
+        fallbackUsed: false,
+        ultimoModeloUsado: 'openai:gpt-4o-mini',
+        ultimaSimulacion: null
+      })
+    }])
+
+    render(
+      <AppServicesProvider services={{ lapClient: client }}>
+        <Dashboard deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    expect((await screen.findAllByText(t('dashboard.cost_sats_estimated', { sats: '2' })))[0]).toBeTruthy()
+    expect(screen.getByText(t('dashboard.cost_estimated_hint'))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.cost_operation.plan_build'))).toBeTruthy()
+    expect(screen.getAllByText(t('dashboard.cost_operation_estimated', { sats: '2' })).length).toBeGreaterThan(0)
+  })
+
+  it('muestra presupuesto y estado claro de la billetera cuando ya esta conectada', async () => {
+    const client = createLapClientStub()
+
+    client.wallet.status = vi.fn(async () => ({
+      configured: true,
+      connected: true,
+      canUseSecureStorage: true,
+      alias: 'Casa',
+      balanceSats: 21000,
+      budgetSats: 5000,
+      budgetUsedSats: 1200
+    }))
+
+    render(
+      <AppServicesProvider services={{ lapClient: client }}>
+        <Dashboard deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    expect(await screen.findByText(t('dashboard.wallet_ready'))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.wallet_alias', { alias: 'Casa' }))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.wallet_balance', { sats: '21.000' }))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.wallet_budget', { used: '1.200', total: '5.000' }))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.wallet_budget_remaining', { sats: '3.800' }))).toBeTruthy()
+  })
+
+  it('explica cuando el costo fue local y no gasto sats', async () => {
+    const client = createLapClientStub()
+
+    client.cost.summary = vi.fn(async () => ({
+      planId: 'plan-1',
+      tokensInput: 400,
+      tokensOutput: 900,
+      costUsd: 0,
+      costSats: 0,
+      operations: [
+        {
+          operation: 'plan_build',
+          count: 1,
+          costUsd: 0,
+          costSats: 0
+        }
+      ]
+    }))
+
+    render(
+      <AppServicesProvider services={{ lapClient: client }}>
+        <Dashboard deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    expect(await screen.findByText(t('dashboard.cost_local_free'))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.cost_local_hint'))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.cost_operation_free'))).toBeTruthy()
   })
 
   it('surfaces build actions in the empty-plan state', async () => {

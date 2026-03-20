@@ -241,6 +241,7 @@ export async function trackCost(
 
 export async function getCostSummary(planId: string): Promise<CostSummary> {
   const rows = await db().select().from(costTracking).where(eq(costTracking.planId, planId))
+  const operationTotals = new Map<string, { count: number; costUsd: number }>()
 
   const summary = (rows as Array<typeof costTracking.$inferSelect>).reduce(
     (acc: {
@@ -260,6 +261,14 @@ export async function getCostSummary(planId: string): Promise<CostSummary> {
     }
   )
 
+  for (const row of rows as Array<typeof costTracking.$inferSelect>) {
+    const current = operationTotals.get(row.operation) ?? { count: 0, costUsd: 0 }
+
+    current.count += 1
+    current.costUsd += row.costUsd
+    operationTotals.set(row.operation, current)
+  }
+
   const roundedUsd = Number(summary.costUsd.toFixed(8))
 
   return {
@@ -267,7 +276,19 @@ export async function getCostSummary(planId: string): Promise<CostSummary> {
     tokensInput: summary.tokensInput,
     tokensOutput: summary.tokensOutput,
     costUsd: roundedUsd,
-    costSats: estimateCostSats(roundedUsd)
+    costSats: estimateCostSats(roundedUsd),
+    operations: Array.from(operationTotals.entries())
+      .map(([operation, totals]) => {
+        const operationUsd = Number(totals.costUsd.toFixed(8))
+
+        return {
+          operation,
+          count: totals.count,
+          costUsd: operationUsd,
+          costSats: estimateCostSats(operationUsd)
+        }
+      })
+      .sort((left, right) => right.count - left.count || left.operation.localeCompare(right.operation))
   }
 }
 

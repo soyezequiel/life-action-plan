@@ -64,16 +64,108 @@ function renderFindingDetail(finding: SimulationFinding): string {
   return t(`simulation.findings.${finding.code}.detail`, finding.params)
 }
 
-function parseTaskMeta(notas: string | null): { hora?: string; duracion?: number; categoria?: string } {
+interface TaskMeta {
+  hora?: string
+  duracion?: number
+  categoria?: string
+}
+
+function parseTaskMeta(notas: string | null): TaskMeta {
   if (!notas) {
     return {}
   }
 
   try {
-    return JSON.parse(notas) as { hora?: string; duracion?: number; categoria?: string }
+    return JSON.parse(notas) as TaskMeta
   } catch {
     return {}
   }
+}
+
+function formatCount(value: number): string {
+  return new Intl.NumberFormat(getCurrentLocale()).format(value)
+}
+
+function formatUsd(value: number): string {
+  const precision = value > 0 && value < 0.01 ? 4 : 2
+
+  return new Intl.NumberFormat(getCurrentLocale(), {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision
+  }).format(value)
+}
+
+function formatTaskMeta(meta: TaskMeta, categoria: string): string {
+  const parts: string[] = []
+
+  if (meta.hora) {
+    parts.push(meta.hora)
+  }
+
+  if (typeof meta.duracion === 'number') {
+    parts.push(t('dashboard.minutes', { min: meta.duracion }))
+  }
+
+  parts.push(t(`dashboard.category.${categoria}`))
+
+  return parts.join(' · ')
+}
+
+function getWalletStatusLabel(status: WalletStatus): string {
+  if (status.connected) {
+    return t('dashboard.wallet_ready')
+  }
+
+  if (status.configured) {
+    return t('dashboard.wallet_saved')
+  }
+
+  return t('dashboard.wallet_not_connected')
+}
+
+function getWalletHint(status: WalletStatus): string {
+  if (status.connected) {
+    return ''
+  }
+
+  if (status.configured) {
+    return t('dashboard.wallet_saved_hint')
+  }
+
+  return t('dashboard.wallet_connect_hint')
+}
+
+function getWalletBudgetUsage(status: WalletStatus):
+  | { total: number; used: number; remaining: number; progress: number }
+  | null {
+  if (typeof status.budgetSats !== 'number') {
+    return null
+  }
+
+  const total = Math.max(status.budgetSats, 0)
+  const used = Math.max(Math.min(status.budgetUsedSats ?? 0, total), 0)
+  const remaining = Math.max(total - used, 0)
+  const progress = total > 0 ? Math.min(Math.max((used / total) * 100, 0), 100) : 0
+
+  return {
+    total,
+    used,
+    remaining,
+    progress
+  }
+}
+
+function getCostOperationLabel(operation: string): string {
+  const translationKey = `dashboard.cost_operation.${operation}`
+  const translated = t(translationKey)
+
+  if (translated !== translationKey) {
+    return translated
+  }
+
+  return t('dashboard.cost_operation.other')
 }
 
 type BuildRouteStatus = 'online' | 'local' | 'fallback' | 'unknown'
@@ -472,23 +564,52 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   }
 
   function renderWalletCard(): JSX.Element {
-    const walletLabel = walletStatus.connected
-      ? t('dashboard.wallet_ready')
-      : t('dashboard.wallet_not_connected')
-    const numberFormatter = new Intl.NumberFormat(getCurrentLocale())
+    const walletLabel = getWalletStatusLabel(walletStatus)
+    const walletBudget = getWalletBudgetUsage(walletStatus)
     const formattedWalletBalance = typeof walletStatus.balanceSats === 'number'
-      ? numberFormatter.format(walletStatus.balanceSats)
+      ? formatCount(walletStatus.balanceSats)
       : null
+    const walletHint = getWalletHint(walletStatus)
 
     return (
       <div className="dashboard-wallet">
         <span className="dashboard-wallet__label">{t('dashboard.wallet_title')}</span>
         <strong className="dashboard-wallet__value">{walletLabel}</strong>
-        {formattedWalletBalance && (
+        {walletStatus.alias && walletStatus.connected && (
+          <span className="dashboard-wallet__meta">
+            {t('dashboard.wallet_alias', { alias: walletStatus.alias })}
+          </span>
+        )}
+        {formattedWalletBalance !== null && (
           <span className="dashboard-wallet__meta">
             {t('dashboard.wallet_balance', { sats: formattedWalletBalance })}
           </span>
         )}
+        {walletBudget ? (
+          <div className="dashboard-wallet__budget">
+            <div className="dashboard-wallet__budget-bar" aria-hidden="true">
+              <span
+                className="dashboard-wallet__budget-fill"
+                style={{ width: `${walletBudget.progress}%` }}
+              />
+            </div>
+            <span className="dashboard-wallet__meta">
+              {t('dashboard.wallet_budget', {
+                used: formatCount(walletBudget.used),
+                total: formatCount(walletBudget.total)
+              })}
+            </span>
+            <span className="dashboard-wallet__meta">
+              {t('dashboard.wallet_budget_remaining', {
+                sats: formatCount(walletBudget.remaining)
+              })}
+            </span>
+          </div>
+        ) : walletStatus.connected ? (
+          <span className="dashboard-wallet__meta">{t('dashboard.wallet_budget_open')}</span>
+        ) : walletHint ? (
+          <span className="dashboard-wallet__meta">{walletHint}</span>
+        ) : null}
         {!walletStatus.canUseSecureStorage && (
           <p className="status-message status-message--warning">{t('settings.wallet_unavailable')}</p>
         )}
@@ -582,26 +703,57 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   }
 
   function renderCostCard(): JSX.Element {
-    const numberFormatter = new Intl.NumberFormat(getCurrentLocale())
-    const hasCost = Boolean(costSummary && (costSummary.tokensInput > 0 || costSummary.tokensOutput > 0))
+    const hasTrackedOperations = Boolean(costSummary && costSummary.operations.length > 0)
+    const hasEstimatedCost = Boolean(costSummary && costSummary.costSats > 0)
 
     return (
       <div className="dashboard-cost">
         <span className="dashboard-cost__label">{t('dashboard.cost_title')}</span>
-        {hasCost && costSummary ? (
+        {hasTrackedOperations && costSummary ? (
           <>
             <strong className="dashboard-cost__value">
-              {t('dashboard.cost_sats', { sats: numberFormatter.format(costSummary.costSats) })}
+              {hasEstimatedCost
+                ? t('dashboard.cost_sats_estimated', { sats: formatCount(costSummary.costSats) })
+                : t('dashboard.cost_local_free')}
             </strong>
             <span className="dashboard-cost__meta">
-              {t('dashboard.cost_tokens', {
-                input: numberFormatter.format(costSummary.tokensInput),
-                output: numberFormatter.format(costSummary.tokensOutput)
-              })}
+              {hasEstimatedCost
+                ? t('dashboard.cost_estimated_hint')
+                : t('dashboard.cost_local_hint')}
             </span>
+            {hasEstimatedCost && (
+              <span className="dashboard-cost__meta">
+                {t('dashboard.cost_usd', { usd: formatUsd(costSummary.costUsd) })}
+              </span>
+            )}
+            <ul className="dashboard-cost__operations">
+              {costSummary.operations.map((operation) => {
+                const label = getCostOperationLabel(operation.operation)
+
+                return (
+                  <li key={operation.operation} className="dashboard-cost__operation">
+                    <span className="dashboard-cost__operation-name">
+                      {operation.count > 1
+                        ? t('dashboard.cost_operation_repeat', { label, count: operation.count })
+                        : label}
+                    </span>
+                    <span className="dashboard-cost__operation-value">
+                      {operation.costSats > 0
+                        ? t('dashboard.cost_operation_estimated', {
+                            sats: formatCount(operation.costSats)
+                          })
+                        : t('dashboard.cost_operation_free')}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
           </>
         ) : (
-          <strong className="dashboard-cost__value">{t('dashboard.cost_empty')}</strong>
+          <>
+            <strong className="dashboard-cost__value">{t('dashboard.cost_empty')}</strong>
+            <span className="dashboard-cost__meta">{t('dashboard.cost_empty_hint')}</span>
+          </>
         )}
       </div>
     )
@@ -944,11 +1096,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                                   <div className="task-card__row">
                                     <div className="task-card__text">
                                       <strong className="task-card__title">{task.descripcion}</strong>
-                                      <small className="task-card__meta">
-                                        {meta.hora && `${meta.hora} · `}
-                                        {meta.duracion && t('dashboard.minutes', { min: meta.duracion })}
-                                        {meta.duracion ? ` · ${t(`dashboard.category.${categoria}`)}` : t(`dashboard.category.${categoria}`)}
-                                      </small>
+                                      <small className="task-card__meta">{formatTaskMeta(meta, categoria)}</small>
                                     </div>
 
                                     <button
