@@ -1,5 +1,6 @@
 import Dashboard from '../components/Dashboard'
+import { getDeploymentMode } from '../src/lib/env/deployment'
 
 export default function Page() {
-  return <Dashboard />
+  return <Dashboard deploymentMode={getDeploymentMode()} />
 }

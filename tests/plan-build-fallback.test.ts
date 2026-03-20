@@ -25,7 +25,7 @@ describe('buildWithOllamaFallback', () => {
       return { modelId }
     })
 
-    const result = await buildWithOllamaFallback('openai:gpt-4o-mini', buildPlan, onFallback)
+    const result = await buildWithOllamaFallback('openai:gpt-4o-mini', buildPlan, { onFallback })
 
     expect(result).toEqual({
       result: { modelId: DEFAULT_OLLAMA_FALLBACK_MODEL },
@@ -33,6 +33,18 @@ describe('buildWithOllamaFallback', () => {
       modelId: DEFAULT_OLLAMA_FALLBACK_MODEL
     })
     expect(onFallback).toHaveBeenCalledWith(expect.objectContaining({ message: 'timeout' }))
+  })
+
+  it('permite desactivar el fallback para entornos cloud', async () => {
+    const buildPlan = vi.fn(async () => {
+      throw new Error('timeout')
+    })
+
+    await expect(buildWithOllamaFallback('openai:gpt-4o-mini', buildPlan, {
+      allowFallback: false
+    })).rejects.toThrow('timeout')
+
+    expect(buildPlan).toHaveBeenCalledTimes(1)
   })
 
   it('devuelve el error original si el fallback también falla', async () => {

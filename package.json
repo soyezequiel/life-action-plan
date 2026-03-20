@@ -13,7 +13,9 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "doctor:local": "node scripts/local-doctor.mjs",
+    "doctor:deploy": "node scripts/deploy-doctor.mjs",
     "smoke:local": "npm run db:push && npm run doctor:local",
+    "smoke:deploy": "npm run build && npm run doctor:deploy",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate"

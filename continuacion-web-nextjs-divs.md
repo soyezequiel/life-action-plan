@@ -50,6 +50,7 @@
 - Incluye: env vars requeridas, proveedor cloud para Vercel, timeouts, `vercel.json`, smoke de build
 - Excluye: auth full y multi-tenant
 - Cierre: el repo tiene instrucciones y criterio claros para subirlo sin depender de Ollama
+- Estado: cerrado el 2026-03-20
 
 ### DIV-007 - Polish UX
 - Objetivo: consolidar jerarquia visual, accesibilidad y estados de carga
@@ -72,3 +73,4 @@
 - 2026-03-20 - DIV-003 cerrado. `drizzle.config.ts` ya carga `.env.local`, se agregan `npm run doctor:local` y `npm run smoke:local`, el smoke local verifica PostgreSQL, tablas base y Ollama, y la documentacion operativa queda alineada con ese flujo reproducible.
 - 2026-03-20 - DIV-004 cerrado. El inspector muestra estado explicito del snapshot, `Limpiar` borra trazas reales del servidor, y el smoke visible confirma apertura tardia, build con traza activa y limpieza efectiva desde UI.
 - 2026-03-20 - DIV-005 cerrado. Dashboard y settings muestran si el plan salio por ruta online, local o respaldo local, y el progreso expone la ruta activa para que fallback y exito real no se mezclen en la UI.
+- 2026-03-20 - DIV-006 cerrado. Vercel queda separado de local: el frontend oculta el build local en cloud, el backend bloquea Ollama y fallback local en deploy, las rutas largas exportan `maxDuration`, y se agregan `doctor:deploy` y `smoke:deploy` para readiness.

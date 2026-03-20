@@ -17,6 +17,12 @@ interface BuildWithFallbackResult<T> {
   modelId: string
 }
 
+interface BuildWithFallbackOptions {
+  allowFallback?: boolean
+  fallbackModelId?: string
+  onFallback?: (originalError: Error) => Promise<void> | void
+}
+
 function shouldFallbackToOllama(error: Error): boolean {
   return !NON_FALLBACK_ERROR_PATTERNS.some((pattern) => pattern.test(error.message))
 }
@@ -24,8 +30,11 @@ function shouldFallbackToOllama(error: Error): boolean {
 export async function buildWithOllamaFallback<T>(
   modelId: string,
   buildPlan: (nextModelId: string) => Promise<T>,
-  onFallback?: (originalError: Error) => Promise<void> | void
+  options: BuildWithFallbackOptions = {}
 ): Promise<BuildWithFallbackResult<T>> {
+  const fallbackModelId = options.fallbackModelId || DEFAULT_OLLAMA_FALLBACK_MODEL
+  const allowFallback = options.allowFallback ?? true
+
   try {
     return {
       result: await buildPlan(modelId),
@@ -35,17 +44,17 @@ export async function buildWithOllamaFallback<T>(
   } catch (error) {
     const originalError = error instanceof Error ? error : new Error('Unknown error')
 
-    if (!modelId.startsWith('openai:') || !shouldFallbackToOllama(originalError)) {
+    if (!allowFallback || !modelId.startsWith('openai:') || !shouldFallbackToOllama(originalError)) {
       throw originalError
     }
 
-    await onFallback?.(originalError)
+    await options.onFallback?.(originalError)
 
     try {
       return {
-        result: await buildPlan(DEFAULT_OLLAMA_FALLBACK_MODEL),
+        result: await buildPlan(fallbackModelId),
         fallbackUsed: true,
-        modelId: DEFAULT_OLLAMA_FALLBACK_MODEL
+        modelId: fallbackModelId
       }
     } catch {
       throw originalError

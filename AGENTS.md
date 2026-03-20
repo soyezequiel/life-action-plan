@@ -30,6 +30,8 @@ Estado del producto:
 - PostgreSQL cloud por `DATABASE_URL`
 - LLM cloud para `build` y `simulate`
 - Ollama no es una opcion realista dentro de Vercel
+- La UI no debe ofrecer build local cuando el entorno es Vercel
+- El backend no debe hacer fallback a Ollama en preview o produccion
 
 ## Estado actual del repo
 
@@ -147,7 +149,9 @@ tests/
 - `npm run test`
 - `npm run lint`
 - `npm run doctor:local`
+- `npm run doctor:deploy`
 - `npm run smoke:local`
+- `npm run smoke:deploy`
 - `npm run db:generate`
 - `npm run db:push`
 - `npm run db:migrate`

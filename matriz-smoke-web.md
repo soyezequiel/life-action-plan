@@ -23,6 +23,8 @@ Superficies:
 2. proveedor cloud configurado para LLM
 3. deploy accesible
 4. `vercel.json` aplicado
+5. `npm run doctor:deploy`
+6. `npm run smoke:deploy`
 
 ## Evidencia minima
 
@@ -48,6 +50,7 @@ Superficies:
 
 - En local, Ollama es valido solo para desarrollo
 - En Vercel, el smoke de LLM debe hacerse con proveedor cloud
+- En Vercel, el frontend no debe exponer el build local y el backend no debe caer a Ollama como fallback
 - Ninguna corrida vale si un fallback o mock oculta un error HTTP sin senal visible
 
 ## Registro sugerido

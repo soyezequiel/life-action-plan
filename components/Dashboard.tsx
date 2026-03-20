@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { getCurrentLocale, t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
 import { toUserFacingErrorMessage } from '../src/lib/client/error-utils'
+import type { DeploymentMode } from '../src/lib/env/deployment'
 import type {
   CostSummary,
   PlanBuildProgress,
@@ -119,9 +120,14 @@ function getBuildProviderLabel(modelId: string | undefined): string {
   return t('builder.provider_online')
 }
 
-export default function Dashboard(): JSX.Element {
+interface DashboardProps {
+  deploymentMode?: DeploymentMode
+}
+
+export default function Dashboard({ deploymentMode = 'local' }: DashboardProps): JSX.Element {
   const client = useLapClient()
   const router = useRouter()
+  const localAssistantAvailable = deploymentMode === 'local'
   const [loading, setLoading] = useState(true)
   const [refreshNonce, setRefreshNonce] = useState(0)
   const [profileId, setProfileId] = useState<string | null>(null)
@@ -810,16 +816,21 @@ export default function Dashboard(): JSX.Element {
                       >
                         {t('dashboard.build_openai')}
                       </button>
-                      <button
-                        className="app-button app-button--secondary"
-                        onClick={() => {
-                          void handleBuildPlan('ollama')
-                        }}
-                        disabled={isBuilding}
-                      >
-                        {t('dashboard.build_ollama')}
-                      </button>
+                      {localAssistantAvailable && (
+                        <button
+                          className="app-button app-button--secondary"
+                          onClick={() => {
+                            void handleBuildPlan('ollama')
+                          }}
+                          disabled={isBuilding}
+                        >
+                          {t('dashboard.build_ollama')}
+                        </button>
+                      )}
                     </div>
+                    {!localAssistantAvailable && (
+                      <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
+                    )}
                     <div className="dashboard-summary-grid dashboard-summary-grid--single">
                       {renderWalletCard()}
                     </div>
@@ -958,19 +969,24 @@ export default function Dashboard(): JSX.Element {
                       >
                         {t('dashboard.build_openai')}
                       </button>
-                      <button
-                        className="app-button app-button--secondary"
-                        onClick={() => {
-                          void handleBuildPlan('ollama')
-                        }}
-                        disabled={isBuilding}
-                      >
-                        {t('dashboard.build_ollama')}
-                      </button>
+                      {localAssistantAvailable && (
+                        <button
+                          className="app-button app-button--secondary"
+                          onClick={() => {
+                            void handleBuildPlan('ollama')
+                          }}
+                          disabled={isBuilding}
+                        >
+                          {t('dashboard.build_ollama')}
+                        </button>
+                      )}
                       <button className="app-button app-button--secondary" onClick={() => router.push('/intake')}>
                         {t('dashboard.redo_intake')}
                       </button>
                     </div>
+                    {!localAssistantAvailable && (
+                      <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
+                    )}
                     {exportStatus && (
                       <p
                         className={[

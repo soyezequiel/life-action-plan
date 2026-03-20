@@ -166,7 +166,7 @@ describe('dashboard interaction', () => {
 
     render(
       <AppServicesProvider services={{ lapClient: client }}>
-        <Dashboard />
+        <Dashboard deploymentMode="local" />
       </AppServicesProvider>
     )
 
@@ -200,7 +200,7 @@ describe('dashboard interaction', () => {
 
     render(
       <AppServicesProvider services={{ lapClient: client }}>
-        <Dashboard />
+        <Dashboard deploymentMode="local" />
       </AppServicesProvider>
     )
 
@@ -211,5 +211,24 @@ describe('dashboard interaction', () => {
 
     expect(pushMock).toHaveBeenCalledWith('/settings?intent=build&provider=openai')
     expect(client.plan.build).toHaveBeenCalledWith('profile-1', '', 'ollama:qwen3:8b')
+  })
+
+  it('oculta el build local en un deploy cloud', async () => {
+    const client = createLapClientStub()
+    pushMock.mockReset()
+
+    client.plan.list = vi.fn(async () => [])
+    client.progress.list = vi.fn(async () => [])
+    client.streak.get = vi.fn(async () => ({ current: 0, best: 0 }))
+
+    render(
+      <AppServicesProvider services={{ lapClient: client }}>
+        <Dashboard deploymentMode="vercel-preview" />
+      </AppServicesProvider>
+    )
+
+    expect(await screen.findByText(t('dashboard.empty'))).toBeTruthy()
+    expect(screen.getByText(t('builder.local_unavailable_deploy'))).toBeTruthy()
+    expect(screen.queryByRole('button', { name: t('dashboard.build_ollama') })).toBeNull()
   })
 })

@@ -199,8 +199,10 @@ Estas piezas no forman parte del plan vigente:
 
 - validar `DATABASE_URL` cloud
 - usar proveedor cloud real en preview/prod
-- revisar timeouts y `vercel.json`
-- correr smoke de `intake -> build -> dashboard`
+- bloquear Ollama y el fallback local en Vercel
+- revisar timeouts de rutas largas y `vercel.json`
+- agregar checks locales de readiness (`doctor:deploy`, `smoke:deploy`)
+- correr smoke de `intake -> build -> dashboard` con provider cloud
 
 ### Fase 3 - Productizacion
 

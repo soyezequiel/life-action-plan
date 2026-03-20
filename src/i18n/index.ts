@@ -32,7 +32,8 @@ const runtimeFallbacks: Record<string, string> = {
   'builder.progress_provider': 'Ruta activa: {{provider}}',
   'builder.route_online_done': 'Este plan se armo con el asistente en linea.',
   'builder.route_local_done': 'Este plan se armo con el asistente local.',
-  'builder.route_fallback_done': 'Este plan se termino con el respaldo local.'
+  'builder.route_fallback_done': 'Este plan se termino con el respaldo local.',
+  'builder.local_unavailable_deploy': 'El asistente local solo funciona en tu maquina. En este entorno usa el asistente en linea.'
 }
 
 let currentLocale = 'es-AR'

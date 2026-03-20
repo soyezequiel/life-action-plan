@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server'
 import type { PlanBuildProgress } from '../../../../src/shared/types/lap-api'
 import { decryptApiKey } from '../../../../src/lib/auth/api-key-auth'
+import { canUseLocalOllama, getDeploymentMode } from '../../../../src/lib/env/deployment'
 import { createInstrumentedRuntime, buildWithOllamaFallback, generatePlan, getProvider, traceCollector } from '../../_domain'
 import { createPlan, seedProgressFromEvents, trackCost, trackEvent, updatePlanManifest, getProfile, getUserSetting } from '../../_db'
 import { apiErrorMessages, encodeSseData, sseHeaders } from '../../_shared'
 import { planBuildRequestSchema } from '../../_schemas'
 import { buildPlanManifest, createUniquePlanSlug, getProfileTimezone, parseStoredProfile, toPlanBuildErrorMessage } from '../../_plan'
 import { API_KEY_SETTING_KEY, DEFAULT_USER_ID } from '../../_user-settings'
+
+export const maxDuration = 60
 
 export async function POST(request: Request): Promise<Response> {
   const parsed = planBuildRequestSchema.safeParse(await request.json().catch(() => null))
@@ -30,6 +33,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const { profileId, apiKey, provider } = parsed.data
   const modelId = provider || 'openai:gpt-4o-mini'
+  const localOllamaAvailable = canUseLocalOllama(getDeploymentMode())
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -81,6 +85,18 @@ export async function POST(request: Request): Promise<Response> {
           progress: preparingProgress
         })
 
+        if (modelId.startsWith('ollama:') && !localOllamaAvailable) {
+          send({
+            type: 'result',
+            result: {
+              success: false,
+              error: apiErrorMessages.localAssistantUnavailable()
+            }
+          })
+          controller.close()
+          return
+        }
+
         traceId = traceCollector.startTrace('plan-builder', modelId, { profileId, transport: 'api' })
         const encryptedStoredApiKey = await getUserSetting(DEFAULT_USER_ID, API_KEY_SETTING_KEY)
         const storedApiKey = encryptedStoredApiKey ? decryptApiKey(encryptedStoredApiKey) : ''
@@ -88,6 +104,10 @@ export async function POST(request: Request): Promise<Response> {
         const buildResult = await buildWithOllamaFallback(
           modelId,
           async (nextModelId) => {
+            if (nextModelId.startsWith('ollama:') && !localOllamaAvailable) {
+              throw new Error(apiErrorMessages.localAssistantUnavailable())
+            }
+
             const resolvedApiKey = nextModelId.startsWith('ollama:')
               ? ''
               : apiKey.trim() || storedApiKey || process.env.OPENAI_API_KEY?.trim() || ''
@@ -163,12 +183,15 @@ export async function POST(request: Request): Promise<Response> {
               }
             })
           },
-          async (originalError) => {
-            await trackEvent('PLAN_BUILD_FALLBACK', {
-              profileId,
-              originalModel: modelId,
-              originalError: originalError.message
-            })
+          {
+            allowFallback: localOllamaAvailable,
+            onFallback: async (originalError) => {
+              await trackEvent('PLAN_BUILD_FALLBACK', {
+                profileId,
+                originalModel: modelId,
+                originalError: originalError.message
+              })
+            }
           }
         )
 

@@ -6,6 +6,7 @@ Estado operativo actual:
 - Desarrollo local: `Next.js + PostgreSQL local + Ollama local`
 - Target de deploy: `Vercel + PostgreSQL cloud + LLM cloud`
 - Electron ya no forma parte del producto
+- En deploy, la UI y el backend no deben depender de Ollama
 
 ## Antes de tocar codigo
 
@@ -21,6 +22,7 @@ Lee primero:
 - Fechas con `luxon`, no `new Date()` para logica de negocio
 - API keys solo server-side
 - En local, Ollama se usa desde el servidor Next.js; en Vercel hay que usar un proveedor cloud
+- El boton de asistente local solo vale en entorno local; en Vercel queda fuera de la UX valida
 
 ## Stack actual
 
@@ -84,7 +86,9 @@ npm run dev
 - `npm run test`
 - `npm run lint`
 - `npm run doctor:local`
+- `npm run doctor:deploy`
 - `npm run smoke:local`
+- `npm run smoke:deploy`
 - `npm run db:generate`
 - `npm run db:push`
 - `npm run db:migrate`
@@ -97,6 +101,22 @@ npm run dev
 4. Ver tareas del dia
 5. Marcar progreso
 6. Abrir el Inspector LLM si hace falta diagnostico
+
+## Readiness para Vercel
+
+1. Configura una `DATABASE_URL` cloud.
+2. Configura `OPENAI_API_KEY` para el provider cloud.
+3. Verifica la readiness de deploy:
+
+```bash
+npm run doctor:deploy
+```
+
+4. Corre el smoke previo al deploy:
+
+```bash
+npm run smoke:deploy
+```
 
 ## Estructura real del repo
 

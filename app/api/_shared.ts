@@ -6,7 +6,8 @@ const encoder = new TextEncoder()
 export const apiErrorMessages = {
   invalidRequest: (): string => t('errors.invalid_request'),
   profileNotFound: (): string => t('errors.profile_not_found'),
-  planNotFound: (): string => t('errors.plan_not_found')
+  planNotFound: (): string => t('errors.plan_not_found'),
+  localAssistantUnavailable: (): string => t('builder.local_unavailable_deploy')
 }
 
 export function jsonResponse<T>(body: T, init?: ResponseInit): NextResponse {

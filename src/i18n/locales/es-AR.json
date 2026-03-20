@@ -98,6 +98,7 @@
     "route_online_done": "Este plan se armo con el asistente en linea.",
     "route_local_done": "Este plan se armo con el asistente local.",
     "route_fallback_done": "Este plan se termino con el respaldo local.",
+    "local_unavailable_deploy": "El asistente local solo funciona en tu maquina. En este entorno usa el asistente en linea.",
     "done": "¡Tu plan está listo!",
     "error": "No pude armar el plan. ¿Querés intentar de nuevo?",
     "retry": "Intentar de nuevo",
