@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { t } from '../src/i18n'
 import DebugMessageInspector from '../components/debug/DebugMessageInspector'
+import DebugPanelStatus from '../components/debug/DebugPanelStatus'
 import DebugSpanDetail from '../components/debug/DebugSpanDetail'
 import DebugTokenStream from '../components/debug/DebugTokenStream'
 import type { DebugSpan } from '../src/shared/types/debug'
@@ -114,5 +115,30 @@ describe('debug panel render', () => {
 
     expect(html).toContain(t('debug.stream_waiting'))
     expect(html).toContain('Esperando primer token: 2.5 s')
+  })
+
+  it('renders the snapshot ready state with relative freshness', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-03-19T15:00:05.000Z'))
+
+    const html = renderToStaticMarkup(
+      createElement(DebugPanelStatus, {
+        snapshotState: 'ready',
+        lastUpdatedAt: '2026-03-19T15:00:00.000Z'
+      })
+    )
+
+    expect(html).toContain(t('debug.snapshot_ready_at', { date: 'hace 5 segundos' }))
+  })
+
+  it('renders the snapshot error state', () => {
+    const html = renderToStaticMarkup(
+      createElement(DebugPanelStatus, {
+        snapshotState: 'error',
+        lastUpdatedAt: null
+      })
+    )
+
+    expect(html).toContain(t('debug.snapshot_error'))
   })
 })

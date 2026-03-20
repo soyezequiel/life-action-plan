@@ -487,6 +487,12 @@ export const browserLapClient: LapAPI = {
         body: JSON.stringify({ enabled: false })
       })
     },
+    async clear() {
+      return fetchJson<DebugStatusResult>('/api/debug', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'clear' })
+      })
+    },
     async status() {
       return fetchJson<DebugStatusResult>('/api/debug')
     },

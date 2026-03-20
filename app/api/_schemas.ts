@@ -61,7 +61,7 @@ export const apiKeySaveRequestSchema = z.object({
 
 export const debugMutationRequestSchema = z.union([
   z.object({
-    action: z.enum(['enable', 'disable'])
+    action: z.enum(['enable', 'disable', 'clear'])
   }).strict(),
   z.object({
     enabled: z.boolean()

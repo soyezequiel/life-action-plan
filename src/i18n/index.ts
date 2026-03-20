@@ -22,7 +22,11 @@ const runtimeFallbacks: Record<string, string> = {
   'errors.save_failed': 'No pude guardar ese dato. Intenta de nuevo.',
   'errors.invalid_request': 'No pude entender ese pedido. Revisalo e intenta de nuevo.',
   'errors.profile_not_found': 'No encontre tu perfil guardado.',
-  'errors.plan_not_found': 'No encontre ese plan.'
+  'errors.plan_not_found': 'No encontre ese plan.',
+  'debug.snapshot_connecting': 'Conectando el inspector...',
+  'debug.snapshot_ready': 'Snapshot activo.',
+  'debug.snapshot_ready_at': 'Snapshot activo. Ultima actualizacion: {{date}}',
+  'debug.snapshot_error': 'No pude actualizar el inspector. Voy a seguir reintentando.'
 }
 
 let currentLocale = 'es-AR'

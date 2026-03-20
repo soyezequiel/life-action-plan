@@ -48,6 +48,16 @@
   font-size: 0.88rem;
 }
 
+.debug-panel__status {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.debug-panel__status--error {
+  color: var(--debug-error-color);
+}
+
 .debug-panel__toolbar-actions {
   display: flex;
   gap: 0.65rem;

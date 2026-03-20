@@ -168,4 +168,26 @@ describe('traceCollector', () => {
     expect(span?.metadata.timeToFirstTokenMs).toBe(1200)
     expect(span?.response).toBe('{')
   })
+
+  it('clear vacia las trazas activas y los batches pendientes', () => {
+    vi.useFakeTimers()
+
+    const traceId = traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { profileId: 'p1' })
+    const spanId = traceCollector.startSpan({
+      traceId,
+      skillName: 'plan-builder',
+      provider: 'ollama:qwen3:8b',
+      type: 'stream',
+      messages: [
+        { role: 'system', content: 'solo json' },
+        { role: 'user', content: 'perfil demo' }
+      ]
+    })
+
+    traceCollector.emitToken(traceId, spanId, '{')
+    traceCollector.clear()
+
+    expect(traceCollector.getSnapshot()).toHaveLength(0)
+    expect((traceCollector as unknown as { tokenBatches: Map<string, unknown> }).tokenBatches.size).toBe(0)
+  })
 })

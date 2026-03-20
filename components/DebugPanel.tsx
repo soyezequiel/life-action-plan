@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
 import { useDebugTraces } from '../src/lib/client/use-debug-traces'
+import DebugPanelStatus from './debug/DebugPanelStatus'
 import DebugTraceList from './debug/DebugTraceList'
 import DebugSpanDetail from './debug/DebugSpanDetail'
 import './debug/debug-panel.css'
@@ -40,7 +41,16 @@ function getInitialHeight(): number {
 
 export default function DebugPanel({ onClose }: DebugPanelProps): JSX.Element {
   const client = useLapClient()
-  const { traces, selectedSpanId, selectedSpan, selectedTrace, setSelectedSpanId, clearTraces } = useDebugTraces()
+  const {
+    traces,
+    selectedSpanId,
+    selectedSpan,
+    selectedTrace,
+    snapshotState,
+    lastUpdatedAt,
+    setSelectedSpanId,
+    clearTraces
+  } = useDebugTraces()
   const [height, setHeight] = useState(() => getInitialHeight())
 
   useEffect(() => {
@@ -105,10 +115,11 @@ export default function DebugPanel({ onClose }: DebugPanelProps): JSX.Element {
         <div className="debug-panel__toolbar-copy">
           <strong className="debug-panel__title">{t('debug.panel_title')}</strong>
           <span className="debug-panel__count">{t('debug.trace_count', { count: traces.length })}</span>
+          <DebugPanelStatus snapshotState={snapshotState} lastUpdatedAt={lastUpdatedAt} />
         </div>
 
         <div className="debug-panel__toolbar-actions">
-          <button className="debug-panel__ghost-button" onClick={clearTraces}>
+          <button className="debug-panel__ghost-button" onClick={() => { void clearTraces() }}>
             {t('debug.clear')}
           </button>
           <button className="debug-panel__ghost-button" onClick={onClose}>

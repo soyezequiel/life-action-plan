@@ -52,6 +52,17 @@ export function disableDebugPanel() {
   }
 }
 
+export function clearDebugTraces() {
+  traceCollector.clear()
+
+  const state = getGlobalState()
+
+  return {
+    enabled: traceCollector.isEnabled(),
+    panelVisible: state.panelVisible
+  }
+}
+
 export function getDebugPanelStatus() {
   const state = getGlobalState()
   return {
@@ -59,4 +70,3 @@ export function getDebugPanelStatus() {
     panelVisible: state.panelVisible
   }
 }
-

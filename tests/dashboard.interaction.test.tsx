@@ -146,6 +146,7 @@ function createLapClientStub(): LapAPI {
     debug: {
       enable: vi.fn(async () => ({ enabled: true, panelVisible: true })),
       disable: vi.fn(async () => ({ enabled: false, panelVisible: false })),
+      clear: vi.fn(async () => ({ enabled: true, panelVisible: true })),
       status: vi.fn(async () => ({ enabled: false, panelVisible: false })),
       snapshot: vi.fn(async () => ({ traces: [] })),
       onEvent: vi.fn(() => () => {})

@@ -255,6 +255,7 @@ export interface LapAPI {
   debug: {
     enable: () => Promise<DebugStatusResult>
     disable: () => Promise<DebugStatusResult>
+    clear: () => Promise<DebugStatusResult>
     status: () => Promise<DebugStatusResult>
     snapshot: () => Promise<DebugSnapshotResult>
     onEvent: (listener: (event: DebugEvent) => void) => () => void

@@ -9,6 +9,7 @@ const POLL_INTERVAL_MS = 1200
 const MAX_RENDERER_TRACES = 50
 
 export type DebugTraceView = DebugTraceSnapshot
+export type DebugSnapshotState = 'loading' | 'ready' | 'error'
 
 function trimTraces(traces: DebugTraceView[]): DebugTraceView[] {
   return traces.slice(0, MAX_RENDERER_TRACES)
@@ -41,6 +42,8 @@ export function useDebugTraces() {
   const client = useLapClient()
   const [traces, setTraces] = useState<DebugTraceView[]>([])
   const [selectedSpanId, setSelectedSpanId] = useState<string | null>(null)
+  const [snapshotState, setSnapshotState] = useState<DebugSnapshotState>('loading')
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null)
   const isActiveRef = useRef(true)
 
   useEffect(() => {
@@ -57,8 +60,14 @@ export function useDebugTraces() {
         setTraces(trimTraces([...snapshot.traces].sort((left, right) => (
           DateTime.fromISO(right.startedAt).toMillis() - DateTime.fromISO(left.startedAt).toMillis()
         ))))
+        setSnapshotState('ready')
+        setLastUpdatedAt(DateTime.now().toISO())
       } catch {
-        // Keep the panel usable if the snapshot route blips.
+        if (!isActiveRef.current) {
+          return
+        }
+
+        setSnapshotState('error')
       }
     }
 
@@ -91,10 +100,19 @@ export function useDebugTraces() {
     selectedSpanId,
     selectedSpan: findSpanInTraces(traces, selectedSpanId),
     selectedTrace: findTraceForSpan(traces, selectedSpanId),
+    snapshotState,
+    lastUpdatedAt,
     setSelectedSpanId,
-    clearTraces: () => {
+    clearTraces: async () => {
       setSelectedSpanId(null)
       setTraces([])
+      try {
+        await client.debug.clear()
+        setSnapshotState('loading')
+        setLastUpdatedAt(DateTime.now().toISO())
+      } catch {
+        setSnapshotState('error')
+      }
     }
   }
 }

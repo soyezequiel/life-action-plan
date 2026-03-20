@@ -1,5 +1,5 @@
 import { debugMutationRequestSchema } from '../_schemas'
-import { disableDebugPanel, enableDebugPanel, getDebugPanelStatus } from '../_debug-state'
+import { clearDebugTraces, disableDebugPanel, enableDebugPanel, getDebugPanelStatus } from '../_debug-state'
 import { jsonResponse } from '../_shared'
 
 export async function GET(): Promise<Response> {
@@ -16,10 +16,18 @@ export async function POST(request: Request): Promise<Response> {
     }, { status: 400 })
   }
 
-  const payload = parsed.data as { action?: 'enable' | 'disable'; enabled?: boolean }
+  const payload = parsed.data as { action?: 'enable' | 'disable' | 'clear'; enabled?: boolean }
 
   if (payload.action) {
-    return jsonResponse(payload.action === 'enable' ? enableDebugPanel() : disableDebugPanel())
+    if (payload.action === 'enable') {
+      return jsonResponse(enableDebugPanel())
+    }
+
+    if (payload.action === 'disable') {
+      return jsonResponse(disableDebugPanel())
+    }
+
+    return jsonResponse(clearDebugTraces())
   }
 
   return jsonResponse(payload.enabled ? enableDebugPanel() : disableDebugPanel())
