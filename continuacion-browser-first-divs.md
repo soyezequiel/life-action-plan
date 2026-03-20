@@ -22,7 +22,7 @@
 - Que no se implementa: features nuevas, rediseños visuales o refactors de arquitectura.
 - Dependencias: ninguna
 - Precondiciones: `npm run dev` y `npm run dev:electron` deben poder arrancar en limpio.
-- Criterio de finalizacion: existe una matriz de smoke checks con resultado observable para ambos modos y el repo tiene una referencia clara de que funciones ya estan vivas hoy.
+- Criterio de finalizacion: existe una matriz de smoke checks con resultado observable para ambos modos y el repo tiene una referencia clara de que funciones ya estan vivas hoy. Referencia operativa: `matriz-smoke-browser-electron.md`.
 - Notas para la siguiente unidad: deja lista la base de verdad desde la cual definir feedback obligatorio por feature.
 
 ### DIV-002 - Contrato de feedback obligatorio
@@ -99,7 +99,7 @@
 - Que no se implementa: empaquetado final ni optimizaciones de release.
 - Dependencias: DIV-001, DIV-003, DIV-007
 - Precondiciones: las rutas criticas ya tienen feedback observable.
-- Criterio de finalizacion: existe una verificacion reproducible de que las operaciones criticas respetan el mismo contrato en browser y Electron, o quedan documentadas con diferencia explicita.
+- Criterio de finalizacion: existe una verificacion reproducible de que las operaciones criticas respetan el mismo contrato en browser y Electron, o quedan documentadas con diferencia explicita. Referencia operativa: `matriz-smoke-browser-electron.md`.
 - Notas para la siguiente unidad: deja listo el paso final de endurecimiento de la shell desktop.
 
 ### DIV-009 - Shell Electron delgada y verificable
@@ -115,6 +115,7 @@
 
 ## Registro de avance
 
+- 2026-03-20 - DIV-001 y DIV-008 baseline/parity matrix: se creo `matriz-smoke-browser-electron.md` como referencia unica para smoke cross-surface de perfil, build, progreso, streaks, simulacion, exportacion, wallet, costos e inspector. La matriz fija precondiciones, evidencia automatica minima, evidencia visible y diferencias aceptadas por superficie; tambien deja explicito que wallet en browser solo valida estado no soportado y que la exportacion browser usa descarga por blob mientras Electron usa dialogo nativo. Evidencia automatica: `npm run typecheck` y `npx vitest run`. Evidencia visible esperada: la misma matriz deja definido que debe verse en cada flujo antes de marcar la corrida como valida.
 - 2026-03-19 - DIV-003 observabilidad del inspector: el collector ahora guarda `firstTokenAt` y `timeToFirstTokenMs`; el panel muestra una espera inicial explicita y el dato del primer token cuando aparece; el cliente browser precalienta el stream de debug al habilitar el inspector. Evidencia automatica: `npx vitest run tests/trace-collector.test.ts tests/debug-panel-render.test.ts tests/browser-http-client.test.ts tests/i18n.test.ts` y `npm run typecheck`. Evidencia visible: durante `crear plan`, el inspector deja de quedar mudo y muestra "Esperando primer token..." hasta que entra el stream, luego informa el tiempo del primer token.
 - 2026-03-19 - DIV-003 observabilidad del inspector, ajuste de apertura tardia: el collector ahora captura spans y respuesta parcial aunque el panel no este abierto; al abrir el inspector despues de haber lanzado `crear plan`, el snapshot ya trae la traza en curso y el texto acumulado hasta ese momento. Evidencia automatica: `npx vitest run tests/trace-collector.test.ts tests/instrumented-runtime.test.ts`, `npx vitest run` y `npm run typecheck`. Evidencia visible: si abris el inspector unos segundos despues del click, igual ves la traza activa y el stream ya acumulado.
 - 2026-03-19 - DIV-003 compatibilidad nativa con Ollama: el provider de Ollama deja de pasar por compatibilidad OpenAI y usa `/api/chat` nativo, con soporte de `thinking`, streaming NDJSON, normalizacion de `tool_calls` y `baseURL` con o sin `/v1`. Evidencia automatica: `npx vitest run tests/provider-factory.test.ts tests/plan-builder.test.ts tests/instrumented-runtime.test.ts tests/debug-panel-render.test.ts`, `npx vitest run` y `npm run typecheck`. Evidencia visible: con Ollama el inspector muestra el bloque `<think>...</think>` cuando el modelo lo expone y el build sigue parseando el JSON final sin romperse.
