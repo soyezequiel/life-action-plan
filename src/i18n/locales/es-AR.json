@@ -272,6 +272,9 @@
     "connection_busy": "El asistente está un poquito ocupado. Dame un segundito.",
     "generic": "Algo salió mal. Intentá de nuevo en un ratito.",
     "no_api_key": "Necesitás configurar tu conexión primero.",
-    "budget_exceeded": "Se acabaron las consultas disponibles por ahora."
+    "budget_exceeded": "Se acabaron las consultas disponibles por ahora.",
+    "invalid_request": "No pude entender ese pedido. Revisalo e intenta de nuevo.",
+    "profile_not_found": "No encontre tu perfil guardado.",
+    "plan_not_found": "No encontre ese plan."
   }
 }

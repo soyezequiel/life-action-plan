@@ -1,7 +1,7 @@
 import { intakeRequestSchema } from '../_schemas'
 import { intakeExpressToProfile } from '../_domain'
 import { createProfile, setSetting, trackEvent } from '../_db'
-import { jsonResponse } from '../_shared'
+import { apiErrorMessages, jsonResponse } from '../_shared'
 
 export async function POST(request: Request): Promise<Response> {
   const bodyResult = intakeRequestSchema.safeParse(await request.json().catch(() => null))
@@ -9,7 +9,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!bodyResult.success) {
     return jsonResponse({
       success: false,
-      error: 'Datos invalidos en la solicitud.'
+      error: apiErrorMessages.invalidRequest()
     }, { status: 400 })
   }
 

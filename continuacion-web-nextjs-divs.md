@@ -15,12 +15,14 @@
 - Incluye: stack actual, scripts reales, rutas reales, entorno local real
 - Excluye: cambios de producto
 - Cierre: no quedan instrucciones activas que pidan Electron, SQLite o `dev:electron`
+- Estado: cerrado el 2026-03-20
 
 ### DIV-002 - Limpieza legacy del repo
 - Objetivo: remover o aislar residuos que confunden a futuros agentes
 - Incluye: directorios vacios legacy, referencias historicas, archivos de apoyo obsoletos, notas de compatibilidad
 - Excluye: refactors funcionales
 - Cierre: un agente nuevo puede recorrer el repo sin inferir una arquitectura incorrecta
+- Estado: cerrado el 2026-03-20
 
 ### DIV-003 - Smoke local reproducible
 - Objetivo: dejar un flujo local confiable para esta maquina
@@ -61,3 +63,6 @@
 ## Registro de avance
 
 - 2026-03-20 - Se redefine el plan operativo a web-only. Electron sale del plan vigente y queda solo como antecedente historico.
+- 2026-03-20 - DIV-001 cerrado. `README.md`, `AGENTS.md`, `PLAN_LAP_FINAL.md` y documentos operativos quedan alineados con la app web actual.
+- 2026-03-20 - DIV-002 cerrado. `CLAUDE.md` se ajusta a la realidad local y de deploy, `CODEX_LOG.md` queda marcado como historico, los iconos pasan a `public/`, se eliminan assets desktop de `build/` y `resources/`, y los errores base de API se centralizan con copy reutilizable.
+- 2026-03-20 - Nota operativa: no correr `npm run typecheck` en paralelo con `npm run build` en Next.js 15 porque la regeneracion de `.next/types` puede producir falsos `TS6053`.

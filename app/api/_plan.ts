@@ -164,7 +164,9 @@ export function toPlanBuildErrorMessage(error: unknown): string {
   if (
     message.startsWith('El asistente ') ||
     message.startsWith('No pude ') ||
-    message === 'Perfil no encontrado'
+    message === t('errors.profile_not_found') ||
+    message === t('errors.plan_not_found') ||
+    message === t('errors.invalid_request')
   ) {
     return message
   }

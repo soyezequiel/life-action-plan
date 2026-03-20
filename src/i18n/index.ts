@@ -19,7 +19,10 @@ const runtimeFallbacks: Record<string, string> = {
   'errors.network_unavailable': 'No pude conectarme. Revisa tu internet o el servicio local y volve a intentar.',
   'errors.service_unavailable': 'Hay una configuracion pendiente del lado del servidor. Revisala y volve a intentar.',
   'errors.dev_missing_env': 'Falta {{name}} en el servidor local. Revisalo y volve a intentar.',
-  'errors.save_failed': 'No pude guardar ese dato. Intenta de nuevo.'
+  'errors.save_failed': 'No pude guardar ese dato. Intenta de nuevo.',
+  'errors.invalid_request': 'No pude entender ese pedido. Revisalo e intenta de nuevo.',
+  'errors.profile_not_found': 'No encontre tu perfil guardado.',
+  'errors.plan_not_found': 'No encontre ese plan.'
 }
 
 let currentLocale = 'es-AR'

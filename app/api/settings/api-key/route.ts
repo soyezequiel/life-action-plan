@@ -2,7 +2,7 @@ import { encryptApiKey, isApiKeyEncryptionConfigured } from '../../../../src/lib
 import { toConfigErrorMessage } from '../../../../src/shared/config-errors'
 import { deleteUserSetting, getUserSetting, upsertUserSetting } from '../../_db'
 import { apiKeySaveRequestSchema } from '../../_schemas'
-import { jsonResponse } from '../../_shared'
+import { apiErrorMessages, jsonResponse } from '../../_shared'
 import { API_KEY_SETTING_KEY, DEFAULT_USER_ID } from '../../_user-settings'
 
 export async function GET(): Promise<Response> {
@@ -20,7 +20,7 @@ export async function POST(request: Request): Promise<Response> {
     return jsonResponse({
       success: false,
       configured: false,
-      error: 'Datos invalidos en la solicitud.'
+      error: apiErrorMessages.invalidRequest()
     }, { status: 400 })
   }
 

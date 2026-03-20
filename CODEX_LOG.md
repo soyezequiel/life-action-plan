@@ -1,3 +1,7 @@
+[HISTORICO] Este archivo conserva notas de trabajo de etapas previas, incluyendo la era Electron/browser-first.
+[HISTORICO] No usarlo como source of truth arquitectonica ni operativa.
+[HISTORICO] Para el estado vigente del proyecto usar `AGENTS.md` y `PLAN_LAP_FINAL.md`.
+
 [2026-03-18 23:32:18 -03:00] - Paso 2.2/2.3: Pay-Per-Token UI + Ollama Fallback
 Completado
 - Paso 2.2 completo: tracking de costos por build en `cost_tracking`, handler `cost:summary`, binding en preload y card de gasto en dashboard.

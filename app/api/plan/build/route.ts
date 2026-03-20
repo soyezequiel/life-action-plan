@@ -3,7 +3,7 @@ import type { PlanBuildProgress } from '../../../../src/shared/types/lap-api'
 import { decryptApiKey } from '../../../../src/lib/auth/api-key-auth'
 import { createInstrumentedRuntime, buildWithOllamaFallback, generatePlan, getProvider, traceCollector } from '../../_domain'
 import { createPlan, seedProgressFromEvents, trackCost, trackEvent, updatePlanManifest, getProfile, getUserSetting } from '../../_db'
-import { encodeSseData, sseHeaders } from '../../_shared'
+import { apiErrorMessages, encodeSseData, sseHeaders } from '../../_shared'
 import { planBuildRequestSchema } from '../../_schemas'
 import { buildPlanManifest, createUniquePlanSlug, getProfileTimezone, parseStoredProfile, toPlanBuildErrorMessage } from '../../_plan'
 import { API_KEY_SETTING_KEY, DEFAULT_USER_ID } from '../../_user-settings'
@@ -18,7 +18,7 @@ export async function POST(request: Request): Promise<Response> {
           type: 'result',
           result: {
             success: false,
-            error: 'Datos invalidos en la solicitud.'
+            error: apiErrorMessages.invalidRequest()
           }
         }))
         controller.close()
@@ -47,7 +47,7 @@ export async function POST(request: Request): Promise<Response> {
             type: 'result',
             result: {
               success: false,
-              error: 'Perfil no encontrado'
+              error: apiErrorMessages.profileNotFound()
             }
           })
           controller.close()
@@ -60,7 +60,7 @@ export async function POST(request: Request): Promise<Response> {
             type: 'result',
             result: {
               success: false,
-              error: 'Perfil no encontrado'
+              error: apiErrorMessages.profileNotFound()
             }
           })
           controller.close()

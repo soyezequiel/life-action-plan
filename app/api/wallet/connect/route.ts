@@ -1,6 +1,6 @@
 import { walletConnectRequestSchema } from '../../_schemas'
 import { connectWallet } from '../../_wallet'
-import { jsonResponse } from '../../_shared'
+import { apiErrorMessages, jsonResponse } from '../../_shared'
 
 export async function POST(request: Request): Promise<Response> {
   const parsed = walletConnectRequestSchema.safeParse(await request.json().catch(() => null))
@@ -13,10 +13,9 @@ export async function POST(request: Request): Promise<Response> {
         connected: false,
         canUseSecureStorage: false
       },
-      error: 'Datos invalidos en la solicitud.'
+      error: apiErrorMessages.invalidRequest()
     }, { status: 400 })
   }
 
   return jsonResponse(await connectWallet(parsed.data.connectionUrl))
 }
-

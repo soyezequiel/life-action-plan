@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { PlanSimulationProgress } from '../../../../src/shared/types/lap-api'
 import { simulatePlanViabilityWithProgress, traceCollector } from '../../_domain'
 import { getPlan, getProfile, getProgressByPlan, trackEvent, updatePlanManifest } from '../../_db'
-import { encodeSseData, sseHeaders } from '../../_shared'
+import { apiErrorMessages, encodeSseData, sseHeaders } from '../../_shared'
 import { planSimulateRequestSchema } from '../../_schemas'
 import { createSimulationManifest, getProfileTimezone, parseStoredProfile, toPlanBuildErrorMessage } from '../../_plan'
 
@@ -16,7 +16,7 @@ export async function POST(request: Request): Promise<Response> {
           type: 'result',
           result: {
             success: false,
-            error: 'Datos invalidos en la solicitud.'
+            error: apiErrorMessages.invalidRequest()
           }
         }))
         controller.close()
@@ -43,7 +43,7 @@ export async function POST(request: Request): Promise<Response> {
             type: 'result',
             result: {
               success: false,
-              error: 'PLAN_NOT_FOUND'
+              error: apiErrorMessages.planNotFound()
             }
           })
           controller.close()
@@ -57,7 +57,7 @@ export async function POST(request: Request): Promise<Response> {
             type: 'result',
             result: {
               success: false,
-              error: 'PROFILE_NOT_FOUND'
+              error: apiErrorMessages.profileNotFound()
             }
           })
           controller.close()

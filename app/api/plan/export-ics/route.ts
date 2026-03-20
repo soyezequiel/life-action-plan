@@ -2,7 +2,7 @@ import { planExportIcsRequestSchema } from '../../_schemas'
 import { buildCalendarFileName, getProfileTimezone, parseStoredProfile } from '../../_plan'
 import { generateIcsCalendar } from '../../_domain'
 import { getPlan, getProfile, getProgressByPlan } from '../../_db'
-import { jsonResponse } from '../../_shared'
+import { apiErrorMessages, jsonResponse } from '../../_shared'
 
 export async function POST(request: Request): Promise<Response> {
   const parsed = planExportIcsRequestSchema.safeParse(await request.json().catch(() => null))
@@ -10,7 +10,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!parsed.success) {
     return jsonResponse({
       success: false,
-      error: 'Datos invalidos en la solicitud.'
+      error: apiErrorMessages.invalidRequest()
     }, { status: 400 })
   }
 
@@ -18,7 +18,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!planRow) {
     return jsonResponse({
       success: false,
-      error: 'PLAN_NOT_FOUND'
+      error: apiErrorMessages.planNotFound()
     })
   }
 

@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server'
+import { t } from '../../src/i18n'
 
 const encoder = new TextEncoder()
+
+export const apiErrorMessages = {
+  invalidRequest: (): string => t('errors.invalid_request'),
+  profileNotFound: (): string => t('errors.profile_not_found'),
+  planNotFound: (): string => t('errors.plan_not_found')
+}
 
 export function jsonResponse<T>(body: T, init?: ResponseInit): NextResponse {
   return NextResponse.json(body, init)
@@ -31,4 +38,3 @@ export function safeParseJsonRecord(value: string | null | undefined): Record<st
     return {}
   }
 }
-

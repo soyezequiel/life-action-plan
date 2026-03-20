@@ -19,7 +19,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: esAR.app.name,
-  description: esAR.app.tagline
+  description: esAR.app.tagline,
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/icon.png'
+  }
 }
 
 export default function RootLayout({
