@@ -13,9 +13,9 @@ Superficies:
 1. `npm run typecheck`
 2. `npm run test`
 3. PostgreSQL accesible por `DATABASE_URL`
-4. `npm run db:push`
+4. `npm run smoke:local`
 5. `npm run dev`
-6. Si se valida provider local: Ollama corriendo en `http://localhost:11434`
+6. Si se quiere validar sin provider local: `npm run doctor:local -- --skip-ollama`
 
 ## Precondiciones para Vercel
 

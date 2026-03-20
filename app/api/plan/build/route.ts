@@ -97,7 +97,10 @@ export async function POST(request: Request): Promise<Response> {
             }
 
             const runtime = getProvider(nextModelId, {
-              apiKey: resolvedApiKey
+              apiKey: resolvedApiKey,
+              baseURL: nextModelId.startsWith('ollama:')
+                ? process.env.OLLAMA_BASE_URL?.trim()
+                : undefined
             })
             const instrumentedRuntime = createInstrumentedRuntime(
               runtime,

@@ -57,16 +57,16 @@ cp .env.example .env.local
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lap
 ```
 
-4. Si vas a usar el asistente local, levanta Ollama:
+4. Si vas a usar el asistente local, asegurate de tener Ollama arriba:
 
 ```bash
 ollama serve
 ```
 
-5. Crea o actualiza tablas:
+5. Prepara el entorno local y verifica DB + Ollama:
 
 ```bash
-npm run db:push
+npm run smoke:local
 ```
 
 6. Arranca la app:
@@ -83,6 +83,8 @@ npm run dev
 - `npm run typecheck`
 - `npm run test`
 - `npm run lint`
+- `npm run doctor:local`
+- `npm run smoke:local`
 - `npm run db:generate`
 - `npm run db:push`
 - `npm run db:migrate`

@@ -12,6 +12,7 @@ out
 *.tsbuildinfo
 .env
 .env.*
+!.env.example
 *.node
 _referencia_lightning
 .claude/settings.local.json

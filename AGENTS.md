@@ -146,6 +146,8 @@ tests/
 - `npm run typecheck`
 - `npm run test`
 - `npm run lint`
+- `npm run doctor:local`
+- `npm run smoke:local`
 - `npm run db:generate`
 - `npm run db:push`
 - `npm run db:migrate`
