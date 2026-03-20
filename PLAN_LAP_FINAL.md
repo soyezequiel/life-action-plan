@@ -1,45 +1,51 @@
 # Plan Final: Sistema de Life Action Plan (LAP)
 
-> **Version consolidada v8.3** — Aplicación standalone directa (sin IDEs agenticos). Skills como módulos TypeScript, runtime propio, arquitectura **browser-first** con frontend React web, backend local compartido y Electron como shell opcional de escritorio. **i18n-ready** (español por defecto, arquitectura preparada para multi-idioma). **DevOps-ready** (CI/CD GitHub Actions, code signing, OTA updates vía GitHub Releases).
+> **Version consolidada v9.0** — Migración completa a **Next.js 15 (App Router) + Vercel**. Skills como módulos TypeScript, runtime propio, arquitectura **web-first deployable** con React Server Components, API Routes serverless y PostgreSQL cloud. **i18n-ready** (español por defecto, arquitectura preparada para multi-idioma). **DevOps-ready** (CI/CD vía Vercel, preview deploys por PR, producción en push a main).
 
 ---
 
 ## Contexto
 
-Aplicación Node.js/TypeScript que crea, simula, refina y ejecuta planes de acción personales conectándose directamente a APIs de LLM (OpenAI, Ollama). Modular, iterativa (simulaciones en bucle hasta plan viable), multi-granularidad (anual → mensual → diario → hora a hora). Exportable a Google Calendar, GPT Builder, Gemini Gem, OpenClaw.
+Aplicación **Next.js/TypeScript** desplegada en **Vercel** que crea, simula, refina y ejecuta planes de acción personales conectándose directamente a APIs de LLM (OpenAI, Ollama remoto). Modular, iterativa (simulaciones en bucle hasta plan viable), multi-granularidad (anual → mensual → diario → hora a hora). Exportable a Google Calendar, GPT Builder, Gemini Gem, OpenClaw.
 
 **Decisiones clave**:
-- **Aplicación standalone**: sin depender de ningún IDE agentico (Claude Code, Codex, Antigravity)
-- **Arquitectura browser-first**: el contrato principal del producto es el renderer web consumiendo un backend HTTP local compartido. Electron queda como wrapper de escritorio para capacidades nativas (safeStorage, dialogs, empaquetado, tray, etc.).
+- **Web app deployable en Vercel**: Next.js 15 con App Router, React Server Components, y API Routes serverless. Sin dependencias nativas ni binarios C++.
+- **Migración desde Electron**: el proyecto originalmente era una app Electron desktop. Se migra a Next.js para distribución web universal sin instalación.
+- **PostgreSQL cloud** (Neon o Supabase) reemplaza a better-sqlite3. Drizzle ORM se mantiene — solo cambia el driver.
 - Skills son **módulos TypeScript** con prompt templates internos, no archivos .md
 - **Diseño Absoluto 0% Jerga ("Abuela-Proof")**: UI en lenguaje empático, ocultando todo término técnico (APIs, tokens, .ics, LLM). Las llaves de API y config complejas van ocultas o se gestionan por un usuario administrador (hijo/mentor).
 - Todo en lenguaje llano localizado vía `t()` (no "Q1" → `t('time.q1')` → "enero-marzo" / "Jan-Mar" según locale). Cero strings hardcodeadas en código fuente.
-- LLM local opcional (Ollama) con degradación graceful
-- Solo Node.js como dependencia del sistema (+ instalador .exe para no-técnicos)
+- LLM local opcional (Ollama remoto accesible por URL) con degradación graceful
+- **Cero instalación**: el usuario accede desde cualquier navegador. No requiere Node.js local ni instaladores.
 - Modo Rápido disponible (Cero preguntas técnicas, directo al plan tipo rutina)
 - Soporte multi-persona (familias/parejas) con intake separado por participante
 - **Token-conscious**: toda operación estima costo antes de ejecutar
-- **Offline-first** para usuarios con Ollama local
-- **Escalable**: la app puede crecer sin limitaciones de ventana de contexto de un IDE
+- **Escalable**: Vercel escala automáticamente funciones serverless y edge
+- **Pagos Lightning via NWC**: se mantiene el soporte cripto-nativo vía @getalby/sdk
 
-**Entorno**: Proyecto en `F:\proyectos\planificador-vida`. Windows 11, 3080 Ti 12GB VRAM. **Modo de desarrollo por defecto**: web browser-first via Vite (`npm run dev`). **Shell de escritorio**: Electron (`npm run dev:electron`). **Target de Build**: Windows + macOS (via `electron-builder` con runners CI separados por OS — **cross-compilation es imposible** para módulos nativos C++). macOS sigue siendo obligatorio para distribución desktop.
+**Entorno de desarrollo**: Proyecto en `F:\proyectos\planificador-vida`. Windows 11, 3080 Ti 12GB VRAM. **Modo de desarrollo**: `npm run dev` levanta Next.js dev server con Turbopack. **Target de Deploy**: Vercel (producción) + preview deploys por branch/PR. **Base de datos**: PostgreSQL en Neon (serverless) o Supabase.
 
-## Actualizacion Arquitectonica (2026-03-19)
+## Migración a Next.js + Vercel (2026-03-20)
 
-- El renderer web es ahora la superficie principal del producto y del desarrollo diario.
-- `npm run dev` levanta el modo browser-first; `npm run dev:electron` queda para validar la shell desktop.
-- El backend local reutilizable vive fuera de `main` y debe pensarse como capa compartida entre web y Electron.
-- Las capacidades exclusivas de escritorio (safeStorage, file dialogs, tray, empaquetado, code signing) son adaptadores secundarios, no el contrato base de la app.
-- Toda decision nueva de arquitectura debe preservar esta direccion: primero web, despues shell desktop.
+- **Electron se elimina por completo**. No hay shell desktop, no hay IPC, no hay `src/main/`, no hay `src/preload/`.
+- La app es una **web app Next.js 15** con App Router desplegada en **Vercel**.
+- **`better-sqlite3` se reemplaza por PostgreSQL** (Neon serverless o Supabase). Drizzle ORM se mantiene, solo cambia el driver a `drizzle-orm/neon-http` o `drizzle-orm/postgres-js`.
+- **`electron.safeStorage` se reemplaza** por variables de entorno encriptadas en Vercel (`OPENAI_API_KEY` como env var del servidor) + opcionalmente encriptación per-user en la DB.
+- **IPC channels se convierten en Next.js API Routes** (`app/api/`) o Server Actions.
+- **SSE/streaming** para plan:build:progress y similares se implementa con Next.js Route Handlers streaming (`ReadableStream`).
+- **El frontend React se mantiene** casi intacto — los componentes migran de `src/renderer/src/` a `app/` y `components/`.
+- **Vercel AI SDK** tiene integración nativa con Next.js (mejor que con Electron). `useChat`, `useCompletion`, `streamText` funcionan out-of-the-box.
+- **Ollama**: sigue soportado si el usuario provee una URL de Ollama accesible (localhost para desarrollo, o un servidor remoto).
+- Toda decision nueva de arquitectura debe preservar esta direccion: **web deployable en Vercel, sin dependencias nativas**.
 
 ## Riesgos Reales de Ejecucion con IDEs Agenticos y Correcciones al Plan
 
-- **Riesgo 1: plan viejo contra repo nuevo**. Un IDE agéntico arranca leyendo un backlog Electron-first aunque el repo ya corre browser-first. **Corrección**: antes de cualquier feature, sincronizar documentación, scripts y estado real del repo; no asumir que el backlog histórico sigue vigente.
+- **Riesgo 1: plan viejo contra repo nuevo**. Un IDE agéntico arranca leyendo un backlog Electron-first aunque el repo ahora es Next.js. **Corrección**: antes de cualquier feature, sincronizar documentación, scripts y estado real del repo; no asumir que el backlog histórico sigue vigente. **El proyecto ya NO es Electron.**
 - **Riesgo 2: pasos demasiado grandes para vibe coding**. Un bloque como "hacer streaks y UI y persistencia" deja al agente sin evidencia intermedia. **Corrección**: ejecutar solo unidades atómicas con una sola responsabilidad y criterio de finalización observable.
 - **Riesgo 3: feedback invisible durante tareas largas**. Si una feature no emite nada visible, el agente no sabe si rompió transporte, UI o backend. **Corrección**: cada unidad debe producir al menos un artefacto de feedback visible para humanos y agentes: test verde, endpoint, evento SSE, debug snapshot, badge de UI, archivo exportado o log verificable.
-- **Riesgo 4: HMR da falsos positivos**. Cambios en `src/server`, `src/main`, `src/preload`, contratos compartidos o transporte pueden parecer sanos bajo hot reload y fallar en una corrida limpia. **Corrección**: esos cambios exigen reinicio limpio y smoke check fuera de HMR.
+- **Riesgo 4: importar código Electron por inercia**. No debe existir ninguna referencia a `electron`, `ipcRenderer`, `ipcMain`, `contextBridge`, `safeStorage`, `BrowserWindow` ni `better-sqlite3` en el código. **Corrección**: grep periódico por estos términos; si aparecen, eliminar.
 - **Riesgo 5: mezcla confusa entre ruta real y mock**. Un agente puede creer que validó backend real cuando en realidad consumió fallback demo. **Corrección**: el plan debe exigir diferenciar explícitamente modo real, modo fallback y evidencia de cuál corrió.
-- **Riesgo 6: deriva entre browser y Electron**. Si una feature se prueba solo en una superficie, el contrato compartido se desalineará. **Corrección**: toda operación crítica debe tener una verificación de paridad de contrato entre web y shell desktop.
+- **Riesgo 6: serverless cold starts y timeouts**. Las funciones serverless de Vercel tienen límite de 10s (hobby) o 60s (pro). Operaciones LLM largas deben usar streaming o Vercel Functions con `maxDuration` extendido. **Corrección**: toda operación LLM debe implementar streaming response, no esperar respuesta completa.
 - **Riesgo 7: pérdida de contexto entre sesiones**. El IDE agéntico reinicia, pierde memoria local y repite trabajo. **Corrección**: persistir un plan de continuación atomizado y actualizar el estado después de cada unidad cerrada.
 - **Riesgo 8: progreso sin criterio de corte**. El agente sigue parchando sin saber cuándo detenerse. **Corrección**: ningún bloque puede cerrarse con "parece funcionar"; debe terminar con evidencia observable y un siguiente paso mínimo.
 
@@ -60,10 +66,10 @@ Documento operativo recomendado para esta etapa del repo: `continuacion-browser-
 2. **Timezones Estrictas**: Toda comparación o cálculo temporal debe usar explícitamente la `zonaHoraria` del `profile.json` (ej. vía `luxon` o `date-fns-tz`), NUNCA la zona local del sistema operativo donde corre el script.
 3. **Paths Saneados**: Todo nombre descriptivo (ej. "Plan Familiar 🚀") se convierte a slug alfanumérico (`plan-familiar`) para nombrar carpetas de plan.
 4. **Resiliencia API**: Todos los providers (OpenAI, Ollama) implementan Exponential Backoff + Jitter nativo y un **timeout absoluto de 60s (AbortSignal)**. Ante un `429 Too Many Requests`, se pausa y reintenta de forma transparente. Si Ollama muere localmente, se ofrece graceful fallback en vez de crashear. Si hay drop de red (ej. `ECONNRESET`), no se pierden borradores ingresados por el usuario (N3).
-5. **Persistencia y Concurrencia (Migración a SQLite)**: Para evadir deadlocks de file-systems y escaneos de antivirus en Windows, la memoria de estado y progreso abandona los JSONs planos con lockfiles rústicos. Se utiliza una base embebida SQLite (`better-sqlite3` + `drizzle-orm`) en WAL Mode. Esto provee Transacciones ACID nativas a velocidad extrema, resolviendo el acceso concurrente entre Node.js y React. El resguardo histórico sigue exportándose a Markdown/JSON, opcionalmente cifrado (`aes-256-gcm`).
+5. **Persistencia Cloud (PostgreSQL serverless)**: La base de datos es **PostgreSQL** hospedada en **Neon** (serverless) o **Supabase**. Se usa `drizzle-orm` con driver `neon-http` o `postgres-js`. Provee transacciones ACID, concurrencia real sin limitaciones de un solo escritor, y escala automática. El resguardo histórico sigue exportándose a Markdown/JSON, opcionalmente cifrado (`aes-256-gcm`). **Nota migración**: el schema Drizzle se mantiene casi idéntico al de SQLite — los tipos cambian de `integer`→`serial`/`integer`, `text`→`text`, y se agrega `uuid` para primary keys donde corresponda.
 6. **Privacidad Absoluta y Modo "Air-Gapped" (Soberanía)**: La aplicación incluye un *Sovereign Toggle*. Al activarse para usar tu red local con Ollama, el backend implementa un **DNS Interceptor** interno a nivel de Node.js. Esto bloquea silenciosamente cualquier `fetch` o telemetría indirecta de dependencias de terceros (como updates automáticos) a nivel OS, restringiendo la resolución de nombres de dominio exclusivamente a `127.0.0.1` y la red `.local`, garantizando que jamás salga un byte de tu vida privada a Internet.
 7. **Cero Ejecución de OS (H1)**: El runtime purgado NO asiste herramientas tipo `bash` ni `sandbox`. El LLM está estrictamente limitado a interfaces de read/write de JSON, imposibilitando un RCE (Remote Code Execution) por Prompt Injection en caso de ingestar texto calendario malicioso. 
-8. **Seguridad y Privacidad Estricta**: Las API Keys locales NUNCA se guardan en JSON plano; se usa `electron.safeStorage.encryptString()` / `decryptString()` (API nativa de Electron que usa el keychain del OS: DPAPI en Windows, Keychain en macOS, libsecret en Linux). **Nota**: `keytar` fue deprecado/archivado; `safeStorage` es la alternativa oficial mantenida por Electron, elimina una dependencia nativa problemática. Se implementa `pii-redactor.ts` para ofuscar DNI/SSN/Tarjetas localmente antes de pasarlos a modelos de OpenAI. Adicional: Los tool-executors aplican **Jailbreak de Rutas Estricto (Path Traversal LFI - H2)**: no se permite acceso a rutas `../` o fuera de la carpeta designada del Plan.
+8. **Seguridad y Privacidad Estricta**: Las API Keys del servidor se guardan como **variables de entorno encriptadas en Vercel** (nunca en código ni en la DB). Para API keys per-user (cuando el usuario provee su propia key), se encriptan con `aes-256-gcm` usando una clave derivada del server-side secret antes de persistir en PostgreSQL. Se implementa `pii-redactor.ts` para ofuscar DNI/SSN/Tarjetas antes de pasarlos a modelos de OpenAI. Adicional: Los tool-executors aplican **Jailbreak de Rutas Estricto (Path Traversal LFI - H2)**: no se permite acceso a rutas fuera del scope autorizado.
 9. **UI Local Blindada (H3/H5)**: El `server.ts` de Express (Paso 47) usa Tokens Efímeros (OTP en URl `?token=...`) y CORS restringido a `localhost` para anular ataques Request Forgery desde el browser (CSRF/SSRF). Al autorizar en OAuth (Paso 25), el local listener se monta en `port:0` dinámico y se cierra de inmediato post-callback para que malware no pueda robarlo.
 10. **Ataques Extremos a Servidor/NPM (E1-E5)**: El servidor Express valida el header `Host` contra DNS Rebinding. El Provider rechaza SSRF hacia IPs privadas (AWS Meta, localhost ajeno). Las configs evitan Prototype Pollution forzando Zod `.strict()` y la validación de contraseñas locales usa `crypto.timingSafeEqual()`. Instalación base usa `npm ci` en pasos CI, con `npx @electron/rebuild -f -w better-sqlite3` como paso explícito post-install para compilar módulos nativos contra los headers de Electron. Los `.node` nativos compilados se empaquetan dentro del asar (`asarUnpack: ['**/*.node']`) así el usuario final **nunca** necesita tener compiladores C++ instalados.
 11. **Side-Channels & Persistencia Local (D1-D5)**: El Daemon (`tray-service`) exige Auth IPC en socket local (`chmod 600`). Las interfaces usan CSP y sanitización (TUI bloquea ANSI Spoofing, Web UI bloquea DOM/Markdown XSS vía DOMPurify). La compresión/caché de contexto forzará `SHA-256` erradicando Hash Collisions, y el Redactor PII aplicará timeouts (<50ms) contra Regex DoS locales.
@@ -81,19 +87,22 @@ Documento operativo recomendado para esta etapa del repo: `continuacion-browser-
     - **Aislamiento de Datos (Multi-Tenancy)**: Implementación estricta de *Row-Level Security* en DrizzleORM. Cada tabla requiere un `tenant_id` (user UUID). Las *queries* no pueden compilarse sin pasar el Context autenticado que inyecta automáticamente la cláusula `WHERE tenant_id = ?`, evadiendo fugas de datos entre los miles de usuarios.
     - **Protección de Tráfico (Rate Limiting)**: Middlewares tRPC interconectables con *Redis*. Aplica protección contra ataques DDOS y un sistema de control de cuotas para el Vercel AI SDK. Si un cliente supera las `n` simulación/hora, frena la petición con un `429 Too Many Requests` protegiendo la facturación general de API del servidor.
     - **Frontend Desacoplado**: El modo servidor solo expone HTTP/WebSockets. El Frontend de React puede montarse en Vercel/Netlify consumiendo esta misma API centralizada.
-16. **Ingeniería del Caos y Resiliencia (Q1-Q5)**: La aplicación asume que el host es un entorno hostil (corte de luz, falla de wifi).
-    - **Corrupción Subatómica**: El backend SQLite ejecuta un chequeo de integridad (`PRAGMA integrity_check`) en bootup. Si detecta corrupción a nivel bit o cierres abruptos, restaura automáticamente desde el WAL o desde el último snapshot sano (`.sqlite.bak`).
-    - **Backup Pre-Migración Automático**: Antes de ejecutar CUALQUIER migración de schema (`drizzle-kit migrate`), el `migrator.ts` crea una copia exacta del `.sqlite` en `database.pre-v{N}.sqlite.bak`. Si la migración falla o el usuario revierte a una versión anterior, se restaura automáticamente el backup. Las migraciones destructivas (`DROP COLUMN`, `ALTER TYPE`) requieren que el backup exista; si no, la migración **aborta**. Esto protege contra pérdida de datos en rollbacks de versión.
-    - **Streaming Interruptus (Pérdida de Red)**: Si internet muere *a mitad* de una respuesta del LLM, el `agent-runtime` captura el error de Socket (`ECONNRESET`) y descarta la transacción LLM en curso abortando un posible *State Poisoning*. Salva un borrador local ("Conexión perdida...").
-    - **Inversion de Control (IoC) y Testability**: Todos los conectores AI y DB se inyectan como dependencias (Dependency Injection), habilitando el uso intensivo de **MSW (Mock Service Worker)** para tests. Así garantizamos que la app sobreviva a un `503 Service Unavailable`, a un `429 Too Many Requests` o a respuestas truncadas, degradando gracefully al modelo local de Ollama.
-    - **Zombie Process Buster**: Si la UI crashea dejando transacciones LLM "colgadas", el `migrator.ts` aplica un "Stale Lock Buster" al iniciar, limpiando operaciones de simulación atascadas en la DB Manifest mediante timestamps oxidados (>5 min).
-17. **Performance Extrema y Alta Concurrencia (Anti-Bottenecks)**: Resoluciones arquitectónicas ante 1000 usuarios hiperactivos.
-    - **Cuello de Botella CPU/DB (SQLite Deadlocks)**: SQLite WAL soporta lecturas concurrentes pero *un solo escritor*. Un commit simultáneo de 1000 usuarios bloquea sincrónicamente el Event Loop principal de Node.js denegando el servicio. *Parche:* Aislamiento de escrituras a través de una cola en memoria (**BullMQ / Redis**). Las actualizaciones de Vercel AI SDK no tocan la DB en el Main Thread directamente; se empujan a un `commit-queue` gestionado por un Worker dedicado. Para escalar masivamente en modo SaaS, Drizzle permuta transparente a **PostgreSQL**.
-    - **Cuello de Botella RAM (Socket Exhaustion)**: 1000 conexiones abiertas SSE al cliente + 1000 conexiones TLS concurrentes hacia OpenAI consumirán la RAM por overhead de sockets. *Parche:* Configuración nativa del Agente HTTP de Node con `keepAlive: true`, multiplexión HTTP/2 y pool limits (`maxSockets: 500`). Para este estrés, la app usa `PM2 Cluster Mode` dividiendo la carga SSE en múltiples núcleos.
+16. **Ingeniería del Caos y Resiliencia (Q1-Q5)**: La aplicación asume que la red es un entorno hostil.
+    - **PostgreSQL managed**: Neon/Supabase manejan backups automáticos, point-in-time recovery, y replicación. No hay riesgo de corrupción local.
+    - **Migraciones seguras**: Drizzle Kit genera migraciones SQL revisables. Las migraciones destructivas se ejecutan con precaución y backups automáticos del servicio cloud.
+    - **Streaming Interruptus (Pérdida de Red)**: Si internet muere *a mitad* de una respuesta del LLM, el `agent-runtime` captura el error y descarta la transacción LLM en curso abortando un posible *State Poisoning*. El cliente muestra estado de reconexión.
+    - **Inversion de Control (IoC) y Testability**: Todos los conectores AI y DB se inyectan como dependencias (Dependency Injection), habilitando el uso intensivo de **MSW (Mock Service Worker)** para tests.
+    - **Stale Operations Cleanup**: Un Vercel Cron Job periódico limpia operaciones atascadas en la DB mediante timestamps oxidados (>5 min).
+17. **Performance y Concurrencia (Vercel Serverless)**: Resoluciones arquitectónicas para escala web.
+    - **PostgreSQL serverless**: Neon soporta miles de conexiones concurrentes con connection pooling automático. No hay limitación de "un solo escritor" como SQLite. Drizzle ORM maneja transacciones ACID de forma transparente.
+    - **Funciones serverless de Vercel**: Cada request se ejecuta en su propia instancia aislada. No hay Event Loop compartido ni riesgo de bloqueo. Vercel escala automáticamente funciones por demanda.
+    - **Streaming LLM**: Las respuestas de OpenAI se streamean directamente al cliente via Route Handlers con `ReadableStream`. No se acumula la respuesta completa en memoria del servidor.
+    - **Edge Functions** (futuro): Para operaciones que no requieren Node.js runtime completo, se pueden usar Edge Functions de Vercel para latencia global <50ms.
 
-18. **Intranet Seamless y Descubrimiento (mDNS/Bonjour)**: Para que el usuario pueda interactuar con el plan desde su celular en casa sin tocar su PC, el servidor implementa *Multicast DNS (mDNS)*.
-    - **Cero IPs Fijas**: El celular del usuario no requiere conocer la IP dinámica privada de la PC (ej: `192.168.1.15`). Accede directamente escribiendo `http://lap-system.local` en el navegador del celular.
-    - **Resolución de Windows Firewall**: El empaquetador del instalador (`electron-builder.ts` / INNO Setup) se encargará de inyectar automáticamente una regla de entrada (*Inbound Rule*) en el Windows Defender Firewall para los puertos designados de LAP y el protocolo UDP 5353 (mDNS), evitando conflictos de bloqueos.
+18. **Acceso Universal (Web + PWA)**: Al ser una web app en Vercel, el usuario accede desde cualquier dispositivo con un navegador — PC, celular, tablet — sin instalar nada ni configurar firewalls.
+    - **PWA (futuro)**: Progressive Web App manifest para instalación "app-like" en mobile y desktop.
+    - **Responsive**: Mobile-first CSS, funcional en cualquier tamaño de pantalla.
+    - **Offline capability (futuro)**: Service Worker para cacheo de assets y funcionalidad básica sin conexión (lectura de plan y check-in local que sincroniza al reconectar).
 19. **SaaS Micro-Monetizado Cripto-Nativo (Lightning Network ⚡)**: Compatibilidad plena con La Crypta Hackathon (FOUNDATIONS - Marzo 2026).
     - **Streaming Payments for Streaming Tokens (Architecture-Agnostic)**: En modo Servidor Público, el Rate Limiter (Punto 15) está integrado con un sistema de pagos cripto-nativo. Se implementa el patrón **Provider** (`payment-provider.ts`) para desacoplar la lógica de pagos de la infraestructura.
     - **Nostr Wallet Connect (NWC) vía SDK**: Por defecto, la app NO requiere correr un nodo propio de Lightning, mitigando costos y dolores de cabeza devops. Implementa el `NwcPaymentProvider` usando `@getalby/sdk`. Si el usuario conecta su wallet a través de un contrato NWC, el `token-tracker.ts` calculará el costo exacto e invocará `client.payInvoice` en tiempo real, inaugurando el Verdadero *Pay-Per-Token* descentralizado.
@@ -133,115 +142,136 @@ Documento operativo recomendado para esta etapa del repo: `continuacion-browser-
 
 ## Arquitectura General
 
-> Nota de vigencia: este documento mezcla vision de largo plazo con partes historicas del prototipo. Para el repo actual, la lectura correcta es: `src/renderer` y el cliente compartido son browser-first; `src/server` concentra el backend local reutilizable; `src/main` y `src/preload` existen para la shell Electron y capacidades nativas.
+> **Arquitectura Next.js 15 (App Router) + Vercel.** El proyecto usa React Server Components para páginas, API Route Handlers para endpoints, y Server Actions para mutaciones simples. La lógica de negocio (skills, runtime, providers) vive en `src/lib/` como módulos server-only. La DB es PostgreSQL cloud vía Drizzle ORM.
 
 ```text
-F:\proyectos\calendario\
+F:\proyectos\planificador-vida\
 ├── .gitignore
 ├── package.json
+├── next.config.ts                     # Next.js 15 config (Turbopack, env vars)
 ├── tsconfig.json
+├── drizzle.config.ts                  # Drizzle → PostgreSQL (Neon/Supabase)
+├── vercel.json                        # Config de deploy (optional, functions maxDuration)
+├── .env.local                         # Variables de entorno locales (NUNCA en git)
+├── app/                               # Next.js App Router
+│   ├── layout.tsx                     # Root layout (providers, i18n, fonts)
+│   ├── page.tsx                       # Landing / Dashboard
+│   ├── intake/
+│   │   └── page.tsx                   # Intake Express (5 preguntas)
+│   ├── plan/
+│   │   ├── page.tsx                   # Vista del plan
+│   │   └── [planId]/page.tsx          # Plan específico
+│   ├── settings/
+│   │   └── page.tsx                   # Configuración (API key, wallet, etc.)
+│   ├── api/                           # API Route Handlers (serverless)
+│   │   ├── intake/route.ts            # POST: guardar perfil
+│   │   ├── plan/
+│   │   │   ├── build/route.ts         # POST: generar plan vía LLM (streaming)
+│   │   │   ├── list/route.ts          # GET: listar planes del perfil
+│   │   │   ├── simulate/route.ts      # POST: simular plan (streaming)
+│   │   │   └── export-ics/route.ts    # POST: exportar .ics
+│   │   ├── profile/
+│   │   │   ├── route.ts               # GET: obtener perfil
+│   │   │   └── latest/route.ts        # GET: último perfil
+│   │   ├── progress/
+│   │   │   ├── list/route.ts          # GET: tareas por fecha
+│   │   │   └── toggle/route.ts        # POST: toggle completado
+│   │   ├── streak/route.ts            # GET: rachas
+│   │   ├── wallet/
+│   │   │   ├── status/route.ts        # GET: estado wallet
+│   │   │   ├── connect/route.ts       # POST: conectar NWC
+│   │   │   └── disconnect/route.ts    # POST: desconectar
+│   │   ├── cost/route.ts              # GET: resumen costos
+│   │   └── debug/
+│   │       ├── route.ts               # GET/POST: enable/disable/status
+│   │       └── snapshot/route.ts      # GET: snapshot trazas
+│   └── globals.css                    # Estilos globales
+├── components/                        # Componentes React client-side
+│   ├── Dashboard.tsx
+│   ├── IntakeExpress.tsx
+│   ├── debug/
+│   │   └── DebugTokenStream.tsx
+│   └── ui/                            # Componentes UI reutilizables
 ├── src/
-│   ├── index.ts                       # Entry point CLI: `npx lap`
-│   ├── i18n/                              # Internacionalización
-│   │   ├── index.ts                       # t(), initI18n(), getCurrentLocale()
-│   │   ├── types.ts                       # TranslationKey (type-safe), LocaleConfig
-│   │   ├── locale-detector.ts             # Detection chain: config → profile → OS → fallback
-│   │   ├── token-multiplier.ts            # Locale → factor de costo de tokens (EN=1.0, ES=1.22, JA=1.70)
+│   ├── lib/                           # Lógica server-only
+│   │   ├── db/
+│   │   │   ├── connection.ts          # Drizzle + Neon/postgres-js init
+│   │   │   ├── schema.ts             # Drizzle table definitions (PostgreSQL)
+│   │   │   └── db-helpers.ts          # CRUD helpers
+│   │   ├── skills/                    # Skills como módulos TS
+│   │   │   ├── skill-interface.ts
+│   │   │   ├── plan-master.ts
+│   │   │   ├── plan-intake.ts
+│   │   │   ├── plan-builder.ts
+│   │   │   ├── plan-simulator.ts
+│   │   │   ├── plan-refiner.ts
+│   │   │   ├── plan-contingency.ts
+│   │   │   ├── plan-modifier.ts
+│   │   │   ├── plan-assistant.ts
+│   │   │   ├── plan-exporter.ts
+│   │   │   └── plan-visualizer.ts
+│   │   ├── runtime/
+│   │   │   ├── agent-runtime.ts       # Loop principal: skill → prompt → LLM → tools → repeat
+│   │   │   ├── types.ts              # ToolCall, ToolResult, LLMMessage, SkillContext
+│   │   │   ├── context-manager.ts
+│   │   │   ├── migrator.ts
+│   │   │   ├── pii-redactor.ts
+│   │   │   └── tool-executor.ts
+│   │   ├── providers/
+│   │   │   ├── provider-factory.ts    # getProvider("openai:gpt-4o") usando @ai-sdk
+│   │   │   ├── system-prompts.ts
+│   │   │   └── tools-registry.ts
+│   │   ├── auth/
+│   │   │   ├── auth-manager.ts
+│   │   │   ├── api-key-auth.ts        # OPENAI_API_KEY desde env o per-user encrypted en DB
+│   │   │   └── oauth-flow.ts          # OAuth 2.0 PKCE para OpenAI/ChatGPT
+│   │   ├── payments/
+│   │   │   ├── payment-manager.ts
+│   │   │   ├── payment-provider.ts
+│   │   │   ├── nwc-provider.ts        # @getalby/sdk NWC
+│   │   │   └── lnd-provider.ts        # (Futuro)
+│   │   └── utils/
+│   │       ├── calendar-parser.ts
+│   │       ├── ics-generator.ts
+│   │       ├── ics-validator.ts
+│   │       ├── plan-validator.ts
+│   │       ├── plan-summarizer.ts     # 3 modos: extractivo, híbrido, full-LLM
+│   │       ├── context-compressor.ts
+│   │       ├── error-formatter.ts
+│   │       ├── token-tracker.ts       # Incluye multiplicador de costo por locale
+│   │       ├── mermaid-generator.ts
+│   │       ├── path-slugifier.ts      # Unicode-safe slugs
+│   │       └── mensajes-error.ts      # errorMap Zod delegado a i18n/t()
+│   ├── i18n/
+│   │   ├── index.ts                   # t(), initI18n(), getCurrentLocale()
+│   │   ├── types.ts
+│   │   ├── locale-detector.ts
+│   │   ├── token-multiplier.ts
 │   │   └── locales/
-│   │       ├── es-AR.json                 # Español rioplatense (default) — voseo
-│   │       ├── es-ES.json                 # Español peninsular (futuro)
-│   │       ├── en-US.json                 # English (futuro)
-│   │       └── _schema.json               # JSON Schema para validar completitud de traducciones
-│   ├── schemas/
-│   │   ├── rutina-base.ts
-│   │   ├── perfil.ts
-│   │   ├── manifiesto.ts
-│   │   ├── progreso.ts
-│   │   ├── arbol-decisiones.ts
-│   │   ├── reporte-simulacion.ts
-│   │   ├── banderas-propagacion.ts
-│   │   ├── calendario-parseado.ts
-│   │   └── tarea-slot.ts
-│   ├── skills/                            # Skills como módulos TS invocados por Main
-│   │   ├── skill-interface.ts             # Interface Skill { name, tier, getSystemPrompt(), run() }
-│   │   ├── plan-master.ts                 # Orquestador principal
-│   │   ├── plan-intake.ts                 # Entrevista + perfil SQLite
-│   │   ├── plan-builder.ts                # Genera plan
-│   │   ├── plan-simulator.ts              # Motor de simulación
-│   │   ├── plan-refiner.ts                # Refinamiento bidireccional
-│   │   ├── plan-contingency.ts            # Imprevistos
-│   │   ├── plan-modifier.ts               # Modificación dinámica
-│   │   ├── plan-assistant.ts              # Asistente diario
-│   │   ├── plan-exporter.ts               # Exportación
-│   │   └── plan-visualizer.ts             # Mermaid
-│   ├── runtime/
-│   │   ├── agent-runtime.ts           # Loop principal: skill → prompt → LLM → tools → repeat
-│   │   ├── types.ts                   # ToolCall, ToolResult, LLMMessage, SkillContext
-│   │   ├── context-manager.ts         # Compresión de historial cada 10 turnos
-│   │   ├── migrator.ts                # (M6) Migraciones de schema versiones viejas a nuevas
-│   │   ├── pii-redactor.ts            # (N2) Ofuscado regex de datos sensibles pre-LLM
-│   │   └── tool-executor.ts           # Ejecuta ask_user, escribir_db, leer_db, search_web_native (sin bash)
-│   ├── providers/
-│   │   ├── provider-factory.ts        # getProvider("openai:gpt-4o") usando @ai-sdk (Múltiples APIs)
-│   │   ├── system-prompts.ts          # Centraliza los `.getSystemPrompt()` de cada Skill
-│   │   └── tools-registry.ts          # Registra utilidades estandarizadas como tools{} de ai-sdk
-│   ├── auth/
-│   │   ├── auth-manager.ts            # Decide método de auth
-│   │   ├── api-key-auth.ts            # OPENAI_API_KEY desde .env o prompt
-│   │   ├── oauth-flow.ts              # OAuth 2.0 PKCE para OpenAI/ChatGPT
-│   │   └── token-store.ts             # Guarda credenciales seguro (usa electron.safeStorage)
-│   ├── payments/                      # Lógica de cobros Lightning y Arquitectura Desacoplada
-│   │   ├── payment-manager.ts         # Orquestador: decide qué provider usar
-│   │   ├── payment-provider.ts        # Interface PaymentProvider { payInvoice(), createInvoice(), checkBalance() }
-│   │   ├── nwc-provider.ts            # Implementación Serverless usando @getalby/sdk -> NWC
-│   │   └── lnd-provider.ts            # (Futuro) Conexión a nodo CoreLightning/LND vía gRPC
-│   ├── utils/                  # Utilidades
-│   │   ├── calendar-parser.ts
-│   │   ├── ics-generator.ts
-│   │   ├── ics-validator.ts
-│   │   ├── plan-validator.ts
-│   │   ├── plan-summarizer.ts         # 3 modos: extractivo, híbrido, full-LLM
-│   │   ├── context-compressor.ts
-│   │   ├── error-formatter.ts
-│   │   ├── token-tracker.ts           # Incluye multiplicador de costo por locale
-│   │   ├── mermaid-generator.ts
-│   │   ├── path-slugifier.ts          # Unicode-safe slugs con transliteración (CJK, cirílico, árabe)
-│   │   ├── mensajes-error.ts          # errorMap Zod delegado a i18n/t() — locale-aware
-│   │   └── db-helpers.ts              # Funciones genéricas CRUD (Drizzle)
-│   ├── ui/
-│   │   ├── App.tsx                    # React UI Shell (Punto de entrada Electron)
-│   │   ├── components/                # Componentes React (Timeline, Glassmorphism Chat)
-│   │   └── lib/                       # Utilidades UI (tRPC cliente, hooks)
-│   ├── api/
-│   │   ├── server.ts                  # Servidor Express/tRPC para modo Headless (--server)
-│   ├── notifications/
-│   │   ├── tray-service.ts            # System tray residente
-│   │   └── daily-reminder.ts
-│   ├── config/
-│   │   ├── lap-config.ts              # ~/.lap/config.json
-│   │   ├── model-selector.ts          # Skill → modelo recomendado
-│   │   └── budget-config.ts           # Tope de gasto configurable
-├── plans/
-│   └── <nombre-plan>/
-│       ├── database.sqlite            # Reemplaza profile/progreso/manifest JSONs
-│       ├── plan-general.md
-│       ├── anual/ ... mensual/ ... diario/ ... contingencia/ ...
-│       ├── exportaciones/
-│       └── historial/
-├── installer/
-│   └── build-installer.ts             # Genera .exe con electron-builder
+│   │       ├── es-AR.json             # Español rioplatense (default)
+│   │       ├── es-ES.json             # (futuro)
+│   │       └── en-US.json             # (futuro)
+│   ├── shared/                        # Código compartido client↔server
+│   │   ├── schemas/
+│   │   │   ├── perfil.ts
+│   │   │   ├── rutina-base.ts
+│   │   │   ├── manifiesto.ts
+│   │   │   ├── progreso.ts
+│   │   │   ├── arbol-decisiones.ts
+│   │   │   ├── reporte-simulacion.ts
+│   │   │   ├── banderas-propagacion.ts
+│   │   │   ├── calendario-parseado.ts
+│   │   │   └── tarea-slot.ts
+│   │   └── types/
+│   │       └── lap-api.ts             # Tipos compartidos de request/response
+│   └── config/
+│       ├── lap-config.ts              # Configuración de la app
+│       ├── model-selector.ts          # Skill → modelo recomendado
+│       └── budget-config.ts           # Tope de gasto configurable
+├── public/                            # Assets estáticos (favicons, OG images)
 ├── .github/
 │   └── workflows/
-│       └── build-release.yml          # CI/CD: test → build (Win+Mac separados) → publish GitHub Releases
-├── resources/
-│   ├── icon.ico                       # Ícono Windows
-│   ├── icon.icns                      # Ícono macOS
-│   ├── entitlements.mac.plist         # Permisos macOS (hardened runtime)
-│   └── scripts/
-│       └── notarize.js                # Script Apple Notarization post-sign
-├── electron-builder.yml               # Config de empaquetado: targets, publish, code signing, asarUnpack
-├── bin/
-│   └── lap.js                         # Shebang script para npx
+│       └── ci.yml                     # CI: test → typecheck → build (Vercel deploys automáticamente)
 └── tests/
     ├── fixtures/
     │   ├── perfil-simple.json
@@ -253,13 +283,15 @@ F:\proyectos\calendario\
     ├── schemas.test.ts
     ├── utils.test.ts
     ├── skills.test.ts
-    ├── i18n.test.ts               # Completitud de traducciones, no hardcoded strings, token multiplier
+    ├── i18n.test.ts
+    ├── api/                           # Tests de API Route Handlers
+    │   └── routes.test.ts
     ├── e2e/
-    │   └── flujo-completo.test.ts
-    └── qa-chaos/                  # Ingeniería del Caos y Resiliencia (MSW)
-        ├── msw-handlers.ts        # Mock Service Worker para simular 429s, 503s, Timeouts
-        ├── db-corruption.test.ts  # Pruebas de restauración WAL y volcados SQLite corruptos
-        └── streaming-drop.test.ts # Pruebas de pérdida de red a mitad de respuesta LLM
+    │   └── flujo-completo.test.ts     # Playwright o Cypress
+    └── qa-chaos/
+        ├── msw-handlers.ts            # Mock Service Worker
+        ├── db-resilience.test.ts      # Tests de resiliencia PostgreSQL
+        └── streaming-drop.test.ts     # Tests de pérdida de red a mitad de respuesta LLM
 ```
 
 ---
@@ -946,8 +978,8 @@ Ejecutado por el `plan-assistant` de manera silenciosa:
 
 ## Utilidades (`src/utils/`)
 
-**Dependencias**: `ai`, `@ai-sdk/openai`, `@ai-sdk/ollama`, `@trpc/server`, `@trpc/client`, `better-sqlite3`, `drizzle-orm`, `node-ical`, `ics`, `zod`, `uuid`, `framer-motion`, `cheerio`, `bonjour-service`, `@getalby/sdk`, `@getalby/lightning-tools`, `webln`, `electron-updater`. DevDeps: `tsx`, `typescript`, `@types/node`, `@types/better-sqlite3`, `vitest`, `drizzle-kit`, `@electron/rebuild`, `electron-builder`
-> **Nota**: `keytar` fue removido (deprecado). Se usa `electron.safeStorage` (API nativa de Electron, cero dependencias nativas extra).
+**Dependencias**: `next`, `react`, `react-dom`, `ai`, `@ai-sdk/openai`, `drizzle-orm`, `@neondatabase/serverless` (o `postgres`), `zod`, `luxon`, `framer-motion`, `@getalby/sdk`, `ics`. DevDeps: `typescript`, `@types/node`, `@types/react`, `@types/luxon`, `vitest`, `drizzle-kit`, `playwright`, `@testing-library/react`.
+> **Eliminados en la migración a Next.js**: `electron`, `electron-vite`, `electron-builder`, `better-sqlite3`, `@electron-toolkit/*`, `@electron/rebuild`, `bonjour-service`, `electron-updater`.
 
 | Utilidad | Función | Usa |
 |---|---|---|
@@ -1010,56 +1042,61 @@ Ejecutado por el `plan-assistant` de manera silenciosa:
 
 ---
 
-### Fase 0: "First Value" — Plan en 5 minutos
+### Fase 0: "Migración Next.js" — Scaffold y DB Cloud
 
-**0.1. Boilerplate y Base**:
-- `git init`, `.gitignore`.
-- Estructura: `src/{schemas,skills,runtime,providers,auth,utils,ui,i18n,config}`, `tests/`.
-- `npm create @quick-start/electron`.
-- Instalación de dependencias core: `ai @ai-sdk/openai @trpc/server @trpc/client @trpc/react-query electron-trpc @tanstack/react-query better-sqlite3 drizzle-orm drizzle-kit framer-motion clsx tailwind-merge lucide-react zod`.
+**0.1. Scaffold Next.js 15**:
+- `npx create-next-app@latest` con App Router, TypeScript, Turbopack.
+- Migrar estructura: `src/renderer/src/components/` → `components/`, `src/renderer/src/assets/` → `app/globals.css`.
+- Instalar dependencias: `ai @ai-sdk/openai drizzle-orm @neondatabase/serverless framer-motion zod luxon @getalby/sdk`.
+- DevDeps: `drizzle-kit vitest @testing-library/react playwright`.
+- **Eliminar**: `electron`, `electron-vite`, `electron-builder`, `better-sqlite3`, `@electron-toolkit/*`, `@electron/rebuild`.
 
-**0.2. Validación Tri-Platform (CRÍTICO)**:
-- Recompilar módulos nativos: `npx @electron/rebuild -f -w better-sqlite3`.
-- Configurar `electron.vite.config.ts` con `externalizeDepsPlugin()` para el main process evitando problemas de bundle en bindings de C++.
-- *Smoke test*: Verificar que `npm run dev` arranca sin crashear en Windows, macOS y Linux.
+**0.2. PostgreSQL + Drizzle Setup**:
+- Crear proyecto en **Neon** (free tier) o **Supabase**.
+- Migrar schema Drizzle de SQLite a PostgreSQL: `integer` → `serial`/`integer`, agregar `uuid` PKs, adaptar pragmas.
+- `drizzle.config.ts` apuntando a `DATABASE_URL` env var.
+- `npm run db:push` para crear tablas.
+- *Smoke test*: Verificar conexión desde API route de health check.
 
-**0.3. Dashboard "Hoy" (React Shell)**:
-- UI base (Spatial Computing / Full-Canvas layout fluido).
-- Componentes front-end para mostrar las 3 tareas accionables del día actual.
+**0.3. Migrar API — IPC a Route Handlers**:
+- Convertir cada IPC channel a un API Route Handler en `app/api/`.
+- Streaming responses para `plan:build` y `plan:simulate` usando `ReadableStream`.
+- Server Actions para mutaciones simples (toggle progress, save profile).
 
-**0.4. Database Core y Schemas**:
-- Creación de base de datos con `better-sqlite3` + `drizzle-orm` (archivo `db-helpers.ts`).
-- Conversión de base de perfil a Schemas Zod aplicando obligatoriamente `.strict()` (`perfil.ts`, `rutina-base.ts`, `manifiesto.ts`).
+**0.4. Migrar Frontend — React Components**:
+- Mover componentes de `src/renderer/src/` a `components/` y `app/`.
+- Reemplazar `window.api.*` y fetch a `src/server/` por fetch a `/api/*` o Server Actions.
+- Mantener `AppServicesProvider` adaptado a Next.js context.
+- Verificar que i18n, framer-motion, y CSS funcionen.
 
-**0.5. Intake Express**:
-- Interfaz en React para responder a 5 preguntas rápidas conversacionales.
-- Reemplazo temporal del assessment holístico largo por un flow UX Abuela-Proof corto.
+**0.5. Auth y API Keys (sin safeStorage)**:
+- API key del servidor: variable de entorno `OPENAI_API_KEY` en Vercel.
+- API key per-user: formulario en `/settings` → encriptada con `aes-256-gcm` → guardada en tabla `user_settings` de PostgreSQL.
+- Reemplazar toda referencia a `electron.safeStorage`.
 
-**0.6. Provider LLM Base**:
-- Aislación de `src/providers/openai-provider.ts` básico invocando `createOpenAI()` del Vercel `ai` SDK.
-- API Key via `.env` temporal.
-
-**0.7. Plan Builder Core**:
-- Skill inicial que toma la data del Intake Express, aplica el LLM, extrae una matriz de eventos a 1 mes e inserta directamente en SQLite.
+**0.6. Vercel Deploy**:
+- `vercel.json` con `maxDuration` para funciones LLM.
+- Environment variables en Vercel dashboard.
+- *Smoke test*: Deploy preview funcional con intake → build → dashboard.
 
 ---
 
 ### Fase 1: "Daily Habit" — Core Loop de Retención
 
-**1.1. Check-in de Tareas (Desktop)**:
-- Wiring de los botones ✅/⏭️ rápidos en el Dashboard directo al endpoint tRPC.
-- Updates *Two-way bindings* en la base SQLite para las mutaciones diarias (Cero tokens LLM consumidos en loops diarios).
+**1.1. Check-in de Tareas (Web)**:
+- Botones de check-in en el Dashboard via Server Actions o fetch a `/api/progress/toggle`.
+- Mutaciones en PostgreSQL (cero tokens LLM consumidos en loops diarios).
 
 **1.2. Tracking de Hábitos y Rachas**:
 - Tracking visual numérico de días consecutivos completados.
-- Update persistente en esquema Drizzle de `progreso.ts`.
+- Queries PostgreSQL para rachas (días consecutivos con `completado = true`).
 
 **1.3. Micro-animaciones y Abuela-Proof (i18n)**:
-- Feedback dopamínico: efectos `framer-motion` (spring physics en check) y `use-sound`.
-- Implementación del sistema base de traducciones `src/i18n/index.ts` con llamada universal `t(key)`. Archivo maestro `es-AR.json` evitando la jerga técnica.
+- Feedback dopamínico: efectos `framer-motion` (spring physics en check).
+- Sistema de traducciones `src/i18n/index.ts` con llamada universal `t(key)`. Archivo maestro `es-AR.json`.
 
-**1.4. Exportación Física .ics**:
-- Invocador `src/utils/ics-generator.ts` y generador de eventos para Calendarios tradicionales (`node-ical`). Incrementa fidelidad de salida.
+**1.4. Exportación .ics**:
+- API route `/api/plan/export-ics` genera y retorna archivo `.ics` como download.
 
 ---
 
@@ -1081,81 +1118,85 @@ Ejecutado por el `plan-assistant` de manera silenciosa:
 
 ---
 
-### Fase 3: "Polish & Ship" — Demo y Entrega
+### Fase 3: "Polish & Ship" — Demo y Entrega en Vercel
 
-**3.1. Seguridad Mínima Aceptable**:
-- Reemplazo del store legacy utilizando `electron.safeStorage` para almacenamiento encriptado (.enc) en OS de credenciales API/NWC localmente.
+**3.1. Seguridad Web**:
+- CSP headers en `next.config.ts` (Content-Security-Policy).
+- Rate limiting en API routes (usando Vercel KV o middleware).
+- CORS configurado para dominio de producción.
+- API keys per-user encriptadas en PostgreSQL.
 
 **3.2. Tests Vitales**:
-- Archivos locales básicos Vitest (`schemas.test.ts`, validación de happy paths y `t()`).
+- Vitest para unit tests (schemas, utils, providers).
+- Playwright para E2E (intake → build → dashboard en browser real).
+- Tests de API routes con supertest o similar.
 
-**3.3. Build Multi-Platform (`electron-builder`)**:
-- Target generados desde `electron-builder.yml`:
-  ```yaml
-  win:
-    target: [nsis]
-  mac:
-    target: [dmg]
-    gatekeeperAssess: false
-    notarize: false # Warning esperado en macOS nativo = Click Derecho -> Abrir
-  linux:
-    target: [AppImage]
-  asarUnpack:
-    - "**/*.node" # Crítico, no empaquetar binarios C++
-    - "**/better-sqlite3/**" 
-  ```
+**3.3. Vercel Production Deploy**:
+- Dominio custom (si aplica).
+- Environment variables de producción en Vercel dashboard.
+- `vercel.json` con `maxDuration: 60` para funciones LLM (requiere plan Pro para >10s).
+- Preview deploys automáticos por PR.
 
-**3.4. Resumen Markdowns y Tray**:
-- System Tray nativo de SO recordando el checkin restante ("Ey, ¿qué onda tu día?").
-- `plan-exporter.ts`: Formato para compartir por WA/Telegram.
+**3.4. Notificaciones Web**:
+- Web Push Notifications (reemplazo del System Tray) para recordatorios de check-in.
+- Service Worker para notificaciones offline-capable.
+- `plan-exporter.ts`: Formato para compartir por WA/Telegram (link a plan público).
 
 **3.5. README & Demo**:
-- Grabación demostrando el build compilado del ciclo Lightning y la exportación de features.
+- URL pública de Vercel como demo live.
+- Grabación demostrando el ciclo completo: intake → plan → check-in → Lightning.
 
 ---
 
 ### Fases 4-6: Roadmap Post-Hackathon (Deferred Core)
 
-La matriz profunda de la planifición de producto e ingeniería masiva que trasciende el MVP táctico queda orquestada para las semanas subsiguientes:
-
 **Fase 4: Quick Wins y Maduración**:
-- OAuth PKCE sin secrets (`oauth-flow.ts`).
-- Notarización Oficial Apple ($99 Developer ID).
-- Telemetría de uso no intrusiva.
+- OAuth PKCE sin secrets (`oauth-flow.ts`) — NextAuth.js / Auth.js como alternativa.
+- Telemetría de uso no intrusiva (Vercel Analytics o PostHog).
 - Exportación para sistemas AI cerrados (GPT Builder, Gemini).
+- PWA manifest para instalación "app-like" desde el browser.
 
 **Fase 5: Extensión Compleja**:
 - Inteligencia Social (Multi-persona y planes coordinados de familias enteras).
-- Continencias a eventos adversos (`plan-contingency.ts`) integrados al modificador mayor.
+- Contingencias a eventos adversos (`plan-contingency.ts`) integrados al modificador mayor.
 - Tipping Widgets WebLN sociales.
-- Email triggers SMTP autónomos para accountability partner.
-- Crash dumps asimov criptográficos.
+- Email triggers vía Vercel Cron + Resend/Nodemailer para accountability partner.
 - Visualizadores de flujos Mermaid. Ingeniería del Caos.
 
 **Fase 6: Escala y Multi-Tenant (Globalización)**:
-- DNS Interceptor custom y mDNS localhost broadcast desde celulares a Desktop API `lap://`.
-- Cluster PM2 para SaaS real.
-- SaaS RLS (Row-Level Security inyectando `user_id` sobre cada payload Drizzle).
+- SaaS RLS (Row-Level Security inyectando `user_id` sobre cada query Drizzle).
+- Vercel Edge Functions para latencia global baja.
+- Auth.js con múltiples providers (Google, GitHub, NWC anónimo).
 - WebGPU models preload al browser zero-install.
 - Soporte calendarios alternativos Hijri y RTL-awareness nativo.
+- Vercel Cron Jobs para tareas periódicas (recordatorios, staleness checks).
 
 ---
 
-## Flujo de Autenticación Híbrido (Local & SaaS)
+## Flujo de Autenticación (Next.js + Vercel)
 
 ```text
-MODO LOCAL (Standalone / Privacidad Total):
-  1. La aplicación levanta Electron y un servidor local en localhost.
-  2. Autenticación efímera: OTP o Token CSRF en la URL que arranca Electron `?token=...` bloqueando accesos por navegadores locales maliciosos.
-  3. Uso directo de Providers: El usuario configura CADA Skill asociándolo a su LLM de preferencia en `provider-factory.ts`. Usa `keytar` OS nativo para el manejo de llaves.
+MODO PÚBLICO (Vercel Deploy):
+  1. El usuario accede desde cualquier navegador a la URL de Vercel.
+  2. Auth via Auth.js (NextAuth) con providers: Google, GitHub, email magic link,
+     o NWC String (Nostr Wallet Connect) para acceso anónimo cripto-nativo.
+  3. Session JWT almacenada en cookie httpOnly secure.
+  4. Middleware Next.js valida session en cada request a /api/* protegido.
+  5. `user_id` del JWT se inyecta en el contexto de Drizzle para RLS.
 
-MODO SAAS (Servidor Remoto, --server):
-  1. El usuario se loguea desde el cliente web mediante un Identity Provider externo (Ej. Kratos, Auth0, Supabase Auth) o directamente con un *NWC String* (Nostr Wallet Connect) para acceso anónimo pagado en la Lightning Network.
-  2. El servidor Node.js recibe un Bearer Token, valida la firma criptográfica (JWKS) en caché. Alternativamente, si usa NWC, valida que el presupuesto (sats) de Alby Wallet tenga fondos suficientes.
-  3. Se extrae el `user_id` (token.sub) del JWT y se inyecta en el contexto de tRPC.
-  4. Todo el código que llama a `Drizzle/SQLite` aplica implícitamente el `user_id` (Multi-Tenancy).
-  5. API Provider Central (Pay-Per-Token ⚡): El servidor descuenta tokens del presupuesto asignado al JWT o cobra Sats en vivo por cada bloque Stream de OpenAI usando la Lightning Network, eliminando la necesidad de tarjetas de crédito o costosas pasarelas Stripe.
-  6. Abstracción del Nodo: El servidor usa el `NwcPaymentProvider` enviando facturas a las conexiones Nostr pre-aprobadas, actuando como un puente entre la app y las hot-wallets remotas de los usuarios, sin ensuciar el ecosistema manteniendo cero custodia local. El día que el dev monte un LND, simplemente cambia en el archivo de entorno `PAYMENT_PROVIDER=lnd`.
+MODO BRING-YOUR-OWN-KEY (BYOK):
+  1. El usuario provee su propia API key de OpenAI en /settings.
+  2. La key se encripta con aes-256-gcm server-side usando SERVER_ENCRYPTION_KEY
+     (env var de Vercel, nunca expuesta al client).
+  3. Se persiste en la tabla `user_settings` de PostgreSQL.
+  4. En cada request LLM, el API route desencripta la key en el servidor
+     y la usa para llamar a OpenAI. La key nunca viaja al client.
+
+MODO LIGHTNING (Pay-Per-Token ⚡):
+  1. El usuario conecta su wallet via NWC string en /settings.
+  2. El NwcPaymentProvider cobra sats por operación LLM.
+  3. El presupuesto se valida antes de cada operación.
+  4. El día que el dev monte un LND, cambia PAYMENT_PROVIDER=lnd en env vars.
 ```
 
 ---
@@ -1163,52 +1204,54 @@ MODO SAAS (Servidor Remoto, --server):
 ## Agent Runtime (corazón de la app)
 
 ```
-LOOP PRINCIPAL (Multi-Provider con Vercel AI SDK):
-  1. Cargar contexto del Skill (`systemPrompt` y variables).
-  2. Usar `provider-factory.ts`: `const llm = getProvider(configStore.skillModels[skill.name])`
-  3. Enviar al LLM usando la función agnóstica `streamText()` o `generateText()` provista por `ai`.
-  4. Vercel AI SDK procesa la respuesta:
-     → Si ejecuta herramientas (`tools: { ... }`): `ask_user`, `escribir_db`, `leer_db`, `search_web_native`, etc.
-     → Ejecuta la herramienta (Tool Call) y realiza el loopback al LLM automáticamente (max steps definidos).
-     → Token-tracker embebido de AI SDK suma y estima costos globalmente para cualquier provider.
-     → Valida límites locales en db (Budget Cap).
-  5. Streaming de salida (`textStream`) fluye directamente hacia el UI (Event Streams o TRPC subscriptions).
-  6. "CHECKPOINT" → Al terminar una iteración, se grita un commit a la transacción en Drizzle/SQLite (historial/estado).
-  7. Cada 10 turnos de conversación continua: disparar compresión abstractiva en la DB minimizando historial activo.
-  8. Repetir hasta /salir.
+LOOP PRINCIPAL (Multi-Provider con Vercel AI SDK + Next.js):
+  1. API Route recibe request del cliente.
+  2. Cargar contexto del Skill (`systemPrompt` y variables) desde PostgreSQL.
+  3. Usar `provider-factory.ts`: `const llm = getProvider(configStore.skillModels[skill.name])`
+  4. Enviar al LLM usando `streamText()` o `generateText()` del Vercel AI SDK.
+     → Vercel AI SDK tiene integración nativa con Next.js Route Handlers.
+     → Si ejecuta herramientas (`tools: { ... }`): `escribir_db`, `leer_db`, etc.
+     → Token-tracker suma y estima costos para cualquier provider.
+     → Valida Budget Cap en PostgreSQL.
+  5. Streaming de salida fluye via Route Handler `ReadableStream` → cliente.
+     → En el cliente: `useChat()` o `useCompletion()` de Vercel AI SDK React hooks.
+  6. "CHECKPOINT" → Commit a PostgreSQL (historial/estado).
+  7. Cada 10 turnos: compresión extractiva del contexto.
+  8. Repetir hasta fin de sesión.
 
-QUALTY CHECK MULTI-PROVIDER (Modo Resiliencia):
-  Después de `n` callbacks vacíos en modo local, o errores "429 Too Many Requests" en un provider chico, invocar fallback graceful a otro LLM de reemplazo configurado por el usuario.
+RESILIENCIA MULTI-PROVIDER:
+  Tras errores "429 Too Many Requests" o timeouts, fallback graceful
+  a otro LLM configurado por el usuario (ej: OpenAI → Ollama remoto).
 
-OFFLINE-FIRST:
-  Validaciones, schemas, timestamps: todo local.
-  Conexión resiliente a apagones mediante WAL mode de SQLite.
-
-MODEL PRELOAD:
-  `lap --server` → inicialización Headless
-  WebGPU `web-llm` preload en background si falla internet.
+SERVERLESS CONSIDERATIONS:
+  - Cada request es stateless. El estado vive en PostgreSQL.
+  - Streaming responses evitan timeouts de funciones serverless.
+  - maxDuration en vercel.json para operaciones LLM largas.
 ```
 
 ---
 
 ### Fases futuras (fuera del scope actual)
 
-- **Mobile App Nativa**: React Native integrando la TRPC API local de la Mac.
-- **LLM local avanzado**: Clústers de Multi-GPU.
+- **Mobile App Nativa**: React Native consumiendo la misma API de Vercel.
+- **Desktop wrapper (opcional)**: Si se necesita distribución desktop, usar Tauri (no Electron) consumiendo la web app.
+- **LLM local avanzado**: WebGPU models en el browser, o Ollama remoto dedicado.
 
 ---
 
 ## Archivos Criticos (primera lectura)
 
-1. `src/schemas/*.ts` — Esquemas Zod
-2. `src/skills/plan-master.ts` — Router con flujo completo
-3. `src/skills/plan-simulator.ts` — Simulación con contexto aislado
-4. `src/skills/plan-refiner.ts` — Propagación bidireccional
-5. `src/skills/plan-modifier.ts` — 3 modos de modificación
-6. `src/runtime/agent-runtime.ts` — Loop principal
-7. `src/utils/plan-summarizer.ts` — 3 modos de resumen
-8. `src/utils/context-compressor.ts` — Compresión extractiva
-9. `src/auth/oauth-flow.ts` — PKCE para OpenAI
+1. `src/shared/schemas/*.ts` — Esquemas Zod
+2. `src/lib/skills/plan-master.ts` — Router con flujo completo
+3. `src/lib/skills/plan-simulator.ts` — Simulación con contexto aislado
+4. `src/lib/skills/plan-refiner.ts` — Propagación bidireccional
+5. `src/lib/skills/plan-modifier.ts` — 3 modos de modificación
+6. `src/lib/runtime/agent-runtime.ts` — Loop principal
+7. `src/lib/utils/plan-summarizer.ts` — 3 modos de resumen
+8. `src/lib/utils/context-compressor.ts` — Compresión extractiva
+9. `src/lib/auth/oauth-flow.ts` — PKCE para OpenAI / Auth.js
 10. `src/config/model-selector.ts` — Skill → modelo recomendado
+11. `app/api/plan/build/route.ts` — Endpoint principal de generación con streaming
+12. `src/lib/db/connection.ts` — Drizzle + PostgreSQL (Neon)
 
 
