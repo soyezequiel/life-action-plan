@@ -132,6 +132,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   const [refreshNonce, setRefreshNonce] = useState(0)
   const [profileId, setProfileId] = useState<string | null>(null)
   const [profileName, setProfileName] = useState('')
+  const [profileTimezone, setProfileTimezone] = useState('America/Argentina/Buenos_Aires')
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [tasks, setTasks] = useState<ProgressRow[]>([])
   const [streak, setStreak] = useState<StreakResult>({ current: 0, best: 0 })
@@ -160,6 +161,12 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   const latestPlan = hasPlan ? plans[plans.length - 1] : null
   const latestPlanMeta = latestPlan ? parseManifestMeta(latestPlan.manifest) : {}
   const latestSimulation = latestPlanMeta.ultimaSimulacion ?? null
+  const completedTaskCount = tasks.filter((task) => task.completado).length
+  const pendingTaskCount = Math.max(tasks.length - completedTaskCount, 0)
+  const todayLabel = DateTime.now()
+    .setZone(profileTimezone)
+    .setLocale(getCurrentLocale())
+    .toFormat('cccc d LLL')
   const latestBuildRouteLabel = latestPlan
     ? getBuildRouteLabel(latestPlanMeta.ultimoModeloUsado, latestPlanMeta.fallbackUsed)
     : ''
@@ -209,6 +216,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
 
         setProfileId(nextProfileId)
         setProfileName(parseProfileName(nextProfile))
+        setProfileTimezone(nextProfile?.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria || 'America/Argentina/Buenos_Aires')
 
         const nextPlans = await client.plan.list(nextProfileId)
         if (!active) {
@@ -610,7 +618,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
       : 0
 
     return (
-      <div className="dashboard-simulation">
+      <div className="dashboard-simulation" role="status" aria-live="polite" aria-atomic="true">
         <div className="dashboard-simulation__header">
           <div className="dashboard-simulation__heading">
             <span className="dashboard-simulation__label">{t('builder.progress_title')}</span>
@@ -691,7 +699,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
         </div>
 
         {isSimulating && (
-          <div className="dashboard-simulation__progress">
+          <div className="dashboard-simulation__progress" role="status" aria-live="polite" aria-atomic="true">
             <div className="dashboard-simulation__progress-bar" aria-hidden="true">
               <span
                 className={[
@@ -869,6 +877,16 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                       <p className="status-message status-message--success">{t('builder.fallback_notice')}</p>
                     )}
 
+                    <div className="dashboard-section-heading">
+                      <div className="dashboard-section-heading__copy">
+                        <span className="dashboard-section-heading__eyebrow">{todayLabel}</span>
+                        <h3 className="dashboard-section-heading__title">{t('dashboard.today_tasks')}</h3>
+                        <p className="dashboard-section-heading__meta">
+                          {t('dashboard.today_summary', { count: pendingTaskCount })}
+                        </p>
+                      </div>
+                    </div>
+
                     {tasks.length === 0 ? (
                       <p className="dashboard-copy">{t('dashboard.no_tasks_today')}</p>
                     ) : (
@@ -876,17 +894,17 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                         <p className="dashboard-progress" aria-live="polite" aria-atomic="true">
                           <AnimatePresence initial={false} mode="wait">
                             <motion.span
-                              key={`${tasks.filter((task) => task.completado).length}-${tasks.length}`}
+                              key={`${completedTaskCount}-${tasks.length}`}
                               className="dashboard-progress-value"
                               initial={{ opacity: 0, y: 10, scale: 0.98 }}
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               exit={{ opacity: 0, y: -10, scale: 0.98 }}
                               transition={viewTransition}
                             >
-                              {tasks.filter((task) => task.completado).length === tasks.length
+                              {completedTaskCount === tasks.length
                                 ? t('dashboard.all_done')
                                 : t('dashboard.done_count', {
-                                    done: tasks.filter((task) => task.completado).length,
+                                    done: completedTaskCount,
                                     total: tasks.length
                                   })}
                             </motion.span>
@@ -950,6 +968,16 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                     )}
 
                     <hr className="dashboard-divider" />
+                    <div className="dashboard-section-heading dashboard-section-heading--compact">
+                      <div className="dashboard-section-heading__copy">
+                        <h3 className="dashboard-section-heading__title">{t('dashboard.actions_title')}</h3>
+                        <p className="dashboard-section-heading__meta">
+                          {localAssistantAvailable
+                            ? t('dashboard.actions_hint_local')
+                            : t('builder.local_unavailable_deploy')}
+                        </p>
+                      </div>
+                    </div>
                     <div className="dashboard-actions">
                       <button
                         className="app-button app-button--secondary"

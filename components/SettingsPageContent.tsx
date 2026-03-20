@@ -43,7 +43,9 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const requestedProvider = searchParams.get('provider')
   const shouldBuild = intent === 'build'
   const localProviderBlocked = requestedProvider === 'ollama' && deploymentMode !== 'local'
+  const localBuildIntent = shouldBuild && requestedProvider === 'ollama' && !localProviderBlocked
   const requiresApiKey = requestedProvider !== 'ollama' || localProviderBlocked
+  const selectedProviderLabel = localBuildIntent ? t('builder.provider_local') : t('builder.provider_online')
 
   const [apiKey, setApiKey] = useState('')
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false)
@@ -244,43 +246,58 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
             </button>
           </div>
 
-          <h1 className="app-title">{t('settings.apikey_title')}</h1>
-          <p className="app-copy">{t('settings.apikey_hint')}</p>
-          {localProviderBlocked && (
-            <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
-          )}
-          <input
-            className="app-input"
-            type="password"
-            value={apiKey}
-            onChange={(event) => setApiKey(event.target.value)}
-            placeholder={t('settings.apikey_placeholder')}
-            autoFocus
-          />
+          <section className="settings-section">
+            <div className="settings-section__header">
+              <span className="app-status app-status--eyebrow">{t('dashboard.actions_title')}</span>
+              <h1 className="app-title">
+                {localBuildIntent ? t('settings.local_build_title') : t('settings.apikey_title')}
+              </h1>
+              <p className="app-copy">
+                {localBuildIntent ? t('settings.local_build_hint') : t('settings.apikey_hint')}
+              </p>
+              <p className="status-message status-message--neutral">
+                {t('settings.build_route_hint', { provider: selectedProviderLabel })}
+              </p>
+              {localProviderBlocked && (
+                <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
+              )}
+            </div>
 
-          <div className="app-actions">
-            <button
-              className="app-button app-button--primary"
-              onClick={() => {
-                void handleSaveApiKey()
-              }}
-              disabled={buildBusy || (requiresApiKey && !apiKey.trim() && !apiKeyConfigured)}
-            >
-              {buildBusy
-                ? t('builder.generating')
-                : shouldBuild
-                  ? t('settings.apikey_confirm')
-                  : t('ui.save')}
-            </button>
-            <button
-              className="app-button app-button--secondary"
-              onClick={() => {
-                router.push('/')
-              }}
-            >
-              {t('ui.close')}
-            </button>
-          </div>
+            {!localBuildIntent && (
+              <input
+                className="app-input"
+                type="password"
+                value={apiKey}
+                onChange={(event) => setApiKey(event.target.value)}
+                placeholder={t('settings.apikey_placeholder')}
+                autoFocus
+              />
+            )}
+
+            <div className="app-actions">
+              <button
+                className="app-button app-button--primary"
+                onClick={() => {
+                  void handleSaveApiKey()
+                }}
+                disabled={buildBusy || (requiresApiKey && !apiKey.trim() && !apiKeyConfigured)}
+              >
+                {buildBusy
+                  ? t('builder.generating')
+                  : shouldBuild
+                    ? t('settings.apikey_confirm')
+                    : t('ui.save')}
+              </button>
+              <button
+                className="app-button app-button--secondary"
+                onClick={() => {
+                  router.push('/')
+                }}
+              >
+                {t('ui.close')}
+              </button>
+            </div>
+          </section>
 
           {shouldBuild && (
             <section className="dashboard-simulation" style={{ marginTop: '1.25rem' }}>
@@ -290,9 +307,12 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                   <span className="dashboard-simulation__hint">
                     {t(`builder.progress_steps.${currentStage}`)}
                   </span>
+                  <span className="dashboard-simulation__hint">
+                    {t('builder.progress_provider', { provider: selectedProviderLabel })}
+                  </span>
                 </div>
               </div>
-              <div className="dashboard-simulation__progress">
+              <div className="dashboard-simulation__progress" role="status" aria-live="polite" aria-atomic="true">
                 <div className="dashboard-simulation__progress-bar" aria-hidden="true">
                   <span
                     className={[
@@ -311,61 +331,66 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                   {buildProgress?.chunk || t(`builder.progress_steps.${currentStage}`)}
                 </span>
               </div>
-              {buildDone && <p className="status-message status-message--success">{t('builder.done')}</p>}
-              {buildNotice && <p className="status-message status-message--success">{buildNotice}</p>}
-              {buildError && <p className="status-message status-message--warning">{buildError}</p>}
+              {buildDone && <p className="status-message status-message--success" role="status" aria-live="polite">{t('builder.done')}</p>}
+              {buildNotice && <p className="status-message status-message--success" role="status" aria-live="polite">{buildNotice}</p>}
+              {buildError && <p className="status-message status-message--warning" role="status" aria-live="polite">{buildError}</p>}
             </section>
           )}
 
           <hr className="dashboard-divider" />
 
-          <h2 className="app-title app-title--section">{t('settings.wallet_title')}</h2>
-          <p className="app-copy">{t('settings.wallet_hint')}</p>
-          <input
-            className="app-input"
-            type="password"
-            value={walletConnection}
-            onChange={(event) => setWalletConnection(event.target.value)}
-            placeholder={t('settings.wallet_placeholder')}
-          />
+          <section className="settings-section settings-section--wallet">
+            <div className="settings-section__header">
+              <span className="app-status app-status--eyebrow">{t('dashboard.wallet_title')}</span>
+              <h2 className="app-title app-title--section">{t('settings.wallet_title')}</h2>
+              <p className="app-copy">{t('settings.wallet_hint')}</p>
+            </div>
+            <input
+              className="app-input"
+              type="password"
+              value={walletConnection}
+              onChange={(event) => setWalletConnection(event.target.value)}
+              placeholder={t('settings.wallet_placeholder')}
+            />
 
-          <div className="app-actions">
-            <button
-              className="app-button app-button--primary"
-              onClick={() => {
-                void handleConnectWallet()
-              }}
-              disabled={!walletConnection.trim() || walletBusy}
-            >
-              {walletBusy ? t('settings.wallet_connecting') : t('settings.wallet_confirm')}
-            </button>
-            <button
-              className="app-button app-button--secondary"
-              onClick={() => {
-                void handleDisconnectWallet()
-              }}
-              disabled={walletBusy || !walletStatus.configured}
-            >
-              {t('settings.wallet_disconnect')}
-            </button>
-          </div>
+            <div className="app-actions">
+              <button
+                className="app-button app-button--primary"
+                onClick={() => {
+                  void handleConnectWallet()
+                }}
+                disabled={!walletConnection.trim() || walletBusy}
+              >
+                {walletBusy ? t('settings.wallet_connecting') : t('settings.wallet_confirm')}
+              </button>
+              <button
+                className="app-button app-button--secondary"
+                onClick={() => {
+                  void handleDisconnectWallet()
+                }}
+                disabled={walletBusy || !walletStatus.configured}
+              >
+                {t('settings.wallet_disconnect')}
+              </button>
+            </div>
 
-          <p className="dashboard-wallet__meta">
-            {walletStatus.connected
-              ? t('settings.wallet_success')
-              : t('dashboard.wallet_not_connected')}
-          </p>
-          {walletNotice && (
-            <p className={[
-              'status-message',
-              walletNotice === 'error' ? 'status-message--warning' : 'status-message--success'
-            ].join(' ')}
-            >
-              {walletNotice === 'connected' && t('settings.wallet_success')}
-              {walletNotice === 'disconnected' && t('settings.wallet_disconnect_success')}
-              {walletNotice === 'error' && t('settings.wallet_error')}
+            <p className="dashboard-wallet__meta">
+              {walletStatus.connected
+                ? t('settings.wallet_success')
+                : t('dashboard.wallet_not_connected')}
             </p>
-          )}
+            {walletNotice && (
+              <p className={[
+                'status-message',
+                walletNotice === 'error' ? 'status-message--warning' : 'status-message--success'
+              ].join(' ')}
+              >
+                {walletNotice === 'connected' && t('settings.wallet_success')}
+                {walletNotice === 'disconnected' && t('settings.wallet_disconnect_success')}
+                {walletNotice === 'error' && t('settings.wallet_error')}
+              </p>
+            )}
+          </section>
         </motion.div>
       </div>
     </MotionConfig>

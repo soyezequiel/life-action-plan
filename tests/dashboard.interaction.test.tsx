@@ -171,6 +171,8 @@ describe('dashboard interaction', () => {
     )
 
     expect(await screen.findByText(t('dashboard.greeting', { nombre: 'Ada' }))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.today_tasks'))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.today_summary', { count: 1 }))).toBeTruthy()
     expect(screen.getByText(t('dashboard.done_count', { done: 0, total: 1 }))).toBeTruthy()
     expect(screen.getByText(t('dashboard.streak_best', { count: 2 }))).toBeTruthy()
     expect(screen.getByText(t('builder.route_local_done'))).toBeTruthy()

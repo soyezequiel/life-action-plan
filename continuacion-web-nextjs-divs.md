@@ -57,6 +57,7 @@
 - Incluye: dashboard, intake, settings, feedback de progreso, reduced motion
 - Excluye: cambios de arquitectura
 - Cierre: el flujo principal queda consistente en desktop y mobile
+- Estado: cerrado el 2026-03-20
 
 ### DIV-008 - Wallet y costos
 - Objetivo: llevar NWC y costos a estado de producto
@@ -74,3 +75,4 @@
 - 2026-03-20 - DIV-004 cerrado. El inspector muestra estado explicito del snapshot, `Limpiar` borra trazas reales del servidor, y el smoke visible confirma apertura tardia, build con traza activa y limpieza efectiva desde UI.
 - 2026-03-20 - DIV-005 cerrado. Dashboard y settings muestran si el plan salio por ruta online, local o respaldo local, y el progreso expone la ruta activa para que fallback y exito real no se mezclen en la UI.
 - 2026-03-20 - DIV-006 cerrado. Vercel queda separado de local: el frontend oculta el build local en cloud, el backend bloquea Ollama y fallback local en deploy, las rutas largas exportan `maxDuration`, y se agregan `doctor:deploy` y `smoke:deploy` para readiness.
+- 2026-03-20 - DIV-007 cerrado. Dashboard, intake y settings quedan con mejor jerarquia visual, hints de contexto, avance por teclado, reduced motion y estados mas claros; el smoke visible se revalida con restart limpio de `npm run dev` en `localhost:3000`.

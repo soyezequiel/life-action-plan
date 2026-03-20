@@ -27,6 +27,8 @@
       "skip": "Prefiero no contestar"
     },
     "progress": "Pregunta {{current}} de {{total}}",
+    "tip_enter": "Podes avanzar con Enter.",
+    "tip_finish": "La ultima respuesta dispara el armado de tu plan.",
     "saving": "Guardando tu perfil...",
     "saved": "¡Perfil guardado!",
     "error": "Hubo un problemita guardando. Intentá de nuevo."
@@ -37,6 +39,7 @@
     "start": "Crear mi plan",
     "greeting": "¡Hola, {{nombre}}!",
     "today_tasks": "Actividades de hoy",
+    "today_summary": "{{count}} actividades para hoy",
     "no_tasks_today": "Hoy no tenés actividades pendientes. ¡Descansá tranqui!",
     "completed": "Completada",
     "pending": "Pendiente",
@@ -69,6 +72,8 @@
     "build_plan": "Armar mi plan",
     "build_openai": "Armar con asistente en línea",
     "build_ollama": "Armar con asistente local",
+    "actions_title": "Acciones del plan",
+    "actions_hint_local": "En esta maquina tambien podes usar el asistente local.",
     "redo_intake": "Rehacer mi perfil",
     "category": {
       "estudio": "Estudio",
@@ -261,6 +266,9 @@
   "settings": {
     "apikey_title": "Conectá tu asistente",
     "apikey_hint": "Ingresá tu clave de acceso. No la compartimos con nadie.",
+    "local_build_title": "Preparar asistente local",
+    "local_build_hint": "En esta maquina podes armar el plan sin cargar una clave.",
+    "build_route_hint": "Ruta elegida: {{provider}}",
     "apikey_placeholder": "sk-...",
     "apikey_confirm": "Armar mi plan",
     "wallet_title": "Conectá tu billetera",

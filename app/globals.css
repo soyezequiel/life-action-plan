@@ -416,6 +416,12 @@ textarea::placeholder {
   color: #c7ffe3;
 }
 
+.status-message--neutral {
+  border: 1px solid rgba(125, 166, 255, 0.2);
+  background: rgba(125, 166, 255, 0.1);
+  color: var(--text-soft);
+}
+
 .dashboard-layout {
   display: grid;
   gap: 1.5rem;
@@ -565,6 +571,43 @@ textarea::placeholder {
   display: inline-block;
 }
 
+.dashboard-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.35rem;
+}
+
+.dashboard-section-heading--compact {
+  margin-top: 0;
+}
+
+.dashboard-section-heading__copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.dashboard-section-heading__eyebrow {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard-section-heading__title {
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1.2;
+}
+
+.dashboard-section-heading__meta {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
 .task-list {
   list-style: none;
   padding: 0;
@@ -699,11 +742,60 @@ textarea::placeholder {
   margin-top: 1.25rem;
 }
 
+.intake-progressbar {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.intake-progressbar__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6b84ff 0%, #8cb4ff 100%);
+  transition: width var(--transition-base);
+}
+
+.intake-progressdots {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.intake-progressdots__dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  transition:
+    transform var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.intake-progressdots__dot--current {
+  transform: scale(1.18);
+  background: var(--brand);
+  box-shadow: 0 0 0 4px rgba(125, 166, 255, 0.12);
+}
+
+.intake-progressdots__dot--done {
+  background: var(--success);
+}
+
 .intake-label {
   display: block;
   margin-top: 0;
   font-size: clamp(1.6rem, 3vw, 2.2rem);
   font-weight: 700;
+}
+
+.intake-step__hint {
+  margin: 0.85rem 0 0;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .intake-button {
@@ -934,6 +1026,24 @@ textarea::placeholder {
   line-height: 1.45;
 }
 
+.settings-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.settings-section + .settings-section {
+  margin-top: 1.5rem;
+}
+
+.settings-section__header {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.dashboard-simulation__hint + .dashboard-simulation__hint {
+  margin-top: -0.25rem;
+}
+
 @media (max-width: 720px) {
   #app,
   .intake-shell {
@@ -951,7 +1061,8 @@ textarea::placeholder {
   .intake-actions,
   .dashboard-simulation__header,
   .dashboard-simulation__item,
-  .build-progress__step {
+  .build-progress__step,
+  .dashboard-section-heading {
     flex-direction: column;
     align-items: stretch;
   }
@@ -964,6 +1075,28 @@ textarea::placeholder {
 
   .intake-button--next {
     margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .app-button:hover:not(:disabled),
+  .task-card:hover,
+  .intake-progressdots__dot--current {
+    transform: none;
+    box-shadow: none;
   }
 }
 
