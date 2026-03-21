@@ -94,14 +94,22 @@ function renderEventContent(content: EventContentArg): JSX.Element {
   const statusLabel = String(content.event.extendedProps.statusLabel || '')
   const isCompactView = content.view.type === 'dayGridMonth'
 
+  if (isCompactView) {
+    return (
+      <div className={styles.eventBodyCompact}>
+        <strong className={styles.eventTitleCompact}>{content.event.title}</strong>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.eventBody}>
       <div className={styles.eventTopline}>
         <span className={styles.eventTime}>{content.timeText || String(content.event.extendedProps.timeLabel || '')}</span>
-        {!isCompactView && statusLabel && <span className={styles.eventStatus}>{statusLabel}</span>}
+        {statusLabel && <span className={styles.eventStatus}>{statusLabel}</span>}
       </div>
       <strong className={styles.eventTitle}>{content.event.title}</strong>
-      {!isCompactView && categoryLabel && (
+      {categoryLabel && (
         <span className={styles.eventMeta}>{categoryLabel}</span>
       )}
     </div>

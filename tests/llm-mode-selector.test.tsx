@@ -9,9 +9,18 @@ import { t } from '../src/i18n'
 describe('llm mode selector', () => {
   it('permite alternar entre conexion propia y servicio', () => {
     const onChange = vi.fn()
+    const onToggleAdvanced = vi.fn()
 
-    render(<LlmModeSelector value="own" onChange={onChange} />)
+    render(
+      <LlmModeSelector
+        value="own"
+        advancedVisible
+        onChange={onChange}
+        onToggleAdvanced={onToggleAdvanced}
+      />
+    )
 
+    expect(screen.getByText(t('settings.normal_lane.title'))).toBeTruthy()
     expect(screen.getByText(t('settings.llm_mode.own_key_title'))).toBeTruthy()
     expect(screen.getByText(t('settings.llm_mode.service_title'))).toBeTruthy()
 

@@ -88,6 +88,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     : resolveBuildModel(requestedProvider)
 
   const [llmMode, setLlmMode] = useState<LlmMode>('service')
+  const [advancedVisible, setAdvancedVisible] = useState(requestedMode === 'own')
   const [authState, setAuthState] = useState<AuthState>(initialAuthState)
   const [walletConnection, setWalletConnection] = useState('')
   const [walletStatus, setWalletStatus] = useState<WalletStatus>(initialWalletStatus)
@@ -172,8 +173,14 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   }, [])
 
   useEffect(() => {
-    if (requestedMode === 'own' || requestedMode === 'service') {
-      setLlmMode(requestedMode)
+    if (requestedMode === 'own') {
+      setAdvancedVisible(true)
+      setLlmMode('own')
+      return
+    }
+
+    if (requestedMode === 'service') {
+      setLlmMode('service')
     }
   }, [requestedMode])
 
@@ -188,6 +195,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     }
 
     if (localKeys.length > 0 && serviceModels.length === 0) {
+      setAdvancedVisible(true)
       setLlmMode('own')
     }
   }, [localKeys, requestedProvider, selectedLocalKeyId, selectedServiceModelId, serviceModels])
@@ -445,6 +453,18 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     }
   }
 
+  function handleToggleAdvanced(): void {
+    setAdvancedVisible((current) => {
+      const next = !current
+
+      if (!next) {
+        setLlmMode('service')
+      }
+
+      return next
+    })
+  }
+
   return (
     <MotionConfig reducedMotion="user">
       <div className="app-shell app-shell--centered">
@@ -476,7 +496,12 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
           </div>
 
           {!localBuildIntent && (
-            <LlmModeSelector value={llmMode} onChange={setLlmMode} />
+            <LlmModeSelector
+              value={llmMode}
+              advancedVisible={advancedVisible}
+              onChange={setLlmMode}
+              onToggleAdvanced={handleToggleAdvanced}
+            />
           )}
 
           <div className={styles.grid}>
@@ -493,11 +518,12 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
               buildError={buildError}
               buildProgress={buildProgress}
               buildUsage={buildUsage}
+              showAdvancedDetails={advancedVisible || localBuildIntent}
               walletStatus={walletStatus}
               onBuild={handleBuild}
             />
 
-            {localBuildIntent || llmMode === 'own' ? (
+            {!localBuildIntent && advancedVisible && llmMode === 'own' ? (
               <OwnKeyManager
                 keys={localKeys}
                 selectedKeyId={selectedLocalKeyId}
@@ -513,13 +539,13 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                 onBackup={handleBackupVault}
                 onRestore={handleRestoreVault}
               />
-            ) : (
+            ) : !localBuildIntent && advancedVisible ? (
               <ServiceAiSelector
                 models={serviceModels}
                 selectedModelId={selectedServiceModelId}
                 onSelect={setSelectedServiceModelId}
               />
-            )}
+            ) : null}
 
             <WalletSection
               walletConnection={walletConnection}

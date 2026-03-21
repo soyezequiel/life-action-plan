@@ -133,6 +133,14 @@
   padding: 0.15rem 0.2rem;
 }
 
+.eventBodyCompact {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.1rem 0.2rem;
+}
+
 .eventTopline {
   display: flex;
   align-items: center;
@@ -157,14 +165,24 @@
 }
 
 .eventTitle {
-  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.eventTitleCompact {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-primary);
-  font-size: 0.82rem;
-  line-height: 1.25;
+  font-size: 0.72rem;
+  line-height: 1.2;
 }
 
 .daySelected {
@@ -353,6 +371,19 @@
 
 .calendarShell :global(.fc-day-today) {
   background: rgba(136, 173, 255, 0.035) !important;
+}
+
+.calendarShell :global(.fc-event-main) {
+  overflow: visible !important;
+}
+
+.calendarShell :global(.fc-daygrid-event) {
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+.calendarShell :global(.fc-timegrid-event .fc-event-main) {
+  overflow: hidden !important;
 }
 
 @media (max-width: 1040px) {

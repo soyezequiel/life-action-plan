@@ -48,10 +48,11 @@ import {
 
 describe('session helpers', () => {
   const originalNodeEnv = process.env.NODE_ENV
+  const env = process.env as Record<string, string | undefined>
 
   beforeEach(() => {
     process.env.SESSION_SECRET = 'session-secret-de-prueba-que-tiene-largo'
-    process.env.NODE_ENV = originalNodeEnv
+    env.NODE_ENV = originalNodeEnv
     sessionStore.rows = []
   })
 
@@ -107,7 +108,7 @@ describe('session helpers', () => {
   })
 
   it('usa cookies no seguras en desarrollo local', () => {
-    process.env.NODE_ENV = 'development'
+    env.NODE_ENV = 'development'
     const response = NextResponse.json({ ok: true })
 
     applySessionCookie(response, 'token-local')
@@ -117,7 +118,7 @@ describe('session helpers', () => {
   })
 
   it('usa cookies seguras en produccion y al limpiar la sesion', () => {
-    process.env.NODE_ENV = 'production'
+    env.NODE_ENV = 'production'
     const response = NextResponse.json({ ok: true })
 
     applySessionCookie(response, 'token-prod')

@@ -18,6 +18,7 @@ interface BuildSectionProps {
   buildError: string
   buildProgress: PlanBuildProgress | null
   buildUsage: BuildUsagePreviewResult['usage'] | null
+  showAdvancedDetails: boolean
   walletStatus: WalletStatus
   onBuild: () => Promise<void>
 }
@@ -46,20 +47,24 @@ export default function BuildSection(props: BuildSectionProps) {
         <span className="app-status app-status--eyebrow">{t('dashboard.actions_title')}</span>
         <h1 className="app-title">{props.title}</h1>
         <p className="app-copy">{props.hint}</p>
-        <p className="status-message status-message--neutral">
-          {t('settings.build_route_hint', { provider: props.selectedProviderLabel })}
-        </p>
-        {props.buildUsage && (
+        {props.showAdvancedDetails && (
           <>
             <p className="status-message status-message--neutral">
-              {`${t('resource_usage.label')}: ${t(`resource_usage.mode.${props.buildUsage.mode}`)}`}
+              {t('settings.build_route_hint', { provider: props.selectedProviderLabel })}
             </p>
-            <p className="status-message status-message--neutral">
-              {t(`resource_usage.source.${props.buildUsage.credentialSource}`)}
-            </p>
-            <p className="status-message status-message--neutral">
-              {t(`resource_usage.billing.${props.buildUsage.chargeable ? 'charge' : props.buildUsage.billingReasonCode ?? 'operation_not_chargeable'}`)}
-            </p>
+            {props.buildUsage && (
+              <>
+                <p className="status-message status-message--neutral">
+                  {`${t('resource_usage.label')}: ${t(`resource_usage.mode.${props.buildUsage.mode}`)}`}
+                </p>
+                <p className="status-message status-message--neutral">
+                  {t(`resource_usage.source.${props.buildUsage.credentialSource}`)}
+                </p>
+                <p className="status-message status-message--neutral">
+                  {t(`resource_usage.billing.${props.buildUsage.chargeable ? 'charge' : props.buildUsage.billingReasonCode ?? 'operation_not_chargeable'}`)}
+                </p>
+              </>
+            )}
           </>
         )}
         {props.localProviderBlocked && (
