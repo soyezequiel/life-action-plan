@@ -91,19 +91,38 @@ Rutas criticas:
 | Vercel preview | PostgreSQL cloud | proveedor cloud | smoke pre-merge |
 | Vercel prod | PostgreSQL cloud | proveedor cloud | uso real |
 
-## Flujo E2E que debe mantenerse vivo
+## Flujo E2E del producto
 
-1. Abrir la app
-2. Restaurar perfil previo o pasar por intake
-3. Crear perfil
-4. Volver al dashboard
-5. Generar plan
-6. Ver tareas del dia
-7. Marcar progreso
-8. Consultar racha y costos
-9. Usar el Inspector LLM para diagnostico
+> Detalle completo en `FLUJO_HIBRIDO_DRAFT.md`. Aquí el resumen ejecutivo.
 
-Este flujo, con proveedor local o cloud segun el entorno, es el baseline del producto.
+### Flujo principal (usuario nuevo)
+
+| Paso | Nombre | Descripción |
+|------|--------|-------------|
+| 0 | Gate | Si no tiene LLM o billetera configurada, se le pide una de las dos. Se muestra costo estimado antes de pedir billetera. |
+| 1 | Objetivos | El usuario dice qué quiere lograr (uno o varios). Si hay múltiples, los prioriza. |
+| 2 | Intake dinámico | El LLM decide qué datos necesita y pregunta en bloques temáticos. Auto-guardado por respuesta. |
+| 3 | Plan alto nivel | El LLM genera un plan estratégico con fases, dependencias e hitos. Sin tareas diarias aún. |
+| 4 | Chequeo de realidad | Se comparan horas necesarias vs disponibles. Si no cuadra, se ofrecen trade-offs respetando priorización. |
+| 5 | Simulación | Bucle máx 5 iteraciones: el LLM simula semana a semana, detecta errores, corrige. Checkpoint por iteración. |
+| 6 | Presentación visual | Plan mostrado con diagramas + cards. El usuario da feedback tipo chat o edita gráficos. Máx 10 rondas. |
+| 7 | Calendario existente | Importar .ics o ingreso manual de actividades fijas. OAuth Google Calendar futuro. |
+| 8 | Generación top-down | Años → trimestres → meses → semanas → días (niveles se adaptan a duración del plan). |
+| 9 | Ejecución | Dashboard con tareas del día, progreso, racha, costos. Re-planificación on-demand. |
+
+### Reanudación
+
+Si el usuario vuelve con una sesión interrumpida, se retoma desde el último checkpoint.
+Se pregunta si algo cambió y se actualizan los datos antes de continuar.
+
+### Flujo técnico mínimo (smoke test)
+
+1. Gate → configurar LLM
+2. Intake → responder preguntas
+3. Build → generar plan con streaming SSE
+4. Dashboard → ver tareas
+5. Marcar progreso
+6. Inspector LLM para diagnóstico
 
 ## Estructura real del repo
 
@@ -115,10 +134,20 @@ app/
   intake/page.tsx
   settings/page.tsx
   api/
+    _auth.ts, _db.ts, _debug-state.ts, _domain.ts
+    _plan.ts, _schemas.ts, _shared.ts, _user-settings.ts, _wallet.ts
+    auth/
+      claim-local-data/route.ts
+      delete-account/route.ts
+      login/route.ts
+      logout/route.ts
+      me/route.ts
+      register/route.ts
     cost/route.ts
     debug/route.ts
     debug/snapshot/route.ts
     intake/route.ts
+    models/available/route.ts
     plan/build/route.ts
     plan/export-ics/route.ts
     plan/list/route.ts
@@ -128,29 +157,118 @@ app/
     progress/list/route.ts
     progress/toggle/route.ts
     settings/api-key/route.ts
+    settings/build-preview/route.ts
+    settings/credentials/route.ts
+    settings/credentials/[credentialId]/route.ts
+    settings/credentials/[credentialId]/validate/route.ts
     streak/route.ts
+    vault/backup/route.ts
     wallet/connect/route.ts
     wallet/disconnect/route.ts
     wallet/status/route.ts
 
 components/
-  Dashboard.tsx
-  IntakeExpress.tsx
+  Dashboard.tsx (+Dashboard.module.css)
+  IntakeExpress.tsx (+IntakeExpress.module.css)
+  IntakePageContent.tsx
   DebugPanel.tsx
+  PlanCalendar.tsx (+PlanCalendar.module.css)
+  PulsoLogo.tsx
+  SettingsPageContent.tsx (+SettingsPageContent.module.css)
   debug/
+    DebugMessageInspector.tsx
+    DebugPanelStatus.tsx
+    DebugSpanDetail.tsx
+    DebugTokenStream.tsx
+    DebugTraceList.tsx
+    debug-panel.css
+  settings/
+    AccountSection.tsx
+    BuildSection.tsx
+    LlmModeSelector.tsx
+    OwnKeyManager.tsx
+    ServiceAiSelector.tsx
+    WalletSection.tsx
+    types.ts
+
+src/debug/
+  instrumented-runtime.ts
+  trace-collector.ts
+
+src/i18n/
+  index.ts
 
 src/lib/
   auth/
+    api-key-auth.ts
+    credential-config.ts
+    password.ts
+    resolve-user.ts
+    secret-storage.ts
+    session-token.ts
+    session.ts
+    user-settings.ts
   client/
+    app-services.tsx
+    browser-http-client.ts
+    client-crypto.ts
+    error-utils.ts
+    local-key-vault.ts
+    providers.tsx
+    resource-usage-copy.ts
+    storage-keys.ts
+    use-debug-traces.ts
+    vault-sync.ts
   db/
+    connection.ts
+    db-helpers.ts
+    schema.ts
+  env/
+    deployment.ts
   payments/
+    billing-policy.ts
+    nwc-provider.ts
+    operation-charging.ts
+    wallet-connection.ts
+    wallet-errors.ts
   providers/
+    payment-provider.ts
+    provider-factory.ts
+    provider-metadata.ts
   runtime/
+    backend-service-execution.ts
+    build-execution.ts
+    execution-context-resolver.ts
+    resource-usage-summary.ts
+    resource-usage-tracking.ts
+    types.ts
   skills/
+    plan-builder.ts
+    plan-intake.ts
+    plan-simulator.ts
+    skill-interface.ts
 
 src/shared/
+  config-errors.ts
   schemas/
+    credential-registry.ts
+    execution-context.ts
+    index.ts
+    manifiesto.ts
+    perfil.ts
+    resource-usage.ts
+    rutina-base.ts
   types/
+    credential-registry.ts
+    debug.ts
+    execution-context.ts
+    lap-api.ts
+    resource-usage.ts
+
+src/utils/
+  ics-generator.ts
+  plan-build-fallback.ts
+  streaks.ts
 
 tests/
   *.test.ts
@@ -240,10 +358,8 @@ HMR por si solo no cuenta como evidencia suficiente cuando se toca transporte, D
 
 ## Riesgos abiertos
 
-1. Documentacion vieja puede volver a empujar decisiones equivocadas.
-2. El deploy en Vercel necesita proveedor cloud; Ollama no sirve como estrategia de produccion.
-3. Si no se explicita fallback vs ruta real, los smokes pueden dar falsos positivos.
-4. Hay residuos legacy en el repo que pueden confundir a agentes nuevos aunque no esten activos.
+1. El deploy en Vercel necesita proveedor cloud; Ollama no sirve como estrategia de produccion.
+2. Si no se explicita fallback vs ruta real, los smokes pueden dar falsos positivos.
 
 ## Archivos criticos
 
@@ -251,20 +367,35 @@ HMR por si solo no cuenta como evidencia suficiente cuando se toca transporte, D
 2. `app/api/plan/simulate/route.ts`
 3. `app/api/debug/route.ts`
 4. `app/api/debug/snapshot/route.ts`
-5. `components/Dashboard.tsx`
-6. `components/DebugPanel.tsx`
-7. `src/lib/client/browser-http-client.ts`
-8. `src/lib/db/connection.ts`
-9. `src/lib/db/db-helpers.ts`
-10. `src/lib/db/schema.ts`
-11. `src/lib/providers/provider-factory.ts`
-12. `src/lib/skills/plan-builder.ts`
-13. `src/lib/skills/plan-simulator.ts`
-14. `src/shared/types/lap-api.ts`
-15. `src/shared/types/debug.ts`
+5. `app/api/auth/register/route.ts`
+6. `app/api/auth/login/route.ts`
+7. `app/api/settings/credentials/route.ts`
+8. `app/api/_plan.ts`
+9. `app/api/_schemas.ts`
+10. `components/Dashboard.tsx`
+11. `components/SettingsPageContent.tsx`
+12. `components/DebugPanel.tsx`
+13. `components/PlanCalendar.tsx`
+14. `src/lib/auth/credential-config.ts`
+15. `src/lib/auth/password.ts`
+16. `src/lib/auth/session-token.ts`
+17. `src/lib/auth/secret-storage.ts`
+18. `src/lib/client/browser-http-client.ts`
+19. `src/lib/db/connection.ts`
+20. `src/lib/db/db-helpers.ts`
+21. `src/lib/db/schema.ts`
+22. `src/lib/env/deployment.ts`
+23. `src/lib/providers/provider-factory.ts`
+24. `src/lib/runtime/execution-context-resolver.ts`
+25. `src/lib/runtime/build-execution.ts`
+26. `src/lib/skills/plan-builder.ts`
+27. `src/lib/skills/plan-simulator.ts`
+28. `src/shared/types/lap-api.ts`
+29. `src/shared/types/debug.ts`
+30. `src/shared/types/credential-registry.ts`
 
 ## Documentos operativos asociados
 
 - `AGENTS.md`
 - `continuacion-web-nextjs-divs.md`
-- `matriz-smoke-web.md`
+- `PROGRESS.md`

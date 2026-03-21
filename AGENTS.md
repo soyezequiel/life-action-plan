@@ -22,7 +22,7 @@ Estado del producto:
 - `npm run dev` levanta Next.js con Turbopack
 - `DATABASE_URL` apunta hoy a PostgreSQL local
 - Ollama corre localmente en `http://localhost:11434`
-- El flujo esperado es `intake -> build -> dashboard -> inspector`
+- El flujo esperado es `gate -> objetivos -> intake dinámico -> plan alto nivel -> chequeo -> simulación -> presentación visual -> calendario -> ejecución` (ver `FLUJO_HIBRIDO_DRAFT.md`)
 
 ### Produccion objetivo
 
@@ -165,11 +165,4 @@ Cada unidad debe cerrar con:
 ## Documentos operativos vigentes
 
 - Continuacion atomica: `continuacion-web-nextjs-divs.md`
-- Matriz de smoke: `matriz-smoke-web.md`
-
-## Documentos legacy
-
-- `continuacion-browser-first-divs.md`: solo compatibilidad historica
-- `matriz-smoke-browser-electron.md`: solo compatibilidad historica
-
-No deben usarse como source of truth.
+- Progreso del plan: `PROGRESS.md`
