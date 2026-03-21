@@ -95,6 +95,7 @@
     linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%),
     rgba(255, 255, 255, 0.02);
   box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(22px);
 }
 
 .formTopbar {

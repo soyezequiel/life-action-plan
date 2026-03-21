@@ -1,14 +1,15 @@
 .calendarShell {
   display: grid;
   grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
-  gap: 1rem;
-  padding: 1.2rem;
+  gap: 1.15rem;
+  padding: 1.3rem;
   border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   background:
     linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%),
     rgba(255, 255, 255, 0.02);
   box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
 }
 
 .header {

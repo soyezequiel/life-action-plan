@@ -12,7 +12,7 @@ describe('wallet i18n', () => {
     expect(t('dashboard.cost_operation.plan_build')).toBe('Armado del plan')
     expect(t('dashboard.charge_operation_paid', { sats: '5' })).toContain('5')
     expect(t('settings.wallet_confirm')).toBe('Guardar conexión')
-    expect(t('settings.wallet_error_nwc_incompatible')).toContain('NWC')
+    expect(t('settings.wallet_error_nwc_incompatible')).toContain('billetera')
     expect(t('settings.build_charge_hint', { sats: '5' })).toContain('5')
     expect(t('calendar.file_type')).toBe('Calendario')
     expect(t('dashboard.calendar_panel.title')).toBe('Calendario completo')

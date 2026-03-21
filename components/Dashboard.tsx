@@ -35,10 +35,14 @@ import DebugPanel from './DebugPanel'
 import PlanCalendar from './PlanCalendar'
 import styles from './Dashboard.module.css'
 
-const viewTransition = {
-  duration: 0.28,
-  ease: [0.22, 1, 0.36, 1] as const
+const springTransition = {
+  type: 'spring' as const,
+  stiffness: 400,
+  damping: 30,
+  mass: 1
 }
+
+const viewTransition = springTransition
 
 const buildStages: PlanBuildProgress['stage'][] = ['preparing', 'generating', 'validating', 'saving']
 const simulationStages: PlanSimulationProgress['stage'][] = ['schedule', 'work', 'load', 'summary']
@@ -189,6 +193,20 @@ function getWalletStatusLabel(status: WalletStatus): string {
   }
 
   return t('dashboard.wallet_not_connected')
+}
+
+function isUserFriendlyAlias(alias: string | undefined | null): boolean {
+  if (!alias) {
+    return false
+  }
+
+  const trimmed = alias.trim()
+
+  if (trimmed.length <= 5 && trimmed === trimmed.toUpperCase()) {
+    return false
+  }
+
+  return true
 }
 
 function getWalletHint(status: WalletStatus): string {
@@ -462,6 +480,9 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
         done: completedTaskCount,
         pending: pendingTaskCount
       })
+  const todaySummaryLabel = pendingTaskCount === 1
+    ? t('dashboard.today_summary_one')
+    : t('dashboard.today_summary_other', { count: pendingTaskCount })
   const profileInitial = (profileName.trim().charAt(0) || 'L').toUpperCase()
   const topNavItems = [
     { href: '#lap-top', label: t('dashboard.shell_nav.today') },
@@ -504,8 +525,6 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
         if (!active) {
           return
         }
-
-        setDebugPanelVisible(debugStatus.panelVisible)
 
         if (!nextProfileId) {
           setProfileId(null)
@@ -792,9 +811,9 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
       <div className="dashboard-wallet">
         <span className="dashboard-wallet__label">{t('dashboard.wallet_title')}</span>
         <strong className="dashboard-wallet__value">{walletLabel}</strong>
-        {walletStatus.alias && walletStatus.connected && (
+        {isUserFriendlyAlias(walletStatus.alias) && walletStatus.connected && (
           <span className="dashboard-wallet__meta">
-            {t('dashboard.wallet_alias', { alias: walletStatus.alias })}
+            {t('dashboard.wallet_alias', { alias: walletStatus.alias! })}
           </span>
         )}
         {formattedWalletBalance !== null && (
@@ -871,6 +890,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                   value={walletConnection}
                   onChange={(event) => setWalletConnection(event.target.value)}
                   placeholder={t('settings.wallet_placeholder')}
+                  aria-label={t('settings.wallet_title')}
                   autoFocus
                 />
                 <div className="dashboard-actions dashboard-actions--compact">
@@ -910,6 +930,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
               <div className="dashboard-actions dashboard-actions--compact">
                 <button
                   className="app-button app-button--secondary"
+                  aria-label={walletStatus.connected ? t('dashboard.wallet_change') : t('dashboard.wallet_connect')}
                   onClick={() => {
                     setIsWalletEditorOpen(true)
                     setWalletNotice(null)
@@ -1326,6 +1347,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                                 styles.shellRailItem,
                                 item.active ? styles.shellRailItemActive : ''
                               ].join(' ')}
+                              aria-current={item.active ? 'page' : undefined}
                             >
                               <span className={styles.shellIcon}>
                                 <ShellIcon name={item.icon} />
@@ -1473,7 +1495,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                           <div className={styles.surfaceHeader}>
                             <span className={styles.surfaceEyebrow}>{todayLabel}</span>
                             <h2 className={styles.surfaceTitle}>{t('dashboard.today_tasks')}</h2>
-                            <p className={styles.surfaceCopy}>{t('dashboard.today_summary', { count: pendingTaskCount })}</p>
+                            <p className={styles.surfaceCopy}>{todaySummaryLabel}</p>
                           </div>
 
                           <div className={styles.focusCard}>
@@ -1565,6 +1587,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
 
                                         <button
                                           className={toggleClassName}
+                                          aria-label={`${task.completado ? t('dashboard.undo') : t('dashboard.check_in')}: ${task.descripcion}`}
                                           onClick={() => {
                                             void handleToggle(task.id)
                                           }}

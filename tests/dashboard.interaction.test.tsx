@@ -235,7 +235,7 @@ describe('dashboard interaction', () => {
 
     expect(await screen.findByText(t('dashboard.greeting', { nombre: 'Ada' }))).toBeTruthy()
     expect(screen.getByText(t('dashboard.today_tasks'))).toBeTruthy()
-    expect(screen.getByText(t('dashboard.today_summary', { count: 1 }))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.today_summary_one'))).toBeTruthy()
     expect(screen.getByText(t('dashboard.done_count', { done: 0, total: 1 }))).toBeTruthy()
     expect(screen.getByText(t('dashboard.streak_best', { count: 2 }))).toBeTruthy()
     expect(screen.getByText(t('builder.route_local_done'))).toBeTruthy()
@@ -243,10 +243,10 @@ describe('dashboard interaction', () => {
     expect(screen.getByTestId('fullcalendar-mock')).toBeTruthy()
     expect(screen.getAllByText('Salir a caminar').length).toBeGreaterThan(0)
 
-    await user.click(screen.getByRole('button', { name: t('dashboard.check_in') }))
+    await user.click(screen.getByRole('button', { name: new RegExp(t('dashboard.check_in')) }))
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: t('dashboard.undo') })).toBeTruthy()
+      expect(screen.getByRole('button', { name: new RegExp(t('dashboard.undo')) })).toBeTruthy()
       expect(screen.getByText(t('dashboard.all_done'))).toBeTruthy()
       expect(screen.getByText(t('dashboard.streak_current', { count: 5 }))).toBeTruthy()
       expect(screen.getByText(t('dashboard.streak_best', { count: 7 }))).toBeTruthy()

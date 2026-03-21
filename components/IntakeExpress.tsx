@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import type { JSX } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
 import { toUserFacingErrorMessage } from '../src/lib/client/error-utils'
@@ -24,8 +24,10 @@ const QUESTIONS = [
 type QuestionKey = (typeof QUESTIONS)[number]['key']
 
 const stepTransition = {
-  duration: 0.24,
-  ease: [0.22, 1, 0.36, 1] as const
+  type: 'spring' as const,
+  stiffness: 400,
+  damping: 30,
+  mass: 1
 }
 
 export default function IntakeExpress({ onComplete, onCancel = () => {} }: IntakeExpressProps): JSX.Element {
@@ -97,6 +99,7 @@ export default function IntakeExpress({ onComplete, onCancel = () => {} }: Intak
   }
 
   return (
+    <MotionConfig reducedMotion="user">
     <div data-component="intake-express" className="intake-shell">
       <div className={styles.frame}>
         <section className={styles.story}>
@@ -233,5 +236,6 @@ export default function IntakeExpress({ onComplete, onCancel = () => {} }: Intak
         </form>
       </div>
     </div>
+    </MotionConfig>
   )
 }

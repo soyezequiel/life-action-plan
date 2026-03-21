@@ -71,14 +71,6 @@ export function getProviderLabelKey(modelId: string | undefined | null): string 
     return 'builder.provider_local'
   }
 
-  if (providerName === 'openrouter') {
-    return 'builder.provider_openrouter'
-  }
-
-  if (providerName === 'openai') {
-    return 'builder.provider_openai'
-  }
-
   return 'builder.provider_online'
 }
 
@@ -91,14 +83,6 @@ export function getBuildRouteLabelKey(modelId: string | undefined | null, fallba
 
   if (providerName === 'ollama') {
     return 'builder.route_local_done'
-  }
-
-  if (providerName === 'openrouter') {
-    return 'builder.route_openrouter_done'
-  }
-
-  if (providerName === 'openai') {
-    return 'builder.route_online_done'
   }
 
   return 'builder.route_online_done'

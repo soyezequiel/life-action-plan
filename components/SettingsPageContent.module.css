@@ -1,7 +1,7 @@
 .settingsFrame {
   width: min(100%, 1240px);
   display: grid;
-  gap: 1.15rem;
+  gap: 1.25rem;
   padding: clamp(1.3rem, 3vw, 2rem);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 32px;
@@ -9,6 +9,7 @@
     linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%),
     rgba(255, 255, 255, 0.02);
   box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(22px);
 }
 
 .topbar {
@@ -38,12 +39,13 @@
 .card {
   display: grid;
   gap: 1rem;
-  padding: 1.2rem;
+  padding: 1.3rem;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 30px;
   background:
     linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%),
     rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(16px);
 }
 
 .primaryCard,

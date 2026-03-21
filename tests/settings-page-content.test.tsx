@@ -278,7 +278,7 @@ describe('settings page content', () => {
     expect(await screen.findByText(t('settings.apikey_title'))).toBeTruthy()
     expect(fetchMock).toHaveBeenCalledWith('/api/settings/api-key?provider=openrouter')
     expect(screen.getByText(t('settings.build_route_hint', {
-      provider: t('builder.provider_openrouter')
+      provider: t('builder.provider_online')
     }))).toBeTruthy()
     expect(await screen.findByText(t('settings.build_resource_choice_backend'))).toBeTruthy()
     expect(await screen.findByText('Origen del recurso: LAP pone el asistente en linea para esta accion.')).toBeTruthy()
@@ -342,7 +342,7 @@ describe('settings page content', () => {
     expect(await screen.findByText('Origen del recurso: LAP pone el asistente en linea para esta accion.')).toBeTruthy()
     expect(screen.getByText('Como usa recurso del sistema, esta accion se cobra.')).toBeTruthy()
     expect(screen.getByText(t('settings.backend_credential_selected', {
-      name: t('builder.provider_openrouter')
+      name: `${t('builder.provider_online')} - principal`
     }))).toBeTruthy()
   })
 

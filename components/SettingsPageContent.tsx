@@ -27,8 +27,10 @@ type CloudCredentialMode = 'backend' | 'user'
 type CloudCredentialProvider = 'openai' | 'openrouter'
 
 const settingsTransition = {
-  duration: 0.24,
-  ease: [0.22, 1, 0.36, 1] as const
+  type: 'spring' as const,
+  stiffness: 400,
+  damping: 30,
+  mass: 1
 }
 
 function formatCount(value: number): string {
@@ -664,6 +666,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                   value={apiKey}
                   onChange={(event) => setApiKey(event.target.value)}
                   placeholder={t('settings.apikey_placeholder')}
+                  aria-label={t('settings.apikey_title')}
                   autoFocus
                 />
               )}
@@ -753,6 +756,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                 value={walletConnection}
                 onChange={(event) => setWalletConnection(event.target.value)}
                 placeholder={t('settings.wallet_placeholder')}
+                aria-label={t('settings.wallet_title')}
               />
 
               <div className="app-actions">

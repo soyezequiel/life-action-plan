@@ -77,10 +77,14 @@
 
 .welcomePreviewGrid,
 .mainColumn,
-.sideColumn,
 .shellContent {
   display: grid;
-  gap: 1rem;
+  gap: 1.15rem;
+}
+
+.sideColumn {
+  display: grid;
+  gap: 1.1rem;
 }
 
 .welcomePreviewCard,
@@ -178,6 +182,12 @@
   margin-top: auto;
 }
 
+.shellRailMeta .shellRailItem {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
 .shellRailItem {
   display: grid;
   justify-items: center;
@@ -221,7 +231,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.7rem 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   border-radius: 999px;
   background:
     linear-gradient(180deg, rgba(19, 19, 19, 0.84), rgba(19, 19, 19, 0.72)),
@@ -299,7 +309,7 @@
 .dashboardHero {
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
-  gap: 1.15rem;
+  gap: 1.35rem;
   align-items: stretch;
 }
 
@@ -328,7 +338,8 @@
 .heroPanel {
   display: grid;
   gap: 1rem;
-  padding: 1.2rem;
+  padding: 1.3rem;
+  backdrop-filter: blur(18px);
 }
 
 .heroTrackHeader {
@@ -405,7 +416,7 @@
 .dashboardGrid {
   display: grid;
   grid-template-columns: minmax(0, 1.16fr) 320px;
-  gap: 1rem;
+  gap: 1.25rem;
   align-items: start;
 }
 
@@ -413,7 +424,8 @@
 .systemCard {
   display: grid;
   gap: 1rem;
-  padding: 1.2rem;
+  padding: 1.3rem;
+  backdrop-filter: blur(18px);
 }
 
 .surfaceHeader {
