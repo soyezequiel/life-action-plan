@@ -86,7 +86,8 @@ describe('getCostSummary', () => {
         chargedSats: 5,
         reasonCode: null,
         reasonDetail: null,
-        paymentProvider: 'nwc'
+        paymentProvider: 'nwc',
+        resourceUsage: null
       }
     })
   })

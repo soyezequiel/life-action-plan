@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { getCurrentLocale, t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
 import { toUserFacingErrorMessage } from '../src/lib/client/error-utils'
+import { getResourceUsageDisplay } from '../src/lib/client/resource-usage-copy'
 import type { DeploymentMode } from '../src/lib/env/deployment'
 import {
   DEFAULT_OLLAMA_BUILD_MODEL,
@@ -31,6 +32,7 @@ import type {
 } from '../src/shared/types/lap-api'
 import type { Perfil } from '../src/shared/schemas/perfil'
 import DebugPanel from './DebugPanel'
+import PlanCalendar from './PlanCalendar'
 
 const viewTransition = {
   duration: 0.28,
@@ -347,7 +349,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   const [profileName, setProfileName] = useState('')
   const [profileTimezone, setProfileTimezone] = useState('America/Argentina/Buenos_Aires')
   const [plans, setPlans] = useState<PlanRow[]>([])
-  const [tasks, setTasks] = useState<ProgressRow[]>([])
+  const [allTasks, setAllTasks] = useState<ProgressRow[]>([])
   const [streak, setStreak] = useState<StreakResult>({ current: 0, best: 0 })
   const [costSummary, setCostSummary] = useState<CostSummary | null>(null)
   const [walletStatus, setWalletStatus] = useState<WalletStatus>({
@@ -374,6 +376,8 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   const latestPlan = hasPlan ? plans[plans.length - 1] : null
   const latestPlanMeta = latestPlan ? parseManifestMeta(latestPlan.manifest) : {}
   const latestSimulation = latestPlanMeta.ultimaSimulacion ?? null
+  const todayIso = DateTime.now().setZone(profileTimezone).toISODate() ?? ''
+  const tasks = allTasks.filter((task) => task.fecha === todayIso)
   const completedTaskCount = tasks.filter((task) => task.completado).length
   const pendingTaskCount = Math.max(tasks.length - completedTaskCount, 0)
   const todayLabel = DateTime.now()
@@ -411,7 +415,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
           setProfileId(null)
           setProfileName('')
           setPlans([])
-          setTasks([])
+          setAllTasks([])
           setStreak({ current: 0, best: 0 })
           setCostSummary(null)
           setWalletStatus({
@@ -450,13 +454,8 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
 
         if (nextPlans.length > 0 && nextProfile) {
           const nextPlan = nextPlans[nextPlans.length - 1]
-          const timezone = nextProfile.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria
-          const today = timezone
-            ? DateTime.now().setZone(timezone).toISODate() ?? DateTime.now().toISODate() ?? ''
-            : DateTime.now().toISODate() ?? ''
-
           const [progressList, streakResult] = await Promise.all([
-            client.progress.list(nextPlan.id, today),
+            client.progress.list(nextPlan.id),
             client.streak.get(nextPlan.id)
           ])
 
@@ -464,7 +463,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
             return
           }
 
-          setTasks(progressList)
+          setAllTasks(progressList)
           setStreak(streakResult)
 
           try {
@@ -473,7 +472,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
             setCostSummary(null)
           }
         } else {
-          setTasks([])
+          setAllTasks([])
           setStreak({ current: 0, best: 0 })
           setCostSummary(null)
         }
@@ -537,11 +536,11 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   }
 
   async function handleToggle(taskId: string): Promise<void> {
-    const toggledTask = tasks.find((task) => task.id === taskId)
+    const toggledTask = allTasks.find((task) => task.id === taskId)
     const result = await client.progress.toggle(taskId)
 
     if (result.success) {
-      setTasks((prev) =>
+      setAllTasks((prev) =>
         prev.map((task) => (task.id === taskId ? { ...task, completado: result.completado } : task))
       )
 
@@ -845,6 +844,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
     const hasTrackedOperations = Boolean(costSummary && costSummary.operations.length > 0)
     const latestCharge = costSummary?.latestCharge ?? latestPlanMeta.ultimoCobro ?? null
     const hasEstimatedCost = Boolean(costSummary && costSummary.costSats > 0)
+    const latestUsageDisplay = getResourceUsageDisplay(latestCharge?.resourceUsage ?? null)
 
     return (
       <div className="dashboard-cost">
@@ -857,6 +857,14 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
               <span className="dashboard-cost__meta">
                 {t('dashboard.cost_usd', { usd: formatUsd(costSummary.costUsd) })}
               </span>
+            )}
+            {latestUsageDisplay && (
+              <>
+                <span className="dashboard-cost__meta">
+                  {`${latestUsageDisplay.label}: ${latestUsageDisplay.detail}`}
+                </span>
+                <span className="dashboard-cost__meta">{latestUsageDisplay.billing}</span>
+              </>
             )}
             <ul className="dashboard-cost__operations">
               {costSummary.operations.map((operation) => {
@@ -1248,6 +1256,8 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                         </motion.ul>
                       </>
                     )}
+
+                    <PlanCalendar tasks={allTasks} timezone={profileTimezone} />
 
                     <hr className="dashboard-divider" />
                     <div className="dashboard-section-heading dashboard-section-heading--compact">

@@ -22,6 +22,7 @@ import type {
 } from '../../shared/types/credential-registry'
 import { DEFAULT_CREDENTIAL_LABEL } from '../../shared/schemas'
 import { DEFAULT_OPENROUTER_BUILD_MODEL } from '../providers/provider-metadata'
+import { extractResourceUsageFromMetadata } from '../runtime/resource-usage-summary'
 import { getDatabase } from './connection'
 import {
   analyticsEvents,
@@ -251,7 +252,8 @@ function serializeOperationChargeSummary(row: typeof operationCharges.$inferSele
     chargedSats: row.chargedSats,
     reasonCode: row.reasonCode as ChargeReasonCode | null,
     reasonDetail: row.reasonDetail,
-    paymentProvider: row.paymentProvider
+    paymentProvider: row.paymentProvider,
+    resourceUsage: extractResourceUsageFromMetadata(row.metadata)
   }
 }
 

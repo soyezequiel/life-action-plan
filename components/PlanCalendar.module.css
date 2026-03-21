@@ -1,0 +1,359 @@
+.calendarShell {
+  --calendar-surface: linear-gradient(180deg, rgba(20, 25, 48, 0.92) 0%, rgba(13, 17, 34, 0.98) 100%);
+  --calendar-border: rgba(155, 171, 255, 0.18);
+  --calendar-highlight: rgba(125, 166, 255, 0.14);
+  margin-top: 1.6rem;
+  padding: 1.35rem;
+  border-radius: 28px;
+  border: 1px solid var(--calendar-border);
+  background: var(--calendar-surface);
+  box-shadow: 0 18px 42px rgba(8, 10, 24, 0.24);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.copy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.label {
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+  line-height: 1.2;
+}
+
+.hint {
+  margin: 0;
+  max-width: 38rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(108px, 1fr));
+  gap: 0.65rem;
+  min-width: min(100%, 360px);
+}
+
+.statCard {
+  display: grid;
+  gap: 0.28rem;
+  min-height: 5.2rem;
+  padding: 0.9rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03)),
+    rgba(255, 255, 255, 0.02);
+}
+
+.statLabel {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.statValue {
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-family: var(--font-mono);
+  line-height: 1.15;
+}
+
+.emptyState {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1.2rem;
+  border-radius: 22px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+}
+
+.emptyState strong {
+  color: var(--text-primary);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.footerChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.72rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-soft);
+  font-size: 0.88rem;
+}
+
+.footerDot {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #7da6ff 0%, #bfd4ff 100%);
+  box-shadow: 0 0 0 4px rgba(125, 166, 255, 0.14);
+}
+
+.footerDotDone {
+  background: linear-gradient(135deg, #59d79a 0%, #b8ffda 100%);
+  box-shadow: 0 0 0 4px rgba(89, 215, 154, 0.12);
+}
+
+.event {
+  border: 0 !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--calendar-accent) 78%, white 12%) 0%, color-mix(in srgb, var(--calendar-accent) 54%, transparent 46%) 100%) !important;
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.eventEstudio {
+  --calendar-accent: #6aa5ff;
+}
+
+.eventEjercicio {
+  --calendar-accent: #59d79a;
+}
+
+.eventTrabajo {
+  --calendar-accent: #a4adbf;
+}
+
+.eventHabito {
+  --calendar-accent: #b987ff;
+}
+
+.eventDescanso {
+  --calendar-accent: #ffb25b;
+}
+
+.eventOtro {
+  --calendar-accent: #6dd0d8;
+}
+
+.eventCompleted {
+  opacity: 0.7;
+}
+
+.eventBody {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+  padding: 0.08rem 0.1rem;
+}
+
+.eventTopline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.eventTime,
+.eventStatus,
+.eventMeta {
+  color: rgba(8, 12, 24, 0.84);
+  font-size: 0.76rem;
+  line-height: 1.2;
+}
+
+.eventStatus {
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.34);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.eventTitle {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #07111f;
+  font-size: 0.84rem;
+  line-height: 1.25;
+}
+
+.eventMeta {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendarShell :global(.fc) {
+  --fc-border-color: rgba(255, 255, 255, 0.08);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgba(255, 255, 255, 0.04);
+  --fc-list-event-hover-bg-color: rgba(255, 255, 255, 0.05);
+  --fc-now-indicator-color: #ffd37a;
+  color: var(--text-primary);
+}
+
+.calendarShell :global(.fc .fc-toolbar.fc-header-toolbar) {
+  margin-bottom: 1rem;
+  gap: 0.8rem;
+}
+
+.calendarShell :global(.fc .fc-toolbar-title) {
+  font-size: clamp(1rem, 2.1vw, 1.3rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.calendarShell :global(.fc .fc-toolbar-chunk) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.calendarShell :global(.fc .fc-button-group) {
+  gap: 0.4rem;
+}
+
+.calendarShell :global(.fc .fc-button-group > .fc-button) {
+  border-radius: 999px !important;
+}
+
+.calendarShell :global(.fc .fc-button-primary) {
+  border: 1px solid rgba(125, 166, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-soft);
+  box-shadow: none;
+}
+
+.calendarShell :global(.fc .fc-button-primary:hover),
+.calendarShell :global(.fc .fc-button-primary:focus) {
+  border-color: rgba(125, 166, 255, 0.32);
+  background: rgba(125, 166, 255, 0.14);
+  color: var(--text-primary);
+}
+
+.calendarShell :global(.fc .fc-button-primary:not(:disabled).fc-button-active) {
+  border-color: rgba(125, 166, 255, 0.44);
+  background: linear-gradient(135deg, rgba(125, 166, 255, 0.3), rgba(125, 166, 255, 0.15));
+  color: var(--text-primary);
+}
+
+.calendarShell :global(.fc .fc-scroller-liquid-absolute),
+.calendarShell :global(.fc .fc-scroller-liquid) {
+  scrollbar-color: rgba(125, 166, 255, 0.32) transparent;
+}
+
+.calendarShell :global(.fc .fc-scrollgrid),
+.calendarShell :global(.fc .fc-theme-standard td),
+.calendarShell :global(.fc .fc-theme-standard th) {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.calendarShell :global(.fc .fc-col-header-cell-cushion),
+.calendarShell :global(.fc .fc-daygrid-day-number),
+.calendarShell :global(.fc .fc-timegrid-axis-cushion),
+.calendarShell :global(.fc .fc-timegrid-slot-label-cushion) {
+  color: var(--text-soft);
+}
+
+.calendarShell :global(.fc .fc-col-header-cell-cushion) {
+  padding-block: 0.75rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.calendarShell :global(.fc .fc-daygrid-day-frame),
+.calendarShell :global(.fc .fc-timegrid-col-frame) {
+  min-height: 7.25rem;
+}
+
+.calendarShell :global(.fc .fc-daygrid-day.fc-day-today),
+.calendarShell :global(.fc .fc-timegrid-col.fc-day-today) {
+  background: rgba(125, 166, 255, 0.07);
+}
+
+.calendarShell :global(.fc .fc-day-other .fc-daygrid-day-number) {
+  color: rgba(196, 202, 226, 0.4);
+}
+
+.calendarShell :global(.fc .fc-daygrid-more-link) {
+  color: var(--text-soft);
+}
+
+.calendarShell :global(.fc .fc-timegrid-now-indicator-arrow) {
+  border-color: transparent transparent transparent #ffd37a;
+}
+
+.calendarShell :global(.fc .fc-timegrid-now-indicator-line) {
+  border-color: #ffd37a;
+}
+
+.calendarShell :global(.fc .fc-timegrid-slot),
+.calendarShell :global(.fc .fc-daygrid-day) {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+}
+
+@media (max-width: 960px) {
+  .header {
+    flex-direction: column;
+  }
+
+  .stats {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .calendarShell {
+    padding: 1.1rem;
+    border-radius: 24px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .calendarShell :global(.fc .fc-toolbar.fc-header-toolbar) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .calendarShell :global(.fc .fc-toolbar-chunk) {
+    justify-content: space-between;
+  }
+
+  .calendarShell :global(.fc .fc-button-group) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .calendarShell :global(.fc .fc-button-group > .fc-button),
+  .calendarShell :global(.fc .fc-today-button) {
+    width: 100%;
+  }
+}

@@ -15,6 +15,8 @@ describe('wallet i18n', () => {
     expect(t('settings.wallet_error_nwc_incompatible')).toContain('NWC')
     expect(t('settings.build_charge_hint', { sats: '5' })).toContain('5')
     expect(t('calendar.file_type')).toBe('Calendario')
+    expect(t('dashboard.calendar_panel.title')).toBe('Calendario completo')
+    expect(t('dashboard.calendar_panel.toolbar.week')).toBe('Semana')
     expect(t('builder.fallback_notice')).toContain('asistente local')
   })
 })

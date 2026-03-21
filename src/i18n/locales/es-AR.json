@@ -122,6 +122,25 @@
     "actions_title": "Acciones del plan",
     "actions_hint_local": "En esta maquina tambien podes usar el asistente local.",
     "redo_intake": "Rehacer mi perfil",
+    "calendar_panel": {
+      "label": "Todo el plan",
+      "title": "Calendario completo",
+      "hint": "Mira tu plan entero por mes, semana o dia para ubicarte rapido sin perder el foco de hoy.",
+      "stats_label": "Resumen del calendario",
+      "total_label": "Actividades",
+      "pending_label": "Pendientes",
+      "today_label": "Hoy",
+      "empty_title": "Todavia no hay actividades con fecha",
+      "empty_copy": "Cuando el plan tenga horarios, vas a poder recorrerlo completo desde aca.",
+      "legend_scheduled": "Actividad programada",
+      "legend_completed": "{{count}} listas",
+      "toolbar": {
+        "today": "Hoy",
+        "month": "Mes",
+        "week": "Semana",
+        "day": "Dia"
+      }
+    },
     "category": {
       "estudio": "Estudio",
       "ejercicio": "Ejercicio",
@@ -337,6 +356,33 @@
     "file_type": "Calendario",
     "description_category": "Categoría: {{category}}",
     "description_status": "Estado: {{status}}"
+  },
+  "resource_usage": {
+    "label": "Origen del recurso",
+    "mode": {
+      "backend-cloud": "LAP pone el asistente en linea para esta accion.",
+      "user-cloud": "Vas a usar tu propia clave del asistente.",
+      "backend-local": "LAP pone la maquina que arma el plan.",
+      "user-local": "Esta ruta usaria tu propia maquina."
+    },
+    "source": {
+      "backend-stored": "Toma la configuracion guardada del sistema.",
+      "user-stored": "Toma tu clave guardada en este equipo.",
+      "user-supplied": "Toma la clave que acabas de pegar.",
+      "none": "No hace falta cargar una clave para esta ruta."
+    },
+    "billing": {
+      "charge": "Como usa recurso del sistema, esta accion se cobra.",
+      "user_resource": "Como usa tu propio recurso, esta accion no se cobra.",
+      "operation_not_chargeable": "Esta accion no tiene cobro configurado por ahora.",
+      "execution_blocked": "Antes de ejecutar, primero hay que destrabar esta ruta."
+    },
+    "blocked": {
+      "user_credential_missing": "Falta tu clave para esta ruta.",
+      "backend_credential_missing": "Falta la configuracion del sistema para esta ruta.",
+      "user_local_not_supported": "Esta ruta todavia no se puede ejecutar desde la web.",
+      "other": "Esta ruta no esta disponible ahora."
+    }
   },
   "errors": {
     "connection_busy": "El asistente está un poquito ocupado. Dame un segundito.",

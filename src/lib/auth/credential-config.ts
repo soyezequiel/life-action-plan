@@ -329,6 +329,16 @@ export async function getCredentialConfiguration(id: string): Promise<Credential
   return record ? toCredentialView(record) : null
 }
 
+export async function getCredentialConfigurationSecret(id: string): Promise<string | null> {
+  const record = await getCredentialRecord(id)
+
+  if (!record || record.status !== 'active') {
+    return null
+  }
+
+  return getCredentialSecretValue(id)
+}
+
 export async function findCredentialConfiguration(locator: CredentialLocatorInput): Promise<CredentialRecordView | null> {
   const record = await findCredentialRecord(resolveCredentialLocator(locator))
   return record ? toCredentialView(record) : null

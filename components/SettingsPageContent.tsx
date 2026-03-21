@@ -6,6 +6,7 @@ import { MotionConfig, motion } from 'framer-motion'
 import { getCurrentLocale, t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
 import { extractErrorMessage, toUserFacingErrorMessage } from '../src/lib/client/error-utils'
+import { getResourceUsageDisplay } from '../src/lib/client/resource-usage-copy'
 import type { DeploymentMode } from '../src/lib/env/deployment'
 import {
   DEFAULT_OPENAI_BUILD_MODEL,
@@ -14,7 +15,8 @@ import {
   getProviderLabelKey,
   resolveBuildModel
 } from '../src/lib/providers/provider-metadata'
-import type { PlanBuildProgress, WalletStatus } from '../src/shared/types/lap-api'
+import type { BuildUsagePreviewResult, PlanBuildProgress, WalletStatus } from '../src/shared/types/lap-api'
+import type { ResourceUsageSummary } from '../src/shared/types/resource-usage'
 
 const buildStages: PlanBuildProgress['stage'][] = ['preparing', 'generating', 'validating', 'saving']
 
@@ -95,10 +97,14 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const [buildNotice, setBuildNotice] = useState('')
   const [buildBusy, setBuildBusy] = useState(false)
   const [buildDone, setBuildDone] = useState(false)
-  const onlineBuildRequiresCharge = shouldBuild && !localBuildIntent
-  const buildChargeBlocked = onlineBuildRequiresCharge && walletStatus.planBuildChargeReady === false
-  const buildChargeAmount = typeof walletStatus.planBuildChargeSats === 'number'
-    ? formatCount(walletStatus.planBuildChargeSats)
+  const [buildUsage, setBuildUsage] = useState<ResourceUsageSummary | null>(null)
+  const [buildUsageLoading, setBuildUsageLoading] = useState(false)
+  const buildUsageDisplay = getResourceUsageDisplay(buildUsage)
+  const buildNeedsCharge = shouldBuild && buildUsage?.chargeable === true
+  const buildExecutionBlocked = shouldBuild && buildUsage?.canExecute === false
+  const buildChargeBlocked = buildNeedsCharge && walletStatus.planBuildChargeReady === false
+  const buildChargeAmount = typeof buildUsage?.estimatedCostSats === 'number'
+    ? formatCount(buildUsage.estimatedCostSats)
     : null
 
   useEffect(() => {
@@ -125,6 +131,51 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       setBuildProgress(progress)
     })
   }, [client])
+
+  useEffect(() => {
+    if (!shouldBuild) {
+      setBuildUsage(null)
+      setBuildUsageLoading(false)
+      return
+    }
+
+    let active = true
+    const hasUserApiKey = apiKey.trim().length > 0 || apiKeyConfigured
+
+    setBuildUsageLoading(true)
+
+    void fetch(`/api/settings/build-preview?provider=${encodeURIComponent(resolvedBuildModel)}&hasUserApiKey=${hasUserApiKey ? '1' : '0'}`)
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(extractErrorMessage(await response.text()))
+        }
+
+        return response.json() as Promise<BuildUsagePreviewResult>
+      })
+      .then((payload) => {
+        if (!active) {
+          return
+        }
+
+        setBuildUsage(payload.usage)
+      })
+      .catch(() => {
+        if (!active) {
+          return
+        }
+
+        setBuildUsage(null)
+      })
+      .finally(() => {
+        if (active) {
+          setBuildUsageLoading(false)
+        }
+      })
+
+    return () => {
+      active = false
+    }
+  }, [apiKey, apiKeyConfigured, resolvedBuildModel, shouldBuild])
 
   async function handleSaveApiKey(): Promise<void> {
     const nextKey = apiKey.trim()
@@ -300,12 +351,34 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
               <p className="status-message status-message--neutral">
                 {t('settings.build_route_hint', { provider: selectedProviderLabel })}
               </p>
-              {onlineBuildRequiresCharge && buildChargeAmount && (
+              {shouldBuild && buildUsageDisplay && (
+                <>
+                  <p className="status-message status-message--neutral">
+                    {`${buildUsageDisplay.label}: ${buildUsageDisplay.detail}`}
+                  </p>
+                  <p className="status-message status-message--neutral">
+                    {buildUsageDisplay.source}
+                  </p>
+                  <p
+                    className={[
+                      'status-message',
+                      buildUsageDisplay.tone === 'warning'
+                        ? 'status-message--warning'
+                        : buildUsageDisplay.tone === 'success'
+                          ? 'status-message--success'
+                          : 'status-message--neutral'
+                    ].join(' ')}
+                  >
+                    {buildUsageDisplay.billing}
+                  </p>
+                </>
+              )}
+              {buildNeedsCharge && buildChargeAmount && (
                 <p className="status-message status-message--neutral">
                   {t('settings.build_charge_hint', { sats: buildChargeAmount })}
                 </p>
               )}
-              {onlineBuildRequiresCharge && walletStatus.planBuildChargeReady && (
+              {buildNeedsCharge && walletStatus.planBuildChargeReady && (
                 <p className="status-message status-message--success">{t('settings.build_charge_ready')}</p>
               )}
               {buildChargeBlocked && (
@@ -335,7 +408,13 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                 onClick={() => {
                   void handleSaveApiKey()
                 }}
-                disabled={buildBusy || buildChargeBlocked || (requiresApiKey && !apiKey.trim() && !apiKeyConfigured)}
+                disabled={
+                  buildBusy
+                  || buildUsageLoading
+                  || buildChargeBlocked
+                  || (shouldBuild && (!buildUsage || buildExecutionBlocked))
+                  || (!shouldBuild && requiresApiKey && !apiKey.trim() && !apiKeyConfigured)
+                }
               >
                 {buildBusy
                   ? t('builder.generating')

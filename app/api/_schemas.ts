@@ -46,7 +46,7 @@ export const profileQuerySchema = z.object({
 
 export const progressListQuerySchema = z.object({
   planId: idSchema,
-  fecha: dateSchema
+  fecha: dateSchema.optional()
 }).strict()
 
 export const progressToggleRequestSchema = z.object({
@@ -68,6 +68,11 @@ export const walletConnectRequestSchema = z.object({
 export const apiKeySaveRequestSchema = z.object({
   apiKey: z.string().trim().min(1),
   provider: cloudApiProviderSchema.default('openai')
+}).strict()
+
+export const buildUsagePreviewQuerySchema = z.object({
+  provider: z.string().trim().min(1).optional(),
+  hasUserApiKey: z.string().trim().optional()
 }).strict()
 
 export const credentialListQuerySchema = z.object({

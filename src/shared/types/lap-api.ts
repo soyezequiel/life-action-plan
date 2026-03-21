@@ -1,5 +1,6 @@
 import type { Perfil } from '../schemas/perfil'
 import type { DebugEvent, DebugTraceSnapshot } from './debug'
+import type { ResourceUsageSummary } from './resource-usage'
 
 export interface IntakeExpressData {
   nombre: string
@@ -44,6 +45,7 @@ export interface PlanBuildResult {
   tokensUsed?: { input: number; output: number }
   fallbackUsed?: boolean
   charge?: OperationChargeSummary
+  resourceUsage?: ResourceUsageSummary | null
   error?: string
 }
 
@@ -96,7 +98,7 @@ export interface PlanRow {
 
 export interface ProgressListRequest {
   planId: string
-  fecha: string
+  fecha?: string
 }
 
 export interface ProgressListResult {
@@ -149,6 +151,8 @@ export type ChargeOperation = 'plan_build' | 'plan_simulate'
 export type ChargeStatus = 'pending' | 'paid' | 'rejected' | 'skipped' | 'failed'
 
 export type ChargeReasonCode =
+  | 'user_resource'
+  | 'execution_blocked'
   | 'free_local_operation'
   | 'operation_not_chargeable'
   | 'wallet_not_connected'
@@ -198,6 +202,7 @@ export interface OperationChargeSummary {
   reasonCode: ChargeReasonCode | null
   reasonDetail: string | null
   paymentProvider: string | null
+  resourceUsage?: ResourceUsageSummary | null
 }
 
 export interface PlanExportCalendarRequest {
@@ -292,7 +297,14 @@ export interface PlanSimulationProgress {
 export interface PlanSimulationResult {
   success: boolean
   simulation?: PlanSimulationSnapshot
+  charge?: OperationChargeSummary
+  resourceUsage?: ResourceUsageSummary | null
   error?: string
+}
+
+export interface BuildUsagePreviewResult {
+  success: boolean
+  usage: ResourceUsageSummary
 }
 
 export interface LapAPI {
@@ -312,7 +324,7 @@ export interface LapAPI {
     latest: () => Promise<string | null>
   }
   progress: {
-    list: (planId: string, fecha: string) => Promise<ProgressRow[]>
+    list: (planId: string, fecha?: string) => Promise<ProgressRow[]>
     toggle: (progressId: string) => Promise<ProgressToggleResult>
   }
   streak: {

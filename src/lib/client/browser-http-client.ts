@@ -437,10 +437,13 @@ export const browserLapClient: LapAPI = {
     }
   },
   progress: {
-    async list(planId: string, fecha: string) {
-      return fetchJson<ProgressRow[]>(
-        `/api/progress/list?planId=${encodeURIComponent(planId)}&fecha=${encodeURIComponent(fecha)}`
-      )
+    async list(planId: string, fecha?: string) {
+      const params = new URLSearchParams({ planId })
+      if (fecha) {
+        params.set('fecha', fecha)
+      }
+
+      return fetchJson<ProgressRow[]>(`/api/progress/list?${params.toString()}`)
     },
     async toggle(progressId: string) {
       return fetchJson<ProgressToggleResult>('/api/progress/toggle', {

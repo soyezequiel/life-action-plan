@@ -12,26 +12,32 @@ export {
   chargeReasonSchema,
   credentialSourceSchema,
   createResourceExecutionContext,
+  executionBlockReasonSchema,
   executionModeSchema,
   executionModeSpecSchema,
+  executionResolutionSourceSchema,
   executionTargetSchema,
   EXECUTION_MODE_SPECS,
   getChargePolicyForResourceOwner,
   getExecutionModeSpec,
   providerDescriptorSchema,
   providerKindSchema,
+  resolvedExecutionContextSchema,
   resourceExecutionContextSchema,
   resourceOwnerSchema
 } from './execution-context'
 export type {
+  ExecutionBlockReason,
   ChargePolicy,
   ChargeReason,
   CredentialSource,
   ExecutionMode,
   ExecutionModeSpec,
+  ExecutionResolutionSource,
   ExecutionTarget,
   ProviderDescriptor,
   ProviderKind,
+  ResolvedExecutionContext,
   ResourceExecutionContext,
   ResourceOwner
 } from './execution-context'
@@ -55,3 +61,12 @@ export type {
   CredentialValidationResult,
   StoredCredentialRecord
 } from './credential-registry'
+
+export {
+  billingReasonCodeSchema,
+  resourceUsageSummarySchema
+} from './resource-usage'
+export type {
+  BillingReasonCode,
+  ResourceUsageSummary
+} from './resource-usage'

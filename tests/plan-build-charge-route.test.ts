@@ -1,16 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
-  decryptApiKeyMock: vi.fn(() => ''),
-  canUseLocalOllamaMock: vi.fn(() => true),
   getDeploymentModeMock: vi.fn(() => 'local'),
+  resolvePlanBuildExecutionMock: vi.fn(),
+  toOperationChargeSkipReasonMock: vi.fn(),
   canChargeOperationMock: vi.fn(),
   chargeOperationMock: vi.fn(),
   createInstrumentedRuntimeMock: vi.fn(() => ({})),
   buildWithOllamaFallbackMock: vi.fn(),
   generatePlanMock: vi.fn(),
   getProviderMock: vi.fn(() => ({})),
-  quoteOperationChargeMock: vi.fn(),
   recordChargeResultMock: vi.fn(),
   summarizeOperationChargeMock: vi.fn(),
   startTraceMock: vi.fn(() => 'trace-1'),
@@ -24,7 +23,6 @@ const mocks = vi.hoisted(() => ({
   trackCostMock: vi.fn(),
   trackEventMock: vi.fn(),
   getProfileMock: vi.fn(),
-  getUserSettingMock: vi.fn(),
   buildPlanManifestMock: vi.fn(() => '{"manifest":true}'),
   createUniquePlanSlugMock: vi.fn(() => 'plan-de-prueba'),
   getProfileTimezoneMock: vi.fn(() => 'America/Argentina/Buenos_Aires'),
@@ -32,26 +30,27 @@ const mocks = vi.hoisted(() => ({
     participantes: [{ datosPersonales: { ubicacion: { zonaHoraria: 'America/Argentina/Buenos_Aires' } } }]
   })),
   toChargeErrorMessageMock: vi.fn(() => 'Cobro bloqueado'),
+  toExecutionBlockErrorMessageMock: vi.fn(() => 'Necesitas configurar tu conexion primero.'),
   toPlanBuildErrorMessageMock: vi.fn(() => 'Build error')
 }))
 
-vi.mock('../src/lib/auth/api-key-auth', () => ({
-  decryptApiKey: mocks.decryptApiKeyMock
-}))
-
 vi.mock('../src/lib/env/deployment', () => ({
-  canUseLocalOllama: mocks.canUseLocalOllamaMock,
   getDeploymentMode: mocks.getDeploymentModeMock
 }))
 
+vi.mock('../src/lib/runtime/build-execution', () => ({
+  resolvePlanBuildExecution: mocks.resolvePlanBuildExecutionMock,
+  toOperationChargeSkipReason: mocks.toOperationChargeSkipReasonMock
+}))
+
 vi.mock('../app/api/_domain', () => ({
+  DEFAULT_OLLAMA_FALLBACK_MODEL: 'ollama:qwen3:8b',
   canChargeOperation: mocks.canChargeOperationMock,
   chargeOperation: mocks.chargeOperationMock,
   createInstrumentedRuntime: mocks.createInstrumentedRuntimeMock,
   buildWithOllamaFallback: mocks.buildWithOllamaFallbackMock,
   generatePlan: mocks.generatePlanMock,
   getProvider: mocks.getProviderMock,
-  quoteOperationCharge: mocks.quoteOperationChargeMock,
   recordChargeResult: mocks.recordChargeResultMock,
   summarizeOperationCharge: mocks.summarizeOperationChargeMock,
   traceCollector: {
@@ -69,8 +68,7 @@ vi.mock('../app/api/_db', () => ({
   seedProgressFromEvents: mocks.seedProgressFromEventsMock,
   trackCost: mocks.trackCostMock,
   trackEvent: mocks.trackEventMock,
-  getProfile: mocks.getProfileMock,
-  getUserSetting: mocks.getUserSettingMock
+  getProfile: mocks.getProfileMock
 }))
 
 vi.mock('../app/api/_plan', () => ({
@@ -79,6 +77,7 @@ vi.mock('../app/api/_plan', () => ({
   getProfileTimezone: mocks.getProfileTimezoneMock,
   parseStoredProfile: mocks.parseStoredProfileMock,
   toChargeErrorMessage: mocks.toChargeErrorMessageMock,
+  toExecutionBlockErrorMessage: mocks.toExecutionBlockErrorMessageMock,
   toPlanBuildErrorMessage: mocks.toPlanBuildErrorMessageMock
 }))
 
@@ -110,6 +109,52 @@ function extractResultPayload(streamText: string): Record<string, unknown> {
   return resultPayload.result as Record<string, unknown>
 }
 
+function makeExecutionResolution(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    operation: 'plan_build',
+    requestedModelId: 'openai:gpt-4o-mini',
+    deploymentMode: 'local',
+    executionContext: {
+      mode: 'backend-cloud',
+      resourceOwner: 'backend',
+      executionTarget: 'cloud',
+      credentialSource: 'backend-stored',
+      provider: {
+        providerId: 'openai',
+        modelId: 'openai:gpt-4o-mini',
+        providerKind: 'cloud'
+      },
+      chargePolicy: 'charge',
+      chargeReason: 'backend_resource',
+      credentialId: 'cred-1',
+      canExecute: true,
+      resolutionSource: 'auto-backend-stored',
+      blockReasonCode: null,
+      blockReasonDetail: null
+    },
+    billingPolicy: {
+      operation: 'plan_build',
+      executionMode: 'backend-cloud',
+      resourceOwner: 'backend',
+      executionTarget: 'cloud',
+      chargePolicy: 'charge',
+      chargeReason: 'backend_resource',
+      billableOperation: true,
+      estimatedAmountStrategy: 'fixed_plan_build_sats',
+      estimatedCostUsd: 0.005,
+      estimatedCostSats: 5,
+      chargeable: true,
+      skipReasonCode: null,
+      skipReasonDetail: null
+    },
+    runtime: {
+      modelId: 'openai:gpt-4o-mini',
+      apiKey: 'backend-key'
+    },
+    ...overrides
+  }
+}
+
 describe('plan build charge route', () => {
   beforeEach(() => {
     Object.values(mocks).forEach((mock) => {
@@ -118,13 +163,11 @@ describe('plan build charge route', () => {
       }
     })
 
-    mocks.canUseLocalOllamaMock.mockReturnValue(true)
     mocks.getDeploymentModeMock.mockReturnValue('local')
     mocks.getProfileMock.mockResolvedValue({
       id: 'profile-1',
       data: '{"profile":true}'
     })
-    mocks.getUserSettingMock.mockResolvedValue(undefined)
     mocks.buildPlanManifestMock.mockReturnValue('{"manifest":true}')
     mocks.createUniquePlanSlugMock.mockResolvedValue('plan-de-prueba')
     mocks.getProfileTimezoneMock.mockReturnValue('America/Argentina/Buenos_Aires')
@@ -132,14 +175,11 @@ describe('plan build charge route', () => {
       participantes: [{ datosPersonales: { ubicacion: { zonaHoraria: 'America/Argentina/Buenos_Aires' } } }]
     })
     mocks.toChargeErrorMessageMock.mockReturnValue('Cobro bloqueado')
+    mocks.toExecutionBlockErrorMessageMock.mockReturnValue('Necesitas configurar tu conexion primero.')
     mocks.toPlanBuildErrorMessageMock.mockReturnValue('Build error')
-    mocks.quoteOperationChargeMock.mockReturnValue({
-      operation: 'plan_build',
-      model: 'openai:gpt-4o-mini',
-      estimatedCostUsd: 0.005,
-      estimatedCostSats: 5,
-      chargeable: true,
-      reasonCode: null
+    mocks.toOperationChargeSkipReasonMock.mockReturnValue({
+      reasonCode: 'user_resource',
+      reasonDetail: 'RESOURCE_OWNER_USER'
     })
     mocks.summarizeOperationChargeMock.mockImplementation((charge) => ({
       chargeId: charge.id,
@@ -155,27 +195,57 @@ describe('plan build charge route', () => {
     }))
   })
 
-  it('bloquea el build antes del LLM cuando el cobro es rechazado en precheck', async () => {
-    mocks.canChargeOperationMock.mockResolvedValue({
-      decision: 'rejected',
-      operation: 'plan_build',
-      estimatedCostUsd: 0.005,
-      estimatedCostSats: 5,
-      reasonCode: 'wallet_not_connected',
-      reasonDetail: 'WALLET_NOT_CONNECTED',
-      paymentProvider: null,
-      wallet: null
+  it('bloquea el build antes del LLM cuando el contexto de ejecucion no puede ejecutarse', async () => {
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution({
+      executionContext: {
+        mode: 'user-cloud',
+        resourceOwner: 'user',
+        executionTarget: 'cloud',
+        credentialSource: 'user-stored',
+        provider: {
+          providerId: 'openai',
+          modelId: 'openai:gpt-4o-mini',
+          providerKind: 'cloud'
+        },
+        chargePolicy: 'skip',
+        chargeReason: 'user_resource',
+        credentialId: null,
+        canExecute: false,
+        resolutionSource: 'auto-cloud-missing',
+        blockReasonCode: 'cloud_credential_missing',
+        blockReasonDetail: 'No active credential is configured.'
+      },
+      billingPolicy: {
+        operation: 'plan_build',
+        executionMode: 'user-cloud',
+        resourceOwner: 'user',
+        executionTarget: 'cloud',
+        chargePolicy: 'skip',
+        chargeReason: 'user_resource',
+        billableOperation: true,
+        estimatedAmountStrategy: 'fixed_plan_build_sats',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        chargeable: false,
+        skipReasonCode: 'execution_blocked',
+        skipReasonDetail: 'No active credential is configured.'
+      },
+      runtime: null
+    }))
+    mocks.toOperationChargeSkipReasonMock.mockReturnValue({
+      reasonCode: 'execution_blocked',
+      reasonDetail: 'No active credential is configured.'
     })
     mocks.createOperationChargeMock.mockResolvedValue({
       id: 'charge-1',
-      status: 'rejected',
+      status: 'skipped',
       estimatedCostUsd: 0.005,
       estimatedCostSats: 5,
       finalCostUsd: 0,
       finalCostSats: 0,
       chargedSats: 0,
-      reasonCode: 'wallet_not_connected',
-      reasonDetail: 'WALLET_NOT_CONNECTED',
+      reasonCode: 'execution_blocked',
+      reasonDetail: 'No active credential is configured.',
       paymentProvider: null
     })
 
@@ -190,15 +260,132 @@ describe('plan build charge route', () => {
     expect(mocks.buildWithOllamaFallbackMock).not.toHaveBeenCalled()
     expect(result).toEqual(expect.objectContaining({
       success: false,
-      error: 'Cobro bloqueado',
+      error: 'Necesitas configurar tu conexion primero.',
       charge: expect.objectContaining({
         chargeId: 'charge-1',
-        status: 'rejected'
+        status: 'skipped',
+        reasonCode: 'execution_blocked'
       })
     }))
   })
 
-  it('persiste el chargeId y devuelve cobro pagado cuando el build online sale bien', async () => {
+  it('no cobra cuando el build usa recurso del usuario', async () => {
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution({
+      executionContext: {
+        mode: 'user-cloud',
+        resourceOwner: 'user',
+        executionTarget: 'cloud',
+        credentialSource: 'user-supplied',
+        provider: {
+          providerId: 'openai',
+          modelId: 'openai:gpt-4o-mini',
+          providerKind: 'cloud'
+        },
+        chargePolicy: 'skip',
+        chargeReason: 'user_resource',
+        credentialId: null,
+        canExecute: true,
+        resolutionSource: 'auto-user-supplied',
+        blockReasonCode: null,
+        blockReasonDetail: null
+      },
+      billingPolicy: {
+        operation: 'plan_build',
+        executionMode: 'user-cloud',
+        resourceOwner: 'user',
+        executionTarget: 'cloud',
+        chargePolicy: 'skip',
+        chargeReason: 'user_resource',
+        billableOperation: true,
+        estimatedAmountStrategy: 'fixed_plan_build_sats',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        chargeable: false,
+        skipReasonCode: 'user_resource',
+        skipReasonDetail: 'RESOURCE_OWNER_USER'
+      },
+      runtime: {
+        modelId: 'openai:gpt-4o-mini',
+        apiKey: 'user-key'
+      }
+    }))
+    mocks.createOperationChargeMock.mockResolvedValue({
+      id: 'charge-1',
+      status: 'skipped',
+      estimatedCostUsd: 0.005,
+      estimatedCostSats: 5,
+      finalCostUsd: 0,
+      finalCostSats: 0,
+      chargedSats: 0,
+      reasonCode: 'user_resource',
+      reasonDetail: 'RESOURCE_OWNER_USER',
+      paymentProvider: null
+    })
+    mocks.buildWithOllamaFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
+      fallbackUsed: false,
+      modelId,
+      result: await buildPlan(modelId)
+    }))
+    mocks.generatePlanMock.mockResolvedValue({
+      nombre: 'Plan con recurso propio',
+      resumen: 'Resumen',
+      eventos: [],
+      tokensUsed: { input: 1200, output: 800 }
+    })
+    mocks.estimateCostUsdMock.mockReturnValue(0.001)
+    mocks.estimateCostSatsMock.mockReturnValue(1)
+    mocks.recordChargeResultMock
+      .mockResolvedValueOnce({
+        id: 'charge-1',
+        status: 'skipped',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        finalCostUsd: 0.001,
+        finalCostSats: 1,
+        chargedSats: 0,
+        reasonCode: 'user_resource',
+        reasonDetail: 'RESOURCE_OWNER_USER',
+        paymentProvider: null
+      })
+      .mockResolvedValueOnce({
+        id: 'charge-1',
+        status: 'skipped',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        finalCostUsd: 0.001,
+        finalCostSats: 1,
+        chargedSats: 0,
+        reasonCode: 'user_resource',
+        reasonDetail: 'RESOURCE_OWNER_USER',
+        paymentProvider: null
+      })
+    mocks.createPlanMock.mockResolvedValue('plan-1')
+    mocks.trackCostMock.mockResolvedValue({ costUsd: 0.001, costSats: 1 })
+    mocks.seedProgressFromEventsMock.mockResolvedValue(0)
+
+    const response = await POST(new Request('http://localhost/api/plan/build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: buildRequestBody({ apiKey: 'user-key' })
+    }))
+
+    const result = extractResultPayload(await response.text())
+
+    expect(mocks.canChargeOperationMock).not.toHaveBeenCalled()
+    expect(mocks.chargeOperationMock).not.toHaveBeenCalled()
+    expect(result).toEqual(expect.objectContaining({
+      success: true,
+      planId: 'plan-1',
+      charge: expect.objectContaining({
+        chargeId: 'charge-1',
+        status: 'skipped',
+        reasonCode: 'user_resource'
+      })
+    }))
+  })
+
+  it('persiste el chargeId y devuelve cobro pagado cuando el build usa recurso del backend', async () => {
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution())
     mocks.canChargeOperationMock.mockResolvedValue({
       decision: 'chargeable',
       operation: 'plan_build',
@@ -221,15 +408,16 @@ describe('plan build charge route', () => {
       reasonDetail: null,
       paymentProvider: null
     })
-    mocks.buildWithOllamaFallbackMock.mockResolvedValue({
+    mocks.buildWithOllamaFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
       fallbackUsed: false,
-      modelId: 'openai:gpt-4o-mini',
-      result: {
-        nombre: 'Plan real',
-        resumen: 'Resumen',
-        eventos: [],
-        tokensUsed: { input: 1200, output: 800 }
-      }
+      modelId,
+      result: await buildPlan(modelId)
+    }))
+    mocks.generatePlanMock.mockResolvedValue({
+      nombre: 'Plan real',
+      resumen: 'Resumen',
+      eventos: [],
+      tokensUsed: { input: 1200, output: 800 }
     })
     mocks.estimateCostUsdMock.mockReturnValue(0.001)
     mocks.estimateCostSatsMock.mockReturnValue(1)
@@ -283,6 +471,13 @@ describe('plan build charge route', () => {
 
     const result = extractResultPayload(await response.text())
 
+    expect(mocks.canChargeOperationMock).toHaveBeenCalledWith({
+      operation: 'plan_build',
+      model: 'openai:gpt-4o-mini',
+      estimatedCostUsd: 0.005,
+      estimatedCostSats: 5,
+      chargeable: true
+    })
     expect(mocks.chargeOperationMock).toHaveBeenCalledWith({
       operation: 'plan_build',
       amountSats: 5,
@@ -303,6 +498,240 @@ describe('plan build charge route', () => {
         chargeId: 'charge-1',
         status: 'paid',
         chargedSats: 5
+      })
+    }))
+  })
+
+  it('cobra tambien cuando el build usa backend-local aunque el modelo sea local', async () => {
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution({
+      requestedModelId: 'ollama:qwen3:8b',
+      executionContext: {
+        mode: 'backend-local',
+        resourceOwner: 'backend',
+        executionTarget: 'backend-local',
+        credentialSource: 'none',
+        provider: {
+          providerId: 'ollama',
+          modelId: 'ollama:qwen3:8b',
+          providerKind: 'local'
+        },
+        chargePolicy: 'charge',
+        chargeReason: 'backend_resource',
+        credentialId: null,
+        canExecute: true,
+        resolutionSource: 'auto-backend-local',
+        blockReasonCode: null,
+        blockReasonDetail: null
+      },
+      billingPolicy: {
+        operation: 'plan_build',
+        executionMode: 'backend-local',
+        resourceOwner: 'backend',
+        executionTarget: 'backend-local',
+        chargePolicy: 'charge',
+        chargeReason: 'backend_resource',
+        billableOperation: true,
+        estimatedAmountStrategy: 'fixed_plan_build_sats',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        chargeable: true,
+        skipReasonCode: null,
+        skipReasonDetail: null
+      },
+      runtime: {
+        modelId: 'ollama:qwen3:8b',
+        apiKey: '',
+        baseURL: 'http://localhost:11434'
+      }
+    }))
+    mocks.canChargeOperationMock.mockResolvedValue({
+      decision: 'chargeable',
+      operation: 'plan_build',
+      estimatedCostUsd: 0.005,
+      estimatedCostSats: 5,
+      reasonCode: null,
+      reasonDetail: null,
+      paymentProvider: 'nwc',
+      wallet: null
+    })
+    mocks.createOperationChargeMock.mockResolvedValue({
+      id: 'charge-local-1',
+      status: 'pending',
+      estimatedCostUsd: 0.005,
+      estimatedCostSats: 5,
+      finalCostUsd: 0,
+      finalCostSats: 0,
+      chargedSats: 0,
+      reasonCode: null,
+      reasonDetail: null,
+      paymentProvider: null
+    })
+    mocks.buildWithOllamaFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
+      fallbackUsed: false,
+      modelId,
+      result: await buildPlan(modelId)
+    }))
+    mocks.generatePlanMock.mockResolvedValue({
+      nombre: 'Plan local cobrado',
+      resumen: 'Resumen',
+      eventos: [],
+      tokensUsed: { input: 450, output: 900 }
+    })
+    mocks.estimateCostUsdMock.mockReturnValue(0)
+    mocks.estimateCostSatsMock.mockReturnValue(0)
+    mocks.chargeOperationMock.mockResolvedValue({
+      status: 'paid',
+      operation: 'plan_build',
+      chargedSats: 5,
+      paymentProvider: 'nwc',
+      lightningInvoice: 'lnbc1local...',
+      lightningPaymentHash: 'hash-local-1',
+      lightningPreimage: 'preimage-local-1',
+      providerReference: 'hash-local-1',
+      reasonCode: null,
+      reasonDetail: null,
+      wallet: null
+    })
+    mocks.recordChargeResultMock
+      .mockResolvedValueOnce({
+        id: 'charge-local-1',
+        status: 'paid',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        finalCostUsd: 0,
+        finalCostSats: 0,
+        chargedSats: 5,
+        reasonCode: null,
+        reasonDetail: null,
+        paymentProvider: 'nwc'
+      })
+      .mockResolvedValueOnce({
+        id: 'charge-local-1',
+        status: 'paid',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        finalCostUsd: 0,
+        finalCostSats: 0,
+        chargedSats: 5,
+        reasonCode: null,
+        reasonDetail: null,
+        paymentProvider: 'nwc'
+      })
+    mocks.createPlanMock.mockResolvedValue('plan-local-1')
+    mocks.trackCostMock.mockResolvedValue({ costUsd: 0, costSats: 0 })
+    mocks.seedProgressFromEventsMock.mockResolvedValue(0)
+
+    const response = await POST(new Request('http://localhost/api/plan/build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: buildRequestBody({ provider: 'ollama:qwen3:8b' })
+    }))
+
+    const result = extractResultPayload(await response.text())
+
+    expect(mocks.canChargeOperationMock).toHaveBeenCalledWith({
+      operation: 'plan_build',
+      model: 'ollama:qwen3:8b',
+      estimatedCostUsd: 0.005,
+      estimatedCostSats: 5,
+      chargeable: true
+    })
+    expect(mocks.chargeOperationMock).toHaveBeenCalledWith({
+      operation: 'plan_build',
+      amountSats: 5,
+      description: 'LAP plan build 11111111-1111-4111-8111-111111111111'
+    })
+    expect(mocks.trackCostMock).toHaveBeenCalledWith(
+      'plan-local-1',
+      'plan_build',
+      'ollama:qwen3:8b',
+      450,
+      900,
+      'charge-local-1'
+    )
+    expect(result).toEqual(expect.objectContaining({
+      success: true,
+      planId: 'plan-local-1',
+      charge: expect.objectContaining({
+        chargeId: 'charge-local-1',
+        status: 'paid',
+        chargedSats: 5
+      })
+    }))
+  })
+
+  it('bloquea de forma explicita un user-local que el backend no puede ejecutar', async () => {
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution({
+      requestedModelId: 'ollama:qwen3:8b',
+      executionContext: {
+        mode: 'user-local',
+        resourceOwner: 'user',
+        executionTarget: 'user-local',
+        credentialSource: 'none',
+        provider: {
+          providerId: 'ollama',
+          modelId: 'ollama:qwen3:8b',
+          providerKind: 'local'
+        },
+        chargePolicy: 'skip',
+        chargeReason: 'user_resource',
+        credentialId: null,
+        canExecute: false,
+        resolutionSource: 'requested-mode',
+        blockReasonCode: 'user_local_not_supported',
+        blockReasonDetail: 'The backend cannot execute user-local models.'
+      },
+      billingPolicy: {
+        operation: 'plan_build',
+        executionMode: 'user-local',
+        resourceOwner: 'user',
+        executionTarget: 'user-local',
+        chargePolicy: 'skip',
+        chargeReason: 'user_resource',
+        billableOperation: true,
+        estimatedAmountStrategy: 'fixed_plan_build_sats',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        chargeable: false,
+        skipReasonCode: 'execution_blocked',
+        skipReasonDetail: 'The backend cannot execute user-local models.'
+      },
+      runtime: null
+    }))
+    mocks.toOperationChargeSkipReasonMock.mockReturnValue({
+      reasonCode: 'execution_blocked',
+      reasonDetail: 'The backend cannot execute user-local models.'
+    })
+    mocks.createOperationChargeMock.mockResolvedValue({
+      id: 'charge-user-local-1',
+      status: 'skipped',
+      estimatedCostUsd: 0.005,
+      estimatedCostSats: 5,
+      finalCostUsd: 0,
+      finalCostSats: 0,
+      chargedSats: 0,
+      reasonCode: 'execution_blocked',
+      reasonDetail: 'The backend cannot execute user-local models.',
+      paymentProvider: null
+    })
+
+    const response = await POST(new Request('http://localhost/api/plan/build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: buildRequestBody({ provider: 'ollama:qwen3:8b' })
+    }))
+
+    const result = extractResultPayload(await response.text())
+
+    expect(mocks.buildWithOllamaFallbackMock).not.toHaveBeenCalled()
+    expect(mocks.chargeOperationMock).not.toHaveBeenCalled()
+    expect(result).toEqual(expect.objectContaining({
+      success: false,
+      error: 'Necesitas configurar tu conexion primero.',
+      charge: expect.objectContaining({
+        chargeId: 'charge-user-local-1',
+        status: 'skipped',
+        reasonCode: 'execution_blocked'
       })
     }))
   })

@@ -3,6 +3,7 @@ import { t } from '../../src/i18n'
 import type { Perfil } from '../../src/shared/schemas/perfil'
 import { toConfigErrorMessage } from '../../src/shared/config-errors'
 import type { ChargeReasonCode, OperationChargeSummary, PlanSimulationSnapshot } from '../../src/shared/types/lap-api'
+import type { ExecutionBlockReason } from '../../src/shared/types/execution-context'
 import { getPlanBySlug } from './_db'
 import { safeParseJsonRecord } from './_shared'
 
@@ -99,7 +100,8 @@ export function buildPlanManifest(params: {
 export function createSimulationManifest(
   manifestJson: string,
   simulation: PlanSimulationSnapshot,
-  timezone: string
+  timezone: string,
+  charge?: OperationChargeSummary | null
 ): string {
   const manifest = safeParseJsonRecord(manifestJson)
   const periodKey = DateTime.now().setZone(timezone).toFormat('yyyy-MM')
@@ -150,7 +152,12 @@ export function createSimulationManifest(
         ? [periodKey]
         : []
     },
-    ultimaSimulacion: simulation
+    ultimaSimulacion: simulation,
+    ultimoCobro: charge ?? (
+      manifest.ultimoCobro && typeof manifest.ultimoCobro === 'object'
+        ? manifest.ultimoCobro
+        : null
+    )
   })
 }
 
@@ -174,6 +181,8 @@ export function toPlanBuildErrorMessage(error: unknown): string {
   }
 
   if (
+    normalized.includes('user_supplied_api_key_missing') ||
+    normalized.includes('user_credential_secret_unavailable') ||
     normalized.includes('api key') ||
     normalized.includes('unauthorized') ||
     normalized.includes('authentication') ||
@@ -189,6 +198,10 @@ export function toPlanBuildErrorMessage(error: unknown): string {
     normalized.includes('insufficient')
   ) {
     return t('errors.budget_exceeded')
+  }
+
+  if (normalized.includes('backend_credential_secret_unavailable')) {
+    return t('errors.service_unavailable')
   }
 
   if (
@@ -218,8 +231,28 @@ export function toPlanBuildErrorMessage(error: unknown): string {
   return t('errors.generic')
 }
 
+export function toExecutionBlockErrorMessage(reasonCode: ExecutionBlockReason | null | undefined): string {
+  switch (reasonCode) {
+    case 'user_credential_missing':
+    case 'cloud_credential_missing':
+      return t('errors.no_api_key')
+    case 'backend_credential_missing':
+      return t('errors.service_unavailable')
+    case 'backend_local_unavailable':
+    case 'user_local_not_supported':
+      return t('builder.local_unavailable_deploy')
+    case 'execution_mode_provider_mismatch':
+    case 'unsupported_provider':
+    default:
+      return t('errors.generic')
+  }
+}
+
 export function toChargeErrorMessage(reasonCode: ChargeReasonCode | null): string {
   switch (reasonCode) {
+    case 'user_resource':
+    case 'execution_blocked':
+      return t('errors.generic')
     case 'wallet_not_connected':
       return t('errors.charge_wallet_required')
     case 'insufficient_balance':

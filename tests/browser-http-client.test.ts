@@ -92,4 +92,21 @@ describe('browserHttpLapClient', () => {
 
     await expect(browserLapClient.profile.latest()).rejects.toThrow('boom')
   })
+
+  it('pide todas las actividades del plan cuando no se pasa fecha', async () => {
+    const fetchMock = vi.fn(async () => new Response('[]', {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { browserLapClient } = await import('../src/lib/client/browser-http-client')
+
+    const rows = await browserLapClient.progress.list('plan-1')
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/progress/list?planId=plan-1', expect.anything())
+    expect(rows).toEqual([])
+  })
 })

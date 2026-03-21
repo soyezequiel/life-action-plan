@@ -70,10 +70,28 @@ Superficies:
 8. Repetir un build online con saldo o presupuesto insuficiente y validar bloqueo o rechazo visible.
 9. Correr `npm run charge:report -- --expect=paid,skipped,rejected` para confirmar el caso rechazado.
 
+## Flujo recomendado para smoke por origen del recurso
+
+1. Correr `npm run smoke:resource:policy` para validar en forma automatica y visible la politica por `resourceOwner`.
+2. Correr `npm run smoke:local:resource`.
+3. Ejecutar y registrar estos casos reales cuando haya credenciales y wallet disponibles:
+   - `backend-cloud`: build online usando credencial del backend y cobrando.
+   - `user-cloud`: build online usando credencial del usuario y sin cobro.
+   - `backend-local`: build local ejecutado en el backend, con cobro si la politica lo habilita.
+   - `user-local`: bloqueo explicito o evidencia de que no se soporta desde el backend actual.
+4. Despues de cada corrida, usar `npm run resource:report -- --limit=20` para ver `executionMode`, `resourceOwner`, `credentialSource` y `billing`.
+5. Cuando haya casos suficientes, validar combinaciones exactas con:
+   - `npm run resource:report -- --expect-case=plan_build:paid:backend-cloud`
+   - `npm run resource:report -- --expect-case=plan_build:skipped:user-cloud:user_resource`
+   - `npm run resource:report -- --expect-case=plan_build:paid:backend-local`
+   - `npm run resource:report -- --expect-case=plan_simulate:skipped:backend-local:operation_not_chargeable`
+6. Si una fila sale como `contexto=sin-contexto`, esa evidencia no vale para este smoke porque no deja trazabilidad completa del origen del recurso.
+
 ## Notas operativas
 
 - En local, Ollama es valido solo para desarrollo
 - El smoke de cobro real no vale si falta `LAP_LIGHTNING_RECEIVER_NWC_URL` o si no hay una billetera NWC conectada desde la UI
+- El smoke por origen del recurso no vale si faltan filas con `executionMode` y `resourceOwner` en `operation_charges`
 - En Vercel, el smoke de LLM debe hacerse con proveedor cloud
 - En Vercel, el frontend no debe exponer el build local y el backend no debe caer a Ollama como fallback
 - Ninguna corrida vale si un fallback o mock oculta un error HTTP sin senal visible

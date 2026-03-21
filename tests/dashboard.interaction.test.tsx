@@ -4,6 +4,7 @@ import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { DateTime } from 'luxon'
 import Dashboard from '../components/Dashboard'
 import { AppServicesProvider } from '../src/lib/client/app-services'
 import { t } from '../src/i18n'
@@ -12,6 +13,7 @@ import type { Perfil } from '../src/shared/schemas/perfil'
 import type { CostSummary, PlanRow, ProgressRow } from '../src/shared/types/lap-api'
 
 const pushMock = vi.fn()
+const todayIso = DateTime.now().setZone('America/Argentina/Buenos_Aires').toISODate() ?? '2026-03-19'
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -57,6 +59,25 @@ vi.mock('framer-motion', async () => {
   }
 })
 
+vi.mock('@fullcalendar/react', async () => {
+  const ReactModule = await import('react')
+
+  return {
+    default: ({ events = [] }: { events?: Array<{ id?: string; title?: string }> }) => (
+      ReactModule.createElement(
+        'div',
+        { 'data-testid': 'fullcalendar-mock' },
+        events.map((event) => ReactModule.createElement('span', { key: event.id ?? event.title }, event.title))
+      )
+    )
+  }
+})
+
+vi.mock('@fullcalendar/daygrid', () => ({ default: {} }))
+vi.mock('@fullcalendar/timegrid', () => ({ default: {} }))
+vi.mock('@fullcalendar/interaction', () => ({ default: {} }))
+vi.mock('@fullcalendar/core/locales/es', () => ({ default: {} }))
+
 const profile = {
   participantes: [
     {
@@ -87,7 +108,7 @@ const basePlan: PlanRow = {
 const habitTask: ProgressRow = {
   id: 'progress-1',
   planId: 'plan-1',
-  fecha: '2026-03-19',
+  fecha: todayIso,
   tipo: 'habito',
   objetivoId: 'obj-1',
   descripcion: 'Salir a caminar',
@@ -168,7 +189,24 @@ function createLapClientStub(): LapAPI {
           chargedSats: 5,
           reasonCode: null,
           reasonDetail: null,
-          paymentProvider: 'nwc'
+          paymentProvider: 'nwc',
+          resourceUsage: {
+            mode: 'backend-cloud',
+            resourceOwner: 'backend',
+            executionTarget: 'cloud',
+            credentialSource: 'backend-stored',
+            chargePolicy: 'charge',
+            chargeReason: 'backend_resource',
+            chargeable: true,
+            estimatedCostSats: 5,
+            billingReasonCode: null,
+            billingReasonDetail: null,
+            canExecute: true,
+            blockReasonCode: null,
+            blockReasonDetail: null,
+            providerId: 'openai',
+            modelId: 'openai:gpt-4o-mini'
+          }
         }
       }))
     },
@@ -201,6 +239,9 @@ describe('dashboard interaction', () => {
     expect(screen.getByText(t('dashboard.done_count', { done: 0, total: 1 }))).toBeTruthy()
     expect(screen.getByText(t('dashboard.streak_best', { count: 2 }))).toBeTruthy()
     expect(screen.getByText(t('builder.route_local_done'))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.calendar_panel.title'))).toBeTruthy()
+    expect(screen.getByTestId('fullcalendar-mock')).toBeTruthy()
+    expect(screen.getAllByText('Salir a caminar').length).toBeGreaterThan(0)
 
     await user.click(screen.getByRole('button', { name: t('dashboard.check_in') }))
 
@@ -237,6 +278,8 @@ describe('dashboard interaction', () => {
     expect(screen.getByText(t('dashboard.charge_paid_hint'))).toBeTruthy()
     expect(screen.getByText(/0,0010/)).toBeTruthy()
     expect(screen.getByText(t('dashboard.cost_operation.plan_build'))).toBeTruthy()
+    expect(screen.getByText('Origen del recurso: LAP pone el asistente en linea para esta accion.')).toBeTruthy()
+    expect(screen.getByText('Como usa recurso del sistema, esta accion se cobra.')).toBeTruthy()
     expect(screen.getAllByText(t('dashboard.charge_operation_paid', { sats: '5' })).length).toBeGreaterThan(0)
   })
 

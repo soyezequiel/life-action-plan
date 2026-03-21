@@ -1,19 +1,23 @@
 import { NextResponse } from 'next/server'
-import type { PlanBuildProgress } from '../../../../src/shared/types/lap-api'
-import { decryptApiKey } from '../../../../src/lib/auth/api-key-auth'
-import { canUseLocalOllama, getDeploymentMode } from '../../../../src/lib/env/deployment'
+import { getDeploymentMode } from '../../../../src/lib/env/deployment'
 import {
+  resolvePlanBuildExecution,
+  toOperationChargeSkipReason,
+  type ResolvedPlanBuildExecution
+} from '../../../../src/lib/runtime/build-execution'
+import {
+  DEFAULT_OLLAMA_FALLBACK_MODEL,
   canChargeOperation,
   chargeOperation,
   createInstrumentedRuntime,
   buildWithOllamaFallback,
   generatePlan,
   getProvider,
-  quoteOperationCharge,
   recordChargeResult,
   summarizeOperationCharge,
   traceCollector
 } from '../../_domain'
+import type { PlanBuildProgress } from '../../../../src/shared/types/lap-api'
 import {
   createOperationCharge,
   createPlan,
@@ -22,8 +26,7 @@ import {
   seedProgressFromEvents,
   trackCost,
   trackEvent,
-  getProfile,
-  getUserSetting
+  getProfile
 } from '../../_db'
 import { apiErrorMessages, encodeSseData, sseHeaders } from '../../_shared'
 import { planBuildRequestSchema } from '../../_schemas'
@@ -33,15 +36,11 @@ import {
   getProfileTimezone,
   parseStoredProfile,
   toChargeErrorMessage,
+  toExecutionBlockErrorMessage,
   toPlanBuildErrorMessage
 } from '../../_plan'
-import { DEFAULT_USER_ID, getApiKeySettingKey } from '../../_user-settings'
-import {
-  getCloudApiKeyEnvName,
-  getModelProviderName,
-  isLocalModel,
-  resolveBuildModel
-} from '../../../../src/lib/providers/provider-metadata'
+import { resolveBuildModel } from '../../../../src/lib/providers/provider-metadata'
+import { summarizeResourceUsage } from '../../../../src/lib/runtime/resource-usage-summary'
 
 export const maxDuration = 60
 
@@ -66,8 +65,8 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const { profileId, apiKey, provider } = parsed.data
-  const modelId = resolveBuildModel(provider)
-  const localOllamaAvailable = canUseLocalOllama(getDeploymentMode())
+  const requestedModelId = resolveBuildModel(provider)
+  const deploymentMode = getDeploymentMode()
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -78,6 +77,8 @@ export async function POST(request: Request): Promise<Response> {
       let traceId: string | null = null
       let streamedCharCount = 0
       let chargeRecord: Awaited<ReturnType<typeof createOperationCharge>> | null = null
+      let requestedExecution: ResolvedPlanBuildExecution | null = null
+      let fallbackExecution: ResolvedPlanBuildExecution | null = null
 
       try {
         const profileRow = await getProfile(profileId)
@@ -106,41 +107,78 @@ export async function POST(request: Request): Promise<Response> {
           return
         }
 
-        const chargeQuote = quoteOperationCharge({
-          operation: 'plan_build',
-          model: modelId
+        requestedExecution = await resolvePlanBuildExecution({
+          modelId: requestedModelId,
+          deploymentMode,
+          userSuppliedApiKey: apiKey
         })
-        const chargeDecision = await canChargeOperation({
-          operation: 'plan_build',
-          model: modelId,
-          estimatedCostUsd: chargeQuote.estimatedCostUsd,
-          estimatedCostSats: chargeQuote.estimatedCostSats
+
+        const { executionContext, billingPolicy, runtime } = requestedExecution
+        const requestedResourceUsage = summarizeResourceUsage({
+          executionContext,
+          billingPolicy
         })
+        const prechargeDecision = billingPolicy.chargeable
+          ? await canChargeOperation({
+              operation: 'plan_build',
+              model: requestedModelId,
+              estimatedCostUsd: billingPolicy.estimatedCostUsd,
+              estimatedCostSats: billingPolicy.estimatedCostSats,
+              chargeable: true
+            })
+          : null
+        const skipReason = billingPolicy.chargeable ? null : toOperationChargeSkipReason(billingPolicy)
+        const initialChargeStatus = billingPolicy.chargeable
+          ? prechargeDecision?.decision === 'chargeable'
+            ? 'pending'
+            : prechargeDecision?.decision ?? 'skipped'
+          : 'skipped'
+        const initialReasonCode = billingPolicy.chargeable
+          ? prechargeDecision?.decision === 'chargeable'
+            ? null
+            : prechargeDecision?.reasonCode ?? null
+          : skipReason?.reasonCode ?? null
+        const initialReasonDetail = billingPolicy.chargeable
+          ? prechargeDecision?.decision === 'chargeable'
+            ? null
+            : prechargeDecision?.reasonDetail ?? null
+          : skipReason?.reasonDetail ?? null
 
         chargeRecord = await createOperationCharge({
           profileId,
           operation: 'plan_build',
-          model: modelId,
-          status: chargeDecision.decision === 'chargeable' ? 'pending' : chargeDecision.decision,
-          estimatedCostUsd: chargeQuote.estimatedCostUsd,
-          estimatedCostSats: chargeQuote.estimatedCostSats,
-          reasonCode: chargeDecision.decision === 'chargeable' ? null : chargeDecision.reasonCode,
-          reasonDetail: chargeDecision.decision === 'chargeable' ? null : chargeDecision.reasonDetail,
+          model: requestedModelId,
+          status: initialChargeStatus,
+          estimatedCostUsd: billingPolicy.estimatedCostUsd,
+          estimatedCostSats: billingPolicy.estimatedCostSats,
+          reasonCode: initialReasonCode,
+          reasonDetail: initialReasonDetail,
           metadata: {
-            requestedModelId: modelId
+            requestedModelId,
+            requestedExecutionContext: executionContext,
+            billingPolicy,
+            resourceUsage: requestedResourceUsage
           }
         })
 
         await trackEvent('PLAN_BUILD_STARTED', {
           profileId,
-          modelId,
+          modelId: requestedModelId,
           chargeId: chargeRecord.id,
-          chargeDecision: chargeDecision.decision,
-          estimatedCostSats: chargeQuote.estimatedCostSats
+          executionMode: executionContext.mode,
+          executionTarget: executionContext.executionTarget,
+          resourceOwner: executionContext.resourceOwner,
+          credentialSource: executionContext.credentialSource,
+          canExecute: executionContext.canExecute,
+          chargeDecision: billingPolicy.chargeable
+            ? prechargeDecision?.decision ?? initialChargeStatus
+            : 'skipped',
+          estimatedCostSats: billingPolicy.estimatedCostSats
         })
+
         const preparingProgress: PlanBuildProgress = {
           profileId,
-          provider: modelId,
+          provider: requestedModelId,
           stage: 'preparing',
           current: 1,
           total: 4,
@@ -151,20 +189,47 @@ export async function POST(request: Request): Promise<Response> {
           progress: preparingProgress
         })
 
-        if (chargeDecision.decision === 'rejected') {
-          await trackEvent('PLAN_BUILD_CHARGE_BLOCKED', {
+        if (!executionContext.canExecute) {
+          await trackEvent('PLAN_BUILD_EXECUTION_BLOCKED', {
             profileId,
-            modelId,
+            modelId: requestedModelId,
             chargeId: chargeRecord.id,
-            reasonCode: chargeDecision.reasonCode,
-            reasonDetail: chargeDecision.reasonDetail
+            blockReasonCode: executionContext.blockReasonCode,
+            blockReasonDetail: executionContext.blockReasonDetail,
+            executionMode: executionContext.mode
           })
 
           send({
             type: 'result',
             result: {
               success: false,
-              error: toChargeErrorMessage(chargeDecision.reasonCode),
+              error: toExecutionBlockErrorMessage(executionContext.blockReasonCode),
+              charge: summarizeOperationCharge(chargeRecord),
+              resourceUsage: requestedResourceUsage
+            }
+          })
+          controller.close()
+          return
+        }
+
+        if (!runtime) {
+          throw new Error('BUILD_RUNTIME_UNAVAILABLE')
+        }
+
+        if (prechargeDecision?.decision === 'rejected') {
+          await trackEvent('PLAN_BUILD_CHARGE_BLOCKED', {
+            profileId,
+            modelId: requestedModelId,
+            chargeId: chargeRecord.id,
+            reasonCode: prechargeDecision.reasonCode,
+            reasonDetail: prechargeDecision.reasonDetail
+          })
+
+          send({
+            type: 'result',
+            result: {
+              success: false,
+              error: toChargeErrorMessage(prechargeDecision.reasonCode),
               charge: summarizeOperationCharge(chargeRecord)
             }
           })
@@ -172,52 +237,49 @@ export async function POST(request: Request): Promise<Response> {
           return
         }
 
-        if (isLocalModel(modelId) && !localOllamaAvailable) {
-          send({
-            type: 'result',
-            result: {
-              success: false,
-              error: apiErrorMessages.localAssistantUnavailable()
-            }
+        if (executionContext.mode === 'backend-cloud') {
+          fallbackExecution = await resolvePlanBuildExecution({
+            modelId: DEFAULT_OLLAMA_FALLBACK_MODEL,
+            deploymentMode,
+            requestedMode: 'backend-local'
           })
-          controller.close()
-          return
         }
 
-        traceId = traceCollector.startTrace('plan-builder', modelId, { profileId, transport: 'api' })
+        const allowFallback = Boolean(fallbackExecution?.executionContext.canExecute && fallbackExecution.runtime)
+
+        traceId = traceCollector.startTrace('plan-builder', runtime.modelId, {
+          profileId,
+          transport: 'api',
+          executionMode: executionContext.mode,
+          resourceOwner: executionContext.resourceOwner
+        })
 
         const buildResult = await buildWithOllamaFallback(
-          modelId,
+          runtime.modelId,
           async (nextModelId) => {
-            if (isLocalModel(nextModelId) && !localOllamaAvailable) {
+            const activeExecution = nextModelId === runtime.modelId
+              ? requestedExecution!
+              : fallbackExecution && fallbackExecution.runtime && nextModelId === fallbackExecution.runtime.modelId
+                ? fallbackExecution
+                : await resolvePlanBuildExecution({
+                    modelId: nextModelId,
+                    deploymentMode,
+                    requestedMode: 'backend-local'
+                  })
+
+            if (!activeExecution.executionContext.canExecute || !activeExecution.runtime) {
               throw new Error(apiErrorMessages.localAssistantUnavailable())
             }
 
-            const cloudApiKeyEnvName = getCloudApiKeyEnvName(nextModelId)
-            const cloudApiKeyProvider = getModelProviderName(nextModelId)
-            const encryptedStoredApiKey = cloudApiKeyProvider === 'openrouter' || cloudApiKeyProvider === 'openai'
-              ? await getUserSetting(DEFAULT_USER_ID, getApiKeySettingKey(cloudApiKeyProvider))
-              : undefined
-            const storedApiKey = encryptedStoredApiKey ? decryptApiKey(encryptedStoredApiKey) : ''
-            const resolvedApiKey = isLocalModel(nextModelId)
-              ? ''
-              : apiKey.trim() || storedApiKey || (cloudApiKeyEnvName ? process.env[cloudApiKeyEnvName]?.trim() || '' : '')
-
-            if (!isLocalModel(nextModelId) && !resolvedApiKey) {
-              throw new Error('API key not configured')
-            }
-
-            const runtime = getProvider(nextModelId, {
-              apiKey: resolvedApiKey,
-              baseURL: isLocalModel(nextModelId)
-                ? process.env.OLLAMA_BASE_URL?.trim()
-                : undefined
+            const activeRuntime = getProvider(activeExecution.runtime.modelId, {
+              apiKey: activeExecution.runtime.apiKey,
+              baseURL: activeExecution.runtime.baseURL
             })
             const instrumentedRuntime = createInstrumentedRuntime(
-              runtime,
+              activeRuntime,
               traceId,
               'plan-builder',
-              nextModelId
+              activeExecution.runtime.modelId
             )
 
             return generatePlan(instrumentedRuntime, profile, {
@@ -231,7 +293,7 @@ export async function POST(request: Request): Promise<Response> {
                 if (stage === 'generating') {
                   const generatingProgress: PlanBuildProgress = {
                     profileId,
-                    provider: nextModelId,
+                    provider: activeExecution.runtime!.modelId,
                     stage: 'generating',
                     current: 2,
                     total: 4,
@@ -244,7 +306,7 @@ export async function POST(request: Request): Promise<Response> {
                 } else if (stage === 'validating') {
                   const validatingProgress: PlanBuildProgress = {
                     profileId,
-                    provider: nextModelId,
+                    provider: activeExecution.runtime!.modelId,
                     stage: 'validating',
                     current: 3,
                     total: 4,
@@ -260,7 +322,7 @@ export async function POST(request: Request): Promise<Response> {
                 streamedCharCount += chunk.length
                 const chunkProgress: PlanBuildProgress = {
                   profileId,
-                  provider: nextModelId,
+                  provider: activeExecution.runtime!.modelId,
                   stage: 'generating',
                   current: 2,
                   total: 4,
@@ -275,12 +337,15 @@ export async function POST(request: Request): Promise<Response> {
             })
           },
           {
-            allowFallback: localOllamaAvailable,
+            allowFallback,
             onFallback: async (originalError) => {
               await trackEvent('PLAN_BUILD_FALLBACK', {
                 profileId,
-                originalModel: modelId,
-                originalError: originalError.message
+                originalModel: requestedModelId,
+                fallbackModel: fallbackExecution?.runtime?.modelId ?? DEFAULT_OLLAMA_FALLBACK_MODEL,
+                originalError: originalError.message,
+                requestedExecutionMode: executionContext.mode,
+                fallbackExecutionMode: fallbackExecution?.executionContext.mode ?? null
               })
             }
           }
@@ -291,6 +356,13 @@ export async function POST(request: Request): Promise<Response> {
         const result = buildResult.result
         const fallbackUsed = buildResult.fallbackUsed
         const finalModelId = buildResult.modelId
+        const finalExecution = fallbackUsed && fallbackExecution
+          ? fallbackExecution
+          : requestedExecution
+        const finalResourceUsage = summarizeResourceUsage({
+          executionContext: finalExecution.executionContext,
+          billingPolicy: finalExecution.billingPolicy
+        })
         const timezone = getProfileTimezone(profile)
         const actualCostUsd = estimateCostUsd(
           finalModelId,
@@ -316,7 +388,7 @@ export async function POST(request: Request): Promise<Response> {
           throw new Error('CHARGE_RECORD_MISSING')
         }
 
-        if (chargeRecord.status === 'pending' && !isLocalModel(finalModelId)) {
+        if (chargeRecord.status === 'pending') {
           const chargeResult = await chargeOperation({
             operation: 'plan_build',
             amountSats: chargeRecord.estimatedCostSats,
@@ -337,9 +409,13 @@ export async function POST(request: Request): Promise<Response> {
             lightningPreimage: chargeResult.lightningPreimage,
             providerReference: chargeResult.providerReference,
             metadata: {
-              requestedModelId: modelId,
+              requestedModelId,
               finalModelId,
-              fallbackUsed
+              fallbackUsed,
+              requestedExecutionContext: requestedExecution.executionContext,
+              finalExecutionContext: finalExecution.executionContext,
+              billingPolicy,
+              resourceUsage: finalResourceUsage
             }
           }) ?? chargeRecord
 
@@ -358,29 +434,32 @@ export async function POST(request: Request): Promise<Response> {
               result: {
                 success: false,
                 error: toChargeErrorMessage(chargeRecord.reasonCode),
-                charge: summarizeOperationCharge(chargeRecord)
+                charge: summarizeOperationCharge(chargeRecord),
+                resourceUsage: finalResourceUsage
               }
             })
             controller.close()
             return
           }
         } else {
+          const finalSkipReason = toOperationChargeSkipReason(billingPolicy)
+
           chargeRecord = await recordChargeResult(chargeRecord.id, {
             model: finalModelId,
             status: 'skipped',
             finalCostUsd: actualCostUsd,
             finalCostSats: actualCostSats,
             chargedSats: 0,
-            reasonCode: isLocalModel(finalModelId)
-              ? 'free_local_operation'
-              : chargeRecord.reasonCode ?? 'operation_not_chargeable',
-            reasonDetail: isLocalModel(finalModelId)
-              ? (fallbackUsed ? 'FALLBACK_TO_LOCAL' : 'FREE_LOCAL_OPERATION')
-              : chargeRecord.reasonDetail ?? 'OPERATION_NOT_CHARGEABLE',
+            reasonCode: chargeRecord.reasonCode ?? finalSkipReason.reasonCode,
+            reasonDetail: chargeRecord.reasonDetail ?? finalSkipReason.reasonDetail,
             metadata: {
-              requestedModelId: modelId,
+              requestedModelId,
               finalModelId,
-              fallbackUsed
+              fallbackUsed,
+              requestedExecutionContext: requestedExecution.executionContext,
+              finalExecutionContext: finalExecution.executionContext,
+              billingPolicy,
+              resourceUsage: finalResourceUsage
             }
           }) ?? chargeRecord
         }
@@ -424,7 +503,9 @@ export async function POST(request: Request): Promise<Response> {
           costSats: actualCostSats,
           chargeId: chargeRecord.id,
           chargeStatus: chargeRecord.status,
-          chargedSats: chargeRecord.chargedSats
+          chargedSats: chargeRecord.chargedSats,
+          executionMode: finalExecution.executionContext.mode,
+          resourceOwner: finalExecution.executionContext.resourceOwner
         })
 
         send({
@@ -437,7 +518,8 @@ export async function POST(request: Request): Promise<Response> {
             eventos: result.eventos,
             tokensUsed: result.tokensUsed,
             fallbackUsed,
-            charge: summarizeOperationCharge(chargeRecord)
+            charge: summarizeOperationCharge(chargeRecord),
+            resourceUsage: finalResourceUsage
           }
         })
         controller.close()
@@ -451,7 +533,15 @@ export async function POST(request: Request): Promise<Response> {
             reasonCode: 'unknown_error',
             reasonDetail: error instanceof Error ? error.message : 'Unknown error',
             metadata: {
-              requestedModelId: modelId
+              requestedModelId,
+              requestedExecutionContext: requestedExecution?.executionContext ?? null,
+              fallbackExecutionContext: fallbackExecution?.executionContext ?? null,
+              resourceUsage: requestedExecution
+                ? summarizeResourceUsage({
+                    executionContext: requestedExecution.executionContext,
+                    billingPolicy: requestedExecution.billingPolicy
+                  })
+                : null
             }
           }) ?? chargeRecord
         }
@@ -461,7 +551,8 @@ export async function POST(request: Request): Promise<Response> {
           result: {
             success: false,
             error: message,
-            charge: chargeRecord ? summarizeOperationCharge(chargeRecord) : undefined
+            charge: chargeRecord ? summarizeOperationCharge(chargeRecord) : undefined,
+            resourceUsage: chargeRecord ? summarizeOperationCharge(chargeRecord).resourceUsage ?? undefined : undefined
           }
         })
         controller.close()

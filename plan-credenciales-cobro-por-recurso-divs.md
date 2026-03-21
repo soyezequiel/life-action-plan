@@ -55,7 +55,8 @@
 
 ### DIV-004 - Resolucion del contexto de ejecucion
 - ID: DIV-004
-- Estado: pendiente
+- Estado: cerrado el 2026-03-21
+- Evidencia: `npm run test`, `npm run typecheck`, `npm run build`
 - Titulo corto: Resolver contexto de ejecucion
 - Objetivo: centralizar en una sola capa la decision de que recurso se va a usar para ejecutar cada operacion.
 - Que se implementa: modulo de dominio `execution-context` que reciba la intencion de uso y resuelva `provider`, `model`, `resourceOwner`, `executionTarget`, `credentialId`, `credentialSource` y `canExecute`; reglas explicitas para `backend cloud`, `user cloud`, `backend-local` y `user-local`.
@@ -67,7 +68,8 @@
 
 ### DIV-005 - Politica central de billing por origen
 - ID: DIV-005
-- Estado: pendiente
+- Estado: cerrado el 2026-03-21
+- Evidencia: `npm run test`, `npm run typecheck`, `npm run build`
 - Titulo corto: Politica central de billing
 - Objetivo: mover la decision de cobro a una capa unica basada solo en el origen del recurso.
 - Que se implementa: modulo `billing-policy` que reciba el contexto de ejecucion y devuelva `chargeable`, `skipReason`, `billableOperation`, `estimatedAmountStrategy` y mensajes de negocio; regla canonica: `backend => cobrar`, `user => no cobrar`.
@@ -79,7 +81,8 @@
 
 ### DIV-006 - Integracion del build con contexto y billing
 - ID: DIV-006
-- Estado: pendiente
+- Estado: cerrado el 2026-03-21
+- Evidencia: `npm run test`, `npm run typecheck`, `npm run build`, `npm run smoke:local`
 - Titulo corto: Build con contexto resuelto
 - Objetivo: refactorizar `plan/build` para que ejecute usando contexto resuelto y politica de billing, no condicionales sueltos.
 - Que se implementa: integracion del route handler y servicios asociados para pedir `executionContext`, elegir credencial efectiva desde esa capa, consultar `billingPolicy`, registrar la decision y ejecutar con el runtime correcto; soporte de `backend cloud`, `user cloud`, `backend-local` y rechazo limpio de `user-local` si el producto no puede ejecutarlo desde backend.
@@ -91,7 +94,8 @@
 
 ### DIV-007 - Integracion de operaciones secundarias
 - ID: DIV-007
-- Estado: pendiente
+- Estado: cerrado el 2026-03-21
+- Evidencia: `npm run test`, `npm run typecheck`, `npm run build`
 - Titulo corto: Extender a simulate y futuras operaciones
 - Objetivo: reutilizar el mismo esquema de resolucion y billing fuera de `plan/build`.
 - Que se implementa: adaptacion de `plan/simulate` y cualquier otra operacion cobrable o gratuita para pedir contexto de ejecucion y politica de billing, reusando los mismos contratos y helpers.
@@ -103,7 +107,8 @@
 
 ### DIV-008 - UI de seleccion de recurso
 - ID: DIV-008
-- Estado: pendiente
+- Estado: cerrado el 2026-03-21
+- Evidencia: `npm run test`, `npm run typecheck`, `npm run build`
 - Titulo corto: UI de recurso y credencial
 - Objetivo: hacer visible para una persona no tecnica si esta usando recurso del sistema o suyo y si eso va a cobrar.
 - Que se implementa: ajustes de settings y dashboard para mostrar opciones como "usar recurso del sistema" y "usar mi recurso", estado de credencial activa, origen del recurso, si corresponde cobro y por que; textos via i18n sin jerga tecnica.
@@ -148,3 +153,6 @@
 - Precondiciones: todos los caminos principales del nuevo esquema ya integrados.
 - Criterio de finalizacion: existe evidencia automatica y visible de que el cobro depende del owner del recurso y no del nombre del proveedor o del modelo.
 - Notas para la siguiente unidad: deja cerrado el refactor con una politica de uso y cobro coherente para futuras extensiones.
+- Avance 2026-03-21: existe `resource:report` y `smoke:local:resource` para verificar `executionMode`, `resourceOwner`, `credentialSource` y `billing` desde `operation_charges`.
+- Avance 2026-03-21: existe `smoke:resource:policy` con evidencia automatica y visible de `backend-cloud` cobrado, `user-cloud` sin cobro, `backend-local` cobrado y `user-local` bloqueado de forma explicita, sin depender de wallet externa.
+- Avance 2026-03-21: sigue faltando evidencia real en DB/UI para reemplazar filas legacy `sin-contexto`; eso depende de cerrar DIV-008, DIV-009 y DIV-010 o de ejecutar corridas reales nuevas con el esquema ya migrado.

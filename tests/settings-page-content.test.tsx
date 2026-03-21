@@ -88,17 +88,103 @@ function createLapClientStub(): LapAPI {
   } as unknown as LapAPI
 }
 
+function createBuildPreviewResponse(url: string): Response {
+  if (url.includes('provider=ollama')) {
+    return new Response(JSON.stringify({
+      success: true,
+      usage: {
+        mode: 'backend-local',
+        resourceOwner: 'backend',
+        executionTarget: 'backend-local',
+        credentialSource: 'none',
+        chargePolicy: 'charge',
+        chargeReason: 'backend_resource',
+        chargeable: true,
+        estimatedCostSats: 5,
+        billingReasonCode: null,
+        billingReasonDetail: null,
+        canExecute: true,
+        blockReasonCode: null,
+        blockReasonDetail: null,
+        providerId: 'ollama',
+        modelId: 'ollama:qwen3:8b'
+      }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+
+  if (url.includes('hasUserApiKey=1')) {
+    return new Response(JSON.stringify({
+      success: true,
+      usage: {
+        mode: 'user-cloud',
+        resourceOwner: 'user',
+        executionTarget: 'cloud',
+        credentialSource: 'user-supplied',
+        chargePolicy: 'skip',
+        chargeReason: 'user_resource',
+        chargeable: false,
+        estimatedCostSats: 5,
+        billingReasonCode: 'user_resource',
+        billingReasonDetail: 'RESOURCE_OWNER_USER',
+        canExecute: true,
+        blockReasonCode: null,
+        blockReasonDetail: null,
+        providerId: 'openrouter',
+        modelId: 'openrouter:openai/gpt-4o-mini'
+      }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+
+  return new Response(JSON.stringify({
+    success: true,
+    usage: {
+      mode: 'backend-cloud',
+      resourceOwner: 'backend',
+      executionTarget: 'cloud',
+      credentialSource: 'backend-stored',
+      chargePolicy: 'charge',
+      chargeReason: 'backend_resource',
+      chargeable: true,
+      estimatedCostSats: 5,
+      billingReasonCode: null,
+      billingReasonDetail: null,
+      canExecute: true,
+      blockReasonCode: null,
+      blockReasonDetail: null,
+      providerId: 'openrouter',
+      modelId: 'openrouter:openai/gpt-4o-mini'
+    }
+  }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  })
+}
+
 describe('settings page content', () => {
   beforeEach(() => {
     pushMock.mockReset()
     searchParamsMock = new URLSearchParams('intent=build&provider=ollama')
     fetchMock.mockReset()
-    fetchMock.mockImplementation(async () => new Response(JSON.stringify({ configured: false }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json'
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+
+      if (url.includes('/api/settings/build-preview')) {
+        return createBuildPreviewResponse(url)
       }
-    }))
+
+      return new Response(JSON.stringify({ configured: false }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    })
     vi.stubGlobal('fetch', fetchMock)
   })
 
@@ -112,6 +198,7 @@ describe('settings page content', () => {
     expect(await screen.findByText(t('settings.local_build_title'))).toBeTruthy()
     expect(screen.getByText(t('settings.local_build_hint'))).toBeTruthy()
     expect(screen.getByText(t('settings.build_route_hint', { provider: t('builder.provider_local') }))).toBeTruthy()
+    expect(await screen.findByText('Origen del recurso: LAP pone la maquina que arma el plan.')).toBeTruthy()
     expect(screen.queryByPlaceholderText(t('settings.apikey_placeholder'))).toBeNull()
   })
 
@@ -142,7 +229,26 @@ describe('settings page content', () => {
     expect(screen.getByText(t('settings.build_route_hint', {
       provider: t('builder.provider_openrouter')
     }))).toBeTruthy()
+    expect(await screen.findByText('Origen del recurso: LAP pone el asistente en linea para esta accion.')).toBeTruthy()
     expect(screen.getByPlaceholderText(t('settings.apikey_placeholder'))).toBeTruthy()
+  })
+
+  it('muestra que no se cobra cuando el build usa la clave del usuario', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
+    const user = userEvent.setup()
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('settings.apikey_title'))
+    await user.type(screen.getByPlaceholderText(t('settings.apikey_placeholder')), 'sk-or-v1-demo')
+
+    expect(await screen.findByText('Origen del recurso: Vas a usar tu propia clave del asistente.')).toBeTruthy()
+    expect(screen.getByText('Como usa tu propio recurso, esta accion no se cobra.')).toBeTruthy()
+    expect((screen.getByRole('button', { name: t('settings.apikey_confirm') }) as HTMLButtonElement).disabled).toBe(false)
   })
 
   it('muestra un error claro cuando la wallet no responde como NWC compatible', async () => {

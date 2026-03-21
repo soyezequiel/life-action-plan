@@ -8,17 +8,20 @@ import type {
 import { updateOperationCharge } from '../db/db-helpers'
 import { getPaymentProvider } from '../providers/payment-provider'
 import type { PaymentProviderStatus } from '../providers/payment-provider'
+import { extractResourceUsageFromMetadata } from '../runtime/resource-usage-summary'
 import {
   canUseWalletSecretStorage,
   loadWalletConnectionUrl
 } from './wallet-connection'
+import {
+  estimateChargeUsdFromSats,
+  getEstimatedOperationChargeSats,
+  supportsBillingOperation
+} from './billing-policy'
 
 const PAY_INVOICE_METHOD = 'pay_invoice'
 const RECEIVER_NWC_URL_ENV = 'LAP_LIGHTNING_RECEIVER_NWC_URL'
 const RECEIVER_INVOICE_EXPIRY_ENV = 'LAP_LIGHTNING_INVOICE_EXPIRY_SECONDS'
-const PLAN_BUILD_CHARGE_SATS_ENV = 'LAP_PLAN_BUILD_CHARGE_SATS'
-const BILLABLE_OPERATIONS = new Set<ChargeOperation>(['plan_build', 'plan_simulate'])
-const SATS_PER_USD = 1000
 
 export interface OperationChargeQuote {
   operation: ChargeOperation
@@ -43,6 +46,9 @@ export interface CanChargeOperationInput {
   model: string
   estimatedCostUsd: number
   estimatedCostSats: number
+  chargeable?: boolean
+  reasonCode?: ChargeReasonCode | null
+  reasonDetail?: string | null
 }
 
 export interface ChargeDecision {
@@ -164,18 +170,6 @@ function getReceiverInvoiceExpirySeconds(): number | undefined {
   const parsed = Number.parseInt(rawValue, 10)
 
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
-}
-
-function getConfiguredPlanBuildChargeSats(): number {
-  const rawValue = process.env[PLAN_BUILD_CHARGE_SATS_ENV]?.trim()
-
-  if (!rawValue) {
-    return 5
-  }
-
-  const parsed = Number.parseInt(rawValue, 10)
-
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 5
 }
 
 function normalizeChargeError(
@@ -395,13 +389,34 @@ async function validateWalletForCharge(amountSats: number): Promise<WalletValida
 }
 
 export async function canChargeOperation(input: CanChargeOperationInput): Promise<ChargeDecision> {
-  const quote = quoteOperationCharge({
-    operation: input.operation,
-    model: input.model
-  })
+  const hasExplicitChargeability = typeof input.chargeable === 'boolean'
+  const estimatedCostSats = normalizeChargeAmount(input.estimatedCostSats)
+  const quote = hasExplicitChargeability
+    ? {
+        operation: input.operation,
+        model: input.model,
+        estimatedCostUsd: input.estimatedCostUsd,
+        estimatedCostSats,
+        chargeable: input.chargeable ?? false,
+        reasonCode: input.reasonCode ?? (input.chargeable ? null : 'operation_not_chargeable')
+      }
+    : quoteOperationCharge({
+        operation: input.operation,
+        model: input.model
+      })
 
   if (!quote.chargeable) {
-    return buildDecision(input, 'skipped', quote.reasonCode, 'OPERATION_NOT_CHARGEABLE', null)
+    return buildDecision(
+      {
+        ...input,
+        estimatedCostSats: quote.estimatedCostSats,
+        estimatedCostUsd: quote.estimatedCostUsd
+      },
+      'skipped',
+      quote.reasonCode,
+      input.reasonDetail ?? 'OPERATION_NOT_CHARGEABLE',
+      null
+    )
   }
 
   const receiver = validateReceiverConfiguration()
@@ -414,7 +429,11 @@ export async function canChargeOperation(input: CanChargeOperationInput): Promis
 
   if (!walletValidation.ok) {
     return buildDecision(
-      input,
+      {
+        ...input,
+        estimatedCostSats: quote.estimatedCostSats,
+        estimatedCostUsd: quote.estimatedCostUsd
+      },
       'rejected',
       walletValidation.reasonCode,
       walletValidation.reasonDetail,
@@ -422,11 +441,21 @@ export async function canChargeOperation(input: CanChargeOperationInput): Promis
     )
   }
 
-  return buildDecision(input, 'chargeable', null, null, walletValidation.wallet)
+  return buildDecision(
+    {
+      ...input,
+      estimatedCostSats: quote.estimatedCostSats,
+      estimatedCostUsd: quote.estimatedCostUsd
+    },
+    'chargeable',
+    null,
+    null,
+    walletValidation.wallet
+  )
 }
 
 export function quoteOperationCharge(input: Pick<CanChargeOperationInput, 'operation' | 'model'>): OperationChargeQuote {
-  if (!BILLABLE_OPERATIONS.has(input.operation)) {
+  if (!supportsBillingOperation(input.operation)) {
     return {
       operation: input.operation,
       model: input.model,
@@ -448,9 +477,7 @@ export function quoteOperationCharge(input: Pick<CanChargeOperationInput, 'opera
     }
   }
 
-  const estimatedCostSats = input.operation === 'plan_build'
-    ? getConfiguredPlanBuildChargeSats()
-    : 0
+  const estimatedCostSats = getEstimatedOperationChargeSats(input.operation)
 
   if (estimatedCostSats <= 0) {
     return {
@@ -466,7 +493,7 @@ export function quoteOperationCharge(input: Pick<CanChargeOperationInput, 'opera
   return {
     operation: input.operation,
     model: input.model,
-    estimatedCostUsd: Number((estimatedCostSats / SATS_PER_USD).toFixed(8)),
+    estimatedCostUsd: estimateChargeUsdFromSats(estimatedCostSats),
     estimatedCostSats,
     chargeable: true,
     reasonCode: null
@@ -474,7 +501,7 @@ export function quoteOperationCharge(input: Pick<CanChargeOperationInput, 'opera
 }
 
 export async function chargeOperation(input: ChargeOperationInput): Promise<ChargeExecutionResult> {
-  if (!BILLABLE_OPERATIONS.has(input.operation)) {
+  if (!supportsBillingOperation(input.operation)) {
     return {
       status: 'skipped',
       operation: input.operation,
@@ -635,6 +662,7 @@ export function summarizeOperationCharge(charge: OperationChargeRow): OperationC
     chargedSats: charge.chargedSats,
     reasonCode: charge.reasonCode,
     reasonDetail: charge.reasonDetail,
-    paymentProvider: charge.paymentProvider
+    paymentProvider: charge.paymentProvider,
+    resourceUsage: extractResourceUsageFromMetadata(charge.metadata)
   }
 }
