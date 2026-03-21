@@ -1,8 +1,9 @@
 .calendarShell {
-  --calendar-surface: linear-gradient(180deg, rgba(20, 25, 48, 0.92) 0%, rgba(13, 17, 34, 0.98) 100%);
-  --calendar-border: rgba(155, 171, 255, 0.18);
-  --calendar-highlight: rgba(125, 166, 255, 0.14);
+  --calendar-surface: linear-gradient(180deg, rgba(16, 21, 36, 0.94) 0%, rgba(11, 15, 28, 0.98) 100%);
+  --calendar-border: rgba(255, 255, 255, 0.08);
   margin-top: 1.6rem;
+  display: grid;
+  gap: 1rem;
   padding: 1.35rem;
   border-radius: 28px;
   border: 1px solid var(--calendar-border);
@@ -15,7 +16,6 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1rem;
 }
 
 .copy {
@@ -33,8 +33,8 @@
 
 .title {
   margin: 0;
-  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
-  line-height: 1.2;
+  font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+  line-height: 1.15;
 }
 
 .hint {
@@ -59,7 +59,7 @@
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03)),
     rgba(255, 255, 255, 0.02);
 }
 
@@ -90,11 +90,201 @@
   color: var(--text-primary);
 }
 
+.event {
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--calendar-accent) 16%, rgba(255, 255, 255, 0.06)) 0%, rgba(12, 16, 30, 0.96) 100%) !important;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.eventEstudio {
+  --calendar-accent: #8db6ff;
+}
+
+.eventEjercicio {
+  --calendar-accent: #68d2a0;
+}
+
+.eventTrabajo {
+  --calendar-accent: #c6cedd;
+}
+
+.eventHabito {
+  --calendar-accent: #c6a2ff;
+}
+
+.eventDescanso {
+  --calendar-accent: #f0be84;
+}
+
+.eventOtro {
+  --calendar-accent: #83d4dc;
+}
+
+.eventCompleted {
+  opacity: 0.76;
+}
+
+.eventBody {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+  padding: 0.15rem 0.2rem;
+}
+
+.eventTopline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.eventTime,
+.eventMeta {
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  line-height: 1.2;
+}
+
+.eventStatus {
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-soft);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.eventTitle {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.eventMeta {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.daySelected {
+  background: rgba(141, 182, 255, 0.08) !important;
+}
+
+.agenda {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.agendaHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.agendaCopy {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.agendaTitle {
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.2;
+  text-transform: capitalize;
+}
+
+.agendaStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.agendaEmpty {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.agendaList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.agendaItem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: center;
+  padding: 0.85rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 13, 24, 0.74);
+}
+
+.agendaTimeBlock {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 5rem;
+}
+
+.agendaTime {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+}
+
+.agendaDuration {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.agendaTaskCopy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.agendaTaskTitle {
+  line-height: 1.35;
+}
+
+.agendaTaskMeta {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.agendaStatus {
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(141, 182, 255, 0.12);
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.agendaStatusDone {
+  background: rgba(104, 210, 160, 0.14);
+}
+
 .footer {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: 1rem;
 }
 
 .footerChip {
@@ -112,105 +302,21 @@
   width: 0.62rem;
   height: 0.62rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, #7da6ff 0%, #bfd4ff 100%);
-  box-shadow: 0 0 0 4px rgba(125, 166, 255, 0.14);
+  background: linear-gradient(135deg, #8db6ff 0%, #bfd4ff 100%);
+  box-shadow: 0 0 0 4px rgba(141, 182, 255, 0.12);
 }
 
 .footerDotDone {
-  background: linear-gradient(135deg, #59d79a 0%, #b8ffda 100%);
-  box-shadow: 0 0 0 4px rgba(89, 215, 154, 0.12);
-}
-
-.event {
-  border: 0 !important;
-  border-radius: 14px !important;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--calendar-accent) 78%, white 12%) 0%, color-mix(in srgb, var(--calendar-accent) 54%, transparent 46%) 100%) !important;
-  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-}
-
-.eventEstudio {
-  --calendar-accent: #6aa5ff;
-}
-
-.eventEjercicio {
-  --calendar-accent: #59d79a;
-}
-
-.eventTrabajo {
-  --calendar-accent: #a4adbf;
-}
-
-.eventHabito {
-  --calendar-accent: #b987ff;
-}
-
-.eventDescanso {
-  --calendar-accent: #ffb25b;
-}
-
-.eventOtro {
-  --calendar-accent: #6dd0d8;
-}
-
-.eventCompleted {
-  opacity: 0.7;
-}
-
-.eventBody {
-  display: grid;
-  gap: 0.18rem;
-  min-width: 0;
-  padding: 0.08rem 0.1rem;
-}
-
-.eventTopline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.eventTime,
-.eventStatus,
-.eventMeta {
-  color: rgba(8, 12, 24, 0.84);
-  font-size: 0.76rem;
-  line-height: 1.2;
-}
-
-.eventStatus {
-  padding: 0.12rem 0.4rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.34);
-  font-size: 0.7rem;
-  white-space: nowrap;
-}
-
-.eventTitle {
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #07111f;
-  font-size: 0.84rem;
-  line-height: 1.25;
-}
-
-.eventMeta {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  background: linear-gradient(135deg, #68d2a0 0%, #b8ffda 100%);
+  box-shadow: 0 0 0 4px rgba(104, 210, 160, 0.1);
 }
 
 .calendarShell :global(.fc) {
   --fc-border-color: rgba(255, 255, 255, 0.08);
   --fc-page-bg-color: transparent;
-  --fc-neutral-bg-color: rgba(255, 255, 255, 0.04);
+  --fc-neutral-bg-color: rgba(255, 255, 255, 0.03);
   --fc-list-event-hover-bg-color: rgba(255, 255, 255, 0.05);
-  --fc-now-indicator-color: #ffd37a;
+  --fc-now-indicator-color: #e5c48f;
   color: var(--text-primary);
 }
 
@@ -223,6 +329,7 @@
   font-size: clamp(1rem, 2.1vw, 1.3rem);
   font-weight: 700;
   letter-spacing: -0.01em;
+  text-transform: capitalize;
 }
 
 .calendarShell :global(.fc .fc-toolbar-chunk) {
@@ -241,28 +348,23 @@
 }
 
 .calendarShell :global(.fc .fc-button-primary) {
-  border: 1px solid rgba(125, 166, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-soft);
   box-shadow: none;
 }
 
 .calendarShell :global(.fc .fc-button-primary:hover),
 .calendarShell :global(.fc .fc-button-primary:focus) {
-  border-color: rgba(125, 166, 255, 0.32);
-  background: rgba(125, 166, 255, 0.14);
+  border-color: rgba(141, 182, 255, 0.3);
+  background: rgba(141, 182, 255, 0.12);
   color: var(--text-primary);
 }
 
 .calendarShell :global(.fc .fc-button-primary:not(:disabled).fc-button-active) {
-  border-color: rgba(125, 166, 255, 0.44);
-  background: linear-gradient(135deg, rgba(125, 166, 255, 0.3), rgba(125, 166, 255, 0.15));
+  border-color: rgba(141, 182, 255, 0.34);
+  background: linear-gradient(135deg, rgba(141, 182, 255, 0.22), rgba(141, 182, 255, 0.1));
   color: var(--text-primary);
-}
-
-.calendarShell :global(.fc .fc-scroller-liquid-absolute),
-.calendarShell :global(.fc .fc-scroller-liquid) {
-  scrollbar-color: rgba(125, 166, 255, 0.32) transparent;
 }
 
 .calendarShell :global(.fc .fc-scrollgrid),
@@ -292,7 +394,7 @@
 
 .calendarShell :global(.fc .fc-daygrid-day.fc-day-today),
 .calendarShell :global(.fc .fc-timegrid-col.fc-day-today) {
-  background: rgba(125, 166, 255, 0.07);
+  background: rgba(141, 182, 255, 0.05);
 }
 
 .calendarShell :global(.fc .fc-day-other .fc-daygrid-day-number) {
@@ -304,11 +406,11 @@
 }
 
 .calendarShell :global(.fc .fc-timegrid-now-indicator-arrow) {
-  border-color: transparent transparent transparent #ffd37a;
+  border-color: transparent transparent transparent #e5c48f;
 }
 
 .calendarShell :global(.fc .fc-timegrid-now-indicator-line) {
-  border-color: #ffd37a;
+  border-color: #e5c48f;
 }
 
 .calendarShell :global(.fc .fc-timegrid-slot),
@@ -317,7 +419,8 @@
 }
 
 @media (max-width: 960px) {
-  .header {
+  .header,
+  .agendaHeader {
     flex-direction: column;
   }
 
@@ -335,6 +438,10 @@
 
   .stats {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .agendaItem {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .calendarShell :global(.fc .fc-toolbar.fc-header-toolbar) {

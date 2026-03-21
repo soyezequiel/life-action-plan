@@ -8,17 +8,23 @@ import { useLapClient } from '../src/lib/client/app-services'
 import { extractErrorMessage, toUserFacingErrorMessage } from '../src/lib/client/error-utils'
 import { getResourceUsageDisplay } from '../src/lib/client/resource-usage-copy'
 import type { DeploymentMode } from '../src/lib/env/deployment'
+import { DEFAULT_CREDENTIAL_LABEL } from '../src/shared/schemas'
 import {
   DEFAULT_OPENAI_BUILD_MODEL,
+  getDefaultBuildModelForProvider,
   getBuildRouteLabelKey,
   getModelProviderName,
   getProviderLabelKey,
   resolveBuildModel
 } from '../src/lib/providers/provider-metadata'
 import type { BuildUsagePreviewResult, PlanBuildProgress, WalletStatus } from '../src/shared/types/lap-api'
+import type { CredentialRecordView } from '../src/shared/types/credential-registry'
 import type { ResourceUsageSummary } from '../src/shared/types/resource-usage'
+import styles from './SettingsPageContent.module.css'
 
 const buildStages: PlanBuildProgress['stage'][] = ['preparing', 'generating', 'validating', 'saving']
+type CloudCredentialMode = 'backend' | 'user'
+type CloudCredentialProvider = 'openai' | 'openrouter'
 
 const settingsTransition = {
   duration: 0.24,
@@ -40,6 +46,33 @@ function getBuildChargeBlockedMessage(reasonCode: string | null | undefined): st
   }
 
   return t('dashboard.wallet_build_blocked.other')
+}
+
+function getCredentialLabel(label: string): string {
+  return label === DEFAULT_CREDENTIAL_LABEL
+    ? t('settings.backend_credential_default_label')
+    : label
+}
+
+function getCredentialDisplayName(credential: Pick<CredentialRecordView, 'providerId' | 'label'>): string {
+  const providerLabel = t(getProviderLabelKey(getDefaultBuildModelForProvider(credential.providerId) ?? credential.providerId))
+  const label = getCredentialLabel(credential.label)
+  const defaultLabel = t('settings.backend_credential_default_label')
+
+  return label === defaultLabel ? providerLabel : `${providerLabel} - ${label}`
+}
+
+function getCredentialStatusLabel(status: CredentialRecordView['status']): string {
+  return t(`settings.backend_credential_status.${status}`)
+}
+
+function markBuildCredentialModeSelection(
+  nextMode: CloudCredentialMode,
+  setTouched: React.Dispatch<React.SetStateAction<boolean>>,
+  setMode: React.Dispatch<React.SetStateAction<CloudCredentialMode>>
+): void {
+  setTouched(true)
+  setMode(nextMode)
 }
 
 interface SettingsPageContentProps {
@@ -71,13 +104,12 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const localProviderBlocked = requestedProvider === 'ollama' && deploymentMode !== 'local'
   const localBuildIntent = shouldBuild && requestedProvider === 'ollama' && !localProviderBlocked
   const requiresApiKey = requestedProvider !== 'ollama' || localProviderBlocked
-  const resolvedBuildModel = localProviderBlocked
+  const requestedBuildModel = localProviderBlocked
     ? DEFAULT_OPENAI_BUILD_MODEL
     : resolveBuildModel(requestedProvider)
-  const selectedCloudApiProvider = getModelProviderName(resolvedBuildModel) === 'openrouter'
+  const selectedCloudApiProvider = getModelProviderName(requestedBuildModel) === 'openrouter'
     ? 'openrouter'
     : 'openai'
-  const selectedProviderLabel = t(getProviderLabelKey(resolvedBuildModel))
 
   const [apiKey, setApiKey] = useState('')
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false)
@@ -99,7 +131,29 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const [buildDone, setBuildDone] = useState(false)
   const [buildUsage, setBuildUsage] = useState<ResourceUsageSummary | null>(null)
   const [buildUsageLoading, setBuildUsageLoading] = useState(false)
+  const [buildCredentialMode, setBuildCredentialMode] = useState<CloudCredentialMode>('user')
+  const [buildCredentialModeTouched, setBuildCredentialModeTouched] = useState(false)
+  const [backendCredentials, setBackendCredentials] = useState<CredentialRecordView[]>([])
+  const [backendCredentialsLoading, setBackendCredentialsLoading] = useState(false)
+  const [selectedBackendCredentialId, setSelectedBackendCredentialId] = useState('')
+  const [backendCredentialProvider, setBackendCredentialProvider] = useState<CloudCredentialProvider>(selectedCloudApiProvider)
+  const [backendCredentialLabelInput, setBackendCredentialLabelInput] = useState('')
+  const [backendCredentialSecretInput, setBackendCredentialSecretInput] = useState('')
+  const [backendCredentialBusy, setBackendCredentialBusy] = useState(false)
+  const [backendCredentialNotice, setBackendCredentialNotice] = useState<'saved' | 'error' | null>(null)
+  const [backendCredentialError, setBackendCredentialError] = useState('')
+  const [backendCredentialsRefreshNonce, setBackendCredentialsRefreshNonce] = useState(0)
   const buildUsageDisplay = getResourceUsageDisplay(buildUsage)
+  const availableBackendCredentials = backendCredentials.filter((credential) => (
+    credential.secretType === 'api-key'
+    && credential.status === 'active'
+    && (credential.providerId === 'openai' || credential.providerId === 'openrouter')
+  ))
+  const selectedBackendCredential = availableBackendCredentials.find((credential) => credential.id === selectedBackendCredentialId) ?? null
+  const effectiveBuildModel = shouldBuild && !localBuildIntent && buildCredentialMode === 'backend' && selectedBackendCredential?.providerId
+    ? getDefaultBuildModelForProvider(selectedBackendCredential.providerId) ?? requestedBuildModel
+    : requestedBuildModel
+  const selectedProviderLabel = t(getProviderLabelKey(effectiveBuildModel))
   const buildNeedsCharge = shouldBuild && buildUsage?.chargeable === true
   const buildExecutionBlocked = shouldBuild && buildUsage?.canExecute === false
   const buildChargeBlocked = buildNeedsCharge && walletStatus.planBuildChargeReady === false
@@ -127,6 +181,81 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   }, [client, selectedCloudApiProvider])
 
   useEffect(() => {
+    let active = true
+
+    setBackendCredentialsLoading(true)
+
+    void fetch('/api/settings/credentials?owner=backend&secretType=api-key')
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(extractErrorMessage(await response.text()))
+        }
+
+        return response.json() as Promise<{ credentials?: CredentialRecordView[] }>
+      })
+      .then((payload) => {
+        if (!active) {
+          return
+        }
+
+        setBackendCredentials(Array.isArray(payload.credentials) ? payload.credentials : [])
+      })
+      .catch(() => {
+        if (!active) {
+          return
+        }
+
+        setBackendCredentials([])
+      })
+      .finally(() => {
+        if (active) {
+          setBackendCredentialsLoading(false)
+        }
+      })
+
+    return () => {
+      active = false
+    }
+  }, [backendCredentialsRefreshNonce])
+
+  useEffect(() => {
+    setBackendCredentialProvider(selectedCloudApiProvider)
+  }, [selectedCloudApiProvider])
+
+  useEffect(() => {
+    setBuildCredentialModeTouched(false)
+  }, [requestedProvider, shouldBuild, localBuildIntent])
+
+  useEffect(() => {
+    if (availableBackendCredentials.length === 0) {
+      setSelectedBackendCredentialId('')
+
+      if (buildCredentialMode === 'backend') {
+        setBuildCredentialMode('user')
+      }
+
+      return
+    }
+
+    if (!buildCredentialModeTouched && !apiKeyConfigured && !apiKey.trim() && !localBuildIntent && shouldBuild) {
+      setBuildCredentialMode('backend')
+    }
+
+    if (!availableBackendCredentials.some((credential) => credential.id === selectedBackendCredentialId)) {
+      setSelectedBackendCredentialId(availableBackendCredentials[0]?.id ?? '')
+    }
+  }, [
+    apiKey,
+    apiKeyConfigured,
+    availableBackendCredentials,
+    buildCredentialMode,
+    buildCredentialModeTouched,
+    localBuildIntent,
+    selectedBackendCredentialId,
+    shouldBuild
+  ])
+
+  useEffect(() => {
     return client.plan.onBuildProgress((progress) => {
       setBuildProgress(progress)
     })
@@ -140,11 +269,30 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     }
 
     let active = true
-    const hasUserApiKey = apiKey.trim().length > 0 || apiKeyConfigured
+    const hasUserApiKey = buildCredentialMode === 'user' && (apiKey.trim().length > 0 || apiKeyConfigured)
+    const previewBackendCredentialId = buildCredentialMode === 'backend'
+      ? selectedBackendCredentialId.trim()
+      : ''
+
+    if (!localBuildIntent && buildCredentialMode === 'backend' && !previewBackendCredentialId) {
+      setBuildUsage(null)
+      setBuildUsageLoading(false)
+      return
+    }
 
     setBuildUsageLoading(true)
 
-    void fetch(`/api/settings/build-preview?provider=${encodeURIComponent(resolvedBuildModel)}&hasUserApiKey=${hasUserApiKey ? '1' : '0'}`)
+    const params = new URLSearchParams({
+      provider: effectiveBuildModel,
+      hasUserApiKey: hasUserApiKey ? '1' : '0',
+      resourceMode: localBuildIntent ? 'auto' : buildCredentialMode
+    })
+
+    if (previewBackendCredentialId) {
+      params.set('backendCredentialId', previewBackendCredentialId)
+    }
+
+    void fetch(`/api/settings/build-preview?${params.toString()}`)
       .then(async (response) => {
         if (!response.ok) {
           throw new Error(extractErrorMessage(await response.text()))
@@ -175,11 +323,13 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     return () => {
       active = false
     }
-  }, [apiKey, apiKeyConfigured, resolvedBuildModel, shouldBuild])
+  }, [apiKey, apiKeyConfigured, buildCredentialMode, effectiveBuildModel, localBuildIntent, selectedBackendCredentialId, shouldBuild])
 
   async function handleSaveApiKey(): Promise<void> {
     const nextKey = apiKey.trim()
-    if (requiresApiKey && !nextKey && !apiKeyConfigured) {
+    const usingBackendCredential = shouldBuild && buildCredentialMode === 'backend' && !localBuildIntent
+
+    if (!usingBackendCredential && requiresApiKey && !nextKey && !apiKeyConfigured) {
       return
     }
 
@@ -241,9 +391,14 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
         return
       }
 
-      const provider = resolvedBuildModel
+      if (usingBackendCredential && !selectedBackendCredentialId.trim()) {
+        setBuildError(t('settings.backend_credential_missing_for_build'))
+        return
+      }
 
-      const result = await client.plan.build(profileId, '', provider)
+      const provider = effectiveBuildModel
+      const backendCredentialId = usingBackendCredential ? selectedBackendCredentialId.trim() : undefined
+      const result = await client.plan.build(profileId, '', provider, backendCredentialId, localBuildIntent ? 'auto' : buildCredentialMode)
       if (result.success) {
         setBuildDone(true)
         setBuildNotice(t(getBuildRouteLabelKey(provider, result.fallbackUsed)))
@@ -255,6 +410,58 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       setBuildError(toUserFacingErrorMessage(error))
     } finally {
       setBuildBusy(false)
+    }
+  }
+
+  async function handleSaveBackendCredential(): Promise<void> {
+    const nextSecret = backendCredentialSecretInput.trim()
+    const nextLabel = backendCredentialLabelInput.trim() || DEFAULT_CREDENTIAL_LABEL
+
+    if (!nextSecret) {
+      return
+    }
+
+    setBackendCredentialBusy(true)
+    setBackendCredentialNotice(null)
+    setBackendCredentialError('')
+
+    try {
+      const saveResponse = await fetch('/api/settings/credentials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          owner: 'backend',
+          providerId: backendCredentialProvider,
+          secretType: 'api-key',
+          label: nextLabel,
+          secretValue: nextSecret
+        })
+      })
+
+      if (!saveResponse.ok) {
+        throw new Error(extractErrorMessage(await saveResponse.text()))
+      }
+
+      const payload = await saveResponse.json() as { credential?: CredentialRecordView }
+      const credentialId = payload.credential?.id
+
+      if (credentialId) {
+        await fetch(`/api/settings/credentials/${encodeURIComponent(credentialId)}/validate`, {
+          method: 'POST'
+        }).catch(() => null)
+      }
+
+      setBackendCredentialSecretInput('')
+      setBackendCredentialLabelInput('')
+      setBackendCredentialNotice('saved')
+      setBackendCredentialsRefreshNonce((current) => current + 1)
+    } catch (error) {
+      setBackendCredentialNotice('error')
+      setBackendCredentialError(toUserFacingErrorMessage(error, 'settings.backend_credential_error'))
+    } finally {
+      setBackendCredentialBusy(false)
     }
   }
 
@@ -325,12 +532,12 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     <MotionConfig reducedMotion="user">
       <div className="app-shell app-shell--centered">
         <motion.div
-          className="app-screen app-screen--card app-screen--compact"
+          className={styles.settingsFrame}
           initial={{ opacity: 0, y: 16, scale: 0.985 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={settingsTransition}
         >
-          <div className="app-actions" style={{ justifyContent: 'space-between', marginTop: 0 }}>
+          <div className={styles.topbar}>
             <button className="app-button app-button--secondary" onClick={() => router.push('/')}>
               {t('ui.cancel')}
             </button>
@@ -339,8 +546,8 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
             </button>
           </div>
 
-          <section className="settings-section">
-            <div className="settings-section__header">
+          <div className={styles.hero}>
+            <div className={styles.heroCopy}>
               <span className="app-status app-status--eyebrow">{t('dashboard.actions_title')}</span>
               <h1 className="app-title">
                 {localBuildIntent ? t('settings.local_build_title') : t('settings.apikey_title')}
@@ -348,178 +555,237 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
               <p className="app-copy">
                 {localBuildIntent ? t('settings.local_build_hint') : t('settings.apikey_hint')}
               </p>
-              <p className="status-message status-message--neutral">
-                {t('settings.build_route_hint', { provider: selectedProviderLabel })}
-              </p>
-              {shouldBuild && buildUsageDisplay && (
-                <>
-                  <p className="status-message status-message--neutral">
-                    {`${buildUsageDisplay.label}: ${buildUsageDisplay.detail}`}
-                  </p>
-                  <p className="status-message status-message--neutral">
-                    {buildUsageDisplay.source}
-                  </p>
-                  <p
-                    className={[
-                      'status-message',
-                      buildUsageDisplay.tone === 'warning'
-                        ? 'status-message--warning'
-                        : buildUsageDisplay.tone === 'success'
-                          ? 'status-message--success'
-                          : 'status-message--neutral'
-                    ].join(' ')}
-                  >
-                    {buildUsageDisplay.billing}
-                  </p>
-                </>
-              )}
-              {buildNeedsCharge && buildChargeAmount && (
-                <p className="status-message status-message--neutral">
-                  {t('settings.build_charge_hint', { sats: buildChargeAmount })}
-                </p>
-              )}
-              {buildNeedsCharge && walletStatus.planBuildChargeReady && (
-                <p className="status-message status-message--success">{t('settings.build_charge_ready')}</p>
-              )}
-              {buildChargeBlocked && (
-                <p className="status-message status-message--warning">
-                  {getBuildChargeBlockedMessage(walletStatus.planBuildChargeReasonCode)}
-                </p>
-              )}
-              {localProviderBlocked && (
-                <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
-              )}
             </div>
+          </div>
 
-            {!localBuildIntent && (
+          <div className={styles.grid}>
+            <section className={`${styles.card} ${styles.primaryCard}`}>
+              <div className="settings-section__header">
+                <p className="status-message status-message--neutral">
+                  {t('settings.build_route_hint', { provider: selectedProviderLabel })}
+                </p>
+                {shouldBuild && !localBuildIntent && availableBackendCredentials.length > 0 && (
+                  <div className={styles.choiceGroup}>
+                    <span className="app-status app-status--eyebrow">{t('settings.build_resource_choice_title')}</span>
+                    <div className={styles.choiceList}>
+                      <label className={styles.choiceOption}>
+                        <input
+                          type="radio"
+                          name="build-credential-mode"
+                          checked={buildCredentialMode === 'backend'}
+                          onClick={() => markBuildCredentialModeSelection('backend', setBuildCredentialModeTouched, setBuildCredentialMode)}
+                          onChange={() => markBuildCredentialModeSelection('backend', setBuildCredentialModeTouched, setBuildCredentialMode)}
+                        />
+                        <span>{t('settings.build_resource_choice_backend')}</span>
+                      </label>
+                      <label className={styles.choiceOption}>
+                        <input
+                          type="radio"
+                          name="build-credential-mode"
+                          checked={buildCredentialMode === 'user'}
+                          onClick={() => markBuildCredentialModeSelection('user', setBuildCredentialModeTouched, setBuildCredentialMode)}
+                          onChange={() => markBuildCredentialModeSelection('user', setBuildCredentialModeTouched, setBuildCredentialMode)}
+                        />
+                        <span>{t('settings.build_resource_choice_user')}</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+                {shouldBuild && !localBuildIntent && buildCredentialMode === 'backend' && (
+                  <>
+                    <select
+                      className="app-input"
+                      value={selectedBackendCredentialId}
+                      onChange={(event) => setSelectedBackendCredentialId(event.target.value)}
+                      disabled={availableBackendCredentials.length === 0}
+                    >
+                      {availableBackendCredentials.length === 0 && (
+                        <option value="">{t('settings.backend_credential_select_empty')}</option>
+                      )}
+                      {availableBackendCredentials.map((credential) => (
+                        <option key={credential.id} value={credential.id}>
+                          {getCredentialDisplayName(credential)}
+                        </option>
+                      ))}
+                    </select>
+                    {selectedBackendCredential && (
+                      <p className="status-message status-message--neutral">
+                        {t('settings.backend_credential_selected', {
+                          name: getCredentialDisplayName(selectedBackendCredential)
+                        })}
+                      </p>
+                    )}
+                  </>
+                )}
+                {shouldBuild && buildUsageDisplay && (
+                  <>
+                    <p className="status-message status-message--neutral">
+                      {`${buildUsageDisplay.label}: ${buildUsageDisplay.detail}`}
+                    </p>
+                    <p className="status-message status-message--neutral">
+                      {buildUsageDisplay.source}
+                    </p>
+                    <p
+                      className={[
+                        'status-message',
+                        buildUsageDisplay.tone === 'warning'
+                          ? 'status-message--warning'
+                          : buildUsageDisplay.tone === 'success'
+                            ? 'status-message--success'
+                            : 'status-message--neutral'
+                      ].join(' ')}
+                    >
+                      {buildUsageDisplay.billing}
+                    </p>
+                  </>
+                )}
+                {buildNeedsCharge && buildChargeAmount && (
+                  <p className="status-message status-message--neutral">
+                    {t('settings.build_charge_hint', { sats: buildChargeAmount })}
+                  </p>
+                )}
+                {buildNeedsCharge && walletStatus.planBuildChargeReady && (
+                  <p className="status-message status-message--success">{t('settings.build_charge_ready')}</p>
+                )}
+                {buildChargeBlocked && (
+                  <p className="status-message status-message--warning">
+                    {getBuildChargeBlockedMessage(walletStatus.planBuildChargeReasonCode)}
+                  </p>
+                )}
+                {localProviderBlocked && (
+                  <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
+                )}
+              </div>
+
+              {!localBuildIntent && (!shouldBuild || buildCredentialMode === 'user') && (
+                <input
+                  className="app-input"
+                  type="password"
+                  value={apiKey}
+                  onChange={(event) => setApiKey(event.target.value)}
+                  placeholder={t('settings.apikey_placeholder')}
+                  autoFocus
+                />
+              )}
+
+              <div className="app-actions">
+                <button
+                  className="app-button app-button--primary"
+                  onClick={() => {
+                    void handleSaveApiKey()
+                  }}
+                  disabled={
+                    buildBusy
+                    || buildUsageLoading
+                    || buildChargeBlocked
+                    || (shouldBuild && (!buildUsage || buildExecutionBlocked))
+                    || (shouldBuild && buildCredentialMode === 'backend' && !selectedBackendCredentialId.trim())
+                    || (!shouldBuild && requiresApiKey && !apiKey.trim() && !apiKeyConfigured)
+                  }
+                >
+                  {buildBusy
+                    ? t('builder.generating')
+                    : shouldBuild
+                      ? t('settings.apikey_confirm')
+                      : t('ui.save')}
+                </button>
+                <button
+                  className="app-button app-button--secondary"
+                  onClick={() => {
+                    router.push('/')
+                  }}
+                >
+                  {t('ui.close')}
+                </button>
+              </div>
+
+              {shouldBuild && (
+                <section className="dashboard-simulation">
+                  <div className="dashboard-simulation__header">
+                    <div className="dashboard-simulation__heading">
+                      <span className="dashboard-simulation__label">{t('builder.progress_title')}</span>
+                      <span className="dashboard-simulation__hint">
+                        {t(`builder.progress_steps.${currentStage}`)}
+                      </span>
+                      <span className="dashboard-simulation__hint">
+                        {t('builder.progress_provider', {
+                          provider: t(getProviderLabelKey(buildProgress?.provider ?? effectiveBuildModel))
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="dashboard-simulation__progress" role="status" aria-live="polite" aria-atomic="true">
+                    <div className="dashboard-simulation__progress-bar" aria-hidden="true">
+                      <span
+                        className={[
+                          'dashboard-simulation__progress-fill',
+                          `dashboard-simulation__progress-fill--${currentStageIndex + 1}`
+                        ].join(' ')}
+                      />
+                    </div>
+                    <strong className="dashboard-simulation__progress-title">
+                      {t('builder.progress_current', {
+                        current: buildProgress?.current ?? 1,
+                        total: buildProgress?.total ?? buildStages.length
+                      })}
+                    </strong>
+                    <span className="dashboard-simulation__progress-step">
+                      {buildProgress?.chunk || t(`builder.progress_steps.${currentStage}`)}
+                    </span>
+                  </div>
+                  {buildDone && <p className="status-message status-message--success" role="status" aria-live="polite">{t('builder.done')}</p>}
+                  {buildNotice && <p className="status-message status-message--success" role="status" aria-live="polite">{buildNotice}</p>}
+                  {buildError && <p className="status-message status-message--warning" role="status" aria-live="polite">{buildError}</p>}
+                </section>
+              )}
+            </section>
+
+            <section className={`${styles.card} ${styles.secondaryCard}`}>
+              <div className="settings-section__header">
+                <span className="app-status app-status--eyebrow">{t('dashboard.wallet_title')}</span>
+                <h2 className="app-title app-title--section">{t('settings.wallet_title')}</h2>
+                <p className="app-copy">{t('settings.wallet_hint')}</p>
+              </div>
+
               <input
                 className="app-input"
                 type="password"
-                value={apiKey}
-                onChange={(event) => setApiKey(event.target.value)}
-                placeholder={t('settings.apikey_placeholder')}
-                autoFocus
+                value={walletConnection}
+                onChange={(event) => setWalletConnection(event.target.value)}
+                placeholder={t('settings.wallet_placeholder')}
               />
-            )}
 
-            <div className="app-actions">
-              <button
-                className="app-button app-button--primary"
-                onClick={() => {
-                  void handleSaveApiKey()
-                }}
-                disabled={
-                  buildBusy
-                  || buildUsageLoading
-                  || buildChargeBlocked
-                  || (shouldBuild && (!buildUsage || buildExecutionBlocked))
-                  || (!shouldBuild && requiresApiKey && !apiKey.trim() && !apiKeyConfigured)
-                }
-              >
-                {buildBusy
-                  ? t('builder.generating')
-                  : shouldBuild
-                    ? t('settings.apikey_confirm')
-                    : t('ui.save')}
-              </button>
-              <button
-                className="app-button app-button--secondary"
-                onClick={() => {
-                  router.push('/')
-                }}
-              >
-                {t('ui.close')}
-              </button>
-            </div>
-          </section>
-
-          {shouldBuild && (
-            <section className="dashboard-simulation" style={{ marginTop: '1.25rem' }}>
-              <div className="dashboard-simulation__header">
-                <div className="dashboard-simulation__heading">
-                  <span className="dashboard-simulation__label">{t('builder.progress_title')}</span>
-                  <span className="dashboard-simulation__hint">
-                    {t(`builder.progress_steps.${currentStage}`)}
-                  </span>
-                  <span className="dashboard-simulation__hint">
-                    {t('builder.progress_provider', {
-                      provider: t(getProviderLabelKey(buildProgress?.provider ?? resolvedBuildModel))
-                    })}
-                  </span>
-                </div>
+              <div className="app-actions">
+                <button
+                  className="app-button app-button--primary"
+                  onClick={() => {
+                    void handleConnectWallet()
+                  }}
+                  disabled={!walletConnection.trim() || walletBusy}
+                >
+                  {walletBusy ? t('settings.wallet_connecting') : t('settings.wallet_confirm')}
+                </button>
+                <button
+                  className="app-button app-button--secondary"
+                  onClick={() => {
+                    void handleDisconnectWallet()
+                  }}
+                  disabled={walletBusy || !walletStatus.configured}
+                >
+                  {t('settings.wallet_disconnect')}
+                </button>
               </div>
-              <div className="dashboard-simulation__progress" role="status" aria-live="polite" aria-atomic="true">
-                <div className="dashboard-simulation__progress-bar" aria-hidden="true">
-                  <span
-                    className={[
-                      'dashboard-simulation__progress-fill',
-                      `dashboard-simulation__progress-fill--${currentStageIndex + 1}`
-                    ].join(' ')}
-                  />
-                </div>
-                <strong className="dashboard-simulation__progress-title">
-                  {t('builder.progress_current', {
-                    current: buildProgress?.current ?? 1,
-                    total: buildProgress?.total ?? buildStages.length
-                  })}
-                </strong>
-                <span className="dashboard-simulation__progress-step">
-                  {buildProgress?.chunk || t(`builder.progress_steps.${currentStage}`)}
-                </span>
-              </div>
-              {buildDone && <p className="status-message status-message--success" role="status" aria-live="polite">{t('builder.done')}</p>}
-              {buildNotice && <p className="status-message status-message--success" role="status" aria-live="polite">{buildNotice}</p>}
-              {buildError && <p className="status-message status-message--warning" role="status" aria-live="polite">{buildError}</p>}
-            </section>
-          )}
 
-          <hr className="dashboard-divider" />
-
-          <section className="settings-section settings-section--wallet">
-            <div className="settings-section__header">
-              <span className="app-status app-status--eyebrow">{t('dashboard.wallet_title')}</span>
-              <h2 className="app-title app-title--section">{t('settings.wallet_title')}</h2>
-              <p className="app-copy">{t('settings.wallet_hint')}</p>
-            </div>
-            <input
-              className="app-input"
-              type="password"
-              value={walletConnection}
-              onChange={(event) => setWalletConnection(event.target.value)}
-              placeholder={t('settings.wallet_placeholder')}
-            />
-
-            <div className="app-actions">
-              <button
-                className="app-button app-button--primary"
-                onClick={() => {
-                  void handleConnectWallet()
-                }}
-                disabled={!walletConnection.trim() || walletBusy}
-              >
-                {walletBusy ? t('settings.wallet_connecting') : t('settings.wallet_confirm')}
-              </button>
-              <button
-                className="app-button app-button--secondary"
-                onClick={() => {
-                  void handleDisconnectWallet()
-                }}
-                disabled={walletBusy || !walletStatus.configured}
-              >
-                {t('settings.wallet_disconnect')}
-              </button>
-            </div>
-
-            <p className="dashboard-wallet__meta">
-              {walletStatus.connected
-                ? t('settings.wallet_success')
-                : t('dashboard.wallet_not_connected')}
-            </p>
-            {typeof walletStatus.balanceSats === 'number' && (
               <p className="dashboard-wallet__meta">
-                {t('dashboard.wallet_balance', { sats: formatCount(walletStatus.balanceSats) })}
+                {walletStatus.connected
+                  ? t('settings.wallet_success')
+                  : t('dashboard.wallet_not_connected')}
               </p>
-            )}
+              {typeof walletStatus.balanceSats === 'number' && (
+                <p className="dashboard-wallet__meta">
+                  {t('dashboard.wallet_balance', { sats: formatCount(walletStatus.balanceSats) })}
+                </p>
+              )}
             {typeof walletStatus.budgetSats === 'number' && (
               <p className="dashboard-wallet__meta">
                 {t('dashboard.wallet_budget_remaining', {
@@ -546,6 +812,76 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
               </p>
             )}
           </section>
+
+          <section className={`${styles.card} ${styles.fullWidthCard}`}>
+            <div className="settings-section__header">
+              <span className="app-status app-status--eyebrow">{t('settings.backend_credentials_eyebrow')}</span>
+              <h2 className="app-title app-title--section">{t('settings.backend_credentials_title')}</h2>
+              <p className="app-copy">{t('settings.backend_credentials_hint')}</p>
+            </div>
+
+            <div className={styles.credentialFormGrid}>
+              <select
+                className="app-input"
+                value={backendCredentialProvider}
+                onChange={(event) => setBackendCredentialProvider(event.target.value as CloudCredentialProvider)}
+              >
+                <option value="openai">{t('builder.provider_openai')}</option>
+                <option value="openrouter">{t('builder.provider_openrouter')}</option>
+              </select>
+              <input
+                className="app-input"
+                type="text"
+                value={backendCredentialLabelInput}
+                onChange={(event) => setBackendCredentialLabelInput(event.target.value)}
+                placeholder={t('settings.backend_credential_label_placeholder')}
+              />
+              <input
+                className="app-input"
+                type="password"
+                value={backendCredentialSecretInput}
+                onChange={(event) => setBackendCredentialSecretInput(event.target.value)}
+                placeholder={t('settings.backend_credential_key_placeholder')}
+              />
+            </div>
+
+            <div className="app-actions">
+              <button
+                className="app-button app-button--primary"
+                onClick={() => {
+                  void handleSaveBackendCredential()
+                }}
+                disabled={!backendCredentialSecretInput.trim() || backendCredentialBusy}
+              >
+                {backendCredentialBusy ? t('settings.backend_credential_saving') : t('settings.backend_credential_save')}
+              </button>
+            </div>
+
+            {backendCredentialNotice === 'saved' && (
+              <p className="status-message status-message--success">{t('settings.backend_credential_saved')}</p>
+            )}
+            {backendCredentialNotice === 'error' && (
+              <p className="status-message status-message--warning">
+                {backendCredentialError || t('settings.backend_credential_error')}
+              </p>
+            )}
+
+            {backendCredentialsLoading ? (
+              <p className="dashboard-wallet__meta">{t('ui.loading')}</p>
+            ) : backendCredentials.length === 0 ? (
+              <p className="dashboard-wallet__meta">{t('settings.backend_credentials_empty')}</p>
+            ) : (
+              <ul className={styles.credentialList}>
+                {backendCredentials.map((credential) => (
+                  <li key={credential.id} className={styles.credentialListItem}>
+                    <strong>{getCredentialDisplayName(credential)}</strong>
+                    <span>{getCredentialStatusLabel(credential.status)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+          </div>
         </motion.div>
       </div>
     </MotionConfig>

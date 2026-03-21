@@ -1,0 +1,344 @@
+.welcomeFrame {
+  width: min(100%, 1120px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 1.5rem;
+}
+
+.welcomeHero,
+.welcomePreviewCard,
+.surface,
+.systemCard,
+.emptyPlanFeature {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, rgba(18, 23, 41, 0.92) 0%, rgba(12, 16, 30, 0.96) 100%);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
+}
+
+.welcomeHero {
+  display: grid;
+  align-content: center;
+  gap: 1rem;
+  padding: clamp(1.7rem, 4vw, 3rem);
+  min-height: 30rem;
+}
+
+.welcomeEyebrow,
+.heroEyebrow,
+.surfaceEyebrow,
+.welcomePreviewLabel,
+.focusEyebrow {
+  color: var(--brand);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.welcomeTitle,
+.heroTitle,
+.emptyPlanTitle {
+  margin: 0;
+  letter-spacing: -0.05em;
+  line-height: 0.98;
+}
+
+.welcomeTitle {
+  font-size: clamp(3rem, 7vw, 5.6rem);
+}
+
+.welcomeCopy {
+  margin: 0;
+  max-width: 28rem;
+  color: var(--text-secondary);
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.welcomePreviewGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.welcomePreviewCard,
+.emptyPlanFeature {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1.15rem 1.2rem;
+}
+
+.welcomePreviewCard strong,
+.emptyPlanFeature strong {
+  font-size: 1.05rem;
+}
+
+.welcomePreviewCard p,
+.emptyPlanFeature p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.emptyPlan {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.emptyPlanTitle {
+  font-size: clamp(2rem, 4vw, 3.1rem);
+}
+
+.emptyPlanCopy {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 40rem;
+}
+
+.emptyPlanGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dashboardHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 1.15rem;
+  margin-bottom: 1.5rem;
+}
+
+.heroCopy,
+.heroPanel,
+.focusCard {
+  border: 1px solid var(--border-soft);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(18, 23, 41, 0.9) 0%, rgba(12, 16, 30, 0.96) 100%);
+  box-shadow: var(--shadow-card);
+}
+
+.heroCopy {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.4rem, 3vw, 2rem);
+}
+
+.heroTitle {
+  font-size: clamp(2.2rem, 4.6vw, 4.5rem);
+}
+
+.heroNarrative {
+  margin: 0;
+  max-width: 38rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.heroPanel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.3rem;
+}
+
+.heroTrackHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.heroTrackLabel,
+.heroStatLabel,
+.focusAsideLabel,
+.systemMetricLabel {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heroTrackValue,
+.focusAsideValue {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.heroTrack {
+  width: 100%;
+  height: 0.72rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.heroTrackFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8db6ff 0%, #b7cfff 100%);
+}
+
+.heroStatGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.heroStat {
+  display: grid;
+  gap: 0.28rem;
+  min-height: 7rem;
+  padding: 0.9rem 0.95rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.heroStatValue {
+  font-size: clamp(1.2rem, 2.3vw, 1.75rem);
+  line-height: 1.08;
+}
+
+.heroStatMeta {
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.heroStatMetaSecondary {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(290px, 0.75fr);
+  gap: 1.2rem;
+  align-items: start;
+}
+
+.mainColumn,
+.sideColumn {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.surface,
+.systemCard {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+}
+
+.surfaceHeader {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.surfaceTitle {
+  margin: 0;
+  font-size: 1.28rem;
+  line-height: 1.15;
+}
+
+.surfaceCopy {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.focusCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  padding: 1rem 1.05rem;
+}
+
+.focusCopy {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.focusTitle,
+.systemPlanName {
+  font-size: 1.18rem;
+  line-height: 1.2;
+}
+
+.focusMeta {
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.focusAside {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+  min-width: 12rem;
+  padding-left: 1rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.systemPlanName {
+  display: block;
+}
+
+.systemGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.systemMetric {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.9rem 0.95rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.systemMetricValue {
+  line-height: 1.35;
+}
+
+@media (max-width: 1080px) {
+  .dashboardHero,
+  .dashboardGrid,
+  .welcomeFrame {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .emptyPlanGrid,
+  .heroStatGrid,
+  .systemGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heroActions {
+    flex-direction: column;
+  }
+
+  .focusCard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .focusAside {
+    min-width: 0;
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0.85rem;
+  }
+}

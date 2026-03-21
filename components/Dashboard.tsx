@@ -33,6 +33,7 @@ import type {
 import type { Perfil } from '../src/shared/schemas/perfil'
 import DebugPanel from './DebugPanel'
 import PlanCalendar from './PlanCalendar'
+import styles from './Dashboard.module.css'
 
 const viewTransition = {
   duration: 0.28,
@@ -122,6 +123,13 @@ function formatTaskMeta(meta: TaskMeta, categoria: string): string {
   parts.push(t(`dashboard.category.${categoria}`))
 
   return parts.join(' · ')
+}
+
+function compareTasksByTime(a: ProgressRow, b: ProgressRow): number {
+  const metaA = parseTaskMeta(a.notas)
+  const metaB = parseTaskMeta(b.notas)
+
+  return (metaA.hora || '').localeCompare(metaB.hora || '')
 }
 
 function getWalletStatusLabel(status: WalletStatus): string {
@@ -378,20 +386,35 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   const latestSimulation = latestPlanMeta.ultimaSimulacion ?? null
   const todayIso = DateTime.now().setZone(profileTimezone).toISODate() ?? ''
   const tasks = allTasks.filter((task) => task.fecha === todayIso)
+  const sortedTasks = [...tasks].sort(compareTasksByTime)
+  const pendingTasks = sortedTasks.filter((task) => !task.completado)
+  const nextPendingTask = pendingTasks[0] ?? null
   const completedTaskCount = tasks.filter((task) => task.completado).length
   const pendingTaskCount = Math.max(tasks.length - completedTaskCount, 0)
+  const todayProgress = tasks.length > 0 ? Math.round((completedTaskCount / tasks.length) * 100) : 0
   const todayLabel = DateTime.now()
     .setZone(profileTimezone)
     .setLocale(getCurrentLocale())
     .toFormat('cccc d LLL')
+  const monthLabel = DateTime.now()
+    .setZone(profileTimezone)
+    .setLocale(getCurrentLocale())
+    .toFormat('LLLL')
   const latestBuildRouteLabel = latestPlan
     ? getBuildRouteLabel(latestPlanMeta.ultimoModeloUsado, latestPlanMeta.fallbackUsed)
     : ''
+  const latestBuildProviderLabel = latestPlan ? getBuildProviderLabel(latestPlanMeta.ultimoModeloUsado) : ''
   const simulationStageIndex = Math.min(
     Math.max((simulationProgress?.current ?? 1) - 1, 0),
     simulationStages.length - 1
   )
   const activeSimulationStageKey = simulationProgress?.stage ?? simulationStages[0]
+  const todayNarrative = tasks.length === 0
+    ? t('dashboard.hero_overview_empty')
+    : t('dashboard.hero_overview_ready', {
+        done: completedTaskCount,
+        pending: pendingTaskCount
+      })
 
   useEffect(() => {
     let active = true
@@ -895,6 +918,51 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
     )
   }
 
+  function renderPlanSystemCard(): JSX.Element | null {
+    if (!latestPlan) {
+      return null
+    }
+
+    return (
+      <div className={styles.systemCard}>
+        <div className={styles.surfaceHeader}>
+          <span className={styles.surfaceEyebrow}>{t('dashboard.plan_panel.label')}</span>
+          <h3 className={styles.surfaceTitle}>{t('dashboard.plan_panel.title')}</h3>
+          <p className={styles.surfaceCopy}>{t('dashboard.plan_panel.copy')}</p>
+        </div>
+
+        <strong className={styles.systemPlanName}>{latestPlan.nombre}</strong>
+
+        <div className={styles.systemGrid}>
+          <div className={styles.systemMetric}>
+            <span className={styles.systemMetricLabel}>{t('dashboard.plan_panel.route_label')}</span>
+            <strong className={styles.systemMetricValue}>
+              {latestBuildRouteLabel || t('dashboard.plan_panel.route_unknown')}
+            </strong>
+          </div>
+          <div className={styles.systemMetric}>
+            <span className={styles.systemMetricLabel}>{t('dashboard.plan_panel.provider_label')}</span>
+            <strong className={styles.systemMetricValue}>
+              {latestBuildProviderLabel || t('dashboard.plan_panel.provider_unknown')}
+            </strong>
+          </div>
+          <div className={styles.systemMetric}>
+            <span className={styles.systemMetricLabel}>{t('dashboard.plan_panel.total_label')}</span>
+            <strong className={styles.systemMetricValue}>{formatCount(allTasks.length)}</strong>
+          </div>
+          <div className={styles.systemMetric}>
+            <span className={styles.systemMetricLabel}>{t('dashboard.plan_panel.month_label')}</span>
+            <strong className={styles.systemMetricValue}>{monthLabel}</strong>
+          </div>
+        </div>
+
+        {latestPlanMeta.fallbackUsed && (
+          <p className="status-message status-message--success">{t('builder.fallback_notice')}</p>
+        )}
+      </div>
+    )
+  }
+
   function renderBuildProgressCard(): JSX.Element | null {
     if (!buildProgress && !isBuilding) {
       return null
@@ -1065,15 +1133,35 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
     return (
       <MotionConfig reducedMotion="user">
         <div id="app" className="app-shell app-shell--centered">
-          <div className="app-screen app-screen--card app-screen--hero">
-            <h1 className="app-title">{t('app.name')}</h1>
-            <p className="app-subtitle">{t('app.tagline')}</p>
-            <p className="app-copy">{t('dashboard.empty')}</p>
-            <div className="app-actions">
-              <button className="app-button app-button--primary" onClick={() => router.push('/intake')}>
-                {t('dashboard.start')}
-              </button>
-            </div>
+          <div className={styles.welcomeFrame}>
+            <section className={styles.welcomeHero}>
+              <span className={styles.welcomeEyebrow}>{t('app.tagline')}</span>
+              <h1 className={styles.welcomeTitle}>{t('app.name')}</h1>
+              <p className={styles.welcomeCopy}>{t('dashboard.empty')}</p>
+              <div className={styles.heroActions}>
+                <button className="app-button app-button--primary" onClick={() => router.push('/intake')}>
+                  {t('dashboard.start')}
+                </button>
+              </div>
+            </section>
+
+            <section className={styles.welcomePreviewGrid}>
+              <article className={styles.welcomePreviewCard}>
+                <span className={styles.welcomePreviewLabel}>{t('dashboard.welcome.today_label')}</span>
+                <strong>{t('dashboard.welcome.today_title')}</strong>
+                <p>{t('dashboard.welcome.today_copy')}</p>
+              </article>
+              <article className={styles.welcomePreviewCard}>
+                <span className={styles.welcomePreviewLabel}>{t('dashboard.welcome.calendar_label')}</span>
+                <strong>{t('dashboard.welcome.calendar_title')}</strong>
+                <p>{t('dashboard.welcome.calendar_copy')}</p>
+              </article>
+              <article className={styles.welcomePreviewCard}>
+                <span className={styles.welcomePreviewLabel}>{t('dashboard.welcome.system_label')}</span>
+                <strong>{t('dashboard.welcome.system_title')}</strong>
+                <p>{t('dashboard.welcome.system_copy')}</p>
+              </article>
+            </section>
           </div>
         </div>
       </MotionConfig>
@@ -1094,18 +1182,15 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
           >
             <div id="app" className="app-shell dashboard-shell">
               <div className="dashboard-layout">
-                <header className="dashboard-header">
-                  <h1 className="dashboard-greeting">
-                    {profileName ? t('dashboard.greeting', { nombre: profileName }) : t('app.name')}
-                  </h1>
-                  <h2 className="dashboard-title">{t('dashboard.title')}</h2>
-                </header>
-
                 {!hasPlan ? (
-                  <section className="dashboard-panel dashboard-panel--empty">
-                    <p className="dashboard-copy">{t('dashboard.empty')}</p>
+                  <section className={`dashboard-panel dashboard-panel--empty ${styles.emptyPlan}`}>
+                    <div className={styles.surfaceHeader}>
+                      <span className={styles.surfaceEyebrow}>{t('dashboard.empty_plan_label')}</span>
+                      <h1 className={styles.emptyPlanTitle}>{t('dashboard.empty_plan_title')}</h1>
+                      <p className={styles.emptyPlanCopy}>{t('dashboard.empty')}</p>
+                    </div>
                     {renderBuildProgressCard()}
-                    <div className="dashboard-actions">
+                    <div className={styles.heroActions}>
                       <button
                         className="app-button app-button--primary"
                         onClick={() => router.push('/settings?intent=build&provider=openai')}
@@ -1133,6 +1218,18 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                     {!localAssistantAvailable && (
                       <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
                     )}
+                    <div className={styles.emptyPlanGrid}>
+                      <article className={styles.emptyPlanFeature}>
+                        <span className={styles.welcomePreviewLabel}>{t('dashboard.welcome.today_label')}</span>
+                        <strong>{t('dashboard.empty_plan_feature.today_title')}</strong>
+                        <p>{t('dashboard.empty_plan_feature.today_copy')}</p>
+                      </article>
+                      <article className={styles.emptyPlanFeature}>
+                        <span className={styles.welcomePreviewLabel}>{t('dashboard.welcome.calendar_label')}</span>
+                        <strong>{t('dashboard.empty_plan_feature.calendar_title')}</strong>
+                        <p>{t('dashboard.empty_plan_feature.calendar_copy')}</p>
+                      </article>
+                    </div>
                     <div className="dashboard-summary-grid dashboard-summary-grid--single">
                       {renderWalletCard()}
                     </div>
@@ -1141,195 +1238,270 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                   </section>
                 ) : (
                   <section className="dashboard-panel">
-                    <p className="dashboard-plan-name">{t('dashboard.plan_name', { nombre: latestPlan!.nombre })}</p>
-                    {latestBuildRouteLabel && (
-                      <p className="status-message status-message--success">{latestBuildRouteLabel}</p>
-                    )}
-                    {renderBuildProgressCard()}
-                    <div className="dashboard-summary-grid">
-                      <div className="dashboard-streak">
-                        <span className="dashboard-streak__label">{t('dashboard.streak_title')}</span>
-                        <strong className="dashboard-streak__value">
-                          {streak.current > 0
-                            ? t('dashboard.streak_current', { count: streak.current })
-                            : t('dashboard.streak_empty')}
-                        </strong>
-                        {streak.best > 0 && (
-                          <span className="dashboard-streak__best">
-                            {t('dashboard.streak_best', { count: streak.best })}
-                          </span>
-                        )}
+                    <div className={styles.dashboardHero}>
+                      <div className={styles.heroCopy}>
+                        <span className={styles.heroEyebrow}>{todayLabel}</span>
+                        <h1 className={styles.heroTitle}>
+                          {profileName ? t('dashboard.greeting', { nombre: profileName }) : t('app.name')}
+                        </h1>
+                        <p className={styles.heroNarrative}>{todayNarrative}</p>
+                        <div className={styles.heroActions}>
+                          <button
+                            className="app-button app-button--primary"
+                            onClick={() => {
+                              void handleSimulatePlan()
+                            }}
+                            disabled={isSimulating}
+                          >
+                            {isSimulating ? t('dashboard.reviewing_plan') : t('dashboard.review_plan')}
+                          </button>
+                          <button
+                            className="app-button app-button--secondary"
+                            onClick={() => {
+                              void handleExportCalendar()
+                            }}
+                            disabled={isExporting}
+                          >
+                            {isExporting ? t('dashboard.exporting_calendar') : t('dashboard.export_calendar')}
+                          </button>
+                        </div>
                       </div>
-                      <div className="dashboard-summary-stack">
+
+                      <div className={styles.heroPanel}>
+                        <div className={styles.heroTrackHeader}>
+                          <span className={styles.heroTrackLabel}>{t('dashboard.title')}</span>
+                          <strong className={styles.heroTrackValue}>{todayProgress}%</strong>
+                        </div>
+                        <div className={styles.heroTrack} aria-hidden="true">
+                          <span className={styles.heroTrackFill} style={{ width: `${todayProgress}%` }} />
+                        </div>
+                        <div className={styles.heroStatGrid}>
+                          <article className={styles.heroStat}>
+                            <span className={styles.heroStatLabel}>{t('dashboard.welcome.today_label')}</span>
+                            <strong className={styles.heroStatValue}>{formatCount(pendingTaskCount)}</strong>
+                            <span className={styles.heroStatMeta}>{t('dashboard.focus_panel.progress_label')}</span>
+                          </article>
+                          <article className={styles.heroStat}>
+                            <span className={styles.heroStatLabel}>{t('dashboard.streak_title')}</span>
+                            <strong className={styles.heroStatValue}>
+                              {streak.current > 0
+                                ? formatCount(streak.current)
+                                : streak.best > 0
+                                  ? formatCount(streak.best)
+                                  : '0'}
+                            </strong>
+                            <span className={styles.heroStatMeta}>
+                              {streak.current > 0
+                                ? t('dashboard.streak_current', { count: streak.current })
+                                : streak.best > 0
+                                  ? t('dashboard.streak_best', { count: streak.best })
+                                  : t('dashboard.streak_empty')}
+                            </span>
+                            {streak.current > 0 && streak.best > 0 && (
+                              <span className={styles.heroStatMetaSecondary}>
+                                {t('dashboard.streak_best', { count: streak.best })}
+                              </span>
+                            )}
+                          </article>
+                          <article className={styles.heroStat}>
+                            <span className={styles.heroStatLabel}>{t('dashboard.calendar_panel.total_label')}</span>
+                            <strong className={styles.heroStatValue}>{formatCount(allTasks.length)}</strong>
+                            <span className={styles.heroStatMeta}>{t('dashboard.plan_name', { nombre: latestPlan!.nombre })}</span>
+                          </article>
+                        </div>
+                      </div>
+                    </div>
+
+                    {renderBuildProgressCard()}
+
+                    <div className={styles.dashboardGrid}>
+                      <div className={styles.mainColumn}>
+                        <section className={styles.surface}>
+                          <div className={styles.surfaceHeader}>
+                            <span className={styles.surfaceEyebrow}>{todayLabel}</span>
+                            <h2 className={styles.surfaceTitle}>{t('dashboard.today_tasks')}</h2>
+                            <p className={styles.surfaceCopy}>{t('dashboard.today_summary', { count: pendingTaskCount })}</p>
+                          </div>
+
+                          <div className={styles.focusCard}>
+                            <div className={styles.focusCopy}>
+                              <span className={styles.focusEyebrow}>{t('dashboard.focus_panel.label')}</span>
+                              {nextPendingTask ? (
+                                <>
+                                  <strong className={styles.focusTitle}>{nextPendingTask.descripcion}</strong>
+                                  <span className={styles.focusMeta}>
+                                    {formatTaskMeta(
+                                      parseTaskMeta(nextPendingTask.notas),
+                                      parseTaskMeta(nextPendingTask.notas).categoria || 'otro'
+                                    )}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <strong className={styles.focusTitle}>{t('dashboard.focus_panel.empty_title')}</strong>
+                                  <span className={styles.focusMeta}>{t('dashboard.focus_panel.empty_copy')}</span>
+                                </>
+                              )}
+                            </div>
+
+                            <div className={styles.focusAside}>
+                              <span className={styles.focusAsideLabel}>{t('dashboard.focus_panel.progress_label')}</span>
+                              <strong className={styles.focusAsideValue}>
+                                {completedTaskCount === tasks.length && tasks.length > 0
+                                  ? t('dashboard.focus_panel.complete_value')
+                                  : t('dashboard.focus_panel.pending_value', {
+                                      count: pendingTaskCount
+                                    })}
+                              </strong>
+                            </div>
+                          </div>
+
+                          {tasks.length === 0 ? (
+                            <p className="dashboard-copy">{t('dashboard.no_tasks_today')}</p>
+                          ) : (
+                            <>
+                              <p className="dashboard-progress" aria-live="polite" aria-atomic="true">
+                                <AnimatePresence initial={false} mode="wait">
+                                  <motion.span
+                                    key={`${completedTaskCount}-${tasks.length}`}
+                                    className="dashboard-progress-value"
+                                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                                    transition={viewTransition}
+                                  >
+                                    {completedTaskCount === tasks.length
+                                      ? t('dashboard.all_done')
+                                      : t('dashboard.done_count', {
+                                          done: completedTaskCount,
+                                          total: tasks.length
+                                        })}
+                                  </motion.span>
+                                </AnimatePresence>
+                              </p>
+
+                              <motion.ul layout className="task-list">
+                                {sortedTasks.map((task) => {
+                                  const meta = parseTaskMeta(task.notas)
+                                  const categoria = meta.categoria || 'otro'
+                                  const cardClassName = [
+                                    'task-card',
+                                    `task-card--${categoria}`,
+                                    task.completado ? 'task-card--completed' : ''
+                                  ].filter(Boolean).join(' ')
+                                  const toggleClassName = [
+                                    'app-button',
+                                    'task-toggle',
+                                    task.completado ? 'app-button--secondary' : 'app-button--primary'
+                                  ].join(' ')
+
+                                  return (
+                                    <motion.li
+                                      key={task.id}
+                                      layout
+                                      className={cardClassName}
+                                      initial={{ opacity: 0, y: 16, scale: 0.985 }}
+                                      animate={{ opacity: task.completado ? 0.76 : 1, y: 0, scale: 1 }}
+                                      transition={viewTransition}
+                                    >
+                                      <div className="task-card__row">
+                                        <div className="task-card__text">
+                                          <strong className="task-card__title">{task.descripcion}</strong>
+                                          <small className="task-card__meta">{formatTaskMeta(meta, categoria)}</small>
+                                        </div>
+
+                                        <button
+                                          className={toggleClassName}
+                                          onClick={() => {
+                                            void handleToggle(task.id)
+                                          }}
+                                        >
+                                          {task.completado ? t('dashboard.undo') : t('dashboard.check_in')}
+                                        </button>
+                                      </div>
+                                    </motion.li>
+                                  )
+                                })}
+                              </motion.ul>
+                            </>
+                          )}
+                        </section>
+
+                        {renderSimulationCard()}
+                        <PlanCalendar tasks={allTasks} timezone={profileTimezone} />
+                      </div>
+
+                      <aside className={styles.sideColumn}>
+                        {renderPlanSystemCard()}
                         {renderWalletCard()}
                         {renderCostCard()}
-                      </div>
-                    </div>
-                    {renderSimulationCard()}
 
-                    {latestPlanMeta.fallbackUsed && (
-                      <p className="status-message status-message--success">{t('builder.fallback_notice')}</p>
-                    )}
+                        <section className={styles.surface}>
+                          <div className={styles.surfaceHeader}>
+                            <span className={styles.surfaceEyebrow}>{t('dashboard.actions_surface.label')}</span>
+                            <h3 className={styles.surfaceTitle}>{t('dashboard.actions_title')}</h3>
+                            <p className={styles.surfaceCopy}>
+                              {localAssistantAvailable
+                                ? t('dashboard.actions_hint_local')
+                                : t('builder.local_unavailable_deploy')}
+                            </p>
+                          </div>
 
-                    <div className="dashboard-section-heading">
-                      <div className="dashboard-section-heading__copy">
-                        <span className="dashboard-section-heading__eyebrow">{todayLabel}</span>
-                        <h3 className="dashboard-section-heading__title">{t('dashboard.today_tasks')}</h3>
-                        <p className="dashboard-section-heading__meta">
-                          {t('dashboard.today_summary', { count: pendingTaskCount })}
-                        </p>
-                      </div>
-                    </div>
-
-                    {tasks.length === 0 ? (
-                      <p className="dashboard-copy">{t('dashboard.no_tasks_today')}</p>
-                    ) : (
-                      <>
-                        <p className="dashboard-progress" aria-live="polite" aria-atomic="true">
-                          <AnimatePresence initial={false} mode="wait">
-                            <motion.span
-                              key={`${completedTaskCount}-${tasks.length}`}
-                              className="dashboard-progress-value"
-                              initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                              transition={viewTransition}
+                          <div className="dashboard-actions">
+                            <button
+                              className="app-button app-button--primary"
+                              onClick={() => {
+                                void handleBuildPlan('openai')
+                              }}
+                              disabled={isBuilding}
                             >
-                              {completedTaskCount === tasks.length
-                                ? t('dashboard.all_done')
-                                : t('dashboard.done_count', {
-                                    done: completedTaskCount,
-                                    total: tasks.length
-                                  })}
-                            </motion.span>
-                          </AnimatePresence>
-                        </p>
+                              {t('dashboard.build_openai')}
+                            </button>
+                            <button
+                              className="app-button app-button--secondary"
+                              onClick={() => {
+                                void handleBuildPlan('openrouter')
+                              }}
+                              disabled={isBuilding}
+                            >
+                              {t('dashboard.build_openrouter')}
+                            </button>
+                            {localAssistantAvailable && (
+                              <button
+                                className="app-button app-button--secondary"
+                                onClick={() => {
+                                  void handleBuildPlan('ollama')
+                                }}
+                                disabled={isBuilding}
+                              >
+                                {t('dashboard.build_ollama')}
+                              </button>
+                            )}
+                            <button className="app-button app-button--secondary" onClick={() => router.push('/intake')}>
+                              {t('dashboard.redo_intake')}
+                            </button>
+                          </div>
 
-                        <motion.ul layout className="task-list">
-                          {[...tasks]
-                            .sort((a, b) => {
-                              const metaA = parseTaskMeta(a.notas)
-                              const metaB = parseTaskMeta(b.notas)
-                              return (metaA.hora || '').localeCompare(metaB.hora || '')
-                            })
-                            .map((task) => {
-                              const meta = parseTaskMeta(task.notas)
-                              const categoria = meta.categoria || 'otro'
-                              const cardClassName = [
-                                'task-card',
-                                `task-card--${categoria}`,
-                                task.completado ? 'task-card--completed' : ''
-                              ].filter(Boolean).join(' ')
-                              const toggleClassName = [
-                                'app-button',
-                                'task-toggle',
-                                task.completado ? 'app-button--secondary' : 'app-button--primary'
-                              ].join(' ')
-
-                              return (
-                                <motion.li
-                                  key={task.id}
-                                  layout
-                                  className={cardClassName}
-                                  initial={{ opacity: 0, y: 16, scale: 0.985 }}
-                                  animate={{ opacity: task.completado ? 0.76 : 1, y: 0, scale: 1 }}
-                                  transition={viewTransition}
-                                >
-                                  <div className="task-card__row">
-                                    <div className="task-card__text">
-                                      <strong className="task-card__title">{task.descripcion}</strong>
-                                      <small className="task-card__meta">{formatTaskMeta(meta, categoria)}</small>
-                                    </div>
-
-                                    <button
-                                      className={toggleClassName}
-                                      onClick={() => {
-                                        void handleToggle(task.id)
-                                      }}
-                                    >
-                                      {task.completado ? t('dashboard.undo') : t('dashboard.check_in')}
-                                    </button>
-                                  </div>
-                                </motion.li>
-                              )
-                            })}
-                        </motion.ul>
-                      </>
-                    )}
-
-                    <PlanCalendar tasks={allTasks} timezone={profileTimezone} />
-
-                    <hr className="dashboard-divider" />
-                    <div className="dashboard-section-heading dashboard-section-heading--compact">
-                      <div className="dashboard-section-heading__copy">
-                        <h3 className="dashboard-section-heading__title">{t('dashboard.actions_title')}</h3>
-                        <p className="dashboard-section-heading__meta">
-                          {localAssistantAvailable
-                            ? t('dashboard.actions_hint_local')
-                            : t('builder.local_unavailable_deploy')}
-                        </p>
-                      </div>
+                          {!localAssistantAvailable && (
+                            <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
+                          )}
+                          {exportStatus && (
+                            <p
+                              className={[
+                                'status-message',
+                                exportStatus === 'success' ? 'status-message--success' : 'status-message--warning'
+                              ].join(' ')}
+                            >
+                              {exportStatus === 'success'
+                                ? t('dashboard.export_calendar_success')
+                                : t('dashboard.export_calendar_error')}
+                            </p>
+                          )}
+                          {buildNotice && <p className="status-message status-message--success">{buildNotice}</p>}
+                          {buildError && <p className="status-message status-message--warning">{buildError}</p>}
+                        </section>
+                      </aside>
                     </div>
-                    <div className="dashboard-actions">
-                      <button
-                        className="app-button app-button--secondary"
-                        onClick={() => {
-                          void handleExportCalendar()
-                        }}
-                        disabled={isExporting}
-                      >
-                        {isExporting ? t('dashboard.exporting_calendar') : t('dashboard.export_calendar')}
-                      </button>
-                      <button
-                        className="app-button app-button--primary"
-                        onClick={() => {
-                          void handleBuildPlan('openai')
-                        }}
-                        disabled={isBuilding}
-                      >
-                        {t('dashboard.build_openai')}
-                      </button>
-                      <button
-                        className="app-button app-button--secondary"
-                        onClick={() => {
-                          void handleBuildPlan('openrouter')
-                        }}
-                        disabled={isBuilding}
-                      >
-                        {t('dashboard.build_openrouter')}
-                      </button>
-                      {localAssistantAvailable && (
-                        <button
-                          className="app-button app-button--secondary"
-                          onClick={() => {
-                            void handleBuildPlan('ollama')
-                          }}
-                          disabled={isBuilding}
-                        >
-                          {t('dashboard.build_ollama')}
-                        </button>
-                      )}
-                      <button className="app-button app-button--secondary" onClick={() => router.push('/intake')}>
-                        {t('dashboard.redo_intake')}
-                      </button>
-                    </div>
-                    {!localAssistantAvailable && (
-                      <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
-                    )}
-                    {exportStatus && (
-                      <p
-                        className={[
-                          'status-message',
-                          exportStatus === 'success' ? 'status-message--success' : 'status-message--warning'
-                        ].join(' ')}
-                      >
-                        {exportStatus === 'success'
-                          ? t('dashboard.export_calendar_success')
-                          : t('dashboard.export_calendar_error')}
-                      </p>
-                    )}
-                    {buildNotice && <p className="status-message status-message--success">{buildNotice}</p>}
-                    {buildError && <p className="status-message status-message--warning">{buildError}</p>}
                   </section>
                 )}
               </div>

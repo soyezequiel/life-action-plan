@@ -110,6 +110,8 @@ function renderEventContent(content: EventContentArg): JSX.Element {
 
 export default function PlanCalendar({ tasks, timezone }: PlanCalendarProps): JSX.Element {
   const [initialView, setInitialView] = useState<CalendarView>('dayGridMonth')
+  const todayIso = DateTime.now().setZone(timezone).toISODate() ?? ''
+  const [selectedDateIso, setSelectedDateIso] = useState(todayIso)
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
@@ -121,14 +123,34 @@ export default function PlanCalendar({ tasks, timezone }: PlanCalendarProps): JS
     }
   }, [])
 
+  useEffect(() => {
+    if (tasks.length === 0) {
+      setSelectedDateIso(todayIso)
+      return
+    }
+
+    if (tasks.some((task) => task.fecha === selectedDateIso)) {
+      return
+    }
+
+    const fallbackDate = tasks.some((task) => task.fecha === todayIso) ? todayIso : tasks[0].fecha
+    setSelectedDateIso(fallbackDate)
+  }, [selectedDateIso, tasks, todayIso])
+
   const countFormatter = new Intl.NumberFormat(getCurrentLocale())
   const completedCount = tasks.filter((task) => task.completado).length
   const pendingCount = Math.max(tasks.length - completedCount, 0)
-  const todayIso = DateTime.now().setZone(timezone).toISODate()
   const todayCount = tasks.filter((task) => task.fecha === todayIso).length
   const events = tasks
     .map((task) => buildEvent(task, timezone))
     .filter((event): event is EventInput => event !== null)
+  const selectedTasks = tasks
+    .filter((task) => task.fecha === selectedDateIso)
+    .sort((a, b) => (parseTaskMeta(a.notas).hora || '').localeCompare(parseTaskMeta(b.notas).hora || ''))
+  const selectedDateLabel = DateTime.fromISO(selectedDateIso, { zone: timezone })
+    .setLocale(getCurrentLocale())
+    .toFormat('cccc d LLL')
+  const selectedPendingCount = selectedTasks.filter((task) => !task.completado).length
 
   return (
     <section className={styles.calendarShell} aria-labelledby="dashboard-calendar-title">
@@ -208,6 +230,22 @@ export default function PlanCalendar({ tasks, timezone }: PlanCalendarProps): JS
           }}
           events={events}
           eventContent={renderEventContent}
+          dateClick={(info) => {
+            setSelectedDateIso(info.dateStr)
+          }}
+          eventClick={(info) => {
+            const eventDate = info.event.start
+              ? DateTime.fromJSDate(info.event.start, { zone: timezone }).toISODate()
+              : info.event.startStr.slice(0, 10)
+
+            if (eventDate) {
+              setSelectedDateIso(eventDate)
+            }
+          }}
+          dayCellClassNames={(info) => {
+            const isoDate = DateTime.fromJSDate(info.date, { zone: timezone }).toISODate()
+            return isoDate === selectedDateIso ? [styles.daySelected] : []
+          }}
           eventDidMount={(info) => {
             const categoryLabel = String(info.event.extendedProps.categoryLabel || '')
             const statusLabel = String(info.event.extendedProps.statusLabel || '')
@@ -216,6 +254,59 @@ export default function PlanCalendar({ tasks, timezone }: PlanCalendarProps): JS
           }}
         />
       )}
+
+      <div className={styles.agenda}>
+        <div className={styles.agendaHeader}>
+          <div className={styles.agendaCopy}>
+            <span className={styles.label}>{t('dashboard.calendar_panel.selected_label')}</span>
+            <h4 className={styles.agendaTitle}>{selectedDateLabel}</h4>
+          </div>
+          <div className={styles.agendaStats}>
+            <span className={styles.footerChip}>{t('dashboard.calendar_panel.selected_count', { count: countFormatter.format(selectedTasks.length) })}</span>
+            <span className={styles.footerChip}>
+              {selectedTasks.length === 0
+                ? t('dashboard.calendar_panel.selected_empty_short')
+                : selectedPendingCount === 0
+                  ? t('dashboard.calendar_panel.selected_all_done')
+                  : t('dashboard.calendar_panel.selected_pending', { count: countFormatter.format(selectedPendingCount) })}
+            </span>
+          </div>
+        </div>
+
+        {selectedTasks.length === 0 ? (
+          <p className={styles.agendaEmpty}>{t('dashboard.calendar_panel.selected_empty')}</p>
+        ) : (
+          <ul className={styles.agendaList}>
+            {selectedTasks.map((task) => {
+              const meta = parseTaskMeta(task.notas)
+              const category = meta.categoria || 'otro'
+              const timeText = meta.hora || '09:00'
+              const durationText = typeof meta.duracion === 'number'
+                ? t('dashboard.minutes', { min: meta.duracion })
+                : ''
+              const categoryText = t(`dashboard.category.${category}`)
+
+              return (
+                <li key={task.id} className={styles.agendaItem}>
+                  <div className={styles.agendaTimeBlock}>
+                    <strong className={styles.agendaTime}>{timeText}</strong>
+                    <span className={styles.agendaDuration}>{durationText || categoryText}</span>
+                  </div>
+                  <div className={styles.agendaTaskCopy}>
+                    <strong className={styles.agendaTaskTitle}>{task.descripcion}</strong>
+                    <span className={styles.agendaTaskMeta}>
+                      {durationText ? `${durationText} / ${categoryText}` : categoryText}
+                    </span>
+                  </div>
+                  <span className={`${styles.agendaStatus} ${task.completado ? styles.agendaStatusDone : ''}`}>
+                    {task.completado ? t('dashboard.completed') : t('dashboard.pending')}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </div>
 
       <div className={styles.footer}>
         <span className={styles.footerChip}>

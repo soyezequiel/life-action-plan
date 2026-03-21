@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
-import { Inter, Geist_Mono } from 'next/font/google'
+import { Manrope, Geist_Mono } from 'next/font/google'
 import ClientProviders from '../src/lib/client/providers'
 import esAR from '../src/i18n/locales/es-AR.json'
 import './globals.css'
 
-const inter = Inter({
+const manrope = Manrope({
   subsets: ['latin'],
   variable: '--font-ui',
   display: 'swap'
@@ -32,7 +32,7 @@ export default function RootLayout({
   children: ReactNode
 }>) {
   return (
-    <html lang="es-AR" className={`${inter.variable} ${geistMono.variable}`}>
+    <html lang="es-AR" className={`${manrope.variable} ${geistMono.variable}`}>
       <body>
         <ClientProviders>{children}</ClientProviders>
       </body>

@@ -5,7 +5,9 @@
   },
   "intake": {
     "title": "Contame sobre vos",
+    "headline": "Ordenemos tu semana antes de pedirle algo al sistema",
     "subtitle": "Unas pocas preguntas para armar tu plan personalizado",
+    "caption": "Paso actual",
     "questions": {
       "nombre": "¿Cómo te llamás?",
       "edad": "¿Cuántos años tenés?",
@@ -27,6 +29,14 @@
       "skip": "Prefiero no contestar"
     },
     "progress": "Pregunta {{current}} de {{total}}",
+    "preview": {
+      "today_title": "Enfocate en hoy",
+      "today_copy": "Primero armamos una base clara para que la pantalla principal te diga que hacer ahora.",
+      "calendar_title": "Hace visible la semana",
+      "calendar_copy": "Cada respuesta termina ordenada en un calendario para que entiendas ritmo y carga.",
+      "system_title": "Configura solo lo necesario",
+      "system_copy": "La parte tecnica queda al costado. Vos respondes en lenguaje simple."
+    },
     "tip_enter": "Podes avanzar con Enter.",
     "tip_finish": "La ultima respuesta dispara el armado de tu plan.",
     "saving": "Guardando tu perfil...",
@@ -121,6 +131,49 @@
     "build_ollama": "Armar con asistente local",
     "actions_title": "Acciones del plan",
     "actions_hint_local": "En esta maquina tambien podes usar el asistente local.",
+    "hero_overview_empty": "Hoy esta liviano. Aprovecha para revisar la semana completa y definir el siguiente paso.",
+    "hero_overview_ready": "Ya tenes {{done}} listas y {{pending}} pendientes para hoy.",
+    "focus_panel": {
+      "label": "Foco del dia",
+      "progress_label": "Estado de hoy",
+      "pending_value": "{{count}} por resolver",
+      "complete_value": "Jornada cerrada",
+      "empty_title": "No te queda nada pendiente",
+      "empty_copy": "Usa este margen para revisar el calendario completo o ajustar el plan."
+    },
+    "welcome": {
+      "today_label": "Hoy",
+      "today_title": "Prioriza lo que importa ahora",
+      "today_copy": "LAP te recibe con una vista centrada en lo proximo, no en menus ni configuraciones.",
+      "calendar_label": "Semana",
+      "calendar_title": "Ve el plan completo sin perder contexto",
+      "calendar_copy": "Mes, semana y dia conviven con un detalle claro para entender carga, ritmo y huecos.",
+      "system_label": "Sistema",
+      "system_title": "Lo tecnico queda ordenado",
+      "system_copy": "Billetera, costo y proveedor viven en un carril aparte para no contaminar tu dia."
+    },
+    "empty_plan_label": "Perfil listo",
+    "empty_plan_title": "Ahora armemos tu primera semana",
+    "empty_plan_feature": {
+      "today_title": "Una pantalla principal mas clara",
+      "today_copy": "Tu tablero va a empezar por hoy, con el siguiente paso bien visible.",
+      "calendar_title": "Calendario integrado",
+      "calendar_copy": "El plan completo queda ordenado por mes, semana y dia desde la misma app."
+    },
+    "plan_panel": {
+      "label": "Sistema del plan",
+      "title": "Como esta funcionando",
+      "copy": "Este costado te muestra la ruta activa y el contexto del plan sin sacarte de foco.",
+      "route_label": "Ruta",
+      "route_unknown": "Pendiente",
+      "provider_label": "Proveedor",
+      "provider_unknown": "Sin definir",
+      "total_label": "Programadas",
+      "month_label": "Mes actual"
+    },
+    "actions_surface": {
+      "label": "Sistema"
+    },
     "redo_intake": "Rehacer mi perfil",
     "calendar_panel": {
       "label": "Todo el plan",
@@ -132,6 +185,12 @@
       "today_label": "Hoy",
       "empty_title": "Todavia no hay actividades con fecha",
       "empty_copy": "Cuando el plan tenga horarios, vas a poder recorrerlo completo desde aca.",
+      "selected_label": "Dia elegido",
+      "selected_count": "{{count}} actividades",
+      "selected_empty_short": "Sin agenda",
+      "selected_all_done": "Todo listo",
+      "selected_pending": "{{count}} pendientes",
+      "selected_empty": "No hay actividades para este dia. Elegi otro momento o usa el hueco para descansar.",
       "legend_scheduled": "Actividad programada",
       "legend_completed": "{{count}} listas",
       "toolbar": {
