@@ -41,6 +41,7 @@ import {
 } from '../../_plan'
 import { resolveBuildModel } from '../../../../src/lib/providers/provider-metadata'
 import { summarizeResourceUsage } from '../../../../src/lib/runtime/resource-usage-summary'
+import { toResourceUsageTrackingPayload } from '../../../../src/lib/runtime/resource-usage-tracking'
 
 export const maxDuration = 60
 
@@ -64,9 +65,16 @@ export async function POST(request: Request): Promise<Response> {
     return new NextResponse(stream, { headers: sseHeaders() })
   }
 
-  const { profileId, apiKey, provider } = parsed.data
+  const { profileId, apiKey, provider, backendCredentialId, resourceMode } = parsed.data
   const requestedModelId = resolveBuildModel(provider)
   const deploymentMode = getDeploymentMode()
+  const requestedMode = resourceMode === 'backend'
+    ? 'backend-cloud'
+    : resourceMode === 'user'
+      ? 'user-cloud'
+      : backendCredentialId
+        ? 'backend-cloud'
+        : undefined
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -110,7 +118,9 @@ export async function POST(request: Request): Promise<Response> {
         requestedExecution = await resolvePlanBuildExecution({
           modelId: requestedModelId,
           deploymentMode,
-          userSuppliedApiKey: apiKey
+          requestedMode,
+          userSuppliedApiKey: apiKey,
+          backendCredentialId
         })
 
         const { executionContext, billingPolicy, runtime } = requestedExecution
@@ -163,17 +173,11 @@ export async function POST(request: Request): Promise<Response> {
 
         await trackEvent('PLAN_BUILD_STARTED', {
           profileId,
-          modelId: requestedModelId,
           chargeId: chargeRecord.id,
-          executionMode: executionContext.mode,
-          executionTarget: executionContext.executionTarget,
-          resourceOwner: executionContext.resourceOwner,
-          credentialSource: executionContext.credentialSource,
-          canExecute: executionContext.canExecute,
           chargeDecision: billingPolicy.chargeable
             ? prechargeDecision?.decision ?? initialChargeStatus
             : 'skipped',
-          estimatedCostSats: billingPolicy.estimatedCostSats
+          ...toResourceUsageTrackingPayload(requestedResourceUsage)
         })
 
         const preparingProgress: PlanBuildProgress = {
@@ -192,11 +196,8 @@ export async function POST(request: Request): Promise<Response> {
         if (!executionContext.canExecute) {
           await trackEvent('PLAN_BUILD_EXECUTION_BLOCKED', {
             profileId,
-            modelId: requestedModelId,
             chargeId: chargeRecord.id,
-            blockReasonCode: executionContext.blockReasonCode,
-            blockReasonDetail: executionContext.blockReasonDetail,
-            executionMode: executionContext.mode
+            ...toResourceUsageTrackingPayload(requestedResourceUsage)
           })
 
           send({
@@ -219,10 +220,10 @@ export async function POST(request: Request): Promise<Response> {
         if (prechargeDecision?.decision === 'rejected') {
           await trackEvent('PLAN_BUILD_CHARGE_BLOCKED', {
             profileId,
-            modelId: requestedModelId,
             chargeId: chargeRecord.id,
             reasonCode: prechargeDecision.reasonCode,
-            reasonDetail: prechargeDecision.reasonDetail
+            reasonDetail: prechargeDecision.reasonDetail,
+            ...toResourceUsageTrackingPayload(requestedResourceUsage)
           })
 
           send({
@@ -422,11 +423,11 @@ export async function POST(request: Request): Promise<Response> {
           if (chargeRecord.status !== 'paid') {
             await trackEvent('PLAN_BUILD_CHARGE_FAILED', {
               profileId,
-              modelId: finalModelId,
               chargeId: chargeRecord.id,
               chargeStatus: chargeRecord.status,
               reasonCode: chargeRecord.reasonCode,
-              reasonDetail: chargeRecord.reasonDetail
+              reasonDetail: chargeRecord.reasonDetail,
+              ...toResourceUsageTrackingPayload(finalResourceUsage)
             })
 
             send({
@@ -493,7 +494,6 @@ export async function POST(request: Request): Promise<Response> {
         const seeded = await seedProgressFromEvents(planId, result.eventos, timezone)
         await trackEvent('PLAN_BUILT', {
           planId,
-          modelId: finalModelId,
           fallbackUsed,
           eventCount: result.eventos.length,
           progressSeeded: seeded,
@@ -504,8 +504,7 @@ export async function POST(request: Request): Promise<Response> {
           chargeId: chargeRecord.id,
           chargeStatus: chargeRecord.status,
           chargedSats: chargeRecord.chargedSats,
-          executionMode: finalExecution.executionContext.mode,
-          resourceOwner: finalExecution.executionContext.resourceOwner
+          ...toResourceUsageTrackingPayload(finalResourceUsage)
         })
 
         send({
@@ -526,6 +525,12 @@ export async function POST(request: Request): Promise<Response> {
       } catch (error) {
         traceCollector.failTrace(traceId, error)
         const message = toPlanBuildErrorMessage(error)
+        const failedResourceUsage = requestedExecution
+          ? summarizeResourceUsage({
+              executionContext: requestedExecution.executionContext,
+              billingPolicy: requestedExecution.billingPolicy
+            })
+          : null
 
         if (chargeRecord?.status === 'pending') {
           chargeRecord = await recordChargeResult(chargeRecord.id, {
@@ -536,15 +541,22 @@ export async function POST(request: Request): Promise<Response> {
               requestedModelId,
               requestedExecutionContext: requestedExecution?.executionContext ?? null,
               fallbackExecutionContext: fallbackExecution?.executionContext ?? null,
-              resourceUsage: requestedExecution
-                ? summarizeResourceUsage({
-                    executionContext: requestedExecution.executionContext,
-                    billingPolicy: requestedExecution.billingPolicy
-                  })
-                : null
+              resourceUsage: failedResourceUsage
             }
           }) ?? chargeRecord
         }
+
+        await trackEvent('ERROR_OCCURRED', {
+          code: 'PLAN_BUILD_FAILED',
+          message,
+          profileId,
+          chargeId: chargeRecord?.id ?? null,
+          ...toResourceUsageTrackingPayload(
+            chargeRecord
+              ? summarizeOperationCharge(chargeRecord).resourceUsage ?? failedResourceUsage
+              : failedResourceUsage
+          )
+        })
 
         send({
           type: 'result',

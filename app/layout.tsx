@@ -1,13 +1,19 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
-import { Manrope, Geist_Mono } from 'next/font/google'
+import { Inter, Plus_Jakarta_Sans, Geist_Mono } from 'next/font/google'
 import ClientProviders from '../src/lib/client/providers'
 import esAR from '../src/i18n/locales/es-AR.json'
 import './globals.css'
 
-const manrope = Manrope({
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-ui',
+  display: 'swap'
+})
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-display',
   display: 'swap'
 })
 
@@ -32,7 +38,7 @@ export default function RootLayout({
   children: ReactNode
 }>) {
   return (
-    <html lang="es-AR" className={`${manrope.variable} ${geistMono.variable}`}>
+    <html lang="es-AR" className={`${inter.variable} ${plusJakartaSans.variable} ${geistMono.variable}`}>
       <body>
         <ClientProviders>{children}</ClientProviders>
       </body>

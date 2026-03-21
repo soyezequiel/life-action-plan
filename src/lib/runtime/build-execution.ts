@@ -19,6 +19,7 @@ export interface ResolvePlanBuildExecutionInput {
   userId?: string
   backendOwnerId?: string
   userSuppliedApiKey?: string | null
+  backendCredentialId?: string | null
   userStoredCredentialLabel?: string | null
   backendStoredCredentialLabel?: string | null
   allowUserLocalExecution?: boolean
@@ -134,6 +135,7 @@ export async function resolvePlanBuildExecution(
     userId: input.userId,
     backendOwnerId: input.backendOwnerId,
     userSuppliedApiKey: input.userSuppliedApiKey,
+    backendCredentialId: input.backendCredentialId,
     userStoredCredentialLabel: input.userStoredCredentialLabel,
     backendStoredCredentialLabel: input.backendStoredCredentialLabel,
     allowUserLocalExecution: input.allowUserLocalExecution

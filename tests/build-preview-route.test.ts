@@ -74,11 +74,11 @@ describe('build preview route', () => {
       }
     }
 
-    expect(mocks.resolvePlanBuildExecutionMock).toHaveBeenCalledWith({
+    expect(mocks.resolvePlanBuildExecutionMock).toHaveBeenCalledWith(expect.objectContaining({
       modelId: 'openrouter:openai/gpt-4o-mini',
       deploymentMode: 'local',
       userSuppliedApiKey: 'preview-user-key'
-    })
+    }))
     expect(payload).toEqual({
       success: true,
       usage: expect.objectContaining({
@@ -146,6 +146,76 @@ describe('build preview route', () => {
       success: true,
       usage: expect.objectContaining({
         mode: 'backend-local',
+        resourceOwner: 'backend',
+        chargeable: true
+      })
+    })
+  })
+
+  it('fuerza backend-cloud cuando se elige una API del sistema por credencial', async () => {
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValue({
+      executionContext: {
+        mode: 'backend-cloud',
+        resourceOwner: 'backend',
+        executionTarget: 'cloud',
+        credentialSource: 'backend-stored',
+        provider: {
+          providerId: 'openrouter',
+          modelId: 'openrouter:openai/gpt-4o-mini',
+          providerKind: 'cloud'
+        },
+        chargePolicy: 'charge',
+        chargeReason: 'backend_resource',
+        credentialId: 'cred-backend-1',
+        canExecute: true,
+        resolutionSource: 'requested-mode',
+        blockReasonCode: null,
+        blockReasonDetail: null
+      },
+      billingPolicy: {
+        operation: 'plan_build',
+        executionMode: 'backend-cloud',
+        resourceOwner: 'backend',
+        executionTarget: 'cloud',
+        chargePolicy: 'charge',
+        chargeReason: 'backend_resource',
+        billableOperation: true,
+        estimatedAmountStrategy: 'fixed_plan_build_sats',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        chargeable: true,
+        skipReasonCode: null,
+        skipReasonDetail: null
+      },
+      runtime: {
+        modelId: 'openrouter:openai/gpt-4o-mini',
+        apiKey: 'backend-key'
+      }
+    })
+
+    const response = await GET(new Request(
+      'http://localhost/api/settings/build-preview?provider=openrouter&backendCredentialId=cred-backend-1&hasUserApiKey=0'
+    ))
+    const payload = await response.json() as {
+      success: boolean
+      usage: {
+        mode: string
+        resourceOwner: string
+        chargeable: boolean
+      }
+    }
+
+    expect(mocks.resolvePlanBuildExecutionMock).toHaveBeenCalledWith({
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      deploymentMode: 'local',
+      requestedMode: 'backend-cloud',
+      userSuppliedApiKey: '',
+      backendCredentialId: 'cred-backend-1'
+    })
+    expect(payload).toEqual({
+      success: true,
+      usage: expect.objectContaining({
+        mode: 'backend-cloud',
         resourceOwner: 'backend',
         chargeable: true
       })

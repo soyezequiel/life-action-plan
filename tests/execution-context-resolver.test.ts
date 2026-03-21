@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
-  findCredentialConfigurationMock: vi.fn()
+  findCredentialConfigurationMock: vi.fn(),
+  ensureBackendEnvCredentialConfigurationMock: vi.fn(),
+  getCredentialConfigurationMock: vi.fn()
 }))
 
 vi.mock('../src/lib/auth/credential-config', async () => {
@@ -9,7 +11,9 @@ vi.mock('../src/lib/auth/credential-config', async () => {
 
   return {
     ...actual,
-    findCredentialConfiguration: mocks.findCredentialConfigurationMock
+    findCredentialConfiguration: mocks.findCredentialConfigurationMock,
+    ensureBackendEnvCredentialConfiguration: mocks.ensureBackendEnvCredentialConfigurationMock,
+    getCredentialConfiguration: mocks.getCredentialConfigurationMock
   }
 })
 
@@ -18,6 +22,8 @@ import { resolveExecutionContext } from '../src/lib/runtime/execution-context-re
 describe('execution context resolver', () => {
   beforeEach(() => {
     mocks.findCredentialConfigurationMock.mockReset()
+    mocks.ensureBackendEnvCredentialConfigurationMock.mockReset()
+    mocks.getCredentialConfigurationMock.mockReset()
   })
 
   it('prioriza la API key provista por el usuario para cloud en modo automatico', async () => {
@@ -120,6 +126,46 @@ describe('execution context resolver', () => {
     }))
   })
 
+  it('bootstrappea una credencial backend desde env cuando todavia no existe en DB', async () => {
+    mocks.findCredentialConfigurationMock.mockResolvedValue(null)
+    mocks.ensureBackendEnvCredentialConfigurationMock.mockResolvedValue({
+      id: 'cred-backend-openai-env',
+      owner: 'backend',
+      ownerId: 'backend-system',
+      providerId: 'openai',
+      secretType: 'api-key',
+      label: 'default',
+      status: 'active',
+      lastValidatedAt: null,
+      lastValidationError: null,
+      metadata: {
+        provisionedBy: 'env-bootstrap',
+        envName: 'OPENAI_API_KEY'
+      },
+      createdAt: '2026-03-21T00:00:00.000Z',
+      updatedAt: '2026-03-21T00:00:00.000Z'
+    })
+
+    const context = await resolveExecutionContext({
+      modelId: 'openai:gpt-4o-mini',
+      requestedMode: 'backend-cloud'
+    })
+
+    expect(mocks.ensureBackendEnvCredentialConfigurationMock).toHaveBeenCalledWith({
+      providerId: 'openai',
+      ownerId: 'backend-system',
+      label: 'default'
+    })
+    expect(context).toEqual(expect.objectContaining({
+      mode: 'backend-cloud',
+      resourceOwner: 'backend',
+      credentialSource: 'backend-stored',
+      credentialId: 'cred-backend-openai-env',
+      canExecute: true,
+      resolutionSource: 'requested-mode'
+    }))
+  })
+
   it('bloquea backend-cloud explicito cuando falta credencial del backend', async () => {
     mocks.findCredentialConfigurationMock.mockResolvedValue(null)
 
@@ -134,6 +180,38 @@ describe('execution context resolver', () => {
       canExecute: false,
       resolutionSource: 'requested-mode',
       blockReasonCode: 'backend_credential_missing'
+    }))
+  })
+
+  it('usa una credencial backend elegida de forma explicita por id', async () => {
+    mocks.getCredentialConfigurationMock.mockResolvedValue({
+      id: 'cred-backend-picked',
+      owner: 'backend',
+      ownerId: 'backend-system',
+      providerId: 'openrouter',
+      secretType: 'api-key',
+      label: 'equipo',
+      status: 'active',
+      lastValidatedAt: null,
+      lastValidationError: null,
+      metadata: null,
+      createdAt: '2026-03-21T00:00:00.000Z',
+      updatedAt: '2026-03-21T00:00:00.000Z'
+    })
+
+    const context = await resolveExecutionContext({
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      requestedMode: 'backend-cloud',
+      backendCredentialId: 'cred-backend-picked'
+    })
+
+    expect(mocks.getCredentialConfigurationMock).toHaveBeenCalledWith('cred-backend-picked')
+    expect(context).toEqual(expect.objectContaining({
+      mode: 'backend-cloud',
+      credentialSource: 'backend-stored',
+      credentialId: 'cred-backend-picked',
+      canExecute: true,
+      resolutionSource: 'requested-mode'
     }))
   })
 

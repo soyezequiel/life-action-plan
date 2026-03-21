@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import SettingsPageContent from '../components/SettingsPageContent'
 import { AppServicesProvider } from '../src/lib/client/app-services'
 import { t } from '../src/i18n'
+import { toUserFacingErrorMessage } from '../src/lib/client/error-utils'
 import type { LapAPI } from '../src/shared/types/lap-api'
-import type { WalletConnectResult } from '../src/shared/types/lap-api'
 
 const pushMock = vi.fn()
 const fetchMock = vi.fn()
@@ -115,6 +115,32 @@ function createBuildPreviewResponse(url: string): Response {
     })
   }
 
+  if (url.includes('resourceMode=backend') || url.includes('backendCredentialId=cred-backend-openrouter')) {
+    return new Response(JSON.stringify({
+      success: true,
+      usage: {
+        mode: 'backend-cloud',
+        resourceOwner: 'backend',
+        executionTarget: 'cloud',
+        credentialSource: 'backend-stored',
+        chargePolicy: 'charge',
+        chargeReason: 'backend_resource',
+        chargeable: true,
+        estimatedCostSats: 5,
+        billingReasonCode: null,
+        billingReasonDetail: null,
+        canExecute: true,
+        blockReasonCode: null,
+        blockReasonDetail: null,
+        providerId: 'openrouter',
+        modelId: 'openrouter:openai/gpt-4o-mini'
+      }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+
   if (url.includes('hasUserApiKey=1')) {
     return new Response(JSON.stringify({
       success: true,
@@ -144,19 +170,19 @@ function createBuildPreviewResponse(url: string): Response {
   return new Response(JSON.stringify({
     success: true,
     usage: {
-      mode: 'backend-cloud',
-      resourceOwner: 'backend',
+      mode: 'user-cloud',
+      resourceOwner: 'user',
       executionTarget: 'cloud',
-      credentialSource: 'backend-stored',
-      chargePolicy: 'charge',
-      chargeReason: 'backend_resource',
-      chargeable: true,
+      credentialSource: 'user-stored',
+      chargePolicy: 'skip',
+      chargeReason: 'user_resource',
+      chargeable: false,
       estimatedCostSats: 5,
-      billingReasonCode: null,
-      billingReasonDetail: null,
-      canExecute: true,
-      blockReasonCode: null,
-      blockReasonDetail: null,
+      billingReasonCode: 'execution_blocked',
+      billingReasonDetail: 'USER_CREDENTIAL_MISSING',
+      canExecute: false,
+      blockReasonCode: 'user_credential_missing',
+      blockReasonDetail: 'No active user credential is configured.',
       providerId: 'openrouter',
       modelId: 'openrouter:openai/gpt-4o-mini'
     }
@@ -176,6 +202,32 @@ describe('settings page content', () => {
 
       if (url.includes('/api/settings/build-preview')) {
         return createBuildPreviewResponse(url)
+      }
+
+      if (url.includes('/api/settings/credentials?owner=backend&secretType=api-key')) {
+        return new Response(JSON.stringify({
+          credentials: [
+            {
+              id: 'cred-backend-openrouter',
+              owner: 'backend',
+              ownerId: 'backend-system',
+              providerId: 'openrouter',
+              secretType: 'api-key',
+              label: 'principal',
+              status: 'active',
+              lastValidatedAt: null,
+              lastValidationError: null,
+              metadata: null,
+              createdAt: '2026-03-21T00:00:00.000Z',
+              updatedAt: '2026-03-21T00:00:00.000Z'
+            }
+          ]
+        }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
       }
 
       return new Response(JSON.stringify({ configured: false }), {
@@ -211,8 +263,7 @@ describe('settings page content', () => {
 
     expect(await screen.findByText(t('builder.local_unavailable_deploy'))).toBeTruthy()
     expect(screen.getByPlaceholderText(t('settings.apikey_placeholder'))).toBeTruthy()
-    expect(screen.getByText(t('settings.build_charge_hint', { sats: '5' }))).toBeTruthy()
-    expect(screen.getAllByText(t('dashboard.wallet_build_blocked.wallet_not_connected')).length).toBeGreaterThan(0)
+    expect(screen.getByText('Falta tu clave para esta ruta.')).toBeTruthy()
   })
 
   it('muestra OpenRouter como ruta elegida para build cloud', async () => {
@@ -229,11 +280,54 @@ describe('settings page content', () => {
     expect(screen.getByText(t('settings.build_route_hint', {
       provider: t('builder.provider_openrouter')
     }))).toBeTruthy()
+    expect(await screen.findByText(t('settings.build_resource_choice_backend'))).toBeTruthy()
     expect(await screen.findByText('Origen del recurso: LAP pone el asistente en linea para esta accion.')).toBeTruthy()
-    expect(screen.getByPlaceholderText(t('settings.apikey_placeholder'))).toBeTruthy()
+    expect(screen.queryByPlaceholderText(t('settings.apikey_placeholder'))).toBeNull()
   })
 
   it('muestra que no se cobra cuando el build usa la clave del usuario', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
+    const user = userEvent.setup()
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+
+      if (url.includes('/api/settings/build-preview')) {
+        return createBuildPreviewResponse(url)
+      }
+
+      if (url.includes('/api/settings/credentials?owner=backend&secretType=api-key')) {
+        return new Response(JSON.stringify({ credentials: [] }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+      }
+
+      return new Response(JSON.stringify({ configured: false }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    })
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('settings.apikey_title'))
+    const apiKeyInput = await screen.findByPlaceholderText(t('settings.apikey_placeholder'), {}, { timeout: 3000 })
+    await user.type(apiKeyInput, 'sk-or-v1-demo')
+
+    expect(await screen.findByText('Origen del recurso: Vas a usar tu propia clave del asistente.')).toBeTruthy()
+    expect(screen.getByText('Como usa tu propio recurso, esta accion no se cobra.')).toBeTruthy()
+    expect((screen.getByRole('button', { name: t('settings.apikey_confirm') }) as HTMLButtonElement).disabled).toBe(false)
+  })
+
+  it('permite elegir una API del sistema guardada para el build cloud', async () => {
     searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
     const user = userEvent.setup()
 
@@ -244,40 +338,79 @@ describe('settings page content', () => {
     )
 
     await screen.findByText(t('settings.apikey_title'))
-    await user.type(screen.getByPlaceholderText(t('settings.apikey_placeholder')), 'sk-or-v1-demo')
 
-    expect(await screen.findByText('Origen del recurso: Vas a usar tu propia clave del asistente.')).toBeTruthy()
-    expect(screen.getByText('Como usa tu propio recurso, esta accion no se cobra.')).toBeTruthy()
-    expect((screen.getByRole('button', { name: t('settings.apikey_confirm') }) as HTMLButtonElement).disabled).toBe(false)
+    expect(await screen.findByText('Origen del recurso: LAP pone el asistente en linea para esta accion.')).toBeTruthy()
+    expect(screen.getByText('Como usa recurso del sistema, esta accion se cobra.')).toBeTruthy()
+    expect(screen.getByText(t('settings.backend_credential_selected', {
+      name: t('builder.provider_openrouter')
+    }))).toBeTruthy()
   })
 
-  it('muestra un error claro cuando la wallet no responde como NWC compatible', async () => {
-    const client = createLapClientStub()
+  it('permite guardar una API del sistema desde settings', async () => {
+    searchParamsMock = new URLSearchParams()
     const user = userEvent.setup()
 
-    client.wallet.connect = vi.fn(async (): Promise<WalletConnectResult> => ({
-      success: false,
-      status: {
-        configured: false,
-        connected: false,
-        canUseSecureStorage: true,
-        planBuildChargeSats: 5,
-        planBuildChargeReady: false,
-        planBuildChargeReasonCode: 'wallet_not_connected'
-      },
-      error: 'WALLET_NWC_INFO_UNAVAILABLE'
-    }))
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+
+      if (url.includes('/api/settings/credentials?owner=backend&secretType=api-key')) {
+        return new Response(JSON.stringify({ credentials: [] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url === '/api/settings/credentials' && init?.method === 'POST') {
+        return new Response(JSON.stringify({
+          credential: {
+            id: 'cred-backend-openai',
+            owner: 'backend',
+            ownerId: 'backend-system',
+            providerId: 'openai',
+            secretType: 'api-key',
+            label: 'principal',
+            status: 'active',
+            lastValidatedAt: null,
+            lastValidationError: null,
+            metadata: null,
+            createdAt: '2026-03-21T00:00:00.000Z',
+            updatedAt: '2026-03-21T00:00:00.000Z'
+          }
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url === '/api/settings/credentials/cred-backend-openai/validate' && init?.method === 'POST') {
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      return new Response(JSON.stringify({ configured: false }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    })
 
     render(
-      <AppServicesProvider services={{ lapClient: client }}>
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
         <SettingsPageContent deploymentMode="local" />
       </AppServicesProvider>
     )
 
-    await screen.findByText(t('settings.local_build_title'))
-    await user.type(screen.getByPlaceholderText(t('settings.wallet_placeholder')), 'nostr+walletconnect://demo')
-    await user.click(screen.getByRole('button', { name: t('settings.wallet_confirm') }))
+    await screen.findByText(t('settings.backend_credentials_title'))
+    await user.type(screen.getByPlaceholderText(t('settings.backend_credential_label_placeholder')), 'principal')
+    await user.type(screen.getByPlaceholderText(t('settings.backend_credential_key_placeholder')), 'sk-demo-backend')
+    await user.click(screen.getByRole('button', { name: t('settings.backend_credential_save') }))
 
-    expect(await screen.findByText(t('settings.wallet_error_nwc_incompatible'))).toBeTruthy()
+    expect(await screen.findByText(t('settings.backend_credential_saved'))).toBeTruthy()
+  })
+
+  it('normaliza un error claro cuando la wallet no responde como NWC compatible', () => {
+    expect(toUserFacingErrorMessage('WALLET_NWC_INFO_UNAVAILABLE')).toBe(t('settings.wallet_error_nwc_incompatible'))
+    expect(toUserFacingErrorMessage('no info event (kind 13194) returned from relay')).toBe(t('settings.wallet_error_nwc_incompatible'))
   })
 })

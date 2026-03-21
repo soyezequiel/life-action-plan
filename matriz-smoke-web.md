@@ -79,13 +79,14 @@ Superficies:
    - `user-cloud`: build online usando credencial del usuario y sin cobro.
    - `backend-local`: build local ejecutado en el backend, con cobro si la politica lo habilita.
    - `user-local`: bloqueo explicito o evidencia de que no se soporta desde el backend actual.
-4. Despues de cada corrida, usar `npm run resource:report -- --limit=20` para ver `executionMode`, `resourceOwner`, `credentialSource` y `billing`.
-5. Cuando haya casos suficientes, validar combinaciones exactas con:
+4. Despues de cada corrida, usar `npm run resource:report -- --limit=20` para ver `executionMode`, `resourceOwner`, `credentialSource`, `billing` y si la traza sale como `traza=resourceUsage` o `traza=legacy`.
+5. Si queres mirar solo evidencia canonica nueva, usar `npm run resource:report:canonical -- --limit=20`.
+6. Cuando haya casos suficientes, validar combinaciones exactas con:
    - `npm run resource:report -- --expect-case=plan_build:paid:backend-cloud`
    - `npm run resource:report -- --expect-case=plan_build:skipped:user-cloud:user_resource`
    - `npm run resource:report -- --expect-case=plan_build:paid:backend-local`
    - `npm run resource:report -- --expect-case=plan_simulate:skipped:backend-local:operation_not_chargeable`
-6. Si una fila sale como `contexto=sin-contexto`, esa evidencia no vale para este smoke porque no deja trazabilidad completa del origen del recurso.
+7. Si una fila sale como `contexto=sin-contexto` o `traza=legacy`, esa evidencia no vale para este smoke porque no deja trazabilidad canonica completa del origen del recurso.
 
 ## Notas operativas
 

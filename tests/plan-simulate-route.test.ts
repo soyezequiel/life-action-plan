@@ -235,6 +235,30 @@ describe('plan simulate route', () => {
       'charge-1'
     )
     expect(mocks.updatePlanManifestMock).toHaveBeenCalled()
+    expect(mocks.trackEventMock).toHaveBeenCalledWith('SIMULATION_STARTED', expect.objectContaining({
+      planId: '22222222-2222-4222-8222-222222222222',
+      chargeId: 'charge-1',
+      executionMode: 'backend-local',
+      resourceOwner: 'backend',
+      executionTarget: 'backend-local',
+      credentialSource: 'none',
+      chargePolicy: 'charge',
+      chargeReason: 'backend_resource',
+      chargeable: false,
+      billingReasonCode: 'operation_not_chargeable',
+      providerId: 'lap',
+      modelId: 'lap:plan-simulator'
+    }))
+    expect(mocks.trackEventMock).toHaveBeenCalledWith('SIMULATION_RAN', expect.objectContaining({
+      planId: '22222222-2222-4222-8222-222222222222',
+      chargeId: 'charge-1',
+      executionMode: 'backend-local',
+      resourceOwner: 'backend',
+      chargePolicy: 'charge',
+      billingReasonCode: 'operation_not_chargeable',
+      providerId: 'lap',
+      modelId: 'lap:plan-simulator'
+    }))
     expect(result).toEqual(expect.objectContaining({
       success: true,
       charge: expect.objectContaining({

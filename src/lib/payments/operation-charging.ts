@@ -152,10 +152,6 @@ function normalizeChargeAmount(amountSats: number): number {
   return Math.max(0, Math.ceil(amountSats))
 }
 
-function isLocalFreeOperation(model: string): boolean {
-  return model.startsWith('ollama:')
-}
-
 function getReceiverConnectionUrl(): string | null {
   return process.env[RECEIVER_NWC_URL_ENV]?.trim() || null
 }
@@ -463,17 +459,6 @@ export function quoteOperationCharge(input: Pick<CanChargeOperationInput, 'opera
       estimatedCostSats: 0,
       chargeable: false,
       reasonCode: 'operation_not_chargeable'
-    }
-  }
-
-  if (isLocalFreeOperation(input.model)) {
-    return {
-      operation: input.operation,
-      model: input.model,
-      estimatedCostUsd: 0,
-      estimatedCostSats: 0,
-      chargeable: false,
-      reasonCode: 'free_local_operation'
     }
   }
 

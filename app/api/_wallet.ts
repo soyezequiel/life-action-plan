@@ -1,5 +1,5 @@
 import type { PaymentProviderStatus } from '../../src/lib/providers/payment-provider'
-import { canChargeOperation, getPaymentProvider, quoteOperationCharge } from './_domain'
+import { canChargeOperation, getPaymentProvider } from './_domain'
 import { trackEvent } from './_db'
 import {
   canUseWalletSecretStorage,
@@ -9,6 +9,7 @@ import {
 } from '../../src/lib/payments/wallet-connection'
 import { normalizeWalletConnectionError } from '../../src/lib/payments/wallet-errors'
 import { DEFAULT_OPENAI_BUILD_MODEL } from '../../src/lib/providers/provider-metadata'
+import { resolvePlanBuildExecution } from '../../src/lib/runtime/build-execution'
 
 function toSats(valueMsats: number | null): number | undefined {
   return typeof valueMsats === 'number' ? Math.floor(valueMsats / 1000) : undefined
@@ -40,28 +41,29 @@ function toWalletStatus(
 }
 
 async function getPlanBuildChargeState() {
-  const quote = quoteOperationCharge({
-    operation: 'plan_build',
-    model: DEFAULT_OPENAI_BUILD_MODEL
+  const execution = await resolvePlanBuildExecution({
+    modelId: DEFAULT_OPENAI_BUILD_MODEL,
+    requestedMode: 'backend-cloud'
   })
 
-  if (!quote.chargeable) {
+  if (!execution.billingPolicy.chargeable) {
     return {
-      planBuildChargeSats: quote.estimatedCostSats,
+      planBuildChargeSats: execution.billingPolicy.estimatedCostSats,
       planBuildChargeReady: false,
-      planBuildChargeReasonCode: quote.reasonCode
+      planBuildChargeReasonCode: execution.billingPolicy.skipReasonCode
     }
   }
 
   const decision = await canChargeOperation({
     operation: 'plan_build',
     model: DEFAULT_OPENAI_BUILD_MODEL,
-    estimatedCostUsd: quote.estimatedCostUsd,
-    estimatedCostSats: quote.estimatedCostSats
+    estimatedCostUsd: execution.billingPolicy.estimatedCostUsd,
+    estimatedCostSats: execution.billingPolicy.estimatedCostSats,
+    chargeable: true
   })
 
   return {
-    planBuildChargeSats: quote.estimatedCostSats,
+    planBuildChargeSats: execution.billingPolicy.estimatedCostSats,
     planBuildChargeReady: decision.decision === 'chargeable',
     planBuildChargeReasonCode: decision.decision === 'chargeable' ? null : decision.reasonCode
   }

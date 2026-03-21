@@ -76,6 +76,48 @@ async function checkDatabase(connectionString) {
   }
 }
 
+async function getResourceSmokeReadiness(connectionString) {
+  const sql = postgres(connectionString, {
+    max: 1,
+    idle_timeout: 5,
+    connect_timeout: 5,
+    prepare: false,
+    ssl: needsSsl(connectionString) ? 'require' : undefined
+  })
+
+  try {
+    const [backendCredentialRow] = await sql`
+      select count(*)::int as count
+      from credential_registry
+      where owner = 'backend'
+        and status = 'active'
+        and secret_type = 'api-key'
+        and provider_id in ('openai', 'openrouter')
+    `
+    const [userCredentialRow] = await sql`
+      select count(*)::int as count
+      from credential_registry
+      where owner = 'user'
+        and status = 'active'
+        and secret_type = 'api-key'
+        and provider_id in ('openai', 'openrouter')
+    `
+    const [walletRow] = await sql`
+      select count(*)::int as count
+      from user_settings
+      where key like 'wallet-%' or key like 'wallet.%'
+    `
+
+    return {
+      backendCredentialCount: backendCredentialRow.count,
+      userCredentialCount: userCredentialRow.count,
+      walletCount: walletRow.count
+    }
+  } finally {
+    await sql.end({ timeout: 5 })
+  }
+}
+
 async function checkOllama(baseUrl) {
   const response = await fetch(`${baseUrl}/api/tags`)
 
@@ -114,11 +156,13 @@ async function main() {
     logStatus(false, 'DATABASE_URL', 'sigue apuntando al placeholder de .env.example')
   } else {
     logStatus(true, 'DATABASE_URL', 'configurado')
+    let databaseReady = false
 
     try {
       const databaseCheck = await checkDatabase(databaseUrl)
       if (databaseCheck.ok) {
         logStatus(true, 'PostgreSQL', 'conexion OK y tablas base presentes')
+        databaseReady = true
       } else {
         hasFailure = true
         logStatus(false, 'PostgreSQL', `faltan tablas: ${databaseCheck.missingTables.join(', ')}`)
@@ -128,6 +172,38 @@ async function main() {
       hasFailure = true
       const detail = error instanceof Error ? error.message : String(error)
       logStatus(false, 'PostgreSQL', detail)
+    }
+
+    if (databaseReady) {
+      try {
+        const readiness = await getResourceSmokeReadiness(databaseUrl)
+        const hasBackendEnvCredential = Boolean(process.env.OPENAI_API_KEY?.trim() || process.env.OPENROUTER_API_KEY?.trim())
+        const backendReady = readiness.backendCredentialCount > 0 || hasBackendEnvCredential
+        const userReady = readiness.userCredentialCount > 0
+        const walletReady = readiness.walletCount > 0
+
+        logNote(
+          'Smoke backend-cloud',
+          backendReady
+            ? `listo (${readiness.backendCredentialCount} credenciales backend activas${hasBackendEnvCredential ? ' + env detectado' : ''})`
+            : 'falta credencial backend cloud activa en DB o OPENAI_API_KEY / OPENROUTER_API_KEY'
+        )
+        logNote(
+          'Smoke user-cloud',
+          userReady
+            ? `listo (${readiness.userCredentialCount} credenciales user activas)`
+            : 'falta credencial user cloud activa'
+        )
+        logNote(
+          'Smoke wallet',
+          walletReady
+            ? `lista (${readiness.walletCount} conexiones guardadas)`
+            : 'falta wallet-nwc guardada'
+        )
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error)
+        logNote('Smoke readiness', `no se pudo relevar (${detail})`)
+      }
     }
   }
 

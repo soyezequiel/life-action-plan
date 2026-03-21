@@ -28,6 +28,7 @@ vi.mock('../src/lib/db/db-helpers', () => ({
 import {
   canChargeOperation,
   chargeOperation,
+  quoteOperationCharge,
   recordChargeResult
 } from '../src/lib/payments/operation-charging'
 
@@ -44,19 +45,15 @@ describe('operation charging domain', () => {
     vi.unstubAllEnvs()
   })
 
-  it('saltea operaciones locales gratis sin intentar cobrar', async () => {
-    const result = await canChargeOperation({
+  it('no marca gratis un build local solo por el nombre del modelo', () => {
+    const result = quoteOperationCharge({
       operation: 'plan_build',
-      model: 'ollama:qwen3:8b',
-      estimatedCostUsd: 0,
-      estimatedCostSats: 0
+      model: 'ollama:qwen3:8b'
     })
 
-    expect(result).toEqual(expect.objectContaining({
-      decision: 'skipped',
-      reasonCode: 'free_local_operation',
-      paymentProvider: null
-    }))
+    expect(result.chargeable).toBe(true)
+    expect(result.reasonCode).toBeNull()
+    expect(result.estimatedCostSats).toBeGreaterThan(0)
     expect(getPaymentProviderMock).not.toHaveBeenCalled()
   })
 

@@ -332,7 +332,13 @@ export const browserLapClient: LapAPI = {
     }
   },
   plan: {
-    async build(profileId: string, apiKey: string, provider?: string) {
+    async build(
+      profileId: string,
+      apiKey: string,
+      provider?: string,
+      backendCredentialId?: string,
+      resourceMode: 'auto' | 'backend' | 'user' = 'auto'
+    ) {
       const initial: PlanBuildProgress = {
         profileId,
         provider: provider ?? DEFAULT_OPENAI_BUILD_MODEL,
@@ -349,7 +355,7 @@ export const browserLapClient: LapAPI = {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ profileId, apiKey, provider })
+        body: JSON.stringify({ profileId, apiKey, provider, backendCredentialId, resourceMode })
       })
 
       if (!response.ok) {

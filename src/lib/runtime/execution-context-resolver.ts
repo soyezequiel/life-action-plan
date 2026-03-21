@@ -6,7 +6,12 @@ import type {
   ProviderDescriptor,
   ResolvedExecutionContext
 } from '../../shared/types/execution-context'
-import { findCredentialConfiguration, DEFAULT_BACKEND_OWNER_ID } from '../auth/credential-config'
+import {
+  findCredentialConfiguration,
+  DEFAULT_BACKEND_OWNER_ID,
+  ensureBackendEnvCredentialConfiguration,
+  getCredentialConfiguration
+} from '../auth/credential-config'
 import { DEFAULT_USER_ID, getApiKeySettingKey, type CloudApiKeyProvider } from '../auth/user-settings'
 import { canUseLocalOllama, getDeploymentMode, type DeploymentMode } from '../env/deployment'
 import { getModelProviderName, isCloudModel, isLocalModel } from '../providers/provider-metadata'
@@ -20,6 +25,7 @@ interface ResolveExecutionContextInput {
   userId?: string
   backendOwnerId?: string
   userSuppliedApiKey?: string | null
+  backendCredentialId?: string | null
   userStoredCredentialLabel?: string | null
   backendStoredCredentialLabel?: string | null
   allowUserLocalExecution?: boolean
@@ -28,6 +34,34 @@ interface ResolveExecutionContextInput {
 interface StoredCredentialCandidate {
   credentialSource: 'backend-stored' | 'user-stored'
   credentialId: string
+}
+
+async function findSpecificStoredCredential(input: {
+  credentialId: string
+  owner: 'backend' | 'user'
+  ownerId: string
+  providerId: string
+}): Promise<StoredCredentialCandidate | null> {
+  const credential = await getCredentialConfiguration(input.credentialId)
+
+  if (!credential) {
+    return null
+  }
+
+  if (
+    credential.owner !== input.owner
+    || credential.ownerId !== input.ownerId
+    || credential.providerId !== input.providerId
+    || credential.secretType !== 'api-key'
+    || credential.status !== 'active'
+  ) {
+    return null
+  }
+
+  return {
+    credentialSource: input.owner === 'backend' ? 'backend-stored' : 'user-stored',
+    credentialId: credential.id
+  }
 }
 
 function createBlockedContext(input: {
@@ -138,6 +172,23 @@ async function findActiveCredentialByLabels(input: {
     }
   }
 
+  if (input.owner === 'backend' && (input.providerId === 'openai' || input.providerId === 'openrouter')) {
+    for (const label of input.labels) {
+      const credential = await ensureBackendEnvCredentialConfiguration({
+        providerId: input.providerId,
+        ownerId: input.ownerId,
+        label
+      })
+
+      if (credential?.status === 'active') {
+        return {
+          credentialSource: 'backend-stored',
+          credentialId: credential.id
+        }
+      }
+    }
+  }
+
   return null
 }
 
@@ -147,6 +198,7 @@ async function resolveCloudRequestedMode(input: {
   userSuppliedApiKey: string
   userId: string
   backendOwnerId: string
+  backendCredentialId?: string | null
   userStoredCredentialLabel?: string | null
   backendStoredCredentialLabel?: string | null
 }): Promise<ResolvedExecutionContext> {
@@ -187,6 +239,36 @@ async function resolveCloudRequestedMode(input: {
       resolutionSource: 'requested-mode',
       blockReasonCode: 'user_credential_missing',
       blockReasonDetail: `No active user credential is configured for provider ${providerId}.`
+    })
+  }
+
+  const requestedBackendCredentialId = input.backendCredentialId?.trim() || ''
+
+  if (requestedBackendCredentialId) {
+    const specificCredential = await findSpecificStoredCredential({
+      credentialId: requestedBackendCredentialId,
+      owner: 'backend',
+      ownerId: input.backendOwnerId,
+      providerId
+    })
+
+    if (specificCredential) {
+      return createExecutableContext({
+        mode: 'backend-cloud',
+        provider: input.provider,
+        credentialSource: specificCredential.credentialSource,
+        credentialId: specificCredential.credentialId,
+        resolutionSource: 'requested-mode'
+      })
+    }
+
+    return createBlockedContext({
+      mode: 'backend-cloud',
+      provider: input.provider,
+      credentialSource: 'backend-stored',
+      resolutionSource: 'requested-mode',
+      blockReasonCode: 'backend_credential_missing',
+      blockReasonDetail: `Selected backend credential ${requestedBackendCredentialId} is unavailable for provider ${providerId}.`
     })
   }
 
@@ -379,6 +461,7 @@ export async function resolveExecutionContext(input: ResolveExecutionContextInpu
   const userId = input.userId?.trim() || DEFAULT_USER_ID
   const backendOwnerId = input.backendOwnerId?.trim() || DEFAULT_BACKEND_OWNER_ID
   const userSuppliedApiKey = input.userSuppliedApiKey?.trim() || ''
+  const backendCredentialId = input.backendCredentialId?.trim() || ''
   const allowUserLocalExecution = input.allowUserLocalExecution ?? false
 
   if (!provider) {
@@ -426,6 +509,7 @@ export async function resolveExecutionContext(input: ResolveExecutionContextInpu
         userSuppliedApiKey,
         userId,
         backendOwnerId,
+        backendCredentialId,
         userStoredCredentialLabel: input.userStoredCredentialLabel,
         backendStoredCredentialLabel: input.backendStoredCredentialLabel
       })

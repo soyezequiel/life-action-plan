@@ -15,6 +15,24 @@ vi.mock('../src/lib/db/connection', () => ({
 
 import { estimateCostSats, getCostSummary, trackCost } from '../src/lib/db/db-helpers'
 
+const backendCloudUsage = {
+  mode: 'backend-cloud',
+  resourceOwner: 'backend',
+  executionTarget: 'cloud',
+  credentialSource: 'backend-stored',
+  chargePolicy: 'charge',
+  chargeReason: 'backend_resource',
+  chargeable: true,
+  estimatedCostSats: 5,
+  billingReasonCode: null,
+  billingReasonDetail: null,
+  canExecute: true,
+  blockReasonCode: null,
+  blockReasonDetail: null,
+  providerId: 'openai',
+  modelId: 'openai:gpt-4o-mini'
+} as const
+
 describe('getCostSummary', () => {
   beforeEach(() => {
     values.mockClear()
@@ -43,7 +61,10 @@ describe('getCostSummary', () => {
           reasonCode: null,
           reasonDetail: null,
           paymentProvider: 'nwc',
-          updatedAt: '2026-03-20T10:00:00.000Z'
+          updatedAt: '2026-03-20T10:00:00.000Z',
+          metadata: {
+            resourceUsage: backendCloudUsage
+          }
         }
       ])
 
@@ -87,7 +108,7 @@ describe('getCostSummary', () => {
         reasonCode: null,
         reasonDetail: null,
         paymentProvider: 'nwc',
-        resourceUsage: null
+        resourceUsage: backendCloudUsage
       }
     })
   })

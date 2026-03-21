@@ -25,6 +25,7 @@ vi.mock('../src/lib/providers/payment-provider', () => ({
 
 import {
   DEFAULT_BACKEND_OWNER_ID,
+  ensureBackendEnvCredentialConfiguration,
   findCredentialConfiguration,
   listCredentialConfigurations,
   saveCredentialConfiguration,
@@ -272,5 +273,54 @@ describe('credential config service', () => {
       label: 'openrouter-api-key'
     })
     expect(result?.id).toBe('cred-3')
+  })
+
+  it('bootstrappea una credencial backend desde OPENAI_API_KEY cuando falta en DB', async () => {
+    vi.stubEnv('OPENAI_API_KEY', 'sk-openai-env')
+    mocks.findCredentialRecordMock.mockResolvedValueOnce(null)
+    mocks.upsertCredentialRecordMock.mockResolvedValue({
+      id: 'cred-backend-env',
+      owner: 'backend',
+      ownerId: DEFAULT_BACKEND_OWNER_ID,
+      providerId: 'openai',
+      secretType: 'api-key',
+      label: 'default',
+      encryptedValue: 'ciphertext',
+      status: 'active',
+      lastValidatedAt: null,
+      lastValidationError: null,
+      metadata: '{"provisionedBy":"env-bootstrap","envName":"OPENAI_API_KEY"}',
+      createdAt: '2026-03-21T09:00:00.000Z',
+      updatedAt: '2026-03-21T09:00:00.000Z'
+    })
+
+    const result = await ensureBackendEnvCredentialConfiguration({
+      providerId: 'openai'
+    })
+
+    expect(mocks.upsertCredentialRecordMock).toHaveBeenCalledWith(expect.objectContaining({
+      owner: 'backend',
+      ownerId: DEFAULT_BACKEND_OWNER_ID,
+      providerId: 'openai',
+      secretType: 'api-key',
+      label: 'default',
+      secretValue: 'sk-openai-env',
+      status: 'active',
+      metadata: expect.objectContaining({
+        provisionedBy: 'env-bootstrap',
+        envName: 'OPENAI_API_KEY'
+      })
+    }))
+    expect(result?.id).toBe('cred-backend-env')
+  })
+
+  it('no bootstrappea nada si la variable de entorno backend no existe', async () => {
+    const result = await ensureBackendEnvCredentialConfiguration({
+      providerId: 'openrouter'
+    })
+
+    expect(mocks.findCredentialRecordMock).not.toHaveBeenCalled()
+    expect(mocks.upsertCredentialRecordMock).not.toHaveBeenCalled()
+    expect(result).toBeNull()
   })
 })

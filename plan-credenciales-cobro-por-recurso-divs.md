@@ -120,7 +120,8 @@
 
 ### DIV-009 - Trazabilidad de recurso y cobro
 - ID: DIV-009
-- Estado: pendiente
+- Estado: cerrado el 2026-03-21
+- Evidencia: `npm run test`, `npm run typecheck`, `npm run build`, `npm run resource:report -- --limit=5`
 - Titulo corto: Trazabilidad por origen
 - Objetivo: registrar de punta a punta que recurso se uso y como impactó en el cobro.
 - Que se implementa: tracking persistente de `resourceOwner`, `executionTarget`, `credentialSource`, `chargeDecision`, `chargeReason`, `estimatedCost`, `actualCost`, `provider`, `model` y referencias de pago o skip en analytics, manifests o tablas de tracking.
@@ -128,11 +129,12 @@
 - Dependencias: DIV-006
 - Precondiciones: build ya ejecuta con contexto resuelto y billing policy.
 - Criterio de finalizacion: cada ejecucion deja evidencia verificable de si uso recurso del backend o del usuario y por que se cobro o no se cobro.
-- Notas para la siguiente unidad: deja lista la evidencia para migracion y smoke.
+- Notas para la siguiente unidad: `resource:report` ya distingue `traza=resourceUsage` vs `traza=legacy`, asi que DIV-010 puede enfocarse en migrar o limpiar filas antiguas sin perder evidencia nueva.
 
 ### DIV-010 - Migracion y compatibilidad
 - ID: DIV-010
-- Estado: pendiente
+- Estado: cerrado el 2026-03-21
+- Evidencia: `npm run test`, `npm run typecheck`, `npm run build`, `npm run resource:report -- --limit=5`
 - Titulo corto: Migracion del sistema actual
 - Objetivo: absorber el esquema actual de claves guardadas y cobros sin romper el flujo local ni dejar estados ambiguos.
 - Que se implementa: estrategia de migracion desde claves actuales por provider a registro unificado, compatibilidad temporal con configuraciones existentes, defaults razonables y limpieza de puntos legacy donde el cobro depende del nombre del modelo.
@@ -140,7 +142,7 @@
 - Dependencias: DIV-002, DIV-006, DIV-009
 - Precondiciones: nuevo esquema funcional y trazable.
 - Criterio de finalizacion: usuarios actuales no pierden sus credenciales guardadas y el sistema deja de depender de shortcuts como "ollama es gratis" para decidir cobros.
-- Notas para la siguiente unidad: deja el terreno listo para smoke final y endurecimiento.
+- Notas para la siguiente unidad: quedan compatibilidades historicas como `free_local_operation` y filas `traza=legacy`, pero las corridas nuevas ya usan bootstrap backend desde env o DB y no deciden cobro por el nombre del modelo.
 
 ### DIV-011 - Smoke y validacion visible
 - ID: DIV-011
@@ -155,4 +157,5 @@
 - Notas para la siguiente unidad: deja cerrado el refactor con una politica de uso y cobro coherente para futuras extensiones.
 - Avance 2026-03-21: existe `resource:report` y `smoke:local:resource` para verificar `executionMode`, `resourceOwner`, `credentialSource` y `billing` desde `operation_charges`.
 - Avance 2026-03-21: existe `smoke:resource:policy` con evidencia automatica y visible de `backend-cloud` cobrado, `user-cloud` sin cobro, `backend-local` cobrado y `user-local` bloqueado de forma explicita, sin depender de wallet externa.
-- Avance 2026-03-21: sigue faltando evidencia real en DB/UI para reemplazar filas legacy `sin-contexto`; eso depende de cerrar DIV-008, DIV-009 y DIV-010 o de ejecutar corridas reales nuevas con el esquema ya migrado.
+- Avance 2026-03-21: `smoke:local:resource` y `resource:report` ya muestran filas nuevas con `traza=resourceUsage`, pero siguen existiendo filas historicas `legacy` y una `missing`; hasta reemplazarlas con corridas reales nuevas, el div no se cierra.
+- Avance 2026-03-21: `doctor:local` ya releva precondiciones para el smoke por origen y hoy marca `user-cloud` y wallet listos, pero `backend-cloud` sigue bloqueado por falta de credencial backend activa en DB o en `OPENAI_API_KEY` / `OPENROUTER_API_KEY`.

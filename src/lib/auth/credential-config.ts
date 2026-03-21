@@ -17,6 +17,7 @@ import {
   upsertCredentialRecord
 } from '../db/db-helpers'
 import { getPaymentProvider } from '../providers/payment-provider'
+import { getCloudApiKeyEnvName } from '../providers/provider-metadata'
 import { DEFAULT_USER_ID } from './user-settings'
 import { normalizeWalletConnectionError } from '../payments/wallet-errors'
 
@@ -414,4 +415,46 @@ export async function validateCredentialConfiguration(id: string): Promise<Crede
     validation: toValidationResult(nextStatus, validatedAt, outcome.validationError),
     details: outcome.details ?? null
   }
+}
+
+export async function ensureBackendEnvCredentialConfiguration(input: {
+  providerId: 'openai' | 'openrouter'
+  ownerId?: string
+  label?: string | null
+}): Promise<CredentialRecordView | null> {
+  const envName = getCloudApiKeyEnvName(`${input.providerId}:bootstrap`)
+  const secretValue = envName ? process.env[envName]?.trim() || '' : ''
+
+  if (!envName || !secretValue) {
+    return null
+  }
+
+  const ownerId = resolveOwnerId('backend', input.ownerId)
+  const label = input.label?.trim() || DEFAULT_CREDENTIAL_LABEL
+  const existing = await findCredentialConfiguration({
+    owner: 'backend',
+    ownerId,
+    providerId: input.providerId,
+    secretType: 'api-key',
+    label
+  })
+
+  if (existing?.status === 'active') {
+    return existing
+  }
+
+  return saveCredentialConfiguration({
+    owner: 'backend',
+    ownerId,
+    providerId: input.providerId,
+    secretType: 'api-key',
+    label,
+    secretValue,
+    status: 'active',
+    metadata: {
+      provisionedBy: 'env-bootstrap',
+      envName,
+      syncedAt: now()
+    }
+  })
 }

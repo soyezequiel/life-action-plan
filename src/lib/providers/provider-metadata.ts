@@ -1,8 +1,27 @@
 export type SupportedModelProvider = 'openai' | 'openrouter' | 'ollama' | 'unknown'
+export type SupportedCloudModelProvider = Extract<SupportedModelProvider, 'openai' | 'openrouter'>
 
 export const DEFAULT_OPENAI_BUILD_MODEL = 'openai:gpt-4o-mini'
 export const DEFAULT_OPENROUTER_BUILD_MODEL = 'openrouter:openai/gpt-4o-mini'
 export const DEFAULT_OLLAMA_BUILD_MODEL = 'ollama:qwen3:8b'
+
+export function getDefaultBuildModelForProvider(providerId: SupportedModelProvider | string): string | null {
+  const normalized = providerId.trim()
+
+  if (normalized === 'openai') {
+    return DEFAULT_OPENAI_BUILD_MODEL
+  }
+
+  if (normalized === 'openrouter') {
+    return DEFAULT_OPENROUTER_BUILD_MODEL
+  }
+
+  if (normalized === 'ollama') {
+    return DEFAULT_OLLAMA_BUILD_MODEL
+  }
+
+  return null
+}
 
 export function getModelProviderName(modelId: string | undefined | null): SupportedModelProvider {
   const normalized = modelId?.trim() || ''
@@ -32,16 +51,14 @@ export function isCloudModel(modelId: string | undefined | null): boolean {
 export function resolveBuildModel(requestedProvider: string | undefined | null): string {
   const normalized = requestedProvider?.trim() || ''
 
-  if (!normalized || normalized === 'openai') {
+  if (!normalized) {
     return DEFAULT_OPENAI_BUILD_MODEL
   }
 
-  if (normalized === 'openrouter') {
-    return DEFAULT_OPENROUTER_BUILD_MODEL
-  }
+  const defaultModel = getDefaultBuildModelForProvider(normalized)
 
-  if (normalized === 'ollama') {
-    return DEFAULT_OLLAMA_BUILD_MODEL
+  if (defaultModel) {
+    return defaultModel
   }
 
   return normalized

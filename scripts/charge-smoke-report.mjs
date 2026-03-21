@@ -42,6 +42,7 @@ function parseArgs(argv) {
   let limit = 10
   let expectedStatuses = []
   let expectedCases = []
+  let traceSources = []
 
   for (const arg of argv) {
     if (arg.startsWith('--limit=')) {
@@ -60,11 +61,19 @@ function parseArgs(argv) {
     }
 
     if (arg.startsWith('--expect-case=')) {
-      expectedCases = parseExpectedCases(arg.slice('--expect-case='.length))
+      expectedCases.push(...parseExpectedCases(arg.slice('--expect-case='.length)))
+    }
+
+    if (arg.startsWith('--trace=')) {
+      traceSources = arg
+        .slice('--trace='.length)
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean)
     }
   }
 
-  return { limit, expectedStatuses, expectedCases }
+  return { limit, expectedStatuses, expectedCases, traceSources }
 }
 
 function formatUsd(value) {
@@ -106,17 +115,58 @@ function pickBillingPolicy(metadata) {
   return metadata.billingPolicy || null
 }
 
-function summarizeContext(metadata) {
+function pickResourceUsage(metadata) {
+  if (!metadata || typeof metadata !== 'object') {
+    return null
+  }
+
+  const direct = metadata.resourceUsage
+  if (direct && typeof direct === 'object') {
+    return direct
+  }
+
   const executionContext = pickExecutionContext(metadata)
   const billingPolicy = pickBillingPolicy(metadata)
 
+  if (!executionContext || !billingPolicy) {
+    return null
+  }
+
   return {
-    executionMode: executionContext?.mode || null,
-    resourceOwner: executionContext?.resourceOwner || null,
-    executionTarget: executionContext?.executionTarget || null,
-    credentialSource: executionContext?.credentialSource || null,
-    billingSkipReason: billingPolicy?.skipReasonCode || null,
-    hasContext: Boolean(executionContext)
+    mode: executionContext.mode || null,
+    resourceOwner: executionContext.resourceOwner || null,
+    executionTarget: executionContext.executionTarget || null,
+    credentialSource: executionContext.credentialSource || null,
+    chargePolicy: executionContext.chargePolicy || null,
+    chargeReason: executionContext.chargeReason || null,
+    chargeable: Boolean(billingPolicy.chargeable),
+    estimatedCostSats: Number.isInteger(billingPolicy.estimatedCostSats) ? billingPolicy.estimatedCostSats : 0,
+    billingReasonCode: billingPolicy.skipReasonCode || null,
+    billingReasonDetail: billingPolicy.skipReasonDetail || null,
+    canExecute: executionContext.canExecute !== false,
+    blockReasonCode: executionContext.blockReasonCode || null,
+    blockReasonDetail: executionContext.blockReasonDetail || null,
+    providerId: executionContext.provider?.providerId || null,
+    modelId: executionContext.provider?.modelId || null
+  }
+}
+
+function summarizeContext(metadata) {
+  const resourceUsage = pickResourceUsage(metadata)
+  const trackingSource = metadata?.resourceUsage && typeof metadata.resourceUsage === 'object'
+    ? 'resourceUsage'
+    : resourceUsage
+      ? 'legacy'
+      : 'missing'
+
+  return {
+    executionMode: resourceUsage?.mode || null,
+    resourceOwner: resourceUsage?.resourceOwner || null,
+    executionTarget: resourceUsage?.executionTarget || null,
+    credentialSource: resourceUsage?.credentialSource || null,
+    billingReasonCode: resourceUsage?.billingReasonCode || null,
+    hasContext: Boolean(resourceUsage),
+    trackingSource
   }
 }
 
@@ -142,7 +192,7 @@ function matchesExpectedCase(row, expectedCase) {
 
 async function main() {
   const loadedFiles = loadLocalEnv()
-  const { limit, expectedStatuses, expectedCases } = parseArgs(process.argv.slice(2))
+  const { limit, expectedStatuses, expectedCases, traceSources } = parseArgs(process.argv.slice(2))
   const databaseUrl = process.env.DATABASE_URL?.trim() || ''
 
   console.log('LAP charge smoke report')
@@ -166,7 +216,7 @@ async function main() {
     const [walletSettingsRow] = await sql`
       select count(*)::int as count
       from user_settings
-      where key like 'wallet.%'
+      where key like 'wallet-%' or key like 'wallet.%'
     `
 
     const chargeRows = await sql`
@@ -208,21 +258,32 @@ async function main() {
         ...context
       }
     })
+    const filteredRows = traceSources.length > 0
+      ? normalizedRows.filter((row) => traceSources.includes(row.trackingSource))
+      : normalizedRows
 
     console.log(`Wallets guardadas: ${walletSettingsRow.count}`)
-    console.log(`Cobros encontrados: ${normalizedRows.length}`)
+    console.log(`Cobros encontrados: ${filteredRows.length}`)
+    if (traceSources.length > 0) {
+      console.log(`Filtro de traza: ${traceSources.join(', ')}`)
+    }
 
-    const statusCounts = normalizedRows.reduce((acc, row) => {
+    const statusCounts = filteredRows.reduce((acc, row) => {
       acc[row.status] = (acc[row.status] || 0) + 1
       return acc
     }, {})
-    const modeCounts = normalizedRows.reduce((acc, row) => {
+    const modeCounts = filteredRows.reduce((acc, row) => {
       const key = row.executionMode || 'sin-contexto'
       acc[key] = (acc[key] || 0) + 1
       return acc
     }, {})
-    const ownerCounts = normalizedRows.reduce((acc, row) => {
+    const ownerCounts = filteredRows.reduce((acc, row) => {
       const key = row.resourceOwner || 'sin-contexto'
+      acc[key] = (acc[key] || 0) + 1
+      return acc
+    }, {})
+    const trackingCounts = filteredRows.reduce((acc, row) => {
+      const key = row.trackingSource || 'missing'
       acc[key] = (acc[key] || 0) + 1
       return acc
     }, {})
@@ -236,14 +297,18 @@ async function main() {
     const ownerSummary = Object.entries(ownerCounts)
       .map(([owner, count]) => `${owner}=${count}`)
       .join(', ')
+    const trackingSummary = Object.entries(trackingCounts)
+      .map(([source, count]) => `${source}=${count}`)
+      .join(', ')
 
     console.log(`Resumen por estado: ${summary || 'sin cobros registrados'}`)
     console.log(`Resumen por modo de ejecucion: ${modeSummary || 'sin contexto registrado'}`)
     console.log(`Resumen por owner del recurso: ${ownerSummary || 'sin contexto registrado'}`)
+    console.log(`Resumen por fuente de traza: ${trackingSummary || 'sin traza registrada'}`)
 
-    if (normalizedRows.length > 0) {
+    if (filteredRows.length > 0) {
       console.log('Ultimos cobros:')
-      for (const row of normalizedRows) {
+      for (const row of filteredRows) {
         const planLabel = row.planName || row.planId || 'sin plan'
         const trackedLabel = row.costTrackingId
           ? `tracking=${row.costTrackingId} (USD ${formatUsd(row.trackedCostUsd)} / tokens ${row.trackedTokensInput ?? 0}+${row.trackedTokensOutput ?? 0})`
@@ -251,9 +316,10 @@ async function main() {
         const contextLabel = row.hasContext
           ? `contexto=${row.executionMode}/${row.resourceOwner}/${row.credentialSource || 'none'}`
           : 'contexto=sin-contexto'
-        const billingLabel = row.billingSkipReason
-          ? `billing=${row.billingSkipReason}`
+        const billingLabel = row.billingReasonCode
+          ? `billing=${row.billingReasonCode}`
           : 'billing=-'
+        const trackingLabel = `traza=${row.trackingSource}`
 
         console.log(
           [
@@ -266,6 +332,7 @@ async function main() {
             `razon=${row.reasonCode || '-'}`,
             `proveedor=${row.paymentProvider || row.model || '-'}`,
             contextLabel,
+            trackingLabel,
             billingLabel,
             `plan=${planLabel}`,
             trackedLabel
@@ -286,7 +353,7 @@ async function main() {
     }
 
     if (expectedCases.length > 0) {
-      const missingCases = expectedCases.filter((expectedCase) => !normalizedRows.some((row) => matchesExpectedCase(row, expectedCase)))
+      const missingCases = expectedCases.filter((expectedCase) => !filteredRows.some((row) => matchesExpectedCase(row, expectedCase)))
       if (missingCases.length > 0) {
         console.error(`FAIL Casos faltantes en operation_charges: ${missingCases.map((item) => item.raw).join(', ')}`)
         process.exitCode = 1

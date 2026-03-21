@@ -14,7 +14,9 @@ export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url)
   const parsed = buildUsagePreviewQuerySchema.safeParse({
     provider: url.searchParams.get('provider') || undefined,
-    hasUserApiKey: url.searchParams.get('hasUserApiKey') || undefined
+    hasUserApiKey: url.searchParams.get('hasUserApiKey') || undefined,
+    backendCredentialId: url.searchParams.get('backendCredentialId') || undefined,
+    resourceMode: url.searchParams.get('resourceMode') || undefined
   })
 
   if (!parsed.success) {
@@ -25,10 +27,20 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const resolvedModel = resolveBuildModel(parsed.data.provider)
+  const backendCredentialId = parsed.data.backendCredentialId?.trim() || ''
+  const requestedMode = parsed.data.resourceMode === 'backend'
+    ? 'backend-cloud'
+    : parsed.data.resourceMode === 'user'
+      ? 'user-cloud'
+      : backendCredentialId
+        ? 'backend-cloud'
+        : undefined
   const execution = await resolvePlanBuildExecution({
     modelId: resolvedModel,
     deploymentMode: getDeploymentMode(),
-    userSuppliedApiKey: hasUserApiKey(parsed.data.hasUserApiKey) ? 'preview-user-key' : ''
+    requestedMode,
+    userSuppliedApiKey: hasUserApiKey(parsed.data.hasUserApiKey) ? 'preview-user-key' : '',
+    backendCredentialId
   })
 
   return jsonResponse({

@@ -373,6 +373,30 @@ describe('plan build charge route', () => {
 
     expect(mocks.canChargeOperationMock).not.toHaveBeenCalled()
     expect(mocks.chargeOperationMock).not.toHaveBeenCalled()
+    expect(mocks.trackEventMock).toHaveBeenCalledWith('PLAN_BUILD_STARTED', expect.objectContaining({
+      profileId: '11111111-1111-4111-8111-111111111111',
+      chargeId: 'charge-1',
+      executionMode: 'user-cloud',
+      resourceOwner: 'user',
+      executionTarget: 'cloud',
+      credentialSource: 'user-supplied',
+      chargePolicy: 'skip',
+      chargeReason: 'user_resource',
+      chargeable: false,
+      billingReasonCode: 'user_resource',
+      providerId: 'openai',
+      modelId: 'openai:gpt-4o-mini'
+    }))
+    expect(mocks.trackEventMock).toHaveBeenCalledWith('PLAN_BUILT', expect.objectContaining({
+      planId: 'plan-1',
+      chargeId: 'charge-1',
+      executionMode: 'user-cloud',
+      resourceOwner: 'user',
+      chargePolicy: 'skip',
+      billingReasonCode: 'user_resource',
+      providerId: 'openai',
+      modelId: 'openai:gpt-4o-mini'
+    }))
     expect(result).toEqual(expect.objectContaining({
       success: true,
       planId: 'plan-1',

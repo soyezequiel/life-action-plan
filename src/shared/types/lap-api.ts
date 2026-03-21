@@ -34,6 +34,8 @@ export interface PlanBuildRequest {
   profileId: string
   apiKey: string
   provider?: string
+  backendCredentialId?: string
+  resourceMode?: 'auto' | 'backend' | 'user'
 }
 
 export interface PlanBuildResult {
@@ -312,7 +314,13 @@ export interface LapAPI {
     save: (data: IntakeExpressData) => Promise<IntakeSaveResult>
   }
   plan: {
-    build: (profileId: string, apiKey: string, provider?: string) => Promise<PlanBuildResult>
+    build: (
+      profileId: string,
+      apiKey: string,
+      provider?: string,
+      backendCredentialId?: string,
+      resourceMode?: 'auto' | 'backend' | 'user'
+    ) => Promise<PlanBuildResult>
     onBuildProgress: (listener: (progress: PlanBuildProgress) => void) => () => void
     list: (profileId: string) => Promise<PlanRow[]>
     simulate: (planId: string, mode?: 'interactive' | 'automatic') => Promise<PlanSimulationResult>

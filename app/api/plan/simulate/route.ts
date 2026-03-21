@@ -30,6 +30,7 @@ import {
   toPlanBuildErrorMessage
 } from '../../_plan'
 import { summarizeResourceUsage } from '../../../../src/lib/runtime/resource-usage-summary'
+import { toResourceUsageTrackingPayload } from '../../../../src/lib/runtime/resource-usage-tracking'
 
 const SIMULATION_PROVIDER_ID = 'lap'
 const SIMULATION_MODEL_ID = 'lap:plan-simulator'
@@ -156,14 +157,10 @@ export async function POST(request: Request): Promise<Response> {
           profileId: planRow.profileId,
           mode,
           chargeId: chargeRecord.id,
-          executionMode: execution.executionContext.mode,
-          executionTarget: execution.executionContext.executionTarget,
-          resourceOwner: execution.executionContext.resourceOwner,
-          credentialSource: execution.executionContext.credentialSource,
           chargeDecision: execution.billingPolicy.chargeable
             ? prechargeDecision?.decision ?? initialChargeStatus
             : 'skipped',
-          estimatedCostSats: execution.billingPolicy.estimatedCostSats
+          ...toResourceUsageTrackingPayload(resourceUsage)
         })
 
         if (prechargeDecision?.decision === 'rejected') {
@@ -171,7 +168,8 @@ export async function POST(request: Request): Promise<Response> {
             planId,
             chargeId: chargeRecord.id,
             reasonCode: prechargeDecision.reasonCode,
-            reasonDetail: prechargeDecision.reasonDetail
+            reasonDetail: prechargeDecision.reasonDetail,
+            ...toResourceUsageTrackingPayload(resourceUsage)
           })
 
           send({
@@ -253,7 +251,8 @@ export async function POST(request: Request): Promise<Response> {
               chargeId: chargeRecord.id,
               chargeStatus: chargeRecord.status,
               reasonCode: chargeRecord.reasonCode,
-              reasonDetail: chargeRecord.reasonDetail
+              reasonDetail: chargeRecord.reasonDetail,
+              ...toResourceUsageTrackingPayload(resourceUsage)
             })
 
             send({
@@ -307,8 +306,7 @@ export async function POST(request: Request): Promise<Response> {
           chargeId: chargeRecord.id,
           chargeStatus: chargeRecord.status,
           chargedSats: chargeRecord.chargedSats,
-          executionMode: execution.executionContext.mode,
-          resourceOwner: execution.executionContext.resourceOwner
+          ...toResourceUsageTrackingPayload(resourceUsage)
         })
 
         send({
@@ -338,7 +336,17 @@ export async function POST(request: Request): Promise<Response> {
           }) ?? chargeRecord
         }
 
-        await trackEvent('ERROR_OCCURRED', { code: 'PLAN_SIMULATION_FAILED', message, planId })
+        await trackEvent('ERROR_OCCURRED', {
+          code: 'PLAN_SIMULATION_FAILED',
+          message,
+          planId,
+          chargeId: chargeRecord?.id ?? null,
+          ...toResourceUsageTrackingPayload(
+            chargeRecord
+              ? summarizeOperationCharge(chargeRecord).resourceUsage ?? resourceUsage
+              : resourceUsage
+          )
+        })
         send({
           type: 'result',
           result: {

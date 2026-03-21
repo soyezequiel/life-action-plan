@@ -18,10 +18,12 @@
     "smoke:local": "npm run db:push && npm run doctor:local",
     "smoke:local:charge": "npm run db:push && npm run doctor:local:charge",
     "smoke:local:resource": "npm run db:push && npm run doctor:local && npm run resource:report",
+    "credential:bootstrap:backend": "node scripts/backend-credential-bootstrap.mjs",
     "smoke:resource:policy": "vitest run tests/plan-build-charge-route.test.ts tests/plan-simulate-route.test.ts tests/build-execution.test.ts tests/execution-context-resolver.test.ts --reporter=verbose",
     "smoke:deploy": "npm run build && npm run doctor:deploy",
     "charge:report": "node scripts/charge-smoke-report.mjs",
     "resource:report": "node scripts/charge-smoke-report.mjs",
+    "resource:report:canonical": "node scripts/charge-smoke-report.mjs --trace=resourceUsage",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate"
