@@ -1,135 +1,163 @@
-# LAP (Life Action Plan)
+# Pulso — Life Action Plan
 
-Web app de planificacion personal construida con Next.js 15, React 19, TypeScript, Drizzle y PostgreSQL.
+**Pulso** (formerly LAP) is a personal planning web app that uses LLM assistance to help users create, simulate, and execute structured life action plans.
 
-Estado operativo actual:
-- Desarrollo local: `Next.js + PostgreSQL local + Ollama local`
-- Target de deploy: `Vercel + PostgreSQL cloud + LLM cloud`
-- Electron ya no forma parte del producto
-- En deploy, la UI y el backend no deben depender de Ollama
+Built with Next.js 15, React 19, TypeScript, PostgreSQL, and Drizzle ORM.
 
-## Antes de tocar codigo
+## Features
 
-Lee primero:
-1. [AGENTS.md](F:/proyectos/planificador-vida/AGENTS.md)
-2. [PLAN_LAP_FINAL.md](F:/proyectos/planificador-vida/PLAN_LAP_FINAL.md)
+- **Guided intake** — conversational onboarding that captures goals, constraints, and priorities
+- **AI-powered plan generation** — LLM builds a phased action plan with milestones and dependencies
+- **Reality check** — compares required hours vs. available time; surfaces trade-offs
+- **Plan simulation** — iterative week-by-week simulation to catch scheduling conflicts before they happen
+- **Daily execution dashboard** — tasks, progress tracking, streaks, and on-demand re-planning
+- **Calendar export** — `.ics` export for integration with external calendars
+- **Lightning payments** — optional pay-per-build via Nostr Wallet Connect (NWC)
+- **Multi-provider LLM** — supports OpenAI, OpenRouter, or local Ollama for development
+- **LLM Inspector** — built-in debug panel with trace, token stream, and snapshot views
 
-## Reglas base
+## Tech Stack
 
-- Cero imports de `electron`, `better-sqlite3`, `ipcRenderer`, `ipcMain`, `contextBridge` o `safeStorage`
-- Toda string de UI via `t('clave')`
-- Estado mutable solo en PostgreSQL via Drizzle
-- Fechas con `luxon`, no `new Date()` para logica de negocio
-- API keys solo server-side
-- En local, Ollama se usa desde el servidor Next.js; en Vercel hay que usar un proveedor cloud
-- El boton de asistente local solo vale en entorno local; en Vercel queda fuera de la UX valida
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 15 (App Router, Turbopack) |
+| UI | React 19, CSS Modules, Framer Motion |
+| Language | TypeScript (strict) |
+| Database | PostgreSQL + Drizzle ORM |
+| Validation | Zod (`.strict()` on all new schemas) |
+| Auth | Session tokens (JWT via `jose`), Argon2 password hashing |
+| AI | Vercel AI SDK + `@ai-sdk/openai` |
+| Payments | `@getalby/sdk` (Lightning / NWC) |
+| Dates | Luxon |
+| Testing | Vitest + Testing Library |
 
-## Stack actual
+## Getting Started
 
-- `next@15`
-- `react@19`
-- `typescript`
-- `drizzle-orm`
-- `postgres`
-- `zod`
-- `luxon`
-- `framer-motion`
-- `ai` + `@ai-sdk/openai`
-- `@getalby/sdk`
-- `vitest`
+### Prerequisites
 
-## Arranque local
+- Node.js 20+
+- PostgreSQL (local or cloud)
+- *(Optional)* Ollama for local LLM development
 
-1. Instala dependencias:
+### Setup
 
 ```bash
+# Install dependencies
 npm install
-```
 
-2. Crea variables locales:
-
-```bash
+# Create local environment file
 cp .env.example .env.local
 ```
 
-3. Configura `DATABASE_URL` en `.env.local`.
-   Ejemplo con PostgreSQL local:
+Edit `.env.local` with your values:
 
-```bash
+```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lap
+SESSION_SECRET=<random-string>
+OPENAI_API_KEY=<your-key>          # or configure via Settings UI
+OLLAMA_BASE_URL=http://localhost:11434  # optional, for local dev
 ```
 
-4. Si vas a usar el asistente local, asegurate de tener Ollama arriba:
+### Database
 
 ```bash
-ollama serve
+# Push schema to your database
+npm run db:push
 ```
 
-5. Prepara el entorno local y verifica DB + Ollama:
-
-```bash
-npm run smoke:local
-```
-
-6. Arranca la app:
+### Run
 
 ```bash
 npm run dev
 ```
 
-## Scripts utiles
+The app starts at `http://localhost:3000`.
 
-- `npm run dev`
-- `npm run build`
-- `npm run start`
-- `npm run typecheck`
-- `npm run test`
-- `npm run lint`
-- `npm run doctor:local`
-- `npm run doctor:deploy`
-- `npm run smoke:local`
-- `npm run smoke:deploy`
-- `npm run db:generate`
-- `npm run db:push`
-- `npm run db:migrate`
-
-## Flujo local esperado
-
-1. Crear perfil en `/intake`
-2. Volver al dashboard
-3. Generar plan con `Armar con asistente local`
-4. Ver tareas del dia
-5. Marcar progreso
-6. Abrir el Inspector LLM si hace falta diagnostico
-
-## Readiness para Vercel
-
-1. Configura una `DATABASE_URL` cloud.
-2. Configura `OPENAI_API_KEY` para el provider cloud.
-3. Verifica la readiness de deploy:
+### Verify Environment
 
 ```bash
-npm run doctor:deploy
-```
+# Local: checks DB connection + Ollama availability
+npm run smoke:local
 
-4. Corre el smoke previo al deploy:
-
-```bash
+# Pre-deploy: runs build + deploy readiness checks
 npm run smoke:deploy
 ```
 
-## Estructura real del repo
+## Scripts
 
-- `app/`: paginas y API routes
-- `components/`: UI React
-- `src/lib/`: logica server y cliente compartida
-- `src/shared/`: tipos y schemas
-- `src/i18n/`: traducciones
-- `tests/`: unit tests
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm run start` | Start production server |
+| `npm run typecheck` | Type-check without emitting |
+| `npm run test` | Run test suite |
+| `npm run lint` | Lint with ESLint |
+| `npm run db:generate` | Generate Drizzle migrations |
+| `npm run db:push` | Push schema to database |
+| `npm run db:migrate` | Run pending migrations |
+| `npm run doctor:local` | Check local environment health |
+| `npm run doctor:deploy` | Check deploy readiness |
+| `npm run smoke:local` | DB push + local doctor |
+| `npm run smoke:deploy` | Build + deploy doctor |
 
-## Documentos operativos vigentes
+## Project Structure
 
-- [AGENTS.md](F:/proyectos/planificador-vida/AGENTS.md)
-- [PLAN_LAP_FINAL.md](F:/proyectos/planificador-vida/PLAN_LAP_FINAL.md)
-- [continuacion-web-nextjs-divs.md](F:/proyectos/planificador-vida/continuacion-web-nextjs-divs.md)
-- [matriz-smoke-web.md](F:/proyectos/planificador-vida/matriz-smoke-web.md)
+```
+app/                    # Next.js App Router
+  api/                  # Route Handlers (REST API)
+    auth/               # Register, login, logout, session
+    plan/               # Build, simulate, list, export
+    settings/           # Credentials, API keys, build preview
+    wallet/             # NWC connect, disconnect, status
+    intake/             # Profile intake
+    debug/              # LLM inspector endpoints
+  intake/               # Intake page
+  settings/             # Settings page
+
+components/             # React components
+  settings/             # Settings panel sections
+  debug/                # LLM inspector UI
+
+src/lib/                # Server and client libraries
+  auth/                 # Authentication (sessions, passwords)
+  client/               # Client-side utilities and vault
+  db/                   # Drizzle schema and helpers
+  payments/             # NWC provider, wallet, charging
+  providers/            # LLM provider abstraction
+  runtime/              # Execution context resolver
+  skills/               # Plan-building skills
+
+src/i18n/               # Internationalization (es-AR)
+tests/                  # Unit and integration tests
+```
+
+## Environments
+
+| Environment | Database | LLM Provider | Purpose |
+|-------------|----------|-------------|---------|
+| Local dev | PostgreSQL local | Ollama or OpenAI | Daily development |
+| Vercel preview | PostgreSQL cloud | Cloud provider | Pre-merge validation |
+| Vercel prod | PostgreSQL cloud | Cloud provider | Production |
+
+> Ollama is only available in local development. Vercel deployments require a cloud LLM provider.
+
+## User Flow
+
+1. **Register / Login** — create an account or authenticate
+2. **Configure** — set up LLM provider and optionally connect a Lightning wallet
+3. **Intake** — answer guided questions about goals and constraints
+4. **Build** — AI generates a phased plan with reality checks
+5. **Simulate** — iterative simulation validates the plan
+6. **Execute** — daily dashboard with tasks, progress, and streaks
+
+## Contributing
+
+This project uses internal development documents for architecture decisions:
+
+- `AGENTS.md` — agent context and project state
+- `PLAN_LAP_FINAL.md` — architectural source of truth
+
+## License
+
+Private — all rights reserved.
