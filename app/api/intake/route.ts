@@ -1,7 +1,8 @@
 import { intakeRequestSchema } from '../_schemas'
 import { intakeExpressToProfile } from '../_domain'
-import { createProfile, setSetting, trackEvent } from '../_db'
+import { createProfile, trackEvent } from '../_db'
 import { apiErrorMessages, jsonResponse } from '../_shared'
+import { resolveAuthenticatedUserId } from '../_user-settings'
 
 export async function POST(request: Request): Promise<Response> {
   const bodyResult = intakeRequestSchema.safeParse(await request.json().catch(() => null))
@@ -15,8 +16,7 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     const profile = intakeExpressToProfile(bodyResult.data as Parameters<typeof intakeExpressToProfile>[0])
-    const profileId = await createProfile(JSON.stringify(profile))
-    await setSetting('lastProfileId', profileId)
+    const profileId = await createProfile(JSON.stringify(profile), resolveAuthenticatedUserId(request))
     await trackEvent('INTAKE_COMPLETED', { profileId, mode: 'express' })
 
     return jsonResponse({

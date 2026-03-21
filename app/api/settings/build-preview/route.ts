@@ -4,6 +4,7 @@ import { getDeploymentMode } from '../../../../src/lib/env/deployment'
 import { resolveBuildModel } from '../../../../src/lib/providers/provider-metadata'
 import { resolvePlanBuildExecution } from '../../../../src/lib/runtime/build-execution'
 import { summarizeResourceUsage } from '../../../../src/lib/runtime/resource-usage-summary'
+import { resolveUserId } from '../../_user-settings'
 
 function hasUserApiKey(rawValue: string | undefined): boolean {
   const normalized = rawValue?.trim().toLowerCase() || ''
@@ -39,6 +40,7 @@ export async function GET(request: Request): Promise<Response> {
     modelId: resolvedModel,
     deploymentMode: getDeploymentMode(),
     requestedMode,
+    userId: resolveUserId(request),
     userSuppliedApiKey: hasUserApiKey(parsed.data.hasUserApiKey) ? 'preview-user-key' : '',
     backendCredentialId
   })

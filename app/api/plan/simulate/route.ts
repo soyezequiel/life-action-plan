@@ -31,6 +31,7 @@ import {
 } from '../../_plan'
 import { summarizeResourceUsage } from '../../../../src/lib/runtime/resource-usage-summary'
 import { toResourceUsageTrackingPayload } from '../../../../src/lib/runtime/resource-usage-tracking'
+import { resolveUserId } from '../../_user-settings'
 
 const SIMULATION_PROVIDER_ID = 'lap'
 const SIMULATION_MODEL_ID = 'lap:plan-simulator'
@@ -58,6 +59,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const { planId, mode } = parsed.data
+  const userId = resolveUserId(request)
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -111,6 +113,7 @@ export async function POST(request: Request): Promise<Response> {
           ? await canChargeOperation({
               operation: 'plan_simulate',
               model: SIMULATION_MODEL_ID,
+              userId,
               estimatedCostUsd: execution.billingPolicy.estimatedCostUsd,
               estimatedCostSats: execution.billingPolicy.estimatedCostSats,
               chargeable: true
@@ -220,6 +223,7 @@ export async function POST(request: Request): Promise<Response> {
           const chargeResult = await chargeOperation({
             operation: 'plan_simulate',
             amountSats: chargeRecord.estimatedCostSats,
+            userId,
             description: `LAP plan simulate ${planId}`
           })
 

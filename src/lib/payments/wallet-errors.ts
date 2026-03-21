@@ -7,6 +7,13 @@ export function normalizeWalletConnectionError(error: unknown): string {
   }
 
   if (
+    normalized.includes('unsupported_nwc_version') ||
+    normalized.includes('unsupported_version')
+  ) {
+    return 'WALLET_NWC_INFO_UNAVAILABLE'
+  }
+
+  if (
     normalized.includes('no info event') &&
     normalized.includes('13194')
   ) {

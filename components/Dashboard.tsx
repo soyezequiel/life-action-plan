@@ -7,11 +7,11 @@ import { DateTime } from 'luxon'
 import { useRouter } from 'next/navigation'
 import { getCurrentLocale, t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
+import { ACCOUNT_NUDGE_DISMISSED_STORAGE_KEY } from '../src/lib/client/storage-keys'
 import { toUserFacingErrorMessage } from '../src/lib/client/error-utils'
 import { getResourceUsageDisplay } from '../src/lib/client/resource-usage-copy'
 import type { DeploymentMode } from '../src/lib/env/deployment'
 import {
-  DEFAULT_OLLAMA_BUILD_MODEL,
   getBuildRouteLabelKey,
   getProviderLabelKey,
   isCloudModel,
@@ -33,6 +33,7 @@ import type {
 import type { Perfil } from '../src/shared/schemas/perfil'
 import DebugPanel from './DebugPanel'
 import PlanCalendar from './PlanCalendar'
+import PulsoLogo from './PulsoLogo'
 import styles from './Dashboard.module.css'
 
 const springTransition = {
@@ -415,7 +416,6 @@ interface DashboardProps {
 export default function Dashboard({ deploymentMode = 'local' }: DashboardProps): JSX.Element {
   const client = useLapClient()
   const router = useRouter()
-  const localAssistantAvailable = deploymentMode === 'local'
   const [loading, setLoading] = useState(true)
   const [refreshNonce, setRefreshNonce] = useState(0)
   const [profileId, setProfileId] = useState<string | null>(null)
@@ -445,6 +445,8 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   const [simulationMode, setSimulationMode] = useState<SimulationMode>('interactive')
   const [simulationProgress, setSimulationProgress] = useState<PlanSimulationProgress | null>(null)
   const [debugPanelVisible, setDebugPanelVisible] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const [accountNudgeDismissed, setAccountNudgeDismissed] = useState(false)
   const hasPlan = plans.length > 0
   const latestPlan = hasPlan ? plans[plans.length - 1] : null
   const latestPlanMeta = latestPlan ? parseManifestMeta(latestPlan.manifest) : {}
@@ -509,6 +511,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
       active: false
     }
   ]
+  const showAccountNudge = hasPlan && isAuthenticated === false && !accountNudgeDismissed
 
   useEffect(() => {
     let active = true
@@ -606,6 +609,32 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
   }, [client, refreshNonce])
 
   useEffect(() => {
+    const dismissed = window.localStorage.getItem(ACCOUNT_NUDGE_DISMISSED_STORAGE_KEY) === '1'
+    let active = true
+
+    setAccountNudgeDismissed(dismissed)
+
+    void fetch('/api/auth/me')
+      .then((response) => response.json() as Promise<{ authenticated?: boolean }>)
+      .then((payload) => {
+        if (!active) {
+          return
+        }
+
+        setIsAuthenticated(Boolean(payload.authenticated))
+      })
+      .catch(() => {
+        if (active) {
+          setIsAuthenticated(false)
+        }
+      })
+
+    return () => {
+      active = false
+    }
+  }, [refreshNonce])
+
+  useEffect(() => {
     return client.plan.onBuildProgress((progress) => {
       if (!profileId || progress.profileId !== profileId) {
         return
@@ -648,6 +677,11 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
 
   function reloadData(): void {
     setRefreshNonce((current) => current + 1)
+  }
+
+  function dismissAccountNudge(): void {
+    window.localStorage.setItem(ACCOUNT_NUDGE_DISMISSED_STORAGE_KEY, '1')
+    setAccountNudgeDismissed(true)
   }
 
   async function handleToggle(taskId: string): Promise<void> {
@@ -708,43 +742,12 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
     }
   }
 
-  async function handleBuildPlan(provider: 'openai' | 'openrouter' | 'ollama'): Promise<void> {
+  async function handleBuildPlan(mode: 'service' | 'own'): Promise<void> {
     if (!profileId) {
       return
     }
 
-    if (provider === 'openai' || provider === 'openrouter') {
-      router.push(`/settings?intent=build&provider=${provider}`)
-      return
-    }
-
-    setIsBuilding(true)
-    setBuildError('')
-    setBuildNotice('')
-    setBuildProgress({
-      profileId,
-      provider: DEFAULT_OLLAMA_BUILD_MODEL,
-      stage: 'preparing',
-      current: 1,
-      total: buildStages.length,
-      charCount: 0
-    })
-
-    try {
-      const result = await client.plan.build(profileId, '', DEFAULT_OLLAMA_BUILD_MODEL)
-
-      if (result.success) {
-        setBuildNotice(getBuildRouteLabel(DEFAULT_OLLAMA_BUILD_MODEL, result.fallbackUsed))
-        reloadData()
-      } else {
-        setBuildError(result.error || t('errors.generic'))
-      }
-    } catch (error) {
-      setBuildError(toUserFacingErrorMessage(error))
-    } finally {
-      setIsBuilding(false)
-      setBuildProgress(null)
-    }
+    router.push(`/settings?intent=build&mode=${mode}`)
   }
 
   async function handleConnectWallet(): Promise<void> {
@@ -1229,7 +1232,10 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
         <div id="app" className="app-shell app-shell--centered">
           <div className={styles.welcomeFrame}>
             <section className={styles.welcomeHero}>
-              <span className={styles.welcomeEyebrow}>{t('app.tagline')}</span>
+              <div className={styles.welcomeBrandLockup}>
+                <PulsoLogo variant="mark" className={styles.welcomeBrandMark} />
+                <span className={styles.welcomeEyebrow}>{t('app.tagline')}</span>
+              </div>
               <h1 className={styles.welcomeTitle}>{t('app.name')}</h1>
               <p className={styles.welcomeCopy}>{t('dashboard.empty')}</p>
               <div className={styles.heroActions}>
@@ -1287,31 +1293,21 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                     <div className={styles.heroActions}>
                       <button
                         className="app-button app-button--primary"
-                        onClick={() => router.push('/settings?intent=build&provider=openai')}
+                        onClick={() => {
+                          void handleBuildPlan('service')
+                        }}
                       >
-                        {t('dashboard.build_openai')}
+                        {t('dashboard.build_service')}
                       </button>
                       <button
                         className="app-button app-button--secondary"
-                        onClick={() => router.push('/settings?intent=build&provider=openrouter')}
+                        onClick={() => {
+                          void handleBuildPlan('own')
+                        }}
                       >
-                        {t('dashboard.build_openrouter')}
+                        {t('dashboard.build_own')}
                       </button>
-                      {localAssistantAvailable && (
-                        <button
-                          className="app-button app-button--secondary"
-                          onClick={() => {
-                            void handleBuildPlan('ollama')
-                          }}
-                          disabled={isBuilding}
-                        >
-                          {t('dashboard.build_ollama')}
-                        </button>
-                      )}
                     </div>
-                    {!localAssistantAvailable && (
-                      <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
-                    )}
                     <div className={styles.emptyPlanGrid}>
                       <article className={styles.emptyPlanFeature}>
                         <span className={styles.welcomePreviewLabel}>{t('dashboard.welcome.today_label')}</span>
@@ -1335,7 +1331,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                     <div className={styles.shell}>
                       <aside className={styles.shellRail}>
                         <div className={styles.shellBrand}>
-                          <span className={styles.shellBrandMark}>LAP</span>
+                          <PulsoLogo variant="mark" className={styles.shellBrandMark} />
                         </div>
 
                         <nav className={styles.shellRailNav} aria-label={t('dashboard.title')}>
@@ -1374,20 +1370,24 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
 
                       <div className={styles.shellMain}>
                         <header className={styles.shellTopbar}>
-                          <nav className={styles.shellTopNav} aria-label={t('dashboard.title')}>
-                            {topNavItems.map((item, index) => (
-                              <a
-                                key={item.label}
-                                href={item.href}
-                                className={[
-                                  styles.shellTopLink,
-                                  index === 0 ? styles.shellTopLinkActive : ''
-                                ].join(' ')}
-                              >
-                                {item.label}
-                              </a>
-                            ))}
-                          </nav>
+                          <div className={styles.shellTopLead}>
+                            <PulsoLogo variant="wordmark" className={styles.shellTopBrand} ariaLabel={t('app.name')} />
+
+                            <nav className={styles.shellTopNav} aria-label={t('dashboard.title')}>
+                              {topNavItems.map((item, index) => (
+                                <a
+                                  key={item.label}
+                                  href={item.href}
+                                  className={[
+                                    styles.shellTopLink,
+                                    index === 0 ? styles.shellTopLinkActive : ''
+                                  ].join(' ')}
+                                >
+                                  {item.label}
+                                </a>
+                              ))}
+                            </nav>
+                          </div>
 
                           <div className={styles.shellActions}>
                             <button
@@ -1440,6 +1440,18 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                             {isExporting ? t('dashboard.exporting_calendar') : t('dashboard.export_calendar')}
                           </button>
                         </div>
+                        {showAccountNudge && (
+                          <div className={styles.accountNudge}>
+                            <p>{t('dashboard.account_nudge')}</p>
+                            <button
+                              className="app-button app-button--secondary"
+                              type="button"
+                              onClick={dismissAccountNudge}
+                            >
+                              {t('dashboard.account_nudge_dismiss')}
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       <div className={styles.heroPanel}>
@@ -1620,51 +1632,32 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                           <div className={styles.surfaceHeader}>
                             <span className={styles.surfaceEyebrow}>{t('dashboard.actions_surface.label')}</span>
                             <h3 className={styles.surfaceTitle}>{t('dashboard.actions_title')}</h3>
-                            <p className={styles.surfaceCopy}>
-                              {localAssistantAvailable
-                                ? t('dashboard.actions_hint_local')
-                                : t('builder.local_unavailable_deploy')}
-                            </p>
+                            <p className={styles.surfaceCopy}>{t('dashboard.actions_hint')}</p>
                           </div>
 
                           <div className="dashboard-actions">
                             <button
                               className="app-button app-button--primary"
                               onClick={() => {
-                                void handleBuildPlan('openai')
+                                void handleBuildPlan('service')
                               }}
                               disabled={isBuilding}
                             >
-                              {t('dashboard.build_openai')}
+                              {t('dashboard.build_service')}
                             </button>
                             <button
                               className="app-button app-button--secondary"
                               onClick={() => {
-                                void handleBuildPlan('openrouter')
+                                void handleBuildPlan('own')
                               }}
                               disabled={isBuilding}
                             >
-                              {t('dashboard.build_openrouter')}
+                              {t('dashboard.build_own')}
                             </button>
-                            {localAssistantAvailable && (
-                              <button
-                                className="app-button app-button--secondary"
-                                onClick={() => {
-                                  void handleBuildPlan('ollama')
-                                }}
-                                disabled={isBuilding}
-                              >
-                                {t('dashboard.build_ollama')}
-                              </button>
-                            )}
                             <button className="app-button app-button--secondary" onClick={() => router.push('/intake')}>
                               {t('dashboard.redo_intake')}
                             </button>
                           </div>
-
-                          {!localAssistantAvailable && (
-                            <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
-                          )}
                           {exportStatus && (
                             <p
                               className={[

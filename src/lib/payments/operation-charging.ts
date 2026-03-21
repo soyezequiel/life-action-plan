@@ -46,6 +46,7 @@ export interface CanChargeOperationInput {
   model: string
   estimatedCostUsd: number
   estimatedCostSats: number
+  userId?: string
   chargeable?: boolean
   reasonCode?: ChargeReasonCode | null
   reasonDetail?: string | null
@@ -66,6 +67,7 @@ export interface ChargeOperationInput {
   operation: ChargeOperation
   amountSats: number
   description: string
+  userId?: string
   invoiceExpirySeconds?: number
 }
 
@@ -304,7 +306,10 @@ function validateReceiverConfiguration():
   }
 }
 
-async function validateWalletForCharge(amountSats: number): Promise<WalletValidationSuccess | WalletValidationFailure> {
+async function validateWalletForCharge(
+  amountSats: number,
+  userId?: string
+): Promise<WalletValidationSuccess | WalletValidationFailure> {
   if (!canUseWalletSecretStorage()) {
     return {
       ok: false,
@@ -315,7 +320,7 @@ async function validateWalletForCharge(amountSats: number): Promise<WalletValida
     }
   }
 
-  const connectionUrl = await loadWalletConnectionUrl()
+  const connectionUrl = await loadWalletConnectionUrl(userId)
 
   if (!connectionUrl) {
     return {
@@ -421,7 +426,7 @@ export async function canChargeOperation(input: CanChargeOperationInput): Promis
     return buildDecision(input, 'rejected', receiver.reasonCode, receiver.reasonDetail, null)
   }
 
-  const walletValidation = await validateWalletForCharge(quote.estimatedCostSats)
+  const walletValidation = await validateWalletForCharge(quote.estimatedCostSats, input.userId)
 
   if (!walletValidation.ok) {
     return buildDecision(
@@ -538,7 +543,7 @@ export async function chargeOperation(input: ChargeOperationInput): Promise<Char
     }
   }
 
-  const walletValidation = await validateWalletForCharge(amountSats)
+  const walletValidation = await validateWalletForCharge(amountSats, input.userId)
 
   if (!walletValidation.ok) {
     return {

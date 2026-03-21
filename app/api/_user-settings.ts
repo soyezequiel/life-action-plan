@@ -6,3 +6,8 @@ export {
   type CloudApiKeyProvider,
   WALLET_SETTING_KEY
 } from '../../src/lib/auth/user-settings'
+
+export {
+  resolveAuthenticatedUserId,
+  resolveUserId
+} from '../../src/lib/auth/resolve-user'

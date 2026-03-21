@@ -6,8 +6,12 @@ export function canUseWalletSecretStorage(): boolean {
   return isSecretStorageAvailable()
 }
 
-export async function loadWalletConnectionUrl(): Promise<string | null> {
-  const encrypted = await getUserSetting(DEFAULT_USER_ID, WALLET_SETTING_KEY)
+function resolveWalletUserId(userId?: string): string {
+  return userId?.trim() || DEFAULT_USER_ID
+}
+
+export async function loadWalletConnectionUrl(userId?: string): Promise<string | null> {
+  const encrypted = await getUserSetting(resolveWalletUserId(userId), WALLET_SETTING_KEY)
   if (!encrypted) {
     return null
   }
@@ -19,10 +23,10 @@ export async function loadWalletConnectionUrl(): Promise<string | null> {
   }
 }
 
-export async function saveWalletConnectionUrl(connectionUrl: string): Promise<void> {
-  await upsertUserSetting(DEFAULT_USER_ID, WALLET_SETTING_KEY, encryptSecret(connectionUrl))
+export async function saveWalletConnectionUrl(connectionUrl: string, userId?: string): Promise<void> {
+  await upsertUserSetting(resolveWalletUserId(userId), WALLET_SETTING_KEY, encryptSecret(connectionUrl))
 }
 
-export async function clearWalletConnectionUrl(): Promise<void> {
-  await deleteUserSetting(DEFAULT_USER_ID, WALLET_SETTING_KEY)
+export async function clearWalletConnectionUrl(userId?: string): Promise<void> {
+  await deleteUserSetting(resolveWalletUserId(userId), WALLET_SETTING_KEY)
 }

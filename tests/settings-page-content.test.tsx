@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 
 import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SettingsPageContent from '../components/SettingsPageContent'
+import WalletSection from '../components/settings/WalletSection'
 import { AppServicesProvider } from '../src/lib/client/app-services'
 import { t } from '../src/i18n'
 import { toUserFacingErrorMessage } from '../src/lib/client/error-utils'
@@ -61,6 +62,7 @@ vi.mock('framer-motion', async () => {
 function createLapClientStub(): LapAPI {
   return {
     plan: {
+      build: vi.fn(async () => ({ success: true })),
       onBuildProgress: vi.fn(() => () => {})
     },
     profile: {
@@ -89,7 +91,12 @@ function createLapClientStub(): LapAPI {
 }
 
 function createBuildPreviewResponse(url: string): Response {
-  if (url.includes('provider=ollama')) {
+  const parsedUrl = new URL(url, 'http://localhost')
+  const provider = parsedUrl.searchParams.get('provider')
+  const resourceMode = parsedUrl.searchParams.get('resourceMode')
+  const hasUserApiKey = parsedUrl.searchParams.get('hasUserApiKey')
+
+  if (provider === 'ollama:qwen3:8b') {
     return new Response(JSON.stringify({
       success: true,
       usage: {
@@ -115,33 +122,7 @@ function createBuildPreviewResponse(url: string): Response {
     })
   }
 
-  if (url.includes('resourceMode=backend') || url.includes('backendCredentialId=cred-backend-openrouter')) {
-    return new Response(JSON.stringify({
-      success: true,
-      usage: {
-        mode: 'backend-cloud',
-        resourceOwner: 'backend',
-        executionTarget: 'cloud',
-        credentialSource: 'backend-stored',
-        chargePolicy: 'charge',
-        chargeReason: 'backend_resource',
-        chargeable: true,
-        estimatedCostSats: 5,
-        billingReasonCode: null,
-        billingReasonDetail: null,
-        canExecute: true,
-        blockReasonCode: null,
-        blockReasonDetail: null,
-        providerId: 'openrouter',
-        modelId: 'openrouter:openai/gpt-4o-mini'
-      }
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    })
-  }
-
-  if (url.includes('hasUserApiKey=1')) {
+  if (resourceMode === 'user' && hasUserApiKey === '1') {
     return new Response(JSON.stringify({
       success: true,
       usage: {
@@ -167,22 +148,48 @@ function createBuildPreviewResponse(url: string): Response {
     })
   }
 
+  if (resourceMode === 'user') {
+    return new Response(JSON.stringify({
+      success: true,
+      usage: {
+        mode: 'user-cloud',
+        resourceOwner: 'user',
+        executionTarget: 'cloud',
+        credentialSource: 'user-stored',
+        chargePolicy: 'skip',
+        chargeReason: 'user_resource',
+        chargeable: false,
+        estimatedCostSats: 5,
+        billingReasonCode: 'execution_blocked',
+        billingReasonDetail: 'USER_CREDENTIAL_MISSING',
+        canExecute: false,
+        blockReasonCode: 'user_credential_missing',
+        blockReasonDetail: 'No active user credential is configured.',
+        providerId: 'openrouter',
+        modelId: 'openrouter:openai/gpt-4o-mini'
+      }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+
   return new Response(JSON.stringify({
     success: true,
     usage: {
-      mode: 'user-cloud',
-      resourceOwner: 'user',
+      mode: 'backend-cloud',
+      resourceOwner: 'backend',
       executionTarget: 'cloud',
-      credentialSource: 'user-stored',
-      chargePolicy: 'skip',
-      chargeReason: 'user_resource',
-      chargeable: false,
+      credentialSource: 'backend-stored',
+      chargePolicy: 'charge',
+      chargeReason: 'backend_resource',
+      chargeable: true,
       estimatedCostSats: 5,
-      billingReasonCode: 'execution_blocked',
-      billingReasonDetail: 'USER_CREDENTIAL_MISSING',
-      canExecute: false,
-      blockReasonCode: 'user_credential_missing',
-      blockReasonDetail: 'No active user credential is configured.',
+      billingReasonCode: null,
+      billingReasonDetail: null,
+      canExecute: true,
+      blockReasonCode: null,
+      blockReasonDetail: null,
       providerId: 'openrouter',
       modelId: 'openrouter:openai/gpt-4o-mini'
     }
@@ -196,65 +203,62 @@ describe('settings page content', () => {
   beforeEach(() => {
     pushMock.mockReset()
     searchParamsMock = new URLSearchParams('intent=build&provider=ollama')
+    window.localStorage.clear()
     fetchMock.mockReset()
     fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
       const url = String(input)
+
+      if (url === '/api/auth/me') {
+        return new Response(JSON.stringify({ authenticated: false }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url === '/api/models/available') {
+        return new Response(JSON.stringify({
+          success: true,
+          models: [
+            {
+              providerId: 'openrouter',
+              modelId: 'openrouter:openai/gpt-4o-mini',
+              displayName: 'OpenRouter'
+            }
+          ]
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
 
       if (url.includes('/api/settings/build-preview')) {
         return createBuildPreviewResponse(url)
       }
 
-      if (url.includes('/api/settings/credentials?owner=backend&secretType=api-key')) {
-        return new Response(JSON.stringify({
-          credentials: [
-            {
-              id: 'cred-backend-openrouter',
-              owner: 'backend',
-              ownerId: 'backend-system',
-              providerId: 'openrouter',
-              secretType: 'api-key',
-              label: 'principal',
-              status: 'active',
-              lastValidatedAt: null,
-              lastValidationError: null,
-              metadata: null,
-              createdAt: '2026-03-21T00:00:00.000Z',
-              updatedAt: '2026-03-21T00:00:00.000Z'
-            }
-          ]
-        }), {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-      }
-
-      return new Response(JSON.stringify({ configured: false }), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      return new Response(JSON.stringify({ success: false }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
       })
     })
     vi.stubGlobal('fetch', fetchMock)
   })
 
-  it('oculta el campo de API key para build local', async () => {
+  it('usa la ruta local del sistema cuando el build local esta disponible', async () => {
     render(
       <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
         <SettingsPageContent deploymentMode="local" />
       </AppServicesProvider>
     )
 
-    expect(await screen.findByText(t('settings.local_build_title'))).toBeTruthy()
-    expect(screen.getByText(t('settings.local_build_hint'))).toBeTruthy()
+    expect((await screen.findAllByText(t('settings.local_build_title'))).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(t('settings.local_build_hint')).length).toBeGreaterThan(0)
     expect(screen.getByText(t('settings.build_route_hint', { provider: t('builder.provider_local') }))).toBeTruthy()
-    expect(await screen.findByText('Origen del recurso: LAP pone la maquina que arma el plan.')).toBeTruthy()
-    expect(screen.queryByPlaceholderText(t('settings.apikey_placeholder'))).toBeNull()
+    expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-local')}`)).toBeTruthy()
+    expect(screen.getByText(t('settings.own_keys.add_title'))).toBeTruthy()
+    expect(screen.queryByText(t('settings.llm_mode.title'))).toBeNull()
   })
 
-  it('mantiene la advertencia visible si se pide build local en cloud', async () => {
+  it('mantiene la advertencia visible si se pide build local fuera de la maquina', async () => {
     render(
       <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
         <SettingsPageContent deploymentMode="vercel-preview" />
@@ -262,11 +266,11 @@ describe('settings page content', () => {
     )
 
     expect(await screen.findByText(t('builder.local_unavailable_deploy'))).toBeTruthy()
-    expect(screen.getByPlaceholderText(t('settings.apikey_placeholder'))).toBeTruthy()
-    expect(screen.getByText('Falta tu clave para esta ruta.')).toBeTruthy()
+    expect(await screen.findByText(t('settings.service_models.title'))).toBeTruthy()
+    expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-cloud')}`)).toBeTruthy()
   })
 
-  it('muestra OpenRouter como ruta elegida para build cloud', async () => {
+  it('muestra los asistentes disponibles del servicio en modo servicio', async () => {
     searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
 
     render(
@@ -275,142 +279,99 @@ describe('settings page content', () => {
       </AppServicesProvider>
     )
 
-    expect(await screen.findByText(t('settings.apikey_title'))).toBeTruthy()
-    expect(fetchMock).toHaveBeenCalledWith('/api/settings/api-key?provider=openrouter')
-    expect(screen.getByText(t('settings.build_route_hint', {
-      provider: t('builder.provider_online')
-    }))).toBeTruthy()
-    expect(await screen.findByText(t('settings.build_resource_choice_backend'))).toBeTruthy()
-    expect(await screen.findByText('Origen del recurso: LAP pone el asistente en linea para esta accion.')).toBeTruthy()
-    expect(screen.queryByPlaceholderText(t('settings.apikey_placeholder'))).toBeNull()
+    expect(await screen.findByText(t('settings.llm_mode.title'))).toBeTruthy()
+    expect(await screen.findByText('OpenRouter')).toBeTruthy()
+    expect(fetchMock).toHaveBeenCalledWith('/api/models/available')
+    expect(screen.getAllByText(t('settings.build_route_hint', {
+      provider: t('settings.llm_mode.service_title')
+    })).length).toBeGreaterThan(0)
+    expect(await screen.findByText(t('settings.service_models.selected', { name: 'OpenRouter' }))).toBeTruthy()
+    expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-cloud')}`)).toBeTruthy()
   })
 
-  it('muestra que no se cobra cuando el build usa la clave del usuario', async () => {
+  it('respeta el modo propio pedido desde el dashboard', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&mode=own')
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    expect(await screen.findByText(t('settings.own_keys.add_title'))).toBeTruthy()
+    expect(screen.getByText(t('resource_usage.blocked.user_credential_missing'))).toBeTruthy()
+  })
+
+  it('muestra el bloqueo cuando se elige conexion propia sin ninguna guardada', async () => {
     searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
-    const user = userEvent.setup()
-    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
-      const url = String(input)
 
-      if (url.includes('/api/settings/build-preview')) {
-        return createBuildPreviewResponse(url)
-      }
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
 
-      if (url.includes('/api/settings/credentials?owner=backend&secretType=api-key')) {
-        return new Response(JSON.stringify({ credentials: [] }), {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-      }
+    await screen.findByText(t('settings.service_models.title'))
+    fireEvent.click(screen.getByText(t('settings.llm_mode.own_key_title')))
 
-      return new Response(JSON.stringify({ configured: false }), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
+    expect(await screen.findByText(t('settings.own_keys.add_title'))).toBeTruthy()
+    expect(await screen.findByText(t('resource_usage.blocked.user_credential_missing'))).toBeTruthy()
+  })
+
+  it('muestra que no se cobra cuando el build usa una conexion propia guardada', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('settings.service_models.title'))
+    fireEvent.click(screen.getByText(t('settings.llm_mode.own_key_title')))
+
+    fireEvent.change(screen.getByPlaceholderText(t('settings.own_keys.encryption_password_placeholder')), {
+      target: { value: 'segura123' }
     })
-
-    render(
-      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
-        <SettingsPageContent deploymentMode="local" />
-      </AppServicesProvider>
-    )
-
-    await screen.findByText(t('settings.apikey_title'))
-    const apiKeyInput = await screen.findByPlaceholderText(t('settings.apikey_placeholder'), {}, { timeout: 3000 })
-    await user.type(apiKeyInput, 'sk-or-v1-demo')
-
-    expect(await screen.findByText('Origen del recurso: Vas a usar tu propia clave del asistente.')).toBeTruthy()
-    expect(screen.getByText('Como usa tu propio recurso, esta accion no se cobra.')).toBeTruthy()
-    expect((screen.getByRole('button', { name: t('settings.apikey_confirm') }) as HTMLButtonElement).disabled).toBe(false)
-  })
-
-  it('permite elegir una API del sistema guardada para el build cloud', async () => {
-    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
-    const user = userEvent.setup()
-
-    render(
-      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
-        <SettingsPageContent deploymentMode="local" />
-      </AppServicesProvider>
-    )
-
-    await screen.findByText(t('settings.apikey_title'))
-
-    expect(await screen.findByText('Origen del recurso: LAP pone el asistente en linea para esta accion.')).toBeTruthy()
-    expect(screen.getByText('Como usa recurso del sistema, esta accion se cobra.')).toBeTruthy()
-    expect(screen.getByText(t('settings.backend_credential_selected', {
-      name: `${t('builder.provider_online')} - principal`
-    }))).toBeTruthy()
-  })
-
-  it('permite guardar una API del sistema desde settings', async () => {
-    searchParamsMock = new URLSearchParams()
-    const user = userEvent.setup()
-
-    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = String(input)
-
-      if (url.includes('/api/settings/credentials?owner=backend&secretType=api-key')) {
-        return new Response(JSON.stringify({ credentials: [] }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        })
-      }
-
-      if (url === '/api/settings/credentials' && init?.method === 'POST') {
-        return new Response(JSON.stringify({
-          credential: {
-            id: 'cred-backend-openai',
-            owner: 'backend',
-            ownerId: 'backend-system',
-            providerId: 'openai',
-            secretType: 'api-key',
-            label: 'principal',
-            status: 'active',
-            lastValidatedAt: null,
-            lastValidationError: null,
-            metadata: null,
-            createdAt: '2026-03-21T00:00:00.000Z',
-            updatedAt: '2026-03-21T00:00:00.000Z'
-          }
-        }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        })
-      }
-
-      if (url === '/api/settings/credentials/cred-backend-openai/validate' && init?.method === 'POST') {
-        return new Response(JSON.stringify({ success: true }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        })
-      }
-
-      return new Response(JSON.stringify({ configured: false }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
+    fireEvent.change(screen.getByPlaceholderText(t('settings.own_keys.alias_placeholder')), {
+      target: { value: 'Mi cuenta' }
     })
+    fireEvent.change(screen.getByPlaceholderText(t('settings.own_keys.key_placeholder')), {
+      target: { value: 'sk-demo-user' }
+    })
+    fireEvent.click(screen.getByRole('button', { name: t('settings.own_keys.save') }))
 
-    render(
-      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
-        <SettingsPageContent deploymentMode="local" />
-      </AppServicesProvider>
-    )
-
-    await screen.findByText(t('settings.backend_credentials_title'))
-    await user.type(screen.getByPlaceholderText(t('settings.backend_credential_label_placeholder')), 'principal')
-    await user.type(screen.getByPlaceholderText(t('settings.backend_credential_key_placeholder')), 'sk-demo-backend')
-    await user.click(screen.getByRole('button', { name: t('settings.backend_credential_save') }))
-
-    expect(await screen.findByText(t('settings.backend_credential_saved'))).toBeTruthy()
+    expect(await screen.findByText('Mi cuenta')).toBeTruthy()
+    expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.user-cloud')}`)).toBeTruthy()
+    expect(await screen.findByText(t('resource_usage.billing.user_resource'))).toBeTruthy()
+    await waitFor(() => {
+      expect(window.localStorage.getItem('lap.keys.v1')).toContain('Mi cuenta')
+    })
   })
 
   it('normaliza un error claro cuando la wallet no responde como NWC compatible', () => {
     expect(toUserFacingErrorMessage('WALLET_NWC_INFO_UNAVAILABLE')).toBe(t('settings.wallet_error_nwc_incompatible'))
     expect(toUserFacingErrorMessage('no info event (kind 13194) returned from relay')).toBe(t('settings.wallet_error_nwc_incompatible'))
+  })
+
+  it('no duplica el mensaje de billetera conectada despues de guardar la conexion', async () => {
+    render(
+      <WalletSection
+        walletConnection=""
+        walletStatus={{
+          configured: true,
+          connected: true,
+          canUseSecureStorage: true
+        }}
+        walletBusy={false}
+        walletNotice={t('settings.wallet_success')}
+        walletError=""
+        onWalletConnectionChange={() => {}}
+        onConnect={async () => {}}
+        onDisconnect={async () => {}}
+      />
+    )
+
+    expect(screen.getAllByText(t('settings.wallet_success'))).toHaveLength(1)
   })
 })

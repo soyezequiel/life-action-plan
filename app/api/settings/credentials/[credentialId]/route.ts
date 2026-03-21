@@ -5,6 +5,7 @@ import {
 } from '../../../../../src/lib/auth/credential-config'
 import { credentialUpdateRequestSchema } from '../../../_schemas'
 import { apiErrorMessages, jsonResponse } from '../../../_shared'
+import { resolveUserId } from '../../../_user-settings'
 
 interface CredentialRouteContext {
   params: Promise<{ credentialId: string }>
@@ -29,8 +30,13 @@ function toRouteErrorResponse(error: unknown): Response | null {
   return null
 }
 
-export async function GET(_request: Request, context: CredentialRouteContext): Promise<Response> {
+function canAccessCredential(credential: { owner: string; ownerId: string }, userId: string): boolean {
+  return credential.owner === 'backend' || credential.ownerId === userId
+}
+
+export async function GET(request: Request, context: CredentialRouteContext): Promise<Response> {
   const credentialId = await getCredentialId(context)
+  const userId = resolveUserId(request)
 
   if (!credentialId) {
     return jsonResponse({
@@ -48,6 +54,13 @@ export async function GET(_request: Request, context: CredentialRouteContext): P
     }, { status: 404 })
   }
 
+  if (!canAccessCredential(credential, userId)) {
+    return jsonResponse({
+      success: false,
+      error: 'CREDENTIAL_NOT_FOUND'
+    }, { status: 404 })
+  }
+
   return jsonResponse({
     success: true,
     credential
@@ -57,6 +70,7 @@ export async function GET(_request: Request, context: CredentialRouteContext): P
 export async function PATCH(request: Request, context: CredentialRouteContext): Promise<Response> {
   const credentialId = await getCredentialId(context)
   const parsed = credentialUpdateRequestSchema.safeParse(await request.json().catch(() => null))
+  const userId = resolveUserId(request)
 
   if (!credentialId || !parsed.success) {
     return jsonResponse({
@@ -66,6 +80,15 @@ export async function PATCH(request: Request, context: CredentialRouteContext): 
   }
 
   try {
+    const existingCredential = await getCredentialConfiguration(credentialId)
+
+    if (!existingCredential || !canAccessCredential(existingCredential, userId)) {
+      return jsonResponse({
+        success: false,
+        error: 'CREDENTIAL_NOT_FOUND'
+      }, { status: 404 })
+    }
+
     const credential = await updateCredentialConfiguration(credentialId, parsed.data)
 
     if (!credential) {

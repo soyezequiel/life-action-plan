@@ -27,8 +27,15 @@ export const metadata: Metadata = {
   title: esAR.app.name,
   description: esAR.app.tagline,
   icons: {
-    icon: '/favicon.ico',
-    apple: '/icon.png'
+    icon: [
+      {
+        url: '/pulso-mark.svg',
+        type: 'image/svg+xml'
+      },
+      '/favicon.ico'
+    ],
+    apple: '/pulso-mark.svg',
+    shortcut: '/pulso-mark.svg'
   }
 }
 

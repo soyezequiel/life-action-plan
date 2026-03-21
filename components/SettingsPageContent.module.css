@@ -29,6 +29,11 @@
   max-width: 42rem;
 }
 
+.sectionHeader {
+  display: grid;
+  gap: 0.45rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
@@ -56,6 +61,30 @@
 
 .fullWidthCard {
   grid-column: 1 / -1;
+}
+
+.modeSelector {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.modeCard,
+.serviceModelCard {
+  display: grid;
+  gap: 0.45rem;
+  text-align: left;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-main);
+}
+
+.modeCardActive,
+.serviceModelCardActive {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .choiceGroup {
@@ -99,12 +128,70 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
+.fieldGroup {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.helperCopy {
+  color: var(--text-soft);
+}
+
+.inlineFields {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.keyList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.keyListItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.95rem 1rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.keyChoice {
+  display: inline-flex;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.keyChoice span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.keyChoice small {
+  color: var(--text-soft);
+}
+
+.serviceModelGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
 @media (max-width: 980px) {
   .grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .credentialFormGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modeSelector,
+  .inlineFields {
     grid-template-columns: minmax(0, 1fr);
   }
 }

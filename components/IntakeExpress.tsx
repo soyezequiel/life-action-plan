@@ -6,6 +6,7 @@ import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
 import { toUserFacingErrorMessage } from '../src/lib/client/error-utils'
+import PulsoLogo from './PulsoLogo'
 import styles from './IntakeExpress.module.css'
 
 interface IntakeExpressProps {
@@ -103,7 +104,10 @@ export default function IntakeExpress({ onComplete, onCancel = () => {} }: Intak
     <div data-component="intake-express" className="intake-shell">
       <div className={styles.frame}>
         <section className={styles.story}>
-          <span className={styles.storyEyebrow}>{t('intake.title')}</span>
+          <div className={styles.storyBrandLockup}>
+            <PulsoLogo variant="mark" className={styles.storyBrandMark} />
+            <span className={styles.storyEyebrow}>{t('intake.title')}</span>
+          </div>
           <h1 className={styles.storyTitle}>{t('intake.headline')}</h1>
           <p className={styles.storyCopy}>{t('intake.subtitle')}</p>
 

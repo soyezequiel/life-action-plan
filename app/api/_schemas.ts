@@ -114,6 +114,29 @@ export const credentialUpdateRequestSchema = z.object({
   message: 'EMPTY_CREDENTIAL_UPDATE'
 })
 
+export const registerRequestSchema = z.object({
+  username: z.string().trim().min(1).max(120),
+  password: z.string().min(1).max(128)
+}).strict()
+
+export const loginRequestSchema = z.object({
+  username: z.string().trim().min(1).max(120),
+  password: z.string().min(1).max(128)
+}).strict()
+
+export const deleteAccountRequestSchema = z.object({
+  confirmation: z.literal('ELIMINAR')
+}).strict()
+
+export const vaultBackupRequestSchema = z.object({
+  encryptedBlob: z.string().trim().min(1),
+  salt: z.string().trim().min(1)
+}).strict()
+
+export const claimLocalDataRequestSchema = z.object({
+  localProfileId: idSchema
+}).strict()
+
 export const debugMutationRequestSchema = z.union([
   z.object({
     action: z.enum(['enable', 'disable', 'clear'])

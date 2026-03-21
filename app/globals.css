@@ -12,8 +12,8 @@
   --border-strong: rgba(255, 255, 255, 0.1);
   --shadow-soft: 0 24px 48px rgba(0, 0, 0, 0.4);
   --shadow-card: 0 18px 36px rgba(0, 0, 0, 0.34);
-  --brand: #88adff;
-  --brand-strong: #719eff;
+  --brand: #69a7ff;
+  --brand-strong: #14e6be;
   --success: #6ed7a5;
   --warning: #f2bf82;
   --radius-xl: 32px;
@@ -46,8 +46,8 @@ body {
   color: var(--text-primary);
   font-family: var(--font-ui, "Inter", "Segoe UI", sans-serif);
   background:
-    radial-gradient(circle at top left, rgba(136, 173, 255, 0.12), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(113, 158, 255, 0.08), transparent 18%),
+    radial-gradient(circle at top left, rgba(105, 167, 255, 0.14), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(20, 230, 190, 0.1), transparent 20%),
     linear-gradient(180deg, #0f0f10 0%, #0c0c0d 48%, #0a0a0a 100%);
 }
 
@@ -244,7 +244,7 @@ textarea::placeholder {
 .build-progress__fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #6f8bff 0%, #8dd3ff 100%);
+  background: linear-gradient(90deg, var(--brand) 0%, var(--brand-strong) 100%);
   transition: width var(--transition-base);
 }
 
@@ -292,8 +292,8 @@ textarea::placeholder {
 }
 
 .build-progress__step--current .build-progress__step-index {
-  background: linear-gradient(135deg, var(--brand) 0%, #93c0ff 100%);
-  color: #09101f;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+  color: #041714;
 }
 
 .build-progress__step--done .build-progress__step-index {
@@ -860,7 +860,7 @@ textarea::placeholder {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #6b84ff 0%, #8cb4ff 100%);
+  background: linear-gradient(90deg, var(--brand) 0%, var(--brand-strong) 100%);
   transition: width var(--transition-base);
 }
 
@@ -1008,7 +1008,7 @@ textarea::placeholder {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #6b84ff 0%, #8cb4ff 100%);
+  background: linear-gradient(90deg, var(--brand) 0%, var(--brand-strong) 100%);
   transition: width 220ms ease;
 }
 

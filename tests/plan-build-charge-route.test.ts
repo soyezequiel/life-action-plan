@@ -498,6 +498,7 @@ describe('plan build charge route', () => {
     expect(mocks.canChargeOperationMock).toHaveBeenCalledWith({
       operation: 'plan_build',
       model: 'openai:gpt-4o-mini',
+      userId: 'local-user',
       estimatedCostUsd: 0.005,
       estimatedCostSats: 5,
       chargeable: true
@@ -505,6 +506,7 @@ describe('plan build charge route', () => {
     expect(mocks.chargeOperationMock).toHaveBeenCalledWith({
       operation: 'plan_build',
       amountSats: 5,
+      userId: 'local-user',
       description: 'LAP plan build 11111111-1111-4111-8111-111111111111'
     })
     expect(mocks.trackCostMock).toHaveBeenCalledWith(
@@ -656,6 +658,7 @@ describe('plan build charge route', () => {
     expect(mocks.canChargeOperationMock).toHaveBeenCalledWith({
       operation: 'plan_build',
       model: 'ollama:qwen3:8b',
+      userId: 'local-user',
       estimatedCostUsd: 0.005,
       estimatedCostSats: 5,
       chargeable: true
@@ -663,6 +666,7 @@ describe('plan build charge route', () => {
     expect(mocks.chargeOperationMock).toHaveBeenCalledWith({
       operation: 'plan_build',
       amountSats: 5,
+      userId: 'local-user',
       description: 'LAP plan build 11111111-1111-4111-8111-111111111111'
     })
     expect(mocks.trackCostMock).toHaveBeenCalledWith(

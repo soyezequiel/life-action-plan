@@ -3,7 +3,7 @@ import { t, setLocale, getCurrentLocale } from '../src/i18n'
 
 describe('i18n', () => {
   it('devuelve la traducción para una key simple', () => {
-    expect(t('app.name')).toBe('LAP')
+    expect(t('app.name')).toBe('Pulso')
   })
 
   it('devuelve la traducción para keys anidadas', () => {

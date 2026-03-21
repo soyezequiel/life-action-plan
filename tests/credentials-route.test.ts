@@ -87,6 +87,7 @@ describe('credentials routes', () => {
     expect(response.status).toBe(200)
     expect(mocks.saveCredentialConfigurationMock).toHaveBeenCalledWith({
       owner: 'user',
+      ownerId: 'local-user',
       providerId: 'openrouter',
       secretType: 'api-key',
       secretValue: 'sk-or-v1-123'
@@ -125,6 +126,20 @@ describe('credentials routes', () => {
   })
 
   it('actualiza una credencial existente', async () => {
+    mocks.getCredentialConfigurationMock.mockResolvedValue({
+      id: 'cred-4',
+      owner: 'user',
+      ownerId: 'local-user',
+      providerId: 'openai',
+      secretType: 'api-key',
+      label: 'mi-key',
+      status: 'active',
+      lastValidatedAt: null,
+      lastValidationError: null,
+      metadata: null,
+      createdAt: '2026-03-21T09:00:00.000Z',
+      updatedAt: '2026-03-21T09:00:00.000Z'
+    })
     mocks.updateCredentialConfigurationMock.mockResolvedValue({
       id: 'cred-4',
       owner: 'user',
@@ -161,6 +176,20 @@ describe('credentials routes', () => {
   })
 
   it('valida una credencial por id', async () => {
+    mocks.getCredentialConfigurationMock.mockResolvedValue({
+      id: 'cred-5',
+      owner: 'user',
+      ownerId: 'local-user',
+      providerId: 'openai',
+      secretType: 'api-key',
+      label: 'default',
+      status: 'active',
+      lastValidatedAt: '2026-03-21T10:00:00.000Z',
+      lastValidationError: null,
+      metadata: null,
+      createdAt: '2026-03-21T09:00:00.000Z',
+      updatedAt: '2026-03-21T10:00:00.000Z'
+    })
     mocks.validateCredentialConfigurationMock.mockResolvedValue({
       credential: {
         id: 'cred-5',

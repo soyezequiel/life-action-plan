@@ -25,4 +25,10 @@ describe('toConfigErrorMessage', () => {
 
     expect(toConfigErrorMessage('API_KEY_ENCRYPTION_SECRET_NOT_SET')).toContain('API_KEY_ENCRYPTION_SECRET')
   })
+
+  it('explicita SESSION_SECRET en desarrollo', () => {
+    vi.stubEnv('NODE_ENV', 'development')
+
+    expect(toConfigErrorMessage('SESSION_SECRET_NOT_SET')).toContain('SESSION_SECRET')
+  })
 })

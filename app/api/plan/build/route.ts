@@ -42,6 +42,7 @@ import {
 import { resolveBuildModel } from '../../../../src/lib/providers/provider-metadata'
 import { summarizeResourceUsage } from '../../../../src/lib/runtime/resource-usage-summary'
 import { toResourceUsageTrackingPayload } from '../../../../src/lib/runtime/resource-usage-tracking'
+import { resolveUserId } from '../../_user-settings'
 
 export const maxDuration = 60
 
@@ -68,6 +69,7 @@ export async function POST(request: Request): Promise<Response> {
   const { profileId, apiKey, provider, backendCredentialId, resourceMode } = parsed.data
   const requestedModelId = resolveBuildModel(provider)
   const deploymentMode = getDeploymentMode()
+  const userId = resolveUserId(request)
   const requestedMode = resourceMode === 'backend'
     ? 'backend-cloud'
     : resourceMode === 'user'
@@ -118,6 +120,7 @@ export async function POST(request: Request): Promise<Response> {
         requestedExecution = await resolvePlanBuildExecution({
           modelId: requestedModelId,
           deploymentMode,
+          userId,
           requestedMode,
           userSuppliedApiKey: apiKey,
           backendCredentialId
@@ -132,6 +135,7 @@ export async function POST(request: Request): Promise<Response> {
           ? await canChargeOperation({
               operation: 'plan_build',
               model: requestedModelId,
+              userId,
               estimatedCostUsd: billingPolicy.estimatedCostUsd,
               estimatedCostSats: billingPolicy.estimatedCostSats,
               chargeable: true
@@ -393,6 +397,7 @@ export async function POST(request: Request): Promise<Response> {
           const chargeResult = await chargeOperation({
             operation: 'plan_build',
             amountSats: chargeRecord.estimatedCostSats,
+            userId,
             description: `LAP plan build ${profileId}`
           })
 

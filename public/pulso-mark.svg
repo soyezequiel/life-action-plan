@@ -1,0 +1,25 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pulsoMarkGradient" x1="16" y1="104" x2="124" y2="24" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#69A7FF" />
+      <stop offset="0.56" stop-color="#32D8E4" />
+      <stop offset="1" stop-color="#14E6BE" />
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="#090B0D" />
+  <rect x="8.5" y="8.5" width="111" height="111" rx="27.5" stroke="#FFFFFF" stroke-opacity="0.08" />
+  <path
+    d="M16 104C24 104 29 97 31 88L39 50C41 40 51 40 53 50L60 82C62 91 71 91 73 82L82 34C84 24 94 24 96 34L103 86C105 95 114 95 116 86L123 44"
+    stroke="url(#pulsoMarkGradient)"
+    stroke-width="16"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M98 40L116 24L110 50"
+    stroke="url(#pulsoMarkGradient)"
+    stroke-width="16"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

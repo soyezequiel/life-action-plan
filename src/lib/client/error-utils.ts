@@ -53,6 +53,69 @@ export function toUserFacingErrorMessage(error: unknown, fallbackKey = 'errors.g
   }
 
   if (
+    normalized.includes('account_already_exists') ||
+    normalized.includes('username_already_exists')
+  ) {
+    return t('auth.account_exists')
+  }
+
+  if (normalized.includes('invalid_credentials')) {
+    return t('auth.invalid_credentials')
+  }
+
+  if (normalized.includes('auth_rate_limited')) {
+    return t('auth.too_many_attempts')
+  }
+
+  if (normalized.includes('account_identifier_required')) {
+    return t('auth.identifier_required')
+  }
+
+  if (normalized.includes('account_identifier_too_long')) {
+    return t('auth.identifier_too_long')
+  }
+
+  if (normalized.includes('account_email_invalid')) {
+    return t('auth.email_invalid')
+  }
+
+  if (normalized.includes('account_username_too_short')) {
+    return t('auth.username_too_short')
+  }
+
+  if (normalized.includes('account_username_too_long')) {
+    return t('auth.username_too_long')
+  }
+
+  if (normalized.includes('account_username_invalid')) {
+    return t('auth.username_invalid')
+  }
+
+  if (normalized.includes('password_too_short')) {
+    return t('auth.password_too_short')
+  }
+
+  if (normalized.includes('password_too_long')) {
+    return t('auth.password_too_long')
+  }
+
+  if (normalized.includes('password_needs_letter')) {
+    return t('auth.password_needs_letter')
+  }
+
+  if (normalized.includes('password_needs_number')) {
+    return t('auth.password_needs_number')
+  }
+
+  if (normalized.includes('password_too_similar')) {
+    return t('auth.password_too_similar')
+  }
+
+  if (normalized.includes('password_too_simple')) {
+    return t('auth.password_too_simple')
+  }
+
+  if (
     normalized.includes('api key') ||
     normalized.includes('unauthorized') ||
     normalized.includes('authentication') ||
@@ -72,6 +135,7 @@ export function toUserFacingErrorMessage(error: unknown, fallbackKey = 'errors.g
 
   if (
     normalized.includes('wallet_nwc_info_unavailable') ||
+    normalized.includes('unsupported_nwc_version') ||
     (normalized.includes('no info event') && normalized.includes('13194'))
   ) {
     return t('settings.wallet_error_nwc_incompatible')

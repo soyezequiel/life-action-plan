@@ -14,8 +14,10 @@ type InvoiceResponseLike = nwc.Nip47Transaction & {
   paymentRequest?: string
   paymentHash?: string
 }
+type SupportedNwcVersion = '1.0' | '0.0'
 
 let nwcModulePromise: Promise<NwcModule> | null = null
+const supportedVersionCache = new Map<string, SupportedNwcVersion>()
 
 async function loadNwcModule(): Promise<NwcModule> {
   if (!nwcModulePromise) {
@@ -50,6 +52,22 @@ function toMilliSats(amountSats: number): number {
   return Math.max(1, Math.round(amountSats * 1000))
 }
 
+function isSupportedVersion(value: string | undefined): value is SupportedNwcVersion {
+  return value === '1.0' || value === '0.0'
+}
+
+function selectCompatibleVersion(versions: string[]): SupportedNwcVersion | null {
+  if (versions.includes('1.0')) {
+    return '1.0'
+  }
+
+  if (versions.includes('0.0')) {
+    return '0.0'
+  }
+
+  return null
+}
+
 export class NwcPaymentProvider implements PaymentProvider {
   private readonly connectionUrl: string
   private clientPromise: Promise<NwcClient> | null = null
@@ -68,11 +86,12 @@ export class NwcPaymentProvider implements PaymentProvider {
   private async getClient(): Promise<NwcClient> {
     if (!this.clientPromise) {
       this.clientPromise = loadNwcModule()
-        .then(({ nwc }) => {
+        .then(async ({ nwc }) => {
           const client = new nwc.NWCClient({
             nostrWalletConnectUrl: this.connectionUrl
           })
           this.client = client
+          await this.ensureCompatibleVersion(client)
           return client
         })
         .catch((error) => {
@@ -83,6 +102,30 @@ export class NwcPaymentProvider implements PaymentProvider {
     }
 
     return this.clientPromise
+  }
+
+  private async ensureCompatibleVersion(client: NwcClient): Promise<void> {
+    if (isSupportedVersion(client.version)) {
+      supportedVersionCache.set(this.connectionUrl, client.version)
+      return
+    }
+
+    const cachedVersion = supportedVersionCache.get(this.connectionUrl)
+
+    if (cachedVersion) {
+      client.version = cachedVersion
+      return
+    }
+
+    const serviceInfo = await client.getWalletServiceInfo()
+    const compatibleVersion = selectCompatibleVersion(serviceInfo.versions)
+
+    if (!compatibleVersion) {
+      throw new Error('UNSUPPORTED_NWC_VERSION')
+    }
+
+    client.version = compatibleVersion
+    supportedVersionCache.set(this.connectionUrl, compatibleVersion)
   }
 
   async getStatus(): Promise<PaymentProviderStatus> {

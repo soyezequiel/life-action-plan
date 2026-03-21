@@ -10,7 +10,8 @@ import {
   findCredentialConfiguration,
   DEFAULT_BACKEND_OWNER_ID,
   ensureBackendEnvCredentialConfiguration,
-  getCredentialConfiguration
+  getCredentialConfiguration,
+  listCredentialConfigurations
 } from '../auth/credential-config'
 import { DEFAULT_USER_ID, getApiKeySettingKey, type CloudApiKeyProvider } from '../auth/user-settings'
 import { canUseLocalOllama, getDeploymentMode, type DeploymentMode } from '../env/deployment'
@@ -192,6 +193,31 @@ async function findActiveCredentialByLabels(input: {
   return null
 }
 
+async function findAnyActiveBackendCredential(input: {
+  ownerId: string
+  providerId: string
+}): Promise<StoredCredentialCandidate | null> {
+  const credentials = await listCredentialConfigurations({
+    owner: 'backend',
+    ownerId: input.ownerId,
+    providerId: input.providerId,
+    secretType: 'api-key',
+    status: 'active'
+  })
+  const credential = credentials
+    .slice()
+    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt) || left.label.localeCompare(right.label))[0]
+
+  if (!credential) {
+    return null
+  }
+
+  return {
+    credentialSource: 'backend-stored',
+    credentialId: credential.id
+  }
+}
+
 async function resolveCloudRequestedMode(input: {
   provider: ProviderDescriptor
   requestedMode: 'backend-cloud' | 'user-cloud'
@@ -287,6 +313,23 @@ async function resolveCloudRequestedMode(input: {
       credentialId: backendCredential.credentialId,
       resolutionSource: 'requested-mode'
     })
+  }
+
+  if (!input.backendStoredCredentialLabel?.trim()) {
+    const fallbackBackendCredential = await findAnyActiveBackendCredential({
+      ownerId: input.backendOwnerId,
+      providerId
+    })
+
+    if (fallbackBackendCredential) {
+      return createExecutableContext({
+        mode: 'backend-cloud',
+        provider: input.provider,
+        credentialSource: fallbackBackendCredential.credentialSource,
+        credentialId: fallbackBackendCredential.credentialId,
+        resolutionSource: 'requested-mode'
+      })
+    }
   }
 
   return createBlockedContext({
@@ -398,6 +441,23 @@ async function resolveCloudAutoMode(input: {
       credentialId: backendCredential.credentialId,
       resolutionSource: 'auto-backend-stored'
     })
+  }
+
+  if (!input.backendStoredCredentialLabel?.trim()) {
+    const fallbackBackendCredential = await findAnyActiveBackendCredential({
+      ownerId: input.backendOwnerId,
+      providerId
+    })
+
+    if (fallbackBackendCredential) {
+      return createExecutableContext({
+        mode: 'backend-cloud',
+        provider: input.provider,
+        credentialSource: fallbackBackendCredential.credentialSource,
+        credentialId: fallbackBackendCredential.credentialId,
+        resolutionSource: 'auto-backend-stored'
+      })
+    }
   }
 
   return createBlockedContext({

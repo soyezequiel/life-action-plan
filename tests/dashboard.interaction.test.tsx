@@ -278,8 +278,8 @@ describe('dashboard interaction', () => {
     expect(screen.getByText(t('dashboard.charge_paid_hint'))).toBeTruthy()
     expect(screen.getByText(/0,0010/)).toBeTruthy()
     expect(screen.getByText(t('dashboard.cost_operation.plan_build'))).toBeTruthy()
-    expect(screen.getByText('Origen del recurso: LAP pone el asistente en linea para esta accion.')).toBeTruthy()
-    expect(screen.getByText('Como usa recurso del sistema, esta accion se cobra.')).toBeTruthy()
+    expect(screen.getByText(`Origen del recurso: ${t('resource_usage.mode.backend-cloud')}`)).toBeTruthy()
+    expect(screen.getByText(t('resource_usage.billing.charge'))).toBeTruthy()
     expect(screen.getAllByText(t('dashboard.charge_operation_paid', { sats: '5' })).length).toBeGreaterThan(0)
   })
 
@@ -379,16 +379,15 @@ describe('dashboard interaction', () => {
 
     expect(await screen.findByText(t('dashboard.empty'))).toBeTruthy()
 
-    await user.click(screen.getByRole('button', { name: t('dashboard.build_openai') }))
-    await user.click(screen.getByRole('button', { name: t('dashboard.build_openrouter') }))
-    await user.click(screen.getByRole('button', { name: t('dashboard.build_ollama') }))
+    await user.click(screen.getByRole('button', { name: t('dashboard.build_service') }))
+    await user.click(screen.getByRole('button', { name: t('dashboard.build_own') }))
 
-    expect(pushMock).toHaveBeenCalledWith('/settings?intent=build&provider=openai')
-    expect(pushMock).toHaveBeenCalledWith('/settings?intent=build&provider=openrouter')
-    expect(client.plan.build).toHaveBeenCalledWith('profile-1', '', 'ollama:qwen3:8b')
+    expect(pushMock).toHaveBeenCalledWith('/settings?intent=build&mode=service')
+    expect(pushMock).toHaveBeenCalledWith('/settings?intent=build&mode=own')
+    expect(client.plan.build).not.toHaveBeenCalled()
   })
 
-  it('oculta el build local en un deploy cloud', async () => {
+  it('mantiene solo las dos opciones de armado tambien en un deploy cloud', async () => {
     const client = createLapClientStub()
     pushMock.mockReset()
 
@@ -403,7 +402,8 @@ describe('dashboard interaction', () => {
     )
 
     expect(await screen.findByText(t('dashboard.empty'))).toBeTruthy()
-    expect(screen.getByText(t('builder.local_unavailable_deploy'))).toBeTruthy()
+    expect(screen.getByRole('button', { name: t('dashboard.build_service') })).toBeTruthy()
+    expect(screen.getByRole('button', { name: t('dashboard.build_own') })).toBeTruthy()
     expect(screen.queryByRole('button', { name: t('dashboard.build_ollama') })).toBeNull()
   })
 })

@@ -8,6 +8,7 @@ import {
   credentialSaveRequestSchema
 } from '../../_schemas'
 import { apiErrorMessages, jsonResponse } from '../../_shared'
+import { resolveUserId } from '../../_user-settings'
 
 function toRouteErrorResponse(error: unknown): Response | null {
   const message = error instanceof Error ? error.message : 'Unknown error'
@@ -33,7 +34,12 @@ export async function GET(request: Request): Promise<Response> {
     }, { status: 400 })
   }
 
-  const credentials = await listCredentialConfigurations(parsed.data)
+  const credentials = await listCredentialConfigurations({
+    ...parsed.data,
+    ownerId: parsed.data.owner === 'user'
+      ? resolveUserId(request)
+      : parsed.data.ownerId
+  })
 
   return jsonResponse({
     success: true,
@@ -52,7 +58,12 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   try {
-    const credential = await saveCredentialConfiguration(parsed.data)
+    const credential = await saveCredentialConfiguration({
+      ...parsed.data,
+      ownerId: parsed.data.owner === 'user'
+        ? resolveUserId(request)
+        : parsed.data.ownerId
+    })
 
     return jsonResponse({
       success: true,

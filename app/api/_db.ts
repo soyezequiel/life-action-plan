@@ -1,6 +1,20 @@
 export {
   createProfile,
+  createSessionRecord,
+  createUser,
+  deleteAuthLoginGuard,
+  claimAnonymousLocalData,
+  deleteSessionRecordByTokenHash,
+  deleteSessionRecordsByUserId,
+  deleteUserAccountCascade,
+  getAuthLoginGuard,
+  getEncryptedKeyVaultByUserId,
   getProfile,
+  getLatestProfileIdForUser,
+  getSessionRecordByTokenHash,
+  getUserById,
+  getUserByLoginIdentifier,
+  getUserByUsername,
   createPlan,
   getPlan,
   getPlanBySlug,
@@ -24,5 +38,7 @@ export {
   listOperationChargesByPlan,
   updateOperationCharge,
   estimateCostSats,
-  estimateCostUsd
+  estimateCostUsd,
+  upsertEncryptedKeyVault,
+  upsertAuthLoginGuard
 } from '../../src/lib/db/db-helpers'

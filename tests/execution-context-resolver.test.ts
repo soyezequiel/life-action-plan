@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   findCredentialConfigurationMock: vi.fn(),
   ensureBackendEnvCredentialConfigurationMock: vi.fn(),
-  getCredentialConfigurationMock: vi.fn()
+  getCredentialConfigurationMock: vi.fn(),
+  listCredentialConfigurationsMock: vi.fn()
 }))
 
 vi.mock('../src/lib/auth/credential-config', async () => {
@@ -13,7 +14,8 @@ vi.mock('../src/lib/auth/credential-config', async () => {
     ...actual,
     findCredentialConfiguration: mocks.findCredentialConfigurationMock,
     ensureBackendEnvCredentialConfiguration: mocks.ensureBackendEnvCredentialConfigurationMock,
-    getCredentialConfiguration: mocks.getCredentialConfigurationMock
+    getCredentialConfiguration: mocks.getCredentialConfigurationMock,
+    listCredentialConfigurations: mocks.listCredentialConfigurationsMock
   }
 })
 
@@ -24,6 +26,7 @@ describe('execution context resolver', () => {
     mocks.findCredentialConfigurationMock.mockReset()
     mocks.ensureBackendEnvCredentialConfigurationMock.mockReset()
     mocks.getCredentialConfigurationMock.mockReset()
+    mocks.listCredentialConfigurationsMock.mockReset()
   })
 
   it('prioriza la API key provista por el usuario para cloud en modo automatico', async () => {
@@ -168,6 +171,7 @@ describe('execution context resolver', () => {
 
   it('bloquea backend-cloud explicito cuando falta credencial del backend', async () => {
     mocks.findCredentialConfigurationMock.mockResolvedValue(null)
+    mocks.listCredentialConfigurationsMock.mockResolvedValue([])
 
     const context = await resolveExecutionContext({
       modelId: 'openrouter:openai/gpt-4o-mini',
@@ -180,6 +184,46 @@ describe('execution context resolver', () => {
       canExecute: false,
       resolutionSource: 'requested-mode',
       blockReasonCode: 'backend_credential_missing'
+    }))
+  })
+
+  it('usa una credencial backend activa aunque no tenga el label default', async () => {
+    mocks.findCredentialConfigurationMock.mockResolvedValue(null)
+    mocks.listCredentialConfigurationsMock.mockResolvedValue([
+      {
+        id: 'cred-backend-lap3',
+        owner: 'backend',
+        ownerId: 'backend-system',
+        providerId: 'openrouter',
+        secretType: 'api-key',
+        label: 'lap3',
+        status: 'active',
+        lastValidatedAt: null,
+        lastValidationError: null,
+        metadata: null,
+        createdAt: '2026-03-21T00:00:00.000Z',
+        updatedAt: '2026-03-21T01:00:00.000Z'
+      }
+    ])
+
+    const context = await resolveExecutionContext({
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      requestedMode: 'backend-cloud'
+    })
+
+    expect(mocks.listCredentialConfigurationsMock).toHaveBeenCalledWith({
+      owner: 'backend',
+      ownerId: 'backend-system',
+      providerId: 'openrouter',
+      secretType: 'api-key',
+      status: 'active'
+    })
+    expect(context).toEqual(expect.objectContaining({
+      mode: 'backend-cloud',
+      credentialSource: 'backend-stored',
+      credentialId: 'cred-backend-lap3',
+      canExecute: true,
+      resolutionSource: 'requested-mode'
     }))
   })
 

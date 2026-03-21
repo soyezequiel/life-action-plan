@@ -8,8 +8,15 @@ import {
   saveWalletConnectionUrl
 } from '../../src/lib/payments/wallet-connection'
 import { normalizeWalletConnectionError } from '../../src/lib/payments/wallet-errors'
-import { DEFAULT_OPENAI_BUILD_MODEL } from '../../src/lib/providers/provider-metadata'
+import {
+  DEFAULT_OPENAI_BUILD_MODEL,
+  getDefaultBuildModelForProvider
+} from '../../src/lib/providers/provider-metadata'
 import { resolvePlanBuildExecution } from '../../src/lib/runtime/build-execution'
+import {
+  DEFAULT_BACKEND_OWNER_ID,
+  listCredentialConfigurations
+} from '../../src/lib/auth/credential-config'
 
 function toSats(valueMsats: number | null): number | undefined {
   return typeof valueMsats === 'number' ? Math.floor(valueMsats / 1000) : undefined
@@ -40,9 +47,25 @@ function toWalletStatus(
   }
 }
 
-async function getPlanBuildChargeState() {
+async function resolveBackendChargeModel(): Promise<string> {
+  const credentials = await listCredentialConfigurations({
+    owner: 'backend',
+    ownerId: DEFAULT_BACKEND_OWNER_ID,
+    secretType: 'api-key',
+    status: 'active'
+  })
+  const credential = credentials
+    .filter((record) => record.providerId === 'openai' || record.providerId === 'openrouter')
+    .slice()
+    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt) || left.label.localeCompare(right.label))[0]
+
+  return getDefaultBuildModelForProvider(credential?.providerId ?? '') ?? DEFAULT_OPENAI_BUILD_MODEL
+}
+
+async function getPlanBuildChargeState(userId?: string) {
+  const modelId = await resolveBackendChargeModel()
   const execution = await resolvePlanBuildExecution({
-    modelId: DEFAULT_OPENAI_BUILD_MODEL,
+    modelId,
     requestedMode: 'backend-cloud'
   })
 
@@ -56,7 +79,8 @@ async function getPlanBuildChargeState() {
 
   const decision = await canChargeOperation({
     operation: 'plan_build',
-    model: DEFAULT_OPENAI_BUILD_MODEL,
+    model: modelId,
+    userId,
     estimatedCostUsd: execution.billingPolicy.estimatedCostUsd,
     estimatedCostSats: execution.billingPolicy.estimatedCostSats,
     chargeable: true
@@ -69,24 +93,24 @@ async function getPlanBuildChargeState() {
   }
 }
 
-export async function getWalletStatus() {
+export async function getWalletStatus(userId?: string) {
   const canUseSecureStorage = canUseWalletSecretStorage()
   if (!canUseSecureStorage) {
     return toWalletStatus(null, {
       configured: false,
       connected: false,
       canUseSecureStorage: false,
-      ...(await getPlanBuildChargeState())
+      ...(await getPlanBuildChargeState(userId))
     })
   }
 
-  const connectionUrl = await loadWalletConnectionUrl()
+  const connectionUrl = await loadWalletConnectionUrl(userId)
   if (!connectionUrl) {
     return toWalletStatus(null, {
       configured: false,
       connected: false,
       canUseSecureStorage: true,
-      ...(await getPlanBuildChargeState())
+      ...(await getPlanBuildChargeState(userId))
     })
   }
 
@@ -98,20 +122,20 @@ export async function getWalletStatus() {
     return toWalletStatus(snapshot, {
       configured: true,
       connected: true,
-      ...(await getPlanBuildChargeState())
+      ...(await getPlanBuildChargeState(userId))
     })
   } catch {
     return toWalletStatus(null, {
       configured: true,
       connected: false,
-      ...(await getPlanBuildChargeState())
+      ...(await getPlanBuildChargeState(userId))
     })
   } finally {
     provider?.close()
   }
 }
 
-export async function connectWallet(connectionUrl: string) {
+export async function connectWallet(connectionUrl: string, userId?: string) {
   const canUseSecureStorage = canUseWalletSecretStorage()
   if (!canUseSecureStorage) {
     return {
@@ -120,7 +144,7 @@ export async function connectWallet(connectionUrl: string) {
         configured: false,
         connected: false,
         canUseSecureStorage: false,
-        ...(await getPlanBuildChargeState())
+        ...(await getPlanBuildChargeState(userId))
       }),
       error: 'SECURE_STORAGE_UNAVAILABLE'
     }
@@ -131,7 +155,7 @@ export async function connectWallet(connectionUrl: string) {
   try {
     provider = getPaymentProvider('nwc', { connectionUrl })
     const snapshot = await provider.getStatus()
-    await saveWalletConnectionUrl(connectionUrl)
+    await saveWalletConnectionUrl(connectionUrl, userId)
     await trackEvent('WALLET_CONNECTED', {
       alias: snapshot.alias,
       network: snapshot.network
@@ -142,7 +166,7 @@ export async function connectWallet(connectionUrl: string) {
       status: toWalletStatus(snapshot, {
         configured: true,
         connected: true,
-        ...(await getPlanBuildChargeState())
+        ...(await getPlanBuildChargeState(userId))
       })
     }
   } catch (error) {
@@ -155,7 +179,7 @@ export async function connectWallet(connectionUrl: string) {
       status: toWalletStatus(null, {
         configured: false,
         connected: false,
-        ...(await getPlanBuildChargeState())
+        ...(await getPlanBuildChargeState(userId))
       }),
       error: normalizedCode
     }
@@ -164,8 +188,8 @@ export async function connectWallet(connectionUrl: string) {
   }
 }
 
-export async function disconnectWallet() {
-  await clearWalletConnectionUrl()
+export async function disconnectWallet(userId?: string) {
+  await clearWalletConnectionUrl(userId)
   await trackEvent('WALLET_DISCONNECTED')
   return { success: true }
 }

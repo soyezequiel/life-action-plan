@@ -7,7 +7,7 @@ import { isSecretStorageAvailable } from '../../../../src/lib/auth/secret-storag
 import { toConfigErrorMessage } from '../../../../src/shared/config-errors'
 import { apiKeySaveRequestSchema } from '../../_schemas'
 import { apiErrorMessages, jsonResponse } from '../../_shared'
-import { DEFAULT_USER_ID, getApiKeySettingKey, type CloudApiKeyProvider } from '../../_user-settings'
+import { getApiKeySettingKey, resolveUserId, type CloudApiKeyProvider } from '../../_user-settings'
 
 function getRequestedProvider(request: Request): CloudApiKeyProvider {
   const rawProvider = new URL(request.url).searchParams.get('provider')?.trim()
@@ -16,9 +16,10 @@ function getRequestedProvider(request: Request): CloudApiKeyProvider {
 
 export async function GET(request: Request): Promise<Response> {
   const provider = getRequestedProvider(request)
+  const userId = resolveUserId(request)
   const storedCredential = await findCredentialConfiguration({
     owner: 'user',
-    ownerId: DEFAULT_USER_ID,
+    ownerId: userId,
     providerId: provider,
     secretType: 'api-key',
     label: getApiKeySettingKey(provider)
@@ -32,6 +33,7 @@ export async function GET(request: Request): Promise<Response> {
 
 export async function POST(request: Request): Promise<Response> {
   const parsed = apiKeySaveRequestSchema.safeParse(await request.json().catch(() => null))
+  const userId = resolveUserId(request)
 
   if (!parsed.success) {
     return jsonResponse({
@@ -51,7 +53,7 @@ export async function POST(request: Request): Promise<Response> {
 
   await saveCredentialConfiguration({
     owner: 'user',
-    ownerId: DEFAULT_USER_ID,
+    ownerId: userId,
     providerId: parsed.data.provider,
     secretType: 'api-key',
     label: getApiKeySettingKey(parsed.data.provider),
@@ -68,9 +70,10 @@ export async function POST(request: Request): Promise<Response> {
 
 export async function DELETE(request: Request): Promise<Response> {
   const provider = getRequestedProvider(request)
+  const userId = resolveUserId(request)
   const existing = await findCredentialConfiguration({
     owner: 'user',
-    ownerId: DEFAULT_USER_ID,
+    ownerId: userId,
     providerId: provider,
     secretType: 'api-key',
     label: getApiKeySettingKey(provider)

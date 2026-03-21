@@ -1,5 +1,6 @@
-import { and, eq } from 'drizzle-orm'
+import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm'
 import { DateTime } from 'luxon'
+import { extractEmailFromLoginIdentifier, normalizeLoginIdentifier } from '../auth/login-identifier'
 import { calculateHabitStreak } from '../../utils/streaks'
 import { decryptSecret, encryptSecret } from '../auth/secret-storage'
 import type {
@@ -23,16 +24,21 @@ import type {
 import { DEFAULT_CREDENTIAL_LABEL } from '../../shared/schemas'
 import { DEFAULT_OPENROUTER_BUILD_MODEL } from '../providers/provider-metadata'
 import { extractResourceUsageFromMetadata } from '../runtime/resource-usage-summary'
+import { DEFAULT_USER_ID } from '../auth/user-settings'
 import { getDatabase } from './connection'
 import {
   analyticsEvents,
+  authLoginGuards,
   credentialRegistry,
   costTracking,
+  encryptedKeyVaults,
   operationCharges,
   planProgress,
   plans,
   profiles,
   settings,
+  sessions,
+  users,
   userSettings
 } from './schema'
 
@@ -181,6 +187,35 @@ interface ListCredentialRecordsFilters {
   label?: string
 }
 
+interface CreateUserInput {
+  username: string
+  email?: string | null
+  passwordHash: string
+  hashAlgorithm?: string
+}
+
+interface CreateSessionRecordInput {
+  id: string
+  userId: string
+  tokenHash: string
+  expiresAt: string
+}
+
+interface UpsertAuthLoginGuardInput {
+  scope: string
+  keyHash: string
+  attempts: number
+  windowStartedAt: string
+  lastAttemptAt: string
+  blockedUntil?: string | null
+}
+
+interface UpsertEncryptedKeyVaultInput {
+  userId: string
+  encryptedBlob: string
+  salt: string
+}
+
 function serializeOperationChargeRow(row: typeof operationCharges.$inferSelect): OperationChargeRow {
   return {
     id: row.id,
@@ -241,6 +276,54 @@ function serializeCredentialRecordRow(row: typeof credentialRegistry.$inferSelec
   }
 }
 
+function serializeUserRow(row: typeof users.$inferSelect) {
+  return {
+    id: row.id,
+    username: row.username,
+    email: row.email,
+    passwordHash: row.passwordHash,
+    hashAlgorithm: row.hashAlgorithm,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    deletedAt: row.deletedAt
+  }
+}
+
+function serializeSessionRow(row: typeof sessions.$inferSelect) {
+  return {
+    id: row.id,
+    userId: row.userId,
+    tokenHash: row.tokenHash,
+    expiresAt: row.expiresAt,
+    createdAt: row.createdAt
+  }
+}
+
+function serializeAuthLoginGuardRow(row: typeof authLoginGuards.$inferSelect) {
+  return {
+    id: row.id,
+    scope: row.scope,
+    keyHash: row.keyHash,
+    attempts: row.attempts,
+    windowStartedAt: row.windowStartedAt,
+    lastAttemptAt: row.lastAttemptAt,
+    blockedUntil: row.blockedUntil,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
+  }
+}
+
+function serializeEncryptedKeyVaultRow(row: typeof encryptedKeyVaults.$inferSelect) {
+  return {
+    id: row.id,
+    userId: row.userId,
+    encryptedBlob: row.encryptedBlob,
+    salt: row.salt,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
+  }
+}
+
 function serializeOperationChargeSummary(row: typeof operationCharges.$inferSelect): OperationChargeSummary {
   return {
     chargeId: row.id,
@@ -265,12 +348,13 @@ function resolveChargeCompletionTimestamp(status: ChargeStatus, explicitResolved
   return status === 'pending' ? null : now()
 }
 
-export async function createProfile(data: string): Promise<string> {
+export async function createProfile(data: string, userId?: string | null): Promise<string> {
   const id = generateId()
   const timestamp = now()
 
   await db().insert(profiles).values({
     id,
+    userId: userId?.trim() || null,
     data: toStoredJson(data),
     createdAt: timestamp,
     updatedAt: timestamp
@@ -297,6 +381,323 @@ export async function updateProfile(id: string, data: string): Promise<void> {
   await db().update(profiles)
     .set({ data: toStoredJson(data), updatedAt: now() })
     .where(eq(profiles.id, id))
+}
+
+export async function getLatestProfileIdForUser(userId: string | null): Promise<string | null> {
+  const rows = userId
+    ? await db().select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.userId, userId))
+      .orderBy(desc(profiles.updatedAt))
+      .limit(1)
+    : await db().select({ id: profiles.id })
+      .from(profiles)
+      .where(isNull(profiles.userId))
+      .orderBy(desc(profiles.updatedAt))
+      .limit(1)
+
+  return rows[0]?.id ?? null
+}
+
+export async function createUser(input: CreateUserInput) {
+  const timestamp = now()
+  const row: typeof users.$inferInsert = {
+    id: generateId(),
+    username: normalizeLoginIdentifier(input.username),
+    email: input.email?.trim().toLowerCase() || null,
+    passwordHash: input.passwordHash,
+    hashAlgorithm: input.hashAlgorithm?.trim() || 'argon2id',
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    deletedAt: null
+  }
+
+  await db().insert(users).values(row)
+  return serializeUserRow(row as typeof users.$inferSelect)
+}
+
+export async function getUserById(id: string) {
+  const rows = await db().select().from(users).where(eq(users.id, id))
+  const row = rows[0]
+  return row ? serializeUserRow(row) : null
+}
+
+export async function getUserByUsername(username: string) {
+  const normalizedUsername = normalizeLoginIdentifier(username)
+  const rows = await db().select().from(users).where(eq(users.username, normalizedUsername))
+  const row = rows[0]
+  return row ? serializeUserRow(row) : null
+}
+
+export async function getUserByLoginIdentifier(identifier: string) {
+  const normalizedIdentifier = normalizeLoginIdentifier(identifier)
+  const normalizedEmail = extractEmailFromLoginIdentifier(normalizedIdentifier)
+  const condition = normalizedEmail
+    ? or(eq(users.username, normalizedIdentifier), eq(users.email, normalizedEmail))
+    : eq(users.username, normalizedIdentifier)
+  const rows = await db().select().from(users).where(condition)
+  const row = rows[0]
+  return row ? serializeUserRow(row) : null
+}
+
+export async function deleteUserAccountCascade(userId: string): Promise<void> {
+  await db().transaction(async (tx: any) => {
+    const profileRows = await tx.select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.userId, userId))
+    const profileIds = (profileRows as Array<{ id: string }>).map((row) => row.id)
+    const planRows = profileIds.length > 0
+      ? await tx.select({ id: plans.id })
+        .from(plans)
+        .where(inArray(plans.profileId, profileIds))
+      : []
+    const planIds = (planRows as Array<{ id: string }>).map((row) => row.id)
+
+    if (planIds.length > 0) {
+      await tx.delete(costTracking).where(inArray(costTracking.planId, planIds))
+    }
+
+    const chargeConditions = []
+
+    if (profileIds.length > 0) {
+      chargeConditions.push(inArray(operationCharges.profileId, profileIds))
+    }
+
+    if (planIds.length > 0) {
+      chargeConditions.push(inArray(operationCharges.planId, planIds))
+    }
+
+    if (chargeConditions.length === 1) {
+      await tx.delete(operationCharges).where(chargeConditions[0]!)
+    } else if (chargeConditions.length > 1) {
+      await tx.delete(operationCharges).where(or(...chargeConditions))
+    }
+
+    await tx.delete(userSettings).where(eq(userSettings.userId, userId))
+    await tx.delete(credentialRegistry).where(and(
+      eq(credentialRegistry.owner, 'user'),
+      eq(credentialRegistry.ownerId, userId)
+    ))
+
+    if (profileIds.length > 0) {
+      await tx.delete(profiles).where(inArray(profiles.id, profileIds))
+    }
+
+    await tx.delete(users).where(eq(users.id, userId))
+  })
+}
+
+export async function claimAnonymousLocalData(userId: string, localProfileId: string): Promise<boolean> {
+  let claimed = false
+  const timestamp = now()
+
+  await db().transaction(async (tx: any) => {
+    const anonymousProfileRows = await tx.select()
+      .from(profiles)
+      .where(and(eq(profiles.id, localProfileId), isNull(profiles.userId)))
+    const anonymousProfile = anonymousProfileRows[0] as typeof profiles.$inferSelect | undefined
+
+    if (!anonymousProfile) {
+      const ownedProfileRows = await tx.select()
+        .from(profiles)
+        .where(and(eq(profiles.id, localProfileId), eq(profiles.userId, userId)))
+      claimed = Boolean(ownedProfileRows[0])
+      return
+    }
+
+    claimed = true
+
+    await tx.update(profiles)
+      .set({
+        userId,
+        updatedAt: timestamp
+      })
+      .where(eq(profiles.id, localProfileId))
+
+    const localSettingsRows = await tx.select()
+      .from(userSettings)
+      .where(eq(userSettings.userId, DEFAULT_USER_ID))
+
+    for (const localSetting of localSettingsRows as Array<typeof userSettings.$inferSelect>) {
+      const existingRows = await tx.select()
+        .from(userSettings)
+        .where(and(eq(userSettings.userId, userId), eq(userSettings.key, localSetting.key)))
+      const existing = existingRows[0] as typeof userSettings.$inferSelect | undefined
+
+      if (existing) {
+        await tx.update(userSettings)
+          .set({
+            value: localSetting.value,
+            updatedAt: timestamp
+          })
+          .where(eq(userSettings.id, existing.id))
+
+        await tx.delete(userSettings).where(eq(userSettings.id, localSetting.id))
+        continue
+      }
+
+      await tx.update(userSettings)
+        .set({
+          userId,
+          updatedAt: timestamp
+        })
+        .where(eq(userSettings.id, localSetting.id))
+    }
+
+    const localCredentialRows = await tx.select()
+      .from(credentialRegistry)
+      .where(and(eq(credentialRegistry.owner, 'user'), eq(credentialRegistry.ownerId, DEFAULT_USER_ID)))
+
+    for (const localCredential of localCredentialRows as Array<typeof credentialRegistry.$inferSelect>) {
+      const existingRows = await tx.select()
+        .from(credentialRegistry)
+        .where(and(
+          eq(credentialRegistry.owner, localCredential.owner),
+          eq(credentialRegistry.ownerId, userId),
+          eq(credentialRegistry.providerId, localCredential.providerId),
+          eq(credentialRegistry.secretType, localCredential.secretType),
+          eq(credentialRegistry.label, localCredential.label)
+        ))
+      const existing = existingRows[0] as typeof credentialRegistry.$inferSelect | undefined
+
+      if (existing) {
+        await tx.update(credentialRegistry)
+          .set({
+            encryptedValue: localCredential.encryptedValue,
+            status: localCredential.status,
+            lastValidatedAt: localCredential.lastValidatedAt,
+            lastValidationError: localCredential.lastValidationError,
+            metadata: localCredential.metadata,
+            updatedAt: timestamp
+          })
+          .where(eq(credentialRegistry.id, existing.id))
+
+        await tx.delete(credentialRegistry).where(eq(credentialRegistry.id, localCredential.id))
+        continue
+      }
+
+      await tx.update(credentialRegistry)
+        .set({
+          ownerId: userId,
+          updatedAt: timestamp
+        })
+        .where(eq(credentialRegistry.id, localCredential.id))
+    }
+  })
+
+  return claimed
+}
+
+export async function createSessionRecord(input: CreateSessionRecordInput) {
+  const row: typeof sessions.$inferInsert = {
+    id: input.id,
+    userId: input.userId,
+    tokenHash: input.tokenHash,
+    expiresAt: input.expiresAt,
+    createdAt: now()
+  }
+
+  await db().insert(sessions).values(row)
+  return serializeSessionRow(row as typeof sessions.$inferSelect)
+}
+
+export async function getAuthLoginGuard(scope: string, keyHash: string) {
+  const rows = await db().select().from(authLoginGuards).where(and(
+    eq(authLoginGuards.scope, scope),
+    eq(authLoginGuards.keyHash, keyHash)
+  ))
+  const row = rows[0]
+  return row ? serializeAuthLoginGuardRow(row) : null
+}
+
+export async function upsertAuthLoginGuard(input: UpsertAuthLoginGuardInput) {
+  const existing = await getAuthLoginGuard(input.scope, input.keyHash)
+  const timestamp = now()
+
+  if (existing) {
+    await db().update(authLoginGuards)
+      .set({
+        attempts: input.attempts,
+        windowStartedAt: input.windowStartedAt,
+        lastAttemptAt: input.lastAttemptAt,
+        blockedUntil: typeof input.blockedUntil === 'undefined' ? existing.blockedUntil : input.blockedUntil,
+        updatedAt: timestamp
+      })
+      .where(eq(authLoginGuards.id, existing.id))
+
+    return (await getAuthLoginGuard(input.scope, input.keyHash))!
+  }
+
+  const row: typeof authLoginGuards.$inferInsert = {
+    id: generateId(),
+    scope: input.scope,
+    keyHash: input.keyHash,
+    attempts: input.attempts,
+    windowStartedAt: input.windowStartedAt,
+    lastAttemptAt: input.lastAttemptAt,
+    blockedUntil: input.blockedUntil ?? null,
+    createdAt: timestamp,
+    updatedAt: timestamp
+  }
+
+  await db().insert(authLoginGuards).values(row)
+  return serializeAuthLoginGuardRow(row as typeof authLoginGuards.$inferSelect)
+}
+
+export async function deleteAuthLoginGuard(scope: string, keyHash: string): Promise<void> {
+  await db().delete(authLoginGuards).where(and(
+    eq(authLoginGuards.scope, scope),
+    eq(authLoginGuards.keyHash, keyHash)
+  ))
+}
+
+export async function getSessionRecordByTokenHash(tokenHash: string) {
+  const rows = await db().select().from(sessions).where(eq(sessions.tokenHash, tokenHash))
+  const row = rows[0]
+  return row ? serializeSessionRow(row) : null
+}
+
+export async function deleteSessionRecordByTokenHash(tokenHash: string): Promise<void> {
+  await db().delete(sessions).where(eq(sessions.tokenHash, tokenHash))
+}
+
+export async function deleteSessionRecordsByUserId(userId: string): Promise<void> {
+  await db().delete(sessions).where(eq(sessions.userId, userId))
+}
+
+export async function getEncryptedKeyVaultByUserId(userId: string) {
+  const rows = await db().select().from(encryptedKeyVaults).where(eq(encryptedKeyVaults.userId, userId))
+  const row = rows[0]
+  return row ? serializeEncryptedKeyVaultRow(row) : null
+}
+
+export async function upsertEncryptedKeyVault(input: UpsertEncryptedKeyVaultInput) {
+  const timestamp = now()
+  const existing = await getEncryptedKeyVaultByUserId(input.userId)
+
+  if (existing) {
+    await db().update(encryptedKeyVaults)
+      .set({
+        encryptedBlob: input.encryptedBlob,
+        salt: input.salt,
+        updatedAt: timestamp
+      })
+      .where(eq(encryptedKeyVaults.userId, input.userId))
+
+    return (await getEncryptedKeyVaultByUserId(input.userId))!
+  }
+
+  const row: typeof encryptedKeyVaults.$inferInsert = {
+    id: generateId(),
+    userId: input.userId,
+    encryptedBlob: input.encryptedBlob,
+    salt: input.salt,
+    createdAt: timestamp,
+    updatedAt: timestamp
+  }
+
+  await db().insert(encryptedKeyVaults).values(row)
+  return serializeEncryptedKeyVaultRow(row as typeof encryptedKeyVaults.$inferSelect)
 }
 
 export async function createPlan(profileId: string, nombre: string, slug: string, manifest: string): Promise<string> {

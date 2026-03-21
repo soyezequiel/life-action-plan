@@ -11,8 +11,58 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
 
+export const users = pgTable('users', {
+  id: text('id').primaryKey(),
+  username: text('username').notNull(),
+  email: text('email'),
+  passwordHash: text('password_hash').notNull(),
+  hashAlgorithm: text('hash_algorithm').notNull().default('argon2id'),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull(),
+  deletedAt: timestamp('deleted_at', { mode: 'string', withTimezone: true })
+}, (table) => ({
+  usernameIdx: uniqueIndex('users_username_idx').on(table.username),
+  emailIdx: uniqueIndex('users_email_idx').on(table.email)
+}))
+
+export const sessions = pgTable('sessions', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  tokenHash: text('token_hash').notNull(),
+  expiresAt: timestamp('expires_at', { mode: 'string', withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull()
+}, (table) => ({
+  tokenHashIdx: uniqueIndex('sessions_token_hash_idx').on(table.tokenHash)
+}))
+
+export const authLoginGuards = pgTable('auth_login_guards', {
+  id: text('id').primaryKey(),
+  scope: text('scope').notNull(),
+  keyHash: text('key_hash').notNull(),
+  attempts: integer('attempts').notNull().default(0),
+  windowStartedAt: timestamp('window_started_at', { mode: 'string', withTimezone: true }).notNull(),
+  lastAttemptAt: timestamp('last_attempt_at', { mode: 'string', withTimezone: true }).notNull(),
+  blockedUntil: timestamp('blocked_until', { mode: 'string', withTimezone: true }),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull()
+}, (table) => ({
+  scopeKeyIdx: uniqueIndex('auth_login_guards_scope_key_idx').on(table.scope, table.keyHash)
+}))
+
+export const encryptedKeyVaults = pgTable('encrypted_key_vaults', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  encryptedBlob: text('encrypted_blob').notNull(),
+  salt: text('salt').notNull(),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull()
+}, (table) => ({
+  userIdx: uniqueIndex('encrypted_key_vaults_user_id_idx').on(table.userId)
+}))
+
 export const profiles = pgTable('profiles', {
   id: text('id').notNull().unique(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
   data: jsonb('data').notNull(),
   createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
   updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull()

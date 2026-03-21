@@ -77,6 +77,7 @@ describe('build preview route', () => {
     expect(mocks.resolvePlanBuildExecutionMock).toHaveBeenCalledWith(expect.objectContaining({
       modelId: 'openrouter:openai/gpt-4o-mini',
       deploymentMode: 'local',
+      userId: 'local-user',
       userSuppliedApiKey: 'preview-user-key'
     }))
     expect(payload).toEqual({
@@ -209,6 +210,7 @@ describe('build preview route', () => {
       modelId: 'openrouter:openai/gpt-4o-mini',
       deploymentMode: 'local',
       requestedMode: 'backend-cloud',
+      userId: 'local-user',
       userSuppliedApiKey: '',
       backendCredentialId: 'cred-backend-1'
     })

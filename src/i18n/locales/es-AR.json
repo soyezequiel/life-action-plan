@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "LAP",
+    "name": "Pulso",
     "tagline": "Tu plan de vida, paso a paso"
   },
   "intake": {
@@ -132,8 +132,13 @@
     "build_openai": "Armar con asistente en línea",
     "build_openrouter": "Armar con asistente alternativo",
     "build_ollama": "Armar con asistente local",
+    "build_service": "Usar el servicio de Pulso",
+    "build_own": "Usar mi propia conexion",
     "actions_title": "Acciones del plan",
     "actions_hint_local": "En esta maquina tambien podes usar el asistente local.",
+    "actions_hint": "Elegi si queres usar el servicio de Pulso o tu propia conexion.",
+    "account_nudge": "Crea una cuenta para entrar desde cualquier dispositivo.",
+    "account_nudge_dismiss": "Ahora no",
     "hero_overview_empty": "Hoy esta liviano. Aprovecha para revisar la semana completa y definir el siguiente paso.",
     "hero_overview_ready": "Ya tenes {{done}} listas y {{pending}} pendientes para hoy.",
     "focus_panel": {
@@ -147,7 +152,7 @@
     "welcome": {
       "today_label": "Hoy",
       "today_title": "Prioriza lo que importa ahora",
-      "today_copy": "LAP te recibe con una vista centrada en lo proximo, no en menus ni configuraciones.",
+      "today_copy": "Pulso te recibe con una vista centrada en lo proximo, no en menus ni configuraciones.",
       "calendar_label": "Semana",
       "calendar_title": "Ve el plan completo sin perder contexto",
       "calendar_copy": "Mes, semana y dia conviven con un detalle claro para entender carga, ritmo y huecos.",
@@ -389,6 +394,43 @@
       "tool": "Tool"
     }
   },
+  "auth": {
+    "login_title": "Entrar a tu cuenta",
+    "register_title": "Crear tu cuenta",
+    "username_label": "Usuario o correo",
+    "username_placeholder": "Tu usuario o correo",
+    "identifier_required": "Escribi un usuario o correo para crear la cuenta.",
+    "identifier_too_long": "Ese usuario o correo es demasiado largo. Proba uno mas corto.",
+    "email_invalid": "Ese correo no parece estar bien escrito. Revisalo y volve a intentar.",
+    "username_too_short": "El usuario tiene que tener al menos 3 caracteres.",
+    "username_too_long": "El usuario es demasiado largo. Proba uno mas corto.",
+    "username_invalid": "El usuario solo puede tener letras, numeros, punto, guion o guion bajo.",
+    "password_label": "Contraseña",
+    "password_placeholder": "Tu contraseña",
+    "password_requirements": "Para crear la cuenta, usa una clave de al menos 10 caracteres, con letras y numeros, y evita poner tu mismo usuario o correo.",
+    "login_button": "Entrar",
+    "register_button": "Crear cuenta",
+    "login_success": "Ya entraste a tu cuenta.",
+    "register_success": "Tu cuenta ya quedo lista.",
+    "account_exists": "Ya existe una cuenta con esos datos. Proba entrar o usa otro.",
+    "invalid_credentials": "No pude entrar con esos datos. Revisalos e intenta de nuevo.",
+    "too_many_attempts": "Hubo demasiados intentos. Espera un rato y volve a probar.",
+    "password_too_short": "La clave es muy corta. Usa al menos 10 caracteres.",
+    "password_too_long": "La clave es demasiado larga. Proba con una mas corta.",
+    "password_needs_letter": "La clave necesita al menos una letra.",
+    "password_needs_number": "La clave necesita al menos un numero.",
+    "password_too_similar": "La clave se parece demasiado a tu usuario o correo. Elegi otra.",
+    "password_too_simple": "La clave es demasiado facil de adivinar. Cambiala por una mas variada.",
+    "logout_button": "Salir",
+    "or_register": "Si todavia no tenes cuenta, crea una ahora.",
+    "or_login": "Si ya tenes cuenta, entra con tus datos.",
+    "delete_title": "Borrar mi cuenta",
+    "delete_hint": "Esto borra tu perfil, tus planes y tu configuracion. No se puede deshacer.",
+    "delete_confirm_label": "Escribi ELIMINAR para confirmar",
+    "delete_button": "Borrar todo",
+    "delete_success": "Tu cuenta fue eliminada.",
+    "account_info": "Sesion iniciada como {{username}}"
+  },
   "ui": {
     "thinking": "Dame un segundito...",
     "loading": "Cargando...",
@@ -398,8 +440,8 @@
     "save": "Guardar"
   },
   "settings": {
-    "apikey_title": "Conectá tu asistente",
-    "apikey_hint": "Ingresá tu clave de acceso. No la compartimos con nadie.",
+    "apikey_title": "Elegi como queres armar tu plan",
+    "apikey_hint": "Podes usar el servicio de Pulso o tu propia conexion.",
     "local_build_title": "Preparar asistente local",
     "local_build_hint": "En esta maquina podes armar el plan sin cargar una clave.",
     "build_route_hint": "Ruta elegida: {{provider}}",
@@ -441,6 +483,40 @@
       "invalid": "No válida",
       "expired": "Vencida",
       "revoked": "Revocada"
+    },
+    "llm_mode": {
+      "title": "Como queres armar tu plan",
+      "selector_hint": "Elegi entre usar el servicio de Pulso o tu propia conexion.",
+      "own_key_title": "Usar mi propia conexion",
+      "own_key_hint": "Usas tu propia conexion. Desde Pulso esta accion no se cobra.",
+      "service_title": "Usar el servicio de Pulso",
+      "service_hint": "Pulso se encarga de todo. Esta ruta puede tener cobro."
+    },
+    "own_keys": {
+      "title": "Mis conexiones",
+      "add_title": "Agregar conexion",
+      "provider_label": "Servicio",
+      "provider_openai": "OpenAI",
+      "provider_openrouter": "OpenRouter",
+      "alias_label": "Nombre para identificarla",
+      "alias_placeholder": "Ej: Mi cuenta personal",
+      "key_label": "Clave de acceso",
+      "key_placeholder": "Pega tu clave",
+      "save": "Guardar conexion",
+      "empty": "Todavia no guardaste ninguna conexion.",
+      "encryption_password_title": "Contraseña de proteccion",
+      "encryption_password_hint": "Esta contraseña protege tus claves. Guardala bien, no la podemos recuperar.",
+      "encryption_password_placeholder": "Tu contraseña de proteccion",
+      "backup_toggle": "Respaldar en mi cuenta",
+      "backup_hint": "Guardamos una copia protegida para que la recuperes desde otro dispositivo.",
+      "restore_title": "Recuperar mis conexiones",
+      "restore_hint": "Ingresa tu contraseña de proteccion para recuperar las claves.",
+      "delete": "Eliminar"
+    },
+    "service_models": {
+      "title": "Asistentes disponibles",
+      "empty": "No hay asistentes disponibles ahora.",
+      "selected": "Usando: {{name}}"
     }
   },
   "calendar": {
@@ -451,9 +527,9 @@
   "resource_usage": {
     "label": "Origen del recurso",
     "mode": {
-      "backend-cloud": "LAP pone el asistente en linea para esta accion.",
-      "user-cloud": "Vas a usar tu propia clave del asistente.",
-      "backend-local": "LAP pone la maquina que arma el plan.",
+      "backend-cloud": "Vas a usar el servicio de Pulso para esta accion.",
+      "user-cloud": "Vas a usar tu propia conexion para esta accion.",
+      "backend-local": "Pulso pone la maquina que arma el plan.",
       "user-local": "Esta ruta usaria tu propia maquina."
     },
     "source": {
@@ -463,8 +539,8 @@
       "none": "No hace falta cargar una clave para esta ruta."
     },
     "billing": {
-      "charge": "Como usa recurso del sistema, esta accion se cobra.",
-      "user_resource": "Como usa tu propio recurso, esta accion no se cobra.",
+      "charge": "Como usa el servicio de Pulso, esta accion se cobra.",
+      "user_resource": "Como usas tu propia conexion, esta accion no se cobra desde Pulso.",
       "operation_not_chargeable": "Esta accion no tiene cobro configurado por ahora.",
       "execution_blocked": "Antes de ejecutar, primero hay que destrabar esta ruta."
     },

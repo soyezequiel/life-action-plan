@@ -11,6 +11,12 @@ function toDevelopmentConfigErrorMessage(envName: string): string {
 export function toConfigErrorMessage(rawMessage: string): string | null {
   const normalized = rawMessage.toLowerCase()
 
+  if (normalized.includes('session_secret_not_set')) {
+    return isDevelopmentEnvironment()
+      ? toDevelopmentConfigErrorMessage('SESSION_SECRET')
+      : t('errors.service_unavailable')
+  }
+
   if (normalized.includes('database_url_not_set')) {
     return isDevelopmentEnvironment()
       ? toDevelopmentConfigErrorMessage('DATABASE_URL')
