@@ -8,7 +8,8 @@ const REQUIRED_TABLES = [
   'settings',
   'user_settings',
   'analytics_events',
-  'cost_tracking'
+  'cost_tracking',
+  'operation_charges'
 ]
 
 const DEFAULT_OLLAMA_BASE_URL = 'http://localhost:11434'
@@ -41,6 +42,10 @@ function needsSsl(connectionString) {
 function logStatus(ok, label, detail) {
   const prefix = ok ? 'PASS' : 'FAIL'
   console.log(`${prefix} ${label}${detail ? `: ${detail}` : ''}`)
+}
+
+function logNote(label, detail) {
+  console.log(`INFO ${label}${detail ? `: ${detail}` : ''}`)
 }
 
 async function checkDatabase(connectionString) {
@@ -91,8 +96,11 @@ async function checkOllama(baseUrl) {
 async function main() {
   const loadedFiles = loadLocalEnv()
   const skipOllama = process.argv.includes('--skip-ollama')
+  const requireCharge = process.argv.includes('--require-charge')
   const databaseUrl = process.env.DATABASE_URL?.trim() || ''
   const ollamaBaseUrl = normalizeOllamaBaseUrl(process.env.OLLAMA_BASE_URL)
+  const lightningReceiverUrl = process.env.LAP_LIGHTNING_RECEIVER_NWC_URL?.trim() || ''
+  const configuredChargeSats = process.env.LAP_PLAN_BUILD_CHARGE_SATS?.trim() || ''
   let hasFailure = false
 
   console.log('LAP local doctor')
@@ -121,6 +129,17 @@ async function main() {
       const detail = error instanceof Error ? error.message : String(error)
       logStatus(false, 'PostgreSQL', detail)
     }
+  }
+
+  if (lightningReceiverUrl) {
+    const chargeLabel = configuredChargeSats || '5 (default)'
+    logStatus(true, 'Lightning receiver', `configurado para cobros reales (${chargeLabel} sats por build online)`)
+  } else if (requireCharge) {
+    hasFailure = true
+    logStatus(false, 'Lightning receiver', 'falta LAP_LIGHTNING_RECEIVER_NWC_URL para ejecutar cobro Lightning real')
+    console.log('Siguiente paso sugerido: configurar la wallet receptora del producto en .env.local.')
+  } else {
+    logNote('Lightning receiver', 'sin LAP_LIGHTNING_RECEIVER_NWC_URL; el smoke local solo valida build gratis/local y bloqueos de cobro')
   }
 
   if (skipOllama) {

@@ -1,7 +1,17 @@
 import { z } from 'zod'
+import {
+  credentialOwnerSchema,
+  credentialRecordStatusSchema,
+  credentialSecretTypeSchema
+} from '../../src/shared/schemas'
 
 const idSchema = z.string().uuid()
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
+const cloudApiProviderSchema = z.enum(['openai', 'openrouter'])
+const credentialMetadataSchema = z.union([
+  z.record(z.string(), z.unknown()),
+  z.array(z.unknown())
+]).nullable()
 
 export const intakeRequestSchema = z.object({
   nombre: z.string().trim().min(1).max(80),
@@ -56,8 +66,43 @@ export const walletConnectRequestSchema = z.object({
 }).strict()
 
 export const apiKeySaveRequestSchema = z.object({
-  apiKey: z.string().trim().min(1)
+  apiKey: z.string().trim().min(1),
+  provider: cloudApiProviderSchema.default('openai')
 }).strict()
+
+export const credentialListQuerySchema = z.object({
+  owner: credentialOwnerSchema.optional(),
+  ownerId: z.string().trim().min(1).optional(),
+  providerId: z.string().trim().min(1).optional(),
+  secretType: credentialSecretTypeSchema.optional(),
+  status: credentialRecordStatusSchema.optional(),
+  label: z.string().trim().min(1).optional()
+}).strict()
+
+export const credentialSaveRequestSchema = z.object({
+  owner: credentialOwnerSchema,
+  ownerId: z.string().trim().min(1).optional(),
+  providerId: z.string().trim().min(1),
+  secretType: credentialSecretTypeSchema,
+  label: z.string().trim().min(1).optional(),
+  secretValue: z.string().trim().min(1),
+  status: credentialRecordStatusSchema.optional(),
+  metadata: credentialMetadataSchema.optional()
+}).strict()
+
+export const credentialUpdateRequestSchema = z.object({
+  label: z.string().trim().min(1).nullable().optional(),
+  secretValue: z.string().trim().min(1).optional(),
+  status: credentialRecordStatusSchema.optional(),
+  metadata: credentialMetadataSchema.optional()
+}).strict().refine((value) => (
+  typeof value.label !== 'undefined'
+  || typeof value.secretValue !== 'undefined'
+  || typeof value.status !== 'undefined'
+  || typeof value.metadata !== 'undefined'
+), {
+  message: 'EMPTY_CREDENTIAL_UPDATE'
+})
 
 export const debugMutationRequestSchema = z.union([
   z.object({

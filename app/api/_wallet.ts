@@ -1,8 +1,14 @@
 import type { PaymentProviderStatus } from '../../src/lib/providers/payment-provider'
-import { getPaymentProvider } from './_domain'
-import { decryptSecret, encryptSecret, isSecretStorageAvailable } from './_auth'
-import { deleteUserSetting, getUserSetting, trackEvent, upsertUserSetting } from './_db'
-import { DEFAULT_USER_ID, WALLET_SETTING_KEY } from './_user-settings'
+import { canChargeOperation, getPaymentProvider, quoteOperationCharge } from './_domain'
+import { trackEvent } from './_db'
+import {
+  canUseWalletSecretStorage,
+  clearWalletConnectionUrl,
+  loadWalletConnectionUrl,
+  saveWalletConnectionUrl
+} from '../../src/lib/payments/wallet-connection'
+import { normalizeWalletConnectionError } from '../../src/lib/payments/wallet-errors'
+import { DEFAULT_OPENAI_BUILD_MODEL } from '../../src/lib/providers/provider-metadata'
 
 function toSats(valueMsats: number | null): number | undefined {
   return typeof valueMsats === 'number' ? Math.floor(valueMsats / 1000) : undefined
@@ -10,47 +16,65 @@ function toSats(valueMsats: number | null): number | undefined {
 
 function toWalletStatus(
   snapshot: PaymentProviderStatus | null,
-  options: { configured: boolean; connected: boolean; canUseSecureStorage?: boolean }
+  options: {
+    configured: boolean
+    connected: boolean
+    canUseSecureStorage?: boolean
+    planBuildChargeSats?: number
+    planBuildChargeReady?: boolean
+    planBuildChargeReasonCode?: string | null
+  }
 ) {
   return {
     configured: options.configured,
     connected: options.connected,
-    canUseSecureStorage: options.canUseSecureStorage ?? isSecretStorageAvailable(),
+    canUseSecureStorage: options.canUseSecureStorage ?? canUseWalletSecretStorage(),
     alias: snapshot?.alias ?? undefined,
     balanceSats: toSats(snapshot?.balanceMsats ?? null),
     budgetSats: toSats(snapshot?.budgetTotalMsats ?? null),
-    budgetUsedSats: toSats(snapshot?.budgetUsedMsats ?? null)
+    budgetUsedSats: toSats(snapshot?.budgetUsedMsats ?? null),
+    planBuildChargeSats: options.planBuildChargeSats,
+    planBuildChargeReady: options.planBuildChargeReady,
+    planBuildChargeReasonCode: options.planBuildChargeReasonCode
   }
 }
 
-async function loadWalletConnectionUrl(): Promise<string | null> {
-  const encrypted = await getUserSetting(DEFAULT_USER_ID, WALLET_SETTING_KEY)
-  if (!encrypted) {
-    return null
+async function getPlanBuildChargeState() {
+  const quote = quoteOperationCharge({
+    operation: 'plan_build',
+    model: DEFAULT_OPENAI_BUILD_MODEL
+  })
+
+  if (!quote.chargeable) {
+    return {
+      planBuildChargeSats: quote.estimatedCostSats,
+      planBuildChargeReady: false,
+      planBuildChargeReasonCode: quote.reasonCode
+    }
   }
 
-  try {
-    return decryptSecret(encrypted)
-  } catch {
-    return null
+  const decision = await canChargeOperation({
+    operation: 'plan_build',
+    model: DEFAULT_OPENAI_BUILD_MODEL,
+    estimatedCostUsd: quote.estimatedCostUsd,
+    estimatedCostSats: quote.estimatedCostSats
+  })
+
+  return {
+    planBuildChargeSats: quote.estimatedCostSats,
+    planBuildChargeReady: decision.decision === 'chargeable',
+    planBuildChargeReasonCode: decision.decision === 'chargeable' ? null : decision.reasonCode
   }
-}
-
-async function saveWalletConnectionUrl(connectionUrl: string): Promise<void> {
-  await upsertUserSetting(DEFAULT_USER_ID, WALLET_SETTING_KEY, encryptSecret(connectionUrl))
-}
-
-async function clearWalletConnectionUrl(): Promise<void> {
-  await deleteUserSetting(DEFAULT_USER_ID, WALLET_SETTING_KEY)
 }
 
 export async function getWalletStatus() {
-  const canUseSecureStorage = isSecretStorageAvailable()
+  const canUseSecureStorage = canUseWalletSecretStorage()
   if (!canUseSecureStorage) {
     return toWalletStatus(null, {
       configured: false,
       connected: false,
-      canUseSecureStorage: false
+      canUseSecureStorage: false,
+      ...(await getPlanBuildChargeState())
     })
   }
 
@@ -59,7 +83,8 @@ export async function getWalletStatus() {
     return toWalletStatus(null, {
       configured: false,
       connected: false,
-      canUseSecureStorage: true
+      canUseSecureStorage: true,
+      ...(await getPlanBuildChargeState())
     })
   }
 
@@ -70,12 +95,14 @@ export async function getWalletStatus() {
     const snapshot = await provider.getStatus()
     return toWalletStatus(snapshot, {
       configured: true,
-      connected: true
+      connected: true,
+      ...(await getPlanBuildChargeState())
     })
   } catch {
     return toWalletStatus(null, {
       configured: true,
-      connected: false
+      connected: false,
+      ...(await getPlanBuildChargeState())
     })
   } finally {
     provider?.close()
@@ -83,14 +110,15 @@ export async function getWalletStatus() {
 }
 
 export async function connectWallet(connectionUrl: string) {
-  const canUseSecureStorage = isSecretStorageAvailable()
+  const canUseSecureStorage = canUseWalletSecretStorage()
   if (!canUseSecureStorage) {
     return {
       success: false,
       status: toWalletStatus(null, {
         configured: false,
         connected: false,
-        canUseSecureStorage: false
+        canUseSecureStorage: false,
+        ...(await getPlanBuildChargeState())
       }),
       error: 'SECURE_STORAGE_UNAVAILABLE'
     }
@@ -111,20 +139,23 @@ export async function connectWallet(connectionUrl: string) {
       success: true,
       status: toWalletStatus(snapshot, {
         configured: true,
-        connected: true
+        connected: true,
+        ...(await getPlanBuildChargeState())
       })
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    await trackEvent('ERROR_OCCURRED', { code: 'WALLET_CONNECT_FAILED', message })
+    const normalizedCode = normalizeWalletConnectionError(error)
+    await trackEvent('ERROR_OCCURRED', { code: 'WALLET_CONNECT_FAILED', message, normalizedCode })
 
     return {
       success: false,
       status: toWalletStatus(null, {
         configured: false,
-        connected: false
+        connected: false,
+        ...(await getPlanBuildChargeState())
       }),
-      error: message
+      error: normalizedCode
     }
   } finally {
     provider?.close()

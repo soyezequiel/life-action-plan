@@ -1,6 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { generateText, streamText } from 'ai'
 import type { AgentRuntime, LLMMessage, LLMResponse, ToolCall } from '../runtime/types'
+import { DEFAULT_OPENROUTER_BUILD_MODEL, getModelProviderName } from './provider-metadata'
 
 interface ProviderConfig {
   apiKey: string
@@ -46,10 +47,10 @@ const OLLAMA_TIMEOUTS: ProviderTimeouts = {
 const OLLAMA_MAX_OUTPUT_TOKENS = 16384
 const OPENAI_REASONING_SUMMARY_MODE = 'auto'
 const MODEL_TIMEOUT_MESSAGE = 'El asistente tardo demasiado en responder. Intentalo de nuevo.'
+const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
 
 export function getProviderTimeouts(modelId: string): ProviderTimeouts {
-  const colonIdx = modelId.indexOf(':')
-  const providerName = colonIdx >= 0 ? modelId.slice(0, colonIdx) : 'openai'
+  const providerName = getModelProviderName(modelId)
 
   return providerName === 'ollama' ? OLLAMA_TIMEOUTS : OPENAI_TIMEOUTS
 }
@@ -64,11 +65,31 @@ export function getProvider(modelId: string, config: ProviderConfig): AgentRunti
     return createOpenAIRuntime(modelName || 'gpt-4o-mini', config, OPENAI_TIMEOUTS)
   }
 
+  if (providerName === 'openrouter') {
+    return createOpenRouterRuntime(modelName || DEFAULT_OPENROUTER_BUILD_MODEL.slice('openrouter:'.length), config, OPENAI_TIMEOUTS)
+  }
+
   if (providerName === 'ollama') {
     return createOllamaRuntime(modelName || 'qwen3:8b', config, OLLAMA_TIMEOUTS)
   }
 
   throw new Error(`Unknown provider: ${providerName}`)
+}
+
+function getOpenRouterHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'X-OpenRouter-Title': 'LAP'
+  }
+  const referer = process.env.APP_URL?.trim()
+    || process.env.NEXT_PUBLIC_APP_URL?.trim()
+    || (process.env.VERCEL_URL?.trim() ? `https://${process.env.VERCEL_URL.trim()}` : '')
+    || 'http://localhost:3000'
+
+  if (referer) {
+    headers['HTTP-Referer'] = referer
+  }
+
+  return headers
 }
 
 async function runWithTimeout<T>(
@@ -109,10 +130,18 @@ async function runWithTimeout<T>(
   }
 }
 
-function createOpenAIRuntime(model: string, config: ProviderConfig, timeouts: ProviderTimeouts, maxOutputTokens = 4096): AgentRuntime {
+function createOpenAIRuntime(
+  model: string,
+  config: ProviderConfig,
+  timeouts: ProviderTimeouts,
+  maxOutputTokens = 4096,
+  options?: { providerName?: string; headers?: Record<string, string> }
+): AgentRuntime {
   const openai = createOpenAI({
     apiKey: config.apiKey,
-    baseURL: config.baseURL
+    baseURL: config.baseURL,
+    headers: options?.headers,
+    name: options?.providerName
   })
 
   const llmModel = openai.responses(model)
@@ -255,9 +284,19 @@ function createOpenAIRuntime(model: string, config: ProviderConfig, timeouts: Pr
       )
     },
     newContext(): AgentRuntime {
-      return createOpenAIRuntime(model, config, timeouts, maxOutputTokens)
+      return createOpenAIRuntime(model, config, timeouts, maxOutputTokens, options)
     }
   }
+}
+
+function createOpenRouterRuntime(model: string, config: ProviderConfig, timeouts: ProviderTimeouts): AgentRuntime {
+  return createOpenAIRuntime(model, {
+    ...config,
+    baseURL: config.baseURL?.trim() || OPENROUTER_BASE_URL
+  }, timeouts, 4096, {
+    providerName: 'openrouter',
+    headers: getOpenRouterHeaders()
+  })
 }
 
 function shouldRequestOpenAIReasoningSummary(model: string): boolean {

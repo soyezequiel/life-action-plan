@@ -50,6 +50,10 @@ function isCloudDatabaseUrl(value) {
 }
 
 function getConfiguredCloudProvider() {
+  if (process.env.OPENROUTER_API_KEY?.trim()) {
+    return 'OpenRouter'
+  }
+
   if (process.env.OPENAI_API_KEY?.trim()) {
     return 'OpenAI'
   }
@@ -82,7 +86,7 @@ async function main() {
 
   if (!cloudProvider) {
     hasFailure = true
-    logStatus(false, 'LLM cloud', 'falta OPENAI_API_KEY para preview o produccion')
+    logStatus(false, 'LLM cloud', 'falta OPENAI_API_KEY u OPENROUTER_API_KEY para preview o produccion')
   } else {
     logStatus(true, 'LLM cloud', `${cloudProvider} configurado`)
   }

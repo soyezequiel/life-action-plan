@@ -36,6 +36,7 @@ describe('getProvider', () => {
   afterEach(() => {
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
+    delete process.env.APP_URL
   })
 
   it('crea un runtime OpenAI con modelo default', () => {
@@ -45,6 +46,13 @@ describe('getProvider', () => {
     expect(runtime.stream).toBeTypeOf('function')
     expect(runtime.streamChat).toBeTypeOf('function')
     expect(runtime.newContext).toBeTypeOf('function')
+  })
+
+  it('crea un runtime OpenRouter con compatibilidad OpenAI', () => {
+    const runtime = getProvider('openrouter:openai/gpt-4o-mini', { apiKey: 'or-key' })
+    expect(runtime).toBeDefined()
+    expect(runtime.chat).toBeTypeOf('function')
+    expect(runtime.stream).toBeTypeOf('function')
   })
 
   it('crea un runtime Ollama apuntando a localhost', () => {
@@ -86,6 +94,13 @@ describe('getProvider', () => {
 
   it('mantiene timeouts cortos para OpenAI', () => {
     expect(getProviderTimeouts('openai:gpt-4o-mini')).toEqual({
+      chatMs: 20_000,
+      streamMs: 20_000
+    })
+  })
+
+  it('mantiene timeouts cortos para OpenRouter', () => {
+    expect(getProviderTimeouts('openrouter:openai/gpt-4o-mini')).toEqual({
       chatMs: 20_000,
       streamMs: 20_000
     })
@@ -263,6 +278,60 @@ describe('getProvider', () => {
     ])
     expect(result.content).toBe('<think>reviso primero la estructura</think>{"nombre":"Plan"}')
     expect(result.usage).toEqual({ promptTokens: 13, completionTokens: 29 })
+  })
+
+  it('chat de OpenRouter usa el endpoint compatible y manda headers esperados', async () => {
+    process.env.APP_URL = 'https://lap.local'
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      expect(String(input)).toBe('https://openrouter.ai/api/v1/responses')
+      const headers = new Headers(init?.headers)
+
+      expect(headers.get('HTTP-Referer')).toBe('https://lap.local')
+      expect(headers.get('X-OpenRouter-Title')).toBe('LAP')
+
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
+      expect(body.model).toBe('openai/gpt-4o-mini')
+
+      return createJsonResponse({
+        id: 'resp_or_123',
+        created_at: 1_742_400_000,
+        model: 'openai/gpt-4o-mini',
+        output: [
+          {
+            type: 'message',
+            role: 'assistant',
+            id: 'msg_1',
+            phase: 'final_answer',
+            content: [
+              {
+                type: 'output_text',
+                text: '{"provider":"openrouter"}',
+                annotations: []
+              }
+            ]
+          }
+        ],
+        usage: {
+          input_tokens: 11,
+          output_tokens: 17
+        }
+      })
+    })
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('openrouter:openai/gpt-4o-mini', {
+      apiKey: 'or-key'
+    })
+
+    const result = await runtime.chat([
+      { role: 'system', content: 'solo json' },
+      { role: 'user', content: 'hola' }
+    ])
+
+    expect(result.content).toBe('{"provider":"openrouter"}')
+    expect(result.usage).toEqual({ promptTokens: 11, completionTokens: 17 })
   })
 
   it('usa la API nativa de Ollama para chat y preserva thinking + tool calls', async () => {

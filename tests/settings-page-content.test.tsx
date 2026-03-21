@@ -2,13 +2,16 @@
 
 import React from 'react'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import SettingsPageContent from '../components/SettingsPageContent'
 import { AppServicesProvider } from '../src/lib/client/app-services'
 import { t } from '../src/i18n'
 import type { LapAPI } from '../src/shared/types/lap-api'
+import type { WalletConnectResult } from '../src/shared/types/lap-api'
 
 const pushMock = vi.fn()
+const fetchMock = vi.fn()
 let searchParamsMock = new URLSearchParams()
 
 vi.mock('next/navigation', () => ({
@@ -67,8 +70,20 @@ function createLapClientStub(): LapAPI {
       status: vi.fn(async () => ({
         configured: false,
         connected: false,
-        canUseSecureStorage: true
-      }))
+        canUseSecureStorage: true,
+        planBuildChargeSats: 5,
+        planBuildChargeReady: false,
+        planBuildChargeReasonCode: 'wallet_not_connected'
+      })),
+      connect: vi.fn(async () => ({
+        success: true,
+        status: {
+          configured: true,
+          connected: true,
+          canUseSecureStorage: true
+        }
+      })),
+      disconnect: vi.fn(async () => ({ success: true }))
     }
   } as unknown as LapAPI
 }
@@ -77,12 +92,14 @@ describe('settings page content', () => {
   beforeEach(() => {
     pushMock.mockReset()
     searchParamsMock = new URLSearchParams('intent=build&provider=ollama')
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ configured: false }), {
+    fetchMock.mockReset()
+    fetchMock.mockImplementation(async () => new Response(JSON.stringify({ configured: false }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json'
       }
-    })))
+    }))
+    vi.stubGlobal('fetch', fetchMock)
   })
 
   it('oculta el campo de API key para build local', async () => {
@@ -107,5 +124,54 @@ describe('settings page content', () => {
 
     expect(await screen.findByText(t('builder.local_unavailable_deploy'))).toBeTruthy()
     expect(screen.getByPlaceholderText(t('settings.apikey_placeholder'))).toBeTruthy()
+    expect(screen.getByText(t('settings.build_charge_hint', { sats: '5' }))).toBeTruthy()
+    expect(screen.getAllByText(t('dashboard.wallet_build_blocked.wallet_not_connected')).length).toBeGreaterThan(0)
+  })
+
+  it('muestra OpenRouter como ruta elegida para build cloud', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    expect(await screen.findByText(t('settings.apikey_title'))).toBeTruthy()
+    expect(fetchMock).toHaveBeenCalledWith('/api/settings/api-key?provider=openrouter')
+    expect(screen.getByText(t('settings.build_route_hint', {
+      provider: t('builder.provider_openrouter')
+    }))).toBeTruthy()
+    expect(screen.getByPlaceholderText(t('settings.apikey_placeholder'))).toBeTruthy()
+  })
+
+  it('muestra un error claro cuando la wallet no responde como NWC compatible', async () => {
+    const client = createLapClientStub()
+    const user = userEvent.setup()
+
+    client.wallet.connect = vi.fn(async (): Promise<WalletConnectResult> => ({
+      success: false,
+      status: {
+        configured: false,
+        connected: false,
+        canUseSecureStorage: true,
+        planBuildChargeSats: 5,
+        planBuildChargeReady: false,
+        planBuildChargeReasonCode: 'wallet_not_connected'
+      },
+      error: 'WALLET_NWC_INFO_UNAVAILABLE'
+    }))
+
+    render(
+      <AppServicesProvider services={{ lapClient: client }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('settings.local_build_title'))
+    await user.type(screen.getByPlaceholderText(t('settings.wallet_placeholder')), 'nostr+walletconnect://demo')
+    await user.click(screen.getByRole('button', { name: t('settings.wallet_confirm') }))
+
+    expect(await screen.findByText(t('settings.wallet_error_nwc_incompatible'))).toBeTruthy()
   })
 })

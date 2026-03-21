@@ -9,7 +9,7 @@ import { AppServicesProvider } from '../src/lib/client/app-services'
 import { t } from '../src/i18n'
 import type { LapAPI } from '../src/shared/types/lap-api'
 import type { Perfil } from '../src/shared/schemas/perfil'
-import type { PlanRow, ProgressRow } from '../src/shared/types/lap-api'
+import type { CostSummary, PlanRow, ProgressRow } from '../src/shared/types/lap-api'
 
 const pushMock = vi.fn()
 
@@ -139,20 +139,37 @@ function createLapClientStub(): LapAPI {
       disconnect: vi.fn(async () => ({ success: true }))
     },
     cost: {
-      summary: vi.fn(async () => ({
+      summary: vi.fn(async (): Promise<CostSummary> => ({
         planId: 'plan-1',
         tokensInput: 120,
         tokensOutput: 40,
         costUsd: 0.001,
         costSats: 2,
+        chargedSats: 5,
         operations: [
           {
             operation: 'plan_build',
             count: 1,
             costUsd: 0.001,
-            costSats: 2
+            costSats: 2,
+            estimatedChargeSats: 5,
+            chargedSats: 5,
+            latestChargeStatus: 'paid',
+            latestChargeReasonCode: null
           }
-        ]
+        ],
+        latestCharge: {
+          chargeId: 'charge-1',
+          status: 'paid',
+          estimatedCostUsd: 0.005,
+          estimatedCostSats: 5,
+          finalCostUsd: 0.001,
+          finalCostSats: 2,
+          chargedSats: 5,
+          reasonCode: null,
+          reasonDetail: null,
+          paymentProvider: 'nwc'
+        }
       }))
     },
     debug: {
@@ -198,7 +215,7 @@ describe('dashboard interaction', () => {
     expect(client.streak.get).toHaveBeenCalledTimes(2)
   })
 
-  it('muestra el costo estimado por operacion cuando el plan uso el asistente en linea', async () => {
+  it('muestra el cobro real cuando el plan online ya quedo pagado', async () => {
     const client = createLapClientStub()
 
     client.plan.list = vi.fn(async () => [{
@@ -216,10 +233,11 @@ describe('dashboard interaction', () => {
       </AppServicesProvider>
     )
 
-    expect((await screen.findAllByText(t('dashboard.cost_sats_estimated', { sats: '2' })))[0]).toBeTruthy()
-    expect(screen.getByText(t('dashboard.cost_estimated_hint'))).toBeTruthy()
+    expect(await screen.findByText(t('dashboard.charge_paid', { sats: '5' }))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.charge_paid_hint'))).toBeTruthy()
+    expect(screen.getByText(/0,0010/)).toBeTruthy()
     expect(screen.getByText(t('dashboard.cost_operation.plan_build'))).toBeTruthy()
-    expect(screen.getAllByText(t('dashboard.cost_operation_estimated', { sats: '2' })).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(t('dashboard.charge_operation_paid', { sats: '5' })).length).toBeGreaterThan(0)
   })
 
   it('muestra presupuesto y estado claro de la billetera cuando ya esta conectada', async () => {
@@ -232,7 +250,10 @@ describe('dashboard interaction', () => {
       alias: 'Casa',
       balanceSats: 21000,
       budgetSats: 5000,
-      budgetUsedSats: 1200
+      budgetUsedSats: 1200,
+      planBuildChargeSats: 5,
+      planBuildChargeReady: true,
+      planBuildChargeReasonCode: null
     }))
 
     render(
@@ -246,25 +267,44 @@ describe('dashboard interaction', () => {
     expect(screen.getByText(t('dashboard.wallet_balance', { sats: '21.000' }))).toBeTruthy()
     expect(screen.getByText(t('dashboard.wallet_budget', { used: '1.200', total: '5.000' }))).toBeTruthy()
     expect(screen.getByText(t('dashboard.wallet_budget_remaining', { sats: '3.800' }))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.wallet_build_ready'))).toBeTruthy()
+    expect(screen.getByText(t('dashboard.wallet_build_ready_hint', { sats: '5' }))).toBeTruthy()
   })
 
   it('explica cuando el costo fue local y no gasto sats', async () => {
     const client = createLapClientStub()
 
-    client.cost.summary = vi.fn(async () => ({
+    client.cost.summary = vi.fn(async (): Promise<CostSummary> => ({
       planId: 'plan-1',
       tokensInput: 400,
       tokensOutput: 900,
       costUsd: 0,
       costSats: 0,
+      chargedSats: 0,
       operations: [
         {
           operation: 'plan_build',
           count: 1,
           costUsd: 0,
-          costSats: 0
+          costSats: 0,
+          estimatedChargeSats: 0,
+          chargedSats: 0,
+          latestChargeStatus: 'skipped',
+          latestChargeReasonCode: 'free_local_operation'
         }
-      ]
+      ],
+      latestCharge: {
+        chargeId: 'charge-1',
+        status: 'skipped',
+        estimatedCostUsd: 0,
+        estimatedCostSats: 0,
+        finalCostUsd: 0,
+        finalCostSats: 0,
+        chargedSats: 0,
+        reasonCode: 'free_local_operation',
+        reasonDetail: 'FREE_LOCAL_OPERATION',
+        paymentProvider: null
+      }
     }))
 
     render(
@@ -297,9 +337,11 @@ describe('dashboard interaction', () => {
     expect(await screen.findByText(t('dashboard.empty'))).toBeTruthy()
 
     await user.click(screen.getByRole('button', { name: t('dashboard.build_openai') }))
+    await user.click(screen.getByRole('button', { name: t('dashboard.build_openrouter') }))
     await user.click(screen.getByRole('button', { name: t('dashboard.build_ollama') }))
 
     expect(pushMock).toHaveBeenCalledWith('/settings?intent=build&provider=openai')
+    expect(pushMock).toHaveBeenCalledWith('/settings?intent=build&provider=openrouter')
     expect(client.plan.build).toHaveBeenCalledWith('profile-1', '', 'ollama:qwen3:8b')
   })
 

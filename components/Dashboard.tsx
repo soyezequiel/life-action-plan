@@ -9,8 +9,16 @@ import { getCurrentLocale, t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
 import { toUserFacingErrorMessage } from '../src/lib/client/error-utils'
 import type { DeploymentMode } from '../src/lib/env/deployment'
+import {
+  DEFAULT_OLLAMA_BUILD_MODEL,
+  getBuildRouteLabelKey,
+  getProviderLabelKey,
+  isCloudModel,
+  isLocalModel
+} from '../src/lib/providers/provider-metadata'
 import type {
   CostSummary,
+  OperationChargeSummary,
   PlanBuildProgress,
   PlanRow,
   PlanSimulationProgress,
@@ -36,6 +44,7 @@ interface PlanManifestMeta {
   fallbackUsed?: boolean
   ultimoModeloUsado?: string
   ultimaSimulacion?: PlanSimulationSnapshot | null
+  ultimoCobro?: OperationChargeSummary | null
 }
 
 function parseManifestMeta(manifest: string): PlanManifestMeta {
@@ -157,6 +166,135 @@ function getWalletBudgetUsage(status: WalletStatus):
   }
 }
 
+function getReasonLabel(prefix: string, reasonCode: string | null | undefined, fallbackKey: string): string {
+  const translationKey = reasonCode ? `${prefix}.${reasonCode}` : fallbackKey
+  const translated = t(translationKey)
+
+  if (translated !== translationKey) {
+    return translated
+  }
+
+  return t(fallbackKey)
+}
+
+function getWalletChargeReadiness(status: WalletStatus): {
+  label: string
+  hint: string
+  tone: 'success' | 'warning'
+} | null {
+  if (typeof status.planBuildChargeSats !== 'number' || status.planBuildChargeSats <= 0) {
+    return null
+  }
+
+  if (status.planBuildChargeReady) {
+    return {
+      label: t('dashboard.wallet_build_ready'),
+      hint: t('dashboard.wallet_build_ready_hint', {
+        sats: formatCount(status.planBuildChargeSats)
+      }),
+      tone: 'success'
+    }
+  }
+
+  return {
+    label: t('dashboard.wallet_build_not_ready'),
+    hint: getReasonLabel(
+      'dashboard.wallet_build_blocked',
+      status.planBuildChargeReasonCode,
+      'dashboard.wallet_build_blocked.other'
+    ),
+    tone: 'warning'
+  }
+}
+
+function getChargeHeadline(charge: OperationChargeSummary | null, summary: CostSummary | null): string {
+  if (!charge) {
+    return summary && summary.costSats > 0
+      ? t('dashboard.cost_sats_estimated', { sats: formatCount(summary.costSats) })
+      : t('dashboard.cost_empty')
+  }
+
+  if (charge.status === 'paid') {
+    return t('dashboard.charge_paid', { sats: formatCount(charge.chargedSats) })
+  }
+
+  if (charge.status === 'skipped' && charge.reasonCode === 'free_local_operation') {
+    return t('dashboard.cost_local_free')
+  }
+
+  if (charge.status === 'skipped') {
+    return t('dashboard.charge_skipped')
+  }
+
+  if (charge.status === 'rejected') {
+    return t('dashboard.charge_rejected')
+  }
+
+  if (charge.status === 'failed') {
+    return t('dashboard.charge_failed')
+  }
+
+  return t('dashboard.cost_empty')
+}
+
+function getChargeHint(charge: OperationChargeSummary | null, summary: CostSummary | null): string {
+  if (!charge) {
+    return summary && summary.costSats > 0
+      ? t('dashboard.cost_estimated_hint')
+      : t('dashboard.cost_empty_hint')
+  }
+
+  if (charge.status === 'paid') {
+    return t('dashboard.charge_paid_hint')
+  }
+
+  if (charge.status === 'skipped' && charge.reasonCode === 'free_local_operation') {
+    return t('dashboard.cost_local_hint')
+  }
+
+  if (charge.status === 'skipped') {
+    return t('dashboard.charge_skipped_hint')
+  }
+
+  if (charge.status === 'rejected') {
+    return t('dashboard.charge_rejected_hint')
+  }
+
+  if (charge.status === 'failed') {
+    return t('dashboard.charge_failed_hint')
+  }
+
+  return t('dashboard.cost_empty_hint')
+}
+
+function getOperationChargeValue(operation: CostSummary['operations'][number]): string {
+  if (operation.latestChargeStatus === 'paid') {
+    return t('dashboard.charge_operation_paid', {
+      sats: formatCount(operation.chargedSats ?? 0)
+    })
+  }
+
+  if (operation.latestChargeStatus === 'rejected') {
+    return t('dashboard.charge_operation_rejected')
+  }
+
+  if (operation.latestChargeStatus === 'failed') {
+    return t('dashboard.charge_operation_failed')
+  }
+
+  if (operation.latestChargeStatus === 'skipped') {
+    return operation.latestChargeReasonCode === 'free_local_operation'
+      ? t('dashboard.cost_operation_free')
+      : t('dashboard.charge_operation_skipped')
+  }
+
+  return operation.costSats > 0
+    ? t('dashboard.cost_operation_estimated', {
+        sats: formatCount(operation.costSats)
+      })
+    : t('dashboard.cost_operation_free')
+}
+
 function getCostOperationLabel(operation: string): string {
   const translationKey = `dashboard.cost_operation.${operation}`
   const translated = t(translationKey)
@@ -175,11 +313,11 @@ function getBuildRouteStatus(modelId: string | undefined, fallbackUsed: boolean 
     return 'fallback'
   }
 
-  if (modelId?.startsWith('ollama:')) {
+  if (isLocalModel(modelId)) {
     return 'local'
   }
 
-  if (modelId?.startsWith('openai:')) {
+  if (isCloudModel(modelId)) {
     return 'online'
   }
 
@@ -188,28 +326,11 @@ function getBuildRouteStatus(modelId: string | undefined, fallbackUsed: boolean 
 
 function getBuildRouteLabel(modelId: string | undefined, fallbackUsed = false): string {
   const routeStatus = getBuildRouteStatus(modelId, fallbackUsed)
-
-  if (routeStatus === 'fallback') {
-    return t('builder.route_fallback_done')
-  }
-
-  if (routeStatus === 'local') {
-    return t('builder.route_local_done')
-  }
-
-  if (routeStatus === 'online') {
-    return t('builder.route_online_done')
-  }
-
-  return ''
+  return routeStatus === 'unknown' ? '' : t(getBuildRouteLabelKey(modelId, fallbackUsed))
 }
 
 function getBuildProviderLabel(modelId: string | undefined): string {
-  if (modelId?.startsWith('ollama:')) {
-    return t('builder.provider_local')
-  }
-
-  return t('builder.provider_online')
+  return t(getProviderLabelKey(modelId))
 }
 
 interface DashboardProps {
@@ -473,13 +594,13 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
     }
   }
 
-  async function handleBuildPlan(provider: 'openai' | 'ollama'): Promise<void> {
+  async function handleBuildPlan(provider: 'openai' | 'openrouter' | 'ollama'): Promise<void> {
     if (!profileId) {
       return
     }
 
-    if (provider === 'openai') {
-      router.push('/settings?intent=build&provider=openai')
+    if (provider === 'openai' || provider === 'openrouter') {
+      router.push(`/settings?intent=build&provider=${provider}`)
       return
     }
 
@@ -488,7 +609,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
     setBuildNotice('')
     setBuildProgress({
       profileId,
-      provider: 'ollama:qwen3:8b',
+      provider: DEFAULT_OLLAMA_BUILD_MODEL,
       stage: 'preparing',
       current: 1,
       total: buildStages.length,
@@ -496,10 +617,10 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
     })
 
     try {
-      const result = await client.plan.build(profileId, '', 'ollama:qwen3:8b')
+      const result = await client.plan.build(profileId, '', DEFAULT_OLLAMA_BUILD_MODEL)
 
       if (result.success) {
-        setBuildNotice(getBuildRouteLabel('ollama:qwen3:8b', result.fallbackUsed))
+        setBuildNotice(getBuildRouteLabel(DEFAULT_OLLAMA_BUILD_MODEL, result.fallbackUsed))
         reloadData()
       } else {
         setBuildError(result.error || t('errors.generic'))
@@ -570,6 +691,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
       ? formatCount(walletStatus.balanceSats)
       : null
     const walletHint = getWalletHint(walletStatus)
+    const walletChargeReadiness = getWalletChargeReadiness(walletStatus)
 
     return (
       <div className="dashboard-wallet">
@@ -610,6 +732,23 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
         ) : walletHint ? (
           <span className="dashboard-wallet__meta">{walletHint}</span>
         ) : null}
+        {walletChargeReadiness && (
+          <>
+            <span className="dashboard-wallet__meta">
+              {walletChargeReadiness.label}
+            </span>
+            <p
+              className={[
+                'status-message',
+                walletChargeReadiness.tone === 'warning'
+                  ? 'status-message--warning'
+                  : 'status-message--success'
+              ].join(' ')}
+            >
+              {walletChargeReadiness.hint}
+            </p>
+          </>
+        )}
         {!walletStatus.canUseSecureStorage && (
           <p className="status-message status-message--warning">{t('settings.wallet_unavailable')}</p>
         )}
@@ -704,6 +843,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
 
   function renderCostCard(): JSX.Element {
     const hasTrackedOperations = Boolean(costSummary && costSummary.operations.length > 0)
+    const latestCharge = costSummary?.latestCharge ?? latestPlanMeta.ultimoCobro ?? null
     const hasEstimatedCost = Boolean(costSummary && costSummary.costSats > 0)
 
     return (
@@ -711,16 +851,8 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
         <span className="dashboard-cost__label">{t('dashboard.cost_title')}</span>
         {hasTrackedOperations && costSummary ? (
           <>
-            <strong className="dashboard-cost__value">
-              {hasEstimatedCost
-                ? t('dashboard.cost_sats_estimated', { sats: formatCount(costSummary.costSats) })
-                : t('dashboard.cost_local_free')}
-            </strong>
-            <span className="dashboard-cost__meta">
-              {hasEstimatedCost
-                ? t('dashboard.cost_estimated_hint')
-                : t('dashboard.cost_local_hint')}
-            </span>
+            <strong className="dashboard-cost__value">{getChargeHeadline(latestCharge, costSummary)}</strong>
+            <span className="dashboard-cost__meta">{getChargeHint(latestCharge, costSummary)}</span>
             {hasEstimatedCost && (
               <span className="dashboard-cost__meta">
                 {t('dashboard.cost_usd', { usd: formatUsd(costSummary.costUsd) })}
@@ -738,11 +870,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                         : label}
                     </span>
                     <span className="dashboard-cost__operation-value">
-                      {operation.costSats > 0
-                        ? t('dashboard.cost_operation_estimated', {
-                            sats: formatCount(operation.costSats)
-                          })
-                        : t('dashboard.cost_operation_free')}
+                      {getOperationChargeValue(operation)}
                     </span>
                   </li>
                 )
@@ -976,6 +1104,12 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                       >
                         {t('dashboard.build_openai')}
                       </button>
+                      <button
+                        className="app-button app-button--secondary"
+                        onClick={() => router.push('/settings?intent=build&provider=openrouter')}
+                      >
+                        {t('dashboard.build_openrouter')}
+                      </button>
                       {localAssistantAvailable && (
                         <button
                           className="app-button app-button--secondary"
@@ -1144,6 +1278,15 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                         disabled={isBuilding}
                       >
                         {t('dashboard.build_openai')}
+                      </button>
+                      <button
+                        className="app-button app-button--secondary"
+                        onClick={() => {
+                          void handleBuildPlan('openrouter')
+                        }}
+                        disabled={isBuilding}
+                      >
+                        {t('dashboard.build_openrouter')}
                       </button>
                       {localAssistantAvailable && (
                         <button

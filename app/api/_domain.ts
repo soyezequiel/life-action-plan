@@ -7,3 +7,10 @@ export { createInstrumentedRuntime } from '../../src/debug/instrumented-runtime'
 export { traceCollector } from '../../src/debug/trace-collector'
 export { generateIcsCalendar } from '../../src/utils/ics-generator'
 export { getPaymentProvider } from '../../src/lib/providers/payment-provider'
+export {
+  canChargeOperation,
+  chargeOperation,
+  quoteOperationCharge,
+  recordChargeResult,
+  summarizeOperationCharge
+} from '../../src/lib/payments/operation-charging'

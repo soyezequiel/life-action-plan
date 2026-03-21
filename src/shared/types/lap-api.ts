@@ -43,6 +43,7 @@ export interface PlanBuildResult {
   eventos?: PlanEvent[]
   tokensUsed?: { input: number; output: number }
   fallbackUsed?: boolean
+  charge?: OperationChargeSummary
   error?: string
 }
 
@@ -124,6 +125,9 @@ export interface WalletStatus {
   balanceSats?: number
   budgetSats?: number
   budgetUsedSats?: number
+  planBuildChargeSats?: number
+  planBuildChargeReady?: boolean
+  planBuildChargeReasonCode?: ChargeReasonCode | null
 }
 
 export interface WalletConnectRequest {
@@ -138,6 +142,62 @@ export interface WalletConnectResult {
 
 export interface WalletDisconnectResult {
   success: boolean
+}
+
+export type ChargeOperation = 'plan_build' | 'plan_simulate'
+
+export type ChargeStatus = 'pending' | 'paid' | 'rejected' | 'skipped' | 'failed'
+
+export type ChargeReasonCode =
+  | 'free_local_operation'
+  | 'operation_not_chargeable'
+  | 'wallet_not_connected'
+  | 'wallet_connection_unavailable'
+  | 'payment_not_allowed'
+  | 'insufficient_balance'
+  | 'insufficient_budget'
+  | 'receiver_not_configured'
+  | 'invoice_creation_failed'
+  | 'payment_failed'
+  | 'provider_unavailable'
+  | 'unknown_error'
+
+export interface OperationChargeRow {
+  id: string
+  profileId: string | null
+  planId: string | null
+  operation: ChargeOperation
+  model: string | null
+  paymentProvider: string | null
+  status: ChargeStatus
+  estimatedCostUsd: number
+  estimatedCostSats: number
+  finalCostUsd: number
+  finalCostSats: number
+  chargedSats: number
+  reasonCode: ChargeReasonCode | null
+  reasonDetail: string | null
+  lightningInvoice: string | null
+  lightningPaymentHash: string | null
+  lightningPreimage: string | null
+  providerReference: string | null
+  metadata: string | null
+  createdAt: string
+  updatedAt: string
+  resolvedAt: string | null
+}
+
+export interface OperationChargeSummary {
+  chargeId: string
+  status: ChargeStatus
+  estimatedCostUsd: number
+  estimatedCostSats: number
+  finalCostUsd: number
+  finalCostSats: number
+  chargedSats: number
+  reasonCode: ChargeReasonCode | null
+  reasonDetail: string | null
+  paymentProvider: string | null
 }
 
 export interface PlanExportCalendarRequest {
@@ -156,6 +216,10 @@ export interface CostOperationSummary {
   count: number
   costUsd: number
   costSats: number
+  estimatedChargeSats?: number
+  chargedSats?: number
+  latestChargeStatus?: ChargeStatus | null
+  latestChargeReasonCode?: ChargeReasonCode | null
 }
 
 export interface CostSummary {
@@ -164,7 +228,9 @@ export interface CostSummary {
   tokensOutput: number
   costUsd: number
   costSats: number
+  chargedSats: number
   operations: CostOperationSummary[]
+  latestCharge?: OperationChargeSummary | null
 }
 
 export interface DebugStatusResult {

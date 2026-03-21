@@ -71,6 +71,17 @@ export function toUserFacingErrorMessage(error: unknown, fallbackKey = 'errors.g
   }
 
   if (
+    normalized.includes('wallet_nwc_info_unavailable') ||
+    (normalized.includes('no info event') && normalized.includes('13194'))
+  ) {
+    return t('settings.wallet_error_nwc_incompatible')
+  }
+
+  if (normalized.includes('invalid_nwc_url')) {
+    return t('settings.wallet_error_invalid_url')
+  }
+
+  if (
     normalized.includes('timeout') ||
     normalized.includes('timed out') ||
     normalized.includes('tardo demasiado') ||

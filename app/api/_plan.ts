@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { t } from '../../src/i18n'
 import type { Perfil } from '../../src/shared/schemas/perfil'
 import { toConfigErrorMessage } from '../../src/shared/config-errors'
-import type { PlanSimulationSnapshot } from '../../src/shared/types/lap-api'
+import type { ChargeReasonCode, OperationChargeSummary, PlanSimulationSnapshot } from '../../src/shared/types/lap-api'
 import { getPlanBySlug } from './_db'
 import { safeParseJsonRecord } from './_shared'
 
@@ -54,6 +54,7 @@ export function buildPlanManifest(params: {
   tokensOutput: number
   costUsd: number
   costSats: number
+  charge?: OperationChargeSummary | null
 }): string {
   const now = DateTime.utc().toISO() ?? '2026-03-20T00:00:00.000Z'
 
@@ -84,6 +85,7 @@ export function buildPlanManifest(params: {
     ramas: {},
     archivados: {},
     ultimaSimulacion: null,
+    ultimoCobro: params.charge ?? null,
     costoAcumulado: {
       llamadasModelo: { alto: 1, medio: 0, bajo: 0 },
       tokensInput: params.tokensInput,
@@ -214,4 +216,28 @@ export function toPlanBuildErrorMessage(error: unknown): string {
   }
 
   return t('errors.generic')
+}
+
+export function toChargeErrorMessage(reasonCode: ChargeReasonCode | null): string {
+  switch (reasonCode) {
+    case 'wallet_not_connected':
+      return t('errors.charge_wallet_required')
+    case 'insufficient_balance':
+      return t('errors.charge_balance_insufficient')
+    case 'insufficient_budget':
+      return t('errors.charge_budget_insufficient')
+    case 'payment_not_allowed':
+      return t('errors.charge_permission_denied')
+    case 'receiver_not_configured':
+    case 'invoice_creation_failed':
+    case 'payment_failed':
+    case 'provider_unavailable':
+    case 'wallet_connection_unavailable':
+    case 'unknown_error':
+      return t('errors.charge_temporarily_unavailable')
+    case 'free_local_operation':
+    case 'operation_not_chargeable':
+    default:
+      return t('errors.generic')
+  }
 }

@@ -1,15 +1,32 @@
-import { encryptApiKey, isApiKeyEncryptionConfigured } from '../../../../src/lib/auth/api-key-auth'
+import {
+  findCredentialConfiguration,
+  saveCredentialConfiguration,
+  updateCredentialConfiguration
+} from '../../../../src/lib/auth/credential-config'
+import { isSecretStorageAvailable } from '../../../../src/lib/auth/secret-storage'
 import { toConfigErrorMessage } from '../../../../src/shared/config-errors'
-import { deleteUserSetting, getUserSetting, upsertUserSetting } from '../../_db'
 import { apiKeySaveRequestSchema } from '../../_schemas'
 import { apiErrorMessages, jsonResponse } from '../../_shared'
-import { API_KEY_SETTING_KEY, DEFAULT_USER_ID } from '../../_user-settings'
+import { DEFAULT_USER_ID, getApiKeySettingKey, type CloudApiKeyProvider } from '../../_user-settings'
 
-export async function GET(): Promise<Response> {
-  const storedValue = await getUserSetting(DEFAULT_USER_ID, API_KEY_SETTING_KEY)
+function getRequestedProvider(request: Request): CloudApiKeyProvider {
+  const rawProvider = new URL(request.url).searchParams.get('provider')?.trim()
+  return rawProvider === 'openrouter' ? 'openrouter' : 'openai'
+}
+
+export async function GET(request: Request): Promise<Response> {
+  const provider = getRequestedProvider(request)
+  const storedCredential = await findCredentialConfiguration({
+    owner: 'user',
+    ownerId: DEFAULT_USER_ID,
+    providerId: provider,
+    secretType: 'api-key',
+    label: getApiKeySettingKey(provider)
+  })
 
   return jsonResponse({
-    configured: Boolean(storedValue) && isApiKeyEncryptionConfigured()
+    provider,
+    configured: storedCredential?.status === 'active' && isSecretStorageAvailable()
   })
 }
 
@@ -24,7 +41,7 @@ export async function POST(request: Request): Promise<Response> {
     }, { status: 400 })
   }
 
-  if (!isApiKeyEncryptionConfigured()) {
+  if (!isSecretStorageAvailable()) {
     return jsonResponse({
       success: false,
       configured: false,
@@ -32,19 +49,42 @@ export async function POST(request: Request): Promise<Response> {
     }, { status: 503 })
   }
 
-  await upsertUserSetting(DEFAULT_USER_ID, API_KEY_SETTING_KEY, encryptApiKey(parsed.data.apiKey))
+  await saveCredentialConfiguration({
+    owner: 'user',
+    ownerId: DEFAULT_USER_ID,
+    providerId: parsed.data.provider,
+    secretType: 'api-key',
+    label: getApiKeySettingKey(parsed.data.provider),
+    secretValue: parsed.data.apiKey,
+    status: 'active'
+  })
 
   return jsonResponse({
     success: true,
+    provider: parsed.data.provider,
     configured: true
   })
 }
 
-export async function DELETE(): Promise<Response> {
-  await deleteUserSetting(DEFAULT_USER_ID, API_KEY_SETTING_KEY)
+export async function DELETE(request: Request): Promise<Response> {
+  const provider = getRequestedProvider(request)
+  const existing = await findCredentialConfiguration({
+    owner: 'user',
+    ownerId: DEFAULT_USER_ID,
+    providerId: provider,
+    secretType: 'api-key',
+    label: getApiKeySettingKey(provider)
+  })
+
+  if (existing) {
+    await updateCredentialConfiguration(existing.id, {
+      status: 'inactive'
+    })
+  }
 
   return jsonResponse({
     success: true,
+    provider,
     configured: false
   })
 }

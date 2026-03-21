@@ -1,3 +1,8 @@
-export const DEFAULT_USER_ID = 'local-user'
-export const WALLET_SETTING_KEY = 'wallet-nwc'
-export const API_KEY_SETTING_KEY = 'openai-api-key'
+export {
+  API_KEY_SETTING_KEY,
+  DEFAULT_USER_ID,
+  getApiKeySettingKey,
+  OPENROUTER_API_KEY_SETTING_KEY,
+  type CloudApiKeyProvider,
+  WALLET_SETTING_KEY
+} from '../../src/lib/auth/user-settings'

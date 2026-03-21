@@ -8,6 +8,7 @@ export {
   getPlansByProfile,
   getProgressByPlan,
   getProgressByPlanAndDate,
+  getOperationCharge,
   toggleProgress,
   seedProgressFromEvents,
   trackEvent,
@@ -18,5 +19,10 @@ export {
   deleteUserSetting,
   getHabitStreak,
   getCostSummary,
-  trackCost
+  trackCost,
+  createOperationCharge,
+  listOperationChargesByPlan,
+  updateOperationCharge,
+  estimateCostSats,
+  estimateCostUsd
 } from '../../src/lib/db/db-helpers'

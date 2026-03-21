@@ -1,4 +1,5 @@
 export const DEFAULT_OLLAMA_FALLBACK_MODEL = 'ollama:qwen3:8b'
+const CLOUD_PROVIDER_PREFIXES = ['openai:', 'openrouter:']
 
 const NON_FALLBACK_ERROR_PATTERNS = [
   /api key/i,
@@ -27,6 +28,10 @@ function shouldFallbackToOllama(error: Error): boolean {
   return !NON_FALLBACK_ERROR_PATTERNS.some((pattern) => pattern.test(error.message))
 }
 
+function isFallbackEligibleCloudModel(modelId: string): boolean {
+  return CLOUD_PROVIDER_PREFIXES.some((prefix) => modelId.startsWith(prefix))
+}
+
 export async function buildWithOllamaFallback<T>(
   modelId: string,
   buildPlan: (nextModelId: string) => Promise<T>,
@@ -44,7 +49,7 @@ export async function buildWithOllamaFallback<T>(
   } catch (error) {
     const originalError = error instanceof Error ? error : new Error('Unknown error')
 
-    if (!allowFallback || !modelId.startsWith('openai:') || !shouldFallbackToOllama(originalError)) {
+    if (!allowFallback || !isFallbackEligibleCloudModel(modelId) || !shouldFallbackToOllama(originalError)) {
       throw originalError
     }
 

@@ -35,6 +35,26 @@ describe('buildWithOllamaFallback', () => {
     expect(onFallback).toHaveBeenCalledWith(expect.objectContaining({ message: 'timeout' }))
   })
 
+  it('intenta Ollama cuando OpenRouter falla', async () => {
+    const onFallback = vi.fn()
+    const buildPlan = vi.fn(async (modelId: string) => {
+      if (modelId.startsWith('openrouter:')) {
+        throw new Error('timeout')
+      }
+
+      return { modelId }
+    })
+
+    const result = await buildWithOllamaFallback('openrouter:openai/gpt-4o-mini', buildPlan, { onFallback })
+
+    expect(result).toEqual({
+      result: { modelId: DEFAULT_OLLAMA_FALLBACK_MODEL },
+      fallbackUsed: true,
+      modelId: DEFAULT_OLLAMA_FALLBACK_MODEL
+    })
+    expect(onFallback).toHaveBeenCalledWith(expect.objectContaining({ message: 'timeout' }))
+  })
+
   it('permite desactivar el fallback para entornos cloud', async () => {
     const buildPlan = vi.fn(async () => {
       throw new Error('timeout')

@@ -3,17 +3,41 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MotionConfig, motion } from 'framer-motion'
-import { t } from '../src/i18n'
+import { getCurrentLocale, t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
 import { extractErrorMessage, toUserFacingErrorMessage } from '../src/lib/client/error-utils'
 import type { DeploymentMode } from '../src/lib/env/deployment'
-import type { PlanBuildProgress } from '../src/shared/types/lap-api'
+import {
+  DEFAULT_OPENAI_BUILD_MODEL,
+  getBuildRouteLabelKey,
+  getModelProviderName,
+  getProviderLabelKey,
+  resolveBuildModel
+} from '../src/lib/providers/provider-metadata'
+import type { PlanBuildProgress, WalletStatus } from '../src/shared/types/lap-api'
 
 const buildStages: PlanBuildProgress['stage'][] = ['preparing', 'generating', 'validating', 'saving']
 
 const settingsTransition = {
   duration: 0.24,
   ease: [0.22, 1, 0.36, 1] as const
+}
+
+function formatCount(value: number): string {
+  return new Intl.NumberFormat(getCurrentLocale()).format(value)
+}
+
+function getBuildChargeBlockedMessage(reasonCode: string | null | undefined): string {
+  const translationKey = reasonCode
+    ? `dashboard.wallet_build_blocked.${reasonCode}`
+    : 'dashboard.wallet_build_blocked.other'
+  const translated = t(translationKey)
+
+  if (translated !== translationKey) {
+    return translated
+  }
+
+  return t('dashboard.wallet_build_blocked.other')
 }
 
 interface SettingsPageContentProps {
@@ -45,26 +69,40 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const localProviderBlocked = requestedProvider === 'ollama' && deploymentMode !== 'local'
   const localBuildIntent = shouldBuild && requestedProvider === 'ollama' && !localProviderBlocked
   const requiresApiKey = requestedProvider !== 'ollama' || localProviderBlocked
-  const selectedProviderLabel = localBuildIntent ? t('builder.provider_local') : t('builder.provider_online')
+  const resolvedBuildModel = localProviderBlocked
+    ? DEFAULT_OPENAI_BUILD_MODEL
+    : resolveBuildModel(requestedProvider)
+  const selectedCloudApiProvider = getModelProviderName(resolvedBuildModel) === 'openrouter'
+    ? 'openrouter'
+    : 'openai'
+  const selectedProviderLabel = t(getProviderLabelKey(resolvedBuildModel))
 
   const [apiKey, setApiKey] = useState('')
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false)
   const [walletConnection, setWalletConnection] = useState('')
-  const [walletStatus, setWalletStatus] = useState({
+  const [walletStatus, setWalletStatus] = useState<WalletStatus>({
     configured: false,
     connected: false,
-    canUseSecureStorage: true
+    canUseSecureStorage: true,
+    planBuildChargeReady: false,
+    planBuildChargeReasonCode: 'wallet_not_connected'
   })
   const [walletBusy, setWalletBusy] = useState(false)
   const [walletNotice, setWalletNotice] = useState<'connected' | 'disconnected' | 'error' | null>(null)
+  const [walletErrorMessage, setWalletErrorMessage] = useState('')
   const [buildProgress, setBuildProgress] = useState<PlanBuildProgress | null>(null)
   const [buildError, setBuildError] = useState('')
   const [buildNotice, setBuildNotice] = useState('')
   const [buildBusy, setBuildBusy] = useState(false)
   const [buildDone, setBuildDone] = useState(false)
+  const onlineBuildRequiresCharge = shouldBuild && !localBuildIntent
+  const buildChargeBlocked = onlineBuildRequiresCharge && walletStatus.planBuildChargeReady === false
+  const buildChargeAmount = typeof walletStatus.planBuildChargeSats === 'number'
+    ? formatCount(walletStatus.planBuildChargeSats)
+    : null
 
   useEffect(() => {
-    void fetch('/api/settings/api-key')
+    void fetch(`/api/settings/api-key?provider=${selectedCloudApiProvider}`)
       .then(async (response) => {
         if (!response.ok) {
           throw new Error(extractErrorMessage(await response.text()))
@@ -80,7 +118,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     void client.wallet.status()
       .then(setWalletStatus)
       .catch(() => {})
-  }, [client])
+  }, [client, selectedCloudApiProvider])
 
   useEffect(() => {
     return client.plan.onBuildProgress((progress) => {
@@ -104,7 +142,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ apiKey: nextKey })
+            body: JSON.stringify({ apiKey: nextKey, provider: selectedCloudApiProvider })
           })
 
           if (!response.ok) {
@@ -130,13 +168,13 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
 
     try {
       if (nextKey) {
-        const response = await fetch('/api/settings/api-key', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ apiKey: nextKey })
-        })
+          const response = await fetch('/api/settings/api-key', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ apiKey: nextKey, provider: selectedCloudApiProvider })
+          })
 
         if (!response.ok) {
           throw new Error(extractErrorMessage(await response.text()))
@@ -152,22 +190,12 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
         return
       }
 
-      const provider = localProviderBlocked
-        ? 'openai:gpt-4o-mini'
-        : requestedProvider === 'ollama'
-          ? 'ollama:qwen3:8b'
-          : 'openai:gpt-4o-mini'
+      const provider = resolvedBuildModel
 
       const result = await client.plan.build(profileId, '', provider)
       if (result.success) {
         setBuildDone(true)
-        if (result.fallbackUsed) {
-          setBuildNotice(t('builder.route_fallback_done'))
-        } else if (provider.startsWith('ollama:')) {
-          setBuildNotice(t('builder.route_local_done'))
-        } else {
-          setBuildNotice(t('builder.route_online_done'))
-        }
+        setBuildNotice(t(getBuildRouteLabelKey(provider, result.fallbackUsed)))
         router.push('/')
       } else {
         setBuildError(result.error || t('errors.generic'))
@@ -186,13 +214,21 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
 
     setWalletBusy(true)
     setWalletNotice(null)
+    setWalletErrorMessage('')
 
     try {
       const result = await client.wallet.connect(walletConnection.trim())
       setWalletStatus(result.status)
-      setWalletNotice(result.success ? 'connected' : 'error')
-    } catch {
+      if (result.success) {
+        setWalletNotice('connected')
+        setWalletErrorMessage('')
+      } else {
+        setWalletNotice('error')
+        setWalletErrorMessage(toUserFacingErrorMessage(result.error, 'settings.wallet_error'))
+      }
+    } catch (error) {
       setWalletNotice('error')
+      setWalletErrorMessage(toUserFacingErrorMessage(error, 'settings.wallet_error'))
     } finally {
       setWalletBusy(false)
     }
@@ -201,6 +237,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   async function handleDisconnectWallet(): Promise<void> {
     setWalletBusy(true)
     setWalletNotice(null)
+    setWalletErrorMessage('')
 
     try {
       const result = await client.wallet.disconnect()
@@ -208,15 +245,20 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
         setWalletStatus({
           configured: false,
           connected: false,
-          canUseSecureStorage: walletStatus.canUseSecureStorage
+          canUseSecureStorage: walletStatus.canUseSecureStorage,
+          planBuildChargeSats: walletStatus.planBuildChargeSats,
+          planBuildChargeReady: false,
+          planBuildChargeReasonCode: 'wallet_not_connected'
         })
         setWalletConnection('')
         setWalletNotice('disconnected')
       } else {
         setWalletNotice('error')
+        setWalletErrorMessage(t('settings.wallet_error'))
       }
-    } catch {
+    } catch (error) {
       setWalletNotice('error')
+      setWalletErrorMessage(toUserFacingErrorMessage(error, 'settings.wallet_error'))
     } finally {
       setWalletBusy(false)
     }
@@ -258,6 +300,19 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
               <p className="status-message status-message--neutral">
                 {t('settings.build_route_hint', { provider: selectedProviderLabel })}
               </p>
+              {onlineBuildRequiresCharge && buildChargeAmount && (
+                <p className="status-message status-message--neutral">
+                  {t('settings.build_charge_hint', { sats: buildChargeAmount })}
+                </p>
+              )}
+              {onlineBuildRequiresCharge && walletStatus.planBuildChargeReady && (
+                <p className="status-message status-message--success">{t('settings.build_charge_ready')}</p>
+              )}
+              {buildChargeBlocked && (
+                <p className="status-message status-message--warning">
+                  {getBuildChargeBlockedMessage(walletStatus.planBuildChargeReasonCode)}
+                </p>
+              )}
               {localProviderBlocked && (
                 <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
               )}
@@ -280,7 +335,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                 onClick={() => {
                   void handleSaveApiKey()
                 }}
-                disabled={buildBusy || (requiresApiKey && !apiKey.trim() && !apiKeyConfigured)}
+                disabled={buildBusy || buildChargeBlocked || (requiresApiKey && !apiKey.trim() && !apiKeyConfigured)}
               >
                 {buildBusy
                   ? t('builder.generating')
@@ -308,7 +363,9 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                     {t(`builder.progress_steps.${currentStage}`)}
                   </span>
                   <span className="dashboard-simulation__hint">
-                    {t('builder.progress_provider', { provider: selectedProviderLabel })}
+                    {t('builder.progress_provider', {
+                      provider: t(getProviderLabelKey(buildProgress?.provider ?? resolvedBuildModel))
+                    })}
                   </span>
                 </div>
               </div>
@@ -379,6 +436,25 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                 ? t('settings.wallet_success')
                 : t('dashboard.wallet_not_connected')}
             </p>
+            {typeof walletStatus.balanceSats === 'number' && (
+              <p className="dashboard-wallet__meta">
+                {t('dashboard.wallet_balance', { sats: formatCount(walletStatus.balanceSats) })}
+              </p>
+            )}
+            {typeof walletStatus.budgetSats === 'number' && (
+              <p className="dashboard-wallet__meta">
+                {t('dashboard.wallet_budget_remaining', {
+                  sats: formatCount(Math.max(walletStatus.budgetSats - (walletStatus.budgetUsedSats ?? 0), 0))
+                })}
+              </p>
+            )}
+            {typeof walletStatus.planBuildChargeSats === 'number' && walletStatus.planBuildChargeSats > 0 && (
+              <p className="dashboard-wallet__meta">
+                {walletStatus.planBuildChargeReady
+                  ? t('settings.build_charge_ready')
+                  : getBuildChargeBlockedMessage(walletStatus.planBuildChargeReasonCode)}
+              </p>
+            )}
             {walletNotice && (
               <p className={[
                 'status-message',
@@ -387,7 +463,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
               >
                 {walletNotice === 'connected' && t('settings.wallet_success')}
                 {walletNotice === 'disconnected' && t('settings.wallet_disconnect_success')}
-                {walletNotice === 'error' && t('settings.wallet_error')}
+                {walletNotice === 'error' && (walletErrorMessage || t('settings.wallet_error'))}
               </p>
             )}
           </section>

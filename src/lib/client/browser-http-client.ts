@@ -20,6 +20,7 @@ import type {
 } from '../../shared/types/lap-api'
 import type { Perfil } from '../../shared/schemas/perfil'
 import { extractErrorMessage } from './error-utils'
+import { DEFAULT_OPENAI_BUILD_MODEL } from '../providers/provider-metadata'
 
 const buildProgressListeners = new Set<(progress: PlanBuildProgress) => void>()
 const simulationProgressListeners = new Set<(progress: PlanSimulationProgress) => void>()
@@ -334,7 +335,7 @@ export const browserLapClient: LapAPI = {
     async build(profileId: string, apiKey: string, provider?: string) {
       const initial: PlanBuildProgress = {
         profileId,
-        provider: provider ?? 'openai:gpt-4o-mini',
+        provider: provider ?? DEFAULT_OPENAI_BUILD_MODEL,
         stage: 'preparing',
         current: 1,
         total: 4,

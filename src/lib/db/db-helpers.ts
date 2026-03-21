@@ -1,9 +1,39 @@
 import { and, eq } from 'drizzle-orm'
 import { DateTime } from 'luxon'
 import { calculateHabitStreak } from '../../utils/streaks'
-import type { CostSummary, PlanRow, ProgressRow, StreakResult } from '../../shared/types/lap-api'
+import { decryptSecret, encryptSecret } from '../auth/secret-storage'
+import type {
+  ChargeOperation,
+  ChargeReasonCode,
+  ChargeStatus,
+  CostSummary,
+  OperationChargeSummary,
+  OperationChargeRow,
+  PlanRow,
+  ProgressRow,
+  StreakResult
+} from '../../shared/types/lap-api'
+import type {
+  CredentialLocator,
+  CredentialOwner,
+  CredentialRecordStatus,
+  CredentialSecretType,
+  StoredCredentialRecord
+} from '../../shared/types/credential-registry'
+import { DEFAULT_CREDENTIAL_LABEL } from '../../shared/schemas'
+import { DEFAULT_OPENROUTER_BUILD_MODEL } from '../providers/provider-metadata'
 import { getDatabase } from './connection'
-import { analyticsEvents, costTracking, planProgress, plans, profiles, settings, userSettings } from './schema'
+import {
+  analyticsEvents,
+  credentialRegistry,
+  costTracking,
+  operationCharges,
+  planProgress,
+  plans,
+  profiles,
+  settings,
+  userSettings
+} from './schema'
 
 const OPENAI_INPUT_USD_PER_MILLION = 0.15
 const OPENAI_OUTPUT_USD_PER_MILLION = 0.6
@@ -73,6 +103,164 @@ function serializeProgressRow(row: typeof planProgress.$inferSelect): ProgressRo
     notas: toJsonString(row.notas),
     createdAt: row.createdAt
   }
+}
+
+interface CreateOperationChargeInput {
+  profileId?: string | null
+  planId?: string | null
+  operation: ChargeOperation
+  model?: string | null
+  paymentProvider?: string | null
+  status?: ChargeStatus
+  estimatedCostUsd?: number
+  estimatedCostSats?: number
+  finalCostUsd?: number
+  finalCostSats?: number
+  chargedSats?: number
+  reasonCode?: ChargeReasonCode | null
+  reasonDetail?: string | null
+  lightningInvoice?: string | null
+  lightningPaymentHash?: string | null
+  lightningPreimage?: string | null
+  providerReference?: string | null
+  metadata?: string | Record<string, unknown> | Array<unknown> | null
+  resolvedAt?: string | null
+}
+
+interface UpdateOperationChargeInput {
+  profileId?: string | null
+  planId?: string | null
+  operation?: ChargeOperation
+  model?: string | null
+  paymentProvider?: string | null
+  status?: ChargeStatus
+  estimatedCostUsd?: number
+  estimatedCostSats?: number
+  finalCostUsd?: number
+  finalCostSats?: number
+  chargedSats?: number
+  reasonCode?: ChargeReasonCode | null
+  reasonDetail?: string | null
+  lightningInvoice?: string | null
+  lightningPaymentHash?: string | null
+  lightningPreimage?: string | null
+  providerReference?: string | null
+  metadata?: string | Record<string, unknown> | Array<unknown> | null
+  resolvedAt?: string | null
+}
+
+interface UpsertCredentialRecordInput {
+  owner: CredentialOwner
+  ownerId: string
+  providerId: string
+  secretType: CredentialSecretType
+  label?: string | null
+  secretValue: string
+  status?: CredentialRecordStatus
+  metadata?: string | Record<string, unknown> | Array<unknown> | null
+  lastValidatedAt?: string | null
+  lastValidationError?: string | null
+}
+
+interface UpdateCredentialRecordInput {
+  label?: string | null
+  secretValue?: string
+  status?: CredentialRecordStatus
+  metadata?: string | Record<string, unknown> | Array<unknown> | null
+  lastValidatedAt?: string | null
+  lastValidationError?: string | null
+}
+
+interface ListCredentialRecordsFilters {
+  owner?: CredentialOwner
+  ownerId?: string
+  providerId?: string
+  secretType?: CredentialSecretType
+  status?: CredentialRecordStatus
+  label?: string
+}
+
+function serializeOperationChargeRow(row: typeof operationCharges.$inferSelect): OperationChargeRow {
+  return {
+    id: row.id,
+    profileId: row.profileId,
+    planId: row.planId,
+    operation: row.operation as ChargeOperation,
+    model: row.model,
+    paymentProvider: row.paymentProvider,
+    status: row.status as ChargeStatus,
+    estimatedCostUsd: row.estimatedCostUsd,
+    estimatedCostSats: row.estimatedCostSats,
+    finalCostUsd: row.finalCostUsd,
+    finalCostSats: row.finalCostSats,
+    chargedSats: row.chargedSats,
+    reasonCode: row.reasonCode as ChargeReasonCode | null,
+    reasonDetail: row.reasonDetail,
+    lightningInvoice: row.lightningInvoice,
+    lightningPaymentHash: row.lightningPaymentHash,
+    lightningPreimage: row.lightningPreimage,
+    providerReference: row.providerReference,
+    metadata: toJsonString(row.metadata),
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    resolvedAt: row.resolvedAt
+  }
+}
+
+function normalizeCredentialLabel(label: string | null | undefined): string {
+  const normalized = label?.trim() || ''
+  return normalized || DEFAULT_CREDENTIAL_LABEL
+}
+
+function normalizeSecretValue(secretValue: string): string {
+  const normalized = secretValue.trim()
+
+  if (!normalized) {
+    throw new Error('EMPTY_SECRET_VALUE')
+  }
+
+  return normalized
+}
+
+function serializeCredentialRecordRow(row: typeof credentialRegistry.$inferSelect): StoredCredentialRecord {
+  return {
+    id: row.id,
+    owner: row.owner as CredentialOwner,
+    ownerId: row.ownerId,
+    providerId: row.providerId,
+    secretType: row.secretType as CredentialSecretType,
+    label: row.label,
+    encryptedValue: row.encryptedValue,
+    status: row.status as CredentialRecordStatus,
+    lastValidatedAt: row.lastValidatedAt,
+    lastValidationError: row.lastValidationError,
+    metadata: toJsonString(row.metadata),
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
+  }
+}
+
+function serializeOperationChargeSummary(row: typeof operationCharges.$inferSelect): OperationChargeSummary {
+  return {
+    chargeId: row.id,
+    status: row.status as ChargeStatus,
+    estimatedCostUsd: row.estimatedCostUsd,
+    estimatedCostSats: row.estimatedCostSats,
+    finalCostUsd: row.finalCostUsd,
+    finalCostSats: row.finalCostSats,
+    chargedSats: row.chargedSats,
+    reasonCode: row.reasonCode as ChargeReasonCode | null,
+    reasonDetail: row.reasonDetail,
+    paymentProvider: row.paymentProvider
+  }
+}
+
+function resolveChargeCompletionTimestamp(status: ChargeStatus, explicitResolvedAt?: string | null): string | null {
+  if (typeof explicitResolvedAt !== 'undefined') {
+    return explicitResolvedAt
+  }
+
+  return status === 'pending' ? null : now()
 }
 
 export async function createProfile(data: string): Promise<string> {
@@ -183,6 +371,142 @@ export async function getProgressByPlanAndDate(planId: string, fecha: string): P
   return rows.map(serializeProgressRow)
 }
 
+export async function createOperationCharge(input: CreateOperationChargeInput): Promise<OperationChargeRow> {
+  const id = generateId()
+  const timestamp = now()
+  const status = input.status ?? 'pending'
+  const resolvedAt = resolveChargeCompletionTimestamp(status, input.resolvedAt)
+
+  const row: typeof operationCharges.$inferSelect = {
+    id,
+    profileId: input.profileId ?? null,
+    planId: input.planId ?? null,
+    operation: input.operation,
+    model: input.model ?? null,
+    paymentProvider: input.paymentProvider ?? null,
+    status,
+    estimatedCostUsd: input.estimatedCostUsd ?? 0,
+    estimatedCostSats: input.estimatedCostSats ?? 0,
+    finalCostUsd: input.finalCostUsd ?? 0,
+    finalCostSats: input.finalCostSats ?? 0,
+    chargedSats: input.chargedSats ?? 0,
+    reasonCode: input.reasonCode ?? null,
+    reasonDetail: input.reasonDetail ?? null,
+    lightningInvoice: input.lightningInvoice ?? null,
+    lightningPaymentHash: input.lightningPaymentHash ?? null,
+    lightningPreimage: input.lightningPreimage ?? null,
+    providerReference: input.providerReference ?? null,
+    metadata: toStoredJson(input.metadata),
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    resolvedAt
+  }
+
+  await db().insert(operationCharges).values(row)
+  return serializeOperationChargeRow(row)
+}
+
+export async function getOperationCharge(id: string): Promise<OperationChargeRow | null> {
+  const rows = await db().select().from(operationCharges).where(eq(operationCharges.id, id))
+  const row = rows[0]
+  return row ? serializeOperationChargeRow(row) : null
+}
+
+export async function listOperationChargesByPlan(planId: string): Promise<OperationChargeRow[]> {
+  const rows = await db().select().from(operationCharges).where(eq(operationCharges.planId, planId))
+  return rows.map(serializeOperationChargeRow)
+}
+
+export async function updateOperationCharge(
+  id: string,
+  input: UpdateOperationChargeInput
+): Promise<OperationChargeRow | null> {
+  const nextValues: Partial<typeof operationCharges.$inferInsert> = {
+    updatedAt: now()
+  }
+
+  if (typeof input.profileId !== 'undefined') {
+    nextValues.profileId = input.profileId
+  }
+
+  if (typeof input.planId !== 'undefined') {
+    nextValues.planId = input.planId
+  }
+
+  if (typeof input.operation !== 'undefined') {
+    nextValues.operation = input.operation
+  }
+
+  if (typeof input.model !== 'undefined') {
+    nextValues.model = input.model
+  }
+
+  if (typeof input.paymentProvider !== 'undefined') {
+    nextValues.paymentProvider = input.paymentProvider
+  }
+
+  if (typeof input.status !== 'undefined') {
+    nextValues.status = input.status
+    nextValues.resolvedAt = resolveChargeCompletionTimestamp(input.status, input.resolvedAt)
+  } else if (typeof input.resolvedAt !== 'undefined') {
+    nextValues.resolvedAt = input.resolvedAt
+  }
+
+  if (typeof input.estimatedCostUsd !== 'undefined') {
+    nextValues.estimatedCostUsd = input.estimatedCostUsd
+  }
+
+  if (typeof input.estimatedCostSats !== 'undefined') {
+    nextValues.estimatedCostSats = input.estimatedCostSats
+  }
+
+  if (typeof input.finalCostUsd !== 'undefined') {
+    nextValues.finalCostUsd = input.finalCostUsd
+  }
+
+  if (typeof input.finalCostSats !== 'undefined') {
+    nextValues.finalCostSats = input.finalCostSats
+  }
+
+  if (typeof input.chargedSats !== 'undefined') {
+    nextValues.chargedSats = input.chargedSats
+  }
+
+  if (typeof input.reasonCode !== 'undefined') {
+    nextValues.reasonCode = input.reasonCode
+  }
+
+  if (typeof input.reasonDetail !== 'undefined') {
+    nextValues.reasonDetail = input.reasonDetail
+  }
+
+  if (typeof input.lightningInvoice !== 'undefined') {
+    nextValues.lightningInvoice = input.lightningInvoice
+  }
+
+  if (typeof input.lightningPaymentHash !== 'undefined') {
+    nextValues.lightningPaymentHash = input.lightningPaymentHash
+  }
+
+  if (typeof input.lightningPreimage !== 'undefined') {
+    nextValues.lightningPreimage = input.lightningPreimage
+  }
+
+  if (typeof input.providerReference !== 'undefined') {
+    nextValues.providerReference = input.providerReference
+  }
+
+  if (typeof input.metadata !== 'undefined') {
+    nextValues.metadata = toStoredJson(input.metadata)
+  }
+
+  await db().update(operationCharges)
+    .set(nextValues)
+    .where(eq(operationCharges.id, id))
+
+  return getOperationCharge(id)
+}
+
 export async function toggleProgress(id: string): Promise<boolean> {
   const rows = await db().select().from(planProgress).where(eq(planProgress.id, id))
   const row = rows[0]
@@ -201,7 +525,7 @@ export async function getHabitStreak(planId: string, todayISO: string): Promise<
 }
 
 export function estimateCostUsd(model: string, tokensInput: number, tokensOutput: number): number {
-  if (model.startsWith('openai:')) {
+  if (model.startsWith('openai:') || model === DEFAULT_OPENROUTER_BUILD_MODEL) {
     return Number(
       (((tokensInput * OPENAI_INPUT_USD_PER_MILLION) + (tokensOutput * OPENAI_OUTPUT_USD_PER_MILLION)) / 1_000_000)
         .toFixed(8)
@@ -221,12 +545,14 @@ export async function trackCost(
   operation: string,
   model: string,
   tokensInput: number,
-  tokensOutput: number
+  tokensOutput: number,
+  chargeId?: string | null
 ): Promise<{ costUsd: number; costSats: number }> {
   const costUsd = estimateCostUsd(model, tokensInput, tokensOutput)
   const costSats = estimateCostSats(costUsd)
 
   await db().insert(costTracking).values({
+    chargeId: chargeId ?? null,
     planId,
     operation,
     model,
@@ -241,7 +567,9 @@ export async function trackCost(
 
 export async function getCostSummary(planId: string): Promise<CostSummary> {
   const rows = await db().select().from(costTracking).where(eq(costTracking.planId, planId))
+  const chargeRows = await db().select().from(operationCharges).where(eq(operationCharges.planId, planId))
   const operationTotals = new Map<string, { count: number; costUsd: number }>()
+  const latestChargesByOperation = new Map<string, typeof operationCharges.$inferSelect>()
 
   const summary = (rows as Array<typeof costTracking.$inferSelect>).reduce(
     (acc: {
@@ -269,7 +597,22 @@ export async function getCostSummary(planId: string): Promise<CostSummary> {
     operationTotals.set(row.operation, current)
   }
 
+  for (const chargeRow of chargeRows as Array<typeof operationCharges.$inferSelect>) {
+    const current = latestChargesByOperation.get(chargeRow.operation)
+
+    if (!current || chargeRow.updatedAt > current.updatedAt) {
+      latestChargesByOperation.set(chargeRow.operation, chargeRow)
+    }
+  }
+
   const roundedUsd = Number(summary.costUsd.toFixed(8))
+  const latestChargeRow = (chargeRows as Array<typeof operationCharges.$inferSelect>)
+    .slice()
+    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0]
+  const chargedSats = (chargeRows as Array<typeof operationCharges.$inferSelect>).reduce(
+    (total, row) => total + row.chargedSats,
+    0
+  )
 
   return {
     planId,
@@ -277,18 +620,25 @@ export async function getCostSummary(planId: string): Promise<CostSummary> {
     tokensOutput: summary.tokensOutput,
     costUsd: roundedUsd,
     costSats: estimateCostSats(roundedUsd),
+    chargedSats,
     operations: Array.from(operationTotals.entries())
       .map(([operation, totals]) => {
         const operationUsd = Number(totals.costUsd.toFixed(8))
+        const latestCharge = latestChargesByOperation.get(operation)
 
         return {
           operation,
           count: totals.count,
           costUsd: operationUsd,
-          costSats: estimateCostSats(operationUsd)
+          costSats: estimateCostSats(operationUsd),
+          estimatedChargeSats: latestCharge?.estimatedCostSats ?? 0,
+          chargedSats: latestCharge?.chargedSats ?? 0,
+          latestChargeStatus: latestCharge?.status as ChargeStatus | null ?? null,
+          latestChargeReasonCode: latestCharge?.reasonCode as ChargeReasonCode | null ?? null
         }
       })
-      .sort((left, right) => right.count - left.count || left.operation.localeCompare(right.operation))
+      .sort((left, right) => right.count - left.count || left.operation.localeCompare(right.operation)),
+    latestCharge: latestChargeRow ? serializeOperationChargeSummary(latestChargeRow) : null
   }
 }
 
@@ -334,6 +684,177 @@ export async function seedProgressFromEvents(
   }
 
   return seeded
+}
+
+export async function getCredentialRecord(id: string): Promise<StoredCredentialRecord | null> {
+  const rows = await db().select().from(credentialRegistry).where(eq(credentialRegistry.id, id))
+  const row = rows[0]
+  return row ? serializeCredentialRecordRow(row) : null
+}
+
+export async function findCredentialRecord(locator: CredentialLocator): Promise<StoredCredentialRecord | null> {
+  const normalizedLabel = normalizeCredentialLabel(locator.label)
+  const rows = await db().select().from(credentialRegistry).where(and(
+    eq(credentialRegistry.owner, locator.owner),
+    eq(credentialRegistry.ownerId, locator.ownerId),
+    eq(credentialRegistry.providerId, locator.providerId),
+    eq(credentialRegistry.secretType, locator.secretType),
+    eq(credentialRegistry.label, normalizedLabel)
+  ))
+  const row = rows[0]
+  return row ? serializeCredentialRecordRow(row) : null
+}
+
+export async function listCredentialRecords(filters: ListCredentialRecordsFilters = {}): Promise<StoredCredentialRecord[]> {
+  const conditions = []
+
+  if (filters.owner) {
+    conditions.push(eq(credentialRegistry.owner, filters.owner))
+  }
+
+  if (filters.ownerId) {
+    conditions.push(eq(credentialRegistry.ownerId, filters.ownerId))
+  }
+
+  if (filters.providerId) {
+    conditions.push(eq(credentialRegistry.providerId, filters.providerId))
+  }
+
+  if (filters.secretType) {
+    conditions.push(eq(credentialRegistry.secretType, filters.secretType))
+  }
+
+  if (filters.status) {
+    conditions.push(eq(credentialRegistry.status, filters.status))
+  }
+
+  if (typeof filters.label !== 'undefined') {
+    conditions.push(eq(credentialRegistry.label, normalizeCredentialLabel(filters.label)))
+  }
+
+  const query = db().select().from(credentialRegistry)
+  const rows = conditions.length > 0
+    ? await query.where(conditions.length === 1 ? conditions[0] : and(...conditions))
+    : await query
+
+  return rows.map(serializeCredentialRecordRow)
+}
+
+export async function upsertCredentialRecord(input: UpsertCredentialRecordInput): Promise<StoredCredentialRecord> {
+  const locator: CredentialLocator = {
+    owner: input.owner,
+    ownerId: input.ownerId.trim(),
+    providerId: input.providerId.trim(),
+    secretType: input.secretType,
+    label: normalizeCredentialLabel(input.label)
+  }
+  const existing = await findCredentialRecord(locator)
+  const timestamp = now()
+  const encryptedValue = encryptSecret(normalizeSecretValue(input.secretValue))
+
+  if (existing) {
+    await db().update(credentialRegistry)
+      .set({
+        encryptedValue,
+        status: input.status ?? existing.status,
+        metadata: typeof input.metadata !== 'undefined' ? toStoredJson(input.metadata) : toStoredJson(existing.metadata),
+        lastValidatedAt: typeof input.lastValidatedAt !== 'undefined' ? input.lastValidatedAt : existing.lastValidatedAt,
+        lastValidationError: typeof input.lastValidationError !== 'undefined'
+          ? input.lastValidationError
+          : existing.lastValidationError,
+        updatedAt: timestamp
+      })
+      .where(eq(credentialRegistry.id, existing.id))
+
+    return (await getCredentialRecord(existing.id))!
+  }
+
+  const row: typeof credentialRegistry.$inferSelect = {
+    id: generateId(),
+    owner: locator.owner,
+    ownerId: locator.ownerId,
+    providerId: locator.providerId,
+    secretType: locator.secretType,
+    label: locator.label,
+    encryptedValue,
+    status: input.status ?? 'active',
+    lastValidatedAt: input.lastValidatedAt ?? null,
+    lastValidationError: input.lastValidationError ?? null,
+    metadata: toStoredJson(input.metadata),
+    createdAt: timestamp,
+    updatedAt: timestamp
+  }
+
+  await db().insert(credentialRegistry).values(row)
+  return serializeCredentialRecordRow(row)
+}
+
+export async function updateCredentialRecord(
+  id: string,
+  input: UpdateCredentialRecordInput
+): Promise<StoredCredentialRecord | null> {
+  const nextValues: Partial<typeof credentialRegistry.$inferInsert> = {
+    updatedAt: now()
+  }
+
+  if (typeof input.label !== 'undefined') {
+    nextValues.label = normalizeCredentialLabel(input.label)
+  }
+
+  if (typeof input.secretValue !== 'undefined') {
+    nextValues.encryptedValue = encryptSecret(normalizeSecretValue(input.secretValue))
+  }
+
+  if (typeof input.status !== 'undefined') {
+    nextValues.status = input.status
+  }
+
+  if (typeof input.metadata !== 'undefined') {
+    nextValues.metadata = toStoredJson(input.metadata)
+  }
+
+  if (typeof input.lastValidatedAt !== 'undefined') {
+    nextValues.lastValidatedAt = input.lastValidatedAt
+  }
+
+  if (typeof input.lastValidationError !== 'undefined') {
+    nextValues.lastValidationError = input.lastValidationError
+  }
+
+  await db().update(credentialRegistry)
+    .set(nextValues)
+    .where(eq(credentialRegistry.id, id))
+
+  return getCredentialRecord(id)
+}
+
+export async function setCredentialRecordStatus(
+  id: string,
+  status: CredentialRecordStatus
+): Promise<StoredCredentialRecord | null> {
+  return updateCredentialRecord(id, { status })
+}
+
+export async function recordCredentialValidationResult(
+  id: string,
+  status: CredentialRecordStatus,
+  validationError: string | null = null
+): Promise<StoredCredentialRecord | null> {
+  return updateCredentialRecord(id, {
+    status,
+    lastValidatedAt: now(),
+    lastValidationError: validationError
+  })
+}
+
+export async function getCredentialSecretValue(id: string): Promise<string | null> {
+  const record = await getCredentialRecord(id)
+
+  if (!record) {
+    return null
+  }
+
+  return decryptSecret(record.encryptedValue)
 }
 
 export async function getSetting(key: string): Promise<string | undefined> {
