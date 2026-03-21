@@ -176,6 +176,11 @@ function createOpenAIRuntime(
     let thinkingOpen = false
 
     for await (const chunk of result.fullStream) {
+      const streamError = getOpenAIChunkError(chunk as { type?: string; error?: unknown })
+      if (streamError) {
+        throw streamError
+      }
+
       const appended = appendOpenAIStreamChunk(
         fullText,
         thinkingOpen,
@@ -249,6 +254,11 @@ function createOpenAIRuntime(
         let thinkingOpen = false
 
         for await (const chunk of result.fullStream) {
+          const streamError = getOpenAIChunkError(chunk as { type?: string; error?: unknown })
+          if (streamError) {
+            throw streamError
+          }
+
           const appended = appendOpenAIStreamChunk(
             fullText,
             thinkingOpen,
@@ -312,6 +322,22 @@ function getOpenAIChunkText(chunk: { delta?: string; text?: string }): string {
   if (typeof chunk.delta === 'string') return chunk.delta
   if (typeof chunk.text === 'string') return chunk.text
   return ''
+}
+
+function getOpenAIChunkError(chunk: { type?: string; error?: unknown }): Error | null {
+  if (chunk.type !== 'error') {
+    return null
+  }
+
+  if (chunk.error instanceof Error) {
+    return chunk.error
+  }
+
+  if (typeof chunk.error === 'string' && chunk.error.trim()) {
+    return new Error(chunk.error.trim())
+  }
+
+  return new Error('OPENAI_STREAM_ERROR')
 }
 
 function appendOpenAIStreamChunk(
