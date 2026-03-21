@@ -1,88 +1,87 @@
 .calendarShell {
-  --calendar-surface: linear-gradient(180deg, rgba(16, 21, 36, 0.94) 0%, rgba(11, 15, 28, 0.98) 100%);
-  --calendar-border: rgba(255, 255, 255, 0.08);
-  margin-top: 1.6rem;
   display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
   gap: 1rem;
-  padding: 1.35rem;
-  border-radius: 28px;
-  border: 1px solid var(--calendar-border);
-  background: var(--calendar-surface);
-  box-shadow: 0 18px 42px rgba(8, 10, 24, 0.24);
+  padding: 1.2rem;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background:
+    linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%),
+    rgba(255, 255, 255, 0.02);
+  box-shadow: var(--shadow-soft);
 }
 
 .header {
+  grid-column: 1 / -1;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.copy {
+.copy,
+.agendaCopy {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.35rem;
 }
 
-.label {
+.label,
+.statLabel {
   color: var(--text-muted);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
 .title {
   margin: 0;
-  font-size: clamp(1.2rem, 2.5vw, 1.55rem);
-  line-height: 1.15;
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+  font-size: clamp(1.45rem, 2.8vw, 2.2rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
 }
 
-.hint {
+.hint,
+.agendaEmpty,
+.agendaTaskMeta {
   margin: 0;
-  max-width: 38rem;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(108px, 1fr));
+  grid-template-columns: repeat(3, minmax(110px, 1fr));
   gap: 0.65rem;
   min-width: min(100%, 360px);
 }
 
 .statCard {
   display: grid;
-  gap: 0.28rem;
+  gap: 0.24rem;
   min-height: 5.2rem;
   padding: 0.9rem 1rem;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03)),
-    rgba(255, 255, 255, 0.02);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.statLabel {
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.statValue {
-  font-size: clamp(1.1rem, 2vw, 1.5rem);
-  font-family: var(--font-mono);
-  line-height: 1.15;
+.statValue,
+.agendaTime {
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+  font-size: clamp(1.2rem, 2vw, 1.7rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
 .emptyState {
+  grid-column: 1 / -1;
   display: grid;
   gap: 0.45rem;
-  padding: 1.2rem;
-  border-radius: 22px;
-  border: 1px dashed rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.03);
+  padding: 1.1rem 1.2rem;
+  border-radius: 24px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
   color: var(--text-secondary);
 }
 
@@ -91,32 +90,31 @@
 }
 
 .event {
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  border-radius: 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--calendar-accent) 16%, rgba(255, 255, 255, 0.06)) 0%, rgba(12, 16, 30, 0.96) 100%) !important;
-  box-shadow: none;
-  overflow: hidden;
+    linear-gradient(180deg, color-mix(in srgb, var(--calendar-accent) 18%, rgba(12, 12, 12, 0.96)) 0%, rgba(19, 19, 19, 0.98) 100%) !important;
+  box-shadow: none !important;
 }
 
 .eventEstudio {
-  --calendar-accent: #8db6ff;
+  --calendar-accent: #88adff;
 }
 
 .eventEjercicio {
-  --calendar-accent: #68d2a0;
+  --calendar-accent: #6ed7a5;
 }
 
 .eventTrabajo {
-  --calendar-accent: #c6cedd;
+  --calendar-accent: #d2d0cd;
 }
 
 .eventHabito {
-  --calendar-accent: #c6a2ff;
+  --calendar-accent: #cb96ff;
 }
 
 .eventDescanso {
-  --calendar-accent: #f0be84;
+  --calendar-accent: #f2bf82;
 }
 
 .eventOtro {
@@ -124,7 +122,7 @@
 }
 
 .eventCompleted {
-  opacity: 0.76;
+  opacity: 0.75;
 }
 
 .eventBody {
@@ -168,23 +166,20 @@
   line-height: 1.25;
 }
 
-.eventMeta {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .daySelected {
-  background: rgba(141, 182, 255, 0.08) !important;
+  background: rgba(136, 173, 255, 0.08) !important;
 }
 
 .agenda {
   display: grid;
+  align-content: start;
   gap: 0.9rem;
   padding: 1rem;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(25, 25, 25, 0.98) 0%, rgba(19, 19, 19, 0.98) 100%),
+    rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .agendaHeader {
@@ -194,28 +189,19 @@
   gap: 1rem;
 }
 
-.agendaCopy {
-  display: grid;
-  gap: 0.3rem;
-}
-
 .agendaTitle {
   margin: 0;
-  font-size: 1.08rem;
-  line-height: 1.2;
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+  font-size: 1.6rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
   text-transform: capitalize;
 }
 
 .agendaStats {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-}
-
-.agendaEmpty {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.55;
+  gap: 0.55rem;
 }
 
 .agendaList {
@@ -228,24 +214,17 @@
 
 .agendaItem {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.85rem;
-  align-items: center;
-  padding: 0.85rem 0.9rem;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(10, 13, 24, 0.74);
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+  padding: 0.95rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .agendaTimeBlock {
   display: grid;
   gap: 0.2rem;
-  min-width: 5rem;
-}
-
-.agendaTime {
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
+  min-width: 5.25rem;
 }
 
 .agendaDuration {
@@ -255,36 +234,35 @@
 
 .agendaTaskCopy {
   display: grid;
-  gap: 0.2rem;
+  gap: 0.28rem;
   min-width: 0;
 }
 
 .agendaTaskTitle {
-  line-height: 1.35;
-}
-
-.agendaTaskMeta {
-  color: var(--text-secondary);
-  line-height: 1.4;
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+  line-height: 1.2;
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
 }
 
 .agendaStatus {
-  padding: 0.4rem 0.7rem;
+  width: fit-content;
+  padding: 0.38rem 0.68rem;
   border-radius: 999px;
-  background: rgba(141, 182, 255, 0.12);
+  background: rgba(136, 173, 255, 0.12);
   color: var(--text-soft);
   font-size: 0.78rem;
   white-space: nowrap;
 }
 
 .agendaStatusDone {
-  background: rgba(104, 210, 160, 0.14);
+  background: rgba(110, 215, 165, 0.14);
 }
 
 .footer {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .footerChip {
@@ -293,7 +271,7 @@
   gap: 0.45rem;
   padding: 0.45rem 0.72rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-soft);
   font-size: 0.88rem;
 }
@@ -302,165 +280,98 @@
   width: 0.62rem;
   height: 0.62rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, #8db6ff 0%, #bfd4ff 100%);
-  box-shadow: 0 0 0 4px rgba(141, 182, 255, 0.12);
+  background: linear-gradient(135deg, #88adff 0%, #bfd4ff 100%);
+  box-shadow: 0 0 0 4px rgba(136, 173, 255, 0.12);
 }
 
 .footerDotDone {
-  background: linear-gradient(135deg, #68d2a0 0%, #b8ffda 100%);
-  box-shadow: 0 0 0 4px rgba(104, 210, 160, 0.1);
+  background: linear-gradient(135deg, #6ed7a5 0%, #c3ffe0 100%);
+  box-shadow: 0 0 0 4px rgba(110, 215, 165, 0.1);
 }
 
 .calendarShell :global(.fc) {
-  --fc-border-color: rgba(255, 255, 255, 0.08);
+  --fc-border-color: rgba(255, 255, 255, 0.05);
   --fc-page-bg-color: transparent;
-  --fc-neutral-bg-color: rgba(255, 255, 255, 0.03);
+  --fc-neutral-bg-color: rgba(255, 255, 255, 0.015);
   --fc-list-event-hover-bg-color: rgba(255, 255, 255, 0.05);
-  --fc-now-indicator-color: #e5c48f;
+  --fc-now-indicator-color: #f2bf82;
   color: var(--text-primary);
 }
 
-.calendarShell :global(.fc .fc-toolbar.fc-header-toolbar) {
-  margin-bottom: 1rem;
-  gap: 0.8rem;
+.calendarShell :global(.fc-toolbar) {
+  margin-bottom: 1rem !important;
 }
 
-.calendarShell :global(.fc .fc-toolbar-title) {
-  font-size: clamp(1rem, 2.1vw, 1.3rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  text-transform: capitalize;
+.calendarShell :global(.fc-toolbar-title) {
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+  font-size: clamp(1.45rem, 2.6vw, 2rem) !important;
+  letter-spacing: -0.05em;
 }
 
-.calendarShell :global(.fc .fc-toolbar-chunk) {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  align-items: center;
-}
-
-.calendarShell :global(.fc .fc-button-group) {
-  gap: 0.4rem;
-}
-
-.calendarShell :global(.fc .fc-button-group > .fc-button) {
+.calendarShell :global(.fc-button) {
+  border: 0 !important;
   border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-secondary) !important;
+  box-shadow: none !important;
 }
 
-.calendarShell :global(.fc .fc-button-primary) {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-soft);
-  box-shadow: none;
+.calendarShell :global(.fc-button:hover),
+.calendarShell :global(.fc-button:focus) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary) !important;
 }
 
-.calendarShell :global(.fc .fc-button-primary:hover),
-.calendarShell :global(.fc .fc-button-primary:focus) {
-  border-color: rgba(141, 182, 255, 0.3);
-  background: rgba(141, 182, 255, 0.12);
-  color: var(--text-primary);
+.calendarShell :global(.fc-button-active) {
+  background: rgba(136, 173, 255, 0.12) !important;
+  color: var(--text-primary) !important;
 }
 
-.calendarShell :global(.fc .fc-button-primary:not(:disabled).fc-button-active) {
-  border-color: rgba(141, 182, 255, 0.34);
-  background: linear-gradient(135deg, rgba(141, 182, 255, 0.22), rgba(141, 182, 255, 0.1));
-  color: var(--text-primary);
+.calendarShell :global(.fc-scrollgrid),
+.calendarShell :global(.fc-theme-standard td),
+.calendarShell :global(.fc-theme-standard th) {
+  border-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-.calendarShell :global(.fc .fc-scrollgrid),
-.calendarShell :global(.fc .fc-theme-standard td),
-.calendarShell :global(.fc .fc-theme-standard th) {
-  border-color: rgba(255, 255, 255, 0.08);
+.calendarShell :global(.fc-col-header-cell) {
+  background: rgba(255, 255, 255, 0.015);
 }
 
-.calendarShell :global(.fc .fc-col-header-cell-cushion),
-.calendarShell :global(.fc .fc-daygrid-day-number),
-.calendarShell :global(.fc .fc-timegrid-axis-cushion),
-.calendarShell :global(.fc .fc-timegrid-slot-label-cushion) {
-  color: var(--text-soft);
+.calendarShell :global(.fc-daygrid-day-frame),
+.calendarShell :global(.fc-timegrid-slot),
+.calendarShell :global(.fc-timegrid-axis) {
+  background: transparent;
 }
 
-.calendarShell :global(.fc .fc-col-header-cell-cushion) {
-  padding-block: 0.75rem;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.calendarShell :global(.fc .fc-daygrid-day-frame),
-.calendarShell :global(.fc .fc-timegrid-col-frame) {
-  min-height: 7.25rem;
-}
-
-.calendarShell :global(.fc .fc-daygrid-day.fc-day-today),
-.calendarShell :global(.fc .fc-timegrid-col.fc-day-today) {
-  background: rgba(141, 182, 255, 0.05);
-}
-
-.calendarShell :global(.fc .fc-day-other .fc-daygrid-day-number) {
-  color: rgba(196, 202, 226, 0.4);
-}
-
-.calendarShell :global(.fc .fc-daygrid-more-link) {
+.calendarShell :global(.fc-daygrid-day-number),
+.calendarShell :global(.fc-col-header-cell-cushion),
+.calendarShell :global(.fc-timegrid-axis-cushion),
+.calendarShell :global(.fc-timegrid-slot-label-cushion) {
   color: var(--text-soft);
 }
 
-.calendarShell :global(.fc .fc-timegrid-now-indicator-arrow) {
-  border-color: transparent transparent transparent #e5c48f;
+.calendarShell :global(.fc-day-today) {
+  background: rgba(136, 173, 255, 0.035) !important;
 }
 
-.calendarShell :global(.fc .fc-timegrid-now-indicator-line) {
-  border-color: #e5c48f;
-}
-
-.calendarShell :global(.fc .fc-timegrid-slot),
-.calendarShell :global(.fc .fc-daygrid-day) {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-}
-
-@media (max-width: 960px) {
-  .header,
-  .agendaHeader {
-    flex-direction: column;
-  }
-
-  .stats {
-    width: 100%;
-    min-width: 0;
+@media (max-width: 1040px) {
+  .calendarShell {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: 720px) {
-  .calendarShell {
-    padding: 1.1rem;
-    border-radius: 24px;
-  }
-
-  .stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .agendaItem {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .calendarShell :global(.fc .fc-toolbar.fc-header-toolbar) {
+  .header,
+  .agendaHeader {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .calendarShell :global(.fc .fc-toolbar-chunk) {
-    justify-content: space-between;
+  .stats {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .calendarShell :global(.fc .fc-button-group) {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    width: 100%;
-  }
-
-  .calendarShell :global(.fc .fc-button-group > .fc-button),
-  .calendarShell :global(.fc .fc-today-button) {
-    width: 100%;
+  .agendaItem {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

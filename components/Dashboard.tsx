@@ -125,6 +125,53 @@ function formatTaskMeta(meta: TaskMeta, categoria: string): string {
   return parts.join(' · ')
 }
 
+type ShellIconName = 'home' | 'calendar' | 'spark' | 'settings' | 'bell'
+
+function ShellIcon({ name }: { name: ShellIconName }): JSX.Element {
+  switch (name) {
+    case 'calendar':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="M7 3v4" strokeLinecap="round" />
+          <path d="M17 3v4" strokeLinecap="round" />
+          <rect x="4" y="6" width="16" height="14" rx="3" />
+          <path d="M4 10h16" strokeLinecap="round" />
+        </svg>
+      )
+    case 'spark':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3Z" strokeLinejoin="round" />
+          <path d="M19 4v2" strokeLinecap="round" />
+          <path d="M20 5h-2" strokeLinecap="round" />
+        </svg>
+      )
+    case 'settings':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="M10 4h4l.7 2.3 2.3.9 2.1-1.2 2 3.5-1.6 1.7.2 2.5 2 1.5-2 3.5-2.3-.8-2.1 1-1 2.1h-4l-.9-2.1-2.2-.9-2.3.7-2-3.5 1.8-1.6-.1-2.5-1.8-1.5 2-3.5 2.2 1 2.3-.9L10 4Z" strokeLinejoin="round" />
+          <circle cx="12" cy="12" r="3.2" />
+        </svg>
+      )
+    case 'bell':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="M6 9a6 6 0 1 1 12 0v4.3l1.5 2.2a1 1 0 0 1-.8 1.5H5.3a1 1 0 0 1-.8-1.5L6 13.3V9Z" strokeLinejoin="round" />
+          <path d="M10 19a2 2 0 0 0 4 0" strokeLinecap="round" />
+        </svg>
+      )
+    default:
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H10v6H4V6.5Z" />
+          <path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5V10h-6V4Z" />
+          <path d="M4 14h6v6H6.5A2.5 2.5 0 0 1 4 17.5V14Z" />
+          <path d="M14 14h6v3.5a2.5 2.5 0 0 1-2.5 2.5H14v-6Z" />
+        </svg>
+      )
+  }
+}
+
 function compareTasksByTime(a: ProgressRow, b: ProgressRow): number {
   const metaA = parseTaskMeta(a.notas)
   const metaB = parseTaskMeta(b.notas)
@@ -415,6 +462,32 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
         done: completedTaskCount,
         pending: pendingTaskCount
       })
+  const profileInitial = (profileName.trim().charAt(0) || 'L').toUpperCase()
+  const topNavItems = [
+    { href: '#lap-top', label: t('dashboard.shell_nav.today') },
+    { href: '#lap-calendar', label: t('dashboard.shell_nav.calendar') },
+    { href: '#lap-review', label: t('dashboard.shell_nav.plan') }
+  ] as const
+  const railNavItems = [
+    {
+      href: '#lap-top',
+      label: t('dashboard.shell_nav.today'),
+      icon: 'home' as const,
+      active: true
+    },
+    {
+      href: '#lap-calendar',
+      label: t('dashboard.shell_nav.calendar'),
+      icon: 'calendar' as const,
+      active: false
+    },
+    {
+      href: '#lap-review',
+      label: t('dashboard.shell_nav.plan'),
+      icon: 'spark' as const,
+      active: false
+    }
+  ]
 
   useEffect(() => {
     let active = true
@@ -1238,7 +1311,87 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                   </section>
                 ) : (
                   <section className="dashboard-panel">
-                    <div className={styles.dashboardHero}>
+                    <div className={styles.shell}>
+                      <aside className={styles.shellRail}>
+                        <div className={styles.shellBrand}>
+                          <span className={styles.shellBrandMark}>LAP</span>
+                        </div>
+
+                        <nav className={styles.shellRailNav} aria-label={t('dashboard.title')}>
+                          {railNavItems.map((item) => (
+                            <a
+                              key={item.label}
+                              href={item.href}
+                              className={[
+                                styles.shellRailItem,
+                                item.active ? styles.shellRailItemActive : ''
+                              ].join(' ')}
+                            >
+                              <span className={styles.shellIcon}>
+                                <ShellIcon name={item.icon} />
+                              </span>
+                              <span className={styles.shellRailLabel}>{item.label}</span>
+                            </a>
+                          ))}
+                        </nav>
+
+                        <div className={styles.shellRailMeta}>
+                          <button
+                            className={styles.shellRailItem}
+                            onClick={() => {
+                              router.push('/settings')
+                            }}
+                          >
+                            <span className={styles.shellIcon}>
+                              <ShellIcon name="settings" />
+                            </span>
+                            <span className={styles.shellRailLabel}>{t('dashboard.shell_nav.system')}</span>
+                          </button>
+                        </div>
+                      </aside>
+
+                      <div className={styles.shellMain}>
+                        <header className={styles.shellTopbar}>
+                          <nav className={styles.shellTopNav} aria-label={t('dashboard.title')}>
+                            {topNavItems.map((item, index) => (
+                              <a
+                                key={item.label}
+                                href={item.href}
+                                className={[
+                                  styles.shellTopLink,
+                                  index === 0 ? styles.shellTopLinkActive : ''
+                                ].join(' ')}
+                              >
+                                {item.label}
+                              </a>
+                            ))}
+                          </nav>
+
+                          <div className={styles.shellActions}>
+                            <button
+                              className={styles.shellIconButton}
+                              aria-label={t('debug.panel_title')}
+                              onClick={() => setDebugPanelVisible((visible) => !visible)}
+                            >
+                              <span className={styles.shellIcon}>
+                                <ShellIcon name="bell" />
+                              </span>
+                            </button>
+                            <button
+                              className={styles.shellIconButton}
+                              aria-label={t('dashboard.shell_nav.system')}
+                              onClick={() => router.push('/settings')}
+                            >
+                              <span className={styles.shellIcon}>
+                                <ShellIcon name="settings" />
+                              </span>
+                            </button>
+                            <span className={styles.shellAvatar} aria-hidden="true">{profileInitial}</span>
+                          </div>
+                        </header>
+
+                        <div className={styles.shellContent}>
+                    <div id="lap-top" className={styles.dashboardHero}>
                       <div className={styles.heroCopy}>
                         <span className={styles.heroEyebrow}>{todayLabel}</span>
                         <h1 className={styles.heroTitle}>
@@ -1427,11 +1580,15 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                           )}
                         </section>
 
-                        {renderSimulationCard()}
-                        <PlanCalendar tasks={allTasks} timezone={profileTimezone} />
+                        <div id="lap-review">
+                          {renderSimulationCard()}
+                        </div>
+                        <div id="lap-calendar">
+                          <PlanCalendar tasks={allTasks} timezone={profileTimezone} />
+                        </div>
                       </div>
 
-                      <aside className={styles.sideColumn}>
+                      <aside id="lap-system" className={styles.sideColumn}>
                         {renderPlanSystemCard()}
                         {renderWalletCard()}
                         {renderCostCard()}
@@ -1501,6 +1658,36 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                           {buildError && <p className="status-message status-message--warning">{buildError}</p>}
                         </section>
                       </aside>
+                    </div>
+
+                          <nav className={styles.mobileNav} aria-label={t('dashboard.title')}>
+                            <a href="#lap-top" className={[styles.mobileNavItem, styles.mobileNavActive].join(' ')}>
+                              <span className={styles.shellIcon}>
+                                <ShellIcon name="home" />
+                              </span>
+                              <span className={styles.shellRailLabel}>{t('dashboard.shell_nav.today')}</span>
+                            </a>
+                            <a href="#lap-calendar" className={styles.mobileNavItem}>
+                              <span className={styles.shellIcon}>
+                                <ShellIcon name="calendar" />
+                              </span>
+                              <span className={styles.shellRailLabel}>{t('dashboard.shell_nav.calendar')}</span>
+                            </a>
+                            <a href="#lap-review" className={styles.mobileNavItem}>
+                              <span className={styles.shellIcon}>
+                                <ShellIcon name="spark" />
+                              </span>
+                              <span className={styles.shellRailLabel}>{t('dashboard.shell_nav.plan')}</span>
+                            </a>
+                            <button className={styles.mobileNavItem} onClick={() => router.push('/settings')}>
+                              <span className={styles.shellIcon}>
+                                <ShellIcon name="settings" />
+                              </span>
+                              <span className={styles.shellRailLabel}>{t('dashboard.shell_nav.system')}</span>
+                            </button>
+                          </nav>
+                        </div>
+                      </div>
                     </div>
                   </section>
                 )}

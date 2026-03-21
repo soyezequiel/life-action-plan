@@ -1,28 +1,29 @@
 :root {
   color-scheme: dark;
-  --bg-base: #0b0f1a;
-  --bg-surface: rgba(16, 21, 36, 0.82);
-  --bg-surface-strong: rgba(20, 25, 40, 0.92);
-  --bg-input: rgba(8, 11, 22, 0.88);
-  --text-primary: #f5f7ff;
-  --text-secondary: #c4ccdd;
-  --text-soft: #dfe6f6;
-  --text-muted: #8a93a8;
-  --border-soft: rgba(255, 255, 255, 0.07);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --shadow-soft: 0 28px 72px rgba(0, 0, 0, 0.34);
-  --shadow-card: 0 18px 40px rgba(7, 10, 24, 0.28);
-  --brand: #8db6ff;
-  --brand-strong: #6c96eb;
-  --success: #68d2a0;
-  --warning: #f0be84;
+  --bg-base: #0e0e0e;
+  --bg-surface: rgba(19, 19, 19, 0.82);
+  --bg-surface-strong: rgba(26, 25, 25, 0.94);
+  --bg-input: rgba(19, 19, 19, 0.92);
+  --text-primary: #ffffff;
+  --text-secondary: #b9b5b2;
+  --text-soft: #e4e0db;
+  --text-muted: #8f8a86;
+  --border-soft: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(255, 255, 255, 0.1);
+  --shadow-soft: 0 24px 48px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 18px 36px rgba(0, 0, 0, 0.34);
+  --brand: #88adff;
+  --brand-strong: #719eff;
+  --success: #6ed7a5;
+  --warning: #f2bf82;
   --radius-xl: 32px;
   --radius-lg: 24px;
   --radius-md: 20px;
   --radius-sm: 14px;
   --transition-fast: 160ms ease;
   --transition-base: 240ms ease;
-  --font-ui: "Manrope", "Segoe UI", sans-serif;
+  --font-ui: "Inter", "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", "Fira Code", "Consolas", monospace;
 }
 
@@ -43,11 +44,11 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--text-primary);
-  font-family: var(--font-ui, "Manrope", "Segoe UI", sans-serif);
+  font-family: var(--font-ui, "Inter", "Segoe UI", sans-serif);
   background:
-    radial-gradient(circle at top left, rgba(141, 182, 255, 0.18), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(240, 190, 132, 0.12), transparent 26%),
-    linear-gradient(180deg, #18203a 0%, #101626 44%, #0b0f1a 100%);
+    radial-gradient(circle at top left, rgba(136, 173, 255, 0.12), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(113, 158, 255, 0.08), transparent 18%),
+    linear-gradient(180deg, #0f0f10 0%, #0c0c0d 48%, #0a0a0a 100%);
 }
 
 body::before {
@@ -56,9 +57,22 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 32%),
-    linear-gradient(315deg, rgba(255, 255, 255, 0.015), transparent 24%);
-  opacity: 0.6;
+    linear-gradient(135deg, rgba(255, 255, 255, 0.025), transparent 32%),
+    linear-gradient(315deg, rgba(255, 255, 255, 0.01), transparent 24%);
+  opacity: 0.5;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.34), transparent 78%);
+  opacity: 0.08;
 }
 
 button,
@@ -103,9 +117,12 @@ textarea::placeholder {
 }
 
 .app-screen,
-.dashboard-layout,
 .intake-card {
   width: min(100%, 960px);
+}
+
+.dashboard-layout {
+  width: min(100%, 1360px);
 }
 
 .app-screen--card,
@@ -139,6 +156,7 @@ textarea::placeholder {
 .intake-label {
   margin: 0;
   line-height: 1.1;
+  font-family: var(--font-display, "Plus Jakarta Sans", "Inter", sans-serif);
 }
 
 .app-title,
@@ -317,11 +335,12 @@ textarea::placeholder {
   min-height: 3.15rem;
   padding: 0.8rem 1.22rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid transparent;
   cursor: pointer;
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
+  letter-spacing: -0.01em;
+  background: rgba(32, 31, 31, 0.92);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
   transition:
     transform var(--transition-fast),
     border-color var(--transition-fast),
@@ -354,23 +373,25 @@ textarea::placeholder {
 
 .app-button--primary {
   background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
-  border-color: rgba(141, 182, 255, 0.32);
-  color: #08101d;
+  color: #002b69;
   font-weight: 700;
+  box-shadow: 0 18px 36px rgba(113, 158, 255, 0.22);
 }
 
 .app-button--secondary {
-  background: rgba(255, 255, 255, 0.035);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(32, 31, 31, 0.92);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: var(--text-soft);
 }
 
 .app-input,
 .intake-control {
   width: 100%;
   margin-top: 1rem;
-  padding: 0.95rem 1rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-soft);
+  padding: 1rem 1rem 0.95rem;
+  border-radius: 22px 22px 16px 16px;
+  border: 1px solid transparent;
+  box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.08);
   background: var(--bg-input);
   color: var(--text-primary);
   transition:
@@ -381,13 +402,14 @@ textarea::placeholder {
 
 .app-input:hover,
 .intake-control:hover {
-  border-color: var(--border-strong);
+  box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.16);
 }
 
 .app-input:focus,
 .intake-control:focus {
-  border-color: rgba(125, 166, 255, 0.5);
-  box-shadow: 0 0 0 4px rgba(125, 166, 255, 0.12);
+  box-shadow:
+    inset 0 -2px 0 rgba(136, 173, 255, 0.92),
+    0 0 0 4px rgba(136, 173, 255, 0.12);
 }
 
 .intake-control {
@@ -403,6 +425,7 @@ textarea::placeholder {
   margin-top: 1rem;
   padding: 0.8rem 1rem;
   border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .status-message--warning {
@@ -447,7 +470,11 @@ textarea::placeholder {
 }
 
 .dashboard-panel {
-  padding: clamp(1.4rem, 3vw, 2rem);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .dashboard-panel--empty {
@@ -481,9 +508,9 @@ textarea::placeholder {
   gap: 0.35rem;
   padding: 1.05rem 1.1rem;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   background:
-    linear-gradient(135deg, rgba(198, 162, 255, 0.12), rgba(255, 255, 255, 0.03)),
+    linear-gradient(180deg, rgba(19, 19, 19, 0.92), rgba(26, 25, 25, 0.96)),
     rgba(255, 255, 255, 0.02);
 }
 
@@ -492,9 +519,9 @@ textarea::placeholder {
   gap: 0.45rem;
   padding: 1.05rem 1.1rem;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   background:
-    linear-gradient(135deg, rgba(141, 182, 255, 0.12), rgba(255, 255, 255, 0.03)),
+    linear-gradient(180deg, rgba(19, 19, 19, 0.92), rgba(26, 25, 25, 0.96)),
     rgba(255, 255, 255, 0.02);
 }
 
@@ -503,9 +530,9 @@ textarea::placeholder {
   gap: 0.45rem;
   padding: 1.05rem 1.1rem;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   background:
-    linear-gradient(135deg, rgba(104, 210, 160, 0.12), rgba(255, 255, 255, 0.03)),
+    linear-gradient(180deg, rgba(19, 19, 19, 0.92), rgba(26, 25, 25, 0.96)),
     rgba(255, 255, 255, 0.02);
 }
 
@@ -674,13 +701,12 @@ textarea::placeholder {
 
 .task-card {
   --category-color: #8db6ff;
-  padding: 1rem 1.1rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: 3px solid var(--category-color);
+  padding: 1.05rem 1.15rem;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.025)),
-    rgba(255, 255, 255, 0.02);
+    linear-gradient(180deg, rgba(12, 12, 12, 0.98), rgba(19, 19, 19, 0.98)),
+    rgba(255, 255, 255, 0.015);
   box-shadow: var(--shadow-card);
   transition:
     transform var(--transition-fast),
@@ -691,10 +717,10 @@ textarea::placeholder {
 
 .task-card:hover {
   transform: translateY(-1px);
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.1);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03)),
-    rgba(255, 255, 255, 0.02);
+    linear-gradient(180deg, rgba(17, 17, 17, 0.98), rgba(24, 24, 24, 0.98)),
+    rgba(255, 255, 255, 0.015);
 }
 
 .task-card--completed {
@@ -720,6 +746,7 @@ textarea::placeholder {
   display: block;
   font-size: 1rem;
   font-weight: 600;
+  font-family: var(--font-display, "Plus Jakarta Sans", "Inter", sans-serif);
 }
 
 .task-card__meta {
@@ -869,11 +896,11 @@ textarea::placeholder {
 .dashboard-simulation {
   margin-top: 1.4rem;
   padding: 1.35rem 1.4rem;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   background:
-    linear-gradient(180deg, rgba(18, 23, 41, 0.92) 0%, rgba(12, 16, 30, 0.96) 100%);
-  box-shadow: 0 18px 42px rgba(8, 10, 24, 0.24);
+    linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%);
+  box-shadow: var(--shadow-card);
 }
 
 .dashboard-simulation__header {
@@ -945,8 +972,8 @@ textarea::placeholder {
 .dashboard-simulation__progress {
   margin-top: 1rem;
   padding: 1rem;
-  border-radius: 18px;
-  border: 1px solid rgba(138, 148, 255, 0.14);
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(255, 255, 255, 0.035);
 }
 
@@ -1034,8 +1061,8 @@ textarea::placeholder {
   gap: 0.8rem;
   align-items: flex-start;
   padding: 0.9rem 1rem;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(255, 255, 255, 0.03);
 }
 

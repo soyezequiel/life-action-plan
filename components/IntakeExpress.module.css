@@ -1,77 +1,82 @@
 .frame {
-  width: min(100%, 1160px);
+  width: min(100%, 1240px);
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.95fr);
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.88fr);
+  gap: 1.6rem;
   align-items: stretch;
-}
-
-.story,
-.formCard {
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(18, 23, 41, 0.92) 0%, rgba(12, 16, 30, 0.96) 100%);
-  box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(20px);
 }
 
 .story {
   display: grid;
   align-content: start;
-  gap: 1.1rem;
-  padding: clamp(1.6rem, 3vw, 2.4rem);
+  gap: 1.15rem;
+  padding: clamp(1.4rem, 3vw, 2.2rem);
 }
 
 .storyEyebrow,
-.questionEyebrow {
+.questionEyebrow,
+.progressLabel {
   color: var(--brand);
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .storyTitle {
   margin: 0;
-  max-width: 14ch;
-  font-size: clamp(2.2rem, 4.4vw, 4.2rem);
-  line-height: 0.98;
-  letter-spacing: -0.05em;
+  max-width: 11ch;
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+  font-size: clamp(3rem, 6vw, 5.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.storyCopy,
+.questionHint {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.65;
 }
 
 .storyCopy {
-  margin: 0;
-  max-width: 34rem;
-  color: var(--text-secondary);
+  max-width: 36rem;
   font-size: 1.02rem;
-  line-height: 1.6;
 }
 
 .storyGrid {
   display: grid;
-  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.95rem;
   margin-top: auto;
 }
 
 .storyCard {
   display: grid;
   gap: 0.4rem;
-  padding: 1rem 1.05rem;
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.15rem;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%),
     rgba(255, 255, 255, 0.02);
+  box-shadow: var(--shadow-card);
+}
+
+.storyCard strong,
+.questionLabel {
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
 }
 
 .storyCard strong {
-  font-size: 1rem;
+  font-size: 1.02rem;
+  line-height: 1.15;
 }
 
 .storyCard p {
   margin: 0;
   color: var(--text-secondary);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 .storyIndex {
@@ -82,8 +87,14 @@
 
 .formCard {
   display: grid;
-  gap: 1.2rem;
+  gap: 1.25rem;
   padding: clamp(1.35rem, 3vw, 2rem);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 32px;
+  background:
+    linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%),
+    rgba(255, 255, 255, 0.02);
+  box-shadow: var(--shadow-soft);
 }
 
 .formTopbar {
@@ -93,14 +104,6 @@
   gap: 1rem;
 }
 
-.progressLabel {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .progressStack {
   display: grid;
   gap: 0.75rem;
@@ -108,20 +111,14 @@
 
 .questionBlock {
   display: grid;
-  gap: 0.85rem;
+  gap: 0.9rem;
 }
 
 .questionLabel {
-  font-size: clamp(1.55rem, 2.8vw, 2.35rem);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
-}
-
-.questionHint {
-  margin: 0;
-  color: var(--text-muted);
-  line-height: 1.5;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
 }
 
 .formActions {
@@ -132,7 +129,7 @@
   margin-top: auto;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 980px) {
   .frame {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -143,19 +140,17 @@
 }
 
 @media (max-width: 720px) {
-  .story,
+  .storyGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .formCard {
-    padding: 1.25rem;
-    border-radius: 24px;
+    border-radius: 26px;
   }
 
   .formTopbar,
   .formActions {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .progressLabel {
-    text-align: left;
   }
 }

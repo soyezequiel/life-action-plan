@@ -1,31 +1,31 @@
 .settingsFrame {
-  width: min(100%, 1120px);
+  width: min(100%, 1240px);
   display: grid;
-  gap: 1.25rem;
+  gap: 1.15rem;
   padding: clamp(1.3rem, 3vw, 2rem);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(18, 23, 41, 0.92) 0%, rgba(12, 16, 30, 0.96) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 32px;
+  background:
+    linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%),
+    rgba(255, 255, 255, 0.02);
   box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(18px);
 }
 
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 
-.hero {
+.hero,
+.heroCopy {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
 .heroCopy {
-  display: grid;
-  gap: 0.6rem;
-  max-width: 44rem;
+  max-width: 42rem;
 }
 
 .grid {
@@ -39,18 +39,16 @@
   display: grid;
   gap: 1rem;
   padding: 1.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 30px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%),
     rgba(255, 255, 255, 0.02);
 }
 
-.primaryCard {
-  min-width: 0;
-}
-
-.secondaryCard {
+.primaryCard,
+.secondaryCard,
+.fullWidthCard {
   min-width: 0;
 }
 
@@ -66,14 +64,14 @@
 .choiceList {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
+  gap: 0.75rem;
 }
 
 .choiceOption {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  color: rgba(235, 240, 255, 0.88);
+  color: var(--text-soft);
 }
 
 .credentialFormGrid {
@@ -94,9 +92,8 @@
   display: flex;
   justify-content: space-between;
   gap: 0.9rem;
-  padding: 0.85rem 0.95rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
+  padding: 0.9rem 0.95rem;
+  border-radius: 22px;
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -113,6 +110,7 @@
 @media (max-width: 720px) {
   .settingsFrame {
     padding: 1.1rem;
+    border-radius: 26px;
   }
 
   .topbar {
