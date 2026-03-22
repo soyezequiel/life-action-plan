@@ -99,19 +99,21 @@ export function createEmptyFlowState(): FlowState {
 function inferGoalCategory(value: string): GoalDraft['category'] {
   const text = normalizeComparableText(value)
 
-  if (/(salud|correr|entren|gim|peso|dormir|energia)/.test(text)) return 'salud'
-  if (/(ahorro|dinero|ingreso|finanza|deuda|presupuesto)/.test(text)) return 'finanzas'
-  if (/(curso|estudio|aprend|idioma|certificacion|examen)/.test(text)) return 'educacion'
-  if (/(hobby|musica|arte|dibujo|foto|cocina|lectura)/.test(text)) return 'hobby'
-  if (/(trabajo|carrera|cliente|empresa|laburo|portfolio)/.test(text)) return 'carrera'
+  if (/(salud|correr|entren|gim|peso|dormir|energia|fumar|tabaco|adiccion|meditar|yoga|nutricion|dieta|deporte|nadar|bici|ciclismo|maraton|triatlon|ironman|natacion|boxeo|crossfit)/.test(text)) return 'salud'
+  if (/(ahorro|dinero|ingreso|finanza|deuda|presupuesto|invertir|inversion|plata|sueldo|cobrar)/.test(text)) return 'finanzas'
+  if (/(curso|estudio|aprend|idioma|certificacion|examen|tesis|final|parcial|materia|carrera universitaria|facultad|maestria|doctorado|leer\s+\d+|libro)/.test(text)) return 'educacion'
+  if (/(hobby|musica|arte|dibujo|foto|cocina|lectura|piano|guitarra|pintura|jardin|manualidad)/.test(text)) return 'hobby'
+  if (/(trabajo|carrera|cliente|empresa|laburo|portfolio|freelance|emprendimiento|negocio|startup|ascenso|promocion|cv|entrevista|linkedin|remote.?job|developer|programador)/.test(text)) return 'carrera'
+  if (/(mudanza|mudar|visa|emigrar|pasaporte|tramite|documento|licencia)/.test(text)) return 'mixto'
   return 'mixto'
 }
 
 function inferGoalEffort(value: string): GoalDraft['effort'] {
   const text = normalizeComparableText(value)
 
-  if (/(empresa|maraton|mudanza|cambio de carrera|emprendimiento|tesis|presidente|gobernador|intendente|senador|diputado|campana|candidatura|politica)/.test(text)) return 'alto'
-  if (/(curso|ahorrar|rutina|habito|constancia|idioma)/.test(text)) return 'medio'
+  if (/(empresa|maraton|mudanza|cambio de carrera|emprendimiento|tesis|presidente|gobernador|intendente|senador|diputado|campana|candidatura|politica|emigrar|triatlon|ironman|doctorado|startup|42\s*km|full.?stack)/.test(text)) return 'alto'
+  if (/(dejar de fumar|dejar de|adiccion|tabaco)/.test(text)) return 'alto'
+  if (/(curso|ahorrar|rutina|habito|constancia|idioma|leer|piano|guitarra|meditar|dieta)/.test(text)) return 'medio'
   return value.length > 80 ? 'alto' : 'medio'
 }
 
@@ -161,6 +163,14 @@ function inferGoalHorizonMonths(value: string, effort: GoalDraft['effort']): num
   if (weekMatch) {
     const weeks = Number.parseInt(weekMatch[1] || '8', 10)
     return Math.min(Math.max(Math.ceil(weeks / 4), 1), 60)
+  }
+
+  if (/(al ano|al año|por ano|por año|anual)/.test(text)) {
+    return 12
+  }
+
+  if (/(al mes|por mes|mensual)/.test(text)) {
+    return 1
   }
 
   if (effort === 'alto') return 12

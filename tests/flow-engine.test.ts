@@ -29,6 +29,31 @@ describe('flow engine', () => {
     }
   })
 
+  it('expands goal categorization and effort heuristics for common real-life phrasings', () => {
+    const goals = analyzeObjectives([
+      'Dejar de fumar',
+      'Aprobar el final de algebra',
+      'Meditar todos los dias',
+      'Mudanza a otra ciudad',
+      'Get a remote job',
+      'Correr 42 km'
+    ])
+
+    expect(goals[0]).toMatchObject({ category: 'salud', effort: 'alto' })
+    expect(goals[1]).toMatchObject({ category: 'educacion' })
+    expect(goals[2]).toMatchObject({ category: 'salud' })
+    expect(goals[3]).toMatchObject({ category: 'mixto' })
+    expect(goals[4]).toMatchObject({ category: 'carrera' })
+    expect(goals[5]).toMatchObject({ category: 'salud', effort: 'alto' })
+  })
+
+  it('parses indirect annual horizons before falling back to the effort default', () => {
+    const goals = analyzeObjectives(['Leer 24 libros al año'])
+
+    expect(goals[0]?.category).toBe('educacion')
+    expect(goals[0]?.horizonMonths).toBe(12)
+  })
+
   it('creates a dynamic fallback intake that still keeps the feasibility questions required for the plan', () => {
     const goals = analyzeObjectives([
       'Bajar de peso',
