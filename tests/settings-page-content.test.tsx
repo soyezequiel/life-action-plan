@@ -314,6 +314,69 @@ describe('settings page content', () => {
     expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-cloud')}`)).toBeTruthy()
   })
 
+  it('permite elegir un modelo local disponible desde el servicio de Pulso', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+
+      if (url === '/api/auth/me') {
+        return new Response(JSON.stringify({ authenticated: false }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url === '/api/models/available') {
+        return new Response(JSON.stringify({
+          success: true,
+          models: [
+            {
+              providerId: 'openrouter',
+              modelId: 'openrouter:openai/gpt-4o-mini',
+              displayName: 'OpenRouter'
+            },
+            {
+              providerId: 'ollama',
+              modelId: 'ollama:qwen3:8b',
+              displayName: 'Ollama'
+            }
+          ]
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url.includes('/api/settings/build-preview')) {
+        return createBuildPreviewResponse(url)
+      }
+
+      return new Response(JSON.stringify({ success: false }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    })
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('settings.llm_mode.title'))
+    fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
+    fireEvent.click(await screen.findByRole('button', { name: /Ollama/i }))
+
+    expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-local')}`)).toBeTruthy()
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([url]) => (
+        String(url).includes('/api/settings/build-preview?')
+        && String(url).includes('provider=ollama%3Aqwen3%3A8b')
+        && String(url).includes('resourceMode=auto')
+      ))).toBe(true)
+    })
+  })
+
   it('respeta el modo propio pedido desde el dashboard', async () => {
     searchParamsMock = new URLSearchParams('intent=build&mode=own')
 

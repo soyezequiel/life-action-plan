@@ -21,6 +21,7 @@ import {
   DEFAULT_OPENAI_BUILD_MODEL,
   getDefaultBuildModelForProvider,
   getProviderLabelKey,
+  isLocalModel,
   resolveBuildModel
 } from '../src/lib/providers/provider-metadata'
 import type { BuildUsagePreviewResult, PlanBuildProgress, WalletStatus } from '../src/shared/types/lap-api'
@@ -56,6 +57,26 @@ const initialAuthState: AuthState = {
 
 interface SettingsPageContentProps {
   deploymentMode: DeploymentMode
+}
+
+function resolveRequestedBuildResourceMode(input: {
+  activeBuildModel: string
+  llmMode: LlmMode
+  localBuildIntent: boolean
+}): 'auto' | 'backend' | 'user' | 'codex' {
+  if (input.localBuildIntent) {
+    return 'auto'
+  }
+
+  if (input.llmMode === 'own') {
+    return 'user'
+  }
+
+  if (input.llmMode === 'codex') {
+    return 'codex'
+  }
+
+  return isLocalModel(input.activeBuildModel) ? 'auto' : 'backend'
 }
 
 export default function SettingsPageContent({ deploymentMode }: SettingsPageContentProps) {
@@ -125,6 +146,11 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       : llmMode === 'codex'
         ? t('settings.llm_mode.codex_title')
       : t('settings.llm_mode.service_title')
+  const requestedBuildResourceMode = resolveRequestedBuildResourceMode({
+    activeBuildModel,
+    llmMode,
+    localBuildIntent
+  })
   const canBuild = shouldBuild && (
     localBuildIntent
       ? buildUsage?.canExecute === true
@@ -225,13 +251,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     let active = true
     const params = new URLSearchParams({
       provider: activeBuildModel,
-      resourceMode: localBuildIntent
-        ? 'auto'
-        : llmMode === 'own'
-          ? 'user'
-          : llmMode === 'codex'
-            ? 'codex'
-            : 'backend'
+      resourceMode: requestedBuildResourceMode
     })
 
     if (!localBuildIntent) {
@@ -271,7 +291,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     return () => {
       active = false
     }
-  }, [activeBuildModel, llmMode, localBuildIntent, selectedLocalKey, shouldBuild])
+  }, [activeBuildModel, llmMode, localBuildIntent, requestedBuildResourceMode, selectedLocalKey, shouldBuild])
 
   async function refreshAuthState(nextUser?: AuthUser | null): Promise<void> {
     if (typeof nextUser !== 'undefined') {
@@ -452,14 +472,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
         ? await decryptStoredApiKey(selectedLocalKey, protectionPassword)
         : ''
       const provider = localBuildIntent ? requestedBuildModel : activeBuildModel
-      const resourceMode = localBuildIntent
-        ? 'auto'
-        : llmMode === 'own'
-          ? 'user'
-          : llmMode === 'codex'
-            ? 'codex'
-            : 'backend'
-      const result = await client.plan.build(profileId, apiKey, provider, undefined, resourceMode)
+      const result = await client.plan.build(profileId, apiKey, provider, undefined, requestedBuildResourceMode)
 
       if (!result.success) {
         throw new Error(result.error || 'BUILD_FAILED')
