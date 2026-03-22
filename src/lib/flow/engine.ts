@@ -100,7 +100,7 @@ function inferGoalCategory(value: string): GoalDraft['category'] {
   const text = normalizeComparableText(value)
 
   if (/(salud|correr|entren|gim|peso|dormir|energia|fumar|tabaco|adiccion|meditar|yoga|nutricion|dieta|deporte|nadar|bici|ciclismo|maraton|triatlon|ironman|natacion|boxeo|crossfit)/.test(text)) return 'salud'
-  if (/(ahorro|dinero|ingreso|finanza|deuda|presupuesto|invertir|inversion|plata|sueldo|cobrar)/.test(text)) return 'finanzas'
+  if (/(ahorr|dinero|ingreso|finanza|deuda|presupuesto|invertir|inversion|plata|sueldo|cobrar)/.test(text)) return 'finanzas'
   if (/(curso|estudio|aprend|idioma|certificacion|examen|tesis|final|parcial|materia|carrera universitaria|facultad|maestria|doctorado|leer\s+\d+|libro)/.test(text)) return 'educacion'
   if (/(hobby|musica|arte|dibujo|foto|cocina|lectura|piano|guitarra|pintura|jardin|manualidad)/.test(text)) return 'hobby'
   if (/(trabajo|carrera|cliente|empresa|laburo|portfolio|freelance|emprendimiento|negocio|startup|ascenso|promocion|cv|entrevista|linkedin|remote.?job|developer|programador)/.test(text)) return 'carrera'
@@ -178,8 +178,30 @@ function inferGoalHorizonMonths(value: string, effort: GoalDraft['effort']): num
   return 3
 }
 
-function inferGoalHoursPerWeek(effort: GoalDraft['effort'], value: string): number {
+function inferIsHabit(text: string, category: GoalDraft['category']): boolean {
+  const normalized = normalizeComparableText(text)
+
+  if (category === 'finanzas') return true
+  if (/(dejar de|meditar|habito|rutina|diario|todos los dias|constancia|mantener)/.test(normalized)) return true
+  return false
+}
+
+function inferGoalHoursPerWeek(
+  effort: GoalDraft['effort'],
+  value: string,
+  category: GoalDraft['category'],
+  isHabit: boolean
+): number {
   const text = normalizeComparableText(value)
+
+  if (isHabit) {
+    if (category === 'finanzas') {
+      return 1
+    }
+
+    return 2
+  }
+
   if (/(todos los dias|diario|constante)/.test(text)) {
     return effort === 'alto' ? 10 : 6
   }
@@ -194,16 +216,19 @@ export function analyzeObjectives(objectives: string[]): GoalDraft[] {
     .map((objective) => normalizeText(objective))
     .filter(Boolean)
     .map((objective, index) => {
+      const category = inferGoalCategory(objective)
       const effort = inferGoalEffort(objective)
+      const isHabit = inferIsHabit(objective, category)
 
       return {
         id: `goal-${index + 1}`,
         text: objective,
-        category: inferGoalCategory(objective),
+        category,
         effort,
+        isHabit,
         priority: Math.min(index + 1, 5),
         horizonMonths: inferGoalHorizonMonths(objective, effort),
-        hoursPerWeek: inferGoalHoursPerWeek(effort, objective)
+        hoursPerWeek: inferGoalHoursPerWeek(effort, objective, category, isHabit)
       } satisfies GoalDraft
     })
 }
@@ -457,7 +482,8 @@ function buildRefinedConflicts(goals: GoalDraft[], availableHours: number, peakW
 function isSupportTrackGoal(goal: GoalDraft): boolean {
   const text = normalizeComparableText(goal.text)
 
-  return goal.category === 'salud'
+  return goal.isHabit
+    || goal.category === 'salud'
     || /(veces por semana|por semana|rutina|habito|entren)/.test(text)
 }
 
@@ -680,12 +706,16 @@ function calculatePeakWeeklyHours(phases: StrategicPlanDraft['phases'], totalMon
 export function buildStrategicPlanRefined(goals: GoalDraft[], profile: Perfil): StrategicPlanDraft {
   const availableHours = weeklyAvailableHours(profile)
   const totalMonths = Math.max(...goals.map((goal) => goal.horizonMonths), 1)
-  const singleGoalPhases = goals.length === 1 ? buildSingleGoalPhases(goals[0]!, totalMonths) : null
+  const singleGoalPhases = goals.length === 1 && !goals[0]!.isHabit
+    ? buildSingleGoalPhases(goals[0]!, totalMonths)
+    : null
   let sequentialCursor = 1
 
   const phases = singleGoalPhases ?? goals.map((goal, index) => {
-    const supportTrack = index > 0 && isSupportTrackGoal(goal)
-    const duration = supportTrack
+    const supportTrack = goal.isHabit || (index > 0 && isSupportTrackGoal(goal))
+    const duration = goal.isHabit
+      ? totalMonths
+      : supportTrack
       ? Math.max(2, Math.min(goal.horizonMonths, 3))
       : Math.max(1, Math.min(goal.horizonMonths, goal.effort === 'alto' ? 4 : goal.effort === 'medio' ? 3 : 2))
     const startMonth = supportTrack
@@ -1099,8 +1129,12 @@ export function buildTopDownState(
   }
 }
 
-function categoryToPlanCategory(category: GoalDraft['category']): 'estudio' | 'ejercicio' | 'trabajo' | 'habito' | 'descanso' | 'otro' {
-  switch (category) {
+function categoryToPlanCategory(goal: GoalDraft): 'estudio' | 'ejercicio' | 'trabajo' | 'habito' | 'descanso' | 'otro' {
+  if (goal.isHabit) {
+    return 'habito'
+  }
+
+  switch (goal.category) {
     case 'educacion':
       return 'estudio'
     case 'salud':
@@ -1219,7 +1253,7 @@ function inferRequestedWeeklySessions(goal: GoalDraft): number | null {
   if (/tres veces por semana/.test(text)) return 3
   if (/cuatro veces por semana/.test(text)) return 4
   if (/cinco veces por semana/.test(text)) return 5
-  if (/todos los dias|diario/.test(text)) return 5
+  if (/todos los dias|diario/.test(text)) return goal.isHabit ? 7 : 5
 
   return null
 }
@@ -1253,6 +1287,10 @@ function resolveSessionDuration(goal: GoalDraft, sessions: number): number {
 }
 
 function resolveSessionCountAndDuration(goal: GoalDraft): { sessions: number; duration: number } {
+  if (goal.isHabit) {
+    return resolveHabitReminderPlan(goal)
+  }
+
   const requestedSessions = inferRequestedWeeklySessions(goal)
   let sessions = requestedSessions ?? resolveWeeklySessions(goal)
   let duration = resolveSessionDuration(goal, sessions)
@@ -1272,6 +1310,30 @@ function resolveSessionCountAndDuration(goal: GoalDraft): { sessions: number; du
   return {
     sessions,
     duration
+  }
+}
+
+function resolveHabitReminderPlan(goal: GoalDraft): { sessions: number; duration: number } {
+  const requestedSessions = inferRequestedWeeklySessions(goal)
+  const text = normalizeComparableText(goal.text)
+
+  if (goal.category === 'finanzas') {
+    return {
+      sessions: 1,
+      duration: 30
+    }
+  }
+
+  if (/todos los dias|diario|dejar de|meditar|mantener/.test(text)) {
+    return {
+      sessions: requestedSessions ?? 7,
+      duration: 15
+    }
+  }
+
+  return {
+    sessions: requestedSessions ?? 3,
+    duration: 30
   }
 }
 
@@ -1354,8 +1416,8 @@ export function buildPlanEventsFromFlow(params: {
           dia: slot.day,
           hora: slot.hour,
           duracion: duration,
-          actividad: `${week === 1 ? 'Arranque' : 'Bloque'} de ${clipText(goal.text, 60)}`,
-          categoria: categoryToPlanCategory(goal.category),
+          actividad: `${goal.isHabit ? 'Recordatorio' : week === 1 ? 'Arranque' : 'Bloque'} de ${clipText(goal.text, 60)}`,
+          categoria: categoryToPlanCategory(goal),
           objetivoId: goal.id
         })
       }

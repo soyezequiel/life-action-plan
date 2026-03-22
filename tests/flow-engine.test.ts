@@ -346,6 +346,42 @@ describe('flow engine', () => {
     expect(strategy.phases.at(-1)?.endMonth).toBe(12)
   })
 
+  it('treats savings goals as support-track habits with minimal weekly load', () => {
+    const goals = analyzeObjectives(['Ahorrar $5000'])
+    const profile = buildProfileFromFlow(goals, {
+      horasLibresLaborales: '2',
+      horasLibresDescanso: '2'
+    })
+    const strategy = buildStrategicPlanRefined(goals, profile)
+    const savingsPhase = strategy.phases.find((phase) => phase.goalIds.includes(goals[0]?.id ?? ''))
+
+    expect(goals[0]?.isHabit).toBe(true)
+    expect(goals[0]?.hoursPerWeek).toBe(1)
+    expect(savingsPhase?.startMonth).toBe(1)
+    expect(savingsPhase?.endMonth).toBe(strategy.totalMonths)
+    expect(savingsPhase?.dependencies).toEqual([])
+  })
+
+  it('turns daily habits into short reminders instead of long agenda blocks', () => {
+    const goals = analyzeObjectives(['Meditar todos los dias'])
+    const profile = buildProfileFromFlow(goals, {
+      horasLibresLaborales: '2',
+      horasLibresDescanso: '2'
+    })
+    const strategy = buildStrategicPlanRefined(goals, profile)
+    const habitEvents = buildPlanEventsFromFlow({
+      goals,
+      strategy,
+      calendar: buildCalendarState(undefined, ''),
+      profile
+    }).filter((event) => event.objetivoId === goals[0]?.id && event.semana === 1)
+
+    expect(goals[0]?.isHabit).toBe(true)
+    expect(habitEvents).toHaveLength(7)
+    expect(habitEvents.every((event) => event.duracion === 15)).toBe(true)
+    expect(habitEvents.every((event) => event.categoria === 'habito')).toBe(true)
+  })
+
   it('stores goal clarity as a clarification note instead of overwriting the good-day pattern', () => {
     const goals = analyzeObjectives(['Bajar de peso'])
     const goalClarity = 'Bajar 4 kg y sostener 3 entrenamientos por semana'
