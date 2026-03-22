@@ -13,6 +13,7 @@ const idSchema = z.string().uuid()
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 const cloudApiProviderSchema = z.enum(['openai', 'openrouter'])
 const buildResourceModeSchema = z.enum(['auto', 'backend', 'user', 'codex'])
+const thinkingModeSchema = z.enum(['enabled', 'disabled'])
 const credentialMetadataSchema = z.union([
   z.record(z.string(), z.unknown()),
   z.array(z.unknown())
@@ -31,7 +32,8 @@ export const planBuildRequestSchema = z.object({
   apiKey: z.string().trim().default(''),
   provider: z.string().trim().min(1).optional(),
   backendCredentialId: z.string().trim().min(1).optional(),
-  resourceMode: buildResourceModeSchema.optional()
+  resourceMode: buildResourceModeSchema.optional(),
+  thinkingMode: thinkingModeSchema.optional()
 }).strict()
 
 export const planListQuerySchema = z.object({

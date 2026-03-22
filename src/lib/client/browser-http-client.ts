@@ -337,7 +337,8 @@ export const browserLapClient: LapAPI = {
       apiKey: string,
       provider?: string,
       backendCredentialId?: string,
-      resourceMode: 'auto' | 'backend' | 'user' | 'codex' = 'auto'
+      resourceMode: 'auto' | 'backend' | 'user' | 'codex' = 'auto',
+      thinkingMode?: 'enabled' | 'disabled'
     ) {
       const initial: PlanBuildProgress = {
         profileId,
@@ -355,7 +356,7 @@ export const browserLapClient: LapAPI = {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ profileId, apiKey, provider, backendCredentialId, resourceMode })
+        body: JSON.stringify({ profileId, apiKey, provider, backendCredentialId, resourceMode, thinkingMode })
       })
 
       if (!response.ok) {

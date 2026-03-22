@@ -783,7 +783,7 @@ describe('plan build charge route', () => {
     const response = await POST(new Request('http://localhost/api/plan/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: buildRequestBody({ provider: 'ollama:qwen3:8b' })
+      body: buildRequestBody({ provider: 'ollama:qwen3:8b', thinkingMode: 'enabled' })
     }))
 
     const result = extractResultPayload(await response.text())
@@ -801,6 +801,11 @@ describe('plan build charge route', () => {
       amountSats: 5,
       userId: 'local-user',
       description: 'LAP plan build 11111111-1111-4111-8111-111111111111'
+    })
+    expect(mocks.getProviderMock).toHaveBeenCalledWith('ollama:qwen3:8b', {
+      apiKey: '',
+      baseURL: 'http://localhost:11434',
+      thinkingMode: 'enabled'
     })
     expect(mocks.trackCostMock).toHaveBeenCalledWith(
       'plan-local-1',

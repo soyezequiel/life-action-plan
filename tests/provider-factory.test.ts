@@ -28,6 +28,32 @@ function createSseResponse(events: unknown[]): Response {
   })
 }
 
+function createDelayedNdjsonResponse(lines: Array<{ delayMs: number; body: unknown }>): Response {
+  const encoder = new TextEncoder()
+  const totalDelay = lines.length > 0
+    ? Math.max(...lines.map((line) => line.delayMs)) + 1
+    : 0
+
+  return new Response(new ReadableStream({
+    start(controller) {
+      for (const line of lines) {
+        setTimeout(() => {
+          controller.enqueue(encoder.encode(`${JSON.stringify(line.body)}\n`))
+        }, line.delayMs)
+      }
+
+      setTimeout(() => {
+        controller.close()
+      }, totalDelay)
+    }
+  }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/x-ndjson'
+    }
+  })
+}
+
 describe('getProvider', () => {
   beforeEach(() => {
     vi.unstubAllGlobals()
@@ -36,7 +62,9 @@ describe('getProvider', () => {
   afterEach(() => {
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
+    vi.useRealTimers()
     delete process.env.APP_URL
+    delete process.env.LAP_ENABLE_OLLAMA_THINKING
   })
 
   it('crea un runtime OpenAI con modelo default', () => {
@@ -334,18 +362,18 @@ describe('getProvider', () => {
     expect(result.usage).toEqual({ promptTokens: 11, completionTokens: 17 })
   })
 
-  it('usa la API nativa de Ollama para chat y preserva thinking + tool calls', async () => {
+  it('usa la API nativa de Ollama para chat sin activar thinking por default', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       expect(String(input)).toBe('http://localhost:11434/api/chat')
 
       const body = JSON.parse(String(init?.body)) as Record<string, unknown>
       expect(body.model).toBe('qwen3:8b')
       expect(body.stream).toBe(false)
-      expect(body.think).toBe(true)
+      expect(body.think).toBe(false)
+      expect(body.options).toEqual({ num_predict: 4096 })
 
       return createJsonResponse({
         message: {
-          thinking: 'pienso primero',
           content: '{"ok":true}',
           tool_calls: [
             {
@@ -369,7 +397,7 @@ describe('getProvider', () => {
       { role: 'user', content: 'hola' }
     ])
 
-    expect(result.content).toBe('<think>pienso primero</think>{"ok":true}')
+    expect(result.content).toBe('{"ok":true}')
     expect(result.toolCalls).toEqual([
       {
         id: 'ollama-tool-0',
@@ -378,6 +406,64 @@ describe('getProvider', () => {
       }
     ])
     expect(result.usage).toEqual({ promptTokens: 12, completionTokens: 34 })
+  })
+
+  it('permite volver a activar thinking de Ollama por variable de entorno', async () => {
+    process.env.LAP_ENABLE_OLLAMA_THINKING = 'true'
+
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
+      expect(body.think).toBe(true)
+
+      return createJsonResponse({
+        message: {
+          thinking: 'pienso primero',
+          content: '{"ok":true}'
+        },
+        prompt_eval_count: 12,
+        eval_count: 34
+      })
+    })
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
+    const result = await runtime.chat([
+      { role: 'system', content: 'solo json' },
+      { role: 'user', content: 'hola' }
+    ])
+
+    expect(result.content).toBe('<think>pienso primero</think>{"ok":true}')
+  })
+
+  it('respeta el thinking mode enviado por el cliente aunque el override global este prendido', async () => {
+    process.env.LAP_ENABLE_OLLAMA_THINKING = 'true'
+
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
+      expect(body.think).toBe(false)
+
+      return createJsonResponse({
+        message: {
+          content: '{"ok":true}'
+        },
+        prompt_eval_count: 12,
+        eval_count: 34
+      })
+    })
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('ollama:qwen3:8b', {
+      apiKey: '',
+      thinkingMode: 'disabled'
+    })
+    const result = await runtime.chat([
+      { role: 'system', content: 'solo json' },
+      { role: 'user', content: 'hola' }
+    ])
+
+    expect(result.content).toBe('{"ok":true}')
   })
 
   it('streamChat de Ollama emite thinking y contenido en el orden correcto', async () => {
@@ -443,5 +529,61 @@ describe('getProvider', () => {
     }
 
     expect(chunks).toEqual(['<think>', 'razono', '</think>', 'respuesta final'])
+  })
+
+  it('no corta un stream de Ollama si siguen llegando chunks antes del silencio maximo', async () => {
+    vi.useFakeTimers()
+
+    const fetchMock = vi.fn(async () => createDelayedNdjsonResponse([
+      {
+        delayMs: 120_000,
+        body: {
+          message: {
+            content: 'hola '
+          }
+        }
+      },
+      {
+        delayMs: 240_000,
+        body: {
+          message: {
+            content: 'mundo'
+          }
+        }
+      },
+      {
+        delayMs: 240_100,
+        body: {
+          message: {},
+          prompt_eval_count: 3,
+          eval_count: 5
+        }
+      }
+    ]))
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
+    const chunks: string[] = []
+
+    const resultPromise = runtime.streamChat!([
+      { role: 'system', content: 'solo texto' },
+      { role: 'user', content: 'hola' }
+    ], (chunk) => {
+      chunks.push(chunk)
+    })
+
+    await vi.advanceTimersByTimeAsync(120_010)
+    expect(chunks).toEqual(['hola '])
+
+    await vi.advanceTimersByTimeAsync(120_120)
+    await expect(resultPromise).resolves.toMatchObject({
+      content: 'hola mundo',
+      usage: {
+        promptTokens: 3,
+        completionTokens: 5
+      }
+    })
+    expect(chunks).toEqual(['hola ', 'mundo'])
   })
 })

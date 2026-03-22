@@ -445,6 +445,110 @@ export function runStrategicSimulation(
 
 ---
 
+## GRUPO G — FIXES ESTRUCTURALES (prioridad máxima, previo a simulación jerárquica)
+
+Estos fixes son prerequisito de `CODEX_SIMULATION_PLAN.md`. Aplicarlos junto con A-F.
+
+### G1. inferGoalEffort: trabajo en otro continente es esfuerzo alto
+
+**Archivo:** `src/lib/flow/engine.ts`, función `inferGoalEffort`, primer regex de 'alto'
+
+**Problema:** "Conseguir un trabajo remoto en Europa" se clasifica como effort 'medio'. Buscar trabajo en otro continente con visa es claramente effort 'alto'.
+
+**Fix:** Agregar al primer regex de alto:
+
+```ts
+if (/(empresa|maraton|...|trabajo remoto|remote work|europa|estados unidos|usa|canada|uk|australia|visa de trabajo|emigrar|...)/.test(text)) return 'alto'
+```
+
+**Test:** "Conseguir un trabajo remoto en Europa" → 'alto'. "Visa de trabajo para Canadá" → 'alto'.
+
+---
+
+### G2. isSupportTrackGoal: no tratar toda meta de salud como support
+
+**Archivo:** `src/lib/flow/engine.ts`, función `isSupportTrackGoal`, línea ~499
+
+**Problema:** `goal.category === 'salud'` → siempre support track. Pero "Correr una media maratón" con 8h/semana no es un support track, es un proyecto principal.
+
+**Fix:** Reemplazar la función:
+
+```ts
+function isSupportTrackGoal(goal: GoalDraft): boolean {
+  const text = normalizeComparableText(goal.text)
+
+  return goal.isHabit
+    || (goal.category === 'salud' && goal.hoursPerWeek <= 3)
+    || /(veces por semana|por semana|rutina|habito|entren)/.test(text)
+}
+```
+
+Solo metas de salud livianas (≤3h/semana, como meditar) son support. Entrenar para una media maratón (8h/semana) es goal principal.
+
+**Test:** Goal salud con hoursPerWeek=8, effort='alto' → false. Goal salud con hoursPerWeek=2 → true.
+
+---
+
+### G3. buildStrategicPlanRefined: goals principales deben cubrir su horizonte completo
+
+**Archivo:** `src/lib/flow/engine.ts`, función `buildStrategicPlanRefined`, cálculo de `duration`
+
+**Problema:** Duration se clampea por effort: `Math.min(goal.horizonMonths, 3)` para medio, `Math.min(goal.horizonMonths, 4)` para alto. Un goal de carrera con horizonte 9 meses solo recibe una fase de 3-4 meses. Los meses restantes quedan vacíos.
+
+**Fix:** Para goals principales (no habit, no support track), duration = horizonMonths:
+
+```ts
+const duration = goal.isHabit
+  ? totalMonths
+  : supportTrack
+    ? Math.max(2, Math.min(goal.horizonMonths, 3))
+    : goal.horizonMonths  // cubrir todo el horizonte
+```
+
+**Test:** Goal carrera con horizonMonths=9, effort='alto', priority=1 → fase startMonth=1, endMonth=9.
+
+---
+
+### G4. runStrategicSimulation: detectar goals sin cobertura temporal
+
+**Archivo:** `src/lib/flow/engine.ts`, función `runStrategicSimulation`
+
+**Problema:** La simulación dice PASS aunque un goal de 9 meses solo tenga 3 meses de fase activa. Solo mira horas pico globales.
+
+**Fix:** Agregar `goals: GoalDraft[]` como tercer parámetro (default `[]` para backwards compat). Después de calcular worstLoad, verificar cobertura:
+
+```ts
+export function runStrategicSimulation(
+  strategy: StrategicPlanDraft,
+  realityCheck: RealityCheckResult,
+  goals: GoalDraft[] = []
+): StrategicSimulationSnapshot {
+  // ... existing code ...
+
+  // Detectar goals sin cobertura completa
+  const allGoalIds = [...new Set(strategy.phases.flatMap(p => p.goalIds))]
+  for (const goalId of allGoalIds) {
+    const coveredMonths = new Set<number>()
+    for (const phase of strategy.phases) {
+      if (phase.goalIds.includes(goalId)) {
+        for (let m = phase.startMonth; m <= phase.endMonth; m++) coveredMonths.add(m)
+      }
+    }
+    const goalData = goals.find(g => g.id === goalId)
+    if (goalData && coveredMonths.size < goalData.horizonMonths * 0.7) {
+      findings.push(`El objetivo "${clipText(goalData.text, 40)}" tiene actividad en ${coveredMonths.size} de ${goalData.horizonMonths} meses de su horizonte.`)
+      if (finalStatus === 'PASS') finalStatus = 'WARN'
+    }
+  }
+
+  // ... rest ...
+}
+```
+
+**Test:** Goal con horizonMonths=9 pero fase de 3 meses → finding "actividad en 3 de 9 meses", finalStatus WARN.
+
+---
+
 ## Orden de ejecución sugerido
 
 1. **A1, A2, A3, A4** — Bugs. Hacer primero, testear.
@@ -453,5 +557,6 @@ export function runStrategicSimulation(
 4. **D1** — Hábitos vs proyectos. Cambio de schema, probar bien.
 5. **E1, E2** — UX. Bajo riesgo.
 6. **F1** — Simulación. Mejora gradual.
+7. **G1, G2, G3, G4** — Fixes estructurales previos a simulación jerárquica.
 
 Después de cada grupo, correr `npm test` y verificar que pasan todos los tests.

@@ -48,6 +48,15 @@ export function isCloudModel(modelId: string | undefined | null): boolean {
   return providerName === 'openai' || providerName === 'openrouter'
 }
 
+export function supportsOllamaThinking(modelId: string | undefined | null): boolean {
+  const normalized = modelId?.trim() || ''
+  const modelName = normalized.startsWith('ollama:')
+    ? normalized.slice('ollama:'.length)
+    : normalized
+
+  return /(qwen|deepseek|gpt-oss|qwq|r1)/i.test(modelName)
+}
+
 export function resolveBuildModel(requestedProvider: string | undefined | null): string {
   const normalized = requestedProvider?.trim() || ''
 

@@ -52,6 +52,7 @@ vi.mock('framer-motion', async () => {
   }
 
   return {
+    AnimatePresence: ({ children }: { children?: React.ReactNode }) => ReactModule.createElement(ReactModule.Fragment, null, children),
     MotionConfig: ({ children }: { children?: React.ReactNode }) => ReactModule.createElement(ReactModule.Fragment, null, children),
     motion: new Proxy({}, {
       get: (_target, property) => createMotionComponent(String(property))
@@ -86,6 +87,14 @@ function createLapClientStub(): LapAPI {
         }
       })),
       disconnect: vi.fn(async () => ({ success: true }))
+    },
+    debug: {
+      enable: vi.fn(async () => ({ enabled: true, panelVisible: true })),
+      disable: vi.fn(async () => ({ enabled: false, panelVisible: false })),
+      clear: vi.fn(async () => ({ enabled: true, panelVisible: true })),
+      status: vi.fn(async () => ({ enabled: false, panelVisible: false })),
+      snapshot: vi.fn(async () => ({ traces: [] })),
+      onEvent: vi.fn(() => () => {})
     }
   } as unknown as LapAPI
 }
@@ -375,6 +384,66 @@ describe('settings page content', () => {
         && String(url).includes('resourceMode=auto')
       ))).toBe(true)
     })
+  })
+
+  it('muestra el toggle de pensamiento extendido para modelos locales compatibles', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+
+      if (url === '/api/auth/me') {
+        return new Response(JSON.stringify({ authenticated: false }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url === '/api/models/available') {
+        return new Response(JSON.stringify({
+          success: true,
+          models: [
+            {
+              providerId: 'ollama',
+              modelId: 'ollama:qwen3:8b',
+              displayName: 'Ollama - qwen3:8b'
+            }
+          ]
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url.includes('/api/settings/build-preview')) {
+        return createBuildPreviewResponse(url)
+      }
+
+      return new Response(JSON.stringify({ success: false }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    })
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('settings.llm_mode.title'))
+    fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
+
+    expect(await screen.findByLabelText(t('settings.ollama_thinking_toggle'))).toBeTruthy()
+  })
+
+  it('muestra el acceso al inspector LLM desde la pantalla de armado', async () => {
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    expect(await screen.findByRole('button', { name: t('debug.panel_title') })).toBeTruthy()
   })
 
   it('respeta el modo propio pedido desde el dashboard', async () => {

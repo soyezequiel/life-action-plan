@@ -9,6 +9,9 @@ interface BuildSectionProps {
   title: string
   hint: string
   selectedProviderLabel: string
+  showThinkingControl: boolean
+  thinkingEnabled: boolean
+  inspectorVisible: boolean
   shouldBuild: boolean
   localProviderBlocked: boolean
   buildBusy: boolean
@@ -20,6 +23,8 @@ interface BuildSectionProps {
   buildUsage: BuildUsagePreviewResult['usage'] | null
   showAdvancedDetails: boolean
   walletStatus: WalletStatus
+  onThinkingChange: (enabled: boolean) => void
+  onToggleInspector: () => void
   onBuild: () => Promise<void>
 }
 
@@ -73,10 +78,33 @@ export default function BuildSection(props: BuildSectionProps) {
         {blockedMessage && (
           <p className="status-message status-message--warning">{blockedMessage}</p>
         )}
+        {props.showThinkingControl && (
+          <div className={styles.fieldGroup}>
+            <label className={styles.choiceOption}>
+              <input
+                type="checkbox"
+                checked={props.thinkingEnabled}
+                disabled={props.buildBusy}
+                onChange={(event) => props.onThinkingChange(event.target.checked)}
+              />
+              <span>{t('settings.ollama_thinking_toggle')}</span>
+            </label>
+            <p className={styles.helperCopy}>{t('settings.ollama_thinking_hint')}</p>
+          </div>
+        )}
       </div>
 
-      {props.shouldBuild && (
+      {(props.shouldBuild || props.showAdvancedDetails) && (
         <div className="app-actions">
+          <button
+            className="app-button app-button--secondary"
+            type="button"
+            onClick={props.onToggleInspector}
+          >
+            {props.inspectorVisible ? t('debug.disable') : t('debug.panel_title')}
+          </button>
+
+          {props.shouldBuild && (
           <button
             className="app-button app-button--primary"
             type="button"
@@ -87,6 +115,7 @@ export default function BuildSection(props: BuildSectionProps) {
           >
             {props.buildBusy ? t('builder.generating') : t('settings.apikey_confirm')}
           </button>
+          )}
         </div>
       )}
 

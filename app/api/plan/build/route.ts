@@ -66,7 +66,7 @@ export async function POST(request: Request): Promise<Response> {
     return new NextResponse(stream, { headers: sseHeaders() })
   }
 
-  const { profileId, apiKey, provider, backendCredentialId, resourceMode } = parsed.data
+  const { profileId, apiKey, provider, backendCredentialId, resourceMode, thinkingMode } = parsed.data
   const requestedModelId = resolveBuildModel(provider)
   const deploymentMode = getDeploymentMode()
   const userId = resolveUserId(request)
@@ -280,7 +280,8 @@ export async function POST(request: Request): Promise<Response> {
 
             const activeRuntime = getProvider(activeExecution.runtime.modelId, {
               apiKey: activeExecution.runtime.apiKey,
-              baseURL: activeExecution.runtime.baseURL
+              baseURL: activeExecution.runtime.baseURL,
+              thinkingMode
             })
             const instrumentedRuntime = createInstrumentedRuntime(
               activeRuntime,

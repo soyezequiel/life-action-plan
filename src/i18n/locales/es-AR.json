@@ -541,7 +541,9 @@
       "title": "Asistentes disponibles",
       "empty": "No hay asistentes disponibles ahora.",
       "selected": "Usando: {{name}}"
-    }
+    },
+    "ollama_thinking_toggle": "Activar pensamiento extendido",
+    "ollama_thinking_hint": "Hace que este modelo local se tome mas tiempo para razonar antes de responder. Puede mejorar tareas complejas, pero tarda mas."
   },
   "calendar": {
     "file_type": "Calendario",

@@ -2,7 +2,7 @@
 
 import React, { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { MotionConfig, motion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { t } from '../src/i18n'
 import { useLapClient } from '../src/lib/client/app-services'
 import { extractErrorMessage, toUserFacingErrorMessage } from '../src/lib/client/error-utils'
@@ -22,12 +22,14 @@ import {
   getDefaultBuildModelForProvider,
   getProviderLabelKey,
   isLocalModel,
+  supportsOllamaThinking,
   resolveBuildModel
 } from '../src/lib/providers/provider-metadata'
 import type { BuildUsagePreviewResult, PlanBuildProgress, WalletStatus } from '../src/shared/types/lap-api'
 import styles from './SettingsPageContent.module.css'
 import AccountSection from './settings/AccountSection'
 import BuildSection from './settings/BuildSection'
+import DebugPanel from './DebugPanel'
 import LlmModeSelector from './settings/LlmModeSelector'
 import OwnKeyManager from './settings/OwnKeyManager'
 import ServiceAiSelector from './settings/ServiceAiSelector'
@@ -54,6 +56,7 @@ const initialAuthState: AuthState = {
   authenticated: false,
   user: null
 }
+const OLLAMA_THINKING_STORAGE_KEY = 'lap.ollama-thinking-enabled'
 
 interface SettingsPageContentProps {
   deploymentMode: DeploymentMode
@@ -131,6 +134,8 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const [buildBusy, setBuildBusy] = useState(false)
   const [buildNotice, setBuildNotice] = useState('')
   const [buildError, setBuildError] = useState('')
+  const [debugPanelVisible, setDebugPanelVisible] = useState(false)
+  const [ollamaThinkingEnabled, setOllamaThinkingEnabled] = useState(false)
 
   const selectedLocalKey = localKeys.find((record) => record.id === selectedLocalKeyId) ?? null
   const selectedServiceModel = serviceModels.find((model) => model.modelId === selectedServiceModelId) ?? null
@@ -151,6 +156,10 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     llmMode,
     localBuildIntent
   })
+  const canToggleOllamaThinking = supportsOllamaThinking(activeBuildModel)
+  const requestedThinkingMode = canToggleOllamaThinking
+    ? (ollamaThinkingEnabled ? 'enabled' : 'disabled')
+    : undefined
   const canBuild = shouldBuild && (
     localBuildIntent
       ? buildUsage?.canExecute === true
@@ -169,6 +178,15 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       .then(setWalletStatus)
       .catch(() => setWalletStatus(initialWalletStatus))
   }, [client])
+
+  useEffect(() => {
+    const storedValue = window.localStorage.getItem(OLLAMA_THINKING_STORAGE_KEY)
+    setOllamaThinkingEnabled(storedValue === '1')
+  }, [])
+
+  useEffect(() => {
+    window.localStorage.setItem(OLLAMA_THINKING_STORAGE_KEY, ollamaThinkingEnabled ? '1' : '0')
+  }, [ollamaThinkingEnabled])
 
   useEffect(() => {
     let active = true
@@ -472,7 +490,14 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
         ? await decryptStoredApiKey(selectedLocalKey, protectionPassword)
         : ''
       const provider = localBuildIntent ? requestedBuildModel : activeBuildModel
-      const result = await client.plan.build(profileId, apiKey, provider, undefined, requestedBuildResourceMode)
+      const result = await client.plan.build(
+        profileId,
+        apiKey,
+        provider,
+        undefined,
+        requestedBuildResourceMode,
+        requestedThinkingMode
+      )
 
       if (!result.success) {
         throw new Error(result.error || 'BUILD_FAILED')
@@ -544,6 +569,9 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
               title={localBuildIntent ? t('settings.local_build_title') : t('settings.apikey_title')}
               hint={localBuildIntent ? t('settings.local_build_hint') : t('settings.apikey_hint')}
               selectedProviderLabel={selectedProviderLabel}
+              showThinkingControl={canToggleOllamaThinking}
+              thinkingEnabled={ollamaThinkingEnabled}
+              inspectorVisible={debugPanelVisible}
               shouldBuild={shouldBuild}
               localProviderBlocked={localProviderBlocked}
               buildBusy={buildBusy}
@@ -555,6 +583,8 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
               buildUsage={buildUsage}
               showAdvancedDetails={advancedVisible || localBuildIntent}
               walletStatus={walletStatus}
+              onThinkingChange={setOllamaThinkingEnabled}
+              onToggleInspector={() => setDebugPanelVisible((visible) => !visible)}
               onBuild={handleBuild}
             />
 
@@ -597,6 +627,16 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
           </div>
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {debugPanelVisible && (
+          <DebugPanel
+            onClose={() => {
+              setDebugPanelVisible(false)
+            }}
+          />
+        )}
+      </AnimatePresence>
     </MotionConfig>
   )
 }
