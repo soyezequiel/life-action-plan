@@ -39,6 +39,7 @@ export const goalDraftSchema = z.object({
   category: goalCategorySchema,
   effort: goalEffortSchema,
   isHabit: z.boolean().default(false),
+  needsClarification: z.boolean().default(false),
   priority: goalPrioritySchema,
   horizonMonths: z.number().int().min(1).max(60),
   hoursPerWeek: z.number().int().min(1).max(40)

@@ -54,6 +54,27 @@ describe('flow engine', () => {
     expect(goals[0]?.horizonMonths).toBe(12)
   })
 
+  it('cleans conversational prefixes from single-goal plan titles', () => {
+    const goals = analyzeObjectives(['Quiero bajar de peso'])
+    const profile = buildProfileFromFlow(goals, {
+      horasLibresLaborales: '2',
+      horasLibresDescanso: '4'
+    })
+    const strategy = buildStrategicPlanRefined(goals, profile)
+
+    expect(strategy.title).toBe('Plan para bajar de peso')
+  })
+
+  it('flags only genuinely vague goals for clarification', () => {
+    const vagueGoal = analyzeObjectives(['Ser feliz'])
+    const actionableGoal = analyzeObjectives(['Correr una maraton en octubre'])
+    const specificChangeGoal = analyzeObjectives(['Cambiar de trabajo'])
+
+    expect(vagueGoal[0]?.needsClarification).toBe(true)
+    expect(actionableGoal[0]?.needsClarification).toBe(false)
+    expect(specificChangeGoal[0]?.needsClarification).toBe(false)
+  })
+
   it('creates a dynamic fallback intake that still keeps the feasibility questions required for the plan', () => {
     const goals = analyzeObjectives([
       'Bajar de peso',
@@ -322,6 +343,8 @@ describe('flow engine', () => {
         text: 'Cambiar de trabajo',
         category: 'carrera',
         effort: 'medio',
+        isHabit: false,
+        needsClarification: false,
         priority: 1,
         horizonMonths: 12,
         hoursPerWeek: 5
@@ -331,6 +354,8 @@ describe('flow engine', () => {
         text: 'Terminar una certificacion',
         category: 'educacion',
         effort: 'medio',
+        isHabit: false,
+        needsClarification: false,
         priority: 2,
         horizonMonths: 12,
         hoursPerWeek: 5

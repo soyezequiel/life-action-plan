@@ -80,6 +80,11 @@ function clipText(value: string, max = 80): string {
   return normalized.length > max ? `${normalized.slice(0, max - 1).trim()}…` : normalized
 }
 
+function cleanGoalTextForTitle(text: string): string {
+  return normalizeText(text)
+    .replace(/^(quiero|necesito|me gustaria|me gustaría|voy a|tengo que|debo|quisiera|planeo)\s+/i, '')
+}
+
 function defaultAvailabilityGrid(): AvailabilityGrid {
   return availabilityGridSchema.parse({
     monday: { morning: false, afternoon: false, evening: true },
@@ -186,6 +191,15 @@ function inferIsHabit(text: string, category: GoalDraft['category']): boolean {
   return false
 }
 
+function isVagueGoal(text: string): boolean {
+  const normalized = normalizeComparableText(text)
+
+  if (normalized.length < 10) return true
+  if (/^(ser|estar|sentir)\s/.test(normalized) && normalized.length < 25) return true
+  if (/^(mejorar|cambiar|crecer|avanzar)$/.test(normalized)) return true
+  return false
+}
+
 function inferGoalHoursPerWeek(
   effort: GoalDraft['effort'],
   value: string,
@@ -226,6 +240,7 @@ export function analyzeObjectives(objectives: string[]): GoalDraft[] {
         category,
         effort,
         isHabit,
+        needsClarification: isVagueGoal(objective),
         priority: Math.min(index + 1, 5),
         horizonMonths: inferGoalHorizonMonths(objective, effort),
         hoursPerWeek: inferGoalHoursPerWeek(effort, objective, category, isHabit)
@@ -445,7 +460,9 @@ export function buildStrategicPlan(goals: GoalDraft[], profile: Perfil): Strateg
   const estimatedWeeklyHours = phases.reduce((total, phase) => total + phase.hoursPerWeek, 0)
 
   return {
-    title: goals.length > 1 ? 'Plan unificado de objetivos' : `Plan para ${clipText(goals[0]?.text || 'tu objetivo', 80)}`,
+    title: goals.length > 1
+      ? 'Plan unificado de objetivos'
+      : `Plan para ${clipText(cleanGoalTextForTitle(goals[0]?.text || 'tu objetivo'), 80)}`,
     summary: goals.length > 1
       ? 'Armé una estrategia unificada que ordena tus metas por prioridad, carga y ventanas realistas de ejecución.'
       : 'Armé una estrategia de alto nivel para avanzar sin bajar todavía al detalle diario.',
@@ -754,7 +771,9 @@ export function buildStrategicPlanRefined(goals: GoalDraft[], profile: Perfil): 
   const estimatedWeeklyHours = calculatePeakWeeklyHours(normalizedPhases, totalMonths)
 
   return {
-    title: goals.length > 1 ? 'Plan unificado de objetivos' : `Plan para ${clipText(goals[0]?.text || 'tu objetivo', 80)}`,
+    title: goals.length > 1
+      ? 'Plan unificado de objetivos'
+      : `Plan para ${clipText(cleanGoalTextForTitle(goals[0]?.text || 'tu objetivo'), 80)}`,
     summary: goals.length > 1
       ? 'Arme una estrategia unificada que ordena tus metas por prioridad, carga y ventanas realistas de ejecucion.'
       : phases.length > 1
