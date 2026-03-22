@@ -859,10 +859,27 @@ export function runStrategicSimulation(
   strategy: StrategicPlanDraft,
   realityCheck: RealityCheckResult
 ): StrategicSimulationSnapshot {
-  const difference = strategy.estimatedWeeklyHours - realityCheck.availableHours
+  const availableHours = realityCheck.availableHours
   const iterations: StrategicSimulationSnapshot['iterations'] = []
   let finalStatus: StrategicSimulationSnapshot['finalStatus'] = 'PASS'
   const findings: string[] = []
+  let worstMonth = 1
+  let worstLoad = 0
+
+  for (let month = 1; month <= strategy.totalMonths; month += 1) {
+    const monthLoad = strategy.phases.reduce((total, phase) => (
+      phase.startMonth <= month && phase.endMonth >= month
+        ? total + phase.hoursPerWeek
+        : total
+    ), 0)
+
+    if (monthLoad > worstLoad) {
+      worstLoad = monthLoad
+      worstMonth = month
+    }
+  }
+
+  const difference = worstLoad - availableHours
 
   if (difference > 4) {
     iterations.push(
@@ -915,6 +932,15 @@ export function runStrategicSimulation(
     findings.push('La distribución semanal se ve consistente con tu disponibilidad actual.')
   }
 
+  if (worstLoad > availableHours) {
+    findings.push(`El mes ${worstMonth} es el más exigente con ${worstLoad}h semanales contra ${availableHours}h disponibles.`)
+  }
+
+  const overlappingPhases = strategy.phases.filter((phase) => phase.startMonth <= worstMonth && phase.endMonth >= worstMonth)
+  if (overlappingPhases.length > 1) {
+    findings.push(`En el mes ${worstMonth} hay ${overlappingPhases.length} frentes activos al mismo tiempo.`)
+  }
+
   if (realityCheck.adjustmentsApplied.length > 0) {
     findings.push(...realityCheck.adjustmentsApplied)
   }
@@ -931,7 +957,7 @@ export function runStrategicSimulation(
       ? 'La corrida encontro tension en la carga semanal y aplico un ajuste para evitar que el plan quede fragil.'
       : 'La corrida no detecto choques estructurales y el plan entra dentro de un margen sostenible.',
     checkedAreas: [
-      'Carga semanal total contra horas disponibles',
+      'Pico semanal por mes contra horas disponibles',
       'Choques entre fases activas al mismo tiempo',
       'Margen de recuperacion dentro de la semana'
     ],

@@ -255,6 +255,56 @@ describe('flow engine', () => {
     expect(simulation.checkedAreas.length).toBeGreaterThanOrEqual(3)
   })
 
+  it('reports the most demanding month when several phases overlap', () => {
+    const strategy = {
+      title: 'Plan unificado de objetivos',
+      summary: 'Dos frentes fuertes en paralelo al principio.',
+      totalMonths: 6,
+      estimatedWeeklyHours: 16,
+      phases: [
+        {
+          id: 'phase-1',
+          title: 'Fase 1: Cambio laboral',
+          summary: 'Busqueda activa durante los primeros meses.',
+          goalIds: ['goal-1'],
+          dependencies: [],
+          startMonth: 1,
+          endMonth: 3,
+          hoursPerWeek: 8,
+          milestone: 'Cerrar entrevistas',
+          metrics: []
+        },
+        {
+          id: 'phase-2',
+          title: 'Fase 2: Proyecto paralelo',
+          summary: 'Frente paralelo concentrado al inicio.',
+          goalIds: ['goal-2'],
+          dependencies: [],
+          startMonth: 1,
+          endMonth: 3,
+          hoursPerWeek: 8,
+          milestone: 'Armar portfolio',
+          metrics: []
+        }
+      ],
+      milestones: ['Cerrar entrevistas', 'Armar portfolio'],
+      conflicts: []
+    } satisfies Parameters<typeof runStrategicSimulation>[0]
+    const realityCheck = {
+      status: 'ok',
+      availableHours: 18,
+      neededHours: 16,
+      selectedAdjustment: 'keep',
+      summary: 'La carga general entra.',
+      recommendations: [],
+      adjustmentsApplied: []
+    } satisfies Parameters<typeof runStrategicSimulation>[1]
+    const simulation = runStrategicSimulation(strategy, realityCheck)
+
+    expect(simulation.findings.some((finding) => finding.includes('mes 1'))).toBe(true)
+    expect(simulation.findings.some((finding) => finding.includes('2 frentes activos'))).toBe(true)
+  })
+
   it('builds first-week events without ignoring weekly frequency or fixed blocked slots', () => {
     const goals = analyzeObjectives([
       'Cambiar de trabajo a producto en 6 meses',
