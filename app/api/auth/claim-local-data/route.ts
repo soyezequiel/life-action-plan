@@ -1,4 +1,4 @@
-import { claimAnonymousLocalData } from '../../_db'
+import { claimAnonymousLocalData, claimAnonymousWorkflowData } from '../../_db'
 import { claimLocalDataRequestSchema } from '../../_schemas'
 import { apiErrorMessages, jsonResponse } from '../../_shared'
 import { getAuthenticatedUserId } from '../../../../src/lib/auth/session'
@@ -24,6 +24,10 @@ export async function POST(request: Request): Promise<Response> {
 
   const claimed = await claimAnonymousLocalData(userId, parsed.data.localProfileId)
 
+  if (claimed && parsed.data.localWorkflowId) {
+    await claimAnonymousWorkflowData(userId, parsed.data.localWorkflowId)
+  }
+
   if (!claimed) {
     return jsonResponse({
       success: false,
@@ -33,6 +37,7 @@ export async function POST(request: Request): Promise<Response> {
 
   return jsonResponse({
     success: true,
-    profileId: parsed.data.localProfileId
+    profileId: parsed.data.localProfileId,
+    workflowId: parsed.data.localWorkflowId ?? null
   })
 }

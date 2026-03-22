@@ -337,7 +337,7 @@ export const browserLapClient: LapAPI = {
       apiKey: string,
       provider?: string,
       backendCredentialId?: string,
-      resourceMode: 'auto' | 'backend' | 'user' = 'auto'
+      resourceMode: 'auto' | 'backend' | 'user' | 'codex' = 'auto'
     ) {
       const initial: PlanBuildProgress = {
         profileId,

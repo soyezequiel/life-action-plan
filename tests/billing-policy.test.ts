@@ -73,7 +73,30 @@ describe('billing policy', () => {
     }))
   })
 
-  it('cobra backend-local porque consume recurso del servidor aunque el modelo sea local', () => {
+  it('saltea el cobro si el modo codex usa el backend solo como herramienta interna', () => {
+    const decision = resolveBillingPolicy({
+      operation: 'plan_build',
+      executionContext: createContext({
+        mode: 'codex-cloud',
+        resourceOwner: 'backend',
+        credentialSource: 'backend-stored',
+        chargePolicy: 'skip',
+        chargeReason: 'internal_tooling',
+        credentialId: 'cred-backend-codex',
+        resolutionSource: 'requested-mode'
+      })
+    })
+
+    expect(decision).toEqual(expect.objectContaining({
+      executionMode: 'codex-cloud',
+      resourceOwner: 'backend',
+      chargeable: false,
+      skipReasonCode: 'internal_tooling',
+      skipReasonDetail: 'INTERNAL_TOOLING_MODE'
+    }))
+  })
+
+  it('saltea backend-local en desarrollo porque no genera cobro real para el usuario', () => {
     const decision = resolveBillingPolicy({
       operation: 'plan_build',
       executionContext: createContext({
@@ -93,8 +116,9 @@ describe('billing policy', () => {
     expect(decision).toEqual(expect.objectContaining({
       executionMode: 'backend-local',
       resourceOwner: 'backend',
-      chargeable: true,
-      skipReasonCode: null
+      chargeable: false,
+      skipReasonCode: 'operation_not_chargeable',
+      skipReasonDetail: 'LOCAL_EXECUTION_NO_CHARGE'
     }))
   })
 

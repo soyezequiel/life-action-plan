@@ -222,6 +222,60 @@ function createLapClientStub(): LapAPI {
 }
 
 describe('dashboard interaction', () => {
+  it('envia rehacer mi perfil al flow con entrypoint de reintake', async () => {
+    const client = createLapClientStub()
+    const user = userEvent.setup()
+    pushMock.mockReset()
+
+    render(
+      <AppServicesProvider services={{ lapClient: client }}>
+        <Dashboard deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('dashboard.greeting', { nombre: 'Ada' }))
+
+    await user.click(screen.getByRole('button', { name: t('dashboard.redo_intake') }))
+
+    expect(pushMock).toHaveBeenCalledWith('/flow?entry=redo-profile')
+  })
+
+  it('envia cambiar objetivo al flow arrancando desde objetivos', async () => {
+    const client = createLapClientStub()
+    const user = userEvent.setup()
+    pushMock.mockReset()
+
+    render(
+      <AppServicesProvider services={{ lapClient: client }}>
+        <Dashboard deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('dashboard.greeting', { nombre: 'Ada' }))
+
+    await user.click(screen.getByRole('button', { name: t('dashboard.change_objectives') }))
+
+    expect(pushMock).toHaveBeenCalledWith('/flow?entry=change-objectives')
+  })
+
+  it('envia rehacer desde cero al flow arrancando en gate', async () => {
+    const client = createLapClientStub()
+    const user = userEvent.setup()
+    pushMock.mockReset()
+
+    render(
+      <AppServicesProvider services={{ lapClient: client }}>
+        <Dashboard deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('dashboard.greeting', { nombre: 'Ada' }))
+
+    await user.click(screen.getByRole('button', { name: t('dashboard.restart_flow') }))
+
+    expect(pushMock).toHaveBeenCalledWith('/flow?entry=restart-flow')
+  })
+
   it('loads a plan and updates progress plus streak after completing a habit', async () => {
     const client = createLapClientStub()
     const user = userEvent.setup()

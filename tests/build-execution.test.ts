@@ -92,6 +92,46 @@ describe('build execution runtime', () => {
     expect(resolution.billingPolicy.estimatedCostSats).toBeGreaterThan(0)
   })
 
+  it('usa el secreto persistido del backend y saltea cobro cuando el contexto resuelto es codex-cloud', async () => {
+    mocks.resolveExecutionContextMock.mockResolvedValue(resolvedExecutionContextSchema.parse({
+      mode: 'codex-cloud',
+      resourceOwner: 'backend',
+      executionTarget: 'cloud',
+      credentialSource: 'backend-stored',
+      provider: {
+        providerId: 'openrouter',
+        modelId: 'openrouter:openai/gpt-4o-mini',
+        providerKind: 'cloud'
+      },
+      chargePolicy: 'skip',
+      chargeReason: 'internal_tooling',
+      credentialId: 'cred-backend-codex',
+      canExecute: true,
+      resolutionSource: 'requested-mode',
+      blockReasonCode: null,
+      blockReasonDetail: null
+    }))
+    mocks.getCredentialConfigurationSecretMock.mockResolvedValue('backend-codex-key')
+
+    const resolution = await resolvePlanBuildExecution({
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      deploymentMode: 'local',
+      requestedMode: 'codex-cloud'
+    })
+
+    expect(mocks.getCredentialConfigurationSecretMock).toHaveBeenCalledWith('cred-backend-codex')
+    expect(resolution.runtime).toEqual({
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      apiKey: 'backend-codex-key'
+    })
+    expect(resolution.billingPolicy.chargeable).toBe(false)
+    expect(resolution.billingPolicy.skipReasonCode).toBe('internal_tooling')
+    expect(toOperationChargeSkipReason(resolution.billingPolicy)).toEqual({
+      reasonCode: 'internal_tooling',
+      reasonDetail: 'INTERNAL_TOOLING_MODE'
+    })
+  })
+
   it('resuelve runtime local del backend sin api key y conserva bloqueo cuando no puede ejecutar', async () => {
     process.env.OLLAMA_BASE_URL = 'http://localhost:11434'
     mocks.resolveExecutionContextMock.mockResolvedValueOnce(resolvedExecutionContextSchema.parse({

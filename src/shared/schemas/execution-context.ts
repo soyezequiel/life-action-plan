@@ -4,9 +4,9 @@ export const resourceOwnerSchema = z.enum(['backend', 'user'])
 export const executionTargetSchema = z.enum(['cloud', 'backend-local', 'user-local'])
 export const credentialSourceSchema = z.enum(['backend-stored', 'user-stored', 'user-supplied', 'none'])
 export const chargePolicySchema = z.enum(['charge', 'skip'])
-export const chargeReasonSchema = z.enum(['backend_resource', 'user_resource'])
+export const chargeReasonSchema = z.enum(['backend_resource', 'user_resource', 'internal_tooling'])
 export const providerKindSchema = z.enum(['cloud', 'local'])
-export const executionModeSchema = z.enum(['backend-cloud', 'user-cloud', 'backend-local', 'user-local'])
+export const executionModeSchema = z.enum(['backend-cloud', 'user-cloud', 'codex-cloud', 'backend-local', 'user-local'])
 export const executionResolutionSourceSchema = z.enum([
   'requested-mode',
   'auto-user-supplied',
@@ -23,6 +23,7 @@ export const executionBlockReasonSchema = z.enum([
   'cloud_credential_missing',
   'user_credential_missing',
   'backend_credential_missing',
+  'codex_mode_unavailable',
   'backend_local_unavailable',
   'user_local_not_supported'
 ])
@@ -70,6 +71,14 @@ const executionModeSpecEntries = [
     allowedCredentialSources: ['user-stored', 'user-supplied'],
     chargePolicy: 'skip',
     chargeReason: 'user_resource'
+  },
+  {
+    mode: 'codex-cloud',
+    resourceOwner: 'backend',
+    executionTarget: 'cloud',
+    allowedCredentialSources: ['backend-stored'],
+    chargePolicy: 'skip',
+    chargeReason: 'internal_tooling'
   },
   {
     mode: 'backend-local',

@@ -69,6 +69,6 @@ describe('intake express interaction', () => {
     await user.keyboard('{Enter}')
 
     expect(screen.getByLabelText(t('intake.questions.edad'))).toBeTruthy()
-    expect(screen.getByText(t('intake.tip_enter'))).toBeTruthy()
+    expect(screen.getByText(t('intake.tip_short'))).toBeTruthy()
   })
 })

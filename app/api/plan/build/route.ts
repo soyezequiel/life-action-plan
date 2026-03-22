@@ -74,6 +74,8 @@ export async function POST(request: Request): Promise<Response> {
     ? 'backend-cloud'
     : resourceMode === 'user'
       ? 'user-cloud'
+      : resourceMode === 'codex'
+        ? 'codex-cloud'
       : backendCredentialId
         ? 'backend-cloud'
         : undefined

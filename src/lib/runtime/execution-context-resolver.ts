@@ -1,4 +1,4 @@
-import { DEFAULT_CREDENTIAL_LABEL, resolvedExecutionContextSchema } from '../../shared/schemas'
+import { DEFAULT_CREDENTIAL_LABEL, getExecutionModeSpec, resolvedExecutionContextSchema } from '../../shared/schemas'
 import type {
   ExecutionBlockReason,
   ExecutionMode,
@@ -37,6 +37,16 @@ interface StoredCredentialCandidate {
   credentialId: string
 }
 
+function canUseCodexServiceMode(deploymentMode: DeploymentMode): boolean {
+  const override = process.env.LAP_ENABLE_CODEX_SERVICE_MODE?.trim().toLowerCase() || ''
+
+  if (override === '1' || override === 'true') {
+    return true
+  }
+
+  return deploymentMode === 'local'
+}
+
 async function findSpecificStoredCredential(input: {
   credentialId: string
   owner: 'backend' | 'user'
@@ -73,16 +83,16 @@ function createBlockedContext(input: {
   blockReasonCode: ExecutionBlockReason
   blockReasonDetail: string
 }): ResolvedExecutionContext {
+  const modeSpec = getExecutionModeSpec(input.mode)
+
   return resolvedExecutionContextSchema.parse({
-    mode: input.mode,
-    resourceOwner: input.mode.startsWith('backend') ? 'backend' : 'user',
-    executionTarget: input.mode === 'backend-cloud' || input.mode === 'user-cloud'
-      ? 'cloud'
-      : input.mode,
+    mode: modeSpec.mode,
+    resourceOwner: modeSpec.resourceOwner,
+    executionTarget: modeSpec.executionTarget,
     credentialSource: input.credentialSource,
     provider: input.provider,
-    chargePolicy: input.mode.startsWith('backend') ? 'charge' : 'skip',
-    chargeReason: input.mode.startsWith('backend') ? 'backend_resource' : 'user_resource',
+    chargePolicy: modeSpec.chargePolicy,
+    chargeReason: modeSpec.chargeReason,
     credentialId: null,
     canExecute: false,
     resolutionSource: input.resolutionSource,
@@ -98,16 +108,16 @@ function createExecutableContext(input: {
   credentialId: string | null
   resolutionSource: ExecutionResolutionSource
 }): ResolvedExecutionContext {
+  const modeSpec = getExecutionModeSpec(input.mode)
+
   return resolvedExecutionContextSchema.parse({
-    mode: input.mode,
-    resourceOwner: input.mode.startsWith('backend') ? 'backend' : 'user',
-    executionTarget: input.mode === 'backend-cloud' || input.mode === 'user-cloud'
-      ? 'cloud'
-      : input.mode,
+    mode: modeSpec.mode,
+    resourceOwner: modeSpec.resourceOwner,
+    executionTarget: modeSpec.executionTarget,
     credentialSource: input.credentialSource,
     provider: input.provider,
-    chargePolicy: input.mode.startsWith('backend') ? 'charge' : 'skip',
-    chargeReason: input.mode.startsWith('backend') ? 'backend_resource' : 'user_resource',
+    chargePolicy: modeSpec.chargePolicy,
+    chargeReason: modeSpec.chargeReason,
     credentialId: input.credentialId,
     canExecute: true,
     resolutionSource: input.resolutionSource,
@@ -220,7 +230,8 @@ async function findAnyActiveBackendCredential(input: {
 
 async function resolveCloudRequestedMode(input: {
   provider: ProviderDescriptor
-  requestedMode: 'backend-cloud' | 'user-cloud'
+  requestedMode: 'backend-cloud' | 'user-cloud' | 'codex-cloud'
+  deploymentMode: DeploymentMode
   userSuppliedApiKey: string
   userId: string
   backendOwnerId: string
@@ -268,6 +279,17 @@ async function resolveCloudRequestedMode(input: {
     })
   }
 
+  if (input.requestedMode === 'codex-cloud' && !canUseCodexServiceMode(input.deploymentMode)) {
+    return createBlockedContext({
+      mode: 'codex-cloud',
+      provider: input.provider,
+      credentialSource: 'backend-stored',
+      resolutionSource: 'requested-mode',
+      blockReasonCode: 'codex_mode_unavailable',
+      blockReasonDetail: 'Codex service mode is only available in local development unless explicitly enabled.'
+    })
+  }
+
   const requestedBackendCredentialId = input.backendCredentialId?.trim() || ''
 
   if (requestedBackendCredentialId) {
@@ -280,7 +302,7 @@ async function resolveCloudRequestedMode(input: {
 
     if (specificCredential) {
       return createExecutableContext({
-        mode: 'backend-cloud',
+        mode: input.requestedMode,
         provider: input.provider,
         credentialSource: specificCredential.credentialSource,
         credentialId: specificCredential.credentialId,
@@ -289,7 +311,7 @@ async function resolveCloudRequestedMode(input: {
     }
 
     return createBlockedContext({
-      mode: 'backend-cloud',
+      mode: input.requestedMode,
       provider: input.provider,
       credentialSource: 'backend-stored',
       resolutionSource: 'requested-mode',
@@ -307,7 +329,7 @@ async function resolveCloudRequestedMode(input: {
 
   if (backendCredential) {
     return createExecutableContext({
-      mode: 'backend-cloud',
+      mode: input.requestedMode,
       provider: input.provider,
       credentialSource: backendCredential.credentialSource,
       credentialId: backendCredential.credentialId,
@@ -323,7 +345,7 @@ async function resolveCloudRequestedMode(input: {
 
     if (fallbackBackendCredential) {
       return createExecutableContext({
-        mode: 'backend-cloud',
+        mode: input.requestedMode,
         provider: input.provider,
         credentialSource: fallbackBackendCredential.credentialSource,
         credentialId: fallbackBackendCredential.credentialId,
@@ -333,7 +355,7 @@ async function resolveCloudRequestedMode(input: {
   }
 
   return createBlockedContext({
-    mode: 'backend-cloud',
+    mode: input.requestedMode,
     provider: input.provider,
     credentialSource: 'backend-stored',
     resolutionSource: 'requested-mode',
@@ -505,8 +527,8 @@ function resolveLocalAutoMode(input: {
   })
 }
 
-function isCloudExecutionMode(mode: ExecutionMode): mode is 'backend-cloud' | 'user-cloud' {
-  return mode === 'backend-cloud' || mode === 'user-cloud'
+function isCloudExecutionMode(mode: ExecutionMode): mode is 'backend-cloud' | 'user-cloud' | 'codex-cloud' {
+  return mode === 'backend-cloud' || mode === 'user-cloud' || mode === 'codex-cloud'
 }
 
 function isLocalExecutionMode(mode: ExecutionMode): mode is 'backend-local' | 'user-local' {
@@ -542,7 +564,7 @@ export async function resolveExecutionContext(input: ResolveExecutionContextInpu
   if (requestedMode !== 'auto') {
     if (isCloudExecutionMode(requestedMode) && !isCloudModel(modelId)) {
       return createBlockedContext({
-        mode: requestedMode === 'backend-cloud' ? 'backend-local' : 'user-local',
+        mode: requestedMode === 'user-cloud' ? 'user-local' : 'backend-local',
         provider,
         credentialSource: 'none',
         resolutionSource: 'requested-mode',
@@ -566,6 +588,7 @@ export async function resolveExecutionContext(input: ResolveExecutionContextInpu
       return resolveCloudRequestedMode({
         provider,
         requestedMode,
+        deploymentMode,
         userSuppliedApiKey,
         userId,
         backendOwnerId,

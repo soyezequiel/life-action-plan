@@ -237,6 +237,7 @@ export function toExecutionBlockErrorMessage(reasonCode: ExecutionBlockReason | 
     case 'cloud_credential_missing':
       return t('errors.no_api_key')
     case 'backend_credential_missing':
+    case 'codex_mode_unavailable':
       return t('errors.service_unavailable')
     case 'backend_local_unavailable':
     case 'user_local_not_supported':
@@ -251,6 +252,7 @@ export function toExecutionBlockErrorMessage(reasonCode: ExecutionBlockReason | 
 export function toChargeErrorMessage(reasonCode: ChargeReasonCode | null): string {
   switch (reasonCode) {
     case 'user_resource':
+    case 'internal_tooling':
     case 'execution_blocked':
       return t('errors.generic')
     case 'wallet_not_connected':

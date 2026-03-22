@@ -200,6 +200,8 @@
       "system": "Sistema"
     },
     "redo_intake": "Rehacer mi perfil",
+    "change_objectives": "Cambiar objetivo",
+    "restart_flow": "Rehacer desde cero",
     "calendar_panel": {
       "label": "Todo el plan",
       "title": "Calendario completo",
@@ -501,6 +503,8 @@
       "advanced_hint": "Si ya tenes una cuenta propia o queres elegir el motor a mano, hacelo aca.",
       "own_key_title": "Tengo mi propia cuenta",
       "own_key_hint": "Pensado para perfiles tecnicos. Pulso no cobra este uso.",
+      "codex_title": "Usar desde Codex",
+      "codex_hint": "Usa el servicio de Pulso desde esta maquina sin pedir billetera.",
       "service_title": "Que Pulso lo haga por mi",
       "service_hint": "Pulso se ocupa del armado y te avisa si hay un costo."
     },
@@ -549,6 +553,7 @@
     "mode": {
       "backend-cloud": "Vas a usar el servicio de Pulso para esta accion.",
       "user-cloud": "Vas a usar tu propia conexion para esta accion.",
+      "codex-cloud": "Vas a usar el servicio de Pulso desde Codex sin cobro en sats.",
       "backend-local": "Pulso pone la maquina que arma el plan.",
       "user-local": "Esta ruta usaria tu propia maquina."
     },
@@ -561,12 +566,14 @@
     "billing": {
       "charge": "Como usa el servicio de Pulso, esta accion se cobra.",
       "user_resource": "Como usas tu propia conexion, esta accion no se cobra desde Pulso.",
+      "internal_tooling": "Este modo usa el servicio de Pulso sin pedir cobro en sats.",
       "operation_not_chargeable": "Esta accion no tiene cobro configurado por ahora.",
       "execution_blocked": "Antes de ejecutar, primero hay que destrabar esta ruta."
     },
     "blocked": {
       "user_credential_missing": "Falta tu clave para esta ruta.",
       "backend_credential_missing": "Falta la configuracion del sistema para esta ruta.",
+      "codex_mode_unavailable": "Este modo solo se habilita en desarrollo local.",
       "user_local_not_supported": "Esta ruta todavia no se puede ejecutar desde la web.",
       "other": "Esta ruta no esta disponible ahora."
     }

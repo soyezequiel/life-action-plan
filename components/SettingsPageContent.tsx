@@ -83,6 +83,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const shouldBuild = intent === 'build'
   const localProviderBlocked = requestedProvider === 'ollama' && deploymentMode !== 'local'
   const localBuildIntent = shouldBuild && requestedProvider === 'ollama' && !localProviderBlocked
+  const codexModeVisible = deploymentMode === 'local'
   const requestedBuildModel = localProviderBlocked
     ? DEFAULT_OPENAI_BUILD_MODEL
     : resolveBuildModel(requestedProvider)
@@ -121,6 +122,8 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     ? t(getProviderLabelKey(activeBuildModel))
     : llmMode === 'own'
       ? t('settings.llm_mode.own_key_title')
+      : llmMode === 'codex'
+        ? t('settings.llm_mode.codex_title')
       : t('settings.llm_mode.service_title')
   const canBuild = shouldBuild && (
     localBuildIntent
@@ -179,10 +182,16 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       return
     }
 
+    if (requestedMode === 'codex' && codexModeVisible) {
+      setAdvancedVisible(true)
+      setLlmMode('codex')
+      return
+    }
+
     if (requestedMode === 'service') {
       setLlmMode('service')
     }
-  }, [requestedMode])
+  }, [codexModeVisible, requestedMode])
 
   useEffect(() => {
     if (localKeys.length > 0 && !selectedLocalKeyId) {
@@ -216,7 +225,13 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     let active = true
     const params = new URLSearchParams({
       provider: activeBuildModel,
-      resourceMode: localBuildIntent ? 'auto' : llmMode === 'own' ? 'user' : 'backend'
+      resourceMode: localBuildIntent
+        ? 'auto'
+        : llmMode === 'own'
+          ? 'user'
+          : llmMode === 'codex'
+            ? 'codex'
+            : 'backend'
     })
 
     if (!localBuildIntent) {
@@ -437,7 +452,13 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
         ? await decryptStoredApiKey(selectedLocalKey, protectionPassword)
         : ''
       const provider = localBuildIntent ? requestedBuildModel : activeBuildModel
-      const resourceMode = localBuildIntent ? 'auto' : llmMode === 'own' ? 'user' : 'backend'
+      const resourceMode = localBuildIntent
+        ? 'auto'
+        : llmMode === 'own'
+          ? 'user'
+          : llmMode === 'codex'
+            ? 'codex'
+            : 'backend'
       const result = await client.plan.build(profileId, apiKey, provider, undefined, resourceMode)
 
       if (!result.success) {
@@ -478,7 +499,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
             <button className="app-button app-button--secondary" onClick={() => router.push('/')}>
               {t('ui.cancel')}
             </button>
-            <button className="app-button app-button--secondary" onClick={() => router.push('/intake')}>
+            <button className="app-button app-button--secondary" onClick={() => router.push('/flow?entry=redo-profile')}>
               {t('dashboard.redo_intake')}
             </button>
           </div>
@@ -499,6 +520,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
             <LlmModeSelector
               value={llmMode}
               advancedVisible={advancedVisible}
+              showCodexMode={codexModeVisible}
               onChange={setLlmMode}
               onToggleAdvanced={handleToggleAdvanced}
             />

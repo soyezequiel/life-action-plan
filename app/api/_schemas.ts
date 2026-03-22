@@ -1,14 +1,18 @@
 import { z } from 'zod'
 import {
+  availabilityGridSchema,
   credentialOwnerSchema,
   credentialRecordStatusSchema,
-  credentialSecretTypeSchema
+  credentialSecretTypeSchema,
+  flowStepSchema,
+  goalDraftSchema,
+  realityAdjustmentSchema
 } from '../../src/shared/schemas'
 
 const idSchema = z.string().uuid()
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 const cloudApiProviderSchema = z.enum(['openai', 'openrouter'])
-const buildResourceModeSchema = z.enum(['auto', 'backend', 'user'])
+const buildResourceModeSchema = z.enum(['auto', 'backend', 'user', 'codex'])
 const credentialMetadataSchema = z.union([
   z.record(z.string(), z.unknown()),
   z.array(z.unknown())
@@ -134,7 +138,64 @@ export const vaultBackupRequestSchema = z.object({
 }).strict()
 
 export const claimLocalDataRequestSchema = z.object({
-  localProfileId: idSchema
+  localProfileId: idSchema,
+  localWorkflowId: idSchema.optional()
+}).strict()
+
+export const flowSessionCreateRequestSchema = z.object({
+  workflowId: idSchema.optional(),
+  sourceWorkflowId: idSchema.optional(),
+  intent: z.enum(['default', 'redo-profile', 'change-objectives', 'restart-flow']).default('default')
+}).strict()
+
+export const flowGateRequestSchema = z.object({
+  choice: z.enum(['pulso', 'advanced']).default('pulso'),
+  llmMode: z.enum(['service', 'own', 'codex', 'local']).default('service'),
+  provider: z.string().trim().min(1).default('openai:gpt-4o-mini'),
+  backendCredentialId: z.string().trim().min(1).nullable().optional(),
+  hasUserApiKey: z.boolean().optional()
+}).strict()
+
+export const flowObjectivesRequestSchema = z.object({
+  objectives: z.array(z.string().trim().min(1).max(500)).min(1).max(5),
+  orderedGoalIds: z.array(z.string().trim().min(1)).default([]),
+  goals: z.array(goalDraftSchema).optional()
+}).strict()
+
+export const flowIntakeRequestSchema = z.object({
+  answers: z.record(z.string(), z.string()).default({})
+}).strict()
+
+export const flowRealityCheckRequestSchema = z.object({
+  adjustment: realityAdjustmentSchema.default('keep')
+}).strict()
+
+export const flowPresentationRequestSchema = z.object({
+  accept: z.boolean().default(false),
+  feedback: z.string().trim().max(500).default(''),
+  edits: z.array(z.object({
+    id: z.string().trim().min(1),
+    label: z.string().trim().min(1).max(160).optional(),
+    detail: z.string().trim().min(1).max(320).optional()
+  }).strict()).default([])
+}).strict()
+
+export const flowCalendarRequestSchema = z.object({
+  grid: availabilityGridSchema.optional(),
+  notes: z.string().trim().max(500).default(''),
+  icsText: z.string().trim().max(20000).optional()
+}).strict()
+
+export const flowTopDownRequestSchema = z.object({
+  action: z.enum(['generate', 'confirm', 'revise', 'back']).default('generate')
+}).strict()
+
+export const flowResumePatchRequestSchema = z.object({
+  changeSummary: z.string().trim().max(500).default('')
+}).strict()
+
+export const flowStepQuerySchema = z.object({
+  step: flowStepSchema.optional()
 }).strict()
 
 export const debugMutationRequestSchema = z.union([

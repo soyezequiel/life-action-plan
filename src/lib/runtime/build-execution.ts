@@ -110,6 +110,13 @@ export function toOperationChargeSkipReason(decision: BillingPolicyDecision): Op
     }
   }
 
+  if (decision.skipReasonCode === 'internal_tooling') {
+    return {
+      reasonCode: 'internal_tooling',
+      reasonDetail: decision.skipReasonDetail ?? 'INTERNAL_TOOLING_MODE'
+    }
+  }
+
   if (decision.skipReasonCode === 'execution_blocked') {
     return {
       reasonCode: 'execution_blocked',

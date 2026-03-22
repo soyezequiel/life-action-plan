@@ -1,0 +1,406 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: 24px;
+  display: grid;
+  gap: 18px;
+}
+
+.inspectorButton {
+  justify-self: start;
+}
+
+.mainColumn {
+  display: grid;
+  gap: 18px;
+}
+
+.card {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(19, 31, 51, 0.1);
+  box-shadow: 0 18px 40px rgba(19, 31, 51, 0.08);
+  color: rgba(19, 31, 51, 0.92);
+}
+
+.card :global(.app-title),
+.card :global(.app-title--section) {
+  color: rgba(19, 31, 51, 0.96);
+}
+
+.card :global(.app-copy) {
+  color: rgba(19, 31, 51, 0.76);
+}
+
+.stepBanner {
+  gap: 10px;
+  background:
+    linear-gradient(135deg, rgba(239, 246, 255, 0.96), rgba(255, 255, 255, 0.96)),
+    rgba(255, 255, 255, 0.96);
+}
+
+.stepBannerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stepBannerTitle {
+  margin: 0;
+}
+
+.stepBannerHint {
+  margin: 0;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.summaryBox {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(237, 244, 255, 0.92);
+  border: 1px solid rgba(52, 114, 255, 0.16);
+}
+
+.strategyStack {
+  display: grid;
+  gap: 16px;
+}
+
+.sectionBlock {
+  display: grid;
+  gap: 12px;
+}
+
+.sectionTitle {
+  color: rgba(19, 31, 51, 0.88);
+}
+
+.stepRail {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+
+.stepItem {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.68);
+  background: rgba(19, 31, 51, 0.38);
+}
+
+.stepItemDone {
+  color: rgba(255, 255, 255, 0.84);
+  background: rgba(31, 153, 85, 0.24);
+}
+
+.stepItemCurrent {
+  color: rgba(255, 255, 255, 0.96);
+  background: rgba(52, 114, 255, 0.44);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.stepItemUpcoming {
+  color: rgba(255, 255, 255, 0.68);
+  background: rgba(19, 31, 51, 0.34);
+}
+
+.largeTextarea {
+  min-height: 220px;
+}
+
+.timeline {
+  display: grid;
+  gap: 12px;
+}
+
+.phaseList {
+  display: grid;
+  gap: 12px;
+}
+
+.phaseCard {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(19, 31, 51, 0.04);
+  border: 1px solid rgba(19, 31, 51, 0.06);
+}
+
+.phaseHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.phaseHeading {
+  display: grid;
+  gap: 4px;
+}
+
+.phaseHeading small {
+  color: rgba(19, 31, 51, 0.62);
+}
+
+.phaseMeta {
+  display: grid;
+  gap: 6px;
+}
+
+.phaseMeta p {
+  margin: 0;
+}
+
+.timelineItem {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(19, 31, 51, 0.04);
+}
+
+.gridTable {
+  display: grid;
+  grid-template-columns: 60px repeat(3, minmax(72px, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(19, 31, 51, 0.04);
+}
+
+.flatList {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.optionCard {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid rgba(19, 31, 51, 0.12);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.92);
+  color: rgba(19, 31, 51, 0.92);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.optionCard:hover {
+  transform: translateY(-1px);
+  border-color: rgba(52, 114, 255, 0.28);
+}
+
+.optionCardActive {
+  border-color: rgba(52, 114, 255, 0.42);
+  box-shadow: 0 14px 28px rgba(52, 114, 255, 0.14);
+  background: rgba(237, 244, 255, 0.96);
+}
+
+.optionTitle {
+  font-size: 1rem;
+}
+
+.optionCopy {
+  color: rgba(19, 31, 51, 0.72);
+  line-height: 1.45;
+}
+
+.inlineHint {
+  margin: 0;
+  color: rgba(19, 31, 51, 0.68);
+  line-height: 1.5;
+}
+
+.pillRow,
+.blockMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(19, 31, 51, 0.06);
+  color: rgba(19, 31, 51, 0.72);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.helperList {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.statCard {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(19, 31, 51, 0.08);
+}
+
+.statCard span {
+  color: rgba(19, 31, 51, 0.62);
+  font-size: 0.92rem;
+}
+
+.statCard strong {
+  color: rgba(19, 31, 51, 0.92);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.statusBadgeOk {
+  background: rgba(31, 153, 85, 0.14);
+  color: rgba(16, 117, 63, 1);
+}
+
+.statusBadgeWarn {
+  background: rgba(245, 158, 11, 0.16);
+  color: rgba(180, 95, 11, 1);
+}
+
+.statusBadgeFail {
+  background: rgba(220, 38, 38, 0.14);
+  color: rgba(176, 26, 26, 1);
+}
+
+.rangeField {
+  display: grid;
+  gap: 10px;
+}
+
+.rangeHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.rangeValue {
+  color: rgba(19, 31, 51, 0.9);
+  font-size: 0.95rem;
+}
+
+.rangeBounds {
+  color: rgba(19, 31, 51, 0.56);
+  font-size: 0.85rem;
+}
+
+.rangeInput {
+  width: 100%;
+  accent-color: rgba(52, 114, 255, 1);
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mainColumn {
+    order: 1;
+  }
+
+  .sidebar {
+    position: static;
+    order: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .fieldGrid,
+  .optionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .gridTable {
+    grid-template-columns: 52px repeat(3, minmax(0, 1fr));
+  }
+}

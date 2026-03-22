@@ -35,7 +35,7 @@ export interface PlanBuildRequest {
   apiKey: string
   provider?: string
   backendCredentialId?: string
-  resourceMode?: 'auto' | 'backend' | 'user'
+  resourceMode?: 'auto' | 'backend' | 'user' | 'codex'
 }
 
 export interface PlanBuildResult {
@@ -154,6 +154,7 @@ export type ChargeStatus = 'pending' | 'paid' | 'rejected' | 'skipped' | 'failed
 
 export type ChargeReasonCode =
   | 'user_resource'
+  | 'internal_tooling'
   | 'execution_blocked'
   | 'free_local_operation'
   | 'operation_not_chargeable'
@@ -319,7 +320,7 @@ export interface LapAPI {
       apiKey: string,
       provider?: string,
       backendCredentialId?: string,
-      resourceMode?: 'auto' | 'backend' | 'user'
+      resourceMode?: 'auto' | 'backend' | 'user' | 'codex'
     ) => Promise<PlanBuildResult>
     onBuildProgress: (listener: (progress: PlanBuildProgress) => void) => () => void
     list: (profileId: string) => Promise<PlanRow[]>

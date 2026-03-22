@@ -6,7 +6,7 @@ const SUPPORTED_BILLING_OPERATIONS = new Set<ChargeOperation>(['plan_build', 'pl
 const SATS_PER_USD = 1000
 
 export type BillingEstimateStrategy = 'fixed_plan_build_sats' | 'none'
-export type BillingSkipReasonCode = 'user_resource' | 'operation_not_chargeable' | 'execution_blocked'
+export type BillingSkipReasonCode = 'user_resource' | 'internal_tooling' | 'operation_not_chargeable' | 'execution_blocked'
 
 export interface BillingPolicyDecision {
   operation: ChargeOperation
@@ -107,7 +107,14 @@ export function resolveBillingPolicy(input: {
     }
   }
 
-  if (input.executionContext.resourceOwner === 'user') {
+  if (input.executionContext.chargePolicy === 'skip') {
+    const skipReasonCode = input.executionContext.chargeReason === 'user_resource'
+      ? 'user_resource'
+      : 'internal_tooling'
+    const skipReasonDetail = input.executionContext.chargeReason === 'user_resource'
+      ? 'RESOURCE_OWNER_USER'
+      : 'INTERNAL_TOOLING_MODE'
+
     return {
       operation: input.operation,
       executionMode: input.executionContext.mode,
@@ -120,8 +127,26 @@ export function resolveBillingPolicy(input: {
       estimatedCostUsd,
       estimatedCostSats,
       chargeable: false,
-      skipReasonCode: 'user_resource',
-      skipReasonDetail: 'RESOURCE_OWNER_USER'
+      skipReasonCode,
+      skipReasonDetail
+    }
+  }
+
+  if (input.executionContext.executionTarget !== 'cloud') {
+    return {
+      operation: input.operation,
+      executionMode: input.executionContext.mode,
+      resourceOwner: input.executionContext.resourceOwner,
+      executionTarget: input.executionContext.executionTarget,
+      chargePolicy: input.executionContext.chargePolicy,
+      chargeReason: input.executionContext.chargeReason,
+      billableOperation,
+      estimatedAmountStrategy,
+      estimatedCostUsd,
+      estimatedCostSats,
+      chargeable: false,
+      skipReasonCode: 'operation_not_chargeable',
+      skipReasonDetail: 'LOCAL_EXECUTION_NO_CHARGE'
     }
   }
 

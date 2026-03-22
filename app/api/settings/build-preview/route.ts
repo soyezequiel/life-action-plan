@@ -33,6 +33,8 @@ export async function GET(request: Request): Promise<Response> {
     ? 'backend-cloud'
     : parsed.data.resourceMode === 'user'
       ? 'user-cloud'
+      : parsed.data.resourceMode === 'codex'
+        ? 'codex-cloud'
       : backendCredentialId
         ? 'backend-cloud'
         : undefined

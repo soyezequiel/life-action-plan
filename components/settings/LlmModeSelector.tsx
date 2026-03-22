@@ -8,6 +8,7 @@ import type { LlmMode } from './types'
 interface LlmModeSelectorProps {
   value: LlmMode
   advancedVisible: boolean
+  showCodexMode?: boolean
   onChange: (value: LlmMode) => void
   onToggleAdvanced: () => void
 }
@@ -15,6 +16,7 @@ interface LlmModeSelectorProps {
 export default function LlmModeSelector({
   value,
   advancedVisible,
+  showCodexMode = false,
   onChange,
   onToggleAdvanced
 }: LlmModeSelectorProps) {
@@ -64,6 +66,16 @@ export default function LlmModeSelector({
               <strong>{t('settings.llm_mode.own_key_title')}</strong>
               <span>{t('settings.llm_mode.own_key_hint')}</span>
             </button>
+            {showCodexMode && (
+              <button
+                type="button"
+                className={[styles.modeCard, value === 'codex' ? styles.modeCardActive : ''].join(' ')}
+                onClick={() => onChange('codex')}
+              >
+                <strong>{t('settings.llm_mode.codex_title')}</strong>
+                <span>{t('settings.llm_mode.codex_hint')}</span>
+              </button>
+            )}
           </div>
         </div>
       )}
