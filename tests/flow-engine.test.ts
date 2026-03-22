@@ -258,13 +258,33 @@ describe('flow engine', () => {
     const weekOneSlotKeys = events
       .filter((event) => event.semana === 1)
       .map((event) => `${event.dia}-${event.hora}`)
+    const weeklyMinutes = trainingWeekOne.reduce((total, event) => total + event.duracion, 0)
 
     expect(trainingWeekOne).toHaveLength(3)
-    expect(trainingWeekOne.every((event) => event.duracion <= 90)).toBe(true)
+    expect(weeklyMinutes).toBeGreaterThanOrEqual((goals[1]?.hoursPerWeek ?? 0) * 60)
     expect(trainingWeekOne.some((event) => event.dia === 'martes' && event.hora === '19:30')).toBe(false)
     expect(trainingWeekOne.some((event) => event.dia === 'jueves' && event.hora === '19:30')).toBe(false)
     expect(trainingWeekOne.some((event) => event.dia === 'sabado' && event.hora === '07:30')).toBe(false)
     expect(new Set(weekOneSlotKeys).size).toBe(weekOneSlotKeys.length)
+  })
+
+  it('keeps weekly event minutes aligned with the hours promised by the plan', () => {
+    const goals = analyzeObjectives(['Bajar de peso'])
+    const profile = buildProfileFromFlow(goals, {
+      horasLibresLaborales: '3',
+      horasLibresDescanso: '4'
+    })
+    const strategy = buildStrategicPlanRefined(goals, profile)
+    const weekOneMinutes = buildPlanEventsFromFlow({
+      goals,
+      strategy,
+      calendar: buildCalendarState(undefined, ''),
+      profile
+    })
+      .filter((event) => event.objetivoId === goals[0]?.id && event.semana === 1)
+      .reduce((total, event) => total + event.duracion, 0)
+
+    expect(weekOneMinutes).toBeGreaterThanOrEqual((goals[0]?.hoursPerWeek ?? 0) * 60)
   })
 
   it('keeps blocked slots isolated by schedule fragment', () => {
@@ -293,6 +313,37 @@ describe('flow engine', () => {
 
     expect(weekOneEvents.some((event) => event.dia === 'martes' && event.hora === '07:30')).toBe(true)
     expect(weekOneEvents.some((event) => event.dia === 'sabado' && event.hora === '19:30')).toBe(true)
+  })
+
+  it('extends the last phase when sequential goals leave dead months at the end of the plan', () => {
+    const goals = [
+      {
+        id: 'goal-1',
+        text: 'Cambiar de trabajo',
+        category: 'carrera',
+        effort: 'medio',
+        priority: 1,
+        horizonMonths: 12,
+        hoursPerWeek: 5
+      },
+      {
+        id: 'goal-2',
+        text: 'Terminar una certificacion',
+        category: 'educacion',
+        effort: 'medio',
+        priority: 2,
+        horizonMonths: 12,
+        hoursPerWeek: 5
+      }
+    ] satisfies ReturnType<typeof analyzeObjectives>
+    const profile = buildProfileFromFlow(goals, {
+      horasLibresLaborales: '1',
+      horasLibresDescanso: '1'
+    })
+    const strategy = buildStrategicPlanRefined(goals, profile)
+
+    expect(strategy.totalMonths).toBe(12)
+    expect(strategy.phases.at(-1)?.endMonth).toBe(12)
   })
 
   it('stores goal clarity as a clarification note instead of overwriting the good-day pattern', () => {

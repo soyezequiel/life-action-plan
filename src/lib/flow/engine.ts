@@ -713,7 +713,15 @@ export function buildStrategicPlanRefined(goals: GoalDraft[], profile: Perfil): 
     }
   })
 
-  const estimatedWeeklyHours = calculatePeakWeeklyHours(phases, totalMonths)
+  const normalizedPhases = phases.length > 0 && phases[phases.length - 1]!.endMonth < totalMonths
+    ? phases.map((phase, index) => index === phases.length - 1
+      ? {
+          ...phase,
+          endMonth: totalMonths
+        }
+      : phase)
+    : phases
+  const estimatedWeeklyHours = calculatePeakWeeklyHours(normalizedPhases, totalMonths)
 
   return {
     title: goals.length > 1 ? 'Plan unificado de objetivos' : `Plan para ${clipText(goals[0]?.text || 'tu objetivo', 80)}`,
@@ -724,8 +732,8 @@ export function buildStrategicPlanRefined(goals: GoalDraft[], profile: Perfil): 
         : 'Arme una estrategia de alto nivel para avanzar sin bajar todavia al detalle diario.',
     totalMonths,
     estimatedWeeklyHours,
-    phases,
-    milestones: phases.map((phase) => phase.milestone),
+    phases: normalizedPhases,
+    milestones: normalizedPhases.map((phase) => phase.milestone),
     conflicts: buildRefinedConflicts(goals, availableHours, estimatedWeeklyHours)
   }
 }
@@ -1244,6 +1252,29 @@ function resolveSessionDuration(goal: GoalDraft, sessions: number): number {
   return Math.max(30, Math.min(baseDuration, 90))
 }
 
+function resolveSessionCountAndDuration(goal: GoalDraft): { sessions: number; duration: number } {
+  const requestedSessions = inferRequestedWeeklySessions(goal)
+  let sessions = requestedSessions ?? resolveWeeklySessions(goal)
+  let duration = resolveSessionDuration(goal, sessions)
+  const targetMinutes = goal.hoursPerWeek * 60
+  let totalMinutes = sessions * duration
+
+  while (requestedSessions === null && totalMinutes < targetMinutes && sessions < 7) {
+    sessions += 1
+    duration = resolveSessionDuration(goal, sessions)
+    totalMinutes = sessions * duration
+  }
+
+  if (totalMinutes < targetMinutes && sessions > 0) {
+    duration = Math.ceil(targetMinutes / sessions / 15) * 15
+  }
+
+  return {
+    sessions,
+    duration
+  }
+}
+
 function sortSlotsForGoal(slots: AvailableSlot[], goal: GoalDraft): AvailableSlot[] {
   const slotPriority: Array<keyof typeof SLOT_HOURS> = goal.category === 'salud'
     ? ['morning', 'afternoon', 'evening']
@@ -1289,8 +1320,7 @@ export function buildPlanEventsFromFlow(params: {
     const usedSlotKeys = new Set<string>()
 
     for (const goal of scheduledGoals) {
-      const sessions = resolveWeeklySessions(goal)
-      const duration = resolveSessionDuration(goal, sessions)
+      const { sessions, duration } = resolveSessionCountAndDuration(goal)
       const orderedSlots = sortSlotsForGoal(slots, goal)
       let cursor = slotCursorByGoalId.get(goal.id) ?? 0
       const usedDays = new Set<string>()
