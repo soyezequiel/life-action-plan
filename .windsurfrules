@@ -5,5 +5,5 @@
 
 ## Carga Determinística
 1. Abrí y leé `AGENTS.md` (contexto completo del proyecto, estado, decisiones técnicas)
-2. Consultá `PLAN_LAP_FINAL.md` para detalles de arquitectura y specs de schemas
+2. Consultá `docs/architecture/PLAN_LAP_FINAL.md` para detalles de arquitectura y specs de schemas
 3. Respetá las 8 reglas inquebrantables listadas en `AGENTS.md` sección "Reglas INQUEBRANTABLES"

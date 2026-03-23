@@ -93,7 +93,7 @@ Rutas criticas:
 
 ## Flujo E2E del producto
 
-> Detalle completo en `FLUJO_HIBRIDO_DRAFT.md`. Aquí el resumen ejecutivo.
+> Detalle completo en `FLUJO_HIBRIDO_DRAFT.md` (mismo directorio). Aquí el resumen ejecutivo.
 
 ### Flujo principal (usuario nuevo)
 
@@ -397,5 +397,5 @@ HMR por si solo no cuenta como evidencia suficiente cuando se toca transporte, D
 ## Documentos operativos asociados
 
 - `AGENTS.md`
-- `continuacion-web-nextjs-divs.md`
-- `PROGRESS.md`
+- `../progress/continuacion-web-nextjs-divs.md`
+- `../progress/PROGRESS.md`

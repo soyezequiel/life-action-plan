@@ -1,7 +1,7 @@
 # Progreso del Plan LAP
 
 > Última actualización: 2026-03-21
-> Referencia: `PLAN_LAP_FINAL.md`
+> Referencia: `../architecture/PLAN_LAP_FINAL.md`
 
 ## Fase 0 — Estabilización post-migración ✅ COMPLETA
 
@@ -52,7 +52,7 @@
 
 ## Flujo de producto — implementación vs diseño
 
-> Referencia completa: `FLUJO_HIBRIDO_DRAFT.md`
+> Referencia completa: `../architecture/FLUJO_HIBRIDO_DRAFT.md`
 
 | Paso | Nombre | Estado | Qué existe hoy | Qué falta |
 |------|--------|--------|-----------------|-----------|

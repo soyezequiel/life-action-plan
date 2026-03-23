@@ -1,7 +1,7 @@
 # Contexto para Agentes IA
 
 > Lee este archivo completo antes de modificar codigo.
-> Source of truth arquitectonica: `PLAN_LAP_FINAL.md`
+> Source of truth arquitectonica: `docs/architecture/PLAN_LAP_FINAL.md`
 
 ## Que es LAP
 
@@ -22,7 +22,7 @@ Estado del producto:
 - `npm run dev` levanta Next.js con Turbopack
 - `DATABASE_URL` apunta hoy a PostgreSQL local
 - Ollama corre localmente en `http://localhost:11434`
-- El flujo esperado es `gate -> objetivos -> intake dinámico -> plan alto nivel -> chequeo -> simulación -> presentación visual -> calendario -> ejecución` (ver `FLUJO_HIBRIDO_DRAFT.md`)
+- El flujo esperado es `gate -> objetivos -> intake dinámico -> plan alto nivel -> chequeo -> simulación -> presentación visual -> calendario -> ejecución` (ver `docs/architecture/FLUJO_HIBRIDO_DRAFT.md`)
 
 ### Produccion objetivo
 
@@ -164,5 +164,8 @@ Cada unidad debe cerrar con:
 
 ## Documentos operativos vigentes
 
-- Continuacion atomica: `continuacion-web-nextjs-divs.md`
-- Progreso del plan: `PROGRESS.md`
+Toda la documentacion esta organizada en `docs/` (ver `docs/README.md` para indice completo):
+
+- **Arquitectura**: `docs/architecture/` — `PLAN_LAP_FINAL.md`, `FLUJO_HIBRIDO_DRAFT.md`, `PLAN_SETTINGS_AUTH.md`
+- **Progreso**: `docs/progress/` — `PROGRESS.md`, `continuacion-web-nextjs-divs.md`
+- **Prompts por agente**: `docs/prompts/antigravity/`, `docs/prompts/codex/`

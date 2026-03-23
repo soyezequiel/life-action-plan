@@ -156,7 +156,8 @@ tests/                  # Unit and integration tests
 This project uses internal development documents for architecture decisions:
 
 - `AGENTS.md` — agent context and project state
-- `PLAN_LAP_FINAL.md` — architectural source of truth
+- `docs/architecture/PLAN_LAP_FINAL.md` — architectural source of truth
+- `docs/` — all documentation organized by category (see `docs/README.md`)
 
 ## License
 
