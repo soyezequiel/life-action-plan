@@ -1,0 +1,13 @@
+{
+  "plan_id": "sim-export-v1",
+  "status": "implemented",
+  "created_by": "antigravity",
+  "created_at": "2026-03-23T15:55:00-03:00",
+  "updated_at": "2026-03-23T16:10:00-03:00",
+  "updated_by": "antigravity",
+  "assigned_to": null,
+  "priority": "medium",
+  "tags": ["simulation", "export", "api"],
+  "blockers": [],
+  "notes": "Implementado completo. 13/13 tests pasan. Sin errores de typescript en archivos nuevos."
+}

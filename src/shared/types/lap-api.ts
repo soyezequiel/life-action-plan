@@ -267,6 +267,14 @@ export type SimulationFindingCode =
   | 'work_balance_ok'
   | 'capacity_ok'
   | 'metadata_ok'
+  // v2 new codes
+  | 'energy_mismatch'
+  | 'no_rest_days'
+  | 'front_loaded_week'
+  | 'monotony'
+  | 'unrealistic_ramp'
+  | 'goal_coverage'
+  | 'commitment_collision'
 
 export interface SimulationFinding {
   status: SimulationStatus
@@ -288,6 +296,8 @@ export interface PlanSimulationSnapshot {
   periodLabel: string
   summary: SimulationSummary
   findings: SimulationFinding[]
+  /** v2: numeric quality score 0–100 (100 = perfect, 0 = worst) */
+  qualityScore?: number
 }
 
 export interface PlanSimulationProgress {
@@ -329,6 +339,7 @@ export interface LapAPI {
     simulate: (planId: string, mode?: 'interactive' | 'automatic') => Promise<PlanSimulationResult>
     onSimulationProgress: (listener: (progress: PlanSimulationProgress) => void) => () => void
     exportCalendar: (planId: string) => Promise<PlanExportCalendarResult>
+    exportSimulation: (planId: string, format?: 'json' | 'csv') => Promise<PlanExportCalendarResult>
   }
   profile: {
     get: (profileId: string) => Promise<Perfil | null>

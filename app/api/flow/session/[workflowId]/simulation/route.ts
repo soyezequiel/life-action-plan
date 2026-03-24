@@ -1,10 +1,12 @@
 import { getDeploymentMode } from '../../../../../../src/lib/env/deployment'
 import { runStrategicSimulation } from '../../../../../../src/lib/flow/engine'
 import { generateSimulationReviewWithAgent } from '../../../../../../src/lib/flow/simulation-agent'
+import { initializeSimTree } from '../../../../../../src/lib/flow/simulation-tree-builder'
+import { upsertSimulationTree } from '../../../../../../src/lib/db/db-helpers'
 import { resolvePlanBuildExecution } from '../../../../../../src/lib/runtime/build-execution'
 import { createInstrumentedRuntime, getProvider, traceCollector } from '../../../../_domain'
 import { resolveUserId } from '../../../../_user-settings'
-import { loadOwnedWorkflow, notFoundResponse, persistWorkflowState } from '../../../_helpers'
+import { loadOwnedWorkflow, loadWorkflowProfile, notFoundResponse, persistWorkflowState } from '../../../_helpers'
 import { sseJsonResponse } from '../../../_sse'
 
 interface RouteContext {
@@ -66,7 +68,7 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       message: 'Preparando la corrida y revisando que la base del plan este consistente.'
     })
 
-    const deterministicSimulation = runStrategicSimulation(strategy, realityCheck)
+    const deterministicSimulation = runStrategicSimulation(strategy, realityCheck, session.state.goals)
 
     sendProgress({
       workflowId,
@@ -165,9 +167,29 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       }
     }
 
+    // Initialize simulation tree (best-effort: don't fail if tree init fails)
+    let simulationTreeId: string | null = session.state.simulationTreeId ?? null
+    try {
+      const profile = await loadWorkflowProfile(session)
+      if (profile) {
+        const tree = initializeSimTree({
+          workflowId,
+          strategy,
+          realityCheck,
+          profile,
+          goals: session.state.goals
+        })
+        await upsertSimulationTree(workflowId, tree, 0)
+        simulationTreeId = workflowId
+      }
+    } catch {
+      // Non-fatal: flat simulation still proceeds
+    }
+
     const nextState = {
       ...session.state,
-      simulation
+      simulation,
+      simulationTreeId
     }
     const nextSession = await persistWorkflowState({
       workflowId,

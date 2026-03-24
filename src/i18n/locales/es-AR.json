@@ -349,6 +349,58 @@
         "title": "Los datos base están completos",
         "detail": "Cada actividad tiene horario y duración para poder revisarla bien."
       }
+    },
+    "tree": {
+      "title": "Simulación detallada",
+      "quality": "calidad",
+      "initialize": "Iniciando árbol de simulación.",
+      "expand": "Expandiendo período.",
+      "simulate_node": "Simulando período: {{label}}",
+      "simulate_range": "Simulando {{count}} período(s).",
+      "apply_corrections": "Aplicando correcciones.",
+      "lock_node": "Período bloqueado.",
+      "progress": {
+        "preflight": "Revisando la base de {{label}}.",
+        "world_agent": "El entorno está generando situaciones para {{label}}.",
+        "user_agent": "Simulando tus decisiones frente a {{count}} evento(s) en {{label}}.",
+        "propagation": "Propagando cambios al resto del plan.",
+        "no_llm": "Sin asistente disponible. Usando estimación heurística.",
+        "complete": "Simulación completada. {{nodes}} período(s), {{findings}} hallazgo(s)."
+      },
+      "status": {
+        "pending": "Pendiente",
+        "simulated": "Simulado",
+        "stale": "Desactualizado",
+        "affected": "Afectado",
+        "locked": "Bloqueado"
+      },
+      "severity": {
+        "critical": "Crítico",
+        "warning": "Atención",
+        "info": "Info"
+      },
+      "finding_target": {
+        "tree": "En el cronograma",
+        "strategy": "En la estrategia"
+      },
+      "action": {
+        "simulate": "Simular",
+        "simulate_all": "Simular todo",
+        "expand": "Ver detalle",
+        "lock": "Bloquear",
+        "unlock": "Desbloquear",
+        "apply": "Aplicar corrección",
+        "dismiss": "Ignorar"
+      },
+      "export": {
+        "button": "Exportar simulación",
+        "downloading": "Preparando la exportación...",
+        "success": "Exportación lista. Se descargó el archivo.",
+        "error": "No pude preparar la exportación. Intentá de nuevo.",
+        "no_tree": "Primero necesitás correr una simulación para exportar.",
+        "format_json": "Completo (JSON)",
+        "format_csv": "Resumen (CSV)"
+      }
     }
   },
   "debug": {
@@ -593,5 +645,8 @@
     "invalid_request": "No pude entender ese pedido. Revisalo e intenta de nuevo.",
     "profile_not_found": "No encontre tu perfil guardado.",
     "plan_not_found": "No encontre ese plan."
+  },
+  "flow": {
+    "loading": "Cargando..."
   }
 }

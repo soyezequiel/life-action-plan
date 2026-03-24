@@ -13,6 +13,7 @@ import {
   LOCAL_PROFILE_ID_STORAGE_KEY
 } from '../src/lib/client/storage-keys'
 import type { FlowSessionIntent, FlowTaskProgress } from '../src/shared/types/flow-api'
+import type { SimTree, SimNode } from '../src/shared/schemas/simulation-tree'
 import type {
   AvailabilityGrid,
   FlowCheckpoint,
@@ -189,6 +190,8 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
   const [calendarNotes, setCalendarNotes] = useState('')
   const [icsText, setIcsText] = useState('')
   const [calendarGrid, setCalendarGrid] = useState<AvailabilityGrid>(defaultGrid())
+  const [simTree, setSimTree] = useState<SimTree | null>(null)
+  const [simTreeLoading, setSimTreeLoading] = useState(false)
 
   const currentStep = session?.currentStep ?? 'gate'
   const codexModeVisible = deploymentMode === 'local'
@@ -297,6 +300,16 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
 
     return () => window.clearTimeout(timer)
   }, [busy, currentStep, presentationDirty, presentationEdits, session])
+
+  useEffect(() => {
+    const workflowId = session?.id
+    if (!workflowId) return
+    setSimTreeLoading(true)
+    flowClient.initializeSimTree(workflowId)
+      .then(result => { if (result.tree) setSimTree(result.tree) })
+      .catch(() => {})
+      .finally(() => setSimTreeLoading(false))
+  }, [session?.id])
 
   const checkpointSummary = useMemo(() => checkpoints.slice(0, 3), [checkpoints])
 
@@ -439,7 +452,10 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
     setBusy(true)
 
     try {
-      const result = await flowClient.saveIntake(session.id, { answers: intakeAnswers })
+      const result = await flowClient.saveIntake(session.id, {
+        answers: intakeAnswers,
+        isAutoSave: silent
+      })
 
       if (!result.success || !result.session) {
         throw new Error(result.error || 'FLOW_INTAKE_FAILED')
@@ -520,6 +536,18 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
       setNotice(t('flow.notice.simulation'))
     } catch (cause) {
       setError(translateErrorMessage(cause))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleExportSimulation(format: 'json' | 'csv') {
+    if (!session || busy) return
+    setBusy(true)
+    try {
+      await flowClient.exportSimulation(session.id, format)
+    } catch {
+      setNotice(t('simulation.tree.export.error'))
     } finally {
       setBusy(false)
     }
@@ -850,6 +878,177 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
   const topdownHasLevels = Boolean(currentTopLevel)
   const isLastTopdownLevel = Boolean(topdown && topdown.currentLevelIndex >= topdown.levels.length - 1)
 
+  function renderSimTree() {
+    if (!simTree && !simTreeLoading) return null
+    const workflowId = session?.id
+
+    const monthNodes = simTree
+      ? Object.values(simTree.nodes)
+          .filter(n => n.granularity === 'month')
+          .sort((a, b) => a.period.start.localeCompare(b.period.start))
+      : []
+
+    const hasUnsimulated = monthNodes.some(
+      n => n.status !== 'locked' && n.status !== 'simulated'
+    )
+
+    async function handleSimulateAll() {
+      if (!workflowId || !simTree || busy) return
+      setBusy(true)
+      try {
+        const result = await flowClient.simulateRange(
+          workflowId,
+          { treeVersion: simTree.version },
+          (p) => { if (p.step === 'simulation-tree') setNotice(p.message) }
+        )
+        if (result.tree) setSimTree(result.tree)
+      } catch { /* silenciar */ } finally { setBusy(false); setNotice('') }
+    }
+
+    async function handleSimulateNode(nodeId: string) {
+      if (!workflowId || !simTree || busy) return
+      setBusy(true)
+      try {
+        const result = await flowClient.simulateNode(
+          workflowId, nodeId, simTree.version,
+          (p) => { if (p.step === 'simulation-tree') setNotice(p.message) }
+        )
+        if (result.tree) setSimTree(result.tree)
+      } catch { /* silenciar */ } finally { setBusy(false); setNotice('') }
+    }
+
+    async function handleLockNode(nodeId: string) {
+      if (!workflowId || !simTree || busy) return
+      setBusy(true)
+      try {
+        const result = await flowClient.lockSimNode(workflowId, nodeId, simTree.version)
+        if (result.tree) setSimTree(result.tree)
+      } catch { /* silenciar */ } finally { setBusy(false) }
+    }
+
+    function statusBadgeClass(status: SimNode['status']) {
+      if (status === 'simulated') return styles.statusBadgeOk
+      if (status === 'stale' || status === 'affected') return styles.statusBadgeWarn
+      return styles.statusBadge
+    }
+
+    return (
+      <div className={styles.summaryBox}>
+        <div className={styles.phaseHeader}>
+          <strong>{t('simulation.tree.title')}</strong>
+          <div className={styles.buttonRow}>
+            {monthNodes.some(n => n.status !== 'locked') && (
+              <button
+                className="app-button app-button--primary"
+                type="button"
+                disabled={busy || simTreeLoading}
+                onClick={() => void handleSimulateAll()}
+              >
+                {t('simulation.tree.action.simulate_all')}
+              </button>
+            )}
+            <button
+              className="app-button app-button--secondary"
+              type="button"
+              disabled={busy || simTreeLoading}
+              onClick={() => void handleExportSimulation('json')}
+            >
+              {t('simulation.tree.export.format_json')}
+            </button>
+            <button
+              className="app-button app-button--ghost"
+              type="button"
+              disabled={busy || simTreeLoading}
+              onClick={() => void handleExportSimulation('csv')}
+            >
+              {t('simulation.tree.export.format_csv')}
+            </button>
+          </div>
+        </div>
+
+        {simTreeLoading && <p className="app-copy">{t('flow.loading')}</p>}
+
+        {simTree?.globalFindings?.filter(f => f.severity === 'critical').map(f => (
+          <div key={f.id} className={styles.summaryBox}>
+            <p className="app-copy">
+              <span className={styles.statusBadgeFail}>{t('simulation.tree.severity.critical')}</span>
+              {' '}{f.message}
+            </p>
+            {f.suggestedFix && <p className={styles.inlineHint}>{f.suggestedFix}</p>}
+          </div>
+        ))}
+
+        <div className={styles.phaseList}>
+          {monthNodes.map(node => (
+            <article key={node.id} className={styles.phaseCard}>
+              <div className={styles.phaseHeader}>
+                <strong>{node.label}</strong>
+                <span className={`${styles.statusBadge} ${statusBadgeClass(node.status)}`}>
+                  {t(`simulation.tree.status.${node.status}`)}
+                </span>
+              </div>
+
+              {node.status === 'simulated' && (
+                <>
+                  <div className={styles.blockMeta}>
+                    <span className={styles.pill}>{node.actualHours ?? 0}h</span>
+                    {node.quality != null && (
+                      <span className={styles.pill}>{node.quality}% {t('simulation.tree.quality')}</span>
+                    )}
+                  </div>
+                  {node.disruptions.length > 0 && (
+                    <ul className={styles.helperList}>
+                      {node.disruptions.map(d => (
+                        <li key={d.id}>{d.description} (−{d.impactHours}h)</li>
+                      ))}
+                    </ul>
+                  )}
+                  {node.findings.length > 0 && (
+                    <ul className={styles.flatList}>
+                      {node.findings.map(f => (
+                        <li key={f.id}>
+                          <span className={
+                            f.severity === 'critical' ? styles.statusBadgeFail : styles.statusBadgeWarn
+                          }>
+                            {t(`simulation.tree.severity.${f.severity}`)}
+                          </span>
+                          {' '}{f.message}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
+
+              <div className={styles.buttonRow}>
+                {node.status !== 'locked' && (
+                  <button
+                    className="app-button app-button--secondary"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void handleSimulateNode(node.id)}
+                  >
+                    {node.status === 'simulated' ? 'Re-simular' : t('simulation.tree.action.simulate')}
+                  </button>
+                )}
+                <button
+                  className="app-button app-button--ghost"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void handleLockNode(node.id)}
+                >
+                  {node.status === 'locked'
+                    ? t('simulation.tree.action.unlock')
+                    : t('simulation.tree.action.lock')}
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   function renderStepContent(): JSX.Element {
     if (currentStep === 'gate') {
       return (
@@ -968,6 +1167,15 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
             </div>
           )}
           <div className="app-actions">
+            {!objectivesText.trim() && (
+              <button
+                className="app-button app-button--secondary"
+                type="button"
+                onClick={() => setObjectivesText('Entrar a trabajar en Google')}
+              >
+                Precargar dato de prueba
+              </button>
+            )}
             <button className="app-button app-button--primary" type="button" disabled={busy || !objectivesText.trim()} onClick={() => void saveObjectives()}>
               {t('flow.actions.save_objectives')}
             </button>
@@ -1078,6 +1286,25 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
             </label>
           ))}
           <div className="app-actions">
+            {!intakeBlockReady && (
+              <button
+                className="app-button app-button--secondary"
+                type="button"
+                onClick={() => {
+                  if (!intakeBlock) return
+                  const nextAnswers = { ...intakeAnswers }
+                  intakeBlock.questions.forEach((q) => {
+                    if (!nextAnswers[q.key]) {
+                      nextAnswers[q.key] = q.type === 'number' ? String(q.min ?? 1) : q.type === 'time' ? '09:00' : 'Texto de prueba'
+                    }
+                  })
+                  setIntakeAnswers(nextAnswers)
+                  setIntakeDirty(true)
+                }}
+              >
+                Precargar form
+              </button>
+            )}
             <button className="app-button app-button--primary" type="button" disabled={busy || !intakeBlockReady} onClick={() => void saveIntake(false)}>
               {t('flow.actions.save_continue')}
             </button>
@@ -1222,6 +1449,7 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
               </div>
             </>
           )}
+          {renderSimTree()}
           <div className={styles.buttonRow}>
             <button className="app-button app-button--primary" type="button" disabled={busy} onClick={() => void runSimulation()}>
               {t('flow.actions.run_simulation')}
@@ -1419,6 +1647,13 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
       <section className={styles.card}>
         <h2 className="app-title app-title--section">{t('flow.done.title')}</h2>
         <p className="app-copy">{t('flow.done.copy')}</p>
+        
+        <div className={styles.summaryBox}>
+          <h3 className="app-title app-title--subsection">Árbol de Simulación Creado</h3>
+          <p className="app-copy">Puedes revisar el resultado, exportarlo o volver a la simulación si quieres probar con otros parámetros.</p>
+          {renderSimTree()}
+        </div>
+
         <div className="app-actions">
           <button className="app-button app-button--primary" type="button" onClick={() => router.push('/')}>
             {t('flow.actions.go_dashboard')}
@@ -1465,6 +1700,33 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
                   <li key={checkpoint.id}>{`${checkpoint.code} · ${checkpointTime(checkpoint.createdAt)}`}</li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {currentStepIndex >= 5 && (
+            <div className={styles.summaryBox}>
+              <strong>Descargar datos completos</strong>
+              <p className={styles.inlineHint} style={{ marginBottom: '1rem', marginTop: '0.25rem' }}>Podés descargar tu árbol de simulación intermedio en cualquier momento.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <button
+                  className="app-button app-button--secondary"
+                  type="button"
+                  style={{ width: '100%', fontSize: '0.85rem' }}
+                  disabled={busy}
+                  onClick={() => void handleExportSimulation('json')}
+                >
+                  {t('simulation.tree.export.format_json')}
+                </button>
+                <button
+                  className="app-button app-button--ghost"
+                  type="button"
+                  style={{ width: '100%', fontSize: '0.85rem' }}
+                  disabled={busy}
+                  onClick={() => void handleExportSimulation('csv')}
+                >
+                  {t('simulation.tree.export.format_csv')}
+                </button>
+              </div>
             </div>
           )}
         </aside>

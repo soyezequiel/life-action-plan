@@ -90,8 +90,10 @@ components/
 
 src/lib/
   auth/
+  billing/
   client/
   db/
+  domain/
   payments/
   providers/
   runtime/

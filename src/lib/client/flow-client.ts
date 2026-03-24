@@ -13,6 +13,8 @@ import type {
   FlowResumePatchRequest,
   FlowSessionResult,
   FlowSimulationResult,
+  FlowSimulationTreeRequest,
+  FlowSimulationTreeResult,
   FlowStrategyResult,
   FlowTaskProgress,
   FlowTopDownRequest,
@@ -221,11 +223,51 @@ export const flowClient = {
       onProgress
     )
   },
-  activate(workflowId: string) {
-    return fetchJson<FlowActivationResult>(`/api/flow/session/${encodeURIComponent(workflowId)}/activate`, {
-      method: 'POST',
-      body: JSON.stringify({})
-    })
+  activate(workflowId: string, onProgress?: (progress: FlowTaskProgress) => void) {
+    return postSse<FlowActivationResult>(
+      `/api/flow/session/${encodeURIComponent(workflowId)}/activate`,
+      {},
+      onProgress
+    )
+  },
+  initializeSimTree(workflowId: string) {
+    return fetchJson<FlowSimulationTreeResult>(
+      `/api/flow/session/${encodeURIComponent(workflowId)}/simulation-tree`,
+      { method: 'POST', body: JSON.stringify({ action: 'initialize' } satisfies FlowSimulationTreeRequest) }
+    )
+  },
+  expandSimNode(workflowId: string, nodeId: string, treeVersion: number) {
+    return fetchJson<FlowSimulationTreeResult>(
+      `/api/flow/session/${encodeURIComponent(workflowId)}/simulation-tree`,
+      { method: 'POST', body: JSON.stringify({ action: 'expand-node', nodeId, treeVersion } satisfies FlowSimulationTreeRequest) }
+    )
+  },
+  simulateNode(workflowId: string, nodeId: string, treeVersion: number, onProgress?: (progress: FlowTaskProgress) => void) {
+    return postSse<FlowSimulationTreeResult>(
+      `/api/flow/session/${encodeURIComponent(workflowId)}/simulation-tree`,
+      { action: 'simulate-node', nodeId, treeVersion } satisfies FlowSimulationTreeRequest,
+      onProgress
+    )
+  },
+  simulateRange(workflowId: string, params: { rangeStart?: string; rangeEnd?: string; treeVersion?: number }, onProgress?: (progress: FlowTaskProgress) => void) {
+    return postSse<FlowSimulationTreeResult>(
+      `/api/flow/session/${encodeURIComponent(workflowId)}/simulation-tree`,
+      { action: 'simulate-range', ...params } satisfies FlowSimulationTreeRequest,
+      onProgress
+    )
+  },
+  applySimCorrections(workflowId: string, corrections: FlowSimulationTreeRequest['corrections'], treeVersion: number, onProgress?: (progress: FlowTaskProgress) => void) {
+    return postSse<FlowSimulationTreeResult>(
+      `/api/flow/session/${encodeURIComponent(workflowId)}/simulation-tree`,
+      { action: 'apply-corrections', corrections, treeVersion } satisfies FlowSimulationTreeRequest,
+      onProgress
+    )
+  },
+  lockSimNode(workflowId: string, nodeId: string, treeVersion: number) {
+    return fetchJson<FlowSimulationTreeResult>(
+      `/api/flow/session/${encodeURIComponent(workflowId)}/simulation-tree`,
+      { method: 'POST', body: JSON.stringify({ action: 'lock-node', nodeId, treeVersion } satisfies FlowSimulationTreeRequest) }
+    )
   },
   applyResumePatch(workflowId: string, body: FlowResumePatchRequest) {
     return fetchJson<FlowSessionResult & { patchSummary?: string }>(
@@ -235,5 +277,27 @@ export const flowClient = {
         body: JSON.stringify(body)
       }
     )
+  },
+  async exportSimulation(workflowId: string, format: 'json' | 'csv' = 'json'): Promise<void> {
+    const url = `/api/flow/session/${encodeURIComponent(workflowId)}/export-simulation?format=${format}`
+    const response = await fetch(url)
+
+    if (!response.ok) {
+      throw new Error(await readResponseText(response))
+    }
+
+    const blob = await response.blob()
+    const disposition = response.headers.get('Content-Disposition') ?? ''
+    const filenameMatch = disposition.match(/filename="(.+?)"/)
+    const filename = filenameMatch?.[1] ?? `lap-simulation-${workflowId}.${format}`
+
+    const objectUrl = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = objectUrl
+    anchor.download = filename
+    document.body.appendChild(anchor)
+    anchor.click()
+    document.body.removeChild(anchor)
+    URL.revokeObjectURL(objectUrl)
   }
 }

@@ -433,6 +433,29 @@ export const browserLapClient: LapAPI = {
       }
 
       return downloadBlob(response, fileName)
+    },
+    async exportSimulation(planId: string, format: 'json' | 'csv' = 'json') {
+      const response = await fetch(`/api/plan/${encodeURIComponent(planId)}/export-simulation?format=${format}`, {
+        method: 'GET'
+      })
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: await readResponseText(response)
+        }
+      }
+
+      const contentType = response.headers.get('content-type') ?? ''
+      const disposition = response.headers.get('content-disposition') ?? ''
+      const fileNameMatch = disposition.match(/filename="?([^";]+)"?/i)
+      const fileName = fileNameMatch?.[1] ?? `lap-${planId}-simulacion.${format}`
+
+      if (contentType.includes('application/json') && format !== 'json') {
+        return readJsonOrText<PlanExportCalendarResult>(response)
+      }
+
+      return downloadBlob(response, fileName)
     }
   },
   profile: {

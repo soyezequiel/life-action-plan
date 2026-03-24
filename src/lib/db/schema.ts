@@ -179,6 +179,15 @@ export const operationCharges = pgTable('operation_charges', {
   resolvedAt: timestamp('resolved_at', { mode: 'string', withTimezone: true })
 })
 
+export const planSimulationTrees = pgTable('plan_simulation_trees', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  workflowId: text('workflow_id').notNull().references(() => planWorkflows.id),
+  data: jsonb('data').notNull(),
+  version: integer('version').notNull().default(1),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull()
+})
+
 export const costTracking = pgTable('cost_tracking', {
   id: serial('id').primaryKey(),
   chargeId: text('charge_id').references(() => operationCharges.id, { onDelete: 'set null' }),

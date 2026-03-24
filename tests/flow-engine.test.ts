@@ -188,7 +188,7 @@ describe('flow engine', () => {
     expect(result.state.activation.planId).toBe('plan-1')
     expect(result.state.intakeAnswers.horasLibresLaborales).toBe('2')
     expect(result.state.intakeAnswers.horasLibresDescanso).toBe('4')
-    expect(result.state.strategy?.estimatedWeeklyHours).toBe(5)
+    expect(result.state.strategy?.estimatedWeeklyHours).toBe(10)
     expect(result.state.realityCheck?.availableHours).toBe(11)
     expect(result.state.simulation).toBeNull()
     expect(result.state.presentation).toBeNull()

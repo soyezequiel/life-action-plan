@@ -5,6 +5,7 @@ import type {
   PlanSimulationSnapshot,
   ProgressRow,
   SimulationFinding,
+  SimulationFindingCode,
   SimulationMode,
   SimulationProgressStage,
   SimulationStatus
@@ -62,6 +63,13 @@ interface SimulationState {
   hasCapacityWarnings: boolean
   hasCrowdedDays: boolean
   scheduledItemsCount: number
+  // v2 extended state
+  profileObjectiveIds: string[]
+  commitmentWindows: Array<{ startMinutes: number; endMinutes: number; weekdayOnly: boolean; label: string }>
+  horarioBajoEnergiaStart: number | null
+  horarioBajoEnergiaEnd: number | null
+  weekActivityCounts: Map<number, number>  // semana → activity count
+  categoryDistribution: Map<string, number> // categoria → count
 }
 
 const statusPriority: Record<SimulationStatus, number> = {
@@ -168,7 +176,7 @@ function sortedFindings(findings: SimulationFinding[]): SimulationFinding[] {
   return [...findings].sort((left, right) => statusPriority[left.status] - statusPriority[right.status])
 }
 
-function findingBucket(code: SimulationFinding['code']): string {
+function findingBucket(code: SimulationFindingCode | string): string {
   switch (code) {
     case 'no_plan_items':
     case 'missing_schedule':
@@ -185,6 +193,17 @@ function findingBucket(code: SimulationFinding['code']): string {
     case 'too_many_activities':
     case 'capacity_ok':
       return 'carga'
+    case 'energy_mismatch':
+      return 'energia'
+    case 'no_rest_days':
+    case 'front_loaded_week':
+    case 'monotony':
+    case 'unrealistic_ramp':
+      return 'distribucion'
+    case 'goal_coverage':
+      return 'objetivos'
+    case 'commitment_collision':
+      return 'compromisos'
     default:
       return code
   }
@@ -219,6 +238,16 @@ function createTimestamp(timezone: string): string {
   return DateTime.now().setZone(timezone).toISO() ?? DateTime.utc().toISO() ?? ''
 }
 
+function parseTimeRangeToMinutes(range: string): { start: number; end: number } | null {
+  // Expected format: "HH:MM-HH:MM"
+  const parts = range.split('-')
+  if (parts.length !== 2) return null
+  const start = parseMinutes(parts[0].trim())
+  const end = parseMinutes(parts[1].trim())
+  if (start === null || end === null) return null
+  return { start, end }
+}
+
 function createSimulationState(
   profile: Perfil,
   rows: ProgressRow[],
@@ -228,6 +257,31 @@ function createSimulationState(
   const timezone = options.timezone
   const mode = options.mode ?? 'interactive'
   const participant = profile.participantes[0]
+
+  // Parse low-energy window
+  let horarioBajoEnergiaStart: number | null = null
+  let horarioBajoEnergiaEnd: number | null = null
+  const bajoRange = participant?.patronesEnergia?.horarioBajoEnergia
+  if (bajoRange) {
+    const parsed = parseTimeRangeToMinutes(bajoRange)
+    if (parsed) { horarioBajoEnergiaStart = parsed.start; horarioBajoEnergiaEnd = parsed.end }
+  }
+
+  // Parse commitment windows
+  const commitmentWindows: SimulationState['commitmentWindows'] = []
+  for (const comp of participant?.compromisos ?? []) {
+    if (!comp.recurrencia) continue
+    // Try to parse horario from notas if stored as JSON (best-effort)
+    // commitments are mostly used as label warnings
+    const match = (comp.descripcion + ' ' + (comp.recurrencia ?? '')).match(/(\d{1,2}:\d{2})/g)
+    if (match && match.length >= 2) {
+      const start = parseMinutes(match[0])
+      const end = parseMinutes(match[1])
+      if (start !== null && end !== null) {
+        commitmentWindows.push({ startMinutes: start, endMinutes: end, weekdayOnly: true, label: comp.descripcion })
+      }
+    }
+  }
 
   return {
     rows,
@@ -249,7 +303,13 @@ function createSimulationState(
     hasCapacityConflicts: false,
     hasCapacityWarnings: false,
     hasCrowdedDays: false,
-    scheduledItemsCount: 0
+    scheduledItemsCount: 0,
+    profileObjectiveIds: profile.objetivos.map(o => o.id),
+    commitmentWindows,
+    horarioBajoEnergiaStart,
+    horarioBajoEnergiaEnd,
+    weekActivityCounts: new Map<number, number>(),
+    categoryDistribution: new Map<string, number>()
   }
 }
 
@@ -279,6 +339,14 @@ function runScheduleStage(state: SimulationState): void {
     daySummary.count += 1
     daySummary.plannedMinutes += duration
     state.daySummaries.set(row.fecha, daySummary)
+
+    // Track week-level activity count
+    const weekNumber = dt.isValid ? dt.weekNumber : 0
+    state.weekActivityCounts.set(weekNumber, (state.weekActivityCounts.get(weekNumber) ?? 0) + 1)
+
+    // Track category distribution
+    const cat = row.tipo ?? 'otro'
+    state.categoryDistribution.set(cat, (state.categoryDistribution.get(cat) ?? 0) + 1)
 
     state.scheduledEntries.push({
       row,
@@ -365,6 +433,135 @@ function runLoadStage(state: SimulationState): void {
   }
 }
 
+// ─── NEW v2 CHECKS ────────────────────────────────────────────────────────────
+
+function runEnergyStage(state: SimulationState): void {
+  // energy_mismatch: cognitive tasks scheduled during low-energy window
+  if (state.horarioBajoEnergiaStart !== null && state.horarioBajoEnergiaEnd !== null) {
+    const cognitiveCategories = new Set(['estudio', 'trabajo'])
+    for (const entry of state.scheduledEntries) {
+      const cat = entry.row.tipo ?? 'otro'
+      if (
+        cognitiveCategories.has(cat) &&
+        overlapsWindow(
+          entry.startMinutes,
+          entry.duration,
+          state.horarioBajoEnergiaStart,
+          state.horarioBajoEnergiaEnd
+        )
+      ) {
+        state.findings.push({
+          status: 'WARN',
+          code: 'energy_mismatch' as any,
+          params: { actividad: entry.row.descripcion, dayLabel: entry.dayLabel }
+        })
+        break // one warning is enough
+      }
+    }
+  }
+
+  // no_rest_days: check each ISO week — if all 7 days have activities, warn
+  const daysByWeek = new Map<number, Set<number>>()
+  for (const entry of state.scheduledEntries) {
+    const dt = DateTime.fromISO(entry.row.fecha, { zone: state.timezone })
+    if (!dt.isValid) continue
+    const wk = dt.weekNumber
+    if (!daysByWeek.has(wk)) daysByWeek.set(wk, new Set())
+    daysByWeek.get(wk)!.add(dt.weekday)
+  }
+  for (const [, days] of daysByWeek) {
+    if (days.size === 7) {
+      state.findings.push({ status: 'WARN', code: 'no_rest_days' as any })
+      break
+    }
+  }
+
+  // front_loaded_week: >60% of activities on Mon/Tue across all weeks
+  const totalEntries = state.scheduledEntries.length
+  if (totalEntries >= 5) {
+    const monTueCount = state.scheduledEntries.filter(e => e.weekday === 1 || e.weekday === 2).length
+    if (monTueCount / totalEntries > 0.6) {
+      state.findings.push({
+        status: 'WARN',
+        code: 'front_loaded_week' as any,
+        params: { monTue: monTueCount, total: totalEntries }
+      })
+    }
+  }
+
+  // monotony: single category > 70% of all activities
+  const totalCats = state.scheduledEntries.length
+  if (totalCats >= 5) {
+    for (const [cat, count] of state.categoryDistribution) {
+      if (count / totalCats > 0.7) {
+        state.findings.push({
+          status: 'WARN',
+          code: 'monotony' as any,
+          params: { categoria: cat, pct: Math.round(count / totalCats * 100) }
+        })
+        break
+      }
+    }
+  }
+
+  // unrealistic_ramp: week 1 has >70% of total activity count vs later weeks
+  if (state.weekActivityCounts.size >= 2) {
+    const counts = [...state.weekActivityCounts.values()]
+    const week1Count = counts[0] ?? 0
+    const otherCounts = counts.slice(1).reduce((a, b) => a + b, 0)
+    const total = week1Count + otherCounts
+    if (total > 0 && week1Count / total > 0.7) {
+      state.findings.push({
+        status: 'WARN',
+        code: 'unrealistic_ramp' as any,
+        params: { week1: week1Count, total }
+      })
+    }
+  }
+}
+
+function runCoverageStage(state: SimulationState): void {
+  // goal_coverage: every declared objective must appear in at least 1 event
+  if (state.profileObjectiveIds.length > 0 && state.scheduledEntries.length > 0) {
+    const coveredIds = new Set(state.scheduledEntries.map(e => e.row.objetivoId).filter(Boolean))
+    for (const objId of state.profileObjectiveIds) {
+      if (!coveredIds.has(objId)) {
+        state.findings.push({
+          status: 'FAIL',
+          code: 'goal_coverage' as any,
+          params: { objetivoId: objId }
+        })
+      }
+    }
+  }
+
+  // commitment_collision: activity overlaps a persisted commitment window
+  for (const entry of state.scheduledEntries) {
+    for (const cw of state.commitmentWindows) {
+      if (
+        (!cw.weekdayOnly || entry.weekday <= 5) &&
+        overlapsWindow(entry.startMinutes, entry.duration, cw.startMinutes, cw.endMinutes)
+      ) {
+        state.findings.push({
+          status: 'FAIL',
+          code: 'commitment_collision' as any,
+          params: { actividad: entry.row.descripcion, compromiso: cw.label }
+        })
+      }
+    }
+  }
+}
+
+function computeQualityScore(findings: SimulationFinding[]): number {
+  let score = 100
+  for (const f of findings) {
+    if (f.status === 'FAIL') score -= 25
+    else if (f.status === 'WARN') score -= 8
+    else if (f.status === 'MISSING') score -= 15
+  }
+  return Math.max(0, score)
+}
+
 function finalizeSimulation(state: SimulationState): PlanSimulationSnapshot {
   if (state.rows.length === 0) {
     const noPlanFinding: SimulationFinding = {
@@ -377,7 +574,8 @@ function finalizeSimulation(state: SimulationState): PlanSimulationSnapshot {
       mode: state.mode,
       periodLabel: buildPeriodLabel(state.rows, state.timezone, state.locale),
       summary: buildSummary([noPlanFinding]),
-      findings: [noPlanFinding]
+      findings: [noPlanFinding],
+      qualityScore: 0
     }
   }
 
@@ -406,13 +604,15 @@ function finalizeSimulation(state: SimulationState): PlanSimulationSnapshot {
   }
 
   const sorted = sortedFindings(state.findings)
+  const qualityScore = computeQualityScore(sorted)
 
   return {
     ranAt: createTimestamp(state.timezone),
     mode: state.mode,
     periodLabel: buildPeriodLabel(state.rows, state.timezone, state.locale),
     summary: buildSummary(sorted),
-    findings: findingsForMode(sorted, state.mode)
+    findings: findingsForMode(sorted, state.mode),
+    qualityScore
   }
 }
 
@@ -442,6 +642,8 @@ export function simulatePlanViability(
   runScheduleStage(state)
   runWorkStage(state)
   runLoadStage(state)
+  runEnergyStage(state)
+  runCoverageStage(state)
   return finalizeSimulation(state)
 }
 
@@ -451,7 +653,7 @@ export async function simulatePlanViabilityWithProgress(
   options: SimulationOptions
 ): Promise<PlanSimulationSnapshot> {
   const state = createSimulationState(profile, rows, options)
-  const totalStages = 4
+  const totalStages = 6
 
   await emitProgress(options.onProgress, state.mode, 'schedule', 1, totalStages)
   runScheduleStage(state)
@@ -462,7 +664,13 @@ export async function simulatePlanViabilityWithProgress(
   await emitProgress(options.onProgress, state.mode, 'load', 3, totalStages)
   runLoadStage(state)
 
-  await emitProgress(options.onProgress, state.mode, 'summary', 4, totalStages)
+  await emitProgress(options.onProgress, state.mode, 'load', 4, totalStages)
+  runEnergyStage(state)
+
+  await emitProgress(options.onProgress, state.mode, 'load', 5, totalStages)
+  runCoverageStage(state)
+
+  await emitProgress(options.onProgress, state.mode, 'summary', 6, totalStages)
   return finalizeSimulation(state)
 }
 

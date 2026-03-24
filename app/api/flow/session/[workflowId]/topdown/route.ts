@@ -1,7 +1,8 @@
 import { buildTopDownState } from '../../../../../../src/lib/flow/engine'
 import { flowTopDownRequestSchema } from '../../../../_schemas'
-import { loadOwnedWorkflow, notFoundResponse, persistWorkflowState, invalidRequestResponse } from '../../../_helpers'
+import { loadOwnedWorkflow, notFoundResponse, persistWorkflowState, invalidRequestResponse, resolveRuntimeForWorkflow } from '../../../_helpers'
 import { sseJsonResponse } from '../../../_sse'
+import { generateTopDownWithAgent } from '../../../../../../src/lib/flow/agents/topdown-agent'
 
 interface RouteContext {
   params: Promise<{ workflowId: string }>
@@ -42,30 +43,44 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       message: 'Calculando niveles del plan según la duración.'
     })
 
-    const topdown = buildTopDownState(strategy, session.state.topdown, parsed.data.action)!
-
+    const topdownFallback = buildTopDownState(strategy, session.state.topdown, parsed.data.action)!
+    
     sendProgress({
       workflowId,
       step: 'topdown',
       stage: 'drafting',
       current: 2,
       total: 3,
-      message: 'Preparando la muestra del siguiente nivel.'
+      message: 'Preparando la muestra del siguiente nivel con el agente.'
     })
+
+    const runtime = await resolveRuntimeForWorkflow(session)
+    const currentTargetLevel = topdownFallback.levels[topdownFallback.currentLevelIndex]!
+    
+    // Only use LLM to expand the currently focused level
+    const enrichedLevel = await generateTopDownWithAgent({
+      runtime,
+      strategy,
+      levelAction: parsed.data.action ?? 'generate',
+      requiredLevel: currentTargetLevel.level,
+      fallback: currentTargetLevel
+    })
+
+    topdownFallback.levels[topdownFallback.currentLevelIndex] = enrichedLevel
 
     const nextState = {
       ...session.state,
-      topdown
+      topdown: topdownFallback
     }
     const nextSession = await persistWorkflowState({
       workflowId,
       state: nextState,
-      currentStep: topdown.levels.every((level) => level.confirmed) ? 'activation' : 'topdown',
+      currentStep: topdownFallback.levels.every((level) => level.confirmed) ? 'activation' : 'topdown',
       status: 'in_progress',
-      checkpointCode: `topdown-level-${topdown.currentLevelIndex + 1}`,
+      checkpointCode: `topdown-level-${topdownFallback.currentLevelIndex + 1}`,
       checkpointPayload: {
         action: parsed.data.action,
-        currentLevelIndex: topdown.currentLevelIndex
+        currentLevelIndex: topdownFallback.currentLevelIndex
       }
     })
 
@@ -80,7 +95,7 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
     sendResult({
       success: true,
       session: nextSession,
-      levels: topdown.levels
+      levels: topdownFallback.levels
     })
     close()
   })

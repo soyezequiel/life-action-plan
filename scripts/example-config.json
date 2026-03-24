@@ -1,0 +1,18 @@
+{
+  "intake": {
+    "nombre": "Agente V1",
+    "edad": 30,
+    "ubicacion": "Internet",
+    "ocupacion": "Automatizador",
+    "objetivo": "Pasar mis tests de integración"
+  },
+  "build": {
+    "provider": "openrouter:openai/gpt-4o-mini",
+    "resourceMode": "codex",
+    "thinkingMode": "disabled",
+    "apiKey": ""
+  },
+  "simulate": {
+    "mode": "automatic"
+  }
+}

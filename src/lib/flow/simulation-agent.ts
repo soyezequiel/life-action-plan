@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { AgentRuntime, LLMMessage } from '../runtime/types'
+import { extractFirstJsonObject } from './agents/llm-json-parser'
 import type {
   RealityCheckResult,
   StrategicPlanDraft,
@@ -7,7 +8,7 @@ import type {
 } from '../../shared/schemas/flow'
 
 const simulationReviewSchema = z.object({
-  reviewSummary: z.string().trim().min(1).max(360),
+  reviewSummary: z.string().trim().min(1).max(2000),
   checkedAreas: z.array(z.string().trim().min(1).max(200)).min(3).max(6),
   extraFindings: z.array(z.string().trim().min(1).max(240)).max(5).default([])
 }).strict()
@@ -18,62 +19,6 @@ export interface GeneratedSimulationReview {
   extraFindings: string[]
 }
 
-function stripFormatting(content: string): string {
-  return content
-    .replace(/<think>[\s\S]*?<\/think>/gi, '')
-    .replace(/```json\s*/gi, '')
-    .replace(/```\s*/g, '')
-    .trim()
-}
-
-function extractFirstJsonObject(content: string): string {
-  const cleaned = stripFormatting(content)
-  const firstBrace = cleaned.indexOf('{')
-
-  if (firstBrace < 0) {
-    return cleaned
-  }
-
-  let depth = 0
-  let inString = false
-  let escaping = false
-
-  for (let index = firstBrace; index < cleaned.length; index += 1) {
-    const char = cleaned[index]
-
-    if (inString) {
-      if (escaping) {
-        escaping = false
-      } else if (char === '\\') {
-        escaping = true
-      } else if (char === '"') {
-        inString = false
-      }
-
-      continue
-    }
-
-    if (char === '"') {
-      inString = true
-      continue
-    }
-
-    if (char === '{') {
-      depth += 1
-      continue
-    }
-
-    if (char === '}') {
-      depth -= 1
-
-      if (depth === 0) {
-        return cleaned.slice(firstBrace, index + 1)
-      }
-    }
-  }
-
-  return cleaned.slice(firstBrace)
-}
 
 function compactStrategy(strategy: StrategicPlanDraft): string {
   return JSON.stringify({
@@ -125,30 +70,30 @@ export async function generateSimulationReviewWithAgent(input: {
     {
       role: 'system',
       content: [
-        'Eres un planner senior.',
-        'Revisas una simulacion estrategica ya calculada y la explicas mejor.',
-        'No inventes capacidades magicas ni diagnosticos grandilocuentes.',
+        'Eres el agente simulador de LAP.',
+        'Tu trabajo no es solo hacer un resumen gerencial, sino ponerte en la piel del usuario y hacer una simulación cronológica mental del plan detallando TODO lo que va a ir haciendo semana a semana, mes a mes.',
+        'Debes narrar cómo interactúan las fases con sus horas libres, relatando de manera empática los momentos donde podría haber fricción, cansancio, choques de horarios o cuellos de botella.',
+        'Sé descriptivo pero conciso.',
+        'Menciona claramente si el plan tiene puntos de quiebre o fallas graves.',
         'Debes responder solo JSON valido.',
         'JSON esperado:',
         '{',
-        '  "reviewSummary": "explicacion clara de que valido y que conclusion saco",',
-        '  "checkedAreas": ["3 a 6 chequeos concretos que hiciste"],',
-        '  "extraFindings": ["hallazgos puntuales y accionables sin repetir lo obvio"]',
+        '  "reviewSummary": "Relato cronológico (en 2-3 párrafos) simulando la experiencia real trabajando el plan. Explica fricciones y escenarios.",',
+        '  "checkedAreas": ["Fricciones específicas verificadas (ej: cruce de horarios en semana 4)"],',
+        '  "extraFindings": ["Hallazgos que harían caer el plan en un escenario pesimista y cómo evitarlo"]',
         '}'
       ].join(' ')
     },
     {
       role: 'user',
       content: [
-        'Plan estrategico:',
+        'Plan estrategico a simular:',
         compactStrategy(input.strategy),
-        'Chequeo de realidad:',
+        'Chequeo de realidad base:',
         compactReality(input.realityCheck),
-        'Simulacion deterministica base:',
+        'Simulacion deterministica pre-calculada:',
         compactSimulation(input.deterministicSimulation),
-        'Objetivo: explicar con claridad como se simulo, que se puso a prueba y que conclusion practica sale.',
-        'No repitas textos literales del input si puedes decirlos mas claro.',
-        'No menciones que eres un modelo.'
+        'Haz un relato cronológico de cómo te iría intentando cumplir todo esto paso a paso en base al "Chequeo de realidad". Encuentra los huecos.'
       ].join('\n')
     }
   ]

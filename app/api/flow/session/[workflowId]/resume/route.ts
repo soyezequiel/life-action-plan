@@ -35,9 +35,13 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
     await updateProfile(session.profileId, JSON.stringify(resolved.profile))
   }
 
+  const stateToSave = resolved.strategyRebuilt
+    ? { ...resolved.state, simulationTreeId: null }
+    : resolved.state
+
   const nextSession = await persistWorkflowState({
     workflowId,
-    state: resolved.state,
+    state: stateToSave,
     currentStep: resolved.strategyRebuilt
       ? 'reality-check'
       : session.currentStep === 'done'

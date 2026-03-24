@@ -1439,6 +1439,26 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                           >
                             {isExporting ? t('dashboard.exporting_calendar') : t('dashboard.export_calendar')}
                           </button>
+                          {latestPlan && (
+                            <>
+                              <button
+                                className="app-button app-button--secondary"
+                                onClick={() => router.push(`/flow?workflowId=${encodeURIComponent(latestPlan.id)}`)}
+                              >
+                                Ver árbol de simulación
+                              </button>
+                              <button
+                                className="app-button app-button--secondary"
+                                onClick={() => {
+                                  setIsExporting(true)
+                                  client.plan.exportSimulation(latestPlan.id, 'json').finally(() => setIsExporting(false))
+                                }}
+                                disabled={isExporting}
+                              >
+                                Descargar simulación de este plan
+                              </button>
+                            </>
+                          )}
                         </div>
                         {showAccountNudge && (
                           <div className={styles.accountNudge}>

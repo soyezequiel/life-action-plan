@@ -1,0 +1,13 @@
+{
+  "plan_id": "ui-fixes-dashboard-v1",
+  "status": "ready",
+  "created_by": "antigravity",
+  "created_at": "2026-03-23T13:18:57-03:00",
+  "updated_at": "2026-03-23T13:18:57-03:00",
+  "updated_by": "antigravity",
+  "assigned_to": null,
+  "priority": "medium",
+  "tags": ["ui", "dashboard", "i18n", "accessibility"],
+  "blockers": [],
+  "notes": "Plan de ejemplo. Basado en errores documentados en docs/prompts/antigravity/ANTIGRAVITY_PROMPT.md"
+}

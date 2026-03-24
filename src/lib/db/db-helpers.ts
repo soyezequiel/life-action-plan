@@ -41,6 +41,7 @@ import {
   encryptedKeyVaults,
   operationCharges,
   planProgress,
+  planSimulationTrees,
   planWorkflowCheckpoints,
   planWorkflows,
   plans,
@@ -50,6 +51,8 @@ import {
   users,
   userSettings
 } from './schema'
+import type { SimTree } from '../../shared/schemas/simulation-tree'
+import { simTreeSchema } from '../../shared/schemas/simulation-tree'
 
 const OPENAI_INPUT_USD_PER_MILLION = 0.15
 const OPENAI_OUTPUT_USD_PER_MILLION = 0.6
@@ -1547,4 +1550,68 @@ export async function trackEvent(event: string, payload?: Record<string, unknown
     payload: payload ?? null,
     timestamp: now()
   })
+}
+
+export async function getSimulationTree(workflowId: string): Promise<SimTree | null> {
+  const rows = await db()
+    .select()
+    .from(planSimulationTrees)
+    .where(eq(planSimulationTrees.workflowId, workflowId))
+    .orderBy(desc(planSimulationTrees.createdAt))
+    .limit(1)
+
+  if (!rows[0]) return null
+
+  const parsed = simTreeSchema.safeParse(rows[0].data)
+  return parsed.success ? parsed.data : null
+}
+
+export async function upsertSimulationTree(
+  workflowId: string,
+  tree: SimTree,
+  expectedVersion: number
+): Promise<SimTree> {
+  const timestamp = now()
+
+  if (expectedVersion === 0) {
+    const rows = await db()
+      .insert(planSimulationTrees)
+      .values({
+        id: tree.id,
+        workflowId,
+        data: tree as unknown as Record<string, unknown>,
+        version: 1,
+        createdAt: timestamp,
+        updatedAt: timestamp
+      })
+      .returning()
+
+    const parsed = simTreeSchema.safeParse(rows[0]?.data)
+    if (!parsed.success) throw new Error('SIM_TREE_PARSE_ERROR')
+    return parsed.data
+  }
+
+  const existing = await db()
+    .select({ version: planSimulationTrees.version, id: planSimulationTrees.id })
+    .from(planSimulationTrees)
+    .where(eq(planSimulationTrees.workflowId, workflowId))
+    .orderBy(desc(planSimulationTrees.createdAt))
+    .limit(1)
+
+  if (!existing[0]) throw new Error('SIM_TREE_NOT_FOUND')
+  if (existing[0].version !== expectedVersion) throw new Error('SIM_TREE_VERSION_CONFLICT')
+
+  const nextVersion = expectedVersion + 1
+  const updatedTree: SimTree = { ...tree, version: nextVersion }
+
+  await db()
+    .update(planSimulationTrees)
+    .set({
+      data: updatedTree as unknown as Record<string, unknown>,
+      version: nextVersion,
+      updatedAt: timestamp
+    })
+    .where(eq(planSimulationTrees.id, existing[0].id))
+
+  return updatedTree
 }

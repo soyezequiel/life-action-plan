@@ -116,7 +116,7 @@ function inferGoalCategory(value: string): GoalDraft['category'] {
 function inferGoalEffort(value: string): GoalDraft['effort'] {
   const text = normalizeComparableText(value)
 
-  if (/(empresa|maraton|mudanza|cambio de carrera|emprendimiento|tesis|presidente|gobernador|intendente|senador|diputado|campana|candidatura|politica|emigrar|triatlon|ironman|doctorado|startup|42\s*km|full.?stack)/.test(text)) return 'alto'
+  if (/(empresa|maraton|mudanza|cambio de carrera|emprendimiento|tesis|presidente|gobernador|intendente|senador|diputado|campana|candidatura|politica|emigrar|triatlon|ironman|doctorado|startup|42\s*km|full.?stack|trabajo remoto|remote work|europa|estados unidos|\busa\b|canada|australia|\buk\b|visa de trabajo|visa laboral)/.test(text)) return 'alto'
   if (/(dejar de fumar|dejar de|adiccion|tabaco)/.test(text)) return 'alto'
   if (/(curso|ahorrar|rutina|habito|constancia|idioma|leer|piano|guitarra|meditar|dieta)/.test(text)) return 'medio'
   return value.length > 80 ? 'alto' : 'medio'
@@ -500,7 +500,7 @@ function isSupportTrackGoal(goal: GoalDraft): boolean {
   const text = normalizeComparableText(goal.text)
 
   return goal.isHabit
-    || goal.category === 'salud'
+    || (goal.category === 'salud' && goal.hoursPerWeek <= 3)
     || /(veces por semana|por semana|rutina|habito|entren)/.test(text)
 }
 
@@ -734,7 +734,7 @@ export function buildStrategicPlanRefined(goals: GoalDraft[], profile: Perfil): 
       ? totalMonths
       : supportTrack
       ? Math.max(2, Math.min(goal.horizonMonths, 3))
-      : Math.max(1, Math.min(goal.horizonMonths, goal.effort === 'alto' ? 4 : goal.effort === 'medio' ? 3 : 2))
+      : goal.horizonMonths
     const startMonth = supportTrack
       ? 1
       : index > 0 && goal.priority <= 2 && availableHours >= 14
@@ -857,7 +857,8 @@ export function resolveRealityCheck(
 
 export function runStrategicSimulation(
   strategy: StrategicPlanDraft,
-  realityCheck: RealityCheckResult
+  realityCheck: RealityCheckResult,
+  goals: GoalDraft[] = []
 ): StrategicSimulationSnapshot {
   const availableHours = realityCheck.availableHours
   const iterations: StrategicSimulationSnapshot['iterations'] = []
@@ -939,6 +940,21 @@ export function runStrategicSimulation(
   const overlappingPhases = strategy.phases.filter((phase) => phase.startMonth <= worstMonth && phase.endMonth >= worstMonth)
   if (overlappingPhases.length > 1) {
     findings.push(`En el mes ${worstMonth} hay ${overlappingPhases.length} frentes activos al mismo tiempo.`)
+  }
+
+  const allGoalIds = [...new Set(strategy.phases.flatMap((phase) => phase.goalIds))]
+  for (const goalId of allGoalIds) {
+    const coveredMonths = new Set<number>()
+    for (const phase of strategy.phases) {
+      if (phase.goalIds.includes(goalId)) {
+        for (let m = phase.startMonth; m <= phase.endMonth; m++) coveredMonths.add(m)
+      }
+    }
+    const goalData = goals.find((g) => g.id === goalId)
+    if (goalData && coveredMonths.size < goalData.horizonMonths * 0.7) {
+      findings.push(`El objetivo "${clipText(goalData.text, 40)}" tiene actividad en ${coveredMonths.size} de ${goalData.horizonMonths} meses de su horizonte.`)
+      if (finalStatus === 'PASS') finalStatus = 'WARN'
+    }
   }
 
   if (realityCheck.adjustmentsApplied.length > 0) {

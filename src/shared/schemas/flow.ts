@@ -123,7 +123,7 @@ export const strategicSimulationSnapshotSchema = z.object({
   ranAt: z.string().trim().min(1),
   method: strategicSimulationMethodSchema.default('rules'),
   finalStatus: simulationIterationStatusSchema,
-  reviewSummary: z.string().trim().min(1).max(360).default(''),
+  reviewSummary: z.string().trim().max(2000).default(''),
   checkedAreas: z.array(z.string().trim().min(1).max(200)).min(1).max(6).default([
     'Carga semanal total',
     'Dependencias entre fases',
@@ -137,7 +137,7 @@ export const presentationTimelineItemSchema = z.object({
   id: z.string().trim().min(1),
   label: z.string().trim().min(1).max(140),
   window: z.string().trim().min(1).max(80),
-  detail: z.string().trim().min(1).max(240),
+  detail: z.string().trim().min(1).max(1000),
   status: z.enum(['locked', 'editable'])
 }).strict()
 
@@ -150,7 +150,7 @@ export const presentationCardSchema = z.object({
 
 export const presentationDraftSchema = z.object({
   title: z.string().trim().min(1).max(160),
-  summary: z.string().trim().min(1).max(640),
+  summary: z.string().trim().min(1).max(1000),
   timeline: z.array(presentationTimelineItemSchema).min(1),
   cards: z.array(presentationCardSchema).min(1),
   feedbackRounds: z.number().int().min(0).max(10).default(0),
@@ -247,7 +247,8 @@ export const flowStateSchema = z.object({
     changeSummary: null,
     patchSummary: null,
     askedAt: null
-  })
+  }),
+  simulationTreeId: z.string().trim().min(1).nullable().default(null)
 }).strict()
 
 export const flowSessionSchema = z.object({

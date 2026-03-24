@@ -2,6 +2,7 @@ import { perfilSchema, type Perfil } from '../../../src/shared/schemas/perfil'
 import { createIntakeBlocks } from '../../../src/lib/flow/engine'
 import { markIntakeBlocksComplete } from '../../../src/lib/flow/intake-agent'
 import type { FlowSession, FlowState, FlowStep, FlowStatus } from '../../../src/shared/types/flow'
+import type { AgentRuntime } from '../../../src/lib/runtime/types'
 import {
   claimAnonymousWorkflowData,
   createPlanWorkflow,
@@ -14,6 +15,11 @@ import {
 } from '../_db'
 import { apiErrorMessages, jsonResponse } from '../_shared'
 import { resolveAuthenticatedUserId } from '../_user-settings'
+import { getDeploymentMode } from '../../../src/lib/env/deployment'
+import { resolvePlanBuildExecution } from '../../../src/lib/runtime/build-execution'
+import { getProvider } from '../../../src/lib/providers/provider-factory'
+import { createInstrumentedRuntime } from '../../../src/debug/instrumented-runtime'
+import { traceCollector } from '../../../src/debug/trace-collector'
 
 type FlowSessionEntryIntent = 'default' | 'redo-profile' | 'change-objectives' | 'restart-flow'
 
@@ -67,7 +73,8 @@ function buildPlanningResetState(source: FlowSession): FlowState {
       changeSummary: null,
       patchSummary: null,
       askedAt: null
-    }
+    },
+    simulationTreeId: null
   }
 }
 
@@ -285,4 +292,50 @@ export function notFoundResponse() {
     success: false,
     error: 'FLOW_SESSION_NOT_FOUND'
   }, { status: 404 })
+}
+
+export async function resolveRuntimeForWorkflow(session: FlowSession): Promise<AgentRuntime> {
+  const gateState = session.state.gate
+
+  if (!gateState?.provider) {
+    throw new Error('FLOW_GATE_PROVIDER_REQUIRED')
+  }
+
+  const requestedMode = gateState.llmMode === 'local'
+    ? 'backend-local'
+    : gateState.llmMode === 'own'
+      ? 'user-cloud'
+      : gateState.llmMode === 'codex'
+        ? 'codex-cloud'
+        : 'backend-cloud'
+
+  const execution = await resolvePlanBuildExecution({
+    modelId: gateState.provider,
+    deploymentMode: getDeploymentMode(),
+    requestedMode,
+    userId: session.userId ?? undefined,
+    backendCredentialId: gateState.backendCredentialId ?? undefined
+  })
+
+  if (!execution.executionContext.canExecute || !execution.runtime) {
+    throw new Error('FLOW_LLM_EXECUTION_UNAVAILABLE')
+  }
+
+  const traceId = traceCollector.startTrace('flow-agent', execution.runtime.modelId, {
+    workflowId: session.id,
+    executionMode: execution.executionContext.mode,
+    resourceOwner: execution.executionContext.resourceOwner
+  })
+
+  const baseRuntime = getProvider(execution.runtime.modelId, {
+    apiKey: execution.runtime.apiKey,
+    baseURL: execution.runtime.baseURL
+  })
+
+  return createInstrumentedRuntime(
+    baseRuntime,
+    traceId,
+    'flow-agent',
+    execution.runtime.modelId
+  )
 }

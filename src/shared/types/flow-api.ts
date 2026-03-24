@@ -11,6 +11,7 @@ import type {
   StrategicSimulationSnapshot,
   TopDownLevelDraft
 } from './flow'
+import type { SimGranularity, SimTree, SimNode, SimFinding, SimStrategyPatch, SimActionLogEntry } from '../schemas/simulation-tree'
 
 export interface FlowSessionResult {
   success: boolean
@@ -33,12 +34,41 @@ export interface FlowSessionCreateRequest {
 
 export interface FlowTaskProgress {
   workflowId: string
-  step: FlowStep
+  step: FlowStep | 'simulation-tree'
   stage: string
   current: number
   total: number
   message: string
+  agentRole?: 'mundo' | 'yo' | 'orchestrator'
+  llmTokensSoFar?: number
+  estimatedRemainingMs?: number
+  /** Fase actual del loop ReACT (inspirado en MiroFish ReportAgent) */
+  reactPhase?: 'reason' | 'act' | 'observe'
+  /** Label del nodo siendo simulado */
+  nodeLabel?: string
 }
+
+export interface FlowSimulationTreeRequest {
+  action: 'initialize' | 'simulate-node' | 'simulate-range' | 'apply-corrections' | 'lock-node' | 'expand-node'
+  nodeId?: string
+  granularity?: SimGranularity
+  rangeStart?: string
+  rangeEnd?: string
+  corrections?: Array<{ findingId: string; action: 'apply' | 'dismiss' }>
+  treeVersion?: number
+}
+
+export interface FlowSimulationTreeResult {
+  success: boolean
+  session?: FlowSession
+  tree?: SimTree
+  simulatedNodes?: SimNode[]
+  findings?: SimFinding[]
+  strategyPatches?: SimStrategyPatch[]
+  error?: string
+}
+
+export type { SimGranularity, SimTree, SimNode, SimFinding, SimStrategyPatch, SimActionLogEntry }
 
 export interface FlowGateRequest {
   choice?: 'pulso' | 'advanced'
@@ -56,6 +86,7 @@ export interface FlowObjectivesRequest {
 
 export interface FlowIntakeRequest {
   answers: Record<string, string>
+  isAutoSave?: boolean
 }
 
 export interface FlowRealityCheckRequest {

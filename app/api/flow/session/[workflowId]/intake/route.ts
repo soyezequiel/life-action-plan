@@ -52,7 +52,13 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
     }
 
     const completedBlocks = intakeBlocks.filter((block) => block.completed)
-    const currentStep = completedBlocks.length === intakeBlocks.length ? 'strategy' : 'intake'
+    const isAutoSave = parsed.data.isAutoSave ?? false
+    let currentStep: 'intake' | 'strategy' = 'intake'
+
+    if (!isAutoSave && completedBlocks.length === intakeBlocks.length) {
+      currentStep = 'strategy'
+    }
+
     const checkpointCode = completedBlocks.length === intakeBlocks.length
       ? 'intake-completed'
       : `intake-${completedBlocks[completedBlocks.length - 1]?.id ?? 'autosave'}`

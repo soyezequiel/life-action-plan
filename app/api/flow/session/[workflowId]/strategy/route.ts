@@ -1,9 +1,13 @@
+import { buildStrategicPlanRefined, resolveRealityCheck } from '../../../../../../src/lib/flow/engine'
 import {
-  buildStrategicPlanRefined,
-  resolveRealityCheck
-} from '../../../../../../src/lib/flow/engine'
-import { loadOwnedWorkflow, loadWorkflowProfile, notFoundResponse, persistWorkflowState } from '../../../_helpers'
+  loadOwnedWorkflow,
+  loadWorkflowProfile,
+  notFoundResponse,
+  persistWorkflowState,
+  resolveRuntimeForWorkflow
+} from '../../../_helpers'
 import { sseJsonResponse } from '../../../_sse'
+import { generateStrategyWithAgent } from '../../../../../../src/lib/flow/agents/strategy-agent'
 
 interface RouteContext {
   params: Promise<{ workflowId: string }>
@@ -38,13 +42,18 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       message: 'Ordenando objetivos y disponibilidad real.'
     })
 
-    const strategy = buildStrategicPlanRefined(session.state.goals, profile)
+    const fallbackStrategy = buildStrategicPlanRefined(session.state.goals, profile)
+    const runtime = await resolveRuntimeForWorkflow(session)
+    const strategy = await generateStrategyWithAgent(
+      { runtime, goals: session.state.goals, profile, fallbackStrategy },
+      (msg) => sendProgress({ ...msg, workflowId })
+    )
 
     sendProgress({
       workflowId,
       step: 'strategy',
       stage: 'structuring',
-      current: 2,
+      current: 3,
       total: 5,
       message: 'Armando fases, hitos y dependencias.'
     })
@@ -55,7 +64,7 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       workflowId,
       step: 'strategy',
       stage: 'reality-baseline',
-      current: 3,
+      current: 4,
       total: 5,
       message: 'Contrastando la carga del plan contra tu semana real.'
     })
@@ -64,8 +73,8 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       workflowId,
       step: 'strategy',
       stage: 'drafting',
-      current: 4,
-      total: 5,
+      current: 5,
+      total: 6,
       message: 'Preparando la version que vas a revisar.'
     })
 
@@ -92,8 +101,8 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       workflowId,
       step: 'strategy',
       stage: 'saving',
-      current: 5,
-      total: 5,
+      current: 6,
+      total: 6,
       message: 'Guardando el checkpoint estrategico.'
     })
     sendResult({

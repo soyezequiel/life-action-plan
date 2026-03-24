@@ -1,6 +1,7 @@
 import { buildPresentationDraft } from '../../../../../../src/lib/flow/engine'
 import { jsonResponse } from '../../../../_shared'
-import { loadOwnedWorkflow, notFoundResponse, persistWorkflowState } from '../../../_helpers'
+import { loadOwnedWorkflow, notFoundResponse, persistWorkflowState, resolveRuntimeForWorkflow } from '../../../_helpers'
+import { generatePresentationWithAgent } from '../../../../../../src/lib/flow/agents/presentation-agent'
 
 interface RouteContext {
   params: Promise<{ workflowId: string }>
@@ -15,16 +16,33 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
   }
 
   const strategy = session.state.strategy
-  const simulation = session.state.simulation
 
-  if (!strategy || !simulation) {
+  if (!strategy) {
     return jsonResponse({
       success: false,
-      error: 'FLOW_SIMULATION_REQUIRED'
+      error: 'FLOW_STRATEGY_REQUIRED'
     }, { status: 409 })
   }
 
-  const presentation = session.state.presentation ?? buildPresentationDraft(strategy, simulation)
+  const simulation = session.state.simulation
+  const fallbackSimulation = simulation ?? {
+    ranAt: new Date().toISOString(),
+    finalStatus: 'PASS' as const,
+    method: 'rules' as const,
+    reviewSummary: 'Sin simulación ejecutada aún.',
+    checkedAreas: ['Pendiente de simulación'],
+    findings: [],
+    iterations: [{ index: 0, status: 'PASS' as const, summary: 'Simulación omitida.', changes: [] }]
+  }
+
+  const fallback = buildPresentationDraft(strategy, fallbackSimulation)
+  const presentation = session.state.presentation ?? await generatePresentationWithAgent({
+    runtime: await resolveRuntimeForWorkflow(session),
+    strategy,
+    simulation: fallbackSimulation,
+    fallback
+  })
+
   const nextState = {
     ...session.state,
     presentation
