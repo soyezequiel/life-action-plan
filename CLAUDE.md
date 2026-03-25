@@ -3,7 +3,7 @@
 ## Carga Deterministica
 
 Lee `AGENTS.md` para estado actual del proyecto, estructura de carpetas, stack, DB y decisiones tecnicas.
-Source of truth arquitectonica: `PLAN_LAP_FINAL.md`.
+Source of truth arquitectonica: `docs/architecture/PLAN_LAP_FINAL.md`.
 
 ## Contexto actual
 

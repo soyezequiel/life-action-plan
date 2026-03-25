@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { AgentRuntime, SkillContext, SkillResult, Skill } from './skill-interface'
 import type { Perfil } from '../../shared/schemas/perfil'
+import type { SimulationFinding } from '../../shared/types/lap-api'
 
 export interface PlanEvent {
   semana: number
@@ -22,6 +23,10 @@ export interface GeneratedPlan {
 export interface GeneratePlanOptions {
   onStageChange?: (stage: 'generating' | 'validating') => void
   onToken?: (chunk: string) => void
+  /** Findings from a previous simulation run — used to repair/improve the plan */
+  previousFindings?: SimulationFinding[]
+  /** Deterministic constraints from the readiness gate */
+  constraints?: string[]
 }
 
 const validCategories = ['estudio', 'ejercicio', 'trabajo', 'habito', 'descanso', 'otro'] as const
@@ -234,20 +239,84 @@ function extractFirstJsonObject(content: string): string {
   return cleaned.slice(firstBrace)
 }
 
-function buildUserPrompt(profile: Perfil): string {
+function buildUserPrompt(profile: Perfil, options?: GeneratePlanOptions): string {
   const p = profile.participantes[0]
-  const obj = profile.objetivos[0]
+  const objectives = profile.objetivos
 
-  return [
+  const lines: string[] = [
     `Nombre: ${p.datosPersonales.nombre}`,
     `Edad: ${p.datosPersonales.edad}`,
     `Ciudad: ${p.datosPersonales.ubicacion.ciudad}`,
     `Ocupacion: ${p.datosPersonales.narrativaPersonal}`,
-    `Objetivo principal: ${obj?.descripcion ?? 'No especificado'}`,
-    `Horario: despierta ${p.rutinaDiaria.porDefecto.despertar}, duerme ${p.rutinaDiaria.porDefecto.dormir}`,
-    `Trabajo: ${p.rutinaDiaria.porDefecto.trabajoInicio ?? 'sin horario fijo'} a ${p.rutinaDiaria.porDefecto.trabajoFin ?? ''}`,
-    `Horas libres estimadas: ${p.calendario.horasLibresEstimadas.diasLaborales}h en dias laborales, ${p.calendario.horasLibresEstimadas.diasDescanso}h fines de semana`
-  ].join('\n')
+    '',
+    '=== OBJETIVOS (TODOS deben tener al menos 1 actividad) ===',
+    ...objectives.map((obj, i) =>
+      `${i + 1}. [${obj.id}] ${obj.descripcion} (prioridad: ${obj.prioridad}/5, ~${obj.horasSemanalesEstimadas}h/semana)`
+    ),
+    '',
+    '=== HORARIOS Y DISPONIBILIDAD ===',
+    `Despierta: ${p.rutinaDiaria.porDefecto.despertar} | Duerme: ${p.rutinaDiaria.porDefecto.dormir}`,
+    `Trabajo: ${p.rutinaDiaria.porDefecto.trabajoInicio ?? 'sin horario fijo'} a ${p.rutinaDiaria.porDefecto.trabajoFin ?? 'sin horario fijo'}`,
+    `Transporte: ${p.rutinaDiaria.porDefecto.tiempoTransporte} min`,
+    `Horas libres: ${p.calendario.horasLibresEstimadas.diasLaborales}h (laborales) | ${p.calendario.horasLibresEstimadas.diasDescanso}h (fines de semana)`,
+    '',
+    '=== ENERGIA Y ESTADO ACTUAL ===',
+    `Cronotipo: ${p.patronesEnergia.cronotipo} | Pico energia: ${p.patronesEnergia.horarioPicoEnergia} | Baja energia: ${p.patronesEnergia.horarioBajoEnergia}`,
+    `Horas productivas maximas/dia: ${p.patronesEnergia.horasProductivasMaximas}`,
+    `Motivacion actual: ${profile.estadoDinamico.estadoEmocional.motivacion}/5 | Estres: ${profile.estadoDinamico.estadoEmocional.estres}/5`,
+    `Nivel de energia general: ${profile.estadoDinamico.nivelEnergia}`
+  ]
+
+  // Compromisos inamovibles
+  const compromisos = p.compromisos
+  if (compromisos.length > 0) {
+    lines.push('', '=== COMPROMISOS INAMOVIBLES (no planificar sobre estos horarios) ===')
+    for (const c of compromisos) {
+      lines.push(`- ${c.descripcion}${c.recurrencia ? ` [${c.recurrencia}]` : ''} (${c.duracion} min)`)
+    }
+  }
+
+  // Dependientes
+  const dependientes = p.dependientes
+  if (dependientes.length > 0) {
+    lines.push('', '=== DEPENDIENTES ===')
+    for (const d of dependientes) {
+      lines.push(`- ${d.nombre} (${d.relacion}): ${d.disponibilidad || 'sin detalle adicional'}`)
+    }
+  }
+
+  // Problemas conocidos / historial de fracasos
+  if (p.problemasActuales.length > 0) {
+    lines.push('', '=== HISTORIAL Y RESTRICCIONES CONOCIDAS ===')
+    for (const prob of p.problemasActuales) {
+      lines.push(`- ${prob}`)
+    }
+  }
+
+  // Previous simulation failures
+  if (options?.previousFindings && options.previousFindings.length > 0) {
+    const failed = options.previousFindings.filter(f => f.status === 'FAIL' || f.status === 'WARN')
+    if (failed.length > 0) {
+      lines.push('', '=== PROBLEMAS DE SIMULACION ANTERIOR (DEBES CORREGIRLOS) ===')
+      for (const f of failed) {
+        const params = f.params
+          ? ' (' + Object.entries(f.params).map(([k, v]) => `${k}: ${v}`).join(', ') + ')'
+          : ''
+        lines.push(`- [${f.status}] ${f.code}${params}`)
+      }
+      lines.push('NO repitas estos errores. El plan anterior fallÃ³ por estos motivos exactos.')
+    }
+  }
+
+  // Readiness gate constraints
+  if (options?.constraints && options.constraints.length > 0) {
+    lines.push('', '=== CONSTRAINTS OBLIGATORIOS ===')
+    for (const c of options.constraints) {
+      lines.push(`- ${c}`)
+    }
+  }
+
+  return lines.join('\n')
 }
 
 export const planBuilder: Skill = {
@@ -307,7 +376,7 @@ export async function generatePlan(
   options?: GeneratePlanOptions
 ): Promise<GeneratedPlan> {
   const systemPrompt = planBuilder.getSystemPrompt(ctx)
-  const userPrompt = buildUserPrompt(profile)
+  const userPrompt = buildUserPrompt(profile, options)
   const fallbackObjectiveId = profile.objetivos[0]?.id ?? 'obj1'
   const messages = [
     { role: 'system' as const, content: systemPrompt },

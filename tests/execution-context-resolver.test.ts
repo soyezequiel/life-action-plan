@@ -27,6 +27,7 @@ describe('execution context resolver', () => {
     mocks.ensureBackendEnvCredentialConfigurationMock.mockReset()
     mocks.getCredentialConfigurationMock.mockReset()
     mocks.listCredentialConfigurationsMock.mockReset()
+    delete process.env.LAP_ENABLE_CODEX_SERVICE_MODE
   })
 
   it('prioriza la API key provista por el usuario para cloud en modo automatico', async () => {
@@ -184,6 +185,62 @@ describe('execution context resolver', () => {
       canExecute: false,
       resolutionSource: 'requested-mode',
       blockReasonCode: 'backend_credential_missing'
+    }))
+  })
+
+  it('permite codex-cloud en local usando una credencial backend activa sin cobrar', async () => {
+    mocks.findCredentialConfigurationMock.mockImplementation(async (locator) => {
+      if (locator.owner === 'backend' && locator.label === 'default') {
+        return {
+          id: 'cred-backend-codex',
+          owner: 'backend',
+          ownerId: 'backend-system',
+          providerId: 'openrouter',
+          secretType: 'api-key',
+          label: 'default',
+          status: 'active',
+          lastValidatedAt: null,
+          lastValidationError: null,
+          metadata: null,
+          createdAt: '2026-03-21T00:00:00.000Z',
+          updatedAt: '2026-03-21T00:00:00.000Z'
+        }
+      }
+
+      return null
+    })
+
+    const context = await resolveExecutionContext({
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      requestedMode: 'codex-cloud',
+      deploymentMode: 'local'
+    })
+
+    expect(context).toEqual(expect.objectContaining({
+      mode: 'codex-cloud',
+      resourceOwner: 'backend',
+      credentialSource: 'backend-stored',
+      credentialId: 'cred-backend-codex',
+      canExecute: true,
+      resolutionSource: 'requested-mode',
+      chargePolicy: 'skip',
+      chargeReason: 'internal_tooling'
+    }))
+  })
+
+  it('bloquea codex-cloud fuera de local si no se habilita explicitamente', async () => {
+    const context = await resolveExecutionContext({
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      requestedMode: 'codex-cloud',
+      deploymentMode: 'vercel-preview'
+    })
+
+    expect(context).toEqual(expect.objectContaining({
+      mode: 'codex-cloud',
+      credentialSource: 'backend-stored',
+      canExecute: false,
+      resolutionSource: 'requested-mode',
+      blockReasonCode: 'codex_mode_unavailable'
     }))
   })
 

@@ -7,13 +7,24 @@ import LlmModeSelector from '../components/settings/LlmModeSelector'
 import { t } from '../src/i18n'
 
 describe('llm mode selector', () => {
-  it('permite alternar entre conexion propia y servicio', () => {
+  it('permite alternar entre conexion propia, servicio y modo codex local', () => {
     const onChange = vi.fn()
+    const onToggleAdvanced = vi.fn()
 
-    render(<LlmModeSelector value="own" onChange={onChange} />)
+    render(
+      <LlmModeSelector
+        value="own"
+        advancedVisible
+        showCodexMode
+        onChange={onChange}
+        onToggleAdvanced={onToggleAdvanced}
+      />
+    )
 
+    expect(screen.getByText(t('settings.normal_lane.title'))).toBeTruthy()
     expect(screen.getByText(t('settings.llm_mode.own_key_title'))).toBeTruthy()
     expect(screen.getByText(t('settings.llm_mode.service_title'))).toBeTruthy()
+    expect(screen.getByText(t('settings.llm_mode.codex_title'))).toBeTruthy()
 
     fireEvent.click(screen.getByRole('button', { name: new RegExp(t('settings.llm_mode.service_title')) }))
 

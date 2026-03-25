@@ -1,17 +1,25 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { generateText, streamText } from 'ai'
 import type { AgentRuntime, LLMMessage, LLMResponse, ToolCall } from '../runtime/types'
-import { DEFAULT_OPENROUTER_BUILD_MODEL, getModelProviderName } from './provider-metadata'
+import { DEFAULT_OPENROUTER_BUILD_MODEL, getModelProviderName, supportsOllamaThinking } from './provider-metadata'
 
 interface ProviderConfig {
   apiKey: string
   baseURL?: string
   model?: string
+  thinkingMode?: 'enabled' | 'disabled'
 }
 
 interface ProviderTimeouts {
   chatMs: number
   streamMs: number
+}
+
+interface InactivityTimeoutController {
+  abortSignal: AbortSignal
+  recordActivity: () => void
+  clear: () => void
+  isTimedOut: () => boolean
 }
 
 interface OllamaToolCall {
@@ -44,7 +52,7 @@ const OLLAMA_TIMEOUTS: ProviderTimeouts = {
   streamMs: 180_000
 }
 
-const OLLAMA_MAX_OUTPUT_TOKENS = 16384
+const OLLAMA_MAX_OUTPUT_TOKENS = 4096
 const OPENAI_REASONING_SUMMARY_MODE = 'auto'
 const MODEL_TIMEOUT_MESSAGE = 'El asistente tardo demasiado en responder. Intentalo de nuevo.'
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
@@ -130,6 +138,72 @@ async function runWithTimeout<T>(
   }
 }
 
+function createInactivityTimeoutController(timeoutMs: number): InactivityTimeoutController {
+  const controller = new AbortController()
+  let timedOut = false
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+  const armTimeout = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+
+    timeoutId = setTimeout(() => {
+      timedOut = true
+      controller.abort()
+    }, timeoutMs)
+  }
+
+  armTimeout()
+
+  return {
+    abortSignal: controller.signal,
+    recordActivity: () => {
+      if (!timedOut) {
+        armTimeout()
+      }
+    },
+    clear: () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+        timeoutId = null
+      }
+    },
+    isTimedOut: () => timedOut
+  }
+}
+
+function normalizeInactivityTimeoutError(
+  error: unknown,
+  timeoutController: InactivityTimeoutController,
+  timeoutMessage: string
+): Error {
+  if (
+    timeoutController.isTimedOut()
+    || (error instanceof Error && error.name === 'AbortError' && timeoutController.abortSignal.aborted)
+  ) {
+    return new Error(timeoutMessage)
+  }
+
+  return error instanceof Error ? error : new Error(String(error))
+}
+
+async function runWithInactivityTimeout<T>(
+  operation: (timeoutController: InactivityTimeoutController) => Promise<T>,
+  timeoutMs: number,
+  timeoutMessage: string
+): Promise<T> {
+  const timeoutController = createInactivityTimeoutController(timeoutMs)
+
+  try {
+    return await operation(timeoutController)
+  } catch (error) {
+    throw normalizeInactivityTimeoutError(error, timeoutController, timeoutMessage)
+  } finally {
+    timeoutController.clear()
+  }
+}
+
 function createOpenAIRuntime(
   model: string,
   config: ProviderConfig,
@@ -158,17 +232,17 @@ function createOpenAIRuntime(
       content: message.content
     }))
 
-  async function collectStreamedResponse(
+async function collectStreamedResponse(
     messages: LLMMessage[],
     onToken: (token: string) => void,
-    abortSignal: AbortSignal
+    abortSignal: AbortSignal,
+    onActivity?: () => void
   ): Promise<LLMResponse> {
     const result = streamText({
       model: llmModel,
       messages: mapMessages(messages),
       maxOutputTokens,
       abortSignal,
-      timeout: timeouts.streamMs,
       ...(providerOptions ? { providerOptions } : {})
     })
 
@@ -176,6 +250,7 @@ function createOpenAIRuntime(
     let thinkingOpen = false
 
     for await (const chunk of result.fullStream) {
+      onActivity?.()
       const streamError = getOpenAIChunkError(chunk as { type?: string; error?: unknown })
       if (streamError) {
         throw streamError
@@ -235,18 +310,14 @@ function createOpenAIRuntime(
       }
     },
     async *stream(messages: LLMMessage[]): AsyncIterable<string> {
-      const controller = new AbortController()
-      const abortId = setTimeout(() => {
-        controller.abort()
-      }, timeouts.streamMs)
+      const timeoutController = createInactivityTimeoutController(timeouts.streamMs)
 
       try {
         const result = streamText({
           model: llmModel,
           messages: mapMessages(messages),
           maxOutputTokens,
-          abortSignal: controller.signal,
-          timeout: timeouts.streamMs,
+          abortSignal: timeoutController.abortSignal,
           ...(providerOptions ? { providerOptions } : {})
         })
 
@@ -254,6 +325,7 @@ function createOpenAIRuntime(
         let thinkingOpen = false
 
         for await (const chunk of result.fullStream) {
+          timeoutController.recordActivity()
           const streamError = getOpenAIChunkError(chunk as { type?: string; error?: unknown })
           if (streamError) {
             throw streamError
@@ -277,18 +349,19 @@ function createOpenAIRuntime(
           yield '</think>'
         }
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          throw new Error(MODEL_TIMEOUT_MESSAGE)
-        }
-
-        throw error
+        throw normalizeInactivityTimeoutError(error, timeoutController, MODEL_TIMEOUT_MESSAGE)
       } finally {
-        clearTimeout(abortId)
+        timeoutController.clear()
       }
     },
     async streamChat(messages: LLMMessage[], onToken: (token: string) => void): Promise<LLMResponse> {
-      return runWithTimeout(
-        (abortSignal) => collectStreamedResponse(messages, onToken, abortSignal),
+      return runWithInactivityTimeout(
+        (timeoutController) => collectStreamedResponse(
+          messages,
+          onToken,
+          timeoutController.abortSignal,
+          timeoutController.recordActivity
+        ),
         timeouts.streamMs,
         MODEL_TIMEOUT_MESSAGE
       )
@@ -405,8 +478,22 @@ function normalizeOllamaBaseUrl(baseURL?: string): string {
   return trimmed.endsWith('/v1') ? trimmed.slice(0, -3) : trimmed
 }
 
-function shouldEnableOllamaThinking(model: string): boolean {
-  return /(qwen|deepseek|gpt-oss|qwq|r1)/i.test(model)
+function shouldEnableOllamaThinking(model: string, thinkingMode?: ProviderConfig['thinkingMode']): boolean {
+  if (thinkingMode === 'enabled') {
+    return supportsOllamaThinking(model)
+  }
+
+  if (thinkingMode === 'disabled') {
+    return false
+  }
+
+  const override = process.env.LAP_ENABLE_OLLAMA_THINKING?.trim().toLowerCase() || ''
+
+  if (override === '1' || override === 'true') {
+    return supportsOllamaThinking(model)
+  }
+
+  return false
 }
 
 function mapOllamaMessages(messages: LLMMessage[]) {
@@ -557,7 +644,7 @@ async function* iterateOllamaStream(response: Response): AsyncIterable<OllamaCha
 
 function createOllamaRuntime(model: string, config: ProviderConfig, timeouts: ProviderTimeouts): AgentRuntime {
   const baseURL = normalizeOllamaBaseUrl(config.baseURL)
-  const think = shouldEnableOllamaThinking(model)
+  const think = shouldEnableOllamaThinking(model, config.thinkingMode)
 
   async function sendOllamaChatRequest(
     messages: LLMMessage[],
@@ -591,9 +678,11 @@ function createOllamaRuntime(model: string, config: ProviderConfig, timeouts: Pr
   async function collectOllamaResponse(
     messages: LLMMessage[],
     abortSignal: AbortSignal,
-    onToken?: (token: string) => void
+    onToken?: (token: string) => void,
+    onActivity?: () => void
   ): Promise<LLMResponse> {
     const response = await sendOllamaChatRequest(messages, Boolean(onToken), abortSignal)
+    onActivity?.()
     let content = ''
     let thinkingOpen = false
     let promptTokens = 0
@@ -602,6 +691,7 @@ function createOllamaRuntime(model: string, config: ProviderConfig, timeouts: Pr
 
     if (onToken) {
       for await (const chunk of iterateOllamaStream(response)) {
+        onActivity?.()
         const appended = appendOllamaMessageParts(content, thinkingOpen, chunk.message)
         content = appended.nextText
         thinkingOpen = appended.nextThinkingOpen
@@ -640,17 +730,16 @@ function createOllamaRuntime(model: string, config: ProviderConfig, timeouts: Pr
       )
     },
     async *stream(messages: LLMMessage[]): AsyncIterable<string> {
-      const controller = new AbortController()
-      const abortId = setTimeout(() => {
-        controller.abort()
-      }, timeouts.streamMs)
+      const timeoutController = createInactivityTimeoutController(timeouts.streamMs)
 
       try {
-        const response = await sendOllamaChatRequest(messages, true, controller.signal)
+        const response = await sendOllamaChatRequest(messages, true, timeoutController.abortSignal)
+        timeoutController.recordActivity()
         let content = ''
         let thinkingOpen = false
 
         for await (const chunk of iterateOllamaStream(response)) {
+          timeoutController.recordActivity()
           const appended = appendOllamaMessageParts(content, thinkingOpen, chunk.message)
           content = appended.nextText
           thinkingOpen = appended.nextThinkingOpen
@@ -664,18 +753,19 @@ function createOllamaRuntime(model: string, config: ProviderConfig, timeouts: Pr
           yield '</think>'
         }
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          throw new Error(MODEL_TIMEOUT_MESSAGE)
-        }
-
-        throw error
+        throw normalizeInactivityTimeoutError(error, timeoutController, MODEL_TIMEOUT_MESSAGE)
       } finally {
-        clearTimeout(abortId)
+        timeoutController.clear()
       }
     },
     async streamChat(messages: LLMMessage[], onToken: (token: string) => void): Promise<LLMResponse> {
-      return runWithTimeout(
-        (abortSignal) => collectOllamaResponse(messages, abortSignal, onToken),
+      return runWithInactivityTimeout(
+        (timeoutController) => collectOllamaResponse(
+          messages,
+          timeoutController.abortSignal,
+          onToken,
+          timeoutController.recordActivity
+        ),
         timeouts.streamMs,
         MODEL_TIMEOUT_MESSAGE
       )

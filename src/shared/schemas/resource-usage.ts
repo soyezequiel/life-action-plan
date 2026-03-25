@@ -11,6 +11,7 @@ import {
 
 export const billingReasonCodeSchema = z.enum([
   'user_resource',
+  'internal_tooling',
   'execution_blocked',
   'operation_not_chargeable'
 ])

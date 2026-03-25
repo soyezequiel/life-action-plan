@@ -18,6 +18,11 @@ describe('execution context contract', () => {
       executionTarget: 'cloud',
       chargePolicy: 'skip'
     })
+    expect(EXECUTION_MODE_SPECS['codex-cloud']).toMatchObject({
+      resourceOwner: 'backend',
+      executionTarget: 'cloud',
+      chargePolicy: 'skip'
+    })
     expect(EXECUTION_MODE_SPECS['backend-local']).toMatchObject({
       resourceOwner: 'backend',
       executionTarget: 'backend-local',
@@ -60,6 +65,23 @@ describe('execution context contract', () => {
     expect(context.resourceOwner).toBe('user')
     expect(context.chargePolicy).toBe('skip')
     expect(context.chargeReason).toBe('user_resource')
+  })
+
+  it('crea un contexto valido para codex-cloud sin cobro pero usando credencial backend', () => {
+    const context = createResourceExecutionContext({
+      mode: 'codex-cloud',
+      credentialSource: 'backend-stored',
+      provider: {
+        providerId: 'openrouter',
+        modelId: 'openrouter:openai/gpt-4o-mini',
+        providerKind: 'cloud'
+      }
+    })
+
+    expect(context.resourceOwner).toBe('backend')
+    expect(context.executionTarget).toBe('cloud')
+    expect(context.chargePolicy).toBe('skip')
+    expect(context.chargeReason).toBe('internal_tooling')
   })
 
   it('crea un contexto valido para backend-local y lo considera cobrable', () => {

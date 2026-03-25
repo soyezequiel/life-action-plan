@@ -70,3 +70,40 @@ export type {
   BillingReasonCode,
   ResourceUsageSummary
 } from './resource-usage'
+
+export {
+  availabilityGridSchema,
+  flowCheckpointSchema,
+  flowSessionSchema,
+  flowStateSchema,
+  flowStatusSchema,
+  flowStepSchema,
+  goalDraftSchema,
+  intakeBlockSchema,
+  intakeQuestionSchema,
+  presentationDraftSchema,
+  realityAdjustmentSchema,
+  realityCheckResultSchema,
+  strategicPlanDraftSchema,
+  strategicSimulationSnapshotSchema,
+  topDownLevelDraftSchema
+} from './flow'
+export type {
+  AvailabilityGrid,
+  FlowCheckpoint,
+  FlowGateState,
+  FlowResumeState,
+  FlowSession,
+  FlowState,
+  FlowStatus,
+  FlowStep,
+  GoalDraft,
+  IntakeBlock,
+  IntakeQuestion,
+  PresentationDraft,
+  RealityAdjustment,
+  RealityCheckResult,
+  StrategicPlanDraft,
+  StrategicSimulationSnapshot,
+  TopDownLevelDraft
+} from './flow'

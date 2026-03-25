@@ -5,8 +5,9 @@
   },
   "intake": {
     "title": "Contame sobre vos",
-    "headline": "Ordenemos tu semana antes de pedirle algo al sistema",
-    "subtitle": "Unas pocas preguntas para armar tu plan personalizado",
+    "headline": "Te hago 5 preguntas cortitas y arrancamos",
+    "subtitle": "Con esto ya puedo ordenar una primera version de tu plan.",
+    "limit_copy": "Son solo 5 pasos. El resto lo inferimos por ahora y despues lo ajustamos con vos.",
     "caption": "Paso actual",
     "questions": {
       "nombre": "¿Cómo te llamás?",
@@ -29,6 +30,15 @@
       "skip": "Prefiero no contestar"
     },
     "progress": "Pregunta {{current}} de {{total}}",
+    "progress_remaining": "Te faltan {{count}} pasos cortitos.",
+    "progress_ready": "Ultimo paso y listo.",
+    "step_labels": {
+      "nombre": "Tu nombre",
+      "edad": "Tu edad",
+      "ubicacion": "Tu ciudad",
+      "ocupacion": "Tu presente",
+      "objetivo": "Tu objetivo"
+    },
     "preview": {
       "today_title": "Enfocate en hoy",
       "today_copy": "Primero armamos una base clara para que la pantalla principal te diga que hacer ahora.",
@@ -38,6 +48,7 @@
       "system_copy": "La parte tecnica queda al costado. Vos respondes en lenguaje simple."
     },
     "tip_enter": "Podes avanzar con Enter.",
+    "tip_short": "Respuesta corta alcanza. Podes avanzar con Enter.",
     "tip_finish": "La ultima respuesta dispara el armado de tu plan.",
     "saving": "Guardando tu perfil...",
     "saved": "¡Perfil guardado!",
@@ -132,11 +143,11 @@
     "build_openai": "Armar con asistente en línea",
     "build_openrouter": "Armar con asistente alternativo",
     "build_ollama": "Armar con asistente local",
-    "build_service": "Usar el servicio de Pulso",
-    "build_own": "Usar mi propia conexion",
+    "build_service": "Quiero que Pulso se ocupe",
+    "build_own": "Avanzado",
     "actions_title": "Acciones del plan",
     "actions_hint_local": "En esta maquina tambien podes usar el asistente local.",
-    "actions_hint": "Elegi si queres usar el servicio de Pulso o tu propia conexion.",
+    "actions_hint": "Si queres, Pulso se ocupa de todo. Si ya tenes una cuenta tecnica, entra por Avanzado.",
     "account_nudge": "Crea una cuenta para entrar desde cualquier dispositivo.",
     "account_nudge_dismiss": "Ahora no",
     "hero_overview_empty": "Hoy esta liviano. Aprovecha para revisar la semana completa y definir el siguiente paso.",
@@ -189,6 +200,8 @@
       "system": "Sistema"
     },
     "redo_intake": "Rehacer mi perfil",
+    "change_objectives": "Cambiar objetivo",
+    "restart_flow": "Rehacer desde cero",
     "calendar_panel": {
       "label": "Todo el plan",
       "title": "Calendario completo",
@@ -336,6 +349,58 @@
         "title": "Los datos base están completos",
         "detail": "Cada actividad tiene horario y duración para poder revisarla bien."
       }
+    },
+    "tree": {
+      "title": "Simulación detallada",
+      "quality": "calidad",
+      "initialize": "Iniciando árbol de simulación.",
+      "expand": "Expandiendo período.",
+      "simulate_node": "Simulando período: {{label}}",
+      "simulate_range": "Simulando {{count}} período(s).",
+      "apply_corrections": "Aplicando correcciones.",
+      "lock_node": "Período bloqueado.",
+      "progress": {
+        "preflight": "Revisando la base de {{label}}.",
+        "world_agent": "El entorno está generando situaciones para {{label}}.",
+        "user_agent": "Simulando tus decisiones frente a {{count}} evento(s) en {{label}}.",
+        "propagation": "Propagando cambios al resto del plan.",
+        "no_llm": "Sin asistente disponible. Usando estimación heurística.",
+        "complete": "Simulación completada. {{nodes}} período(s), {{findings}} hallazgo(s)."
+      },
+      "status": {
+        "pending": "Pendiente",
+        "simulated": "Simulado",
+        "stale": "Desactualizado",
+        "affected": "Afectado",
+        "locked": "Bloqueado"
+      },
+      "severity": {
+        "critical": "Crítico",
+        "warning": "Atención",
+        "info": "Info"
+      },
+      "finding_target": {
+        "tree": "En el cronograma",
+        "strategy": "En la estrategia"
+      },
+      "action": {
+        "simulate": "Simular",
+        "simulate_all": "Simular todo",
+        "expand": "Ver detalle",
+        "lock": "Bloquear",
+        "unlock": "Desbloquear",
+        "apply": "Aplicar corrección",
+        "dismiss": "Ignorar"
+      },
+      "export": {
+        "button": "Exportar simulación",
+        "downloading": "Preparando la exportación...",
+        "success": "Exportación lista. Se descargó el archivo.",
+        "error": "No pude preparar la exportación. Intentá de nuevo.",
+        "no_tree": "Primero necesitás correr una simulación para exportar.",
+        "format_json": "Completo (JSON)",
+        "format_csv": "Resumen (CSV)"
+      }
     }
   },
   "debug": {
@@ -440,8 +505,8 @@
     "save": "Guardar"
   },
   "settings": {
-    "apikey_title": "Elegi como queres armar tu plan",
-    "apikey_hint": "Podes usar el servicio de Pulso o tu propia conexion.",
+    "apikey_title": "Deja listo como queres usar Pulso",
+    "apikey_hint": "El camino simple ya viene preparado. Si necesitas algo tecnico, esta bajo Avanzado.",
     "local_build_title": "Preparar asistente local",
     "local_build_hint": "En esta maquina podes armar el plan sin cargar una clave.",
     "build_route_hint": "Ruta elegida: {{provider}}",
@@ -485,12 +550,23 @@
       "revoked": "Revocada"
     },
     "llm_mode": {
-      "title": "Como queres armar tu plan",
-      "selector_hint": "Elegi entre usar el servicio de Pulso o tu propia conexion.",
-      "own_key_title": "Usar mi propia conexion",
-      "own_key_hint": "Usas tu propia conexion. Desde Pulso esta accion no se cobra.",
-      "service_title": "Usar el servicio de Pulso",
-      "service_hint": "Pulso se encarga de todo. Esta ruta puede tener cobro."
+      "title": "Camino recomendado",
+      "selector_hint": "Para la mayoria de las personas alcanza con el camino simple.",
+      "advanced_hint": "Si ya tenes una cuenta propia o queres elegir el motor a mano, hacelo aca.",
+      "own_key_title": "Tengo mi propia cuenta",
+      "own_key_hint": "Pensado para perfiles tecnicos. Pulso no cobra este uso.",
+      "codex_title": "Usar desde Codex",
+      "codex_hint": "Usa el servicio de Pulso desde esta maquina sin pedir billetera.",
+      "service_title": "Que Pulso lo haga por mi",
+      "service_hint": "Pulso se ocupa del armado y te avisa si hay un costo."
+    },
+    "normal_lane": {
+      "badge": "Usuario normal",
+      "title": "Empeza por el camino simple",
+      "copy": "Pulso hace el trabajo pesado y vos solo confirmas cuando usarlo.",
+      "cost_hint": "El uso normal suele costar parecido a un cafe, y siempre te avisamos antes.",
+      "advanced_open": "Mostrar avanzado",
+      "advanced_close": "Ocultar avanzado"
     },
     "own_keys": {
       "title": "Mis conexiones",
@@ -517,7 +593,9 @@
       "title": "Asistentes disponibles",
       "empty": "No hay asistentes disponibles ahora.",
       "selected": "Usando: {{name}}"
-    }
+    },
+    "ollama_thinking_toggle": "Activar pensamiento extendido",
+    "ollama_thinking_hint": "Hace que este modelo local se tome mas tiempo para razonar antes de responder. Puede mejorar tareas complejas, pero tarda mas."
   },
   "calendar": {
     "file_type": "Calendario",
@@ -529,6 +607,7 @@
     "mode": {
       "backend-cloud": "Vas a usar el servicio de Pulso para esta accion.",
       "user-cloud": "Vas a usar tu propia conexion para esta accion.",
+      "codex-cloud": "Vas a usar el servicio de Pulso desde Codex sin cobro en sats.",
       "backend-local": "Pulso pone la maquina que arma el plan.",
       "user-local": "Esta ruta usaria tu propia maquina."
     },
@@ -541,12 +620,14 @@
     "billing": {
       "charge": "Como usa el servicio de Pulso, esta accion se cobra.",
       "user_resource": "Como usas tu propia conexion, esta accion no se cobra desde Pulso.",
+      "internal_tooling": "Este modo usa el servicio de Pulso sin pedir cobro en sats.",
       "operation_not_chargeable": "Esta accion no tiene cobro configurado por ahora.",
       "execution_blocked": "Antes de ejecutar, primero hay que destrabar esta ruta."
     },
     "blocked": {
       "user_credential_missing": "Falta tu clave para esta ruta.",
       "backend_credential_missing": "Falta la configuracion del sistema para esta ruta.",
+      "codex_mode_unavailable": "Este modo solo se habilita en desarrollo local.",
       "user_local_not_supported": "Esta ruta todavia no se puede ejecutar desde la web.",
       "other": "Esta ruta no esta disponible ahora."
     }
@@ -564,5 +645,8 @@
     "invalid_request": "No pude entender ese pedido. Revisalo e intenta de nuevo.",
     "profile_not_found": "No encontre tu perfil guardado.",
     "plan_not_found": "No encontre ese plan."
+  },
+  "flow": {
+    "loading": "Cargando..."
   }
 }

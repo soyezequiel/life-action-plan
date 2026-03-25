@@ -93,7 +93,7 @@ Rutas criticas:
 
 ## Flujo E2E del producto
 
-> Detalle completo en `FLUJO_HIBRIDO_DRAFT.md`. Aquí el resumen ejecutivo.
+> Detalle completo en `FLUJO_HIBRIDO_DRAFT.md` (mismo directorio). Aquí el resumen ejecutivo.
 
 ### Flujo principal (usuario nuevo)
 
@@ -219,10 +219,15 @@ src/lib/
     storage-keys.ts
     use-debug-traces.ts
     vault-sync.ts
+  billing/
+    operation-lifecycle.ts
   db/
     connection.ts
     db-helpers.ts
     schema.ts
+  domain/
+    plan-generation.ts
+    plan-simulation.ts
   env/
     deployment.ts
   payments/
@@ -312,6 +317,7 @@ Estas piezas no forman parte del plan vigente:
 - endurecer el inspector
 - hacer explicita la diferencia entre ruta real y fallback
 - consolidar settings para API key y proveedor
+- **Refactorización de Backend (Completado)**: Estructura modular con dominios puros (`src/lib/domain`) y middleware de cobro (`src/lib/billing/operation-lifecycle.ts`).
 
 ### Fase 2 - Readiness para Vercel
 
@@ -397,5 +403,5 @@ HMR por si solo no cuenta como evidencia suficiente cuando se toca transporte, D
 ## Documentos operativos asociados
 
 - `AGENTS.md`
-- `continuacion-web-nextjs-divs.md`
-- `PROGRESS.md`
+- `../progress/continuacion-web-nextjs-divs.md`
+- `../progress/PROGRESS.md`

@@ -1,0 +1,16 @@
+{
+  "intake": {
+    "nombre": "A",
+    "edad": 20,
+    "ubicacion": "A",
+    "ocupacion": "A",
+    "objetivo": "A"
+  },
+  "build": {
+    "provider": "",
+    "resourceMode": "codex"
+  },
+  "simulate": {
+    "mode": "automatic"
+  }
+}

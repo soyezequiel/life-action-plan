@@ -9,6 +9,9 @@ interface BuildSectionProps {
   title: string
   hint: string
   selectedProviderLabel: string
+  showThinkingControl: boolean
+  thinkingEnabled: boolean
+  inspectorVisible: boolean
   shouldBuild: boolean
   localProviderBlocked: boolean
   buildBusy: boolean
@@ -18,7 +21,10 @@ interface BuildSectionProps {
   buildError: string
   buildProgress: PlanBuildProgress | null
   buildUsage: BuildUsagePreviewResult['usage'] | null
+  showAdvancedDetails: boolean
   walletStatus: WalletStatus
+  onThinkingChange: (enabled: boolean) => void
+  onToggleInspector: () => void
   onBuild: () => Promise<void>
 }
 
@@ -46,20 +52,24 @@ export default function BuildSection(props: BuildSectionProps) {
         <span className="app-status app-status--eyebrow">{t('dashboard.actions_title')}</span>
         <h1 className="app-title">{props.title}</h1>
         <p className="app-copy">{props.hint}</p>
-        <p className="status-message status-message--neutral">
-          {t('settings.build_route_hint', { provider: props.selectedProviderLabel })}
-        </p>
-        {props.buildUsage && (
+        {props.showAdvancedDetails && (
           <>
             <p className="status-message status-message--neutral">
-              {`${t('resource_usage.label')}: ${t(`resource_usage.mode.${props.buildUsage.mode}`)}`}
+              {t('settings.build_route_hint', { provider: props.selectedProviderLabel })}
             </p>
-            <p className="status-message status-message--neutral">
-              {t(`resource_usage.source.${props.buildUsage.credentialSource}`)}
-            </p>
-            <p className="status-message status-message--neutral">
-              {t(`resource_usage.billing.${props.buildUsage.chargeable ? 'charge' : props.buildUsage.billingReasonCode ?? 'operation_not_chargeable'}`)}
-            </p>
+            {props.buildUsage && (
+              <>
+                <p className="status-message status-message--neutral">
+                  {`${t('resource_usage.label')}: ${t(`resource_usage.mode.${props.buildUsage.mode}`)}`}
+                </p>
+                <p className="status-message status-message--neutral">
+                  {t(`resource_usage.source.${props.buildUsage.credentialSource}`)}
+                </p>
+                <p className="status-message status-message--neutral">
+                  {t(`resource_usage.billing.${props.buildUsage.chargeable ? 'charge' : props.buildUsage.billingReasonCode ?? 'operation_not_chargeable'}`)}
+                </p>
+              </>
+            )}
           </>
         )}
         {props.localProviderBlocked && (
@@ -68,10 +78,33 @@ export default function BuildSection(props: BuildSectionProps) {
         {blockedMessage && (
           <p className="status-message status-message--warning">{blockedMessage}</p>
         )}
+        {props.showThinkingControl && (
+          <div className={styles.fieldGroup}>
+            <label className={styles.choiceOption}>
+              <input
+                type="checkbox"
+                checked={props.thinkingEnabled}
+                disabled={props.buildBusy}
+                onChange={(event) => props.onThinkingChange(event.target.checked)}
+              />
+              <span>{t('settings.ollama_thinking_toggle')}</span>
+            </label>
+            <p className={styles.helperCopy}>{t('settings.ollama_thinking_hint')}</p>
+          </div>
+        )}
       </div>
 
-      {props.shouldBuild && (
+      {(props.shouldBuild || props.showAdvancedDetails) && (
         <div className="app-actions">
+          <button
+            className="app-button app-button--secondary"
+            type="button"
+            onClick={props.onToggleInspector}
+          >
+            {props.inspectorVisible ? t('debug.disable') : t('debug.panel_title')}
+          </button>
+
+          {props.shouldBuild && (
           <button
             className="app-button app-button--primary"
             type="button"
@@ -82,6 +115,7 @@ export default function BuildSection(props: BuildSectionProps) {
           >
             {props.buildBusy ? t('builder.generating') : t('settings.apikey_confirm')}
           </button>
+          )}
         </div>
       )}
 

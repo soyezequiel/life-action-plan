@@ -78,6 +78,28 @@ export const plans = pgTable('plans', {
   updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull()
 })
 
+export const planWorkflows = pgTable('plan_workflows', {
+  id: text('id').notNull().unique(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  profileId: text('profile_id').references(() => profiles.id, { onDelete: 'set null' }),
+  planId: text('plan_id').references(() => plans.id, { onDelete: 'set null' }),
+  status: text('status').notNull(),
+  currentStep: text('current_step').notNull(),
+  state: jsonb('state').notNull(),
+  lastCheckpointCode: text('last_checkpoint_code'),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull()
+})
+
+export const planWorkflowCheckpoints = pgTable('plan_workflow_checkpoints', {
+  id: text('id').notNull().unique(),
+  workflowId: text('workflow_id').notNull().references(() => planWorkflows.id, { onDelete: 'cascade' }),
+  step: text('step').notNull(),
+  code: text('code').notNull(),
+  payload: jsonb('payload').notNull(),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull()
+})
+
 export const planProgress = pgTable('plan_progress', {
   id: text('id').notNull().unique(),
   planId: text('plan_id').notNull().references(() => plans.id, { onDelete: 'cascade' }),
@@ -155,6 +177,15 @@ export const operationCharges = pgTable('operation_charges', {
   createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
   updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull(),
   resolvedAt: timestamp('resolved_at', { mode: 'string', withTimezone: true })
+})
+
+export const planSimulationTrees = pgTable('plan_simulation_trees', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  workflowId: text('workflow_id').notNull().references(() => planWorkflows.id),
+  data: jsonb('data').notNull(),
+  version: integer('version').notNull().default(1),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull()
 })
 
 export const costTracking = pgTable('cost_tracking', {

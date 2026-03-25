@@ -16,4 +16,4 @@ export interface ServiceModelOption {
   displayName: string
 }
 
-export type LlmMode = 'own' | 'service'
+export type LlmMode = 'own' | 'service' | 'codex'

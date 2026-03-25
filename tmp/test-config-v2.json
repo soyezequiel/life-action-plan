@@ -1,0 +1,39 @@
+{
+  "intake": {
+    "nombre": "Test V2 Pipeline",
+    "edad": 30,
+    "ubicacion": "Buenos Aires",
+    "ocupacion": "Desarrollador de software",
+    "objetivo": "Aprender a tocar guitarra 1 hora al día sin descuidar mi trabajo ni quemarme.",
+    "horarios": {
+      "despertar": "07:00",
+      "dormir": "23:00",
+      "trabajoInicio": "09:00",
+      "trabajoFin": "18:00"
+    },
+    "energia": {
+      "cronotipo": "matutino"
+    },
+    "motivacion": {
+      "nivel": 4
+    },
+    "compromisos": [
+      { "descripcion": "Cena familiar los domingos", "horario": "20:00" }
+    ],
+    "dependientes": []
+  },
+  "pipeline": {
+    "mode": "deep",
+    "maxRepairAttempts": 2,
+    "skipEnrichment": false
+  },
+  "build": {
+    "provider": "openai:gpt-4o-mini",
+    "resourceMode": "auto",
+    "thinkingMode": "disabled",
+    "apiKey": ""
+  },
+  "simulate": {
+    "mode": "automatic"
+  }
+}

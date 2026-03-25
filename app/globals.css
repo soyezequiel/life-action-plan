@@ -1228,3 +1228,13 @@ textarea::placeholder {
     opacity: 1;
   }
 }
+
+.app-button--ghost {
+  background: transparent;
+  color: rgba(19, 31, 51, 0.6);
+  border: 1px solid rgba(19, 31, 51, 0.15);
+}
+.app-button--ghost:hover:not(:disabled) {
+  background: rgba(19, 31, 51, 0.05);
+  color: rgba(19, 31, 51, 0.85);
+}

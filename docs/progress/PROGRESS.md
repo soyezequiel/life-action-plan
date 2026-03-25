@@ -1,7 +1,7 @@
 # Progreso del Plan LAP
 
 > Última actualización: 2026-03-21
-> Referencia: `PLAN_LAP_FINAL.md`
+> Referencia: `../architecture/PLAN_LAP_FINAL.md`
 
 ## Fase 0 — Estabilización post-migración ✅ COMPLETA
 
@@ -20,6 +20,9 @@
 | Endurecer el inspector | ⚠️ Parcial | Componentes debug robustos (5 sub-componentes), pero rutas API `/api/debug` y `/api/debug/snapshot` sin error handling ni validación |
 | Ruta real vs fallback explícita | ✅ | `fallbackUsed` flag, UI indicators, execution context con requested vs final |
 | Consolidar settings API key/proveedor | ✅ | Sistema de credenciales multi-proveedor con UI unificada en `SettingsPageContent.tsx` |
+| **Arquitectura de Dominio (Etapa 1)** | ✅ | Lógica pura extraída a `src/lib/domain/`, servicios desacoplados de infraestructura |
+| **Middleware de Billing (Etapa 2)** | ✅ | `executeWithBilling` encapsula ciclo de vida, error handling y cobros centralizados |
+| **Pipeline Runner (Etapa 3)** | ✅ | `FlowRunner` permite ejecución modular y granular por fase (`--phase`) |
 
 ## Fase 2 — Readiness para Vercel ⚠️ EN PROGRESO
 
@@ -52,7 +55,7 @@
 
 ## Flujo de producto — implementación vs diseño
 
-> Referencia completa: `FLUJO_HIBRIDO_DRAFT.md`
+> Referencia completa: `../architecture/FLUJO_HIBRIDO_DRAFT.md`
 
 | Paso | Nombre | Estado | Qué existe hoy | Qué falta |
 |------|--------|--------|-----------------|-----------|

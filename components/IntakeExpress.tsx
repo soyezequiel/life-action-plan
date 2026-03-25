@@ -56,6 +56,10 @@ export default function IntakeExpress({ onComplete, onCancel = () => {} }: Intak
       ? t('intake.buttons.finish')
       : t('intake.buttons.next')
   const progressValue = ((step + 1) / QUESTIONS.length) * 100
+  const remainingSteps = QUESTIONS.length - (step + 1)
+  const progressDetail = remainingSteps > 0
+    ? t('intake.progress_remaining', { count: remainingSteps })
+    : t('intake.progress_ready')
 
   function handleChange(nextValue: string): void {
     if (error) {
@@ -110,24 +114,23 @@ export default function IntakeExpress({ onComplete, onCancel = () => {} }: Intak
           </div>
           <h1 className={styles.storyTitle}>{t('intake.headline')}</h1>
           <p className={styles.storyCopy}>{t('intake.subtitle')}</p>
+          <p className={styles.storyNote}>{t('intake.limit_copy')}</p>
 
-          <div className={styles.storyGrid}>
-            <article className={styles.storyCard}>
-              <span className={styles.storyIndex}>01</span>
-              <strong>{t('intake.preview.today_title')}</strong>
-              <p>{t('intake.preview.today_copy')}</p>
-            </article>
-            <article className={styles.storyCard}>
-              <span className={styles.storyIndex}>02</span>
-              <strong>{t('intake.preview.calendar_title')}</strong>
-              <p>{t('intake.preview.calendar_copy')}</p>
-            </article>
-            <article className={styles.storyCard}>
-              <span className={styles.storyIndex}>03</span>
-              <strong>{t('intake.preview.system_title')}</strong>
-              <p>{t('intake.preview.system_copy')}</p>
-            </article>
-          </div>
+          <ol className={styles.stepRail}>
+            {QUESTIONS.map((question, index) => (
+              <li
+                key={question.key}
+                className={[
+                  styles.stepChip,
+                  index === step ? styles.stepChipCurrent : '',
+                  index < step ? styles.stepChipDone : ''
+                ].join(' ')}
+              >
+                <span className={styles.stepChipIndex}>{String(index + 1).padStart(2, '0')}</span>
+                <span className={styles.stepChipLabel}>{t(`intake.step_labels.${question.key}`)}</span>
+              </li>
+            ))}
+          </ol>
         </section>
 
         <form
@@ -141,9 +144,12 @@ export default function IntakeExpress({ onComplete, onCancel = () => {} }: Intak
             <button className="app-button app-button--secondary" type="button" onClick={onCancel}>
               {t('ui.close')}
             </button>
-            <p id={progressId} className={styles.progressLabel}>
-              {t('intake.progress', { current: step + 1, total: QUESTIONS.length })}
-            </p>
+            <div className={styles.progressHeader}>
+              <p id={progressId} className={styles.progressLabel}>
+                {t('intake.progress', { current: step + 1, total: QUESTIONS.length })}
+              </p>
+              <p className={styles.progressHelper}>{progressDetail}</p>
+            </div>
           </div>
 
           <div className={styles.progressStack}>
@@ -156,18 +162,6 @@ export default function IntakeExpress({ onComplete, onCancel = () => {} }: Intak
               aria-valuetext={t('intake.progress', { current: step + 1, total: QUESTIONS.length })}
             >
               <span className="intake-progressbar__fill" style={{ width: `${progressValue}%` }} />
-            </div>
-            <div className="intake-progressdots" aria-hidden="true">
-              {QUESTIONS.map((question, index) => (
-                <span
-                  key={question.key}
-                  className={[
-                    'intake-progressdots__dot',
-                    index === step ? 'intake-progressdots__dot--current' : '',
-                    index < step ? 'intake-progressdots__dot--done' : ''
-                  ].join(' ')}
-                />
-              ))}
             </div>
           </div>
 
@@ -212,7 +206,7 @@ export default function IntakeExpress({ onComplete, onCancel = () => {} }: Intak
                 />
               )}
               <p id={hintId} className={styles.questionHint}>
-                {isLast ? t('intake.tip_finish') : t('intake.tip_enter')}
+                {isLast ? t('intake.tip_finish') : t('intake.tip_short')}
               </p>
             </motion.div>
           </AnimatePresence>

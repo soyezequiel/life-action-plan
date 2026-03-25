@@ -1239,7 +1239,7 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
               <h1 className={styles.welcomeTitle}>{t('app.name')}</h1>
               <p className={styles.welcomeCopy}>{t('dashboard.empty')}</p>
               <div className={styles.heroActions}>
-                <button className="app-button app-button--primary" onClick={() => router.push('/intake')}>
+                <button className="app-button app-button--primary" onClick={() => router.push('/flow')}>
                   {t('dashboard.start')}
                 </button>
               </div>
@@ -1439,6 +1439,26 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                           >
                             {isExporting ? t('dashboard.exporting_calendar') : t('dashboard.export_calendar')}
                           </button>
+                          {latestPlan && (
+                            <>
+                              <button
+                                className="app-button app-button--secondary"
+                                onClick={() => router.push(`/flow?workflowId=${encodeURIComponent(latestPlan.id)}`)}
+                              >
+                                Ver árbol de simulación
+                              </button>
+                              <button
+                                className="app-button app-button--secondary"
+                                onClick={() => {
+                                  setIsExporting(true)
+                                  client.plan.exportSimulation(latestPlan.id, 'json').finally(() => setIsExporting(false))
+                                }}
+                                disabled={isExporting}
+                              >
+                                Descargar simulación de este plan
+                              </button>
+                            </>
+                          )}
                         </div>
                         {showAccountNudge && (
                           <div className={styles.accountNudge}>
@@ -1654,8 +1674,14 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
                             >
                               {t('dashboard.build_own')}
                             </button>
-                            <button className="app-button app-button--secondary" onClick={() => router.push('/intake')}>
+                            <button className="app-button app-button--secondary" onClick={() => router.push('/flow?entry=redo-profile')}>
                               {t('dashboard.redo_intake')}
+                            </button>
+                            <button className="app-button app-button--secondary" onClick={() => router.push('/flow?entry=change-objectives')}>
+                              {t('dashboard.change_objectives')}
+                            </button>
+                            <button className="app-button app-button--secondary" onClick={() => router.push('/flow?entry=restart-flow')}>
+                              {t('dashboard.restart_flow')}
                             </button>
                           </div>
                           {exportStatus && (

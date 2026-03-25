@@ -408,6 +408,139 @@ describe('plan build charge route', () => {
     }))
   })
 
+  it('no cobra cuando el build usa el modo codex sobre credenciales del backend', async () => {
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution({
+      executionContext: {
+        mode: 'codex-cloud',
+        resourceOwner: 'backend',
+        executionTarget: 'cloud',
+        credentialSource: 'backend-stored',
+        provider: {
+          providerId: 'openrouter',
+          modelId: 'openrouter:openai/gpt-4o-mini',
+          providerKind: 'cloud'
+        },
+        chargePolicy: 'skip',
+        chargeReason: 'internal_tooling',
+        credentialId: 'cred-backend-codex',
+        canExecute: true,
+        resolutionSource: 'requested-mode',
+        blockReasonCode: null,
+        blockReasonDetail: null
+      },
+      billingPolicy: {
+        operation: 'plan_build',
+        executionMode: 'codex-cloud',
+        resourceOwner: 'backend',
+        executionTarget: 'cloud',
+        chargePolicy: 'skip',
+        chargeReason: 'internal_tooling',
+        billableOperation: true,
+        estimatedAmountStrategy: 'fixed_plan_build_sats',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        chargeable: false,
+        skipReasonCode: 'internal_tooling',
+        skipReasonDetail: 'INTERNAL_TOOLING_MODE'
+      },
+      runtime: {
+        modelId: 'openrouter:openai/gpt-4o-mini',
+        apiKey: 'backend-codex-key'
+      }
+    }))
+    mocks.toOperationChargeSkipReasonMock.mockReturnValue({
+      reasonCode: 'internal_tooling',
+      reasonDetail: 'INTERNAL_TOOLING_MODE'
+    })
+    mocks.createOperationChargeMock.mockResolvedValue({
+      id: 'charge-codex-1',
+      status: 'skipped',
+      estimatedCostUsd: 0.005,
+      estimatedCostSats: 5,
+      finalCostUsd: 0,
+      finalCostSats: 0,
+      chargedSats: 0,
+      reasonCode: 'internal_tooling',
+      reasonDetail: 'INTERNAL_TOOLING_MODE',
+      paymentProvider: null
+    })
+    mocks.buildWithOllamaFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
+      fallbackUsed: false,
+      modelId,
+      result: await buildPlan(modelId)
+    }))
+    mocks.generatePlanMock.mockResolvedValue({
+      nombre: 'Plan codex',
+      resumen: 'Resumen',
+      eventos: [],
+      tokensUsed: { input: 900, output: 500 }
+    })
+    mocks.estimateCostUsdMock.mockReturnValue(0.001)
+    mocks.estimateCostSatsMock.mockReturnValue(1)
+    mocks.recordChargeResultMock
+      .mockResolvedValueOnce({
+        id: 'charge-codex-1',
+        status: 'skipped',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        finalCostUsd: 0.001,
+        finalCostSats: 1,
+        chargedSats: 0,
+        reasonCode: 'internal_tooling',
+        reasonDetail: 'INTERNAL_TOOLING_MODE',
+        paymentProvider: null
+      })
+      .mockResolvedValueOnce({
+        id: 'charge-codex-1',
+        status: 'skipped',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        finalCostUsd: 0.001,
+        finalCostSats: 1,
+        chargedSats: 0,
+        reasonCode: 'internal_tooling',
+        reasonDetail: 'INTERNAL_TOOLING_MODE',
+        paymentProvider: null
+      })
+    mocks.createPlanMock.mockResolvedValue('plan-codex-1')
+    mocks.trackCostMock.mockResolvedValue({ costUsd: 0.001, costSats: 1 })
+    mocks.seedProgressFromEventsMock.mockResolvedValue(0)
+
+    const response = await POST(new Request('http://localhost/api/plan/build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: buildRequestBody({ provider: 'openrouter:openai/gpt-4o-mini', resourceMode: 'codex' })
+    }))
+
+    const result = extractResultPayload(await response.text())
+
+    expect(mocks.canChargeOperationMock).not.toHaveBeenCalled()
+    expect(mocks.chargeOperationMock).not.toHaveBeenCalled()
+    expect(mocks.trackEventMock).toHaveBeenCalledWith('PLAN_BUILD_STARTED', expect.objectContaining({
+      profileId: '11111111-1111-4111-8111-111111111111',
+      chargeId: 'charge-codex-1',
+      executionMode: 'codex-cloud',
+      resourceOwner: 'backend',
+      executionTarget: 'cloud',
+      credentialSource: 'backend-stored',
+      chargePolicy: 'skip',
+      chargeReason: 'internal_tooling',
+      chargeable: false,
+      billingReasonCode: 'internal_tooling',
+      providerId: 'openrouter',
+      modelId: 'openrouter:openai/gpt-4o-mini'
+    }))
+    expect(result).toEqual(expect.objectContaining({
+      success: true,
+      planId: 'plan-codex-1',
+      charge: expect.objectContaining({
+        chargeId: 'charge-codex-1',
+        status: 'skipped',
+        reasonCode: 'internal_tooling'
+      })
+    }))
+  })
+
   it('persiste el chargeId y devuelve cobro pagado cuando el build usa recurso del backend', async () => {
     mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution())
     mocks.canChargeOperationMock.mockResolvedValue({
@@ -650,7 +783,7 @@ describe('plan build charge route', () => {
     const response = await POST(new Request('http://localhost/api/plan/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: buildRequestBody({ provider: 'ollama:qwen3:8b' })
+      body: buildRequestBody({ provider: 'ollama:qwen3:8b', thinkingMode: 'enabled' })
     }))
 
     const result = extractResultPayload(await response.text())
@@ -668,6 +801,11 @@ describe('plan build charge route', () => {
       amountSats: 5,
       userId: 'local-user',
       description: 'LAP plan build 11111111-1111-4111-8111-111111111111'
+    })
+    expect(mocks.getProviderMock).toHaveBeenCalledWith('ollama:qwen3:8b', {
+      apiKey: '',
+      baseURL: 'http://localhost:11434',
+      thinkingMode: 'enabled'
     })
     expect(mocks.trackCostMock).toHaveBeenCalledWith(
       'plan-local-1',

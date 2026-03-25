@@ -16,9 +16,10 @@ function createSqlClient() {
     throw new Error('DATABASE_URL_NOT_SET')
   }
 
+  const normalizedSslMode = process.env.DATABASE_SSL?.trim().toLowerCase()
   const needsSsl = connectionString.includes('neon.tech') ||
     connectionString.includes('sslmode=require') ||
-    process.env.NODE_ENV === 'production'
+    normalizedSslMode === 'require'
 
   return postgres(connectionString, {
     max: 1,

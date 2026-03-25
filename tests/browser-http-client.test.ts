@@ -44,6 +44,41 @@ describe('browserHttpLapClient', () => {
     unsubscribe()
   })
 
+  it('manda el thinking mode cuando el cliente lo elige para un build local', async () => {
+    const fetchMock = vi.fn(async () => new Response([
+      'data: {"type":"result","result":{"success":true,"planId":"plan-1","nombre":"Plan demo","resumen":"Resumen","eventos":[],"tokensUsed":{"input":10,"output":20},"fallbackUsed":false}}\n\n'
+    ].join(''), {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/event-stream'
+      }
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { browserLapClient } = await import('../src/lib/client/browser-http-client')
+
+    await browserLapClient.plan.build(
+      'profile-1',
+      '',
+      'ollama:qwen3:8b',
+      undefined,
+      'auto',
+      'enabled'
+    )
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/plan/build', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({
+        profileId: 'profile-1',
+        apiKey: '',
+        provider: 'ollama:qwen3:8b',
+        backendCredentialId: undefined,
+        resourceMode: 'auto',
+        thinkingMode: 'enabled'
+      })
+    }))
+  })
+
   it('consume el stream SSE de simulacion y emite progreso por etapas', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response([
       'data: {"type":"progress","progress":{"planId":"plan-1","mode":"interactive","stage":"schedule","current":1,"total":4}}\n\n',

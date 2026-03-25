@@ -28,6 +28,8 @@ function getBlockedDetail(reasonCode: ResourceUsageSummary['blockReasonCode']): 
       return t('resource_usage.blocked.user_credential_missing')
     case 'backend_credential_missing':
       return t('resource_usage.blocked.backend_credential_missing')
+    case 'codex_mode_unavailable':
+      return t('resource_usage.blocked.codex_mode_unavailable')
     case 'backend_local_unavailable':
       return t('builder.local_unavailable_deploy')
     case 'user_local_not_supported':
@@ -51,6 +53,8 @@ function getBillingDetail(usage: ResourceUsageSummary): string {
   switch (usage.billingReasonCode) {
     case 'user_resource':
       return t('resource_usage.billing.user_resource')
+    case 'internal_tooling':
+      return t('resource_usage.billing.internal_tooling')
     case 'operation_not_chargeable':
       return t('resource_usage.billing.operation_not_chargeable')
     case 'execution_blocked':

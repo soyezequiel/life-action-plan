@@ -223,4 +223,75 @@ describe('build preview route', () => {
       })
     })
   })
+
+  it('permite previsualizar el modo codex local sin cobro', async () => {
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValue({
+      executionContext: {
+        mode: 'codex-cloud',
+        resourceOwner: 'backend',
+        executionTarget: 'cloud',
+        credentialSource: 'backend-stored',
+        provider: {
+          providerId: 'openrouter',
+          modelId: 'openrouter:openai/gpt-4o-mini',
+          providerKind: 'cloud'
+        },
+        chargePolicy: 'skip',
+        chargeReason: 'internal_tooling',
+        credentialId: 'cred-backend-codex',
+        canExecute: true,
+        resolutionSource: 'requested-mode',
+        blockReasonCode: null,
+        blockReasonDetail: null
+      },
+      billingPolicy: {
+        operation: 'plan_build',
+        executionMode: 'codex-cloud',
+        resourceOwner: 'backend',
+        executionTarget: 'cloud',
+        chargePolicy: 'skip',
+        chargeReason: 'internal_tooling',
+        billableOperation: true,
+        estimatedAmountStrategy: 'fixed_plan_build_sats',
+        estimatedCostUsd: 0.005,
+        estimatedCostSats: 5,
+        chargeable: false,
+        skipReasonCode: 'internal_tooling',
+        skipReasonDetail: 'INTERNAL_TOOLING_MODE'
+      },
+      runtime: {
+        modelId: 'openrouter:openai/gpt-4o-mini',
+        apiKey: 'backend-key'
+      }
+    })
+
+    const response = await GET(new Request('http://localhost/api/settings/build-preview?provider=openrouter&resourceMode=codex'))
+    const payload = await response.json() as {
+      success: boolean
+      usage: {
+        mode: string
+        resourceOwner: string
+        chargeable: boolean
+        billingReasonCode: string | null
+      }
+    }
+
+    expect(mocks.resolvePlanBuildExecutionMock).toHaveBeenCalledWith({
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      deploymentMode: 'local',
+      requestedMode: 'codex-cloud',
+      userId: 'local-user',
+      userSuppliedApiKey: '',
+      backendCredentialId: ''
+    })
+    expect(payload).toEqual({
+      success: true,
+      usage: expect.objectContaining({
+        mode: 'codex-cloud',
+        resourceOwner: 'backend',
+        chargeable: false,
+        billingReasonCode: 'internal_tooling'
+      })
+    })
+  })
 })

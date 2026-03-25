@@ -1,163 +1,164 @@
 # Pulso — Life Action Plan
 
-**Pulso** (anteriormente LAP) es una web app de planificacion personal que usa asistencia de LLM para crear, simular y ejecutar planes de accion estructurados.
+**Pulso** (formerly LAP) is a personal planning web app that uses LLM assistance to help users create, simulate, and execute structured life action plans.
 
-Construida con Next.js 15, React 19, TypeScript, PostgreSQL y Drizzle ORM.
+Built with Next.js 15, React 19, TypeScript, PostgreSQL, and Drizzle ORM.
 
-## Funcionalidades
+## Features
 
-- **Intake guiado** — onboarding conversacional que captura objetivos, restricciones y prioridades
-- **Generacion de plan con IA** — el LLM construye un plan por fases con hitos y dependencias
-- **Chequeo de realidad** — compara horas necesarias vs. disponibles y expone trade-offs
-- **Simulacion de plan** — simulacion iterativa semana a semana para detectar conflictos antes de que ocurran
-- **Dashboard de ejecucion diaria** — tareas, seguimiento de progreso, rachas y re-planificacion on-demand
-- **Exportacion de calendario** — exportacion `.ics` para integracion con calendarios externos
-- **Pagos Lightning** — pago por build opcional via Nostr Wallet Connect (NWC)
-- **LLM multi-proveedor** — soporta OpenAI, OpenRouter u Ollama local para desarrollo
-- **Inspector LLM** — panel de debug integrado con trazas, stream de tokens y snapshots
+- **Guided intake** — conversational onboarding that captures goals, constraints, and priorities
+- **AI-powered plan generation** — LLM builds a phased action plan with milestones and dependencies
+- **Reality check** — compares required hours vs. available time; surfaces trade-offs
+- **Plan simulation** — iterative week-by-week simulation to catch scheduling conflicts before they happen
+- **Daily execution dashboard** — tasks, progress tracking, streaks, and on-demand re-planning
+- **Calendar export** — `.ics` export for integration with external calendars
+- **Lightning payments** — optional pay-per-build via Nostr Wallet Connect (NWC)
+- **Multi-provider LLM** — supports OpenAI, OpenRouter, or local Ollama for development
+- **LLM Inspector** — built-in debug panel with trace, token stream, and snapshot views
 
-## Stack
+## Tech Stack
 
-| Capa | Tecnologia |
-|------|-----------|
+| Layer | Technology |
+|-------|-----------|
 | Framework | Next.js 15 (App Router, Turbopack) |
 | UI | React 19, CSS Modules, Framer Motion |
-| Lenguaje | TypeScript (strict) |
-| Base de datos | PostgreSQL + Drizzle ORM |
-| Validacion | Zod (`.strict()` en schemas nuevos) |
-| Auth | Tokens de sesion (JWT via `jose`), hash de passwords con Argon2 |
-| IA | Vercel AI SDK + `@ai-sdk/openai` |
-| Pagos | `@getalby/sdk` (Lightning / NWC) |
-| Fechas | Luxon |
+| Language | TypeScript (strict) |
+| Database | PostgreSQL + Drizzle ORM |
+| Validation | Zod (`.strict()` on all new schemas) |
+| Auth | Session tokens (JWT via `jose`), Argon2 password hashing |
+| AI | Vercel AI SDK + `@ai-sdk/openai` |
+| Payments | `@getalby/sdk` (Lightning / NWC) |
+| Dates | Luxon |
 | Testing | Vitest + Testing Library |
 
-## Inicio rapido
+## Getting Started
 
-### Requisitos previos
+### Prerequisites
 
 - Node.js 20+
-- PostgreSQL (local o cloud)
-- *(Opcional)* Ollama para desarrollo local con LLM
+- PostgreSQL (local or cloud)
+- *(Optional)* Ollama for local LLM development
 
-### Instalacion
+### Setup
 
 ```bash
-# Instalar dependencias
+# Install dependencies
 npm install
 
-# Crear archivo de entorno local
+# Create local environment file
 cp .env.example .env.local
 ```
 
-Editar `.env.local` con tus valores:
+Edit `.env.local` with your values:
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lap
-SESSION_SECRET=<string-aleatoria>
-OPENAI_API_KEY=<tu-clave>              # o configurar desde la UI de Settings
-OLLAMA_BASE_URL=http://localhost:11434  # opcional, solo para dev local
+SESSION_SECRET=<random-string>
+OPENAI_API_KEY=<your-key>          # or configure via Settings UI
+OLLAMA_BASE_URL=http://localhost:11434  # optional, for local dev
 ```
 
-### Base de datos
+### Database
 
 ```bash
-# Aplicar schema a la base de datos
+# Push schema to your database
 npm run db:push
 ```
 
-### Ejecutar
+### Run
 
 ```bash
 npm run dev
 ```
 
-La app arranca en `http://localhost:3000`.
+The app starts at `http://localhost:3000`.
 
-### Verificar entorno
+### Verify Environment
 
 ```bash
-# Local: verifica conexion a DB + disponibilidad de Ollama
+# Local: checks DB connection + Ollama availability
 npm run smoke:local
 
-# Pre-deploy: ejecuta build + chequeos de readiness
+# Pre-deploy: runs build + deploy readiness checks
 npm run smoke:deploy
 ```
 
 ## Scripts
 
-| Script | Descripcion |
+| Script | Description |
 |--------|-------------|
-| `npm run dev` | Servidor de desarrollo (Turbopack) |
-| `npm run build` | Build de produccion |
-| `npm run start` | Servidor de produccion |
-| `npm run typecheck` | Chequeo de tipos sin emitir |
-| `npm run test` | Correr suite de tests |
-| `npm run lint` | Lint con ESLint |
-| `npm run db:generate` | Generar migraciones Drizzle |
-| `npm run db:push` | Aplicar schema a la base de datos |
-| `npm run db:migrate` | Ejecutar migraciones pendientes |
-| `npm run doctor:local` | Verificar salud del entorno local |
-| `npm run doctor:deploy` | Verificar readiness de deploy |
-| `npm run smoke:local` | DB push + doctor local |
-| `npm run smoke:deploy` | Build + doctor deploy |
+| `npm run dev` | Start dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm run start` | Start production server |
+| `npm run typecheck` | Type-check without emitting |
+| `npm run test` | Run test suite |
+| `npm run lint` | Lint with ESLint |
+| `npm run db:generate` | Generate Drizzle migrations |
+| `npm run db:push` | Push schema to database |
+| `npm run db:migrate` | Run pending migrations |
+| `npm run doctor:local` | Check local environment health |
+| `npm run doctor:deploy` | Check deploy readiness |
+| `npm run smoke:local` | DB push + local doctor |
+| `npm run smoke:deploy` | Build + deploy doctor |
 
-## Estructura del proyecto
+## Project Structure
 
 ```
 app/                    # Next.js App Router
   api/                  # Route Handlers (REST API)
-    auth/               # Registro, login, logout, sesion
-    plan/               # Build, simulacion, listado, exportacion
-    settings/           # Credenciales, API keys, build preview
+    auth/               # Register, login, logout, session
+    plan/               # Build, simulate, list, export
+    settings/           # Credentials, API keys, build preview
     wallet/             # NWC connect, disconnect, status
-    intake/             # Intake de perfil
-    debug/              # Endpoints del inspector LLM
-  intake/               # Pagina de intake
-  settings/             # Pagina de configuracion
+    intake/             # Profile intake
+    debug/              # LLM inspector endpoints
+  intake/               # Intake page
+  settings/             # Settings page
 
-components/             # Componentes React
-  settings/             # Secciones del panel de configuracion
-  debug/                # UI del inspector LLM
+components/             # React components
+  settings/             # Settings panel sections
+  debug/                # LLM inspector UI
 
-src/lib/                # Librerias server y cliente
-  auth/                 # Autenticacion (sesiones, passwords)
-  client/               # Utilidades client-side y vault
-  db/                   # Schema Drizzle y helpers
-  payments/             # Proveedor NWC, wallet, cobros
-  providers/            # Abstraccion de proveedores LLM
-  runtime/              # Resolver de contexto de ejecucion
-  skills/               # Skills de construccion de plan
+src/lib/                # Server and client libraries
+  auth/                 # Authentication (sessions, passwords)
+  client/               # Client-side utilities and vault
+  db/                   # Drizzle schema and helpers
+  payments/             # NWC provider, wallet, charging
+  providers/            # LLM provider abstraction
+  runtime/              # Execution context resolver
+  skills/               # Plan-building skills
 
-src/i18n/               # Internacionalizacion (es-AR)
-tests/                  # Tests unitarios y de integracion
+src/i18n/               # Internationalization (es-AR)
+tests/                  # Unit and integration tests
 ```
 
-## Entornos
+## Environments
 
-| Entorno | Base de datos | Proveedor LLM | Proposito |
-|---------|--------------|---------------|-----------|
-| Dev local | PostgreSQL local | Ollama u OpenAI | Desarrollo diario |
-| Vercel preview | PostgreSQL cloud | Proveedor cloud | Validacion pre-merge |
-| Vercel prod | PostgreSQL cloud | Proveedor cloud | Produccion |
+| Environment | Database | LLM Provider | Purpose |
+|-------------|----------|-------------|---------|
+| Local dev | PostgreSQL local | Ollama or OpenAI | Daily development |
+| Vercel preview | PostgreSQL cloud | Cloud provider | Pre-merge validation |
+| Vercel prod | PostgreSQL cloud | Cloud provider | Production |
 
-> Ollama solo esta disponible en desarrollo local. Los deploys en Vercel requieren un proveedor LLM cloud.
+> Ollama is only available in local development. Vercel deployments require a cloud LLM provider.
 
-## Flujo de usuario
+## User Flow
 
-1. **Registro / Login** — crear cuenta o autenticarse
-2. **Configurar** — elegir proveedor LLM y opcionalmente conectar wallet Lightning
-3. **Intake** — responder preguntas guiadas sobre objetivos y restricciones
-4. **Build** — la IA genera un plan por fases con chequeo de realidad
-5. **Simular** — simulacion iterativa valida el plan
-6. **Ejecutar** — dashboard diario con tareas, progreso y rachas
+1. **Register / Login** — create an account or authenticate
+2. **Configure** — set up LLM provider and optionally connect a Lightning wallet
+3. **Intake** — answer guided questions about goals and constraints
+4. **Build** — AI generates a phased plan with reality checks
+5. **Simulate** — iterative simulation validates the plan
+6. **Execute** — daily dashboard with tasks, progress, and streaks
 
-## Contribuir
+## Contributing
 
-El proyecto usa documentos internos para decisiones de arquitectura:
+This project uses internal development documents for architecture decisions:
 
-- `AGENTS.md` — contexto del proyecto y estado actual
-- `PLAN_LAP_FINAL.md` — source of truth arquitectonica
+- `AGENTS.md` — agent context and project state
+- `docs/architecture/PLAN_LAP_FINAL.md` — architectural source of truth
+- `docs/` — all documentation organized by category (see `docs/README.md`)
 
-## Licencia
+## License
 
-[MIT](LICENSE)
+Private — all rights reserved.

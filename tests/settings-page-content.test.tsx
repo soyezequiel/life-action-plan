@@ -52,6 +52,7 @@ vi.mock('framer-motion', async () => {
   }
 
   return {
+    AnimatePresence: ({ children }: { children?: React.ReactNode }) => ReactModule.createElement(ReactModule.Fragment, null, children),
     MotionConfig: ({ children }: { children?: React.ReactNode }) => ReactModule.createElement(ReactModule.Fragment, null, children),
     motion: new Proxy({}, {
       get: (_target, property) => createMotionComponent(String(property))
@@ -86,6 +87,14 @@ function createLapClientStub(): LapAPI {
         }
       })),
       disconnect: vi.fn(async () => ({ success: true }))
+    },
+    debug: {
+      enable: vi.fn(async () => ({ enabled: true, panelVisible: true })),
+      disable: vi.fn(async () => ({ enabled: false, panelVisible: false })),
+      clear: vi.fn(async () => ({ enabled: true, panelVisible: true })),
+      status: vi.fn(async () => ({ enabled: false, panelVisible: false })),
+      snapshot: vi.fn(async () => ({ traces: [] })),
+      onEvent: vi.fn(() => () => {})
     }
   } as unknown as LapAPI
 }
@@ -136,6 +145,32 @@ function createBuildPreviewResponse(url: string): Response {
         estimatedCostSats: 5,
         billingReasonCode: 'user_resource',
         billingReasonDetail: 'RESOURCE_OWNER_USER',
+        canExecute: true,
+        blockReasonCode: null,
+        blockReasonDetail: null,
+        providerId: 'openrouter',
+        modelId: 'openrouter:openai/gpt-4o-mini'
+      }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+
+  if (resourceMode === 'codex') {
+    return new Response(JSON.stringify({
+      success: true,
+      usage: {
+        mode: 'codex-cloud',
+        resourceOwner: 'backend',
+        executionTarget: 'cloud',
+        credentialSource: 'backend-stored',
+        chargePolicy: 'skip',
+        chargeReason: 'internal_tooling',
+        chargeable: false,
+        estimatedCostSats: 5,
+        billingReasonCode: 'internal_tooling',
+        billingReasonDetail: 'INTERNAL_TOOLING_MODE',
         canExecute: true,
         blockReasonCode: null,
         blockReasonDetail: null,
@@ -254,7 +289,6 @@ describe('settings page content', () => {
     expect(screen.getAllByText(t('settings.local_build_hint')).length).toBeGreaterThan(0)
     expect(screen.getByText(t('settings.build_route_hint', { provider: t('builder.provider_local') }))).toBeTruthy()
     expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-local')}`)).toBeTruthy()
-    expect(screen.getByText(t('settings.own_keys.add_title'))).toBeTruthy()
     expect(screen.queryByText(t('settings.llm_mode.title'))).toBeNull()
   })
 
@@ -266,8 +300,7 @@ describe('settings page content', () => {
     )
 
     expect(await screen.findByText(t('builder.local_unavailable_deploy'))).toBeTruthy()
-    expect(await screen.findByText(t('settings.service_models.title'))).toBeTruthy()
-    expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-cloud')}`)).toBeTruthy()
+    expect(await screen.findByText(t('settings.llm_mode.title'))).toBeTruthy()
   })
 
   it('muestra los asistentes disponibles del servicio en modo servicio', async () => {
@@ -280,6 +313,7 @@ describe('settings page content', () => {
     )
 
     expect(await screen.findByText(t('settings.llm_mode.title'))).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
     expect(await screen.findByText('OpenRouter')).toBeTruthy()
     expect(fetchMock).toHaveBeenCalledWith('/api/models/available')
     expect(screen.getAllByText(t('settings.build_route_hint', {
@@ -287,6 +321,129 @@ describe('settings page content', () => {
     })).length).toBeGreaterThan(0)
     expect(await screen.findByText(t('settings.service_models.selected', { name: 'OpenRouter' }))).toBeTruthy()
     expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-cloud')}`)).toBeTruthy()
+  })
+
+  it('permite elegir un modelo local disponible desde el servicio de Pulso', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+
+      if (url === '/api/auth/me') {
+        return new Response(JSON.stringify({ authenticated: false }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url === '/api/models/available') {
+        return new Response(JSON.stringify({
+          success: true,
+          models: [
+            {
+              providerId: 'openrouter',
+              modelId: 'openrouter:openai/gpt-4o-mini',
+              displayName: 'OpenRouter'
+            },
+            {
+              providerId: 'ollama',
+              modelId: 'ollama:qwen3:8b',
+              displayName: 'Ollama'
+            }
+          ]
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url.includes('/api/settings/build-preview')) {
+        return createBuildPreviewResponse(url)
+      }
+
+      return new Response(JSON.stringify({ success: false }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    })
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('settings.llm_mode.title'))
+    fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
+    fireEvent.click(await screen.findByRole('button', { name: /Ollama/i }))
+
+    expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-local')}`)).toBeTruthy()
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([url]) => (
+        String(url).includes('/api/settings/build-preview?')
+        && String(url).includes('provider=ollama%3Aqwen3%3A8b')
+        && String(url).includes('resourceMode=auto')
+      ))).toBe(true)
+    })
+  })
+
+  it('muestra el toggle de pensamiento extendido para modelos locales compatibles', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+
+      if (url === '/api/auth/me') {
+        return new Response(JSON.stringify({ authenticated: false }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url === '/api/models/available') {
+        return new Response(JSON.stringify({
+          success: true,
+          models: [
+            {
+              providerId: 'ollama',
+              modelId: 'ollama:qwen3:8b',
+              displayName: 'Ollama - qwen3:8b'
+            }
+          ]
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url.includes('/api/settings/build-preview')) {
+        return createBuildPreviewResponse(url)
+      }
+
+      return new Response(JSON.stringify({ success: false }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    })
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('settings.llm_mode.title'))
+    fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
+
+    expect(await screen.findByLabelText(t('settings.ollama_thinking_toggle'))).toBeTruthy()
+  })
+
+  it('muestra el acceso al inspector LLM desde la pantalla de armado', async () => {
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    expect(await screen.findByRole('button', { name: t('debug.panel_title') })).toBeTruthy()
   })
 
   it('respeta el modo propio pedido desde el dashboard', async () => {
@@ -311,8 +468,9 @@ describe('settings page content', () => {
       </AppServicesProvider>
     )
 
-    await screen.findByText(t('settings.service_models.title'))
-    fireEvent.click(screen.getByText(t('settings.llm_mode.own_key_title')))
+    await screen.findByText(t('settings.llm_mode.title'))
+    fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
+    fireEvent.click(await screen.findByText(t('settings.llm_mode.own_key_title')))
 
     expect(await screen.findByText(t('settings.own_keys.add_title'))).toBeTruthy()
     expect(await screen.findByText(t('resource_usage.blocked.user_credential_missing'))).toBeTruthy()
@@ -327,8 +485,9 @@ describe('settings page content', () => {
       </AppServicesProvider>
     )
 
-    await screen.findByText(t('settings.service_models.title'))
-    fireEvent.click(screen.getByText(t('settings.llm_mode.own_key_title')))
+    await screen.findByText(t('settings.llm_mode.title'))
+    fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
+    fireEvent.click(await screen.findByText(t('settings.llm_mode.own_key_title')))
 
     fireEvent.change(screen.getByPlaceholderText(t('settings.own_keys.encryption_password_placeholder')), {
       target: { value: 'segura123' }
@@ -347,6 +506,23 @@ describe('settings page content', () => {
     await waitFor(() => {
       expect(window.localStorage.getItem('lap.keys.v1')).toContain('Mi cuenta')
     })
+  })
+
+  it('muestra el modo codex local sin pedir billetera ni cobro', async () => {
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
+
+    render(
+      <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
+        <SettingsPageContent deploymentMode="local" />
+      </AppServicesProvider>
+    )
+
+    await screen.findByText(t('settings.llm_mode.title'))
+    fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
+    fireEvent.click(await screen.findByText(t('settings.llm_mode.codex_title')))
+
+    expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.codex-cloud')}`)).toBeTruthy()
+    expect(await screen.findByText(t('resource_usage.billing.internal_tooling'))).toBeTruthy()
   })
 
   it('normaliza un error claro cuando la wallet no responde como NWC compatible', () => {
