@@ -1,0 +1,687 @@
+﻿node.exe : [33mThe CJS build of Vite's Node API is deprecated. See 
+https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated 
+for more details.[39m
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([33mThe CJS bu...e details. 
+   [39m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mF:/proyectos/planificador-vida[39m
+
+[90mstderr[2m | tests/flow-page-content.test.tsx[2m > [22m[2mflow 
+page content bootstrap[2m > [22m[2mcrea la sesion de entrada 
+redo-profile y limpia el query param
+[22m[39mTypeError: __vite_ssr_import_5__.flowClient.initializeSimTree is 
+not a function
+    at [90mF:\proyectos\planificador-vida\[39mcomponents\FlowPageContent.
+tsx:308:16
+    at Object.react_stack_bottom_frame [90m(F:\proyectos\planificador-vida
+\[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:2
+5989:20[90m)[39m
+    at runWithFiberInDEV [90m(F:\proyectos\planificador-vida\[39mnode_mod
+ules\[4mreact-dom[24m\cjs\react-dom-client.development.js:874:13[90m)[3
+9m
+    at commitHookEffectListMount [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:13249:2
+9[90m)[39m
+    at commitHookPassiveMountEffects [90m(F:\proyectos\planificador-vida\
+[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:133
+36:11[90m)[39m
+    at commitPassiveMountOnFiber [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:15484:1
+3[90m)[39m
+    at recursivelyTraversePassiveMountEffects [90m(F:\proyectos\planificad
+or-vida\[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.developme
+nt.js:15439:11[90m)[39m
+    at commitPassiveMountOnFiber [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:15519:1
+1[90m)[39m
+    at flushPassiveEffects [90m(F:\proyectos\planificador-vida\[39mnode_m
+odules\[4mreact-dom[24m\cjs\react-dom-client.development.js:18432:9[90m)
+[39m
+    at [90mF:\proyectos\planificador-vida\[39mnode_modules\[4mreact-dom
+[24m\cjs\react-dom-client.development.js:17923:15 {
+  stackStr: [32m'TypeError: 
+__vite_ssr_import_5__.flowClient.initializeSimTree is not a 
+function\n'[39m +
+    [32m'    at F:\\proyectos\\planificador-vida\\components\\FlowPageCont
+ent.tsx:308:16\n'[39m +
+    [32m'    at Object.react_stack_bottom_frame (F:\\proyectos\\planificad
+or-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:2598
+9:20)\n'[39m +
+    [32m'    at runWithFiberInDEV (F:\\proyectos\\planificador-vida\\node_
+modules\\react-dom\\cjs\\react-dom-client.development.js:874:13)\n'[39m +
+    [32m'    at commitHookEffectListMount (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:13249:29)\
+n'[39m +
+    [32m'    at commitHookPassiveMountEffects (F:\\proyectos\\planificador
+-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:13336:
+11)\n'[39m +
+    [32m'    at commitPassiveMountOnFiber (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:15484:13)\
+n'[39m +
+    [32m'    at recursivelyTraversePassiveMountEffects (F:\\proyectos\\pla
+nificador-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.
+js:15439:11)\n'[39m +
+    [32m'    at commitPassiveMountOnFiber (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:15519:11)\
+n'[39m +
+    [32m'    at flushPassiveEffects (F:\\proyectos\\planificador-vida\\nod
+e_modules\\react-dom\\cjs\\react-dom-client.development.js:18432:9)\n'[39m
+ +
+    [32m'    at F:\\proyectos\\planificador-vida\\node_modules\\react-dom\
+\cjs\\react-dom-client.development.js:17923:15'[39m,
+  nameStr: [32m'TypeError'[39m,
+  expected: [32m'undefined'[39m,
+  actual: [32m'undefined'[39m
+}
+An error occurred in the <FlowPageContent> component.
+
+Consider adding an error boundary to your tree to customize error handling 
+behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error 
+boundaries.
+
+
+[90mstderr[2m | tests/flow-page-content.test.tsx[2m > [22m[2mflow 
+page content bootstrap[2m > [22m[2mcrea la sesion de entrada 
+change-objectives y limpia el query param
+[22m[39mTypeError: __vite_ssr_import_5__.flowClient.initializeSimTree is 
+not a function
+    at [90mF:\proyectos\planificador-vida\[39mcomponents\FlowPageContent.
+tsx:308:16
+    at Object.react_stack_bottom_frame [90m(F:\proyectos\planificador-vida
+\[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:2
+5989:20[90m)[39m
+    at runWithFiberInDEV [90m(F:\proyectos\planificador-vida\[39mnode_mod
+ules\[4mreact-dom[24m\cjs\react-dom-client.development.js:874:13[90m)[3
+9m
+    at commitHookEffectListMount [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:13249:2
+9[90m)[39m
+    at commitHookPassiveMountEffects [90m(F:\proyectos\planificador-vida\
+[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:133
+36:11[90m)[39m
+    at commitPassiveMountOnFiber [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:15484:1
+3[90m)[39m
+    at recursivelyTraversePassiveMountEffects [90m(F:\proyectos\planificad
+or-vida\[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.developme
+nt.js:15439:11[90m)[39m
+    at commitPassiveMountOnFiber [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:15519:1
+1[90m)[39m
+    at flushPassiveEffects [90m(F:\proyectos\planificador-vida\[39mnode_m
+odules\[4mreact-dom[24m\cjs\react-dom-client.development.js:18432:9[90m)
+[39m
+    at [90mF:\proyectos\planificador-vida\[39mnode_modules\[4mreact-dom
+[24m\cjs\react-dom-client.development.js:17923:15 {
+  stackStr: [32m'TypeError: 
+__vite_ssr_import_5__.flowClient.initializeSimTree is not a 
+function\n'[39m +
+    [32m'    at F:\\proyectos\\planificador-vida\\components\\FlowPageCont
+ent.tsx:308:16\n'[39m +
+    [32m'    at Object.react_stack_bottom_frame (F:\\proyectos\\planificad
+or-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:2598
+9:20)\n'[39m +
+    [32m'    at runWithFiberInDEV (F:\\proyectos\\planificador-vida\\node_
+modules\\react-dom\\cjs\\react-dom-client.development.js:874:13)\n'[39m +
+    [32m'    at commitHookEffectListMount (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:13249:29)\
+n'[39m +
+    [32m'    at commitHookPassiveMountEffects (F:\\proyectos\\planificador
+-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:13336:
+11)\n'[39m +
+    [32m'    at commitPassiveMountOnFiber (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:15484:13)\
+n'[39m +
+    [32m'    at recursivelyTraversePassiveMountEffects (F:\\proyectos\\pla
+nificador-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.
+js:15439:11)\n'[39m +
+    [32m'    at commitPassiveMountOnFiber (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:15519:11)\
+n'[39m +
+    [32m'    at flushPassiveEffects (F:\\proyectos\\planificador-vida\\nod
+e_modules\\react-dom\\cjs\\react-dom-client.development.js:18432:9)\n'[39m
+ +
+    [32m'    at F:\\proyectos\\planificador-vida\\node_modules\\react-dom\
+\cjs\\react-dom-client.development.js:17923:15'[39m,
+  nameStr: [32m'TypeError'[39m,
+  expected: [32m'undefined'[39m,
+  actual: [32m'undefined'[39m
+}
+An error occurred in the <FlowPageContent> component.
+
+Consider adding an error boundary to your tree to customize error handling 
+behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error 
+boundaries.
+
+
+ [31m├ù[39m tests/flow-page-content.test.tsx[2m > [22mflow page content bootstrap[2m > [22mcrea la sesion de entrada redo-profile y limpia el query param[33m 1060[2mms[22m[39m
+[31m   ÔåÆ Unable to find an element with the text: Aterricemos tu meta. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m[39m
+[90mstderr[2m | tests/flow-page-content.test.tsx[2m > [22m[2mflow 
+page content bootstrap[2m > [22m[2mcrea la sesion de entrada 
+restart-flow y limpia el query param
+[22m[39mTypeError: __vite_ssr_import_5__.flowClient.initializeSimTree is 
+not a function
+    at [90mF:\proyectos\planificador-vida\[39mcomponents\FlowPageContent.
+tsx:308:16
+    at Object.react_stack_bottom_frame [90m(F:\proyectos\planificador-vida
+\[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:2
+5989:20[90m)[39m
+    at runWithFiberInDEV [90m(F:\proyectos\planificador-vida\[39mnode_mod
+ules\[4mreact-dom[24m\cjs\react-dom-client.development.js:874:13[90m)[3
+9m
+    at commitHookEffectListMount [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:13249:2
+9[90m)[39m
+    at commitHookPassiveMountEffects [90m(F:\proyectos\planificador-vida\
+[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:133
+36:11[90m)[39m
+    at commitPassiveMountOnFiber [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:15484:1
+3[90m)[39m
+    at recursivelyTraversePassiveMountEffects [90m(F:\proyectos\planificad
+or-vida\[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.developme
+nt.js:15439:11[90m)[39m
+    at commitPassiveMountOnFiber [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:15519:1
+1[90m)[39m
+    at flushPassiveEffects [90m(F:\proyectos\planificador-vida\[39mnode_m
+odules\[4mreact-dom[24m\cjs\react-dom-client.development.js:18432:9[90m)
+[39m
+    at [90mF:\proyectos\planificador-vida\[39mnode_modules\[4mreact-dom
+[24m\cjs\react-dom-client.development.js:17923:15 {
+  stackStr: [32m'TypeError: 
+__vite_ssr_import_5__.flowClient.initializeSimTree is not a 
+function\n'[39m +
+    [32m'    at F:\\proyectos\\planificador-vida\\components\\FlowPageCont
+ent.tsx:308:16\n'[39m +
+    [32m'    at Object.react_stack_bottom_frame (F:\\proyectos\\planificad
+or-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:2598
+9:20)\n'[39m +
+    [32m'    at runWithFiberInDEV (F:\\proyectos\\planificador-vida\\node_
+modules\\react-dom\\cjs\\react-dom-client.development.js:874:13)\n'[39m +
+    [32m'    at commitHookEffectListMount (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:13249:29)\
+n'[39m +
+    [32m'    at commitHookPassiveMountEffects (F:\\proyectos\\planificador
+-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:13336:
+11)\n'[39m +
+    [32m'    at commitPassiveMountOnFiber (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:15484:13)\
+n'[39m +
+    [32m'    at recursivelyTraversePassiveMountEffects (F:\\proyectos\\pla
+nificador-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.
+js:15439:11)\n'[39m +
+    [32m'    at commitPassiveMountOnFiber (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:15519:11)\
+n'[39m +
+    [32m'    at flushPassiveEffects (F:\\proyectos\\planificador-vida\\nod
+e_modules\\react-dom\\cjs\\react-dom-client.development.js:18432:9)\n'[39m
+ +
+    [32m'    at F:\\proyectos\\planificador-vida\\node_modules\\react-dom\
+\cjs\\react-dom-client.development.js:17923:15'[39m,
+  nameStr: [32m'TypeError'[39m,
+  expected: [32m'undefined'[39m,
+  actual: [32m'undefined'[39m
+}
+An error occurred in the <FlowPageContent> component.
+
+Consider adding an error boundary to your tree to customize error handling 
+behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error 
+boundaries.
+
+
+ [31m├ù[39m tests/flow-page-content.test.tsx[2m > [22mflow page content bootstrap[2m > [22mcrea la sesion de entrada change-objectives y limpia el query param[33m 1013[2mms[22m[39m
+[31m   ÔåÆ Unable to find an element with the text: ┬┐Que queres lograr?. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m[39m
+ [31m├ù[39m tests/flow-page-content.test.tsx[2m > [22mflow page content bootstrap[2m > [22mcrea la sesion de entrada restart-flow y limpia el query param[33m 1025[2mms[22m[39m
+[31m   ÔåÆ Unable to find an element with the text: Antes de arrancar, elegi como queres usar el asistente. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m[39m
+[90mstderr[2m | tests/flow-page-content.test.tsx[2m > [22m[2mflow 
+page content bootstrap[2m > [22m[2mabre y cierra el inspector desde 
+/flow
+[22m[39mTypeError: __vite_ssr_import_5__.flowClient.initializeSimTree is 
+not a function
+    at [90mF:\proyectos\planificador-vida\[39mcomponents\FlowPageContent.
+tsx:308:16
+    at Object.react_stack_bottom_frame [90m(F:\proyectos\planificador-vida
+\[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:2
+5989:20[90m)[39m
+    at runWithFiberInDEV [90m(F:\proyectos\planificador-vida\[39mnode_mod
+ules\[4mreact-dom[24m\cjs\react-dom-client.development.js:874:13[90m)[3
+9m
+    at commitHookEffectListMount [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:13249:2
+9[90m)[39m
+    at commitHookPassiveMountEffects [90m(F:\proyectos\planificador-vida\
+[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:133
+36:11[90m)[39m
+    at commitPassiveMountOnFiber [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:15484:1
+3[90m)[39m
+    at recursivelyTraversePassiveMountEffects [90m(F:\proyectos\planificad
+or-vida\[39mnode_modules\[4mreact-dom[24m\cjs\react-dom-client.developme
+nt.js:15439:11[90m)[39m
+    at commitPassiveMountOnFiber [90m(F:\proyectos\planificador-vida\[39m
+node_modules\[4mreact-dom[24m\cjs\react-dom-client.development.js:15519:1
+1[90m)[39m
+    at flushPassiveEffects [90m(F:\proyectos\planificador-vida\[39mnode_m
+odules\[4mreact-dom[24m\cjs\react-dom-client.development.js:18432:9[90m)
+[39m
+    at [90mF:\proyectos\planificador-vida\[39mnode_modules\[4mreact-dom
+[24m\cjs\react-dom-client.development.js:17923:15 {
+  stackStr: [32m'TypeError: 
+__vite_ssr_import_5__.flowClient.initializeSimTree is not a 
+function\n'[39m +
+    [32m'    at F:\\proyectos\\planificador-vida\\components\\FlowPageCont
+ent.tsx:308:16\n'[39m +
+    [32m'    at Object.react_stack_bottom_frame (F:\\proyectos\\planificad
+or-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:2598
+9:20)\n'[39m +
+    [32m'    at runWithFiberInDEV (F:\\proyectos\\planificador-vida\\node_
+modules\\react-dom\\cjs\\react-dom-client.development.js:874:13)\n'[39m +
+    [32m'    at commitHookEffectListMount (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:13249:29)\
+n'[39m +
+    [32m'    at commitHookPassiveMountEffects (F:\\proyectos\\planificador
+-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:13336:
+11)\n'[39m +
+    [32m'    at commitPassiveMountOnFiber (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:15484:13)\
+n'[39m +
+    [32m'    at recursivelyTraversePassiveMountEffects (F:\\proyectos\\pla
+nificador-vida\\node_modules\\react-dom\\cjs\\react-dom-client.development.
+js:15439:11)\n'[39m +
+    [32m'    at commitPassiveMountOnFiber (F:\\proyectos\\planificador-vid
+a\\node_modules\\react-dom\\cjs\\react-dom-client.development.js:15519:11)\
+n'[39m +
+    [32m'    at flushPassiveEffects (F:\\proyectos\\planificador-vida\\nod
+e_modules\\react-dom\\cjs\\react-dom-client.development.js:18432:9)\n'[39m
+ +
+    [32m'    at F:\\proyectos\\planificador-vida\\node_modules\\react-dom\
+\cjs\\react-dom-client.development.js:17923:15'[39m,
+  nameStr: [32m'TypeError'[39m,
+  expected: [32m'undefined'[39m,
+  actual: [32m'undefined'[39m
+}
+An error occurred in the <FlowPageContent> component.
+
+Consider adding an error boundary to your tree to customize error handling 
+behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error 
+boundaries.
+
+
+ [31m├ù[39m tests/flow-page-content.test.tsx[2m > [22mflow page content bootstrap[2m > [22mabre y cierra el inspector desde /flow[33m 1202[2mms[22m[39m
+[31m   ÔåÆ Unable to find role="button" and name "cerrar"
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m[39m
+
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1m[7m Failed Tests 4 
+[27m[22mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/flow-page-content.test.tsx[2m > 
+[22mflow page content bootstrap[2m > [22mcrea la sesion de entrada 
+redo-profile y limpia el query param
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with 
+the text: Aterricemos tu meta. This could be because the text is broken up 
+by multiple elements. In this case, you can provide a function for your 
+text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m[39m
+[90m [2mÔØ»[22m waitForWrapper 
+node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2mÔØ»[22m 
+node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2mÔØ»[22m tests/flow-page-content.test.tsx:[2m174:25[22m[39m
+    [90m172| [39m    })
+    [90m173| [39m
+    [90m174| [39m    [34mexpect[39m([35mawait[39m screen[33m.[39m[
+34mfindByText[39m(expectedTitle))[33m.[39m[34mtoBeTruthy[39m()
+    [90m   | [39m                        [31m^[39m
+    [90m175| [39m  })
+    [90m176| [39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+ÔÄ»ÔÄ»[1/4]ÔÄ»[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/flow-page-content.test.tsx[2m > 
+[22mflow page content bootstrap[2m > [22mcrea la sesion de entrada 
+change-objectives y limpia el query param
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with 
+the text: ┬┐Que queres lograr?. This could be because the text is broken 
+up by multiple elements. In this case, you can provide a function for your 
+text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m[39m
+[90m [2mÔØ»[22m waitForWrapper 
+node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2mÔØ»[22m 
+node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2mÔØ»[22m tests/flow-page-content.test.tsx:[2m174:25[22m[39m
+    [90m172| [39m    })
+    [90m173| [39m
+    [90m174| [39m    [34mexpect[39m([35mawait[39m screen[33m.[39m[
+34mfindByText[39m(expectedTitle))[33m.[39m[34mtoBeTruthy[39m()
+    [90m   | [39m                        [31m^[39m
+    [90m175| [39m  })
+    [90m176| [39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+ÔÄ»ÔÄ»[2/4]ÔÄ»[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/flow-page-content.test.tsx[2m > 
+[22mflow page content bootstrap[2m > [22mcrea la sesion de entrada 
+restart-flow y limpia el query param
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with 
+the text: Antes de arrancar, elegi como queres usar el asistente. This 
+could be because the text is broken up by multiple elements. In this case, 
+you can provide a function for your text matcher to make your matcher more 
+flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m[39m
+[90m [2mÔØ»[22m waitForWrapper 
+node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2mÔØ»[22m 
+node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2mÔØ»[22m tests/flow-page-content.test.tsx:[2m174:25[22m[39m
+    [90m172| [39m    })
+    [90m173| [39m
+    [90m174| [39m    [34mexpect[39m([35mawait[39m screen[33m.[39m[
+34mfindByText[39m(expectedTitle))[33m.[39m[34mtoBeTruthy[39m()
+    [90m   | [39m                        [31m^[39m
+    [90m175| [39m  })
+    [90m176| [39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+ÔÄ»ÔÄ»[3/4]ÔÄ»[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/flow-page-content.test.tsx[2m > 
+[22mflow page content bootstrap[2m > [22mabre y cierra el inspector 
+desde /flow
+[31m[1mTestingLibraryElementError[22m: Unable to find role="button" and 
+name "cerrar"
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m[39m
+[90m [2mÔØ»[22m waitForWrapper 
+node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2mÔØ»[22m 
+node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2mÔØ»[22m tests/flow-page-content.test.tsx:[2m186:25[22m[39m
+    [90m184| [39m    [35mawait[39m 
+user[33m.[39m[34mclick[39m(openButton)
+    [90m185| [39m
+    [90m186| [39m    [34mexpect[39m([35mawait[39m 
+screen[33m.[39m[34mfindByRole[39m([32m'button'[39m[33m,[39m { 
+name[33m:[39m [32m'cerrar'[39m }))[33m.[39m[34mtoBe[39mÔÇª
+    [90m   | [39m                        [31m^[39m
+    [90m187| [39m    [34mexpect[39m(screen[33m.[39m[34mgetByRole[39
+m([32m'button'[39m[33m,[39m { name[33m:[39m 
+[34mt[39m([32m'debug.disable'[39m) }))[33m.[39m[34mt[39mÔÇª
+    [90m188| [39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+ÔÄ»ÔÄ»[4/4]ÔÄ»[22m[39m
+
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1m[7m Unhandled Errors [27m[22mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+[31m[1m
+Vitest caught 4 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1m[7m Uncaught Exception 
+[27m[22mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+[31m[1mTypeError[22m: flowClient.initializeSimTree is not a 
+function[39m
+[36m [2mÔØ»[22m components/FlowPageContent.tsx:[2m308:16[22m[39m
+    [90m306| [39m    [35mif[39m ([33m![39mworkflowId) 
+[35mreturn[39m
+    [90m307| [39m    [34msetSimTreeLoading[39m([35mtrue[39m)
+    [90m308| [39m    
+flowClient[33m.[39m[34minitializeSimTree[39m(workflowId)
+    [90m   | [39m               [31m^[39m
+    [90m309| [39m      [33m.[39m[34mthen[39m(result [33m=>[39m { 
+[35mif[39m (result[33m.[39mtree) 
+[34msetSimTree[39m(result[33m.[39mtree) })
+    [90m310| [39m      [33m.[39m[35mcatch[39m(() [33m=>[39m {})
+[90m [2mÔØ»[22m Object.react_stack_bottom_frame node_modules/react-dom/c
+js/react-dom-client.development.js:[2m25989:20[22m[39m
+[90m [2mÔØ»[22m runWithFiberInDEV node_modules/react-dom/cjs/react-dom-c
+lient.development.js:[2m874:13[22m[39m
+[90m [2mÔØ»[22m commitHookEffectListMount node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m13249:29[22m[39m
+[90m [2mÔØ»[22m commitHookPassiveMountEffects node_modules/react-dom/cjs
+/react-dom-client.development.js:[2m13336:11[22m[39m
+[90m [2mÔØ»[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m15484:13[22m[39m
+[90m [2mÔØ»[22m recursivelyTraversePassiveMountEffects node_modules/reac
+t-dom/cjs/react-dom-client.development.js:[2m15439:11[22m[39m
+[90m [2mÔØ»[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m15519:11[22m[39m
+[90m [2mÔØ»[22m flushPassiveEffects node_modules/react-dom/cjs/react-dom
+-client.development.js:[2m18432:9[22m[39m
+[90m [2mÔØ»[22m node_modules/react-dom/cjs/react-dom-client.development.
+js:[2m17923:15[22m[39m
+
+[31mThis error originated in "[1mtests/flow-page-content.test.tsx[22m" 
+test file. It doesn't mean the error was thrown inside the file itself, 
+but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mcrea la sesion 
+de entrada redo-profile y limpia el query param[22m". It might mean one 
+of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the 
+last documented test before it was thrown.[39m
+
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1m[7m Uncaught Exception 
+[27m[22mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+[31m[1mTypeError[22m: flowClient.initializeSimTree is not a 
+function[39m
+[36m [2mÔØ»[22m components/FlowPageContent.tsx:[2m308:16[22m[39m
+    [90m306| [39m    [35mif[39m ([33m![39mworkflowId) 
+[35mreturn[39m
+    [90m307| [39m    [34msetSimTreeLoading[39m([35mtrue[39m)
+    [90m308| [39m    
+flowClient[33m.[39m[34minitializeSimTree[39m(workflowId)
+    [90m   | [39m               [31m^[39m
+    [90m309| [39m      [33m.[39m[34mthen[39m(result [33m=>[39m { 
+[35mif[39m (result[33m.[39mtree) 
+[34msetSimTree[39m(result[33m.[39mtree) })
+    [90m310| [39m      [33m.[39m[35mcatch[39m(() [33m=>[39m {})
+[90m [2mÔØ»[22m Object.react_stack_bottom_frame node_modules/react-dom/c
+js/react-dom-client.development.js:[2m25989:20[22m[39m
+[90m [2mÔØ»[22m runWithFiberInDEV node_modules/react-dom/cjs/react-dom-c
+lient.development.js:[2m874:13[22m[39m
+[90m [2mÔØ»[22m commitHookEffectListMount node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m13249:29[22m[39m
+[90m [2mÔØ»[22m commitHookPassiveMountEffects node_modules/react-dom/cjs
+/react-dom-client.development.js:[2m13336:11[22m[39m
+[90m [2mÔØ»[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m15484:13[22m[39m
+[90m [2mÔØ»[22m recursivelyTraversePassiveMountEffects node_modules/reac
+t-dom/cjs/react-dom-client.development.js:[2m15439:11[22m[39m
+[90m [2mÔØ»[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m15519:11[22m[39m
+[90m [2mÔØ»[22m flushPassiveEffects node_modules/react-dom/cjs/react-dom
+-client.development.js:[2m18432:9[22m[39m
+[90m [2mÔØ»[22m node_modules/react-dom/cjs/react-dom-client.development.
+js:[2m17923:15[22m[39m
+
+[31mThis error originated in "[1mtests/flow-page-content.test.tsx[22m" 
+test file. It doesn't mean the error was thrown inside the file itself, 
+but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mcrea la sesion 
+de entrada change-objectives y limpia el query param[22m". It might mean 
+one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the 
+last documented test before it was thrown.[39m
+
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1m[7m Uncaught Exception 
+[27m[22mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+[31m[1mTypeError[22m: flowClient.initializeSimTree is not a 
+function[39m
+[36m [2mÔØ»[22m components/FlowPageContent.tsx:[2m308:16[22m[39m
+    [90m306| [39m    [35mif[39m ([33m![39mworkflowId) 
+[35mreturn[39m
+    [90m307| [39m    [34msetSimTreeLoading[39m([35mtrue[39m)
+    [90m308| [39m    
+flowClient[33m.[39m[34minitializeSimTree[39m(workflowId)
+    [90m   | [39m               [31m^[39m
+    [90m309| [39m      [33m.[39m[34mthen[39m(result [33m=>[39m { 
+[35mif[39m (result[33m.[39mtree) 
+[34msetSimTree[39m(result[33m.[39mtree) })
+    [90m310| [39m      [33m.[39m[35mcatch[39m(() [33m=>[39m {})
+[90m [2mÔØ»[22m Object.react_stack_bottom_frame node_modules/react-dom/c
+js/react-dom-client.development.js:[2m25989:20[22m[39m
+[90m [2mÔØ»[22m runWithFiberInDEV node_modules/react-dom/cjs/react-dom-c
+lient.development.js:[2m874:13[22m[39m
+[90m [2mÔØ»[22m commitHookEffectListMount node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m13249:29[22m[39m
+[90m [2mÔØ»[22m commitHookPassiveMountEffects node_modules/react-dom/cjs
+/react-dom-client.development.js:[2m13336:11[22m[39m
+[90m [2mÔØ»[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m15484:13[22m[39m
+[90m [2mÔØ»[22m recursivelyTraversePassiveMountEffects node_modules/reac
+t-dom/cjs/react-dom-client.development.js:[2m15439:11[22m[39m
+[90m [2mÔØ»[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m15519:11[22m[39m
+[90m [2mÔØ»[22m flushPassiveEffects node_modules/react-dom/cjs/react-dom
+-client.development.js:[2m18432:9[22m[39m
+[90m [2mÔØ»[22m node_modules/react-dom/cjs/react-dom-client.development.
+js:[2m17923:15[22m[39m
+
+[31mThis error originated in "[1mtests/flow-page-content.test.tsx[22m" 
+test file. It doesn't mean the error was thrown inside the file itself, 
+but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mcrea la sesion 
+de entrada restart-flow y limpia el query param[22m". It might mean one 
+of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the 
+last documented test before it was thrown.[39m
+
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1m[7m Uncaught Exception 
+[27m[22mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+[31m[1mTypeError[22m: flowClient.initializeSimTree is not a 
+function[39m
+[36m [2mÔØ»[22m components/FlowPageContent.tsx:[2m308:16[22m[39m
+    [90m306| [39m    [35mif[39m ([33m![39mworkflowId) 
+[35mreturn[39m
+    [90m307| [39m    [34msetSimTreeLoading[39m([35mtrue[39m)
+    [90m308| [39m    
+flowClient[33m.[39m[34minitializeSimTree[39m(workflowId)
+    [90m   | [39m               [31m^[39m
+    [90m309| [39m      [33m.[39m[34mthen[39m(result [33m=>[39m { 
+[35mif[39m (result[33m.[39mtree) 
+[34msetSimTree[39m(result[33m.[39mtree) })
+    [90m310| [39m      [33m.[39m[35mcatch[39m(() [33m=>[39m {})
+[90m [2mÔØ»[22m Object.react_stack_bottom_frame node_modules/react-dom/c
+js/react-dom-client.development.js:[2m25989:20[22m[39m
+[90m [2mÔØ»[22m runWithFiberInDEV node_modules/react-dom/cjs/react-dom-c
+lient.development.js:[2m874:13[22m[39m
+[90m [2mÔØ»[22m commitHookEffectListMount node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m13249:29[22m[39m
+[90m [2mÔØ»[22m commitHookPassiveMountEffects node_modules/react-dom/cjs
+/react-dom-client.development.js:[2m13336:11[22m[39m
+[90m [2mÔØ»[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m15484:13[22m[39m
+[90m [2mÔØ»[22m recursivelyTraversePassiveMountEffects node_modules/reac
+t-dom/cjs/react-dom-client.development.js:[2m15439:11[22m[39m
+[90m [2mÔØ»[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/rea
+ct-dom-client.development.js:[2m15519:11[22m[39m
+[90m [2mÔØ»[22m flushPassiveEffects node_modules/react-dom/cjs/react-dom
+-client.development.js:[2m18432:9[22m[39m
+[90m [2mÔØ»[22m node_modules/react-dom/cjs/react-dom-client.development.
+js:[2m17923:15[22m[39m
+
+[31mThis error originated in "[1mtests/flow-page-content.test.tsx[22m" 
+test file. It doesn't mean the error was thrown inside the file itself, 
+but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mabre y cierra 
+el inspector desde /flow[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the 
+last documented test before it was thrown.[39m
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[90m (4)[39m
+[2m     Errors [22m [1m[31m4 errors[39m[22m
+[2m   Start at [22m 13:48:35
+[2m   Duration [22m 5.68s[2m (transform 160ms, setup 0ms, collect 325ms, tests 4.30s, environment 749ms, prepare 100ms)[22m
+

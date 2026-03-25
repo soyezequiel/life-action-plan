@@ -1,10 +1,13 @@
 {
-  "updatedAt": "2026-03-25T15:50:11.331Z",
+  "updatedAt": "2026-03-25T17:19:42.611Z",
   "phaseStatuses": {
     "intake": "success",
     "enrich": "success",
     "readiness": "success",
-    "build": "running"
+    "build": "success",
+    "simulate": "success",
+    "repair": "skipped",
+    "output": "success"
   },
   "phases": {
     "intake": {
@@ -16,16 +19,16 @@
         "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
       },
       "output": {
-        "profileId": "50a83d43-d9d0-414c-9dd6-bb28f34c7dec",
+        "profileId": "5d47a78b-4020-48f1-b863-05b71bb4e4db",
         "nombre": "Ezequiel",
         "edad": 32,
         "ciudad": "Buenos Aires",
         "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
       },
       "processing": "Convierte los datos crudos del formulario en un perfil estructurado (Perfil) con participantes, objetivos y calendario. Lo persiste en PostgreSQL.",
-      "startedAt": "2026-03-25T15:50:06.642Z",
-      "finishedAt": "2026-03-25T15:50:06.712Z",
-      "durationMs": 70
+      "startedAt": "2026-03-25T17:18:57.595Z",
+      "finishedAt": "2026-03-25T17:18:57.670Z",
+      "durationMs": 75
     },
     "enrich": {
       "input": {
@@ -37,18 +40,20 @@
         "provider": "openrouter:openai/gpt-4o-mini"
       },
       "output": {
-        "enrichedProfileId": "986b30bc-2919-48cc-85d6-c525a1fb0111",
+        "enrichedProfileId": "6da180e5-8740-4c02-b030-1d7f7f917f0d",
         "inferences": [],
-        "warnings": [],
+        "warnings": [
+          "El agente de enriquecimiento no pudo procesar el perfil. Se continúa con los datos originales."
+        ],
         "tokensUsed": {
           "input": 604,
-          "output": 182
+          "output": 368
         }
       },
       "processing": "Envía el perfil base al LLM para inferir campos faltantes (horarios, preferencias, obstáculos). Guarda el perfil enriquecido como nueva versión en DB.",
-      "startedAt": "2026-03-25T15:50:06.714Z",
-      "finishedAt": "2026-03-25T15:50:11.324Z",
-      "durationMs": 4610
+      "startedAt": "2026-03-25T17:18:57.672Z",
+      "finishedAt": "2026-03-25T17:19:05.057Z",
+      "durationMs": 7385
     },
     "readiness": {
       "input": {
@@ -65,13 +70,346 @@
         "constraints": []
       },
       "processing": "Valida que el perfil tenga los datos mínimos para generar un plan viable: objetivos definidos, horas libres positivas, horarios coherentes y carga factible.",
-      "startedAt": "2026-03-25T15:50:11.326Z",
-      "finishedAt": "2026-03-25T15:50:11.330Z",
-      "durationMs": 4
+      "startedAt": "2026-03-25T17:19:05.059Z",
+      "finishedAt": "2026-03-25T17:19:05.061Z",
+      "durationMs": 2
+    },
+    "build": {
+      "input": {
+        "persona": "Ezequiel",
+        "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento",
+        "provider": "openrouter:openai/gpt-4o-mini",
+        "horasLibresLaborales": 0,
+        "horasLibresFinDeSemana": 10,
+        "constraints": []
+      },
+      "output": {
+        "planId": "64d02dd0-bb6f-4e53-b944-4e68dffa413f",
+        "nombre": "Plan de Ezequiel",
+        "resumen": "Este plan está diseñado para ayudarte a aprender a tocar la guitarra y entrenarte para correr 10km. Te organizamos las actividades de manera que puedas disfrutar y descansar sin saturarte.",
+        "eventCount": 28,
+        "eventos": [
+          {
+            "semana": 1,
+            "dia": "lunes",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Clase de guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "martes",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Salida a correr 4km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "miercoles",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra en casa",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "jueves",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Entrenamiento de fuerza (30 min)",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "sabado",
+            "hora": "10:00",
+            "duracion": 60,
+            "actividad": "Clase de guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "sabado",
+            "hora": "11:30",
+            "duracion": 60,
+            "actividad": "Corrida de 5km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "domingo",
+            "hora": "10:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra en casa",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "lunes",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Clase de guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "martes",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Salida a correr 6km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "miercoles",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra en casa",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "jueves",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Entrenamiento de fuerza (30 min)",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "sabado",
+            "hora": "10:00",
+            "duracion": 60,
+            "actividad": "Clase de guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "sabado",
+            "hora": "11:30",
+            "duracion": 60,
+            "actividad": "Corrida de 7km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "domingo",
+            "hora": "10:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra en casa",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "lunes",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Clase de guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "martes",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Salida a correr 8km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "miercoles",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra en casa",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "jueves",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Entrenamiento de fuerza (30 min)",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "sabado",
+            "hora": "10:00",
+            "duracion": 60,
+            "actividad": "Clase de guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "sabado",
+            "hora": "11:30",
+            "duracion": 60,
+            "actividad": "Corrida de 9km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "domingo",
+            "hora": "10:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra en casa",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "lunes",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Clase de guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "martes",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Salida a correr 10km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "miercoles",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra en casa",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "jueves",
+            "hora": "19:00",
+            "duracion": 30,
+            "actividad": "Entrenamiento de fuerza (30 min)",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "sabado",
+            "hora": "10:00",
+            "duracion": 60,
+            "actividad": "Clase de guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "sabado",
+            "hora": "11:30",
+            "duracion": 60,
+            "actividad": "Corrida de 10km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "domingo",
+            "hora": "10:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra en casa",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          }
+        ],
+        "tokensUsed": {
+          "input": 517,
+          "output": 1889
+        },
+        "fallbackUsed": false
+      },
+      "processing": "Genera el plan semanal de actividades usando el LLM. Produce eventos con día, hora, duración y categoría. Guarda el plan en DB y siembra el progreso inicial.",
+      "startedAt": "2026-03-25T17:19:05.063Z",
+      "finishedAt": "2026-03-25T17:19:42.587Z",
+      "durationMs": 37524
+    },
+    "simulate": {
+      "input": {
+        "nombreDelPlan": "Plan de Ezequiel",
+        "eventCount": 28,
+        "mode": "automatic"
+      },
+      "output": {
+        "qualityScore": 100,
+        "overallStatus": "PASS",
+        "pass": 4,
+        "warn": 0,
+        "fail": 0,
+        "findings": [
+          {
+            "status": "PASS",
+            "code": "schedule_ok"
+          },
+          {
+            "status": "PASS",
+            "code": "work_balance_ok"
+          },
+          {
+            "status": "PASS",
+            "code": "capacity_ok"
+          },
+          {
+            "status": "PASS",
+            "code": "metadata_ok"
+          }
+        ]
+      },
+      "processing": "Ejecuta una simulación determinística del plan: verifica horarios, colisiones con trabajo, carga diaria, energía y cobertura de objetivos. Produce un puntaje 0-100.",
+      "startedAt": "2026-03-25T17:19:42.588Z",
+      "finishedAt": "2026-03-25T17:19:42.608Z",
+      "durationMs": 20
+    },
+    "output": {
+      "input": {
+        "persona": "Ezequiel",
+        "nombreDelPlan": "Plan de Ezequiel",
+        "deliveryMode": "pass",
+        "finalQualityScore": 100,
+        "repairAttempts": 1
+      },
+      "output": {
+        "deliveryMode": "pass",
+        "finalQualityScore": 100,
+        "unresolvableFindings": []
+      },
+      "processing": "Evalúa la calidad final del plan y decide el modo de entrega: aprobado, aceptable con avisos o mejor esfuerzo. Ensambla el resultado final del pipeline.",
+      "startedAt": "2026-03-25T17:19:42.610Z",
+      "finishedAt": "2026-03-25T17:19:42.610Z",
+      "durationMs": 0
     }
   },
   "intake": {
-    "profileId": "986b30bc-2919-48cc-85d6-c525a1fb0111",
+    "profileId": "6da180e5-8740-4c02-b030-1d7f7f917f0d",
     "nombre": "Ezequiel",
     "edad": 32,
     "ciudad": "Buenos Aires",
@@ -79,10 +417,284 @@
   },
   "enrich": {
     "inferences": [],
-    "warnings": []
+    "warnings": [
+      "El agente de enriquecimiento no pudo procesar el perfil. Se continúa con los datos originales."
+    ]
   },
   "readiness": {
     "warnings": [],
     "constraints": []
+  },
+  "build": {
+    "planId": "64d02dd0-bb6f-4e53-b944-4e68dffa413f",
+    "nombre": "Plan de Ezequiel",
+    "eventCount": 28,
+    "resumen": "Este plan está diseñado para ayudarte a aprender a tocar la guitarra y entrenarte para correr 10km. Te organizamos las actividades de manera que puedas disfrutar y descansar sin saturarte.",
+    "fallbackUsed": false,
+    "tokensUsed": {
+      "input": 517,
+      "output": 1889
+    },
+    "eventos": [
+      {
+        "semana": 1,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Clase de guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 1,
+        "dia": "martes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Salida a correr 4km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 1,
+        "dia": "miercoles",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra en casa",
+        "categoria": "habito"
+      },
+      {
+        "semana": 1,
+        "dia": "jueves",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Entrenamiento de fuerza (30 min)",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 1,
+        "dia": "sabado",
+        "hora": "10:00",
+        "duracion": 60,
+        "actividad": "Clase de guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 1,
+        "dia": "sabado",
+        "hora": "11:30",
+        "duracion": 60,
+        "actividad": "Corrida de 5km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 1,
+        "dia": "domingo",
+        "hora": "10:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra en casa",
+        "categoria": "habito"
+      },
+      {
+        "semana": 2,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Clase de guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 2,
+        "dia": "martes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Salida a correr 6km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 2,
+        "dia": "miercoles",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra en casa",
+        "categoria": "habito"
+      },
+      {
+        "semana": 2,
+        "dia": "jueves",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Entrenamiento de fuerza (30 min)",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 2,
+        "dia": "sabado",
+        "hora": "10:00",
+        "duracion": 60,
+        "actividad": "Clase de guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 2,
+        "dia": "sabado",
+        "hora": "11:30",
+        "duracion": 60,
+        "actividad": "Corrida de 7km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 2,
+        "dia": "domingo",
+        "hora": "10:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra en casa",
+        "categoria": "habito"
+      },
+      {
+        "semana": 3,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Clase de guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 3,
+        "dia": "martes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Salida a correr 8km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 3,
+        "dia": "miercoles",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra en casa",
+        "categoria": "habito"
+      },
+      {
+        "semana": 3,
+        "dia": "jueves",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Entrenamiento de fuerza (30 min)",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 3,
+        "dia": "sabado",
+        "hora": "10:00",
+        "duracion": 60,
+        "actividad": "Clase de guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 3,
+        "dia": "sabado",
+        "hora": "11:30",
+        "duracion": 60,
+        "actividad": "Corrida de 9km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 3,
+        "dia": "domingo",
+        "hora": "10:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra en casa",
+        "categoria": "habito"
+      },
+      {
+        "semana": 4,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Clase de guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 4,
+        "dia": "martes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Salida a correr 10km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 4,
+        "dia": "miercoles",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra en casa",
+        "categoria": "habito"
+      },
+      {
+        "semana": 4,
+        "dia": "jueves",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Entrenamiento de fuerza (30 min)",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 4,
+        "dia": "sabado",
+        "hora": "10:00",
+        "duracion": 60,
+        "actividad": "Clase de guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 4,
+        "dia": "sabado",
+        "hora": "11:30",
+        "duracion": 60,
+        "actividad": "Corrida de 10km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 4,
+        "dia": "domingo",
+        "hora": "10:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra en casa",
+        "categoria": "habito"
+      }
+    ]
+  },
+  "simulate": {
+    "qualityScore": 100,
+    "findings": [
+      {
+        "status": "PASS",
+        "code": "schedule_ok"
+      },
+      {
+        "status": "PASS",
+        "code": "work_balance_ok"
+      },
+      {
+        "status": "PASS",
+        "code": "capacity_ok"
+      },
+      {
+        "status": "PASS",
+        "code": "metadata_ok"
+      }
+    ],
+    "summary": {
+      "pass": 4,
+      "warn": 0,
+      "fail": 0
+    }
+  },
+  "repair": {
+    "attempts": 1,
+    "history": []
+  },
+  "output": {
+    "deliveryMode": "pass",
+    "finalQualityScore": 100,
+    "warnings": []
   }
 }

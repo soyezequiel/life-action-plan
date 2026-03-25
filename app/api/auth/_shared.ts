@@ -1,5 +1,5 @@
-import { toConfigErrorMessage } from '../../../src/shared/config-errors'
-import { jsonResponse } from '../_shared'
+import { toConfigErrorMessage } from '@shared/config-errors'
+import { jsonResponse } from '@app/api/_shared'
 
 export function toAuthConfigErrorResponse(error: unknown): Response | null {
   const message = error instanceof Error ? error.message : String(error)

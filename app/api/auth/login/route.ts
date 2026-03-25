@@ -1,9 +1,9 @@
 import { getUserByLoginIdentifier } from '../../_db'
 import { loginRequestSchema } from '../../_schemas'
-import { apiErrorMessages, jsonResponse } from '../../_shared'
-import { clearLoginGuard, getLoginGuardStatus, recordFailedLoginAttempt } from '../../../../src/lib/auth/login-guard'
+import { apiErrorMessages, jsonResponse } from '@app/api/_shared'
+import { clearLoginGuard, getLoginGuardStatus, recordFailedLoginAttempt } from '@lib/auth/login-guard'
 import { toAuthConfigErrorResponse, toAuthRateLimitedResponse } from '../_shared'
-import { verifyPassword } from '../../../../src/lib/auth/password'
+import { verifyPassword } from '@lib/auth/password'
 import { applySessionCookie, createSession } from '../../../../src/lib/auth/session'
 
 function toPublicUser(user: { id: string; username: string; email: string | null }) {

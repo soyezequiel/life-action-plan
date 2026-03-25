@@ -35,13 +35,31 @@ const profile = {
           diasLaborales: 3,
           diasDescanso: 6
         }
-      }
+      },
+      patronesEnergia: {
+        cronotipo: 'Búho',
+        horarioPicoEnergia: '20:00',
+        horarioBajoEnergia: '14:00',
+        horasProductivasMaximas: 6
+      },
+      compromisos: [],
+      dependientes: [],
+      problemasActuales: []
     }
   ],
+  estadoDinamico: {
+    estadoEmocional: {
+      motivacion: 4,
+      estres: 2
+    },
+    nivelEnergia: 'alto'
+  },
   objetivos: [
     {
       descripcion: 'Aprender TypeScript',
-      id: 'obj1'
+      id: 'obj1',
+      prioridad: 5,
+      horasSemanalesEstimadas: 10
     }
   ]
 } as unknown as Perfil

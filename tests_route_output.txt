@@ -1,0 +1,95 @@
+﻿node.exe : [33mThe CJS build of Vite's Node API is deprecated. See 
+https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated 
+for more details.[39m
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([33mThe CJS bu...e details. 
+   [39m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mF:/proyectos/planificador-vida[39m
+
+ [31mÔØ»[39m tests/plan-simulate-route.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[90m 18[2mms[22m[39m
+[31m   [31m├ù[31m plan simulate route[2m > [22mregistra simulate como recurso del backend y lo deja skipped cuando no tiene estrategia de cobro[90m 12[2mms[22m[31m[39m
+[31m     ÔåÆ expected "spy" to be called with arguments: [ ÔÇª(6) ][90m
+
+Received: 
+
+[31m[90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[31m   [31m├ù[31m plan simulate route[2m > [22mbloquea la simulacion si un precheck de cobro futuro la rechaza[90m 5[2mms[22m[31m[39m
+[31m     ÔåÆ expected { success: false, ÔÇª(1) } to deeply equal ObjectContaining{ÔÇª}[39m
+
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1m[7m Failed Tests 2 
+[27m[22mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/plan-simulate-route.test.ts[2m > 
+[22mplan simulate route[2m > [22mregistra simulate como recurso del 
+backend y lo deja skipped cuando no tiene estrategia de cobro
+[31m[1mAssertionError[22m: expected "spy" to be called with arguments: 
+[ ÔÇª(6) ][90m
+
+Received: 
+
+[31m[90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[36m [2mÔØ»[22m tests/plan-simulate-route.test.ts:[2m229:33[22m[39m
+    [90m227| [39m    [34mexpect[39m(mocks[33m.[39mcanChargeOperationM
+ock)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()
+    [90m228| [39m    [34mexpect[39m(mocks[33m.[39mchargeOperationMock
+)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()
+    [90m229| [39m    [34mexpect[39m(mocks[33m.[39mtrackCostMock)[33m
+.[39m[34mtoHaveBeenCalledWith[39m(
+    [90m   | [39m                                [31m^[39m
+    [90m230| [39m      
+[32m'22222222-2222-4222-8222-222222222222'[39m[33m,[39m
+    [90m231| [39m      [32m'plan_simulate'[39m[33m,[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+ÔÄ»ÔÄ»[1/2]ÔÄ»[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/plan-simulate-route.test.ts[2m > 
+[22mplan simulate route[2m > [22mbloquea la simulacion si un precheck 
+de cobro futuro la rechaza
+[31m[1mAssertionError[22m: expected { success: false, ÔÇª(1) } to 
+deeply equal ObjectContaining{ÔÇª}[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- ObjectContaining {[39m
+[32m-   "charge": ObjectContaining {[39m
+[32m-     "chargeId": "charge-2",[39m
+[32m-     "status": "rejected",[39m
+[32m-   },[39m
+[32m-   "error": "Cobro bloqueado",[39m
+[31m+ Object {[39m
+[31m+   "error": "Simulacion fallida",[39m
+[2m    "success": false,[22m
+[2m  }[22m
+
+[36m [2mÔØ»[22m tests/plan-simulate-route.test.ts:[2m322:20[22m[39m
+    [90m320| [39m
+    [90m321| [39m    [34mexpect[39m(mocks[33m.[39msimulatePlanViabili
+tyWithProgressMock)[33m.[39mnot[33m.[39m[34mtoHaveBeen[39mÔÇª
+    [90m322| [39m    [34mexpect[39m(result)[33m.[39m[34mtoEqual[39m
+(expect[33m.[39m[34mobjectContaining[39m({
+    [90m   | [39m                   [31m^[39m
+    [90m323| [39m      success[33m:[39m [35mfalse[39m[33m,[39m
+    [90m324| [39m      error[33m:[39m [32m'Cobro 
+bloqueado'[39m[33m,[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+ÔÄ»ÔÄ»[2/2]ÔÄ»[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m   Start at [22m 13:47:08
+[2m   Duration [22m 996ms[2m (transform 270ms, setup 0ms, collect 700ms, tests 18ms, environment 0ms, prepare 101ms)[22m
+

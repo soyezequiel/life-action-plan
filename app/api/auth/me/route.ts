@@ -1,6 +1,6 @@
 import { getUserById } from '../../_db'
-import { jsonResponse } from '../../_shared'
-import { getAuthenticatedUserId } from '../../../../src/lib/auth/session'
+import { jsonResponse } from '@app/api/_shared'
+import { getAuthenticatedUserId } from '@lib/auth/session'
 
 export async function GET(request: Request): Promise<Response> {
   const userId = await getAuthenticatedUserId(request)

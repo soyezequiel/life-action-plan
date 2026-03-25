@@ -1,7 +1,7 @@
 import { claimAnonymousLocalData, claimAnonymousWorkflowData } from '../../_db'
 import { claimLocalDataRequestSchema } from '../../_schemas'
-import { apiErrorMessages, jsonResponse } from '../../_shared'
-import { getAuthenticatedUserId } from '../../../../src/lib/auth/session'
+import { apiErrorMessages, jsonResponse } from '@app/api/_shared'
+import { getAuthenticatedUserId } from '@lib/auth/session'
 
 export async function POST(request: Request): Promise<Response> {
   const userId = await getAuthenticatedUserId(request)

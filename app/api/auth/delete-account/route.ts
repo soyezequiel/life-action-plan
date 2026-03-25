@@ -3,12 +3,13 @@ import {
   getUserById
 } from '../../_db'
 import { deleteAccountRequestSchema } from '../../_schemas'
-import { apiErrorMessages, jsonResponse } from '../../_shared'
+import { apiErrorMessages, jsonResponse } from '@app/api/_shared'
 import {
   clearSessionCookie,
   destroyAllSessions,
+  destroySessionFromRequest,
   getAuthenticatedUserId
-} from '../../../../src/lib/auth/session'
+} from '@lib/auth/session'
 
 export async function POST(request: Request): Promise<Response> {
   const parsed = deleteAccountRequestSchema.safeParse(await request.json().catch(() => null))

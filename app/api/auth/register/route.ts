@@ -1,9 +1,9 @@
 import { createUser, getUserByLoginIdentifier } from '../../_db'
 import { registerRequestSchema } from '../../_schemas'
-import { apiErrorMessages, jsonResponse } from '../../_shared'
+import { apiErrorMessages, jsonResponse } from '@app/api/_shared'
 import { toAuthConfigErrorResponse } from '../_shared'
-import { hashPassword } from '../../../../src/lib/auth/password'
-import { validateRegisterSubmission } from '../../../../src/lib/auth/register-validation'
+import { hashPassword } from '@lib/auth/password'
+import { validateRegisterSubmission } from '@lib/auth/register-validation'
 import { applySessionCookie, createSession } from '../../../../src/lib/auth/session'
 
 function toPublicUser(user: { id: string; username: string; email: string | null }) {
