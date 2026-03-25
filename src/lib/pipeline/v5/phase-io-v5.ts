@@ -103,7 +103,18 @@ export interface PlanPackage {
   implementationIntentions: string[];
   warnings: string[];
 }
-export interface PackageInput { finalSchedule: SchedulerOutput; }
+export interface PackageInput {
+  finalSchedule: SchedulerOutput;
+  classification?: GoalClassification;
+  roadmap?: StrategicRoadmap;
+  goalText?: string;
+  goalId?: string;
+  weekStartDate?: string;
+  hardFindings?: HardFinding[];
+  softFindings?: SoftFinding[];
+  coveFindings?: CoVeFinding[];
+  repairSummary?: Pick<RepairOutput, 'patchesApplied' | 'iterations' | 'scoreAfter'>;
+}
 export type PackageOutput = PlanPackage;
 
 // ─── 12. Adapt (Future/Feedback loop) ─────────────────────────────────────────
