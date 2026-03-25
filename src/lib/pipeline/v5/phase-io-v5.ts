@@ -1,6 +1,6 @@
 import type { PhaseIO } from '../phase-io';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
-import type { ActivityRequest, SchedulerOutput } from '../../scheduler/types';
+import type { ActivityRequest, SchedulerOutput, SchedulerInput } from '../../scheduler/types';
 import type { PlanItem } from '../../domain/plan-item';
 
 // ─── 1. Classify ──────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ export interface HardFinding {
   description: string;
   affectedItems: string[];
 }
-export interface HardValidateInput { schedule: SchedulerOutput; }
+export interface HardValidateInput { schedule: SchedulerOutput; originalInput: SchedulerInput; }
 export interface HardValidateOutput { findings: HardFinding[]; }
 
 // ─── 8. Soft Validate ─────────────────────────────────────────────────────────
