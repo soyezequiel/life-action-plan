@@ -11,6 +11,11 @@ import type { RunnerConfig } from '../../../scripts/runner-config.schema'
 import type { SimulationFinding, PlanSimulationSnapshot } from '../../shared/types/lap-api'
 import type { PlanEvent } from '../skills/plan-builder'
 import { intakeEnrichedToProfile } from '../skills/plan-intake'
+import type { 
+  IntakeInput, IntakeOutput, EnrichInput, EnrichOutput, ReadinessInput, ReadinessOutput, 
+  BuildInput, BuildOutput, SimulateInput, SimulateOutput, RepairInput, RepairOutput, 
+  OutputInput, OutputOutput 
+} from './phase-io'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,6 +32,7 @@ export class FlowRunner {
     this.context = {
       config,
       results: {},
+      phaseIO: {},
       ...initialState
     }
   }
@@ -76,7 +82,9 @@ export class FlowRunner {
           throw new Error(`UNSUPPORTED_PHASE:${phase}`)
       }
 
-      tracker.onPhaseSuccess?.(phase, result)
+      // Notify tracker with IO data
+      const io = this.context.phaseIO[phase]
+      tracker.onPhaseSuccess?.(phase, result, io)
       return result
     } catch (error) {
       const finalError = error instanceof Error ? error : new Error(String(error))
@@ -207,12 +215,25 @@ export class FlowRunner {
   // ── Phase implementations ───────────────────────────────────────────────────
 
   private async _runIntakePhase(): Promise<any> {
+    const startedAt = new Date().toISOString()
+    const t0 = Date.now()
+
+    // 1. Construir input tipado
     const cfg = this.context.config.intake
+    const phaseInput: IntakeInput = {
+      nombre: cfg.nombre,
+      edad: cfg.edad,
+      ubicacion: cfg.ubicacion,
+      ocupacion: cfg.ocupacion,
+      objetivo: cfg.objetivo,
+    }
+
+    // 2. Ejecutar lógica existente
     const result = await processIntake(cfg)
     this.context.profileId = result.profileId
     this.context.results.intake = result
 
-    // Extraer datos visibles para el visualizador de flujo
+    // 3. Extraer profile summary para el visualizador
     try {
       const profileRow = await getProfile(result.profileId)
       if (profileRow) {
@@ -231,10 +252,32 @@ export class FlowRunner {
       // Non-fatal: intake summary is optional for the visualizer
     }
 
+    // 4. Construir output tipado
+    const phaseOutput: IntakeOutput = {
+      profileId: result.profileId,
+      nombre: this.context.intakeSummary?.nombre ?? '',
+      edad: this.context.intakeSummary?.edad ?? 0,
+      ciudad: this.context.intakeSummary?.ciudad ?? '',
+      objetivo: this.context.intakeSummary?.objetivo ?? '',
+    }
+
+    // 5. Guardar PhaseIO
+    this.context.phaseIO.intake = {
+      input: phaseInput,
+      output: phaseOutput,
+      processing: 'Convierte los datos crudos del formulario en un perfil estructurado (Perfil) con participantes, objetivos y calendario. Lo persiste en PostgreSQL.',
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      durationMs: Date.now() - t0,
+    }
+
     return result
   }
 
   private async _runEnrichPhase(tracker: PipelineStepTracker): Promise<any> {
+    const startedAt = new Date().toISOString()
+    const t0 = Date.now()
+
     if (!this.context.profileId) throw new Error('MISSING_PROFILE_ID_FOR_ENRICH')
 
     const profileRow = await getProfile(this.context.profileId)
@@ -245,6 +288,11 @@ export class FlowRunner {
 
     const buildCfg = this.context.config.build
     const provider = buildCfg.provider ?? 'openai:gpt-4o-mini'
+
+    const phaseInput: EnrichInput = {
+      profileId: this.context.profileId!,
+      provider: provider,
+    }
 
     const { resolvePlanBuildExecution } = await import('../runtime/build-execution')
     const resolvedExecution = await resolvePlanBuildExecution({
@@ -288,10 +336,29 @@ export class FlowRunner {
       warnings: enrichResult.warnings
     }
 
+    const phaseOutput: EnrichOutput = {
+      enrichedProfileId: enrichedProfileId,
+      inferences: enrichResult.inferences,
+      warnings: enrichResult.warnings,
+      tokensUsed: enrichResult.tokensUsed,
+    }
+
+    this.context.phaseIO.enrich = {
+      input: phaseInput,
+      output: phaseOutput,
+      processing: 'Envía el perfil base al LLM para inferir campos faltantes (horarios, preferencias, obstáculos). Guarda el perfil enriquecido como nueva versión en DB.',
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      durationMs: Date.now() - t0,
+    }
+
     return enrichResult
   }
 
   private async _runReadinessPhase(): Promise<any> {
+    const startedAt = new Date().toISOString()
+    const t0 = Date.now()
+
     if (!this.context.profileId) throw new Error('MISSING_PROFILE_ID_FOR_READINESS')
 
     const profileRow = await getProfile(this.context.profileId)
@@ -299,6 +366,13 @@ export class FlowRunner {
 
     const profile = parseStoredProfile(profileRow.data)
     if (!profile) throw new Error('PROFILE_PARSE_ERROR_FOR_READINESS')
+
+    const phaseInput: ReadinessInput = {
+      profileId: this.context.profileId!,
+      objectiveCount: profile.objetivos?.length ?? 0,
+      freeHoursWeekday: profile.participantes[0]?.calendario?.horasLibresEstimadas?.diasLaborales ?? 0,
+      freeHoursWeekend: profile.participantes[0]?.calendario?.horasLibresEstimadas?.diasDescanso ?? 0,
+    }
 
     const gateResult = runReadinessGate(profile)
 
@@ -312,14 +386,40 @@ export class FlowRunner {
       constraints: gateResult.constraints
     }
 
+    const phaseOutput: ReadinessOutput = {
+      ready: gateResult.ready,
+      errors: gateResult.errors,
+      warnings: gateResult.warnings,
+      constraints: gateResult.constraints,
+    }
+
+    this.context.phaseIO.readiness = {
+      input: phaseInput,
+      output: phaseOutput,
+      processing: 'Valida que el perfil tenga los datos mínimos para generar un plan viable: objetivos definidos, horas libres positivas, horarios coherentes y carga factible.',
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      durationMs: Date.now() - t0,
+    }
+
     return gateResult
   }
 
   private async _runBuildPhase(tracker: PipelineStepTracker): Promise<any> {
+    const startedAt = new Date().toISOString()
+    const t0 = Date.now()
+
     if (!this.context.profileId) throw new Error('MISSING_PROFILE_ID_FOR_BUILD')
 
     const lastFindings = this.context.repair?.lastFindings
     const constraints = this.context.readiness?.constraints
+
+    const phaseInput: BuildInput = {
+      profileId: this.context.profileId!,
+      provider: this.context.config.build.provider ?? 'auto',
+      constraints: constraints ?? [],
+      previousFindings: lastFindings,
+    }
 
     const result = await processPlanBuild({
       profileId: this.context.profileId,
@@ -334,11 +434,39 @@ export class FlowRunner {
     })
     this.context.planId = result.planId
     this.context.results.build = result
+
+    const phaseOutput: BuildOutput = {
+      planId: result.planId,
+      nombre: result.nombre,
+      resumen: result.resumen,
+      eventCount: result.eventos?.length ?? 0,
+      eventos: result.eventos ?? [],
+      tokensUsed: result.tokensUsed,
+      fallbackUsed: result.fallbackUsed,
+    }
+
+    this.context.phaseIO.build = {
+      input: phaseInput,
+      output: phaseOutput,
+      processing: 'Genera el plan semanal de actividades usando el LLM. Produce eventos con día, hora, duración y categoría. Guarda el plan en DB y siembra el progreso inicial.',
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      durationMs: Date.now() - t0,
+    }
+
     return result
   }
 
   private async _runSimulatePhase(tracker: PipelineStepTracker): Promise<any> {
+    const startedAt = new Date().toISOString()
+    const t0 = Date.now()
+
     if (!this.context.planId) throw new Error('MISSING_PLAN_ID_FOR_SIMULATE')
+
+    const phaseInput: SimulateInput = {
+      planId: this.context.planId!,
+      mode: this.context.config.simulate.mode ?? 'automatic',
+    }
 
     const result = await processPlanSimulate({
       planId: this.context.planId,
@@ -347,10 +475,33 @@ export class FlowRunner {
       onProgress: (p) => tracker.onProgress?.('simulate', p)
     })
     this.context.results.simulate = { simulation: result.simulation }
+
+    const sim = result.simulation
+    const phaseOutput: SimulateOutput = {
+      qualityScore: sim.qualityScore ?? 0,
+      overallStatus: sim.summary.overallStatus,
+      pass: sim.summary.pass,
+      warn: sim.summary.warn,
+      fail: sim.summary.fail,
+      findings: sim.findings.map(f => ({ status: f.status, code: f.code, params: f.params })),
+    }
+
+    this.context.phaseIO.simulate = {
+      input: phaseInput,
+      output: phaseOutput,
+      processing: 'Ejecuta una simulación determinística del plan: verifica horarios, colisiones con trabajo, carga diaria, energía y cobertura de objetivos. Produce un puntaje 0-100.',
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      durationMs: Date.now() - t0,
+    }
+
     return result
   }
 
   private async _runRepairPhase(tracker: PipelineStepTracker): Promise<any> {
+    const startedAt = new Date().toISOString()
+    const t0 = Date.now()
+
     if (!this.context.planId) throw new Error('MISSING_PLAN_ID_FOR_REPAIR')
     if (!this.context.profileId) throw new Error('MISSING_PROFILE_ID_FOR_REPAIR')
 
@@ -381,6 +532,16 @@ export class FlowRunner {
     const buildCfg = this.context.config.build
     const provider = buildCfg.provider ?? 'openai:gpt-4o-mini'
 
+    const repairAttempt = this.context.repair?.attempts ?? 1
+    const phaseInput: RepairInput = {
+      planId: this.context.planId!,
+      profileId: this.context.profileId!,
+      attempt: repairAttempt,
+      maxAttempts: this.context.config.pipeline?.maxRepairAttempts ?? 3,
+      failingFindings: failingFindings,
+      currentEventCount: currentEvents.length,
+    }
+
     const { resolvePlanBuildExecution } = await import('../runtime/build-execution')
     const resolvedExecution = await resolvePlanBuildExecution({
       modelId: provider,
@@ -398,7 +559,6 @@ export class FlowRunner {
       apiKey: resolvedExecution.runtime.apiKey,
       baseURL: resolvedExecution.runtime.baseURL
     })
-
     const ctx = {
       planDir: '',
       profileId: this.context.profileId,
@@ -407,8 +567,6 @@ export class FlowRunner {
       formalityLevel: 'informal' as const,
       tokenMultiplier: 1.0
     }
-
-    const repairAttempt = this.context.repair?.attempts ?? 1
 
     const repairResult = await repairPlan(
       runtime,
@@ -458,12 +616,39 @@ export class FlowRunner {
     // Swap to new plan ID for next simulation
     this.context.planId = newPlanId
 
+    const phaseOutput: RepairOutput = {
+      newPlanId: newPlanId,
+      repairedEventCount: repairResult.repairedEvents.length,
+      repairNotes: repairResult.repairNotes,
+      tokensUsed: repairResult.tokensUsed,
+    }
+
+    this.context.phaseIO.repair = {
+      input: phaseInput,
+      output: phaseOutput,
+      processing: 'Envía los hallazgos fallidos al agente reparador LLM para que corrija los eventos problemáticos. Genera una nueva versión del plan con los eventos reparados.',
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      durationMs: Date.now() - t0,
+    }
+
     return { planId: newPlanId, repairResult }
   }
 
   private _assembleOutput(): any {
+    const startedAt = new Date().toISOString()
+    const t0 = Date.now()
+
     const deliveryMode: DeliveryMode = this.context.output?.deliveryMode ?? 'best-effort'
     const simulation = this.context.results.simulate?.simulation
+
+    const phaseInput: OutputInput = {
+      profileId: this.context.profileId ?? '',
+      planId: this.context.planId ?? '',
+      deliveryMode,
+      finalQualityScore: this.context.output?.finalQualityScore ?? 0,
+      repairAttempts: this.context.repair?.attempts ?? 0,
+    }
 
     const base = {
       profileId: this.context.profileId,
@@ -472,8 +657,10 @@ export class FlowRunner {
       simulation
     }
 
+    let finalResult: any = base
+
     if (this.context.repair || this.context.enrichment || this.context.readiness) {
-      return {
+      finalResult = {
         ...base,
         meta: {
           deliveryMode,
@@ -493,6 +680,22 @@ export class FlowRunner {
       }
     }
 
-    return base
+    const phaseOutput: OutputOutput = {
+      deliveryMode,
+      finalQualityScore: this.context.output?.finalQualityScore ?? simulation?.qualityScore ?? 0,
+      unresolvableFindings: finalResult.meta?.unresolvableFindings ?? [],
+      honestWarning: finalResult.meta?.honestWarning,
+    }
+
+    this.context.phaseIO.output = {
+      input: phaseInput,
+      output: phaseOutput,
+      processing: 'Evalúa la calidad final del plan y decide el modo de entrega: aprobado, aceptable con avisos o mejor esfuerzo. Ensambla el resultado final del pipeline.',
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      durationMs: Date.now() - t0,
+    }
+
+    return finalResult
   }
 }

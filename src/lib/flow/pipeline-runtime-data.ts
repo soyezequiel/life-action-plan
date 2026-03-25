@@ -9,6 +9,16 @@ export type PhaseStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped
 export interface PipelineRuntimeData {
   updatedAt: string
   phaseStatuses: Record<string, PhaseStatus>
+  // v3: datos estructurados por fase con input/output explícito
+  phases: Record<string, {
+    input: Record<string, unknown>
+    output: Record<string, unknown>
+    processing: string
+    startedAt: string
+    finishedAt: string
+    durationMs: number
+  }>
+  // v2 legacy: mantener mientras el viewer migra (DEPRECAR luego)
   intake?: {
     profileId: string
     nombre?: string
@@ -74,32 +84,47 @@ export interface PipelineRuntimeData {
   }
 }
 
+
 // ─── Mapper ───────────────────────────────────────────────────────────────────
 
 export function mapContextToRuntimeData(
   context: PipelineContext,
-  phaseStatuses: Record<string, PhaseStatus> = {}
+  phaseStatuses: Record<string, PhaseStatus>
 ): PipelineRuntimeData {
-  const data: PipelineRuntimeData = {
+  // v3: Mapear PhaseIORegistry a un objeto plano para el frontend
+  const phases: Record<string, any> = {}
+  Object.entries(context.phaseIO).forEach(([phase, io]) => {
+    if (io) {
+      phases[phase] = {
+        input: io.input,
+        output: io.output,
+        processing: io.processing,
+        startedAt: io.startedAt,
+        finishedAt: io.finishedAt,
+        durationMs: io.durationMs
+      }
+    }
+  })
+
+  const results: PipelineRuntimeData = {
     updatedAt: new Date().toISOString(),
-    phaseStatuses
+    phaseStatuses,
+    phases,
   }
 
-  if (context.profileId) {
-    data.intake = {
-      profileId: context.profileId,
-      nombre: context.intakeSummary?.nombre,
-      edad: context.intakeSummary?.edad,
-      ciudad: context.intakeSummary?.ciudad,
-      objetivo: context.intakeSummary?.objetivo,
+  // Legacy mappings (V2 compatibility)
+  if (context.intakeSummary) {
+    results.intake = {
+      profileId: context.profileId || '',
+      ...context.intakeSummary
     }
   }
 
   if (context.enrichment) {
-    data.enrich = {
+    results.enrich = {
       inferences: context.enrichment.inferences.map(inf => ({
         field: inf.field,
-        value: inf.value != null ? String(inf.value) : '',
+        value: String(inf.value),
         confidence: inf.confidence,
         reason: inf.reason
       })),
@@ -108,51 +133,51 @@ export function mapContextToRuntimeData(
   }
 
   if (context.readiness) {
-    data.readiness = {
+    results.readiness = {
       warnings: context.readiness.warnings,
       constraints: context.readiness.constraints
     }
   }
 
-  if (context.results.build) {
-    const build = context.results.build
-    data.build = {
-      planId: build.planId,
+  const build = context.results.build
+  if (build) {
+    results.build = {
+      planId: context.planId || '',
       nombre: build.nombre,
       eventCount: build.eventos?.length ?? 0,
       resumen: build.resumen,
       fallbackUsed: build.fallbackUsed,
       tokensUsed: build.tokensUsed,
-      eventos: (build.eventos ?? []).map(ev => ({
-        semana: ev.semana,
-        dia: ev.dia,
-        hora: ev.hora,
-        duracion: ev.duracion,
-        actividad: ev.actividad,
-        categoria: ev.categoria
+      eventos: (build.eventos || []).map(e => ({
+        semana: e.semana,
+        dia: e.dia,
+        hora: e.hora,
+        duracion: e.duracion,
+        actividad: e.actividad,
+        categoria: e.categoria
       }))
     }
   }
 
-  if (context.results.simulate?.simulation) {
-    const sim = context.results.simulate.simulation
-    data.simulate = {
-      qualityScore: sim.qualityScore ?? 0,
-      findings: sim.findings.map(f => ({
+  const simulate = context.results.simulate?.simulation
+  if (simulate) {
+    results.simulate = {
+      qualityScore: simulate.qualityScore ?? 0,
+      findings: simulate.findings.map(f => ({
         status: f.status,
         code: f.code,
         params: f.params
       })),
       summary: {
-        pass: sim.summary.pass,
-        warn: sim.summary.warn,
-        fail: sim.summary.fail
+        pass: simulate.summary.pass,
+        warn: simulate.summary.warn,
+        fail: simulate.summary.fail
       }
     }
   }
 
-  if (context.repair && context.repair.history.length > 0) {
-    data.repair = {
+  if (context.repair) {
+    results.repair = {
       attempts: context.repair.attempts,
       history: context.repair.history.map(h => ({
         attempt: h.attempt,
@@ -164,11 +189,12 @@ export function mapContextToRuntimeData(
   }
 
   if (context.output) {
-    data.output = {
+    results.output = {
       deliveryMode: context.output.deliveryMode,
-      finalQualityScore: context.output.finalQualityScore
+      finalQualityScore: context.output.finalQualityScore,
+      warnings: results.readiness?.warnings
     }
   }
 
-  return data
+  return results
 }

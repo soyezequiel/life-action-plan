@@ -162,9 +162,14 @@ export const FlowStepNode = memo(({ data }: { data: any }) => {
       <div className="node-content">
         <div className="node-header">
           <span className="node-phase-label">{phase}</span>
-          <span className={`node-type-badge ${typeClassMap[type] || ''}`}>
-            {typeLabels[type] || type}
-          </span>
+          <div className="node-header-badges">
+            {runtimeData && (runtimeData as any).phases?.[phaseId === 'simulation' ? 'simulate' : phaseId] && (
+              <span className="node-io-badge" title="Contrato E/S disponible">E/S</span>
+            )}
+            <span className={`node-type-badge ${typeClassMap[type] || ''}`}>
+              {typeLabels[type] || type}
+            </span>
+          </div>
         </div>
 
         <h3 className="node-title">{label}</h3>

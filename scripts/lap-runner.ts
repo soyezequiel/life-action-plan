@@ -2,7 +2,7 @@ import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
 import { runnerConfigSchema } from './runner-config.schema'
 import { FlowRunner } from '../src/lib/pipeline/runner'
-import { logPhase, logStep, logRepairAttempt, logPhaseSkipped } from '../src/lib/flow/runner-logger'
+import { logPhase, logStep, logRepairAttempt, logPhaseSkipped, logPhaseIO } from '../src/lib/flow/runner-logger'
 import { mapContextToRuntimeData, type PhaseStatus } from '../src/lib/flow/pipeline-runtime-data'
 
 const CONTEXT_FILE = resolve(process.cwd(), 'tmp/pipeline-context.json')
@@ -108,8 +108,9 @@ async function run() {
              console.error(`[LAP Runner] ${p} Progress: stage ${prog.stage}`)
            }
         },
-        onPhaseSuccess: (p) => {
+        onPhaseSuccess: (p, _result, io) => {
           phaseStatuses[p] = 'success'
+          logPhaseIO(p, io)
           persistContext(runner, phaseStatuses)
         },
         onPhaseFailure: (p) => {
@@ -134,8 +135,9 @@ async function run() {
             phaseStatuses[p] = 'running'
             persistContext(runner, phaseStatuses)
         },
-        onPhaseSuccess: (p) => {
+        onPhaseSuccess: (p, _result, io) => {
             phaseStatuses[p] = 'success'
+            logPhaseIO(p, io)
             persistContext(runner, phaseStatuses)
         },
         onPhaseFailure: (p) => {

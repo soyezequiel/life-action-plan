@@ -534,3 +534,115 @@
 .antigravity-scroll-lock {
   overflow: hidden !important;
 }
+
+/* ─── Phase I/O Tabs ─────────────────────────────────────────────────────── */
+
+.io-tabs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.io-tabs-header {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.io-tab-btn {
+  flex: 1;
+  padding: 0.6rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #8f8a86;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.io-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e4e0db;
+}
+
+.io-tab-btn.active {
+  background: rgba(185, 135, 255, 0.15);
+  color: #b987ff;
+  box-shadow: 0 2px 8px rgba(185, 135, 255, 0.1);
+}
+
+.io-tab-content {
+  flex: 1;
+  min-height: 200px;
+}
+
+.io-json-view {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1rem;
+  overflow: auto;
+  max-height: 400px;
+}
+
+.io-json-view pre {
+  margin: 0;
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #b9b5b2;
+}
+
+.io-proc-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.proc-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #e4e0db;
+  margin: 0;
+}
+
+.proc-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #8f8a86;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.proc-meta strong {
+  color: #6ed7a5;
+  font-family: var(--font-mono, monospace);
+}
+
+/* Node Header Badges */
+.node-header-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.node-io-badge {
+  font-size: 8px;
+  font-weight: 900;
+  padding: 0.2rem 0.45rem;
+  background: rgba(110, 215, 165, 0.15);
+  color: #6ed7a5;
+  border: 1px solid rgba(110, 215, 165, 0.25);
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 4px rgba(110, 215, 165, 0.4);
+}

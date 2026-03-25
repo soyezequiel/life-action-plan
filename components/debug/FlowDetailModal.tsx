@@ -14,6 +14,61 @@ interface ModalProps {
   onClose: () => void
 }
 
+// ─── Phase I/O Tabbed Renderer ────────────────────────────────────────────────
+
+function IOTabs({ input, output, processing, durationMs }: { input: any, output: any, processing?: string, durationMs?: number }) {
+  const [activeTab, setActiveTab] = React.useState<'in' | 'proc' | 'out'>('proc')
+
+  return (
+    <div className="io-tabs-container">
+      <div className="io-tabs-header">
+        <button 
+          className={`io-tab-btn ${activeTab === 'in' ? 'active' : ''}`}
+          onClick={() => setActiveTab('in')}
+        >
+          {t('debug.flow.tab_input')}
+        </button>
+        <button 
+          className={`io-tab-btn ${activeTab === 'proc' ? 'active' : ''}`}
+          onClick={() => setActiveTab('proc')}
+        >
+          {t('debug.flow.tab_processing')}
+        </button>
+        <button 
+          className={`io-tab-btn ${activeTab === 'out' ? 'active' : ''}`}
+          onClick={() => setActiveTab('out')}
+        >
+          {t('debug.flow.tab_output')}
+        </button>
+      </div>
+
+      <div className="io-tab-content">
+        {activeTab === 'in' && (
+          <div className="io-json-view">
+            <pre>{JSON.stringify(input, null, 2)}</pre>
+          </div>
+        )}
+        {activeTab === 'proc' && (
+          <div className="io-proc-view">
+            <p className="proc-desc">{processing || t('debug.flow.no_processing_info')}</p>
+            {durationMs !== undefined && (
+              <div className="proc-meta">
+                <span>{t('debug.flow.duration')}:</span>
+                <strong>{durationMs}ms</strong>
+              </div>
+            )}
+          </div>
+        )}
+        {activeTab === 'out' && (
+          <div className="io-json-view">
+            <pre>{JSON.stringify(output, null, 2)}</pre>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Per-phase detail renderers ───────────────────────────────────────────────
 
 function IntakeDetail({ data }: { data: Record<string, unknown> }) {
@@ -322,6 +377,12 @@ export function FlowDetailModal({ phaseId, phaseName, phaseColor, runtimeData, o
   }, [onClose])
 
   function renderContent() {
+    // v3: si hay datos PhaseIO, usar tabs genéricos
+    const phaseData = (runtimeData as any)?.phases?.[resolvedPhase]
+    if (phaseData) {
+      return <IOTabs input={phaseData.input} output={phaseData.output} processing={phaseData.processing} durationMs={phaseData.durationMs} />
+    }
+    // v2 Legacy fallback: renderers específicos por fase
     switch (resolvedPhase) {
       case 'intake': return <IntakeDetail data={runtimeData} />
       case 'enrich': return <EnrichDetail data={runtimeData} />

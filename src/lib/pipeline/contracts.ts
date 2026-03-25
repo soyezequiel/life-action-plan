@@ -2,6 +2,7 @@ import type { RunnerConfig } from '../../../scripts/runner-config.schema'
 import type { BuildResult } from '../services/types'
 import type { PlanSimulationSnapshot, SimulationFinding } from '../../shared/types/lap-api'
 import type { EnrichmentInference } from '../skills/profile-enricher'
+import type { PhaseIO, PhaseIORegistry } from './phase-io'
 
 export type PipelinePhase = 'intake' | 'enrich' | 'readiness' | 'build' | 'simulate' | 'repair' | 'output'
 
@@ -24,6 +25,7 @@ export interface PipelineContext {
     ciudad: string
     objetivo: string
   }
+  phaseIO: PhaseIORegistry
   results: {
     intake?: { profileId: string }
     build?: BuildResult
@@ -52,8 +54,8 @@ export interface PipelineContext {
 }
 
 export interface PipelineStepTracker {
-  onPhaseStart?: (phase: PipelinePhase) => void
-  onPhaseSuccess?: (phase: PipelinePhase, result: any) => void
+  onPhaseStart?: (phase: PipelinePhase, input?: unknown) => void
+  onPhaseSuccess?: (phase: PipelinePhase, result: any, io?: PhaseIO) => void
   onPhaseFailure?: (phase: PipelinePhase, error: Error) => void
   onPhaseSkipped?: (phase: PipelinePhase) => void
   onProgress?: (phase: PipelinePhase, progress: any) => void

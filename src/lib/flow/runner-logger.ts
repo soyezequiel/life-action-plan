@@ -1,4 +1,5 @@
 import { FLOW_STEPS, FLOW_PHASES } from './flow-definition'
+import type { PhaseIO } from '../pipeline/phase-io'
 
 export function logPhase(phaseId: string) {
   const phase = FLOW_PHASES.find(p => p.id === phaseId)
@@ -7,6 +8,41 @@ export function logPhase(phaseId: string) {
   } else {
     console.error(`\n[LAP Runner] === PHASE: ${phaseId} ===`)
   }
+}
+
+export function logPhaseIO(phaseId: string, io: PhaseIO | undefined) {
+  if (!io) return
+
+  const input = io.input as Record<string, unknown>
+  const output = io.output as Record<string, unknown>
+
+  // Descripción de qué hace la fase
+  if (io.processing) {
+    console.error(`[LAP Runner]   🔄 ${io.processing}`)
+  }
+
+  // Resumen compacto del input (solo keys con valor)
+  const inputKeys = Object.entries(input)
+    .filter(([, v]) => v !== undefined && v !== null && v !== '')
+    .map(([k, v]) => {
+      if (Array.isArray(v)) return `${k}: [${v.length}]`
+      if (typeof v === 'object') return `${k}: {...}`
+      return `${k}: ${String(v).slice(0, 40)}`
+    })
+    .join(', ')
+
+  const outputKeys = Object.entries(output)
+    .filter(([, v]) => v !== undefined && v !== null && v !== '')
+    .map(([k, v]) => {
+      if (Array.isArray(v)) return `${k}: [${v.length}]`
+      if (typeof v === 'object') return `${k}: {...}`
+      return `${k}: ${String(v).slice(0, 40)}`
+    })
+    .join(', ')
+
+  console.error(`[LAP Runner]   📥 IN:  ${inputKeys}`)
+  console.error(`[LAP Runner]   📤 OUT: ${outputKeys}`)
+  console.error(`[LAP Runner]   ⏱ ${io.durationMs}ms`)
 }
 
 export function logStep(stepId: string) {
