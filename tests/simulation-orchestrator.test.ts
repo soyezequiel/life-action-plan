@@ -7,7 +7,7 @@ const s: any = {
   phases: [{ id: 'p1', title: 'F', summary: '', startMonth: 1, endMonth: 3, goalIds: ['g1'], hoursPerWeek: 10, milestone: '', metrics: [] }],
   conflicts: [], milestones: []
 }
-const rc = { status: 'ok' as const, availableHours: 10, neededHours: 10, summary: 'OK', recommendations: [], adjustmentsApplied: [] }
+const rc = { status: 'ok' as const, availableHours: 10, neededHours: 10, selectedAdjustment: 'keep' as const, summary: 'OK', recommendations: [], adjustmentsApplied: [] }
 const p = {
   participantes: [{
     datosPersonales: { nombre: 'T', narrativaPersonal: 'D', rangoEtario: '25-34', localidad: 'BA' },

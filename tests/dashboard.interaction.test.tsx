@@ -128,7 +128,8 @@ function createLapClientStub(): LapAPI {
       list: vi.fn(async () => [basePlan]),
       simulate: vi.fn(async () => ({ success: true })),
       onSimulationProgress: vi.fn(() => () => {}),
-      exportCalendar: vi.fn(async () => ({ success: true, filePath: 'mock.ics' }))
+      exportCalendar: vi.fn(async () => ({ success: true, filePath: 'mock.ics' })),
+      exportSimulation: vi.fn(async () => ({ success: true, filePath: 'mock.json' }))
     },
     profile: {
       get: vi.fn(async () => profile),

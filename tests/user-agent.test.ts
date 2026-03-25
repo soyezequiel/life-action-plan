@@ -9,7 +9,8 @@ function n(h = 40): SimNode {
     status: 'pending', version: 1, plannedHours: h, actualHours: null, quality: null,
     disruptions: [], responses: [], findings: [],
     goalBreakdown: { 'g1': { plannedHours: 20, requiredHours: 30, actualHours: null, status: 'on_track' } },
-    childIds: [], incomingAdjustments: [], timeSlot: null, simulatedAt: null, simulatedWith: null
+    childIds: [], incomingAdjustments: [], timeSlot: null, simulatedAt: null, simulatedWith: null,
+    actionLog: []
   }
 }
 function dis(h: number): SimDisruption {

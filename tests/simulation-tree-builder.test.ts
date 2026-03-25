@@ -12,6 +12,7 @@ function strategy(months = 6): any {
 }
 const reality = {
   status: 'ok' as const, availableHours: 10, neededHours: 10,
+  selectedAdjustment: 'keep' as const,
   summary: 'OK', recommendations: [], adjustmentsApplied: []
 }
 const profile = {
@@ -22,7 +23,7 @@ const profile = {
     problemasActuales: [],
     motivacion: { nivelGeneral: 7, tendencias: [] }
   }]
-}
+} as any
 const goals = [{
   id: 'g-1', text: 'Objetivo', category: 'carrera' as const, effort: 'medio' as const,
   horizonMonths: 6, hoursPerWeek: 10, priority: 1, isHabit: false, needsClarification: false

@@ -1,4 +1,4 @@
-import { GoalClassification, GoalSignals, GoalType, GoalDomainRisk } from '@/lib/domain/goal-taxonomy';
+import { GoalClassification, GoalSignals, GoalType, GoalDomainRisk } from '@lib/domain/goal-taxonomy';
 
 export function classifyGoal(rawText: string): GoalClassification {
   const text = rawText.toLowerCase();

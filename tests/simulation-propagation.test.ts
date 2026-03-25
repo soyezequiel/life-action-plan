@@ -9,6 +9,7 @@ function node(id: string, o: Partial<SimNode> = {}): SimNode {
     status: 'pending', version: 1, plannedHours: 40, actualHours: null, quality: null,
     disruptions: [], responses: [], findings: [], goalBreakdown: {}, childIds: [],
     incomingAdjustments: [], timeSlot: null, simulatedAt: null, simulatedWith: null,
+    actionLog: [],
     ...o
   }
 }
@@ -18,7 +19,8 @@ function tree(nodes: SimNode[], rootId: string): SimTree {
   return {
     id: 't', workflowId: 'w', rootNodeId: rootId, nodes: m,
     globalFindings: [], totalSimulations: 0, estimatedLlmCostSats: 0,
-    version: 1, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z'
+    version: 1, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+    persona: null
   }
 }
 const s: any = { title: '', summary: '', totalMonths: 6, estimatedWeeklyHours: 10, phases: [], conflicts: [], milestones: [] }

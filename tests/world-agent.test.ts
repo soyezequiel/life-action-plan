@@ -8,12 +8,13 @@ function n(id: string, h = 40): SimNode {
     period: { start: '2026-01-01', end: '2026-02-01' },
     status: 'pending', version: 1, plannedHours: h, actualHours: null, quality: null,
     disruptions: [], responses: [], findings: [], goalBreakdown: {}, childIds: [],
-    incomingAdjustments: [], timeSlot: null, simulatedAt: null, simulatedWith: null
+    incomingAdjustments: [], timeSlot: null, simulatedAt: null, simulatedWith: null,
+    actionLog: []
   }
 }
-const s = {
+const s: any = {
   title: '', summary: '', totalMonths: 6, estimatedWeeklyHours: 10, peakWeeklyHours: 10,
-  phases: [{ id: 'p1', title: 'F', summary: '', startMonth: 1, endMonth: 6, goalIds: ['g1'], hoursPerWeek: 10, milestone: '', metrics: [], isSupportTrack: false }],
+  phases: [{ id: 'p1', title: 'F', summary: '', startMonth: 1, endMonth: 6, goalIds: ['g1'], hoursPerWeek: 10, milestone: '', metrics: [], isSupportTrack: false, dependencies: [] }],
   conflicts: [], milestones: []
 }
 

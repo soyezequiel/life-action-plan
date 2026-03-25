@@ -139,6 +139,7 @@ describe('flow engine', () => {
       saturday: { morning: true, afternoon: true, evening: true },
       sunday: { morning: false, afternoon: true, evening: false }
     }, 'Rutina base', 'Evento fijo el lunes y el jueves')
+    if (!calendar) throw new Error('calendar is null')
 
     expect(calendar.importedIcs).toBe(true)
     expect(calendar.grid.monday.morning).toBe(false)

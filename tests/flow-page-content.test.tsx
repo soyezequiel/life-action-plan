@@ -123,6 +123,7 @@ function buildSessionResult(intent: FlowSessionIntent): FlowSessionResult {
           activatedAt: null,
           planId: null
         },
+        simulationTreeId: null,
         resume: {
           changeSummary: null,
           patchSummary: null,
