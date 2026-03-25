@@ -304,7 +304,8 @@ function createSimulationState(
     hasCapacityWarnings: false,
     hasCrowdedDays: false,
     scheduledItemsCount: 0,
-    profileObjectiveIds: profile.objetivos.map(o => o.id),
+    // v2 extended state
+    profileObjectiveIds: profile.objetivos?.map((o) => o.id) ?? [],
     commitmentWindows,
     horarioBajoEnergiaStart,
     horarioBajoEnergiaEnd,

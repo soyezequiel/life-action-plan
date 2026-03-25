@@ -24,6 +24,7 @@ const mocks = vi.hoisted(() => ({
     participantes: [{ datosPersonales: { ubicacion: { zonaHoraria: 'America/Argentina/Buenos_Aires' } } }]
   })),
   toChargeErrorMessageMock: vi.fn(() => 'Cobro bloqueado'),
+  toExecutionBlockErrorMessageMock: vi.fn(() => 'Necesitas configurar tu conexion primero.'),
   toPlanBuildErrorMessageMock: vi.fn(() => 'Simulacion fallida')
 }))
 
@@ -35,12 +36,18 @@ vi.mock('../src/lib/runtime/build-execution', () => ({
   toOperationChargeSkipReason: mocks.toOperationChargeSkipReasonMock
 }))
 
-vi.mock('../app/api/_domain', () => ({
+vi.mock('../src/lib/payments/operation-charging', () => ({
   canChargeOperation: mocks.canChargeOperationMock,
   chargeOperation: mocks.chargeOperationMock,
   recordChargeResult: mocks.recordChargeResultMock,
-  simulatePlanViabilityWithProgress: mocks.simulatePlanViabilityWithProgressMock,
-  summarizeOperationCharge: mocks.summarizeOperationChargeMock,
+  summarizeOperationCharge: mocks.summarizeOperationChargeMock
+}))
+
+vi.mock('../src/lib/skills/plan-simulator', () => ({
+  simulatePlanViabilityWithProgress: mocks.simulatePlanViabilityWithProgressMock
+}))
+
+vi.mock('../src/debug/trace-collector', () => ({
   traceCollector: {
     startTrace: mocks.startTraceMock,
     completeTrace: mocks.completeTraceMock,
@@ -48,7 +55,7 @@ vi.mock('../app/api/_domain', () => ({
   }
 }))
 
-vi.mock('../app/api/_db', () => ({
+vi.mock('../src/lib/db/db-helpers', () => ({
   createOperationCharge: mocks.createOperationChargeMock,
   getPlan: mocks.getPlanMock,
   getProfile: mocks.getProfileMock,
@@ -58,11 +65,21 @@ vi.mock('../app/api/_db', () => ({
   updatePlanManifest: mocks.updatePlanManifestMock
 }))
 
+vi.mock('../src/lib/domain/plan-helpers', () => ({
+  createSimulationManifest: mocks.createSimulationManifestMock,
+  getProfileTimezone: mocks.getProfileTimezoneMock,
+  parseStoredProfile: mocks.parseStoredProfileMock,
+  toChargeErrorMessage: mocks.toChargeErrorMessageMock,
+  toExecutionBlockErrorMessage: mocks.toExecutionBlockErrorMessageMock,
+  toPlanBuildErrorMessage: mocks.toPlanBuildErrorMessageMock
+}))
+
 vi.mock('../app/api/_plan', () => ({
   createSimulationManifest: mocks.createSimulationManifestMock,
   getProfileTimezone: mocks.getProfileTimezoneMock,
   parseStoredProfile: mocks.parseStoredProfileMock,
   toChargeErrorMessage: mocks.toChargeErrorMessageMock,
+  toExecutionBlockErrorMessage: mocks.toExecutionBlockErrorMessageMock,
   toPlanBuildErrorMessage: mocks.toPlanBuildErrorMessageMock
 }))
 

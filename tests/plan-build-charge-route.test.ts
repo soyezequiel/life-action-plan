@@ -43,16 +43,31 @@ vi.mock('../src/lib/runtime/build-execution', () => ({
   toOperationChargeSkipReason: mocks.toOperationChargeSkipReasonMock
 }))
 
-vi.mock('../app/api/_domain', () => ({
+vi.mock('../src/utils/plan-build-fallback', () => ({
   DEFAULT_OLLAMA_FALLBACK_MODEL: 'ollama:qwen3:8b',
+  buildWithOllamaFallback: mocks.buildWithOllamaFallbackMock
+}))
+
+vi.mock('../src/lib/payments/operation-charging', () => ({
   canChargeOperation: mocks.canChargeOperationMock,
   chargeOperation: mocks.chargeOperationMock,
-  createInstrumentedRuntime: mocks.createInstrumentedRuntimeMock,
-  buildWithOllamaFallback: mocks.buildWithOllamaFallbackMock,
-  generatePlan: mocks.generatePlanMock,
-  getProvider: mocks.getProviderMock,
   recordChargeResult: mocks.recordChargeResultMock,
-  summarizeOperationCharge: mocks.summarizeOperationChargeMock,
+  summarizeOperationCharge: mocks.summarizeOperationChargeMock
+}))
+
+vi.mock('../src/debug/instrumented-runtime', () => ({
+  createInstrumentedRuntime: mocks.createInstrumentedRuntimeMock
+}))
+
+vi.mock('../src/lib/skills/plan-builder', () => ({
+  generatePlan: mocks.generatePlanMock
+}))
+
+vi.mock('../src/lib/providers/provider-factory', () => ({
+  getProvider: mocks.getProviderMock
+}))
+
+vi.mock('../src/debug/trace-collector', () => ({
   traceCollector: {
     startTrace: mocks.startTraceMock,
     completeTrace: mocks.completeTraceMock,
@@ -60,7 +75,7 @@ vi.mock('../app/api/_domain', () => ({
   }
 }))
 
-vi.mock('../app/api/_db', () => ({
+vi.mock('../src/lib/db/db-helpers', () => ({
   createOperationCharge: mocks.createOperationChargeMock,
   createPlan: mocks.createPlanMock,
   estimateCostSats: mocks.estimateCostSatsMock,
@@ -69,6 +84,16 @@ vi.mock('../app/api/_db', () => ({
   trackCost: mocks.trackCostMock,
   trackEvent: mocks.trackEventMock,
   getProfile: mocks.getProfileMock
+}))
+
+vi.mock('../src/lib/domain/plan-helpers', () => ({
+  buildPlanManifest: mocks.buildPlanManifestMock,
+  createUniquePlanSlug: mocks.createUniquePlanSlugMock,
+  getProfileTimezone: mocks.getProfileTimezoneMock,
+  parseStoredProfile: mocks.parseStoredProfileMock,
+  toChargeErrorMessage: mocks.toChargeErrorMessageMock,
+  toExecutionBlockErrorMessage: mocks.toExecutionBlockErrorMessageMock,
+  toPlanBuildErrorMessage: mocks.toPlanBuildErrorMessageMock
 }))
 
 vi.mock('../app/api/_plan', () => ({

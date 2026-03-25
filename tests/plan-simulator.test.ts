@@ -173,10 +173,12 @@ describe('simulatePlanViability', () => {
     })
 
     expect(progressStages).toEqual([
-      '1/4:schedule',
-      '2/4:work',
-      '3/4:load',
-      '4/4:summary'
+      '1/6:schedule',
+      '2/6:work',
+      '3/6:load',
+      '4/6:load',
+      '5/6:load',
+      '6/6:summary'
     ])
     expect(result.summary.overallStatus).toBe('PASS')
   })

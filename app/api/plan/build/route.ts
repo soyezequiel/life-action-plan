@@ -51,12 +51,22 @@ export async function POST(request: Request): Promise<Response> {
           }
         })
       } catch (error: any) {
-        const { toPlanBuildErrorMessage } = await import('../../_plan')
+        const { toPlanBuildErrorMessage, toExecutionBlockErrorMessage, toChargeErrorMessage } = await import('../../_plan')
+        
+        let errorMessage: string
+        if (error instanceof Error && error.message === 'PLAN_EXECUTION_BLOCKED') {
+          errorMessage = toExecutionBlockErrorMessage((error as any).executionBlockReasonCode ?? null)
+        } else if (error instanceof Error && (error.message === 'OPERATION_CHARGE_REJECTED' || error.message === 'OPERATION_CHARGE_FAILED')) {
+          errorMessage = toChargeErrorMessage((error as any).charge?.reasonCode ?? null)
+        } else {
+          errorMessage = toPlanBuildErrorMessage(error)
+        }
+
         send({
           type: 'result',
           result: {
             success: false,
-            error: toPlanBuildErrorMessage(error),
+            error: errorMessage,
             charge: error.charge,
             resourceUsage: error.resourceUsage
           }

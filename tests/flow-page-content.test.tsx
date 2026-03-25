@@ -24,7 +24,8 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('../src/lib/client/flow-client', () => ({
   flowClient: {
-    createSession: mocks.createSessionMock
+    createSession: mocks.createSessionMock,
+    initializeSimTree: vi.fn(() => Promise.resolve({ tree: null }))
   }
 }))
 
