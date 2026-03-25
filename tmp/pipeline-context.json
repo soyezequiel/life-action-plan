@@ -1,10 +1,13 @@
 {
-  "updatedAt": "2026-03-25T03:09:54.686Z",
+  "updatedAt": "2026-03-25T04:46:57.621Z",
   "phaseStatuses": {
     "intake": "success",
     "enrich": "success",
     "readiness": "success",
-    "build": "running"
+    "build": "success",
+    "simulate": "success",
+    "repair": "skipped",
+    "output": "success"
   },
   "phases": {
     "intake": {
@@ -16,41 +19,63 @@
         "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
       },
       "output": {
-        "profileId": "9d95621d-b6f0-49a4-839a-8607cd4d2ed5",
+        "profileId": "cc797b4f-cccf-4634-ace8-3bca64605ff8",
         "nombre": "Ezequiel",
         "edad": 32,
         "ciudad": "Buenos Aires",
         "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
       },
       "processing": "Convierte los datos crudos del formulario en un perfil estructurado (Perfil) con participantes, objetivos y calendario. Lo persiste en PostgreSQL.",
-      "startedAt": "2026-03-25T03:09:43.591Z",
-      "finishedAt": "2026-03-25T03:09:43.669Z",
-      "durationMs": 78
+      "startedAt": "2026-03-25T04:46:12.362Z",
+      "finishedAt": "2026-03-25T04:46:12.442Z",
+      "durationMs": 80
     },
     "enrich": {
       "input": {
-        "profileId": "9d95621d-b6f0-49a4-839a-8607cd4d2ed5",
+        "persona": "Ezequiel",
+        "edad": 32,
+        "ciudad": "Buenos Aires",
+        "ocupacion": "Desarrollador de software full-time",
+        "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento",
         "provider": "openrouter:openai/gpt-4o-mini"
       },
       "output": {
-        "enrichedProfileId": "1d0cb258-06fe-472f-afab-09e001c70f60",
-        "inferences": [],
-        "warnings": [
-          "El agente de enriquecimiento no pudo procesar el perfil. Se continúa con los datos originales."
+        "enrichedProfileId": "a3e95a75-1eee-4e3e-9084-a472390f0b49",
+        "inferences": [
+          {
+            "field": "horasProductivasMaximas",
+            "value": 6,
+            "confidence": "medium",
+            "reason": "As a full-time software developer, Ezequiel is likely to have productive hours mainly during the late morning."
+          },
+          {
+            "field": "horarioPicoEnergia",
+            "value": "10:00-12:00",
+            "confidence": "medium",
+            "reason": "Typical productivity peaks for software developers occur mid-morning after settling into work."
+          },
+          {
+            "field": "horarioBajoEnergia",
+            "value": "15:00-17:00",
+            "confidence": "medium",
+            "reason": "Post-lunch energy dips are common among many professionals, including software developers."
+          }
         ],
+        "warnings": [],
         "tokensUsed": {
           "input": 604,
-          "output": 451
+          "output": 354
         }
       },
       "processing": "Envía el perfil base al LLM para inferir campos faltantes (horarios, preferencias, obstáculos). Guarda el perfil enriquecido como nueva versión en DB.",
-      "startedAt": "2026-03-25T03:09:43.670Z",
-      "finishedAt": "2026-03-25T03:09:54.681Z",
-      "durationMs": 11011
+      "startedAt": "2026-03-25T04:46:12.444Z",
+      "finishedAt": "2026-03-25T04:46:22.985Z",
+      "durationMs": 10541
     },
     "readiness": {
       "input": {
-        "profileId": "1d0cb258-06fe-472f-afab-09e001c70f60",
+        "persona": "Ezequiel",
+        "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento",
         "objectiveCount": 1,
         "freeHoursWeekday": 4,
         "freeHoursWeekend": 10
@@ -62,26 +87,656 @@
         "constraints": []
       },
       "processing": "Valida que el perfil tenga los datos mínimos para generar un plan viable: objetivos definidos, horas libres positivas, horarios coherentes y carga factible.",
-      "startedAt": "2026-03-25T03:09:54.682Z",
-      "finishedAt": "2026-03-25T03:09:54.685Z",
-      "durationMs": 3
+      "startedAt": "2026-03-25T04:46:22.987Z",
+      "finishedAt": "2026-03-25T04:46:22.989Z",
+      "durationMs": 2
+    },
+    "build": {
+      "input": {
+        "persona": "Ezequiel",
+        "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento",
+        "provider": "openrouter:openai/gpt-4o-mini",
+        "horasLibresLaborales": 0,
+        "horasLibresFinDeSemana": 10,
+        "constraints": []
+      },
+      "output": {
+        "planId": "d66b2571-4cde-411a-a4aa-e3640d56bad7",
+        "nombre": "Plan de Ezequiel",
+        "resumen": "En este plan vamos a combinar el aprendizaje de guitarra y la preparación para correr 10km. Vamos a distribuir las actividades a lo largo de la semana para que puedas disfrutar y no sentirte abrumado.",
+        "eventCount": 28,
+        "eventos": [
+          {
+            "semana": 1,
+            "dia": "lunes",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "lunes",
+            "hora": "19:00",
+            "duracion": 60,
+            "actividad": "Correr 5km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "miercoles",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "miercoles",
+            "hora": "19:00",
+            "duracion": 60,
+            "actividad": "Correr 6km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "viernes",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "sabado",
+            "hora": "10:00",
+            "duracion": 90,
+            "actividad": "Correr 7km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "domingo",
+            "hora": "11:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "lunes",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "lunes",
+            "hora": "19:00",
+            "duracion": 60,
+            "actividad": "Correr 5km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "miercoles",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "miercoles",
+            "hora": "19:00",
+            "duracion": 60,
+            "actividad": "Correr 6km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "viernes",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "sabado",
+            "hora": "10:00",
+            "duracion": 90,
+            "actividad": "Correr 8km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "domingo",
+            "hora": "11:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "lunes",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "lunes",
+            "hora": "19:00",
+            "duracion": 60,
+            "actividad": "Correr 6km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "miercoles",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "miercoles",
+            "hora": "19:00",
+            "duracion": 60,
+            "actividad": "Correr 7km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "viernes",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "sabado",
+            "hora": "10:00",
+            "duracion": 90,
+            "actividad": "Correr 9km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 3,
+            "dia": "domingo",
+            "hora": "11:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "lunes",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "lunes",
+            "hora": "19:00",
+            "duracion": 60,
+            "actividad": "Correr 7km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "miercoles",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "miercoles",
+            "hora": "19:00",
+            "duracion": 60,
+            "actividad": "Correr 8km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "viernes",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "sabado",
+            "hora": "10:00",
+            "duracion": 90,
+            "actividad": "Correr 10km",
+            "categoria": "ejercicio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 4,
+            "dia": "domingo",
+            "hora": "11:00",
+            "duracion": 30,
+            "actividad": "Practicar guitarra",
+            "categoria": "habito",
+            "objetivoId": "obj1"
+          }
+        ],
+        "tokensUsed": {
+          "input": 517,
+          "output": 1858
+        },
+        "fallbackUsed": false
+      },
+      "processing": "Genera el plan semanal de actividades usando el LLM. Produce eventos con día, hora, duración y categoría. Guarda el plan en DB y siembra el progreso inicial.",
+      "startedAt": "2026-03-25T04:46:22.991Z",
+      "finishedAt": "2026-03-25T04:46:57.596Z",
+      "durationMs": 34605
+    },
+    "simulate": {
+      "input": {
+        "nombreDelPlan": "Plan de Ezequiel",
+        "eventCount": 28,
+        "mode": "automatic"
+      },
+      "output": {
+        "qualityScore": 92,
+        "overallStatus": "WARN",
+        "pass": 3,
+        "warn": 1,
+        "fail": 0,
+        "findings": [
+          {
+            "status": "WARN",
+            "code": "too_many_activities",
+            "params": {
+              "dayLabel": "lunes 30/03",
+              "count": 4
+            }
+          },
+          {
+            "status": "PASS",
+            "code": "schedule_ok"
+          },
+          {
+            "status": "PASS",
+            "code": "work_balance_ok"
+          },
+          {
+            "status": "PASS",
+            "code": "metadata_ok"
+          }
+        ]
+      },
+      "processing": "Ejecuta una simulación determinística del plan: verifica horarios, colisiones con trabajo, carga diaria, energía y cobertura de objetivos. Produce un puntaje 0-100.",
+      "startedAt": "2026-03-25T04:46:57.598Z",
+      "finishedAt": "2026-03-25T04:46:57.618Z",
+      "durationMs": 20
+    },
+    "output": {
+      "input": {
+        "persona": "Ezequiel",
+        "nombreDelPlan": "Plan de Ezequiel",
+        "deliveryMode": "warn-acceptable",
+        "finalQualityScore": 92,
+        "repairAttempts": 1
+      },
+      "output": {
+        "deliveryMode": "warn-acceptable",
+        "finalQualityScore": 92,
+        "unresolvableFindings": []
+      },
+      "processing": "Evalúa la calidad final del plan y decide el modo de entrega: aprobado, aceptable con avisos o mejor esfuerzo. Ensambla el resultado final del pipeline.",
+      "startedAt": "2026-03-25T04:46:57.620Z",
+      "finishedAt": "2026-03-25T04:46:57.620Z",
+      "durationMs": 0
     }
   },
   "intake": {
-    "profileId": "1d0cb258-06fe-472f-afab-09e001c70f60",
+    "profileId": "a3e95a75-1eee-4e3e-9084-a472390f0b49",
     "nombre": "Ezequiel",
     "edad": 32,
     "ciudad": "Buenos Aires",
     "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
   },
   "enrich": {
-    "inferences": [],
-    "warnings": [
-      "El agente de enriquecimiento no pudo procesar el perfil. Se continúa con los datos originales."
-    ]
+    "inferences": [
+      {
+        "field": "horasProductivasMaximas",
+        "value": "6",
+        "confidence": "medium",
+        "reason": "As a full-time software developer, Ezequiel is likely to have productive hours mainly during the late morning."
+      },
+      {
+        "field": "horarioPicoEnergia",
+        "value": "10:00-12:00",
+        "confidence": "medium",
+        "reason": "Typical productivity peaks for software developers occur mid-morning after settling into work."
+      },
+      {
+        "field": "horarioBajoEnergia",
+        "value": "15:00-17:00",
+        "confidence": "medium",
+        "reason": "Post-lunch energy dips are common among many professionals, including software developers."
+      }
+    ],
+    "warnings": []
   },
   "readiness": {
     "warnings": [],
     "constraints": []
+  },
+  "build": {
+    "planId": "d66b2571-4cde-411a-a4aa-e3640d56bad7",
+    "nombre": "Plan de Ezequiel",
+    "eventCount": 28,
+    "resumen": "En este plan vamos a combinar el aprendizaje de guitarra y la preparación para correr 10km. Vamos a distribuir las actividades a lo largo de la semana para que puedas disfrutar y no sentirte abrumado.",
+    "fallbackUsed": false,
+    "tokensUsed": {
+      "input": 517,
+      "output": 1858
+    },
+    "eventos": [
+      {
+        "semana": 1,
+        "dia": "lunes",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 1,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 60,
+        "actividad": "Correr 5km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 1,
+        "dia": "miercoles",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 1,
+        "dia": "miercoles",
+        "hora": "19:00",
+        "duracion": 60,
+        "actividad": "Correr 6km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 1,
+        "dia": "viernes",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 1,
+        "dia": "sabado",
+        "hora": "10:00",
+        "duracion": 90,
+        "actividad": "Correr 7km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 1,
+        "dia": "domingo",
+        "hora": "11:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 2,
+        "dia": "lunes",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 2,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 60,
+        "actividad": "Correr 5km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 2,
+        "dia": "miercoles",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 2,
+        "dia": "miercoles",
+        "hora": "19:00",
+        "duracion": 60,
+        "actividad": "Correr 6km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 2,
+        "dia": "viernes",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 2,
+        "dia": "sabado",
+        "hora": "10:00",
+        "duracion": 90,
+        "actividad": "Correr 8km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 2,
+        "dia": "domingo",
+        "hora": "11:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 3,
+        "dia": "lunes",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 3,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 60,
+        "actividad": "Correr 6km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 3,
+        "dia": "miercoles",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 3,
+        "dia": "miercoles",
+        "hora": "19:00",
+        "duracion": 60,
+        "actividad": "Correr 7km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 3,
+        "dia": "viernes",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 3,
+        "dia": "sabado",
+        "hora": "10:00",
+        "duracion": 90,
+        "actividad": "Correr 9km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 3,
+        "dia": "domingo",
+        "hora": "11:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 4,
+        "dia": "lunes",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 4,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 60,
+        "actividad": "Correr 7km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 4,
+        "dia": "miercoles",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 4,
+        "dia": "miercoles",
+        "hora": "19:00",
+        "duracion": 60,
+        "actividad": "Correr 8km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 4,
+        "dia": "viernes",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      },
+      {
+        "semana": 4,
+        "dia": "sabado",
+        "hora": "10:00",
+        "duracion": 90,
+        "actividad": "Correr 10km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 4,
+        "dia": "domingo",
+        "hora": "11:00",
+        "duracion": 30,
+        "actividad": "Practicar guitarra",
+        "categoria": "habito"
+      }
+    ]
+  },
+  "simulate": {
+    "qualityScore": 92,
+    "findings": [
+      {
+        "status": "WARN",
+        "code": "too_many_activities",
+        "params": {
+          "dayLabel": "lunes 30/03",
+          "count": 4
+        }
+      },
+      {
+        "status": "PASS",
+        "code": "schedule_ok"
+      },
+      {
+        "status": "PASS",
+        "code": "work_balance_ok"
+      },
+      {
+        "status": "PASS",
+        "code": "metadata_ok"
+      }
+    ],
+    "summary": {
+      "pass": 3,
+      "warn": 1,
+      "fail": 0
+    }
+  },
+  "repair": {
+    "attempts": 1,
+    "history": []
+  },
+  "output": {
+    "deliveryMode": "warn-acceptable",
+    "finalQualityScore": 92,
+    "warnings": []
   }
 }

@@ -229,7 +229,8 @@ export async function enrichProfile(
         output: response.usage.completionTokens
       }
     }
-  } catch {
+  } catch (e: any) {
+    console.error('[LAP] Profile enricher runtime error:', e)
     traceCollector.failTrace(traceId, 'Parse error on enrichment results')
     return {
       enrichedProfile: profile,

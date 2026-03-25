@@ -289,8 +289,13 @@ export class FlowRunner {
     const buildCfg = this.context.config.build
     const provider = buildCfg.provider ?? 'openai:gpt-4o-mini'
 
+    const p = profile.participantes[0]
     const phaseInput: EnrichInput = {
-      profileId: this.context.profileId!,
+      persona: p?.datosPersonales?.nombre ?? 'Sin nombre',
+      edad: p?.datosPersonales?.edad ?? 0,
+      ciudad: p?.datosPersonales?.ubicacion?.ciudad ?? '',
+      ocupacion: this.context.config.intake?.ocupacion ?? '',
+      objetivo: profile.objetivos?.[0]?.descripcion ?? '',
       provider: provider,
     }
 
@@ -367,11 +372,13 @@ export class FlowRunner {
     const profile = parseStoredProfile(profileRow.data)
     if (!profile) throw new Error('PROFILE_PARSE_ERROR_FOR_READINESS')
 
+    const pR = profile.participantes[0]
     const phaseInput: ReadinessInput = {
-      profileId: this.context.profileId!,
+      persona: pR?.datosPersonales?.nombre ?? 'Sin nombre',
+      objetivo: profile.objetivos?.[0]?.descripcion ?? '',
       objectiveCount: profile.objetivos?.length ?? 0,
-      freeHoursWeekday: profile.participantes[0]?.calendario?.horasLibresEstimadas?.diasLaborales ?? 0,
-      freeHoursWeekend: profile.participantes[0]?.calendario?.horasLibresEstimadas?.diasDescanso ?? 0,
+      freeHoursWeekday: pR?.calendario?.horasLibresEstimadas?.diasLaborales ?? 0,
+      freeHoursWeekend: pR?.calendario?.horasLibresEstimadas?.diasDescanso ?? 0,
     }
 
     const gateResult = runReadinessGate(profile)
@@ -415,8 +422,11 @@ export class FlowRunner {
     const constraints = this.context.readiness?.constraints
 
     const phaseInput: BuildInput = {
-      profileId: this.context.profileId!,
+      persona: this.context.intakeSummary?.nombre ?? 'Sin nombre',
+      objetivo: this.context.intakeSummary?.objetivo ?? '',
       provider: this.context.config.build.provider ?? 'auto',
+      horasLibresLaborales: this.context.readiness?.constraints ? 0 : (this.context.phaseIO.readiness?.input as any)?.freeHoursWeekday ?? 0,
+      horasLibresFinDeSemana: this.context.phaseIO.readiness?.input as any ? (this.context.phaseIO.readiness?.input as any)?.freeHoursWeekend ?? 0 : 0,
       constraints: constraints ?? [],
       previousFindings: lastFindings,
     }
@@ -463,8 +473,10 @@ export class FlowRunner {
 
     if (!this.context.planId) throw new Error('MISSING_PLAN_ID_FOR_SIMULATE')
 
+    const buildOutput = this.context.phaseIO.build?.output as BuildOutput | undefined
     const phaseInput: SimulateInput = {
-      planId: this.context.planId!,
+      nombreDelPlan: buildOutput?.nombre ?? this.context.results.build?.nombre ?? 'Sin nombre',
+      eventCount: buildOutput?.eventCount ?? this.context.results.build?.eventos?.length ?? 0,
       mode: this.context.config.simulate.mode ?? 'automatic',
     }
 
@@ -534,8 +546,8 @@ export class FlowRunner {
 
     const repairAttempt = this.context.repair?.attempts ?? 1
     const phaseInput: RepairInput = {
-      planId: this.context.planId!,
-      profileId: this.context.profileId!,
+      nombreDelPlan: this.context.results.build?.nombre ?? 'Sin nombre',
+      persona: this.context.intakeSummary?.nombre ?? 'Sin nombre',
       attempt: repairAttempt,
       maxAttempts: this.context.config.pipeline?.maxRepairAttempts ?? 3,
       failingFindings: failingFindings,
@@ -643,8 +655,8 @@ export class FlowRunner {
     const simulation = this.context.results.simulate?.simulation
 
     const phaseInput: OutputInput = {
-      profileId: this.context.profileId ?? '',
-      planId: this.context.planId ?? '',
+      persona: this.context.intakeSummary?.nombre ?? 'Sin nombre',
+      nombreDelPlan: this.context.results.build?.nombre ?? 'Sin nombre',
       deliveryMode,
       finalQualityScore: this.context.output?.finalQualityScore ?? 0,
       repairAttempts: this.context.repair?.attempts ?? 0,

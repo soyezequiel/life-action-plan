@@ -11,7 +11,241 @@ interface ModalProps {
   phaseName: string
   phaseColor: string
   runtimeData: Record<string, unknown>
+  fullRuntimeData?: any
   onClose: () => void
+}
+
+// ─── Human-readable field labels ──────────────────────────────────────────────
+
+const FIELD_LABELS: Record<string, string> = {
+  // Intake
+  nombre: 'Nombre',
+  edad: 'Edad',
+  ubicacion: 'Ubicación',
+  ocupacion: 'Ocupación',
+  objetivo: 'Objetivo',
+  ciudad: 'Ciudad',
+  profileId: 'ID de perfil',
+  // Enrich
+  persona: 'Persona',
+  provider: 'Proveedor',
+  enrichedProfileId: 'ID de perfil enriquecido',
+  inferences: 'Inferencias del agente',
+  warnings: 'Advertencias',
+  tokensUsed: 'Tokens consumidos',
+  // Readiness
+  objectiveCount: 'Cantidad de objetivos',
+  freeHoursWeekday: 'Horas libres (día laboral)',
+  freeHoursWeekend: 'Horas libres (fin de semana)',
+  ready: '¿Listo para planificar?',
+  errors: 'Errores',
+  constraints: 'Restricciones detectadas',
+  // Build
+  planId: 'ID del plan',
+  nombreDelPlan: 'Nombre del plan',
+  horasLibresLaborales: 'Horas libres (día laboral)',
+  horasLibresFinDeSemana: 'Horas libres (fin de semana)',
+  eventCount: 'Cantidad de eventos',
+  resumen: 'Resumen',
+  eventos: 'Eventos del plan',
+  fallbackUsed: '¿Usó respaldo local?',
+  previousFindings: 'Hallazgos previos',
+  // Simulate
+  mode: 'Modo de simulación',
+  qualityScore: 'Puntaje de calidad',
+  overallStatus: 'Estado general',
+  pass: 'Aprobados',
+  warn: 'Con aviso',
+  fail: 'Fallidos',
+  findings: 'Hallazgos',
+  // Repair
+  attempt: 'Intento actual',
+  maxAttempts: 'Máximos intentos',
+  failingFindings: 'Hallazgos a reparar',
+  currentEventCount: 'Eventos actuales',
+  newPlanId: 'ID del plan reparado',
+  repairedEventCount: 'Eventos reparados',
+  repairNotes: 'Notas de reparación',
+  // Output
+  deliveryMode: 'Modo de entrega',
+  finalQualityScore: 'Puntaje final',
+  repairAttempts: 'Intentos de reparación',
+  unresolvableFindings: 'Hallazgos sin resolver',
+  honestWarning: 'Aviso honesto',
+}
+
+const DELIVERY_LABELS: Record<string, string> = {
+  'pass': '✅ Aprobado',
+  'warn-acceptable': '⚠️ Aceptable con avisos',
+  'best-effort': '🔶 Mejor esfuerzo',
+}
+
+const SIM_MODE_LABELS: Record<string, string> = {
+  'automatic': 'Automático',
+  'interactive': 'Interactivo',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  'PASS': '✅ Pasa',
+  'WARN': '⚠️ Aviso',
+  'FAIL': '❌ Falla',
+}
+
+const CONFIDENCE_LABELS: Record<string, string> = {
+  'high': '🟢 Alta',
+  'medium': '🟡 Media',
+  'low': '🔴 Baja',
+}
+
+// ─── DataRenderer ─────────────────────────────────────────────────────────────
+
+function renderValue(key: string, value: unknown): React.ReactNode {
+  if (value === null || value === undefined) return <span className="dr-null">—</span>
+
+  // Booleans
+  if (typeof value === 'boolean') {
+    return <span className={value ? 'dr-bool-true' : 'dr-bool-false'}>{value ? '✅ Sí' : '❌ No'}</span>
+  }
+
+  // Numbers
+  if (typeof value === 'number') {
+    if (key === 'qualityScore' || key === 'finalQualityScore') {
+      return <span className="dr-score">{value}<span className="dr-score-max">/100</span></span>
+    }
+    return <span className="dr-number">{value.toLocaleString('es-AR')}</span>
+  }
+
+  // Strings
+  if (typeof value === 'string') {
+    // UUIDs → mostrar abreviado
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}/.test(value)) {
+      return <code className="dr-uuid">{value.slice(0, 8)}…</code>
+    }
+    // Delivery modes
+    if (key === 'deliveryMode' && DELIVERY_LABELS[value]) {
+      return <span className="dr-badge">{DELIVERY_LABELS[value]}</span>
+    }
+    // Simulation mode
+    if (key === 'mode' && SIM_MODE_LABELS[value]) {
+      return <span>{SIM_MODE_LABELS[value]}</span>
+    }
+    // Overall status
+    if (key === 'overallStatus' && STATUS_LABELS[value]) {
+      return <span className="dr-badge">{STATUS_LABELS[value]}</span>
+    }
+    return <span className="dr-string">{value}</span>
+  }
+
+  // Arrays
+  if (Array.isArray(value)) {
+    if (value.length === 0) return <span className="dr-null">— ninguno —</span>
+
+    // Inferences (enrich output)
+    if (key === 'inferences' && value[0]?.field) {
+      return (
+        <div className="dr-list">
+          {value.map((inf: any, i: number) => (
+            <div key={i} className="dr-inference-card">
+              <div className="dr-inference-header">
+                <strong>{inf.field}</strong>
+                <span className="dr-conf-badge">{CONFIDENCE_LABELS[inf.confidence] ?? inf.confidence}</span>
+              </div>
+              <div className="dr-inference-value">→ {String(inf.value)}</div>
+              {inf.reason && <div className="dr-inference-reason">{inf.reason}</div>}
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    // Findings (simulate output)
+    if (key === 'findings' || key === 'failingFindings' || key === 'unresolvableFindings') {
+      return (
+        <div className="dr-list">
+          {value.map((f: any, i: number) => (
+            <div key={i} className="dr-finding-card">
+              <span className="dr-finding-status">{STATUS_LABELS[f.status] ?? f.status}</span>
+              <code className="dr-finding-code">{f.code}</code>
+              {f.params && <span className="dr-finding-params">{JSON.stringify(f.params)}</span>}
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    // Eventos (build output): show count + first 3
+    if (key === 'eventos') {
+      const preview = value.slice(0, 3)
+      return (
+        <div className="dr-eventos">
+          <div className="dr-eventos-count">{value.length} eventos programados</div>
+          {preview.map((ev: any, i: number) => (
+            <div key={i} className="dr-evento-card">
+              <span className="dr-evento-when">Sem {ev.semana} · {ev.dia} {ev.hora}</span>
+              <span className="dr-evento-what">{ev.actividad}</span>
+              <span className="dr-evento-meta">{ev.duracion} min · {ev.categoria}</span>
+            </div>
+          ))}
+          {value.length > 3 && (
+            <div className="dr-eventos-more">… y {value.length - 3} eventos más</div>
+          )}
+        </div>
+      )
+    }
+
+    // Strings array (warnings, errors, constraints)
+    if (typeof value[0] === 'string') {
+      return (
+        <ul className="dr-string-list">
+          {value.map((s: string, i: number) => <li key={i}>{s}</li>)}
+        </ul>
+      )
+    }
+
+    // Fallback for unknown arrays
+    return <span className="dr-array">[{value.length} elementos]</span>
+  }
+
+  // Objects (tokensUsed, etc.)
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>
+
+    // Tokens
+    if (key === 'tokensUsed' && ('input' in obj || 'output' in obj)) {
+      return (
+        <span className="dr-tokens">
+          📥 {Number(obj.input ?? 0).toLocaleString('es-AR')} entrada · 📤 {Number(obj.output ?? 0).toLocaleString('es-AR')} salida
+        </span>
+      )
+    }
+
+    // Fallback: render as mini key-value
+    return (
+      <div className="dr-nested">
+        {Object.entries(obj).map(([k, v]) => (
+          <div key={k} className="dr-nested-row">
+            <span className="dr-nested-key">{FIELD_LABELS[k] ?? k}:</span>
+            <span className="dr-nested-val">{String(v)}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  return <span>{String(value)}</span>
+}
+
+function DataRenderer({ data }: { data: Record<string, unknown> }) {
+  return (
+    <div className="dr-container">
+      {Object.entries(data).map(([key, value]) => (
+        <div key={key} className="dr-row">
+          <div className="dr-label">{FIELD_LABELS[key] ?? key}</div>
+          <div className="dr-value">{renderValue(key, value)}</div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 // ─── Phase I/O Tabbed Renderer ────────────────────────────────────────────────
@@ -44,9 +278,7 @@ function IOTabs({ input, output, processing, durationMs }: { input: any, output:
 
       <div className="io-tab-content">
         {activeTab === 'in' && (
-          <div className="io-json-view">
-            <pre>{JSON.stringify(input, null, 2)}</pre>
-          </div>
+          <DataRenderer data={input as Record<string, unknown>} />
         )}
         {activeTab === 'proc' && (
           <div className="io-proc-view">
@@ -54,19 +286,23 @@ function IOTabs({ input, output, processing, durationMs }: { input: any, output:
             {durationMs !== undefined && (
               <div className="proc-meta">
                 <span>{t('debug.flow.duration')}:</span>
-                <strong>{durationMs}ms</strong>
+                <strong>{formatDuration(durationMs)}</strong>
               </div>
             )}
           </div>
         )}
         {activeTab === 'out' && (
-          <div className="io-json-view">
-            <pre>{JSON.stringify(output, null, 2)}</pre>
-          </div>
+          <DataRenderer data={output as Record<string, unknown>} />
         )}
       </div>
     </div>
   )
+}
+
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${ms}ms`
+  const secs = (ms / 1000).toFixed(1)
+  return `${secs}s`
 }
 
 // ─── Per-phase detail renderers ───────────────────────────────────────────────
@@ -365,20 +601,25 @@ function OutputDetail({ data }: { data: Record<string, unknown> }) {
 
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
-export function FlowDetailModal({ phaseId, phaseName, phaseColor, runtimeData, onClose }: ModalProps) {
+export function FlowDetailModal({ phaseId, phaseName, phaseColor, runtimeData, fullRuntimeData, onClose }: ModalProps) {
   const resolvedPhase = phaseId === 'simulation' ? 'simulate' : phaseId
 
   useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
+    document.body.classList.add('antigravity-scroll-lock')
+    return () => document.body.classList.remove('antigravity-scroll-lock')
+  }, [])
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
   }, [onClose])
 
   function renderContent() {
-    // v3: si hay datos PhaseIO, usar tabs genéricos
-    const phaseData = (runtimeData as any)?.phases?.[resolvedPhase]
+    // v3: si hay datos PhaseIO en el contexto global, usar tabs genéricos
+    const phaseData = fullRuntimeData?.phases?.[resolvedPhase]
     if (phaseData) {
       return <IOTabs input={phaseData.input} output={phaseData.output} processing={phaseData.processing} durationMs={phaseData.durationMs} />
     }

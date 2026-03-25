@@ -18,6 +18,7 @@ export type GraphNode = {
     prompt?: string;
     // Runtime data (optional, present after pipeline execution)
     runtimeData?: Record<string, unknown>
+    fullRuntimeData?: PipelineRuntimeData | null
     runtimeStatus?: FlowNodeRuntimeStatus
   };
   position: { x: number; y: number };
@@ -110,6 +111,7 @@ export function generateGraphData(pipelineData?: PipelineRuntimeData | null) {
         questions: step.questions,
         prompt: step.prompt,
         runtimeData,
+        fullRuntimeData: pipelineData,
         runtimeStatus
       },
       position: { x: 0, y: 0 }

@@ -1,13 +1,13 @@
 {
   "plan_id": "pipeline-io-contracts-v1",
-  "status": "in-progress",
+  "status": "done",
   "created_by": "antigravity",
   "created_at": "2026-03-24T23:57:00-03:00",
-  "updated_at": "2026-03-25T00:04:30-03:00",
+  "updated_at": "2026-03-25T00:25:00-03:00",
   "updated_by": "antigravity",
-  "assigned_to": "antigravity",
+  "assigned_to": null,
   "priority": "high",
   "tags": ["pipeline", "contracts", "observability", "refactor"],
   "blockers": [],
-  "notes": "Refactor con contratos PhaseIO tipados. Cada fase declara input, processing y output. Terminal y viewer muestran los tres."
+  "notes": "Aprobado. DataRenderer y conteo I/O en nodo quedan como mejoras opcionales."
 }

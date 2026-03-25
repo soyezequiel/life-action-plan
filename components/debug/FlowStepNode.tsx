@@ -114,7 +114,7 @@ function RuntimeSummary({ phaseId, runtimeData }: { phaseId: string; runtimeData
 }
 
 export const FlowStepNode = memo(({ data }: { data: any }) => {
-  const { label, description, type, phase, color, phaseId, tags, questions, prompt, runtimeData, runtimeStatus, onInspect } = data
+  const { label, description, type, phase, color, phaseId, tags, questions, prompt, runtimeData, fullRuntimeData, runtimeStatus, onInspect } = data
 
   const typeClassMap: Record<string, string> = {
     action: 'type-action',
@@ -163,7 +163,7 @@ export const FlowStepNode = memo(({ data }: { data: any }) => {
         <div className="node-header">
           <span className="node-phase-label">{phase}</span>
           <div className="node-header-badges">
-            {runtimeData && (runtimeData as any).phases?.[phaseId === 'simulation' ? 'simulate' : phaseId] && (
+            {fullRuntimeData?.phases?.[phaseId === 'simulation' ? 'simulate' : phaseId] && (
               <span className="node-io-badge" title="Contrato E/S disponible">E/S</span>
             )}
             <span className={`node-type-badge ${typeClassMap[type] || ''}`}>

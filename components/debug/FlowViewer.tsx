@@ -47,6 +47,7 @@ interface SelectedNodeInfo {
   phaseName: string
   phaseColor: string
   runtimeData: Record<string, unknown>
+  fullRuntimeData: any
 }
 
 function FlowUI() {
@@ -60,7 +61,8 @@ function FlowUI() {
       phaseId: nodeData.phaseId ?? '',
       phaseName: phase?.name ?? nodeData.phase ?? nodeData.phaseId ?? '',
       phaseColor: phase?.color ?? nodeData.color ?? '#fff',
-      runtimeData: nodeData.runtimeData as Record<string, unknown>
+      runtimeData: nodeData.runtimeData as Record<string, unknown>,
+      fullRuntimeData: nodeData.fullRuntimeData
     })
   }, [])
 
@@ -135,12 +137,7 @@ function FlowUI() {
         className="flow-grid-background"
       >
         <Background color="#333" gap={40} size={1} />
-        <Controls 
-          showInteractive={false} 
-          ariaLabelZoomIn={t('debug.flow.zoom_in')}
-          ariaLabelZoomOut={t('debug.flow.zoom_out')}
-          ariaLabelFitView={t('debug.flow.fit_view')}
-        />
+        <Controls showInteractive={false} />
 
         <Panel position="top-left" className="flow-viewer-overlay">
           <header className="flow-viewer-header">
@@ -183,6 +180,7 @@ function FlowUI() {
             phaseName={selectedNode.phaseName}
             phaseColor={selectedNode.phaseColor}
             runtimeData={selectedNode.runtimeData}
+            fullRuntimeData={selectedNode.fullRuntimeData}
             onClose={() => setSelectedNode(null)}
           />
         )}

@@ -1,6 +1,7 @@
 // ─── Phase I/O Contracts ──────────────────────────────────────────────────────
 // Cada fase del pipeline tiene un tipo explícito de entrada y salida.
 // El runner los usa para guardar PhaseIO<I, O> en el contexto.
+// Los inputs deben ser descriptivos: no solo IDs, sino lo que representan.
 
 import type { PlanEvent, PlanSimulationSnapshot, SimulationFinding } from '../../shared/types/lap-api'
 import type { EnrichmentInference } from '../skills/profile-enricher'
@@ -38,7 +39,12 @@ export interface IntakeOutput {
 // ─── 2. Enrich ────────────────────────────────────────────────────────────────
 
 export interface EnrichInput {
-  profileId: string
+  /** Persona que se va a enriquecer */
+  persona: string
+  edad: number
+  ciudad: string
+  ocupacion: string
+  objetivo: string
   provider: string
 }
 
@@ -52,7 +58,8 @@ export interface EnrichOutput {
 // ─── 3. Readiness ─────────────────────────────────────────────────────────────
 
 export interface ReadinessInput {
-  profileId: string
+  persona: string
+  objetivo: string
   objectiveCount: number
   freeHoursWeekday: number
   freeHoursWeekend: number
@@ -68,8 +75,11 @@ export interface ReadinessOutput {
 // ─── 4. Build ─────────────────────────────────────────────────────────────────
 
 export interface BuildInput {
-  profileId: string
+  persona: string
+  objetivo: string
   provider: string
+  horasLibresLaborales: number
+  horasLibresFinDeSemana: number
   constraints: string[]
   previousFindings?: SimulationFinding[]
 }
@@ -87,7 +97,8 @@ export interface BuildOutput {
 // ─── 5. Simulate ──────────────────────────────────────────────────────────────
 
 export interface SimulateInput {
-  planId: string
+  nombreDelPlan: string
+  eventCount: number
   mode: 'interactive' | 'automatic'
 }
 
@@ -103,8 +114,8 @@ export interface SimulateOutput {
 // ─── 6. Repair ────────────────────────────────────────────────────────────────
 
 export interface RepairInput {
-  planId: string
-  profileId: string
+  nombreDelPlan: string
+  persona: string
   attempt: number
   maxAttempts: number
   failingFindings: SimulationFinding[]
@@ -121,8 +132,8 @@ export interface RepairOutput {
 // ─── 7. Output ────────────────────────────────────────────────────────────────
 
 export interface OutputInput {
-  profileId: string
-  planId: string
+  persona: string
+  nombreDelPlan: string
   deliveryMode: string
   finalQualityScore: number
   repairAttempts: number
