@@ -84,6 +84,8 @@ export interface RepairInput {
   hardFindings: HardFinding[];
   softFindings: SoftFinding[];
   coveFindings: CoVeFinding[];
+  originalInput: SchedulerInput;
+  profile: UserProfileV5;
 }
 export interface RepairOutput {
   patchesApplied: PatchOp[];
