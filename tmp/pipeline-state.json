@@ -1,8 +1,8 @@
 {
   "pipeline": {
     "status": "completed",
-    "startedAt": "2026-03-25T01:27:56.921Z",
-    "completedAt": "2026-03-25T01:28:31.313Z",
+    "startedAt": "2026-03-25T01:52:32.458Z",
+    "completedAt": "2026-03-25T01:52:51.022Z",
     "deliveryMode": "pass",
     "qualityScore": 100
   },
@@ -11,7 +11,7 @@
       "id": "intake",
       "name": "1. Ingesta Multi-Agente",
       "status": "completed",
-      "startedAt": "2026-03-25T01:27:56.921Z",
+      "startedAt": "2026-03-25T01:52:32.458Z",
       "input": {
         "config": {
           "intake": {
@@ -38,17 +38,17 @@
         },
         "results": {
           "intake": {
-            "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d"
+            "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3"
           },
           "build": {
-            "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+            "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
             "nombre": "Plan de Ezequiel",
-            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.",
+            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.",
             "eventos": [
               {
                 "semana": 1,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -57,19 +57,28 @@
               {
                 "semana": 1,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (3km)",
+                "actividad": "Correr 3 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 1,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 4 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -77,23 +86,23 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (5km)",
-                "categoria": "ejercicio",
+                "actividad": "Guitar jam con amigos",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
+                "duracion": 60,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -102,19 +111,28 @@
               {
                 "semana": 2,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (4km)",
+                "actividad": "Correr 4 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 2,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -122,121 +140,31 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (6km)",
-                "categoria": "ejercicio",
+                "actividad": "Improvisación de guitarra",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (5km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "sabado",
-                "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (7km)",
+                "actividad": "Correr 6 km",
                 "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (6km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "sabado",
-                "hora": "10:00",
-                "duracion": 60,
-                "actividad": "Entrenamiento para correr (8km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
                 "objetivoId": "obj1"
               }
             ],
             "tokensUsed": {
               "input": 517,
-              "output": 1379
+              "output": 849
             },
             "fallbackUsed": false,
             "charge": {
-              "chargeId": "2dcae442-3dcf-46b0-8059-bc16bb4798f6",
+              "chargeId": "2c1c5906-41da-4d72-bc97-03fdc0e1888e",
               "status": "skipped",
               "estimatedCostUsd": 0.005,
               "estimatedCostSats": 5,
-              "finalCostUsd": 0.00090495,
+              "finalCostUsd": 0.00058695,
               "finalCostSats": 1,
               "chargedSats": 0,
               "reasonCode": "internal_tooling",
@@ -264,9 +192,9 @@
           },
           "simulate": {
             "simulation": {
-              "ranAt": "2026-03-24T22:28:31.301-03:00",
+              "ranAt": "2026-03-24T22:52:51.010-03:00",
               "mode": "automatic",
-              "periodLabel": "24/03 - 19/04",
+              "periodLabel": "24/03 - 5/04",
               "summary": {
                 "pass": 4,
                 "warn": 0,
@@ -296,29 +224,10 @@
             }
           }
         },
-        "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d",
-        "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+        "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3",
+        "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
         "enrichment": {
-          "inferences": [
-            {
-              "field": "horasProductivasMaximas",
-              "value": 5,
-              "confidence": "high",
-              "reason": "As a software developer, Ezequiel likely has a sustained ability to focus on complex tasks for extended periods during the day."
-            },
-            {
-              "field": "horarioPicoEnergia",
-              "value": "10:00-12:00",
-              "confidence": "medium",
-              "reason": "Given his stated energy level and typical work patterns, he is likely to experience a productivity peak in the late morning after a full night's rest."
-            },
-            {
-              "field": "horarioBajoEnergia",
-              "value": "15:00-17:00",
-              "confidence": "medium",
-              "reason": "This timeframe often aligns with post-lunch dips in energy, common for many working professionals."
-            }
-          ],
+          "inferences": [],
           "warnings": []
         },
         "readiness": {
@@ -329,9 +238,9 @@
           "attempts": 1,
           "history": [],
           "bestSimulation": {
-            "ranAt": "2026-03-24T22:28:31.301-03:00",
+            "ranAt": "2026-03-24T22:52:51.010-03:00",
             "mode": "automatic",
-            "periodLabel": "24/03 - 19/04",
+            "periodLabel": "24/03 - 5/04",
             "summary": {
               "pass": 4,
               "warn": 0,
@@ -359,7 +268,7 @@
             ],
             "qualityScore": 100
           },
-          "bestPlanId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+          "bestPlanId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
           "lastFindings": []
         },
         "output": {
@@ -368,17 +277,17 @@
         }
       },
       "traces": [],
-      "completedAt": "2026-03-25T01:27:56.995Z",
+      "completedAt": "2026-03-25T01:52:32.532Z",
       "durationMs": 74,
       "output": {
-        "profileId": "f79d0e21-4945-43e9-a643-701ff4a14a2b"
+        "profileId": "4af02ed1-24c4-4126-9aaa-91414220a09c"
       }
     },
     {
       "id": "enrich",
       "name": "2. Enriquecimiento (LLM)",
       "status": "completed",
-      "startedAt": "2026-03-25T01:27:56.996Z",
+      "startedAt": "2026-03-25T01:52:32.532Z",
       "input": {
         "config": {
           "intake": {
@@ -405,17 +314,17 @@
         },
         "results": {
           "intake": {
-            "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d"
+            "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3"
           },
           "build": {
-            "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+            "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
             "nombre": "Plan de Ezequiel",
-            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.",
+            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.",
             "eventos": [
               {
                 "semana": 1,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -424,19 +333,28 @@
               {
                 "semana": 1,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (3km)",
+                "actividad": "Correr 3 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 1,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 4 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -444,23 +362,23 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (5km)",
-                "categoria": "ejercicio",
+                "actividad": "Guitar jam con amigos",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
+                "duracion": 60,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -469,19 +387,28 @@
               {
                 "semana": 2,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (4km)",
+                "actividad": "Correr 4 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 2,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -489,121 +416,31 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (6km)",
-                "categoria": "ejercicio",
+                "actividad": "Improvisación de guitarra",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (5km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "sabado",
-                "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (7km)",
+                "actividad": "Correr 6 km",
                 "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (6km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "sabado",
-                "hora": "10:00",
-                "duracion": 60,
-                "actividad": "Entrenamiento para correr (8km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
                 "objetivoId": "obj1"
               }
             ],
             "tokensUsed": {
               "input": 517,
-              "output": 1379
+              "output": 849
             },
             "fallbackUsed": false,
             "charge": {
-              "chargeId": "2dcae442-3dcf-46b0-8059-bc16bb4798f6",
+              "chargeId": "2c1c5906-41da-4d72-bc97-03fdc0e1888e",
               "status": "skipped",
               "estimatedCostUsd": 0.005,
               "estimatedCostSats": 5,
-              "finalCostUsd": 0.00090495,
+              "finalCostUsd": 0.00058695,
               "finalCostSats": 1,
               "chargedSats": 0,
               "reasonCode": "internal_tooling",
@@ -631,9 +468,9 @@
           },
           "simulate": {
             "simulation": {
-              "ranAt": "2026-03-24T22:28:31.301-03:00",
+              "ranAt": "2026-03-24T22:52:51.010-03:00",
               "mode": "automatic",
-              "periodLabel": "24/03 - 19/04",
+              "periodLabel": "24/03 - 5/04",
               "summary": {
                 "pass": 4,
                 "warn": 0,
@@ -663,29 +500,10 @@
             }
           }
         },
-        "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d",
-        "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+        "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3",
+        "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
         "enrichment": {
-          "inferences": [
-            {
-              "field": "horasProductivasMaximas",
-              "value": 5,
-              "confidence": "high",
-              "reason": "As a software developer, Ezequiel likely has a sustained ability to focus on complex tasks for extended periods during the day."
-            },
-            {
-              "field": "horarioPicoEnergia",
-              "value": "10:00-12:00",
-              "confidence": "medium",
-              "reason": "Given his stated energy level and typical work patterns, he is likely to experience a productivity peak in the late morning after a full night's rest."
-            },
-            {
-              "field": "horarioBajoEnergia",
-              "value": "15:00-17:00",
-              "confidence": "medium",
-              "reason": "This timeframe often aligns with post-lunch dips in energy, common for many working professionals."
-            }
-          ],
+          "inferences": [],
           "warnings": []
         },
         "readiness": {
@@ -696,9 +514,9 @@
           "attempts": 1,
           "history": [],
           "bestSimulation": {
-            "ranAt": "2026-03-24T22:28:31.301-03:00",
+            "ranAt": "2026-03-24T22:52:51.010-03:00",
             "mode": "automatic",
-            "periodLabel": "24/03 - 19/04",
+            "periodLabel": "24/03 - 5/04",
             "summary": {
               "pass": 4,
               "warn": 0,
@@ -726,7 +544,7 @@
             ],
             "qualityScore": 100
           },
-          "bestPlanId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+          "bestPlanId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
           "lastFindings": []
         },
         "output": {
@@ -736,8 +554,8 @@
       },
       "traces": [
         {
-          "traceId": "2983dd1c-d585-4dd0-b2b8-a66376604d58",
-          "spanId": "64256e6c-9f6c-473b-8586-a70891734f1f",
+          "traceId": "1d1d80d0-3557-45ed-ae75-84c0e64419f3",
+          "spanId": "05a8e666-afd1-4edb-a074-f9d757ea64b2",
           "parentSpanId": null,
           "skillName": "llm-interaction",
           "provider": "openrouter",
@@ -753,20 +571,20 @@
               "content": "Nombre: Ezequiel\nEdad: 32\nOcupación: Desarrollador de software full-time\nCiudad: Buenos Aires\nNivel económico: medio\nObjetivo principal: Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento\nHoras libres declaradas (laborales): 4h\nHoras libres declaradas (FDS): 10h\nDespertar declarado: 07:00\nDormir declarado: 23:00\nTrabajo inicio declarado: 09:00\nTrabajo fin declarado: 18:00\nTiempo de transporte: 30 min\nCronotipo declarado: neutro\nProblemas actuales: ninguno\nDependientes: ninguno\nCompromisos: ninguno\nEstado emocional: motivación 3/5, estrés 2/5\nNivel de energía actual: medio"
             }
           ],
-          "response": "{\n  \"enrichedPartial\": {\n    \"despertar\": \"07:00\",\n    \"dormir\": \"23:00\",\n    \"trabajoInicio\": \"09:00\",\n    \"trabajoFin\": \"18:00\",\n    \"tiempoTransporte\": 30,\n    \"cronotipo\": \"neutro\",\n    \"horasProductivasMaximas\": 5,\n    \"horarioPicoEnergia\": \"10:00-12:00\",\n    \"horarioBajoEnergia\": \"15:00-17:00\",\n    \"nivelEnergia\": \"medio\",\n    \"motivacion\": 3,\n    \"estres\": 2,\n    \"horasLibresLaborales\": 4,\n    \"horasLibresFDS\": 10\n  },\n  \"inferences\": [\n    {\n      \"field\": \"horasProductivasMaximas\",\n      \"value\": 5,\n      \"confidence\": \"high\",\n      \"reason\": \"As a software developer, Ezequiel likely has a sustained ability to focus on complex tasks for extended periods during the day.\"\n    },\n    {\n      \"field\": \"horarioPicoEnergia\",\n      \"value\": \"10:00-12:00\",\n      \"confidence\": \"medium\",\n      \"reason\": \"Given his stated energy level and typical work patterns, he is likely to experience a productivity peak in the late morning after a full night's rest.\"\n    },\n    {\n      \"field\": \"horarioBajoEnergia\",\n      \"value\": \"15:00-17:00\",\n      \"confidence\": \"medium\",\n      \"reason\": \"This timeframe often aligns with post-lunch dips in energy, common for many working professionals.\"\n    }\n  ],\n  \"warnings\": []\n}",
+          "response": "{\n  \"enrichedPartial\": {\n    \"despertar\": \"07:00\",\n    \"dormir\": \"23:00\",\n    \"trabajoInicio\": \"09:00\",\n    \"trabajoFin\": \"18:00\",\n    \"tiempoTransporte\": 30,\n    \"cronotipo\": \"neutro\",\n    \"horasProductivasMaximas\": 4,\n    \"horarioPicoEnergia\": \"10:00-12:00\",\n    \"horarioBajoEnergia\": \"15:00-17:00\",\n    \"nivelEnergia\": \"medio\",\n    \"motivacion\": 3,\n    \"estres\": 2,\n    \"horasLibresLaborales\": 4,\n    \"horasLibresFDS\": 10\n  },\n  \"inferences\": [],\n  \"warnings\": []\n}",
           "error": null,
           "usage": {
             "promptTokens": 604,
-            "completionTokens": 373
+            "completionTokens": 182
           },
-          "startedAt": "2026-03-25T01:27:57.012Z",
-          "completedAt": "2026-03-25T01:28:05.249Z",
-          "durationMs": 8237,
+          "startedAt": "2026-03-25T01:52:32.546Z",
+          "completedAt": "2026-03-25T01:52:36.946Z",
+          "durationMs": 4400,
           "metadata": {}
         }
       ],
-      "completedAt": "2026-03-25T01:28:05.256Z",
-      "durationMs": 8260,
+      "completedAt": "2026-03-25T01:52:36.954Z",
+      "durationMs": 4422,
       "output": {
         "enrichedProfile": {
           "version": "3.0",
@@ -805,7 +623,7 @@
                 "cronotipo": "neutro",
                 "horarioPicoEnergia": "10:00-12:00",
                 "horarioBajoEnergia": "15:00-17:00",
-                "horasProductivasMaximas": 5
+                "horasProductivasMaximas": 4
               },
               "problemasActuales": [],
               "patronesConocidos": {
@@ -855,7 +673,7 @@
             }
           ],
           "estadoDinamico": {
-            "ultimaActualizacion": "2026-03-25T01:27:56.923Z",
+            "ultimaActualizacion": "2026-03-25T01:52:32.460Z",
             "salud": "buena",
             "nivelEnergia": "medio",
             "estadoEmocional": {
@@ -867,30 +685,11 @@
             "umbralStaleness": 7
           }
         },
-        "inferences": [
-          {
-            "field": "horasProductivasMaximas",
-            "value": 5,
-            "confidence": "high",
-            "reason": "As a software developer, Ezequiel likely has a sustained ability to focus on complex tasks for extended periods during the day."
-          },
-          {
-            "field": "horarioPicoEnergia",
-            "value": "10:00-12:00",
-            "confidence": "medium",
-            "reason": "Given his stated energy level and typical work patterns, he is likely to experience a productivity peak in the late morning after a full night's rest."
-          },
-          {
-            "field": "horarioBajoEnergia",
-            "value": "15:00-17:00",
-            "confidence": "medium",
-            "reason": "This timeframe often aligns with post-lunch dips in energy, common for many working professionals."
-          }
-        ],
+        "inferences": [],
         "warnings": [],
         "tokensUsed": {
           "input": 604,
-          "output": 373
+          "output": 182
         }
       }
     },
@@ -898,7 +697,7 @@
       "id": "readiness",
       "name": "readiness",
       "status": "completed",
-      "startedAt": "2026-03-25T01:28:05.257Z",
+      "startedAt": "2026-03-25T01:52:36.955Z",
       "input": {
         "config": {
           "intake": {
@@ -925,17 +724,17 @@
         },
         "results": {
           "intake": {
-            "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d"
+            "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3"
           },
           "build": {
-            "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+            "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
             "nombre": "Plan de Ezequiel",
-            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.",
+            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.",
             "eventos": [
               {
                 "semana": 1,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -944,19 +743,28 @@
               {
                 "semana": 1,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (3km)",
+                "actividad": "Correr 3 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 1,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 4 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -964,23 +772,23 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (5km)",
-                "categoria": "ejercicio",
+                "actividad": "Guitar jam con amigos",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
+                "duracion": 60,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -989,19 +797,28 @@
               {
                 "semana": 2,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (4km)",
+                "actividad": "Correr 4 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 2,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -1009,121 +826,31 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (6km)",
-                "categoria": "ejercicio",
+                "actividad": "Improvisación de guitarra",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (5km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "sabado",
-                "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (7km)",
+                "actividad": "Correr 6 km",
                 "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (6km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "sabado",
-                "hora": "10:00",
-                "duracion": 60,
-                "actividad": "Entrenamiento para correr (8km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
                 "objetivoId": "obj1"
               }
             ],
             "tokensUsed": {
               "input": 517,
-              "output": 1379
+              "output": 849
             },
             "fallbackUsed": false,
             "charge": {
-              "chargeId": "2dcae442-3dcf-46b0-8059-bc16bb4798f6",
+              "chargeId": "2c1c5906-41da-4d72-bc97-03fdc0e1888e",
               "status": "skipped",
               "estimatedCostUsd": 0.005,
               "estimatedCostSats": 5,
-              "finalCostUsd": 0.00090495,
+              "finalCostUsd": 0.00058695,
               "finalCostSats": 1,
               "chargedSats": 0,
               "reasonCode": "internal_tooling",
@@ -1151,9 +878,9 @@
           },
           "simulate": {
             "simulation": {
-              "ranAt": "2026-03-24T22:28:31.301-03:00",
+              "ranAt": "2026-03-24T22:52:51.010-03:00",
               "mode": "automatic",
-              "periodLabel": "24/03 - 19/04",
+              "periodLabel": "24/03 - 5/04",
               "summary": {
                 "pass": 4,
                 "warn": 0,
@@ -1183,29 +910,10 @@
             }
           }
         },
-        "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d",
-        "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+        "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3",
+        "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
         "enrichment": {
-          "inferences": [
-            {
-              "field": "horasProductivasMaximas",
-              "value": 5,
-              "confidence": "high",
-              "reason": "As a software developer, Ezequiel likely has a sustained ability to focus on complex tasks for extended periods during the day."
-            },
-            {
-              "field": "horarioPicoEnergia",
-              "value": "10:00-12:00",
-              "confidence": "medium",
-              "reason": "Given his stated energy level and typical work patterns, he is likely to experience a productivity peak in the late morning after a full night's rest."
-            },
-            {
-              "field": "horarioBajoEnergia",
-              "value": "15:00-17:00",
-              "confidence": "medium",
-              "reason": "This timeframe often aligns with post-lunch dips in energy, common for many working professionals."
-            }
-          ],
+          "inferences": [],
           "warnings": []
         },
         "readiness": {
@@ -1216,9 +924,9 @@
           "attempts": 1,
           "history": [],
           "bestSimulation": {
-            "ranAt": "2026-03-24T22:28:31.301-03:00",
+            "ranAt": "2026-03-24T22:52:51.010-03:00",
             "mode": "automatic",
-            "periodLabel": "24/03 - 19/04",
+            "periodLabel": "24/03 - 5/04",
             "summary": {
               "pass": 4,
               "warn": 0,
@@ -1246,7 +954,7 @@
             ],
             "qualityScore": 100
           },
-          "bestPlanId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+          "bestPlanId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
           "lastFindings": []
         },
         "output": {
@@ -1255,7 +963,7 @@
         }
       },
       "traces": [],
-      "completedAt": "2026-03-25T01:28:05.261Z",
+      "completedAt": "2026-03-25T01:52:36.959Z",
       "durationMs": 4,
       "output": {
         "ready": true,
@@ -1268,7 +976,7 @@
       "id": "build",
       "name": "3. Construcción",
       "status": "completed",
-      "startedAt": "2026-03-25T01:28:05.262Z",
+      "startedAt": "2026-03-25T01:52:36.959Z",
       "input": {
         "config": {
           "intake": {
@@ -1295,17 +1003,17 @@
         },
         "results": {
           "intake": {
-            "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d"
+            "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3"
           },
           "build": {
-            "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+            "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
             "nombre": "Plan de Ezequiel",
-            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.",
+            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.",
             "eventos": [
               {
                 "semana": 1,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -1314,19 +1022,28 @@
               {
                 "semana": 1,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (3km)",
+                "actividad": "Correr 3 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 1,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 4 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -1334,23 +1051,23 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (5km)",
-                "categoria": "ejercicio",
+                "actividad": "Guitar jam con amigos",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
+                "duracion": 60,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -1359,19 +1076,28 @@
               {
                 "semana": 2,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (4km)",
+                "actividad": "Correr 4 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 2,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -1379,121 +1105,31 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (6km)",
-                "categoria": "ejercicio",
+                "actividad": "Improvisación de guitarra",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (5km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "sabado",
-                "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (7km)",
+                "actividad": "Correr 6 km",
                 "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (6km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "sabado",
-                "hora": "10:00",
-                "duracion": 60,
-                "actividad": "Entrenamiento para correr (8km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
                 "objetivoId": "obj1"
               }
             ],
             "tokensUsed": {
               "input": 517,
-              "output": 1379
+              "output": 849
             },
             "fallbackUsed": false,
             "charge": {
-              "chargeId": "2dcae442-3dcf-46b0-8059-bc16bb4798f6",
+              "chargeId": "2c1c5906-41da-4d72-bc97-03fdc0e1888e",
               "status": "skipped",
               "estimatedCostUsd": 0.005,
               "estimatedCostSats": 5,
-              "finalCostUsd": 0.00090495,
+              "finalCostUsd": 0.00058695,
               "finalCostSats": 1,
               "chargedSats": 0,
               "reasonCode": "internal_tooling",
@@ -1521,9 +1157,9 @@
           },
           "simulate": {
             "simulation": {
-              "ranAt": "2026-03-24T22:28:31.301-03:00",
+              "ranAt": "2026-03-24T22:52:51.010-03:00",
               "mode": "automatic",
-              "periodLabel": "24/03 - 19/04",
+              "periodLabel": "24/03 - 5/04",
               "summary": {
                 "pass": 4,
                 "warn": 0,
@@ -1553,29 +1189,10 @@
             }
           }
         },
-        "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d",
-        "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+        "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3",
+        "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
         "enrichment": {
-          "inferences": [
-            {
-              "field": "horasProductivasMaximas",
-              "value": 5,
-              "confidence": "high",
-              "reason": "As a software developer, Ezequiel likely has a sustained ability to focus on complex tasks for extended periods during the day."
-            },
-            {
-              "field": "horarioPicoEnergia",
-              "value": "10:00-12:00",
-              "confidence": "medium",
-              "reason": "Given his stated energy level and typical work patterns, he is likely to experience a productivity peak in the late morning after a full night's rest."
-            },
-            {
-              "field": "horarioBajoEnergia",
-              "value": "15:00-17:00",
-              "confidence": "medium",
-              "reason": "This timeframe often aligns with post-lunch dips in energy, common for many working professionals."
-            }
-          ],
+          "inferences": [],
           "warnings": []
         },
         "readiness": {
@@ -1586,9 +1203,9 @@
           "attempts": 1,
           "history": [],
           "bestSimulation": {
-            "ranAt": "2026-03-24T22:28:31.301-03:00",
+            "ranAt": "2026-03-24T22:52:51.010-03:00",
             "mode": "automatic",
-            "periodLabel": "24/03 - 19/04",
+            "periodLabel": "24/03 - 5/04",
             "summary": {
               "pass": 4,
               "warn": 0,
@@ -1616,7 +1233,7 @@
             ],
             "qualityScore": 100
           },
-          "bestPlanId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+          "bestPlanId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
           "lastFindings": []
         },
         "output": {
@@ -1626,40 +1243,8 @@
       },
       "traces": [
         {
-          "traceId": "49cb8418-03d0-4846-af5e-131942c8c920",
-          "spanId": "de2a87be-655f-400c-b91d-e86715d546ec",
-          "parentSpanId": null,
-          "skillName": "plan-builder",
-          "provider": "openrouter:openai/gpt-4o-mini",
-          "type": "stream",
-          "status": "completed",
-          "messages": [
-            {
-              "role": "system",
-              "content": "You are a life planning assistant. Given a user profile, generate a realistic 1-month action plan.\n\nRULES:\n- Create weekly schedules with specific days, times, and durations\n- Respect the user's work schedule and sleep hours\n- Never schedule tasks during work or sleep hours\n- Be realistic: don't overload the user. Max 2-3 new activities per day\n- Include rest and buffer time\n- Never use jargon: no \"Q1\", \"milestone\", \"throughput\". Use \"enero-marzo\", \"hito\", \"carga\"\n- Each activity must link to the user's stated goal\n\nOUTPUT FORMAT: Respond with ONLY a JSON object (no markdown, no explanation):\n{\n  \"nombre\": \"plan name in user language\",\n  \"resumen\": \"2-3 sentence summary of the plan\",\n  \"eventos\": [\n    {\n      \"semana\": 1,\n      \"dia\": \"lunes\",\n      \"hora\": \"HH:MM\",\n      \"duracion\": minutes_number,\n      \"actividad\": \"description\",\n      \"categoria\": \"estudio|ejercicio|trabajo|habito|descanso|otro\",\n      \"objetivoId\": \"obj1\"\n    }\n  ]\n}\n\nRespond in informal Argentine Spanish (voseo). Use plain language a grandmother would understand."
-            },
-            {
-              "role": "user",
-              "content": "Nombre: Ezequiel\nEdad: 32\nCiudad: Buenos Aires\nOcupacion: Desarrollador de software full-time\n\n=== OBJETIVOS (TODOS deben tener al menos 1 actividad) ===\n1. [obj1] Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento (prioridad: 3/5, ~10h/semana)\n\n=== HORARIOS Y DISPONIBILIDAD ===\nDespierta: 07:00 | Duerme: 23:00\nTrabajo: 09:00 a 18:00\nTransporte: 30 min\nHoras libres: 4h (laborales) | 10h (fines de semana)\n\n=== ENERGIA Y ESTADO ACTUAL ===\nCronotipo: neutro | Pico energia: 10:00-12:00 | Baja energia: 15:00-17:00\nHoras productivas maximas/dia: 5\nMotivacion actual: 3/5 | Estres: 2/5\nNivel de energia general: medio"
-            }
-          ],
-          "response": "{\n  \"nombre\": \"Plan de Ezequiel\",\n  \"resumen\": \"Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.\",\n  \"eventos\": [\n    {\n      \"semana\": 1,\n      \"dia\": \"lunes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"martes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Ejercicio: carrera suave (3km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"jueves\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra en casa\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Entrenamiento para correr (5km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"lunes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"martes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Ejercicio: carrera suave (4km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"jueves\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra en casa\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Entrenamiento para correr (6km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"lunes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"martes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Ejercicio: carrera suave (5km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"jueves\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra en casa\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Entrenamiento para correr (7km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"lunes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"martes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Ejercicio: carrera suave (6km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"jueves\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra en casa\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Entrenamiento para correr (8km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    }\n  ]\n}",
-          "error": null,
-          "usage": {
-            "promptTokens": 517,
-            "completionTokens": 1379
-          },
-          "startedAt": "2026-03-25T01:28:05.272Z",
-          "completedAt": "2026-03-25T01:28:31.181Z",
-          "durationMs": 25909,
-          "metadata": {
-            "firstTokenAt": "2026-03-25T01:28:05.855Z",
-            "timeToFirstTokenMs": 583
-          }
-        },
-        {
-          "traceId": "49cb8418-03d0-4846-af5e-131942c8c920",
-          "spanId": "5050be36-6d4d-484d-8de4-d130b6fb0568",
+          "traceId": "17b8160d-03bc-4735-b257-9625e48e6f8e",
+          "spanId": "91cb699c-394b-4d84-93a2-1aae8f301319",
           "parentSpanId": null,
           "skillName": "llm-interaction",
           "provider": "openrouter",
@@ -1672,35 +1257,67 @@
             },
             {
               "role": "user",
-              "content": "Nombre: Ezequiel\nEdad: 32\nCiudad: Buenos Aires\nOcupacion: Desarrollador de software full-time\n\n=== OBJETIVOS (TODOS deben tener al menos 1 actividad) ===\n1. [obj1] Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento (prioridad: 3/5, ~10h/semana)\n\n=== HORARIOS Y DISPONIBILIDAD ===\nDespierta: 07:00 | Duerme: 23:00\nTrabajo: 09:00 a 18:00\nTransporte: 30 min\nHoras libres: 4h (laborales) | 10h (fines de semana)\n\n=== ENERGIA Y ESTADO ACTUAL ===\nCronotipo: neutro | Pico energia: 10:00-12:00 | Baja energia: 15:00-17:00\nHoras productivas maximas/dia: 5\nMotivacion actual: 3/5 | Estres: 2/5\nNivel de energia general: medio"
+              "content": "Nombre: Ezequiel\nEdad: 32\nCiudad: Buenos Aires\nOcupacion: Desarrollador de software full-time\n\n=== OBJETIVOS (TODOS deben tener al menos 1 actividad) ===\n1. [obj1] Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento (prioridad: 3/5, ~10h/semana)\n\n=== HORARIOS Y DISPONIBILIDAD ===\nDespierta: 07:00 | Duerme: 23:00\nTrabajo: 09:00 a 18:00\nTransporte: 30 min\nHoras libres: 4h (laborales) | 10h (fines de semana)\n\n=== ENERGIA Y ESTADO ACTUAL ===\nCronotipo: neutro | Pico energia: 10:00-12:00 | Baja energia: 15:00-17:00\nHoras productivas maximas/dia: 4\nMotivacion actual: 3/5 | Estres: 2/5\nNivel de energia general: medio"
             }
           ],
-          "response": "{\n  \"nombre\": \"Plan de Ezequiel\",\n  \"resumen\": \"Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.\",\n  \"eventos\": [\n    {\n      \"semana\": 1,\n      \"dia\": \"lunes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"martes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Ejercicio: carrera suave (3km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"jueves\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra en casa\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Entrenamiento para correr (5km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"lunes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"martes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Ejercicio: carrera suave (4km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"jueves\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra en casa\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Entrenamiento para correr (6km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"lunes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"martes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Ejercicio: carrera suave (5km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"jueves\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra en casa\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Entrenamiento para correr (7km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 3,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"lunes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"martes\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Ejercicio: carrera suave (6km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"jueves\",\n      \"hora\": \"19:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra en casa\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Entrenamiento para correr (8km)\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 4,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    }\n  ]\n}",
+          "response": "{\n  \"nombre\": \"Plan de Ezequiel\",\n  \"resumen\": \"Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.\",\n  \"eventos\": [\n    {\n      \"semana\": 1,\n      \"dia\": \"lunes\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"martes\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Correr 3 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"miércoles\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra solo\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"jueves\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Correr 4 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Guitar jam con amigos\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Correr 5 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"lunes\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"martes\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Correr 4 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"miércoles\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra solo\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"jueves\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Correr 5 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Improvisación de guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Correr 6 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    }\n  ]\n}",
           "error": null,
           "usage": {
             "promptTokens": 517,
-            "completionTokens": 1379
+            "completionTokens": 849
           },
-          "startedAt": "2026-03-25T01:28:05.272Z",
-          "completedAt": "2026-03-25T01:28:31.181Z",
-          "durationMs": 25909,
+          "startedAt": "2026-03-25T01:52:36.976Z",
+          "completedAt": "2026-03-25T01:52:50.933Z",
+          "durationMs": 13957,
           "metadata": {
-            "firstTokenAt": "2026-03-25T01:28:05.855Z",
-            "timeToFirstTokenMs": 583
+            "firstTokenAt": "2026-03-25T01:52:37.603Z",
+            "timeToFirstTokenMs": 627
+          }
+        },
+        {
+          "traceId": "17b8160d-03bc-4735-b257-9625e48e6f8e",
+          "spanId": "474b182c-c4a6-4ece-b1e8-ec7462cc898f",
+          "parentSpanId": null,
+          "skillName": "plan-builder",
+          "provider": "openrouter:openai/gpt-4o-mini",
+          "type": "stream",
+          "status": "completed",
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a life planning assistant. Given a user profile, generate a realistic 1-month action plan.\n\nRULES:\n- Create weekly schedules with specific days, times, and durations\n- Respect the user's work schedule and sleep hours\n- Never schedule tasks during work or sleep hours\n- Be realistic: don't overload the user. Max 2-3 new activities per day\n- Include rest and buffer time\n- Never use jargon: no \"Q1\", \"milestone\", \"throughput\". Use \"enero-marzo\", \"hito\", \"carga\"\n- Each activity must link to the user's stated goal\n\nOUTPUT FORMAT: Respond with ONLY a JSON object (no markdown, no explanation):\n{\n  \"nombre\": \"plan name in user language\",\n  \"resumen\": \"2-3 sentence summary of the plan\",\n  \"eventos\": [\n    {\n      \"semana\": 1,\n      \"dia\": \"lunes\",\n      \"hora\": \"HH:MM\",\n      \"duracion\": minutes_number,\n      \"actividad\": \"description\",\n      \"categoria\": \"estudio|ejercicio|trabajo|habito|descanso|otro\",\n      \"objetivoId\": \"obj1\"\n    }\n  ]\n}\n\nRespond in informal Argentine Spanish (voseo). Use plain language a grandmother would understand."
+            },
+            {
+              "role": "user",
+              "content": "Nombre: Ezequiel\nEdad: 32\nCiudad: Buenos Aires\nOcupacion: Desarrollador de software full-time\n\n=== OBJETIVOS (TODOS deben tener al menos 1 actividad) ===\n1. [obj1] Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento (prioridad: 3/5, ~10h/semana)\n\n=== HORARIOS Y DISPONIBILIDAD ===\nDespierta: 07:00 | Duerme: 23:00\nTrabajo: 09:00 a 18:00\nTransporte: 30 min\nHoras libres: 4h (laborales) | 10h (fines de semana)\n\n=== ENERGIA Y ESTADO ACTUAL ===\nCronotipo: neutro | Pico energia: 10:00-12:00 | Baja energia: 15:00-17:00\nHoras productivas maximas/dia: 4\nMotivacion actual: 3/5 | Estres: 2/5\nNivel de energia general: medio"
+            }
+          ],
+          "response": "{\n  \"nombre\": \"Plan de Ezequiel\",\n  \"resumen\": \"Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.\",\n  \"eventos\": [\n    {\n      \"semana\": 1,\n      \"dia\": \"lunes\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"martes\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Correr 3 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"miércoles\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra solo\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"jueves\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Correr 4 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Guitar jam con amigos\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 1,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Correr 5 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"lunes\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Clases de guitarra online\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"martes\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Correr 4 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"miércoles\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Practicar guitarra solo\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"jueves\",\n      \"hora\": \"18:30\",\n      \"duracion\": 30,\n      \"actividad\": \"Correr 5 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"sábado\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Improvisación de guitarra\",\n      \"categoria\": \"estudio\",\n      \"objetivoId\": \"obj1\"\n    },\n    {\n      \"semana\": 2,\n      \"dia\": \"domingo\",\n      \"hora\": \"10:00\",\n      \"duracion\": 60,\n      \"actividad\": \"Correr 6 km\",\n      \"categoria\": \"ejercicio\",\n      \"objetivoId\": \"obj1\"\n    }\n  ]\n}",
+          "error": null,
+          "usage": {
+            "promptTokens": 517,
+            "completionTokens": 849
+          },
+          "startedAt": "2026-03-25T01:52:36.975Z",
+          "completedAt": "2026-03-25T01:52:50.934Z",
+          "durationMs": 13959,
+          "metadata": {
+            "firstTokenAt": "2026-03-25T01:52:37.603Z",
+            "timeToFirstTokenMs": 628
           }
         }
       ],
-      "completedAt": "2026-03-25T01:28:31.283Z",
-      "durationMs": 26021,
+      "completedAt": "2026-03-25T01:52:50.994Z",
+      "durationMs": 14035,
       "output": {
-        "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+        "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
         "nombre": "Plan de Ezequiel",
-        "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.",
+        "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.",
         "eventos": [
           {
             "semana": 1,
             "dia": "lunes",
-            "hora": "19:00",
+            "hora": "18:30",
             "duracion": 30,
             "actividad": "Clases de guitarra online",
             "categoria": "estudio",
@@ -1709,19 +1326,28 @@
           {
             "semana": 1,
             "dia": "martes",
-            "hora": "19:00",
+            "hora": "18:30",
             "duracion": 30,
-            "actividad": "Ejercicio: carrera suave (3km)",
+            "actividad": "Correr 3 km",
             "categoria": "ejercicio",
             "objetivoId": "obj1"
           },
           {
             "semana": 1,
-            "dia": "jueves",
-            "hora": "19:00",
+            "dia": "miercoles",
+            "hora": "18:30",
             "duracion": 30,
-            "actividad": "Practicar guitarra en casa",
+            "actividad": "Practicar guitarra solo",
             "categoria": "estudio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 1,
+            "dia": "jueves",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Correr 4 km",
+            "categoria": "ejercicio",
             "objetivoId": "obj1"
           },
           {
@@ -1729,23 +1355,23 @@
             "dia": "sabado",
             "hora": "10:00",
             "duracion": 60,
-            "actividad": "Entrenamiento para correr (5km)",
-            "categoria": "ejercicio",
+            "actividad": "Guitar jam con amigos",
+            "categoria": "estudio",
             "objetivoId": "obj1"
           },
           {
             "semana": 1,
             "dia": "domingo",
             "hora": "10:00",
-            "duracion": 30,
-            "actividad": "Practicar guitarra",
-            "categoria": "estudio",
+            "duracion": 60,
+            "actividad": "Correr 5 km",
+            "categoria": "ejercicio",
             "objetivoId": "obj1"
           },
           {
             "semana": 2,
             "dia": "lunes",
-            "hora": "19:00",
+            "hora": "18:30",
             "duracion": 30,
             "actividad": "Clases de guitarra online",
             "categoria": "estudio",
@@ -1754,19 +1380,28 @@
           {
             "semana": 2,
             "dia": "martes",
-            "hora": "19:00",
+            "hora": "18:30",
             "duracion": 30,
-            "actividad": "Ejercicio: carrera suave (4km)",
+            "actividad": "Correr 4 km",
             "categoria": "ejercicio",
             "objetivoId": "obj1"
           },
           {
             "semana": 2,
-            "dia": "jueves",
-            "hora": "19:00",
+            "dia": "miercoles",
+            "hora": "18:30",
             "duracion": 30,
-            "actividad": "Practicar guitarra en casa",
+            "actividad": "Practicar guitarra solo",
             "categoria": "estudio",
+            "objetivoId": "obj1"
+          },
+          {
+            "semana": 2,
+            "dia": "jueves",
+            "hora": "18:30",
+            "duracion": 30,
+            "actividad": "Correr 5 km",
+            "categoria": "ejercicio",
             "objetivoId": "obj1"
           },
           {
@@ -1774,121 +1409,31 @@
             "dia": "sabado",
             "hora": "10:00",
             "duracion": 60,
-            "actividad": "Entrenamiento para correr (6km)",
-            "categoria": "ejercicio",
+            "actividad": "Improvisación de guitarra",
+            "categoria": "estudio",
             "objetivoId": "obj1"
           },
           {
             "semana": 2,
             "dia": "domingo",
             "hora": "10:00",
-            "duracion": 30,
-            "actividad": "Practicar guitarra",
-            "categoria": "estudio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 3,
-            "dia": "lunes",
-            "hora": "19:00",
-            "duracion": 30,
-            "actividad": "Clases de guitarra online",
-            "categoria": "estudio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 3,
-            "dia": "martes",
-            "hora": "19:00",
-            "duracion": 30,
-            "actividad": "Ejercicio: carrera suave (5km)",
-            "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 3,
-            "dia": "jueves",
-            "hora": "19:00",
-            "duracion": 30,
-            "actividad": "Practicar guitarra en casa",
-            "categoria": "estudio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 3,
-            "dia": "sabado",
-            "hora": "10:00",
             "duracion": 60,
-            "actividad": "Entrenamiento para correr (7km)",
+            "actividad": "Correr 6 km",
             "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 3,
-            "dia": "domingo",
-            "hora": "10:00",
-            "duracion": 30,
-            "actividad": "Practicar guitarra",
-            "categoria": "estudio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 4,
-            "dia": "lunes",
-            "hora": "19:00",
-            "duracion": 30,
-            "actividad": "Clases de guitarra online",
-            "categoria": "estudio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 4,
-            "dia": "martes",
-            "hora": "19:00",
-            "duracion": 30,
-            "actividad": "Ejercicio: carrera suave (6km)",
-            "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 4,
-            "dia": "jueves",
-            "hora": "19:00",
-            "duracion": 30,
-            "actividad": "Practicar guitarra en casa",
-            "categoria": "estudio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 4,
-            "dia": "sabado",
-            "hora": "10:00",
-            "duracion": 60,
-            "actividad": "Entrenamiento para correr (8km)",
-            "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 4,
-            "dia": "domingo",
-            "hora": "10:00",
-            "duracion": 30,
-            "actividad": "Practicar guitarra",
-            "categoria": "estudio",
             "objetivoId": "obj1"
           }
         ],
         "tokensUsed": {
           "input": 517,
-          "output": 1379
+          "output": 849
         },
         "fallbackUsed": false,
         "charge": {
-          "chargeId": "2dcae442-3dcf-46b0-8059-bc16bb4798f6",
+          "chargeId": "2c1c5906-41da-4d72-bc97-03fdc0e1888e",
           "status": "skipped",
           "estimatedCostUsd": 0.005,
           "estimatedCostSats": 5,
-          "finalCostUsd": 0.00090495,
+          "finalCostUsd": 0.00058695,
           "finalCostSats": 1,
           "chargedSats": 0,
           "reasonCode": "internal_tooling",
@@ -1919,7 +1464,7 @@
       "id": "simulate",
       "name": "simulate",
       "status": "completed",
-      "startedAt": "2026-03-25T01:28:31.285Z",
+      "startedAt": "2026-03-25T01:52:50.996Z",
       "input": {
         "config": {
           "intake": {
@@ -1946,17 +1491,17 @@
         },
         "results": {
           "intake": {
-            "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d"
+            "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3"
           },
           "build": {
-            "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+            "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
             "nombre": "Plan de Ezequiel",
-            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.",
+            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.",
             "eventos": [
               {
                 "semana": 1,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -1965,19 +1510,28 @@
               {
                 "semana": 1,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (3km)",
+                "actividad": "Correr 3 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 1,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 4 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -1985,23 +1539,23 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (5km)",
-                "categoria": "ejercicio",
+                "actividad": "Guitar jam con amigos",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
+                "duracion": 60,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -2010,19 +1564,28 @@
               {
                 "semana": 2,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (4km)",
+                "actividad": "Correr 4 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 2,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -2030,121 +1593,31 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (6km)",
-                "categoria": "ejercicio",
+                "actividad": "Improvisación de guitarra",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (5km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "sabado",
-                "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (7km)",
+                "actividad": "Correr 6 km",
                 "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (6km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "sabado",
-                "hora": "10:00",
-                "duracion": 60,
-                "actividad": "Entrenamiento para correr (8km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
                 "objetivoId": "obj1"
               }
             ],
             "tokensUsed": {
               "input": 517,
-              "output": 1379
+              "output": 849
             },
             "fallbackUsed": false,
             "charge": {
-              "chargeId": "2dcae442-3dcf-46b0-8059-bc16bb4798f6",
+              "chargeId": "2c1c5906-41da-4d72-bc97-03fdc0e1888e",
               "status": "skipped",
               "estimatedCostUsd": 0.005,
               "estimatedCostSats": 5,
-              "finalCostUsd": 0.00090495,
+              "finalCostUsd": 0.00058695,
               "finalCostSats": 1,
               "chargedSats": 0,
               "reasonCode": "internal_tooling",
@@ -2172,9 +1645,9 @@
           },
           "simulate": {
             "simulation": {
-              "ranAt": "2026-03-24T22:28:31.301-03:00",
+              "ranAt": "2026-03-24T22:52:51.010-03:00",
               "mode": "automatic",
-              "periodLabel": "24/03 - 19/04",
+              "periodLabel": "24/03 - 5/04",
               "summary": {
                 "pass": 4,
                 "warn": 0,
@@ -2204,29 +1677,10 @@
             }
           }
         },
-        "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d",
-        "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+        "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3",
+        "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
         "enrichment": {
-          "inferences": [
-            {
-              "field": "horasProductivasMaximas",
-              "value": 5,
-              "confidence": "high",
-              "reason": "As a software developer, Ezequiel likely has a sustained ability to focus on complex tasks for extended periods during the day."
-            },
-            {
-              "field": "horarioPicoEnergia",
-              "value": "10:00-12:00",
-              "confidence": "medium",
-              "reason": "Given his stated energy level and typical work patterns, he is likely to experience a productivity peak in the late morning after a full night's rest."
-            },
-            {
-              "field": "horarioBajoEnergia",
-              "value": "15:00-17:00",
-              "confidence": "medium",
-              "reason": "This timeframe often aligns with post-lunch dips in energy, common for many working professionals."
-            }
-          ],
+          "inferences": [],
           "warnings": []
         },
         "readiness": {
@@ -2237,9 +1691,9 @@
           "attempts": 1,
           "history": [],
           "bestSimulation": {
-            "ranAt": "2026-03-24T22:28:31.301-03:00",
+            "ranAt": "2026-03-24T22:52:51.010-03:00",
             "mode": "automatic",
-            "periodLabel": "24/03 - 19/04",
+            "periodLabel": "24/03 - 5/04",
             "summary": {
               "pass": 4,
               "warn": 0,
@@ -2267,7 +1721,7 @@
             ],
             "qualityScore": 100
           },
-          "bestPlanId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+          "bestPlanId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
           "lastFindings": []
         },
         "output": {
@@ -2276,13 +1730,13 @@
         }
       },
       "traces": [],
-      "completedAt": "2026-03-25T01:28:31.308Z",
-      "durationMs": 23,
+      "completedAt": "2026-03-25T01:52:51.018Z",
+      "durationMs": 22,
       "output": {
         "simulation": {
-          "ranAt": "2026-03-24T22:28:31.301-03:00",
+          "ranAt": "2026-03-24T22:52:51.010-03:00",
           "mode": "automatic",
-          "periodLabel": "24/03 - 19/04",
+          "periodLabel": "24/03 - 5/04",
           "summary": {
             "pass": 4,
             "warn": 0,
@@ -2311,7 +1765,7 @@
           "qualityScore": 100
         },
         "charge": {
-          "chargeId": "e225876a-d06f-496d-9f3e-ff08ef4dcbb8",
+          "chargeId": "9460f156-5483-4dee-95b9-8863af198754",
           "status": "skipped",
           "estimatedCostUsd": 0,
           "estimatedCostSats": 0,
@@ -2346,7 +1800,7 @@
       "id": "output",
       "name": "6. Entrega Final",
       "status": "completed",
-      "startedAt": "2026-03-25T01:28:31.309Z",
+      "startedAt": "2026-03-25T01:52:51.020Z",
       "input": {
         "config": {
           "intake": {
@@ -2373,17 +1827,17 @@
         },
         "results": {
           "intake": {
-            "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d"
+            "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3"
           },
           "build": {
-            "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+            "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
             "nombre": "Plan de Ezequiel",
-            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.",
+            "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.",
             "eventos": [
               {
                 "semana": 1,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -2392,19 +1846,28 @@
               {
                 "semana": 1,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (3km)",
+                "actividad": "Correr 3 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 1,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 4 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -2412,23 +1875,23 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (5km)",
-                "categoria": "ejercicio",
+                "actividad": "Guitar jam con amigos",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 1,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
+                "duracion": 60,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "lunes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
                 "actividad": "Clases de guitarra online",
                 "categoria": "estudio",
@@ -2437,19 +1900,28 @@
               {
                 "semana": 2,
                 "dia": "martes",
-                "hora": "19:00",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (4km)",
+                "actividad": "Correr 4 km",
                 "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
-                "dia": "jueves",
-                "hora": "19:00",
+                "dia": "miercoles",
+                "hora": "18:30",
                 "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
+                "actividad": "Practicar guitarra solo",
                 "categoria": "estudio",
+                "objetivoId": "obj1"
+              },
+              {
+                "semana": 2,
+                "dia": "jueves",
+                "hora": "18:30",
+                "duracion": 30,
+                "actividad": "Correr 5 km",
+                "categoria": "ejercicio",
                 "objetivoId": "obj1"
               },
               {
@@ -2457,121 +1929,31 @@
                 "dia": "sabado",
                 "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (6km)",
-                "categoria": "ejercicio",
+                "actividad": "Improvisación de guitarra",
+                "categoria": "estudio",
                 "objetivoId": "obj1"
               },
               {
                 "semana": 2,
                 "dia": "domingo",
                 "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (5km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "sabado",
-                "hora": "10:00",
                 "duracion": 60,
-                "actividad": "Entrenamiento para correr (7km)",
+                "actividad": "Correr 6 km",
                 "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 3,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "lunes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Clases de guitarra online",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "martes",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Ejercicio: carrera suave (6km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "jueves",
-                "hora": "19:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra en casa",
-                "categoria": "estudio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "sabado",
-                "hora": "10:00",
-                "duracion": 60,
-                "actividad": "Entrenamiento para correr (8km)",
-                "categoria": "ejercicio",
-                "objetivoId": "obj1"
-              },
-              {
-                "semana": 4,
-                "dia": "domingo",
-                "hora": "10:00",
-                "duracion": 30,
-                "actividad": "Practicar guitarra",
-                "categoria": "estudio",
                 "objetivoId": "obj1"
               }
             ],
             "tokensUsed": {
               "input": 517,
-              "output": 1379
+              "output": 849
             },
             "fallbackUsed": false,
             "charge": {
-              "chargeId": "2dcae442-3dcf-46b0-8059-bc16bb4798f6",
+              "chargeId": "2c1c5906-41da-4d72-bc97-03fdc0e1888e",
               "status": "skipped",
               "estimatedCostUsd": 0.005,
               "estimatedCostSats": 5,
-              "finalCostUsd": 0.00090495,
+              "finalCostUsd": 0.00058695,
               "finalCostSats": 1,
               "chargedSats": 0,
               "reasonCode": "internal_tooling",
@@ -2599,9 +1981,9 @@
           },
           "simulate": {
             "simulation": {
-              "ranAt": "2026-03-24T22:28:31.301-03:00",
+              "ranAt": "2026-03-24T22:52:51.010-03:00",
               "mode": "automatic",
-              "periodLabel": "24/03 - 19/04",
+              "periodLabel": "24/03 - 5/04",
               "summary": {
                 "pass": 4,
                 "warn": 0,
@@ -2631,29 +2013,10 @@
             }
           }
         },
-        "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d",
-        "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+        "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3",
+        "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
         "enrichment": {
-          "inferences": [
-            {
-              "field": "horasProductivasMaximas",
-              "value": 5,
-              "confidence": "high",
-              "reason": "As a software developer, Ezequiel likely has a sustained ability to focus on complex tasks for extended periods during the day."
-            },
-            {
-              "field": "horarioPicoEnergia",
-              "value": "10:00-12:00",
-              "confidence": "medium",
-              "reason": "Given his stated energy level and typical work patterns, he is likely to experience a productivity peak in the late morning after a full night's rest."
-            },
-            {
-              "field": "horarioBajoEnergia",
-              "value": "15:00-17:00",
-              "confidence": "medium",
-              "reason": "This timeframe often aligns with post-lunch dips in energy, common for many working professionals."
-            }
-          ],
+          "inferences": [],
           "warnings": []
         },
         "readiness": {
@@ -2664,9 +2027,9 @@
           "attempts": 1,
           "history": [],
           "bestSimulation": {
-            "ranAt": "2026-03-24T22:28:31.301-03:00",
+            "ranAt": "2026-03-24T22:52:51.010-03:00",
             "mode": "automatic",
-            "periodLabel": "24/03 - 19/04",
+            "periodLabel": "24/03 - 5/04",
             "summary": {
               "pass": 4,
               "warn": 0,
@@ -2694,7 +2057,7 @@
             ],
             "qualityScore": 100
           },
-          "bestPlanId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+          "bestPlanId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
           "lastFindings": []
         },
         "output": {
@@ -2703,20 +2066,20 @@
         }
       },
       "traces": [],
-      "completedAt": "2026-03-25T01:28:31.310Z",
+      "completedAt": "2026-03-25T01:52:51.021Z",
       "durationMs": 1,
       "output": {
-        "profileId": "93e90cb7-0d7c-4762-8852-6878b337309d",
-        "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+        "profileId": "b6e285af-7610-47be-b85a-b338a3e4b2e3",
+        "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
         "build": {
-          "planId": "120f52ed-6cac-46f4-b32f-f96eec60adb4",
+          "planId": "4b7dad90-e93d-4428-8479-ac6525a56d00",
           "nombre": "Plan de Ezequiel",
-          "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vamos a organizar bien tus horas libres y a no sobrecargarte.",
+          "resumen": "Este plan te ayudará a aprender a tocar la guitarra y a prepararte para correr 10 km. Vas a tener varias actividades distribuidas a lo largo de la semana, con tiempo suficiente para descansar y relajarte.",
           "eventos": [
             {
               "semana": 1,
               "dia": "lunes",
-              "hora": "19:00",
+              "hora": "18:30",
               "duracion": 30,
               "actividad": "Clases de guitarra online",
               "categoria": "estudio",
@@ -2725,19 +2088,28 @@
             {
               "semana": 1,
               "dia": "martes",
-              "hora": "19:00",
+              "hora": "18:30",
               "duracion": 30,
-              "actividad": "Ejercicio: carrera suave (3km)",
+              "actividad": "Correr 3 km",
               "categoria": "ejercicio",
               "objetivoId": "obj1"
             },
             {
               "semana": 1,
-              "dia": "jueves",
-              "hora": "19:00",
+              "dia": "miercoles",
+              "hora": "18:30",
               "duracion": 30,
-              "actividad": "Practicar guitarra en casa",
+              "actividad": "Practicar guitarra solo",
               "categoria": "estudio",
+              "objetivoId": "obj1"
+            },
+            {
+              "semana": 1,
+              "dia": "jueves",
+              "hora": "18:30",
+              "duracion": 30,
+              "actividad": "Correr 4 km",
+              "categoria": "ejercicio",
               "objetivoId": "obj1"
             },
             {
@@ -2745,23 +2117,23 @@
               "dia": "sabado",
               "hora": "10:00",
               "duracion": 60,
-              "actividad": "Entrenamiento para correr (5km)",
-              "categoria": "ejercicio",
+              "actividad": "Guitar jam con amigos",
+              "categoria": "estudio",
               "objetivoId": "obj1"
             },
             {
               "semana": 1,
               "dia": "domingo",
               "hora": "10:00",
-              "duracion": 30,
-              "actividad": "Practicar guitarra",
-              "categoria": "estudio",
+              "duracion": 60,
+              "actividad": "Correr 5 km",
+              "categoria": "ejercicio",
               "objetivoId": "obj1"
             },
             {
               "semana": 2,
               "dia": "lunes",
-              "hora": "19:00",
+              "hora": "18:30",
               "duracion": 30,
               "actividad": "Clases de guitarra online",
               "categoria": "estudio",
@@ -2770,19 +2142,28 @@
             {
               "semana": 2,
               "dia": "martes",
-              "hora": "19:00",
+              "hora": "18:30",
               "duracion": 30,
-              "actividad": "Ejercicio: carrera suave (4km)",
+              "actividad": "Correr 4 km",
               "categoria": "ejercicio",
               "objetivoId": "obj1"
             },
             {
               "semana": 2,
-              "dia": "jueves",
-              "hora": "19:00",
+              "dia": "miercoles",
+              "hora": "18:30",
               "duracion": 30,
-              "actividad": "Practicar guitarra en casa",
+              "actividad": "Practicar guitarra solo",
               "categoria": "estudio",
+              "objetivoId": "obj1"
+            },
+            {
+              "semana": 2,
+              "dia": "jueves",
+              "hora": "18:30",
+              "duracion": 30,
+              "actividad": "Correr 5 km",
+              "categoria": "ejercicio",
               "objetivoId": "obj1"
             },
             {
@@ -2790,121 +2171,31 @@
               "dia": "sabado",
               "hora": "10:00",
               "duracion": 60,
-              "actividad": "Entrenamiento para correr (6km)",
-              "categoria": "ejercicio",
+              "actividad": "Improvisación de guitarra",
+              "categoria": "estudio",
               "objetivoId": "obj1"
             },
             {
               "semana": 2,
               "dia": "domingo",
               "hora": "10:00",
-              "duracion": 30,
-              "actividad": "Practicar guitarra",
-              "categoria": "estudio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 3,
-              "dia": "lunes",
-              "hora": "19:00",
-              "duracion": 30,
-              "actividad": "Clases de guitarra online",
-              "categoria": "estudio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 3,
-              "dia": "martes",
-              "hora": "19:00",
-              "duracion": 30,
-              "actividad": "Ejercicio: carrera suave (5km)",
-              "categoria": "ejercicio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 3,
-              "dia": "jueves",
-              "hora": "19:00",
-              "duracion": 30,
-              "actividad": "Practicar guitarra en casa",
-              "categoria": "estudio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 3,
-              "dia": "sabado",
-              "hora": "10:00",
               "duracion": 60,
-              "actividad": "Entrenamiento para correr (7km)",
+              "actividad": "Correr 6 km",
               "categoria": "ejercicio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 3,
-              "dia": "domingo",
-              "hora": "10:00",
-              "duracion": 30,
-              "actividad": "Practicar guitarra",
-              "categoria": "estudio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 4,
-              "dia": "lunes",
-              "hora": "19:00",
-              "duracion": 30,
-              "actividad": "Clases de guitarra online",
-              "categoria": "estudio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 4,
-              "dia": "martes",
-              "hora": "19:00",
-              "duracion": 30,
-              "actividad": "Ejercicio: carrera suave (6km)",
-              "categoria": "ejercicio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 4,
-              "dia": "jueves",
-              "hora": "19:00",
-              "duracion": 30,
-              "actividad": "Practicar guitarra en casa",
-              "categoria": "estudio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 4,
-              "dia": "sabado",
-              "hora": "10:00",
-              "duracion": 60,
-              "actividad": "Entrenamiento para correr (8km)",
-              "categoria": "ejercicio",
-              "objetivoId": "obj1"
-            },
-            {
-              "semana": 4,
-              "dia": "domingo",
-              "hora": "10:00",
-              "duracion": 30,
-              "actividad": "Practicar guitarra",
-              "categoria": "estudio",
               "objetivoId": "obj1"
             }
           ],
           "tokensUsed": {
             "input": 517,
-            "output": 1379
+            "output": 849
           },
           "fallbackUsed": false,
           "charge": {
-            "chargeId": "2dcae442-3dcf-46b0-8059-bc16bb4798f6",
+            "chargeId": "2c1c5906-41da-4d72-bc97-03fdc0e1888e",
             "status": "skipped",
             "estimatedCostUsd": 0.005,
             "estimatedCostSats": 5,
-            "finalCostUsd": 0.00090495,
+            "finalCostUsd": 0.00058695,
             "finalCostSats": 1,
             "chargedSats": 0,
             "reasonCode": "internal_tooling",
@@ -2931,9 +2222,9 @@
           }
         },
         "simulation": {
-          "ranAt": "2026-03-24T22:28:31.301-03:00",
+          "ranAt": "2026-03-24T22:52:51.010-03:00",
           "mode": "automatic",
-          "periodLabel": "24/03 - 19/04",
+          "periodLabel": "24/03 - 5/04",
           "summary": {
             "pass": 4,
             "warn": 0,
@@ -2966,7 +2257,7 @@
           "finalQualityScore": 100,
           "attempts": 1,
           "repairHistory": [],
-          "enrichmentInferences": 3,
+          "enrichmentInferences": 0,
           "readinessWarnings": [],
           "readinessConstraints": [],
           "unresolvableFindings": []
@@ -2975,5 +2266,5 @@
     }
   ],
   "globalTraces": [],
-  "updatedAt": "2026-03-25T01:28:31.313Z"
+  "updatedAt": "2026-03-25T01:52:51.023Z"
 }

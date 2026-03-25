@@ -17,3 +17,7 @@ export type FlowStep = {
   questions?: string[];
   prompt?: string; // Nuevo: El prompt de entrada / rol del agente
 }
+
+// ─── Runtime data types (injected from pipeline execution) ───────────────────
+
+export type FlowNodeRuntimeStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped'

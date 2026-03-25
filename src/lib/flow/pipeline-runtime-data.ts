@@ -4,13 +4,17 @@ import type { PipelineContext } from '../pipeline/contracts'
 // Snapshot serializable del estado del pipeline para el dashboard de debug.
 // Persiste en tmp/pipeline-context.json y se sirve via /api/debug/pipeline-context.
 
-export type PhaseStatus = 'pending' | 'running' | 'success' | 'error'
+export type PhaseStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped'
 
 export interface PipelineRuntimeData {
   updatedAt: string
   phaseStatuses: Record<string, PhaseStatus>
   intake?: {
     profileId: string
+    nombre?: string
+    edad?: number
+    ciudad?: string
+    objetivo?: string
   }
   enrich?: {
     inferences: Array<{
@@ -29,6 +33,9 @@ export interface PipelineRuntimeData {
     planId: string
     nombre: string
     eventCount: number
+    resumen?: string
+    fallbackUsed?: boolean
+    tokensUsed?: { input: number; output: number }
     eventos: Array<{
       semana: number
       dia: string
@@ -79,7 +86,13 @@ export function mapContextToRuntimeData(
   }
 
   if (context.profileId) {
-    data.intake = { profileId: context.profileId }
+    data.intake = {
+      profileId: context.profileId,
+      nombre: context.intakeSummary?.nombre,
+      edad: context.intakeSummary?.edad,
+      ciudad: context.intakeSummary?.ciudad,
+      objetivo: context.intakeSummary?.objetivo,
+    }
   }
 
   if (context.enrichment) {
@@ -107,6 +120,9 @@ export function mapContextToRuntimeData(
       planId: build.planId,
       nombre: build.nombre,
       eventCount: build.eventos?.length ?? 0,
+      resumen: build.resumen,
+      fallbackUsed: build.fallbackUsed,
+      tokensUsed: build.tokensUsed,
       eventos: (build.eventos ?? []).map(ev => ({
         semana: ev.semana,
         dia: ev.dia,
@@ -135,7 +151,7 @@ export function mapContextToRuntimeData(
     }
   }
 
-  if (context.repair) {
+  if (context.repair && context.repair.history.length > 0) {
     data.repair = {
       attempts: context.repair.attempts,
       history: context.repair.history.map(h => ({

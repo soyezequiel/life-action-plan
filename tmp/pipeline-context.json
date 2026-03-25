@@ -1,0 +1,185 @@
+{
+  "updatedAt": "2026-03-25T03:01:30.267Z",
+  "phaseStatuses": {
+    "intake": "success",
+    "enrich": "success",
+    "readiness": "success",
+    "build": "success",
+    "simulate": "success",
+    "repair": "skipped",
+    "output": "success"
+  },
+  "intake": {
+    "profileId": "aab63907-8991-43fd-9b67-2c4a44b368cd",
+    "nombre": "Ezequiel",
+    "edad": 32,
+    "ciudad": "Buenos Aires",
+    "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
+  },
+  "enrich": {
+    "inferences": [
+      {
+        "field": "horasProductivasMaximas",
+        "value": "6",
+        "confidence": "medium",
+        "reason": "As a software developer, Ezequiel likely has a productive block of work, but energy levels can fluctuate."
+      },
+      {
+        "field": "horarioPicoEnergia",
+        "value": "10:00-12:00",
+        "confidence": "medium",
+        "reason": "Typical productivity peaks for software developers tend to be late morning."
+      },
+      {
+        "field": "horarioBajoEnergia",
+        "value": "15:00-16:00",
+        "confidence": "medium",
+        "reason": "Post-lunch slumps are common, suggesting a low energy period in the afternoon."
+      }
+    ],
+    "warnings": []
+  },
+  "readiness": {
+    "warnings": [],
+    "constraints": []
+  },
+  "build": {
+    "planId": "3679978b-d30c-42e8-9098-0fb8570d7939",
+    "nombre": "Plan de Ezequiel",
+    "eventCount": 12,
+    "resumen": "Este plan está diseñado para que Ezequiel pueda aprender a tocar la guitarra y prepararse para correr 10 km. Vamos a agregar actividades divertidas y equilibradas a su semana, sin sobrecargarlo.",
+    "fallbackUsed": false,
+    "tokensUsed": {
+      "input": 517,
+      "output": 852
+    },
+    "eventos": [
+      {
+        "semana": 1,
+        "dia": "martes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Clase de guitarra",
+        "categoria": "estudio"
+      },
+      {
+        "semana": 1,
+        "dia": "miercoles",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Practicar acordes en casa",
+        "categoria": "estudio"
+      },
+      {
+        "semana": 1,
+        "dia": "sabado",
+        "hora": "09:00",
+        "duracion": 60,
+        "actividad": "Correr 5 km en el parque",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 2,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Clase de guitarra",
+        "categoria": "estudio"
+      },
+      {
+        "semana": 2,
+        "dia": "martes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Practicar dedos en la guitarra",
+        "categoria": "estudio"
+      },
+      {
+        "semana": 2,
+        "dia": "jueves",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Correr 5 km suave",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 3,
+        "dia": "viernes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Clase de guitarra",
+        "categoria": "estudio"
+      },
+      {
+        "semana": 3,
+        "dia": "sabado",
+        "hora": "10:00",
+        "duracion": 60,
+        "actividad": "Correr 6 km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 3,
+        "dia": "domingo",
+        "hora": "16:00",
+        "duracion": 30,
+        "actividad": "Ver un video de técnica de guitarra",
+        "categoria": "estudio"
+      },
+      {
+        "semana": 4,
+        "dia": "lunes",
+        "hora": "19:00",
+        "duracion": 30,
+        "actividad": "Clase de guitarra",
+        "categoria": "estudio"
+      },
+      {
+        "semana": 4,
+        "dia": "jueves",
+        "hora": "18:30",
+        "duracion": 30,
+        "actividad": "Correr 7 km",
+        "categoria": "ejercicio"
+      },
+      {
+        "semana": 4,
+        "dia": "sabado",
+        "hora": "09:00",
+        "duracion": 60,
+        "actividad": "Correr 8 km",
+        "categoria": "ejercicio"
+      }
+    ]
+  },
+  "simulate": {
+    "qualityScore": 100,
+    "findings": [
+      {
+        "status": "PASS",
+        "code": "schedule_ok"
+      },
+      {
+        "status": "PASS",
+        "code": "work_balance_ok"
+      },
+      {
+        "status": "PASS",
+        "code": "capacity_ok"
+      },
+      {
+        "status": "PASS",
+        "code": "metadata_ok"
+      }
+    ],
+    "summary": {
+      "pass": 4,
+      "warn": 0,
+      "fail": 0
+    }
+  },
+  "output": {
+    "deliveryMode": "pass",
+    "finalQualityScore": 100
+  }
+}

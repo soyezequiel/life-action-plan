@@ -163,6 +163,7 @@ export class FlowRunner {
       const decision = evaluateQualityGate(simulation, attempt, maxAttempts, previousScore)
 
       if (decision === 'deliver') {
+        if (attempt === 1) tracker.onPhaseSkipped?.('repair')
         this.context.output = {
           deliveryMode: simulation.summary.overallStatus === 'PASS' ? 'pass' : 'warn-acceptable',
           finalQualityScore: score
@@ -171,6 +172,7 @@ export class FlowRunner {
       }
 
       if (decision === 'best-effort') {
+        if (attempt === 1) tracker.onPhaseSkipped?.('repair')
         // Use the best simulation we've seen
         const best = this.context.repair?.bestSimulation ?? simulation
         this.context.results.simulate = { simulation: best }
@@ -205,11 +207,30 @@ export class FlowRunner {
   // ── Phase implementations ───────────────────────────────────────────────────
 
   private async _runIntakePhase(): Promise<any> {
-    // Use enriched intake if enriched fields are provided in config
     const cfg = this.context.config.intake
     const result = await processIntake(cfg)
     this.context.profileId = result.profileId
     this.context.results.intake = result
+
+    // Extraer datos visibles para el visualizador de flujo
+    try {
+      const profileRow = await getProfile(result.profileId)
+      if (profileRow) {
+        const profile = parseStoredProfile(profileRow.data)
+        if (profile) {
+          const p = profile.participantes[0]
+          this.context.intakeSummary = {
+            nombre: p?.datosPersonales?.nombre ?? '',
+            edad: p?.datosPersonales?.edad ?? 0,
+            ciudad: p?.datosPersonales?.ubicacion?.ciudad ?? '',
+            objetivo: profile.objetivos[0]?.descripcion ?? ''
+          }
+        }
+      }
+    } catch {
+      // Non-fatal: intake summary is optional for the visualizer
+    }
+
     return result
   }
 

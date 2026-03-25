@@ -18,6 +18,12 @@ export interface PipelineContext {
   profileId?: string
   planId?: string
   config: RunnerConfig
+  intakeSummary?: {
+    nombre: string
+    edad: number
+    ciudad: string
+    objetivo: string
+  }
   results: {
     intake?: { profileId: string }
     build?: BuildResult
@@ -49,6 +55,7 @@ export interface PipelineStepTracker {
   onPhaseStart?: (phase: PipelinePhase) => void
   onPhaseSuccess?: (phase: PipelinePhase, result: any) => void
   onPhaseFailure?: (phase: PipelinePhase, error: Error) => void
+  onPhaseSkipped?: (phase: PipelinePhase) => void
   onProgress?: (phase: PipelinePhase, progress: any) => void
   onRepairAttempt?: (attempt: number, maxAttempts: number, findings: SimulationFinding[]) => void
 }
