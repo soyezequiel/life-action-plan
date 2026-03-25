@@ -1,10 +1,10 @@
 {
   "intake": {
-    "nombre": "Agente V1",
-    "edad": 30,
-    "ubicacion": "Internet",
-    "ocupacion": "Automatizador",
-    "objetivo": "Pasar mis tests de integración"
+    "nombre": "Ezequiel",
+    "edad": 32,
+    "ubicacion": "Buenos Aires",
+    "ocupacion": "Desarrollador de software full-time",
+    "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
   },
   "build": {
     "provider": "openrouter:openai/gpt-4o-mini",
@@ -14,5 +14,9 @@
   },
   "simulate": {
     "mode": "automatic"
+  },
+  "pipeline": {
+    "mode": "deep",
+    "maxRepairAttempts": 3
   }
 }

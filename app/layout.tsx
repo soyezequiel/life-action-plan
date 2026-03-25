@@ -45,7 +45,7 @@ export default function RootLayout({
   children: ReactNode
 }>) {
   return (
-    <html lang="es-AR" className={`${inter.variable} ${plusJakartaSans.variable} ${geistMono.variable}`}>
+    <html lang="es-AR" className={`${inter.variable} ${plusJakartaSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body>
         <ClientProviders>{children}</ClientProviders>
       </body>

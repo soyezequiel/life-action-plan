@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
 import { runnerConfigSchema } from './runner-config.schema'
 import { FlowRunner } from '../src/lib/pipeline/runner'
-import { logPhase, logStep, logRepairAttempt } from '../src/lib/flow/runner-logger'
+import { startPipeline, completePipeline, failPipeline, startPhase, completePhase, logStep, logRepairAttempt } from '../src/lib/flow/runner-logger'
 
 function loadLocalEnv() {
   let loaded = false
@@ -19,8 +19,15 @@ function loadLocalEnv() {
   }
 }
 
+import { traceCollector } from '../src/debug/trace-collector'
+
 async function run() {
   loadLocalEnv()
+  traceCollector.enable()
+  traceCollector.startTrace('cli-pipeline', 'lap:runner', {
+    args: process.argv.slice(2),
+    timestamp: new Date().toISOString()
+  })
   
   const args = process.argv.slice(2)
   let configPath = ''
@@ -77,9 +84,12 @@ async function run() {
 
   try {
     if (targetPhase) {
-      logPhase(targetPhase as any)
+      startPipeline()
+      startPhase(targetPhase as any, runner.getContext())
       const result = await runner.executePhase(targetPhase as any, {
         onPhaseStart: (p) => logStep(`${p}-start` as any),
+        onPhaseSuccess: (p, res) => completePhase(p, res),
+        onPhaseFailure: (p, err) => failPipeline(err),
         onProgress: (p, prog) => {
            if (p === 'build') {
              console.error(`[LAP Runner] Build Progress: [${prog.stage}] step ${prog.current}/${prog.total} (${prog.charCount} chars)`)
@@ -92,12 +102,16 @@ async function run() {
       if (targetPhase === 'output') {
         console.log(JSON.stringify(result, null, 2))
       }
+      completePipeline(result)
     } else {
+      startPipeline()
       const result = await runner.runFullPipeline({
         onPhaseStart: (p) => {
-            logPhase(p)
+            startPhase(p, runner.getContext())
             logStep(`${p}-start` as any)
         },
+        onPhaseSuccess: (p, res) => completePhase(p, res),
+        onPhaseFailure: (p, err) => failPipeline(err),
         onProgress: (p, prog) => {
             if (p === 'build') {
                 console.error(`[LAP Runner] Build Progress: [${prog.stage}] step ${prog.current}/${prog.total} (${prog.charCount} chars)`)
@@ -110,16 +124,17 @@ async function run() {
         }
       })
       
-      logPhase('output')
       if (result?.meta?.deliveryMode) {
         console.error(`[LAP Runner] Delivery mode: ${result.meta.deliveryMode} (score: ${result.meta.finalQualityScore ?? 'n/a'}, attempts: ${result.meta.attempts ?? 1})`)
       }
       console.log(JSON.stringify(result, null, 2))
+      completePipeline(result)
     }
 
     logStep('output-exit')
     process.exit(0)
   } catch (error) {
+    failPipeline(error)
     console.error('[LAP Runner] Runtime error:', error)
     if (error instanceof Error && (error as any).charge) {
       console.error('[LAP Runner] Charge failure info:', (error as any).charge)

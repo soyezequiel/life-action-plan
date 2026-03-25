@@ -222,12 +222,26 @@ export class FlowRunner {
     const profile = parseStoredProfile(profileRow.data)
     if (!profile) throw new Error('PROFILE_PARSE_ERROR_FOR_ENRICH')
 
-    // Build a lightweight runtime for the enricher using the same provider as build
     const buildCfg = this.context.config.build
     const provider = buildCfg.provider ?? 'openai:gpt-4o-mini'
-    const apiKey = buildCfg.apiKey ?? process.env.OPENAI_API_KEY ?? ''
 
-    const runtime = getProvider(provider, { apiKey })
+    const { resolvePlanBuildExecution } = await import('../runtime/build-execution')
+    const resolvedExecution = await resolvePlanBuildExecution({
+      modelId: provider,
+      requestedMode: buildCfg.resourceMode === 'codex' ? 'codex-cloud' : 
+                     buildCfg.resourceMode === 'backend' ? 'backend-cloud' : 
+                     buildCfg.resourceMode === 'user' ? 'user-cloud' : undefined,
+      userSuppliedApiKey: buildCfg.apiKey,
+    })
+
+    if (!resolvedExecution.runtime) {
+      throw new Error('FAILED_TO_RESOLVE_RUNTIME_FOR_ENRICH')
+    }
+
+    const runtime = getProvider(resolvedExecution.runtime.modelId, {
+      apiKey: resolvedExecution.runtime.apiKey,
+      baseURL: resolvedExecution.runtime.baseURL
+    })
     const ctx = {
       planDir: '',
       profileId: this.context.profileId,
@@ -345,8 +359,24 @@ export class FlowRunner {
 
     const buildCfg = this.context.config.build
     const provider = buildCfg.provider ?? 'openai:gpt-4o-mini'
-    const apiKey = buildCfg.apiKey ?? process.env.OPENAI_API_KEY ?? ''
-    const runtime = getProvider(provider, { apiKey })
+
+    const { resolvePlanBuildExecution } = await import('../runtime/build-execution')
+    const resolvedExecution = await resolvePlanBuildExecution({
+      modelId: provider,
+      requestedMode: buildCfg.resourceMode === 'codex' ? 'codex-cloud' : 
+                     buildCfg.resourceMode === 'backend' ? 'backend-cloud' : 
+                     buildCfg.resourceMode === 'user' ? 'user-cloud' : undefined,
+      userSuppliedApiKey: buildCfg.apiKey,
+    })
+
+    if (!resolvedExecution.runtime) {
+      throw new Error('FAILED_TO_RESOLVE_RUNTIME_FOR_REPAIR')
+    }
+
+    const runtime = getProvider(resolvedExecution.runtime.modelId, {
+      apiKey: resolvedExecution.runtime.apiKey,
+      baseURL: resolvedExecution.runtime.baseURL
+    })
 
     const ctx = {
       planDir: '',

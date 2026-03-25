@@ -198,6 +198,11 @@ export async function enrichProfile(
   profile: Perfil,
   ctx: SkillContext
 ): Promise<EnrichmentResult> {
+  const { traceCollector } = await import('../../debug/trace-collector')
+  const traceId = traceCollector.startTrace('profile-enricher', 'openrouter', {
+    profileId: profile.participantes[0]?.datosPersonales?.nombre,
+  })
+
   const systemPrompt = profileEnricher.getSystemPrompt(ctx)
   const userPrompt = buildEnrichmentUserPrompt(profile)
   const messages = [
@@ -213,6 +218,8 @@ export async function enrichProfile(
 
     const enrichedProfile = applyEnrichmentToProfile(profile, parsed.enrichedPartial)
 
+    traceCollector.completeTrace(traceId)
+
     return {
       enrichedProfile,
       inferences: parsed.inferences,
@@ -223,7 +230,7 @@ export async function enrichProfile(
       }
     }
   } catch {
-    // Enrichment failed → return the original profile unchanged, with a warning
+    traceCollector.failTrace(traceId, 'Parse error on enrichment results')
     return {
       enrichedProfile: profile,
       inferences: [],

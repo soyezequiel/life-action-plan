@@ -1278,7 +1278,7 @@ export async function seedProgressFromEvents(
       id: generateId(),
       planId,
       fecha,
-      tipo: ev.categoria === 'habito' ? 'habito' : 'tarea',
+      tipo: ev.categoria || 'tarea',
       objetivoId: ev.objetivoId || null,
       descripcion: ev.actividad,
       completado: false,

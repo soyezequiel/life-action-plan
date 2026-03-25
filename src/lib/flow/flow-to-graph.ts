@@ -57,6 +57,8 @@ export function generateGraphData() {
       id: step.id,
       type: 'flowStep',
       data: {
+        id: step.id,
+        phaseId: step.phaseId,
         label: step.name,
         description: step.description,
         type: step.type,

@@ -204,6 +204,8 @@ async function runWithInactivityTimeout<T>(
   }
 }
 
+import { traceCollector } from '../../debug/trace-collector'
+
 function createOpenAIRuntime(
   model: string,
   config: ProviderConfig,
@@ -219,6 +221,13 @@ function createOpenAIRuntime(
   })
 
   const llmModel = openai.responses(model)
+  
+  const getInstrumentationCtx = () => ({
+    traceId: traceCollector.getActiveTraceId(),
+    skillName: 'llm-interaction',
+    provider: options?.providerName || 'openai'
+  })
+
   const providerOptions = shouldRequestOpenAIReasoningSummary(model)
     ? {
         openai: {
@@ -238,6 +247,20 @@ async function collectStreamedResponse(
     abortSignal: AbortSignal,
     onActivity?: () => void
   ): Promise<LLMResponse> {
+    const { traceId, skillName, provider } = getInstrumentationCtx()
+    const spanId = traceCollector.startSpan({
+      traceId,
+      skillName,
+      provider,
+      type: 'stream',
+      messages
+    })
+
+    const wrappedOnToken = (token: string) => {
+        traceCollector.emitToken(traceId, spanId, token)
+        onToken(token)
+    }
+
     const result = streamText({
       model: llmModel,
       messages: mapMessages(messages),
@@ -253,6 +276,7 @@ async function collectStreamedResponse(
       onActivity?.()
       const streamError = getOpenAIChunkError(chunk as { type?: string; error?: unknown })
       if (streamError) {
+        traceCollector.failSpan(traceId, spanId, streamError)
         throw streamError
       }
 
@@ -266,47 +290,67 @@ async function collectStreamedResponse(
       thinkingOpen = appended.nextThinkingOpen
 
       for (const emittedChunk of appended.emittedChunks) {
-        onToken(emittedChunk)
+        wrappedOnToken(emittedChunk)
       }
     }
 
     if (thinkingOpen) {
       fullText += '</think>'
-      onToken('</think>')
+      wrappedOnToken('</think>')
     }
 
     const usage = await result.usage
-
-    return {
+    const finalResponse = {
       content: fullText,
       usage: {
         promptTokens: usage?.inputTokens ?? 0,
         completionTokens: usage?.outputTokens ?? 0
       }
     }
+
+    traceCollector.completeSpan(traceId, spanId, finalResponse)
+
+    return finalResponse
   }
 
   return {
     async chat(messages: LLMMessage[]): Promise<LLMResponse> {
-      const result = await runWithTimeout(
-        (abortSignal) => generateText({
-          model: llmModel,
-          messages: mapMessages(messages),
-          maxOutputTokens,
-          abortSignal,
-          timeout: timeouts.chatMs,
-          ...(providerOptions ? { providerOptions } : {})
-        }),
-        timeouts.chatMs,
-        MODEL_TIMEOUT_MESSAGE
-      )
+      const { traceId, skillName, provider } = getInstrumentationCtx()
+      const spanId = traceCollector.startSpan({
+        traceId,
+        skillName,
+        provider,
+        type: 'chat',
+        messages
+      })
 
-      return {
-        content: mergeReasoningContent(result.reasoningText, result.text),
-        usage: {
-          promptTokens: result.usage?.inputTokens ?? 0,
-          completionTokens: result.usage?.outputTokens ?? 0
+      try {
+        const result = await runWithTimeout(
+          (abortSignal) => generateText({
+            model: llmModel,
+            messages: mapMessages(messages),
+            maxOutputTokens,
+            abortSignal,
+            timeout: timeouts.chatMs,
+            ...(providerOptions ? { providerOptions } : {})
+          }),
+          timeouts.chatMs,
+          MODEL_TIMEOUT_MESSAGE
+        )
+
+        const response = {
+          content: mergeReasoningContent(result.reasoningText, result.text),
+          usage: {
+            promptTokens: result.usage?.inputTokens ?? 0,
+            completionTokens: result.usage?.outputTokens ?? 0
+          }
         }
+
+        traceCollector.completeSpan(traceId, spanId, response)
+        return response
+      } catch (error) {
+        traceCollector.failSpan(traceId, spanId, error)
+        throw error
       }
     },
     async *stream(messages: LLMMessage[]): AsyncIterable<string> {

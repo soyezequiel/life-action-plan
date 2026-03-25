@@ -153,6 +153,16 @@ class TraceCollector {
     return traceId
   }
 
+  getActiveTraceId(): string | null {
+    if (this.activeTraces.size === 0) return null
+    // Get the most recently started trace that is not yet completed
+    const active = Array.from(this.activeTraces.values())
+      .filter(t => !t.completedAt)
+      .sort((a, b) => DateTime.fromISO(b.startedAt).toMillis() - DateTime.fromISO(a.startedAt).toMillis())
+    
+    return active[0]?.traceId ?? null
+  }
+
   completeTrace(traceId: string | null): void {
     if (!traceId) return
 
