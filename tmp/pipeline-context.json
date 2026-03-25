@@ -1,13 +1,10 @@
 {
-  "updatedAt": "2026-03-25T15:36:31.871Z",
+  "updatedAt": "2026-03-25T15:50:11.331Z",
   "phaseStatuses": {
     "intake": "success",
     "enrich": "success",
     "readiness": "success",
-    "build": "success",
-    "simulate": "success",
-    "repair": "skipped",
-    "output": "success"
+    "build": "running"
   },
   "phases": {
     "intake": {
@@ -19,16 +16,16 @@
         "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
       },
       "output": {
-        "profileId": "0c097419-c05f-43c1-b3fe-48ee3e7ea28f",
+        "profileId": "50a83d43-d9d0-414c-9dd6-bb28f34c7dec",
         "nombre": "Ezequiel",
         "edad": 32,
         "ciudad": "Buenos Aires",
         "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
       },
       "processing": "Convierte los datos crudos del formulario en un perfil estructurado (Perfil) con participantes, objetivos y calendario. Lo persiste en PostgreSQL.",
-      "startedAt": "2026-03-25T15:35:58.993Z",
-      "finishedAt": "2026-03-25T15:35:59.083Z",
-      "durationMs": 90
+      "startedAt": "2026-03-25T15:50:06.642Z",
+      "finishedAt": "2026-03-25T15:50:06.712Z",
+      "durationMs": 70
     },
     "enrich": {
       "input": {
@@ -40,43 +37,18 @@
         "provider": "openrouter:openai/gpt-4o-mini"
       },
       "output": {
-        "enrichedProfileId": "9887b9c3-40df-4ed8-96d9-f01f194b2149",
-        "inferences": [
-          {
-            "field": "horasProductivasMaximas",
-            "value": 4,
-            "confidence": "high",
-            "reason": "El usuario ha declarado 4 horas libres laborales, lo que indica que puede ser productivo en este tiempo."
-          },
-          {
-            "field": "horarioPicoEnergia",
-            "value": "10:00-12:00",
-            "confidence": "medium",
-            "reason": "Generalmente, las personas con trabajo regular tienden a tener más energía por las mañanas."
-          },
-          {
-            "field": "horarioBajoEnergia",
-            "value": "15:00-17:00",
-            "confidence": "medium",
-            "reason": "Se asume que la energía tiende a decaer después de la hora del almuerzo en trabajos regulares."
-          },
-          {
-            "field": "nivelEnergia",
-            "value": "medio",
-            "confidence": "high",
-            "reason": "El usuario ha declarado un nivel de energía medio."
-          }
-        ],
+        "enrichedProfileId": "986b30bc-2919-48cc-85d6-c525a1fb0111",
+        "inferences": [],
         "warnings": [],
         "tokensUsed": {
           "input": 604,
-          "output": 408
+          "output": 182
         }
       },
       "processing": "Envía el perfil base al LLM para inferir campos faltantes (horarios, preferencias, obstáculos). Guarda el perfil enriquecido como nueva versión en DB.",
-      "startedAt": "2026-03-25T15:35:59.085Z",
-      "finishedAt": "2026-03-25T15:36:10.650Z",
-      "durationMs": 11565
+      "startedAt": "2026-03-25T15:50:06.714Z",
+      "finishedAt": "2026-03-25T15:50:11.324Z",
+      "durationMs": 4610
     },
     "readiness": {
       "input": {
@@ -93,424 +65,24 @@
         "constraints": []
       },
       "processing": "Valida que el perfil tenga los datos mínimos para generar un plan viable: objetivos definidos, horas libres positivas, horarios coherentes y carga factible.",
-      "startedAt": "2026-03-25T15:36:10.652Z",
-      "finishedAt": "2026-03-25T15:36:10.655Z",
-      "durationMs": 3
-    },
-    "build": {
-      "input": {
-        "persona": "Ezequiel",
-        "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento",
-        "provider": "openrouter:openai/gpt-4o-mini",
-        "horasLibresLaborales": 0,
-        "horasLibresFinDeSemana": 10,
-        "constraints": []
-      },
-      "output": {
-        "planId": "c7b05aa9-4784-4117-ad30-84688d4c9020",
-        "nombre": "Plan de Ezequiel",
-        "resumen": "Este plan te ayudará a aprender a tocar la guitarra mientras te preparás para correr 10 kilómetros. Incluye sesiones de práctica y entrenamiento de carrera, todo respetando tu horario y energía.",
-        "eventCount": 14,
-        "eventos": [
-          {
-            "semana": 1,
-            "dia": "lunes",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Práctica de guitarra",
-            "categoria": "habito",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 1,
-            "dia": "martes",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Entrenamiento de carrera (30 min a ritmo suave)",
-            "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 1,
-            "dia": "miercoles",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Práctica de guitarra",
-            "categoria": "habito",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 1,
-            "dia": "jueves",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Entrenamiento de carrera (30 min a ritmo suave)",
-            "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 1,
-            "dia": "viernes",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Práctica de guitarra",
-            "categoria": "habito",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 1,
-            "dia": "sabado",
-            "hora": "10:00",
-            "duracion": 60,
-            "actividad": "Entrenamiento de carrera (60 min, aumentando ritmo)",
-            "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 1,
-            "dia": "domingo",
-            "hora": "10:00",
-            "duracion": 30,
-            "actividad": "Práctica de guitarra",
-            "categoria": "habito",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 2,
-            "dia": "lunes",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Práctica de guitarra",
-            "categoria": "habito",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 2,
-            "dia": "martes",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Entrenamiento de carrera (30 min a ritmo suave)",
-            "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 2,
-            "dia": "miercoles",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Práctica de guitarra",
-            "categoria": "habito",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 2,
-            "dia": "jueves",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Entrenamiento de carrera (30 min a ritmo suave)",
-            "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 2,
-            "dia": "viernes",
-            "hora": "18:30",
-            "duracion": 30,
-            "actividad": "Práctica de guitarra",
-            "categoria": "habito",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 2,
-            "dia": "sabado",
-            "hora": "10:00",
-            "duracion": 60,
-            "actividad": "Entrenamiento de carrera (60 min, aumentando ritmo)",
-            "categoria": "ejercicio",
-            "objetivoId": "obj1"
-          },
-          {
-            "semana": 2,
-            "dia": "domingo",
-            "hora": "10:00",
-            "duracion": 30,
-            "actividad": "Práctica de guitarra",
-            "categoria": "habito",
-            "objetivoId": "obj1"
-          }
-        ],
-        "tokensUsed": {
-          "input": 517,
-          "output": 1012
-        },
-        "fallbackUsed": false
-      },
-      "processing": "Genera el plan semanal de actividades usando el LLM. Produce eventos con día, hora, duración y categoría. Guarda el plan en DB y siembra el progreso inicial.",
-      "startedAt": "2026-03-25T15:36:10.656Z",
-      "finishedAt": "2026-03-25T15:36:31.850Z",
-      "durationMs": 21194
-    },
-    "simulate": {
-      "input": {
-        "nombreDelPlan": "Plan de Ezequiel",
-        "eventCount": 14,
-        "mode": "automatic"
-      },
-      "output": {
-        "qualityScore": 92,
-        "overallStatus": "WARN",
-        "pass": 4,
-        "warn": 1,
-        "fail": 0,
-        "findings": [
-          {
-            "status": "WARN",
-            "code": "no_rest_days"
-          },
-          {
-            "status": "PASS",
-            "code": "schedule_ok"
-          },
-          {
-            "status": "PASS",
-            "code": "work_balance_ok"
-          },
-          {
-            "status": "PASS",
-            "code": "capacity_ok"
-          },
-          {
-            "status": "PASS",
-            "code": "metadata_ok"
-          }
-        ]
-      },
-      "processing": "Ejecuta una simulación determinística del plan: verifica horarios, colisiones con trabajo, carga diaria, energía y cobertura de objetivos. Produce un puntaje 0-100.",
-      "startedAt": "2026-03-25T15:36:31.851Z",
-      "finishedAt": "2026-03-25T15:36:31.869Z",
-      "durationMs": 18
-    },
-    "output": {
-      "input": {
-        "persona": "Ezequiel",
-        "nombreDelPlan": "Plan de Ezequiel",
-        "deliveryMode": "warn-acceptable",
-        "finalQualityScore": 92,
-        "repairAttempts": 1
-      },
-      "output": {
-        "deliveryMode": "warn-acceptable",
-        "finalQualityScore": 92,
-        "unresolvableFindings": []
-      },
-      "processing": "Evalúa la calidad final del plan y decide el modo de entrega: aprobado, aceptable con avisos o mejor esfuerzo. Ensambla el resultado final del pipeline.",
-      "startedAt": "2026-03-25T15:36:31.871Z",
-      "finishedAt": "2026-03-25T15:36:31.871Z",
-      "durationMs": 0
+      "startedAt": "2026-03-25T15:50:11.326Z",
+      "finishedAt": "2026-03-25T15:50:11.330Z",
+      "durationMs": 4
     }
   },
   "intake": {
-    "profileId": "9887b9c3-40df-4ed8-96d9-f01f194b2149",
+    "profileId": "986b30bc-2919-48cc-85d6-c525a1fb0111",
     "nombre": "Ezequiel",
     "edad": 32,
     "ciudad": "Buenos Aires",
     "objetivo": "Aprender a tocar guitarra (30m diarios) y prepararme para correr 10km sin morir en el intento"
   },
   "enrich": {
-    "inferences": [
-      {
-        "field": "horasProductivasMaximas",
-        "value": "4",
-        "confidence": "high",
-        "reason": "El usuario ha declarado 4 horas libres laborales, lo que indica que puede ser productivo en este tiempo."
-      },
-      {
-        "field": "horarioPicoEnergia",
-        "value": "10:00-12:00",
-        "confidence": "medium",
-        "reason": "Generalmente, las personas con trabajo regular tienden a tener más energía por las mañanas."
-      },
-      {
-        "field": "horarioBajoEnergia",
-        "value": "15:00-17:00",
-        "confidence": "medium",
-        "reason": "Se asume que la energía tiende a decaer después de la hora del almuerzo en trabajos regulares."
-      },
-      {
-        "field": "nivelEnergia",
-        "value": "medio",
-        "confidence": "high",
-        "reason": "El usuario ha declarado un nivel de energía medio."
-      }
-    ],
+    "inferences": [],
     "warnings": []
   },
   "readiness": {
     "warnings": [],
     "constraints": []
-  },
-  "build": {
-    "planId": "c7b05aa9-4784-4117-ad30-84688d4c9020",
-    "nombre": "Plan de Ezequiel",
-    "eventCount": 14,
-    "resumen": "Este plan te ayudará a aprender a tocar la guitarra mientras te preparás para correr 10 kilómetros. Incluye sesiones de práctica y entrenamiento de carrera, todo respetando tu horario y energía.",
-    "fallbackUsed": false,
-    "tokensUsed": {
-      "input": 517,
-      "output": 1012
-    },
-    "eventos": [
-      {
-        "semana": 1,
-        "dia": "lunes",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Práctica de guitarra",
-        "categoria": "habito"
-      },
-      {
-        "semana": 1,
-        "dia": "martes",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Entrenamiento de carrera (30 min a ritmo suave)",
-        "categoria": "ejercicio"
-      },
-      {
-        "semana": 1,
-        "dia": "miercoles",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Práctica de guitarra",
-        "categoria": "habito"
-      },
-      {
-        "semana": 1,
-        "dia": "jueves",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Entrenamiento de carrera (30 min a ritmo suave)",
-        "categoria": "ejercicio"
-      },
-      {
-        "semana": 1,
-        "dia": "viernes",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Práctica de guitarra",
-        "categoria": "habito"
-      },
-      {
-        "semana": 1,
-        "dia": "sabado",
-        "hora": "10:00",
-        "duracion": 60,
-        "actividad": "Entrenamiento de carrera (60 min, aumentando ritmo)",
-        "categoria": "ejercicio"
-      },
-      {
-        "semana": 1,
-        "dia": "domingo",
-        "hora": "10:00",
-        "duracion": 30,
-        "actividad": "Práctica de guitarra",
-        "categoria": "habito"
-      },
-      {
-        "semana": 2,
-        "dia": "lunes",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Práctica de guitarra",
-        "categoria": "habito"
-      },
-      {
-        "semana": 2,
-        "dia": "martes",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Entrenamiento de carrera (30 min a ritmo suave)",
-        "categoria": "ejercicio"
-      },
-      {
-        "semana": 2,
-        "dia": "miercoles",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Práctica de guitarra",
-        "categoria": "habito"
-      },
-      {
-        "semana": 2,
-        "dia": "jueves",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Entrenamiento de carrera (30 min a ritmo suave)",
-        "categoria": "ejercicio"
-      },
-      {
-        "semana": 2,
-        "dia": "viernes",
-        "hora": "18:30",
-        "duracion": 30,
-        "actividad": "Práctica de guitarra",
-        "categoria": "habito"
-      },
-      {
-        "semana": 2,
-        "dia": "sabado",
-        "hora": "10:00",
-        "duracion": 60,
-        "actividad": "Entrenamiento de carrera (60 min, aumentando ritmo)",
-        "categoria": "ejercicio"
-      },
-      {
-        "semana": 2,
-        "dia": "domingo",
-        "hora": "10:00",
-        "duracion": 30,
-        "actividad": "Práctica de guitarra",
-        "categoria": "habito"
-      }
-    ]
-  },
-  "simulate": {
-    "qualityScore": 92,
-    "findings": [
-      {
-        "status": "WARN",
-        "code": "no_rest_days"
-      },
-      {
-        "status": "PASS",
-        "code": "schedule_ok"
-      },
-      {
-        "status": "PASS",
-        "code": "work_balance_ok"
-      },
-      {
-        "status": "PASS",
-        "code": "capacity_ok"
-      },
-      {
-        "status": "PASS",
-        "code": "metadata_ok"
-      }
-    ],
-    "summary": {
-      "pass": 4,
-      "warn": 1,
-      "fail": 0
-    }
-  },
-  "repair": {
-    "attempts": 1,
-    "history": []
-  },
-  "output": {
-    "deliveryMode": "warn-acceptable",
-    "finalQualityScore": 92,
-    "warnings": []
   }
 }
