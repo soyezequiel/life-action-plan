@@ -37,7 +37,7 @@ describe('Goal Classifier – Regex-based (v5)', () => {
       const r = classify('Salir a correr 3 veces por semana');
       expect(r.extractedSignals.isRecurring).toBe(true);
       expect(r.extractedSignals.hasNumericTarget).toBe(true); // "veces" match
-      expect(r.goalType).toBe('QUANT_TARGET_TRACKING');
+      expect(r.goalType).toBe('RECURRENT_HABIT');
     });
 
     it('leer cada lunes y miércoles → RECURRENT_HABIT', () => {

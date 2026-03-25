@@ -1,13 +1,15 @@
 {
   "plan_id": "pipeline-v5-sprint3",
-  "status": "ready",
+  "status": "implemented",
   "created_by": "antigravity",
   "created_at": "2026-03-25T19:58:00-03:00",
-  "updated_at": "2026-03-25T19:58:00-03:00",
-  "updated_by": "antigravity",
+  "updated_at": "2026-03-25T20:18:50-03:00",
+  "updated_by": "codex",
   "assigned_to": null,
   "priority": "high",
   "tags": ["pipeline", "backend", "v5"],
-  "blockers": [],
-  "notes": "El usuario ya ejecutó los Prompts 1 al 5. Codigo implementado en src/lib/pipeline/v5/*. Falta implementar los tests del CHAT 6 en tests/pipeline-v5/runner.test.ts"
+  "blockers": [
+    "npm run build sigue fallando por errores de lint y tipos preexistentes fuera del scope de pipeline-v5-sprint3"
+  ],
+  "notes": "CHAT 6 completado: tests de pipeline v5 implementados con scheduler real, typecheck y npm run test OK. Se ajusto classify/template-builder para el caso recurrente simple y se actualizo classify.test. Build pendiente por deuda previa del repo."
 }

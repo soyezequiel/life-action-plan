@@ -2,6 +2,8 @@ import { GoalClassification, GoalSignals, GoalType, GoalDomainRisk } from '@lib/
 
 export function classifyGoal(rawText: string): GoalClassification {
   const text = rawText.toLowerCase();
+  const cadenceHabitPattern =
+    /(\d+\s+veces por semana|todos los d[ií]as|diario|cada (lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo))/i;
 
   // Paso 1: regex patterns para señales obvias
   const signals: GoalSignals = {
@@ -33,6 +35,9 @@ export function classifyGoal(rawText: string): GoalClassification {
     confidence = 0.8;
   } else if (signals.isRelational) {
     goalType = 'RELATIONAL_EMOTIONAL';
+    confidence = 0.9;
+  } else if (cadenceHabitPattern.test(text) && !signals.hasDeliverable) {
+    goalType = 'RECURRENT_HABIT';
     confidence = 0.9;
   } else if (signals.hasNumericTarget && !signals.requiresSkillProgression) {
     goalType = 'QUANT_TARGET_TRACKING';

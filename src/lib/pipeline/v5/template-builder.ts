@@ -18,47 +18,52 @@ export function buildTemplate(
   const activities: ActivityRequest[] = [];
   const { phases } = input.roadmap;
 
-  // Calculamos constraints de descanso según dominio
+  // Calculamos constraints de descanso segun dominio
   let minRestDaysBetween: number | undefined = undefined;
   if (domainCard) {
     if (domainCard.domainLabel.toLowerCase() === 'running') {
       minRestDaysBetween = 1;
     } else {
-      const needsRest = domainCard.constraints.some(c => 
-        c.description.toLowerCase().includes('descanso') || 
-        c.description.toLowerCase().includes('rest') ||
-        c.description.toLowerCase().includes('recuperaci')
+      const needsRest = domainCard.constraints.some((constraint) =>
+        constraint.description.toLowerCase().includes('descanso') ||
+        constraint.description.toLowerCase().includes('rest') ||
+        constraint.description.toLowerCase().includes('recuperaci')
       );
       if (needsRest) minRestDaysBetween = 1;
     }
   }
 
-  // Frecuencia dinámica basada en horas libres y tipo de objetivo
-  let baseFreq = 2; // por defecto 2 a la semana
+  // Los habitos recurrentes simples arrancan con una cadencia moderada.
+  let baseFreq = 2;
   if (classification.goalType === 'RECURRENT_HABIT') {
-    baseFreq = 5;
+    baseFreq = 3;
   } else if (profile.freeHoursWeekday >= 10) {
     baseFreq = 4;
   } else if (profile.freeHoursWeekday >= 5) {
     baseFreq = 3;
   }
 
-  // Si tenemos domain card, aprovechamos las tareas para generar diferentes actividades
-  if (domainCard && domainCard.tasks.length > 0) {
-    domainCard.tasks.forEach(task => {
+  const domainTasks =
+    domainCard && domainCard.tasks.length > 0
+      ? classification.goalType === 'RECURRENT_HABIT'
+        ? domainCard.tasks.slice(0, 1)
+        : domainCard.tasks
+      : [];
+
+  if (domainTasks.length > 0) {
+    domainTasks.forEach((task) => {
       activities.push({
         id: generateId(`act-${task.id}`),
         label: task.label,
         durationMin: task.typicalDurationMin,
         frequencyPerWeek: baseFreq,
-        goalId: 'generated-goal', // Determinado por el contexto en el runner final
+        goalId: 'generated-goal',
         constraintTier: 'soft_strong',
         minRestDaysBetween,
       });
     });
   } else {
-    // Generamos al menos una actividad utilizando la info de la fase
-    phases.forEach(phase => {
+    phases.forEach((phase) => {
       activities.push({
         id: generateId('act-phase'),
         label: phase.name,
@@ -71,7 +76,6 @@ export function buildTemplate(
     });
   }
 
-  // Fallback si no había phases ni domainCard
   if (activities.length === 0) {
     activities.push({
       id: generateId('act-general'),

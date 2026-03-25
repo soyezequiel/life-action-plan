@@ -25,7 +25,7 @@ export async function executeRepairManager(
   let currentSchedule = JSON.parse(JSON.stringify(input.schedule)) as SchedulerOutput;
   let currentHard = [...input.hardFindings];
   let currentSoft = [...input.softFindings];
-  let currentCove = [...input.coveFindings];
+  const currentCove = [...input.coveFindings];
   
   let currentScore = computeScore(currentHard, currentSoft, currentCove);
   const initialScore = currentScore;

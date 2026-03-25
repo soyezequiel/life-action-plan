@@ -1,203 +1,453 @@
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
+import type { TimeEventItem } from '../../src/lib/domain/plan-item';
+import { FlowRunnerV5, type FlowRunnerV5Context } from '../../src/lib/pipeline/v5/runner';
+import type { UserProfileV5 } from '../../src/lib/pipeline/v5/phase-io-v5';
 import type { AgentRuntime, LLMMessage, LLMResponse } from '../../src/lib/runtime/types';
-import type { ActivityRequest, SchedulerInput, SchedulerOutput } from '../../src/lib/scheduler/types';
+import type { ActivityRequest, AvailabilityWindow, SchedulerInput, SchedulerOutput } from '../../src/lib/scheduler/types';
 
-const mockedModules = vi.hoisted(() => ({
-  solveScheduleMock: vi.fn<(_: SchedulerInput) => Promise<SchedulerOutput>>(),
-  executeCoVeVerifierMock: vi.fn(),
-  executeRepairManagerMock: vi.fn(),
-}));
+const WEEK_START = '2026-03-30T00:00:00Z';
+const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
-vi.mock('../../src/lib/scheduler/solver', () => ({
-  solveSchedule: mockedModules.solveScheduleMock,
-}));
+type RuntimeOverrides = {
+  requirements?: (prompt: string) => unknown;
+  profile?: (prompt: string) => unknown;
+  strategy?: (prompt: string) => unknown;
+  cove?: (prompt: string) => unknown;
+  repair?: (prompt: string) => unknown;
+};
 
-vi.mock('../../src/lib/pipeline/v5/cove-verifier', () => ({
-  executeCoVeVerifier: mockedModules.executeCoVeVerifierMock,
-}));
+const DEFAULT_PROFILE: UserProfileV5 = {
+  freeHoursWeekday: 3,
+  freeHoursWeekend: 5,
+  energyLevel: 'medium',
+  fixedCommitments: ['Trabajo de 9 a 18'],
+  scheduleConstraints: ['Evitar trasnochar'],
+};
 
-vi.mock('../../src/lib/pipeline/v5/repair-manager', () => ({
-  executeRepairManager: mockedModules.executeRepairManagerMock,
-}));
+function jsonResponse(content: unknown): LLMResponse {
+  return {
+    content: JSON.stringify(content),
+    usage: { promptTokens: 10, completionTokens: 10 },
+  };
+}
 
-import { FlowRunnerV5 } from '../../src/lib/pipeline/v5/runner';
+function defaultStrategy(prompt: string) {
+  const lowerPrompt = prompt.toLowerCase();
 
-function makeRuntime(): AgentRuntime {
-  async function respond(messages: LLMMessage[]): Promise<LLMResponse> {
-    const prompt = messages[messages.length - 1]?.content ?? '';
-
-    if (prompt.includes('array "questions"')) {
-      return {
-        content: '{"questions":["¿Cuantas horas reales le podes dedicar?","¿Para cuando lo queres listo?","¿Que ya tenes avanzado?"]}',
-        usage: { promptTokens: 10, completionTokens: 10 },
-      };
-    }
-
-    if (prompt.includes('"freeHoursWeekday"')) {
-      return {
-        content: '{"freeHoursWeekday":2,"freeHoursWeekend":5,"energyLevel":"medium","fixedCommitments":["Trabajo de 9 a 18"],"scheduleConstraints":["Evitar trasnochar"]}',
-        usage: { promptTokens: 10, completionTokens: 10 },
-      };
-    }
-
+  if (lowerPrompt.includes('guitarra') || lowerPrompt.includes('skill_acquisition')) {
     return {
-      content: '{"phases":[{"name":"Fundamentos","durationWeeks":2,"focus_esAR":"Armar la base"},{"name":"Cierre","durationWeeks":1,"focus_esAR":"Terminar y publicar"}],"milestones":["Base armada","Entrega hecha"]}',
-      usage: { promptTokens: 10, completionTokens: 10 },
+      phases: [
+        { name: 'Fundamentos', durationWeeks: 3, focus_esAR: 'Postura, ritmo y primeros acordes.' },
+        { name: 'Repertorio', durationWeeks: 3, focus_esAR: 'Combinar tecnica con canciones completas.' },
+      ],
+      milestones: ['Tocar una cancion simple completa', 'Sostener una practica semanal estable'],
     };
   }
 
   return {
-    chat: respond,
+    phases: [
+      { name: 'Base semanal', durationWeeks: 2, focus_esAR: 'Instalar una rutina simple y sostenible.' },
+    ],
+    milestones: ['Completar la primera semana sin cortar la racha'],
+  };
+}
+
+function createRuntime(overrides: RuntimeOverrides = {}): AgentRuntime {
+  async function chat(messages: LLMMessage[]): Promise<LLMResponse> {
+    const prompt = messages[messages.length - 1]?.content ?? '';
+
+    if (prompt.includes('array "questions"')) {
+      return jsonResponse(
+        overrides.requirements?.(prompt) ?? {
+          questions: [
+            'Cuantas horas reales le podes dedicar por semana?',
+            'Que franja te queda mas comoda para sostenerlo?',
+            'Que te freno las veces anteriores?',
+          ],
+        },
+      );
+    }
+
+    if (prompt.includes('"freeHoursWeekday"')) {
+      return jsonResponse(overrides.profile?.(prompt) ?? DEFAULT_PROFILE);
+    }
+
+    if (prompt.includes('Chain-of-Verification')) {
+      return jsonResponse(
+        overrides.cove?.(prompt) ?? {
+          findings: [
+            {
+              question: 'El plan tiene una base razonable?',
+              answer: 'Si, el calendario queda consistente.',
+              severity: 'INFO',
+            },
+          ],
+        },
+      );
+    }
+
+    if (prompt.includes('Repair Manager')) {
+      return jsonResponse(overrides.repair?.(prompt) ?? { op: null });
+    }
+
+    return jsonResponse(overrides.strategy?.(prompt) ?? defaultStrategy(prompt));
+  }
+
+  return {
+    chat,
     async *stream() {
       yield '';
     },
     newContext() {
-      return makeRuntime();
+      return createRuntime(overrides);
     },
   };
 }
 
-function makeEvent(activity: ActivityRequest, startAt: string, durationMin = activity.durationMin) {
-  const createdAt = '2026-03-30T00:00:00.000Z';
+function makeAvailability(startTime = '06:00', endTime = '22:00'): AvailabilityWindow[] {
+  return WEEK_DAYS.map((day) => ({ day, startTime, endTime }));
+}
+
+function makeConfig(
+  text: string,
+  runtimeOverrides: RuntimeOverrides = {},
+  extra: Partial<ConstructorParameters<typeof FlowRunnerV5>[0]> = {},
+): ConstructorParameters<typeof FlowRunnerV5>[0] {
   return {
-    id: `${activity.id}_s0_test`,
-    kind: 'time_event' as const,
+    runtime: createRuntime(runtimeOverrides),
+    text,
+    answers: {
+      disponibilidad: 'Entre semana tengo dos o tres horas y el finde un poco mas.',
+    },
+    availability: makeAvailability(),
+    weekStartDate: WEEK_START,
+    goalId: 'goal-v5-test',
+    ...extra,
+  };
+}
+
+function makeActivity(overrides: Partial<ActivityRequest> & Pick<ActivityRequest, 'id' | 'label'>): ActivityRequest {
+  return {
+    durationMin: 60,
+    frequencyPerWeek: 1,
+    goalId: 'goal-v5-test',
+    constraintTier: 'soft_strong',
+    ...overrides,
+  };
+}
+
+function makeEvent(activity: ActivityRequest, startAt: string, durationMin = activity.durationMin): TimeEventItem {
+  const createdAt = '2026-03-30T00:00:00.000Z';
+
+  return {
+    id: `${activity.id}_${startAt.replace(/[:.-]/g, '')}`,
+    kind: 'time_event',
     title: activity.label,
-    status: 'active' as const,
+    status: 'active',
     goalIds: [activity.goalId],
     startAt,
     durationMin,
-    rigidity: activity.constraintTier === 'hard' ? 'hard' as const : 'soft' as const,
+    rigidity: activity.constraintTier === 'hard' ? 'hard' : 'soft',
     createdAt,
     updatedAt: createdAt,
   };
 }
 
+function makeSchedule(events: TimeEventItem[]): SchedulerOutput {
+  return {
+    events,
+    unscheduled: [],
+    tradeoffs: [],
+    metrics: {
+      fillRate: 1,
+      solverTimeMs: 1,
+      solverStatus: 'optimal',
+    },
+  };
+}
+
+function makeScheduleInput(
+  activities: ActivityRequest[],
+  availability: AvailabilityWindow[] = makeAvailability(),
+): SchedulerInput {
+  return {
+    activities,
+    availability,
+    blocked: [],
+    preferences: [],
+    weekStartDate: WEEK_START,
+  };
+}
+
 describe('FlowRunnerV5', () => {
-  beforeEach(() => {
-    mockedModules.solveScheduleMock.mockReset();
-    mockedModules.executeCoVeVerifierMock.mockReset();
-    mockedModules.executeRepairManagerMock.mockReset();
+  it('happy path simple: correr 3 veces por semana produce 3 time events con scheduler real', async () => {
+    const runner = new FlowRunnerV5(makeConfig('correr 3 veces por semana', {}, { goalId: 'goal-running' }));
+
+    const context = await runner.runFullPipeline();
+    const timeEvents = context.package?.items.filter((item) => item.kind === 'time_event') ?? [];
+
+    expect(context.classification?.goalType).toBe('RECURRENT_HABIT');
+    expect(context.template?.activities).toHaveLength(1);
+    expect(context.template?.activities[0]?.frequencyPerWeek).toBe(3);
+    expect(context.schedule?.events).toHaveLength(3);
+    expect(context.schedule?.unscheduled).toHaveLength(0);
+    expect(timeEvents).toHaveLength(3);
   });
 
-  it('orquesta las fases hasta package y deja PhaseIO compatible', async () => {
-    mockedModules.solveScheduleMock.mockImplementation(async (input) => ({
-      events: [makeEvent(input.activities[0], '2026-03-30T18:00:00.000Z')],
-      unscheduled: [],
-      tradeoffs: [],
-      metrics: { fillRate: 1, solverTimeMs: 5, solverStatus: 'optimal' },
-    }));
-    mockedModules.executeCoVeVerifierMock.mockResolvedValue({ findings: [{ question: '¿Es viable?', answer: 'Si.', severity: 'INFO' }] });
-    mockedModules.executeRepairManagerMock.mockResolvedValue({
-      patchesApplied: [],
-      iterations: 0,
-      scoreBefore: 100,
-      scoreAfter: 100,
-      finalSchedule: {
-        events: [],
-        unscheduled: [],
-        tradeoffs: [],
-        metrics: { fillRate: 1, solverTimeMs: 0, solverStatus: 'optimal' },
-      },
-    });
+  it('happy path complejo: aprender guitarra arma un plan con progresion y sesiones', async () => {
+    const runner = new FlowRunnerV5(makeConfig('aprender guitarra', {}, { goalId: 'goal-guitar' }));
 
-    const tracker = {
-      onPhaseStart: vi.fn(),
-      onPhaseSuccess: vi.fn(),
-      onPhaseSkipped: vi.fn(),
-      onProgress: vi.fn(),
-      onRepairAttempt: vi.fn(),
-    };
+    const context = await runner.runFullPipeline();
+    const timeEvents = context.package?.items.filter((item) => item.kind === 'time_event') ?? [];
+    const milestones = context.package?.items.filter((item) => item.kind === 'milestone') ?? [];
 
-    const runner = new FlowRunnerV5({
-      runtime: makeRuntime(),
-      text: 'Terminar el portfolio',
-      answers: {
-        disponibilidad: 'Dos horas por dia y mas el sabado',
-      },
-      availability: [
-        { day: 'monday', startTime: '18:00', endTime: '21:00' },
-        { day: 'wednesday', startTime: '18:00', endTime: '21:00' },
-      ],
-      weekStartDate: '2026-03-30T00:00:00Z',
-      goalId: 'goal-portfolio',
-    });
-
-    const context = await runner.runFullPipeline(tracker);
-
-    expect(context.package?.items.length).toBeGreaterThan(0);
-    expect(context.package?.summary_esAR).toContain('portfolio');
-    expect(context.phaseIO.classify?.input).toEqual({ text: 'Terminar el portfolio' });
-    expect(context.phaseIO.package?.output.qualityScore).toBeGreaterThanOrEqual(80);
-    expect(tracker.onPhaseSuccess).toHaveBeenCalled();
-    expect(tracker.onPhaseSkipped).toHaveBeenCalledWith('repair');
-    expect(tracker.onPhaseSkipped).toHaveBeenCalledWith('adapt');
+    expect(context.classification?.goalType).toBe('SKILL_ACQUISITION');
+    expect(context.template?.activities.length ?? 0).toBeGreaterThanOrEqual(5);
+    expect(timeEvents.length).toBeGreaterThanOrEqual(10);
+    expect(context.phaseIO.strategy?.output.phases.length).toBeGreaterThanOrEqual(2);
+    expect(milestones.length).toBeGreaterThanOrEqual(1);
+    expect(context.package?.summary_esAR).toContain('aprender guitarra');
   });
 
-  it('hace repair loop cuando validacion dura o CoVe fallan y revalida hasta quedar estable', async () => {
-    mockedModules.solveScheduleMock.mockImplementation(async (input) => ({
-      events: [
-        makeEvent(input.activities[0], '2026-03-30T18:00:00.000Z'),
-        makeEvent(input.activities[1] ?? input.activities[0], '2026-03-30T18:00:00.000Z'),
-      ],
-      unscheduled: [],
-      tradeoffs: [],
-      metrics: { fillRate: 1, solverTimeMs: 5, solverStatus: 'optimal' },
-    }));
+  it('escenario multi objetivo: valida un plan combinado inyectando una plantilla mixta', async () => {
+    const activities: ActivityRequest[] = [
+      makeActivity({ id: 'run', label: 'Running suave', durationMin: 40, frequencyPerWeek: 1 }),
+      makeActivity({ id: 'guitar', label: 'Practica de guitarra', durationMin: 30, frequencyPerWeek: 1 }),
+      makeActivity({ id: 'save', label: 'Revision semanal de ahorro', durationMin: 20, frequencyPerWeek: 1 }),
+    ];
 
-    mockedModules.executeCoVeVerifierMock
-      .mockResolvedValueOnce({
-        findings: [{ question: '¿Hay solapamientos?', answer: 'Si, hay conflicto real.', severity: 'FAIL' }],
-      })
-      .mockResolvedValueOnce({
-        findings: [{ question: '¿Hay solapamientos?', answer: 'No, ya no se pisan.', severity: 'INFO' }],
-      });
+    const runner = new FlowRunnerV5(
+      makeConfig('correr + guitarra + ahorrar', {}, { goalId: 'goal-combined' }),
+      {
+        template: { activities },
+        strategy: {
+          phases: [{ name: 'Semana integrada', durationWeeks: 1, focus_esAR: 'Repartir foco entre habito, skill y finanzas.' }],
+          milestones: ['Sostener las tres frentes en la misma semana'],
+        },
+      },
+    );
 
-    mockedModules.executeRepairManagerMock.mockImplementation(async (runtime, input) => ({
-      patchesApplied: [{ type: 'MOVE', targetId: input.schedule.events[1].id }],
-      iterations: 1,
-      scoreBefore: 60,
-      scoreAfter: 95,
-      finalSchedule: {
-        ...input.schedule,
-        events: [
-          input.schedule.events[0],
-          {
-            ...input.schedule.events[1],
-            startAt: '2026-04-01T18:00:00.000Z',
+    await runner.executePhase('schedule');
+    await runner.executePhase('package');
+
+    const context = runner.getContext();
+    const scheduledTitles = context.schedule?.events.map((event) => event.title) ?? [];
+
+    expect(scheduledTitles).toEqual(
+      expect.arrayContaining(['Running suave', 'Practica de guitarra', 'Revision semanal de ahorro']),
+    );
+    expect(context.package?.items.filter((item) => item.kind === 'time_event')).toHaveLength(3);
+    expect(context.package?.summary_esAR).toContain('correr + guitarra + ahorrar');
+  });
+
+  it('repair loop: corrige un overlap inyectado en una sola reparacion', async () => {
+    const availability = [
+      { day: 'monday', startTime: '18:00', endTime: '20:00' },
+      { day: 'wednesday', startTime: '18:00', endTime: '20:00' },
+    ] satisfies AvailabilityWindow[];
+    const activityA = makeActivity({ id: 'focus-a', label: 'Bloque A', constraintTier: 'hard' });
+    const activityB = makeActivity({ id: 'focus-b', label: 'Bloque B', constraintTier: 'hard' });
+    const schedule = makeSchedule([
+      makeEvent(activityA, '2026-03-30T18:00:00.000Z'),
+      makeEvent(activityB, '2026-03-30T18:00:00.000Z'),
+    ]);
+
+    const runner = new FlowRunnerV5(
+      makeConfig('resolver overlap', {
+        repair: () => ({
+          op: {
+            type: 'MOVE',
+            targetId: schedule.events[1].id,
+            newStartAt: '2026-04-01T18:00:00.000Z',
           },
-        ],
+        }),
+      }, { availability }),
+      {
+        schedule,
+        scheduleInput: makeScheduleInput([activityA, activityB], availability),
+        profile: DEFAULT_PROFILE,
       },
-    }));
+    );
 
-    const tracker = {
-      onRepairAttempt: vi.fn(),
-      onPhaseSkipped: vi.fn(),
-    };
+    await runner.executePhase('hardValidate');
+    await runner.executePhase('coveVerify');
+    await runner.executePhase('repair');
+    await runner.executePhase('hardValidate');
 
-    const runner = new FlowRunnerV5({
-      runtime: makeRuntime(),
-      text: 'Terminar el portfolio',
-      answers: {
-        disponibilidad: 'Dos horas por dia y algo el miercoles',
-      },
-      availability: [
-        { day: 'monday', startTime: '18:00', endTime: '21:00' },
-        { day: 'wednesday', startTime: '18:00', endTime: '21:00' },
-      ],
-      weekStartDate: '2026-03-30T00:00:00Z',
-      goalId: 'goal-portfolio',
-    });
+    const context = runner.getContext();
 
-    const context = await runner.runFullPipeline(tracker);
-
-    expect(context.repairCycles).toBe(1);
-    expect(mockedModules.executeRepairManagerMock).toHaveBeenCalledTimes(1);
-    expect(mockedModules.executeCoVeVerifierMock).toHaveBeenCalledTimes(2);
+    expect(context.repair?.iterations).toBeLessThanOrEqual(3);
+    expect(context.repair?.patchesApplied).toEqual([{ type: 'MOVE', targetId: schedule.events[1].id }]);
+    expect(context.schedule?.events[1]?.startAt).toBe('2026-04-01T18:00:00.000Z');
     expect(context.hardValidate?.findings).toHaveLength(0);
-    expect(context.package?.qualityScore).toBe(95);
-    expect(tracker.onRepairAttempt).toHaveBeenCalledTimes(1);
-    expect(tracker.onPhaseSkipped).toHaveBeenCalledWith('adapt');
+  });
+
+  it('CoVe detecta falta de descanso y repair lo corrige', async () => {
+    const activity = makeActivity({
+      id: 'run-daily',
+      label: 'Running diario',
+      durationMin: 45,
+      frequencyPerWeek: 7,
+      constraintTier: 'soft_strong',
+    });
+    const eventDates = [
+      '2026-03-30T07:00:00.000Z',
+      '2026-03-31T07:00:00.000Z',
+      '2026-04-01T07:00:00.000Z',
+      '2026-04-02T07:00:00.000Z',
+      '2026-04-03T07:00:00.000Z',
+      '2026-04-04T07:00:00.000Z',
+      '2026-04-05T07:00:00.000Z',
+    ];
+    const events = eventDates.map((date) => makeEvent(activity, date));
+    const sundayEventId = events[6].id;
+
+    const runner = new FlowRunnerV5(
+      makeConfig('chequear descanso', {
+        cove: (prompt) => {
+          const eventCount = prompt.match(/- ID:/g)?.length ?? 0;
+          if (eventCount >= 7) {
+            return {
+              findings: [
+                {
+                  question: 'Hay al menos un dia libre?',
+                  answer: 'No, la agenda ocupa los 7 dias de la semana.',
+                  severity: 'FAIL',
+                },
+              ],
+            };
+          }
+
+          return {
+            findings: [
+              {
+                question: 'Hay al menos un dia libre?',
+                answer: 'Si, quedo al menos un dia completo para recuperar.',
+                severity: 'INFO',
+              },
+            ],
+          };
+        },
+        repair: () => ({
+          op: {
+            type: 'DROP',
+            targetId: sundayEventId,
+          },
+        }),
+      }),
+      {
+        schedule: makeSchedule(events),
+        scheduleInput: makeScheduleInput([activity]),
+        profile: DEFAULT_PROFILE,
+      },
+    );
+
+    await runner.executePhase('softValidate');
+    const firstSoft = runner.getContext().softValidate;
+    await runner.executePhase('coveVerify');
+    const firstCove = runner.getContext().coveVerify;
+    await runner.executePhase('repair');
+    await runner.executePhase('softValidate');
+    await runner.executePhase('coveVerify');
+
+    const context = runner.getContext();
+
+    expect(firstSoft?.findings.some((finding) => finding.code === 'SV-NO-REST')).toBe(true);
+    expect(firstCove?.findings.some((finding) => finding.severity === 'FAIL')).toBe(true);
+    expect(context.repair?.patchesApplied).toEqual([{ type: 'DROP', targetId: sundayEventId }]);
+    expect(context.schedule?.events).toHaveLength(6);
+    expect(context.softValidate?.findings.some((finding) => finding.code === 'SV-NO-REST')).toBe(false);
+    expect(context.coveVerify?.findings.some((finding) => finding.severity === 'FAIL')).toBe(false);
+  });
+
+  it('package wiring: genera items, summary y qualityScore desde el runner', async () => {
+    const activity = makeActivity({ id: 'portfolio', label: 'Bloque de portfolio', durationMin: 60 });
+    const runner = new FlowRunnerV5(
+      makeConfig('terminar portfolio', {}, { goalId: 'goal-portfolio' }),
+      {
+        schedule: makeSchedule([makeEvent(activity, '2026-03-30T18:00:00.000Z')]),
+        classification: {
+          goalType: 'FINITE_PROJECT',
+          confidence: 0.8,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: true,
+            hasNumericTarget: false,
+            requiresSkillProgression: false,
+            dependsOnThirdParties: false,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        strategy: {
+          phases: [{ name: 'Entrega', durationWeeks: 1, focus_esAR: 'Cerrar la version presentable.' }],
+          milestones: ['Publicar una version estable'],
+        },
+      } satisfies Partial<FlowRunnerV5Context>,
+    );
+
+    await runner.executePhase('package');
+
+    const pkg = runner.getContext().package;
+
+    expect(pkg?.items.length).toBeGreaterThanOrEqual(4);
+    expect(pkg?.summary_esAR).toContain('terminar portfolio');
+    expect(pkg?.qualityScore).toBeGreaterThan(0);
+    expect(pkg?.implementationIntentions.length).toBeGreaterThan(0);
+  });
+
+  it('emite PhaseIO para cada fase sincronica relevante cuando el repair loop corre una vez', async () => {
+    let coveCalls = 0;
+    const runner = new FlowRunnerV5(
+      makeConfig('aprender guitarra', {
+        cove: () => {
+          coveCalls += 1;
+          if (coveCalls === 1) {
+            return {
+              findings: [
+                {
+                  question: 'Conviene revisar una sesion?',
+                  answer: 'Hay una observacion pendiente para re-chequear.',
+                  severity: 'FAIL',
+                },
+              ],
+            };
+          }
+
+          return {
+            findings: [
+              {
+                question: 'Conviene revisar una sesion?',
+                answer: 'Quedo consistente despues del loop.',
+                severity: 'INFO',
+              },
+            ],
+          };
+        },
+      }),
+    );
+
+    const context = await runner.runFullPipeline();
+    const phaseKeys = Object.keys(context.phaseIO);
+
+    expect(phaseKeys.length).toBeGreaterThanOrEqual(11);
+    expect(phaseKeys).toEqual(
+      expect.arrayContaining([
+        'classify',
+        'requirements',
+        'profile',
+        'strategy',
+        'template',
+        'schedule',
+        'hardValidate',
+        'softValidate',
+        'coveVerify',
+        'repair',
+        'package',
+      ]),
+    );
+    expect(context.phaseIO.adapt).toBeUndefined();
   });
 });
