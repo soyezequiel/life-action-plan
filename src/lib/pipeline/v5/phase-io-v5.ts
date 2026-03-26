@@ -1,6 +1,8 @@
 import type { PhaseIO } from '../phase-io';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
+import type { AdherenceScore } from '../../domain/adherence-model';
 import type { HabitState } from '../../domain/habit-state';
+import type { RiskForecast } from '../../domain/risk-forecast';
 import type { ActivityRequest, SchedulerOutput, SchedulerInput } from '../../scheduler/types';
 import type { V5Plan } from '../../domain/rolling-wave-plan';
 import type { SlackPolicy } from '../../domain/slack-policy';
@@ -129,9 +131,87 @@ export interface PackageInput {
 export type PackageOutput = PlanPackage;
 
 // ─── 12. Adapt (Future/Feedback loop) ─────────────────────────────────────────
-export interface AdaptationResult { changesMade: string[]; }
-export interface AdaptInput { package: PlanPackage; userFeedback: string; }
-export type AdaptOutput = AdaptationResult;
+export type AdaptiveMode = 'ABSORB' | 'PARTIAL_REPAIR' | 'REBASE';
+export type AdaptiveActivityOutcome = 'SUCCESS' | 'PARTIAL' | 'MISSED';
+export type AdaptiveRelaunchPhase =
+  | 'strategy'
+  | 'template'
+  | 'schedule'
+  | 'hardValidate'
+  | 'softValidate'
+  | 'coveVerify'
+  | 'repair'
+  | 'package';
+
+export interface AdaptiveActivityLog {
+  progressionKey?: string;
+  activityId?: string;
+  planItemId?: string;
+  occurredAt: string;
+  scheduledStartAt?: string;
+  plannedMinutes?: number;
+  completedMinutes?: number;
+  overlapMinutes?: number;
+  note?: string;
+  outcome: AdaptiveActivityOutcome;
+}
+
+export interface AdaptiveAssessment {
+  progressionKey: string;
+  activityIds: string[];
+  habitState: HabitState;
+  adherence: AdherenceScore;
+  risk: RiskForecast;
+  logCount: number;
+  failureCount: number;
+  partialCount: number;
+  overlapMinutes: number;
+  banalOverlap: boolean;
+}
+
+export interface AdaptiveActivityAdjustment {
+  activityId: string;
+  originalDurationMin?: number;
+  suggestedDurationMin?: number;
+  minimumViableMinutes?: number;
+  minimumViableDescription?: string;
+  relaxConstraintTierTo?: ActivityRequest['constraintTier'];
+  countsMinimumViableAsSuccess?: boolean;
+}
+
+export interface AdaptiveDispatch {
+  rerunFromPhase: 'schedule' | 'strategy';
+  phasesToRun: AdaptiveRelaunchPhase[];
+  preserveSkeleton: boolean;
+  preserveHabitState: boolean;
+  allowSlackRecovery: boolean;
+  relaxSoftConstraints: boolean;
+  maxChurnMoves: number;
+  affectedProgressionKeys: string[];
+  activityAdjustments: AdaptiveActivityAdjustment[];
+  slackPolicy: SlackPolicy;
+  reason: string;
+}
+
+export interface AdaptiveInput {
+  package: PlanPackage;
+  activityLogs: AdaptiveActivityLog[];
+  anchorAt?: string;
+  userFeedback?: string;
+}
+
+export interface AdaptiveOutput {
+  mode: AdaptiveMode;
+  overallRisk: RiskForecast;
+  assessments: AdaptiveAssessment[];
+  dispatch: AdaptiveDispatch;
+  summary_esAR: string;
+  recommendations: string[];
+  changesMade: string[];
+}
+
+export type AdaptInput = AdaptiveInput;
+export type AdaptOutput = AdaptiveOutput;
 
 
 // ─── V5 Registry ──────────────────────────────────────────────────────────────

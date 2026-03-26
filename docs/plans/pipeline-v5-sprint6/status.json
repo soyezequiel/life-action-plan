@@ -1,0 +1,13 @@
+{
+  "plan_id": "pipeline-v5-sprint6",
+  "status": "ready",
+  "created_by": "claude-code",
+  "created_at": "2026-03-25T23:00:00-03:00",
+  "updated_at": "2026-03-25T23:10:00-03:00",
+  "updated_by": "claude-code",
+  "assigned_to": null,
+  "priority": "high",
+  "tags": ["pipeline", "frontend", "v5", "ux", "sprint6"],
+  "blockers": [],
+  "notes": "Sprint 6 UX Final: Dashboard multi-vista, trade-offs abuela-proof, psicología del fracaso. Depende de Sprint 5 completado."
+}

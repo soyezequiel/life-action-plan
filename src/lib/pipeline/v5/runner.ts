@@ -15,6 +15,7 @@ import type {
 import { solveSchedule } from '../../scheduler/solver';
 import { classifyGoal } from './classify';
 import { executeCoVeVerifier } from './cove-verifier';
+import { generateAdaptiveResponse } from './adaptive';
 import { executeHardValidator } from './hard-validator';
 import { packagePlan } from './packager';
 import { buildProfile } from './profile';
@@ -26,6 +27,7 @@ import { buildTemplate } from './template-builder';
 import type {
   AdaptInput,
   AdaptOutput,
+  AdaptiveActivityLog,
   ClassifyInput,
   ClassifyOutput,
   CoVeVerifyInput,
@@ -76,6 +78,8 @@ export interface FlowRunnerV5Config {
   goalId?: string;
   domainHint?: string;
   userFeedback?: string;
+  activityLogs?: AdaptiveActivityLog[];
+  adaptiveAnchorAt?: string;
   slackPolicy?: SlackPolicy;
   habitStateStore?: HabitStateStore;
   previousProgressionKeys?: string[];
@@ -106,6 +110,7 @@ export interface FlowRunnerV5Context {
   coveVerify?: CoVeVerifyOutput;
   repair?: RepairOutput;
   package?: PackageOutput;
+  adapt?: AdaptOutput;
   habitStates?: HabitState[];
   habitProgressionKeys?: string[];
   domainCard?: DomainKnowledgeCard;
@@ -114,7 +119,7 @@ export interface FlowRunnerV5Context {
 
 const DEFAULT_WEEK_START = '2026-03-30T00:00:00Z';
 const MAX_REPAIR_CYCLES = 3;
-const PHASE_PROCESSING: Record<Exclude<PipelinePhaseV5, 'adapt'>, string> = {
+const PHASE_PROCESSING: Record<PipelinePhaseV5, string> = {
   classify: 'Clasifica el objetivo y detecta senales para decidir el tipo de plan.',
   requirements: 'Genera preguntas concretas para completar el contexto minimo del objetivo.',
   profile: 'Convierte respuestas abiertas en un perfil operativo con disponibilidad y restricciones.',
@@ -126,6 +131,7 @@ const PHASE_PROCESSING: Record<Exclude<PipelinePhaseV5, 'adapt'>, string> = {
   coveVerify: 'Hace chequeos de verificacion sobre el calendario y devuelve hallazgos explicitos.',
   repair: 'Aplica reparaciones sobre el calendario si hay fallas o advertencias relevantes.',
   package: 'Empaqueta el resultado final en items del plan, resumen y advertencias honestas.',
+  adapt: 'Evalua adherencia, pronostica riesgo y emite el payload operativo para relanzar la semana.',
 };
 
 function hasFailingFindings(
@@ -246,7 +252,7 @@ export class FlowRunnerV5 {
 
     await this.executePhase('package', tracker);
 
-    if (this.context.config.userFeedback) {
+    if ((this.context.config.activityLogs?.length ?? 0) > 0 || this.context.config.userFeedback) {
       await this.executePhase('adapt', tracker);
     } else {
       tracker.onPhaseSkipped?.('adapt');
@@ -357,7 +363,7 @@ export class FlowRunnerV5 {
     const io: PhaseIO<I, O> = {
       input,
       output,
-      processing: PHASE_PROCESSING[phase as Exclude<PipelinePhaseV5, 'adapt'>] ?? 'Fase v5.',
+      processing: PHASE_PROCESSING[phase as PipelinePhaseV5] ?? 'Fase v5.',
       startedAt,
       finishedAt,
       durationMs: Math.max(0, DateTime.fromISO(finishedAt).toMillis() - DateTime.fromISO(startedAt).toMillis()),
@@ -550,27 +556,22 @@ export class FlowRunnerV5 {
   }
 
   private async runAdaptPhase(tracker: FlowRunnerV5Tracker): Promise<AdaptOutput> {
-    if (!this.context.package || !this.context.config.userFeedback) {
-      throw new Error('V5_ADAPT_NEEDS_PACKAGE_AND_FEEDBACK');
+    if (!this.context.package) {
+      throw new Error('V5_ADAPT_NEEDS_PACKAGE');
+    }
+    if ((this.context.config.activityLogs?.length ?? 0) === 0 && !this.context.config.userFeedback) {
+      throw new Error('V5_ADAPT_NEEDS_ACTIVITY_LOGS_OR_FEEDBACK');
     }
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: AdaptInput = {
       package: this.context.package,
+      activityLogs: this.context.config.activityLogs ?? [],
+      anchorAt: this.context.config.adaptiveAnchorAt ?? startedAt,
       userFeedback: this.context.config.userFeedback,
     };
-    const output: AdaptOutput = {
-      changesMade: ['Adaptacion futura no implementada en Sprint 3.'],
-    };
-    const io: PhaseIO<AdaptInput, AdaptOutput> = {
-      input,
-      output,
-      processing: 'Reservado para la fase adaptativa asincronica de un sprint futuro.',
-      startedAt,
-      finishedAt: DateTime.utc().toISO() ?? startedAt,
-      durationMs: 0,
-    };
-    this.context.phaseIO.adapt = io;
-    tracker.onPhaseSuccess?.('adapt', output, io);
-    return output;
+    this.trackProgress(tracker, 'adapt', 'Evaluando riesgo y modo de adaptacion de la semana.');
+    const output = await generateAdaptiveResponse(input);
+    this.context.adapt = output;
+    return this.commitPhaseIO('adapt', input, output, startedAt, tracker);
   }
 }

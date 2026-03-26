@@ -1,6 +1,6 @@
 # Pipeline v5 — Sprint 5: Adaptación Proactiva
 
-> **Status**: `pending`
+> **Status**: `implemented`
 > **Spec**: `docs/architecture/PIPELINE_V5_SPEC.md` (sección 5)
 > **Depends on**: Sprint 4 completo (Robustez y capas de plan).
 > **Scope**: Evaluar la adherencia (Beta-Bernoulli), generar Risk Forecast, e implementar los 3 modos de adaptación proactivos.
@@ -58,6 +58,6 @@ Simular un escenario de fallos seguidos (baja el Alpha en Bernoulli, salta forec
 
 ## Gates de calidad
 
-- [ ] `npm run typecheck` sin errores.
-- [ ] `npm run test tests/pipeline-v5/adaptive.test.ts` demuestra que el sistema "se da cuenta" si venís fallando durante la misma semana.
-- [ ] Todo sigue encapsulado en el ecosistema de V5, `index.ts` o legacy v1 intactos.
+- [x] `npm run typecheck` sin errores.
+- [x] `npm run test tests/pipeline-v5/adaptive.test.ts` demuestra que el sistema "se da cuenta" si venís fallando durante la misma semana.
+- [x] Todo sigue encapsulado en el ecosistema de V5, `index.ts` o legacy v1 intactos.

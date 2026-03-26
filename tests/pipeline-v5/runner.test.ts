@@ -478,6 +478,42 @@ describe('FlowRunnerV5', () => {
     expect(pkg?.habitStates).toEqual([]);
   });
 
+  it('adaptive wiring: cuando la adherencia cae emite PARTIAL_REPAIR con MVH para relanzar la semana', async () => {
+    const runner = new FlowRunnerV5(
+      makeConfig('correr 3 veces por semana', {}, {
+        goalId: 'goal-running',
+        activityLogs: [
+          { occurredAt: '2026-03-30T07:00:00.000Z', plannedMinutes: 40, completedMinutes: 40, outcome: 'SUCCESS' },
+          { occurredAt: '2026-03-31T07:00:00.000Z', plannedMinutes: 40, completedMinutes: 40, outcome: 'SUCCESS' },
+          { occurredAt: '2026-04-01T07:00:00.000Z', plannedMinutes: 40, completedMinutes: 40, outcome: 'SUCCESS' },
+          { occurredAt: '2026-04-02T07:00:00.000Z', plannedMinutes: 40, completedMinutes: 40, outcome: 'SUCCESS' },
+          { occurredAt: '2026-04-03T07:00:00.000Z', plannedMinutes: 40, completedMinutes: 40, outcome: 'SUCCESS' },
+          { occurredAt: '2026-04-04T07:00:00.000Z', plannedMinutes: 40, completedMinutes: 0, outcome: 'MISSED' },
+          { occurredAt: '2026-04-05T07:00:00.000Z', plannedMinutes: 40, completedMinutes: 0, outcome: 'MISSED' },
+          { occurredAt: '2026-04-06T07:00:00.000Z', plannedMinutes: 40, completedMinutes: 0, outcome: 'MISSED' },
+        ],
+      }),
+    );
+
+    const context = await runner.runFullPipeline();
+    const minimumViableMinutes = context.package?.habitStates[0]?.currentDose.minimumViable.minutes;
+
+    expect(context.adapt?.mode).toBe('PARTIAL_REPAIR');
+    expect(context.adapt?.dispatch.rerunFromPhase).toBe('schedule');
+    expect(context.adapt?.dispatch.phasesToRun).toEqual(
+      expect.arrayContaining(['schedule', 'hardValidate', 'softValidate', 'coveVerify', 'repair', 'package']),
+    );
+    expect(context.adapt?.dispatch.activityAdjustments[0]).toEqual(
+      expect.objectContaining({
+        suggestedDurationMin: minimumViableMinutes,
+        minimumViableMinutes,
+        relaxConstraintTierTo: 'soft_weak',
+        countsMinimumViableAsSuccess: true,
+      }),
+    );
+    expect(context.phaseIO.adapt?.output.mode).toBe('PARTIAL_REPAIR');
+  });
+
   it('emite PhaseIO para cada fase sincronica relevante cuando el repair loop corre una vez', async () => {
     let coveCalls = 0;
     const runner = new FlowRunnerV5(
