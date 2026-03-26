@@ -3,7 +3,7 @@ import type { GoalClassification } from '../../domain/goal-taxonomy';
 import type { AdherenceScore } from '../../domain/adherence-model';
 import type { HabitState } from '../../domain/habit-state';
 import type { RiskForecast } from '../../domain/risk-forecast';
-import type { ActivityRequest, SchedulerOutput, SchedulerInput } from '../../scheduler/types';
+import type { ActivityRequest, SchedulerOutput, SchedulerInput, Tradeoff } from '../../scheduler/types';
 import type { V5Plan } from '../../domain/rolling-wave-plan';
 import type { SlackPolicy } from '../../domain/slack-policy';
 import type { PlanItem } from '../../domain/plan-item';
@@ -111,6 +111,7 @@ export interface PlanPackage {
   qualityScore: number;
   implementationIntentions: string[];
   warnings: string[];
+  tradeoffs?: Tradeoff[];
 }
 export interface PackageInput {
   finalSchedule: SchedulerOutput;

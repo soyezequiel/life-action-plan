@@ -700,6 +700,147 @@
     "profile_not_found": "No encontre tu perfil guardado.",
     "plan_not_found": "No encontre ese plan."
   },
+  "planV5": {
+    "page": {
+      "title": "Mi plan semanal"
+    },
+    "tabs": {
+      "week": "Mi semana",
+      "calendar": "Calendario",
+      "habits": "Mis habitos",
+      "progress": "Mi progreso"
+    },
+    "loading": "Cargando tu plan...",
+    "empty": "Todavia no tenes un plan activo. Crea uno desde el inicio.",
+    "error": "No pudimos cargar tu plan. Intenta de nuevo.",
+    "refresh": "Volver a intentar",
+    "goals": {
+      "multiple": "{{count}} objetivos activos"
+    },
+    "summary": {
+      "changes": "Ver cambios",
+      "tradeoffs": "Ver opciones",
+      "safe": "Semana en equilibrio",
+      "atRisk": "Semana con algunos ajustes",
+      "critical": "Semana para reorganizar",
+      "adaptiveAvailable": "Hay ajustes sugeridos para esta semana.",
+      "adaptiveUnavailable": "Tu plan esta estable por ahora.",
+      "mode": {
+        "ABSORB": "Todo bajo control",
+        "PARTIAL_REPAIR": "Ajustando algunas cosas",
+        "REBASE": "Reorganizando tu plan"
+      }
+    },
+    "week": {
+      "title": "Mi semana por bloques",
+      "subtitle": "Asi queda distribuida tu semana real, con tiempo libre y descansos visibles.",
+      "empty": "Todavia no hay bloques para mostrar en esta semana.",
+      "goal": "Objetivo",
+      "time": "Horario",
+      "rigidity": "Tipo",
+      "buffer": "Bloque de apoyo",
+      "close": "Cerrar detalle"
+    },
+    "calendar": {
+      "title": "Calendario completo",
+      "subtitle": "Revisa tu plan por mes o por semana sin perder de vista los hitos.",
+      "legendEvents": "Bloques programados",
+      "legendMilestones": "Hitos",
+      "milestonePrefix": "Hito"
+    },
+    "habits": {
+      "title": "Mis habitos",
+      "empty": "Todavia no hay habitos para seguir en este plan.",
+      "level": "Nivel {{level}}",
+      "sessionsThisWeek": "{{done}} de {{total}} sesiones esta semana",
+      "streak": "Racha: {{weeks}} semanas",
+      "minimumViable": "Tu version minima: \"{{description}}\"",
+      "safe": "Vas muy bien, segui asi",
+      "atRisk": "Esta semana costo un poco mas. Tu version minima de {{mvh}} cuenta igual.",
+      "critical": "Tuviste una semana dificil, y eso es normal. No perdiste lo que construiste. Podes retomar con {{mvh}}.",
+      "protected": "Llevas {{weeks}} semanas con este habito. Eso no se pierde.",
+      "lapseBanner": "Un tropezon no es una caida. Retoma desde tu version minima."
+    },
+    "progress": {
+      "title": "Mi progreso",
+      "subtitle": "Mira de un vistazo que esta avanzado, que sigue y donde conviene cuidar energia.",
+      "summaryTitle": "Resumen del plan",
+      "phasesTitle": "Etapas del plan",
+      "currentPhase": "Etapa actual",
+      "milestonesTitle": "Hitos",
+      "metricsTitle": "Metricas",
+      "intentionsTitle": "Recordatorios practicos",
+      "warningsTitle": "Para mirar con calma",
+      "noWarnings": "Esta semana no hay alertas extra.",
+      "emptyMilestones": "Todavia no hay hitos cargados.",
+      "emptyMetrics": "Todavia no hay metricas para mostrar.",
+      "current": "Actual",
+      "target": "Meta",
+      "bar": "Avance",
+      "directionIncrease": "Sube",
+      "directionDecrease": "Baja",
+      "directionMaintain": "Sostiene"
+    },
+    "adaptive": {
+      "title": "Ajustes a tu plan",
+      "absorb": "Todo bajo control - no hace falta cambiar nada.",
+      "partialRepair": "Hicimos algunos ajustes para que tu semana funcione mejor.",
+      "rebase": "Reorganizamos tu plan para adaptarlo a los cambios.",
+      "recommendations": "Sugerencias",
+      "changes": "Lo que ajustamos",
+      "noChanges": "No hubo cambios esta semana.",
+      "recommendationSteady": "Tu semana puede seguir casi igual. Solo hace falta sostener el ritmo.",
+      "recommendationEase": "Bajamos un poco la exigencia en lo que venia costando mas.",
+      "recommendationMinimum": "Tu version minima sigue contando para no cortar el habito.",
+      "recommendationReset": "Conviene reorganizar la semana completa antes de seguir sumando carga.",
+      "recommendationLightStart": "Retomamos desde una base mas liviana para recuperar aire.",
+      "changeMinimum": "Dejamos {{habit}} en su version minima de {{minutes}} min por esta semana.",
+      "changeShorter": "Acortamos {{habit}} a {{minutes}} min para que vuelva a entrar mejor.",
+      "changeCountsMinimum": "La version minima de {{habit}} tambien cuenta esta semana.",
+      "changeBreathingRoom": "Reservamos mas aire para que la semana no se apriete de mas.",
+      "changeRebuildWeek": "Rearmamos la semana para que vuelva a sentirse realista.",
+      "habit": "Habito",
+      "recovery": "Tu apoyo para retomar",
+      "adjustment": "Ajuste sugerido"
+    },
+    "quality": {
+      "solid": "Plan solido",
+      "tight": "Plan ajustado",
+      "risky": "Plan con riesgos"
+    },
+    "tradeoff": {
+      "title": "No entra todo en tu semana",
+      "choose": "Elegi que prefieres:",
+      "optionA": "Opcion A",
+      "optionB": "Opcion B",
+      "select": "Elegir",
+      "close": "Cerrar"
+    },
+    "bufferKind": {
+      "slack": "Tiempo libre",
+      "transition": "Transicion",
+      "recovery": "Descanso",
+      "contingency": "Reserva"
+    },
+    "rigidity": {
+      "hard": "Fijo",
+      "soft": "Flexible"
+    },
+    "milestone": {
+      "done": "Completado",
+      "active": "En curso",
+      "blocked": "Bloqueado",
+      "waiting": "Pendiente",
+      "draft": "Pendiente",
+      "canceled": "Cancelado"
+    },
+    "event": {
+      "until": "a las {{time}}"
+    },
+    "dialog": {
+      "selected": "Elegiste la opcion {{option}}."
+    }
+  },
   "flow": {
     "loading": "Cargando..."
   }

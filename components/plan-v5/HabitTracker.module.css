@@ -1,0 +1,131 @@
+.section {
+  display: grid;
+  gap: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+}
+
+.empty,
+.meta,
+.minimum,
+.message,
+.protected {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem;
+  border-radius: 26px;
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%);
+}
+
+.card--safe {
+  box-shadow: 0 0 0 1px rgba(110, 215, 165, 0.14);
+}
+
+.card--warning {
+  box-shadow: 0 0 0 1px rgba(242, 191, 130, 0.16);
+}
+
+.card--danger {
+  box-shadow: 0 0 0 1px rgba(229, 115, 115, 0.18);
+}
+
+.cardHeader,
+.progressRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.name {
+  display: block;
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+  font-size: 1.15rem;
+}
+
+.level {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.statusDot {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+}
+
+.statusDot--safe,
+.progressFill--safe {
+  background: var(--success);
+}
+
+.statusDot--warning,
+.progressFill--warning {
+  background: var(--warning);
+}
+
+.statusDot--danger,
+.progressFill--danger {
+  background: #e57373;
+}
+
+.progressBar {
+  flex: 1;
+  height: 0.65rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.percent {
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+}
+
+.minimum {
+  color: var(--text-soft);
+}
+
+.message {
+  color: var(--text-primary);
+}
+
+.banner {
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-soft);
+}
+
+.protected {
+  color: var(--text-muted);
+}

@@ -1,0 +1,71 @@
+.dashboard {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 1280px);
+  margin: 0 auto;
+}
+
+.stateCard,
+.viewCard {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(22, 22, 22, 0.94), rgba(12, 12, 12, 0.98));
+  box-shadow: var(--shadow-soft);
+}
+
+.stateCard {
+  justify-items: center;
+  min-height: min(50vh, 360px);
+  align-content: center;
+}
+
+.tabBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.tab {
+  min-height: 3rem;
+  padding: 0.75rem 1.05rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.tab:hover {
+  transform: translateY(-1px);
+  color: var(--text-primary);
+}
+
+.tabActive {
+  border-color: rgba(105, 167, 255, 0.28);
+  background: rgba(105, 167, 255, 0.16);
+  color: var(--text-primary);
+}
+
+@media (max-width: 720px) {
+  .viewCard,
+  .stateCard {
+    padding: 1rem;
+  }
+
+  .tabBar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tab {
+    width: 100%;
+  }
+}

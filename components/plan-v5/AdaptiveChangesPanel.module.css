@@ -1,0 +1,60 @@
+.panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-radius: 28px;
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%);
+}
+
+.header,
+.card,
+.assessment {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.title,
+.subtitle {
+  margin: 0;
+  font-family: var(--font-display, "Plus Jakarta Sans", sans-serif);
+}
+
+.copy,
+.list {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.card,
+.assessment {
+  padding: 1rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.list {
+  padding-left: 1.1rem;
+}
+
+.assessments {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.assessmentTitle {
+  font-size: 1rem;
+}
+
+@media (max-width: 720px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

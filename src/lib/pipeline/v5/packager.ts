@@ -632,5 +632,6 @@ export function packagePlan(input: PackageInput): PlanPackage {
     qualityScore,
     implementationIntentions,
     warnings,
+    tradeoffs: input.finalSchedule.tradeoffs ?? [],
   };
 }

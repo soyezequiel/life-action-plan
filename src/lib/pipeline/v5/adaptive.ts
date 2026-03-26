@@ -12,6 +12,7 @@ import { PlanItemSchema } from '../../domain/plan-item';
 import { RiskForecastSchema, forecastRisk, type RiskForecast } from '../../domain/risk-forecast';
 import { V5PlanSchema } from '../../domain/rolling-wave-plan';
 import { SlackPolicySchema, type SlackPolicy } from '../../domain/slack-policy';
+import { TradeoffSchema } from '../../scheduler/types';
 import type {
   AdaptiveActivityAdjustment,
   AdaptiveActivityLog,
@@ -47,6 +48,7 @@ const PlanPackageSchema = z.object({
   qualityScore: z.number(),
   implementationIntentions: z.array(z.string()),
   warnings: z.array(z.string()),
+  tradeoffs: z.array(TradeoffSchema).optional(),
 }).strict();
 
 const AdaptiveInputSchema = z.object({

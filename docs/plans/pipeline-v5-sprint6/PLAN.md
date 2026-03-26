@@ -494,15 +494,15 @@ Fase E — Integración
 
 ## Gate de cierre
 
-- [ ] `npm run typecheck` pasa
-- [ ] `npm run test` pasa (incluyendo tests nuevos de Tarea 14)
-- [ ] Evidencia visible: captura del dashboard con las 4 vistas renderizando datos mock
-- [ ] Cero strings hardcodeadas en UI (todo via `t()`)
-- [ ] Cero jerga técnica visible al usuario
-- [ ] Copy psicológico validado (no "fallaste", no "fracaso", siempre hay MVH visible)
-- [ ] FullCalendar muestra eventos coloreados por objetivo
-- [ ] Semáforo asigna colores correctos en los 3 rangos de adherencia
-- [ ] Trade-offs se muestran como opciones A/B sin jerga
+- [x] `npm run typecheck` pasa
+- [x] `npm run test` pasa (incluyendo tests nuevos de Tarea 14)
+- [x] Evidencia visible: captura del dashboard con las 4 vistas renderizando datos mock
+- [x] Cero strings hardcodeadas en UI (todo via `t()`)
+- [x] Cero jerga tecnica visible al usuario
+- [x] Copy psicologico validado (no "fallaste", no "fracaso", siempre hay MVH visible)
+- [x] FullCalendar muestra eventos coloreados por objetivo
+- [x] Semaforo asigna colores correctos en los 3 rangos de adherencia
+- [x] Trade-offs se muestran como opciones A/B sin jerga
 
 ---
 

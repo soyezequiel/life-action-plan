@@ -1,0 +1,129 @@
+.section {
+  display: grid;
+  gap: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-family: var(--font-display);
+}
+
+.copy {
+  margin: 0.45rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.8rem;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.legendDot {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 999px;
+}
+
+.calendarShell {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(22, 22, 22, 0.96), rgba(12, 12, 12, 0.98));
+}
+
+.calendarShell :global(.fc) {
+  --fc-border-color: rgba(255, 255, 255, 0.08);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgba(255, 255, 255, 0.03);
+  --fc-list-event-hover-bg-color: rgba(255, 255, 255, 0.04);
+  --fc-today-bg-color: rgba(105, 167, 255, 0.12);
+  color: var(--text-primary);
+}
+
+.calendarShell :global(.fc-toolbar-title) {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.calendarShell :global(.fc-button) {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.calendarShell :global(.fc-button-primary:not(:disabled).fc-button-active),
+.calendarShell :global(.fc-button-primary:not(:disabled):active) {
+  background: rgba(105, 167, 255, 0.22);
+  border-color: rgba(105, 167, 255, 0.36);
+}
+
+.calendarShell :global(.fc-daygrid-day-number),
+.calendarShell :global(.fc-col-header-cell-cushion) {
+  color: var(--text-soft);
+}
+
+.calendarShell :global(.fc-event) {
+  border: 0;
+}
+
+.event {
+  color: var(--text-primary);
+  border-radius: 12px;
+}
+
+.goal0 {
+  background: linear-gradient(180deg, rgba(105, 167, 255, 0.95), rgba(105, 167, 255, 0.72));
+}
+
+.goal1 {
+  background: linear-gradient(180deg, rgba(20, 230, 190, 0.9), rgba(20, 230, 190, 0.7));
+}
+
+.goal2 {
+  background: linear-gradient(180deg, rgba(242, 191, 130, 0.9), rgba(242, 191, 130, 0.68));
+}
+
+.goal3 {
+  background: linear-gradient(180deg, rgba(186, 140, 255, 0.9), rgba(186, 140, 255, 0.66));
+}
+
+.milestone {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+@media (max-width: 720px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .legend {
+    justify-content: flex-start;
+  }
+
+  .calendarShell {
+    padding: 0.75rem;
+  }
+}
