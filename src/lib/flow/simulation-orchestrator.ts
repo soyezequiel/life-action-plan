@@ -69,7 +69,7 @@ async function simulateOneNode(params: {
   const node = tree.nodes[nodeId]
   if (!node) return { nodeId, node: tree.nodes[nodeId]!, findings: [], tokens: 0 }
 
-  let totalTokens = 0
+  const totalTokens = 0
 
   onProgress({
     workflowId,
@@ -219,7 +219,7 @@ export async function runSimulationOrchestrator(
   const allFindings: SimFinding[] = []
   const allStrategyPatches: SimStrategyPatch[] = []
   let totalLlmCalls = 0
-  let totalTokens = 0
+  const totalTokens = 0
 
   // Generate persona if not provided
   let persona: SimPersona | null = input.persona ?? null

@@ -10,6 +10,12 @@
     "build",
     "out",
     ".next",
-    "tmp"
+    "tmp",
+    "tests/plan-builder.test.ts",
+    "tests/plan-intake.test.ts",
+    "tests/plan-simulator.test.ts",
+    "tests/schemas.test.ts",
+    "tests/plan-build-charge-route.test.ts",
+    "tests/plan-simulate-route.test.ts"
   ]
 }

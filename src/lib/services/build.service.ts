@@ -31,7 +31,11 @@ import { executePlanGenerationWorkflow } from '../domain/plan-generation'
 import type { PlanBuildRequestData, BuildResult, BuildServiceOptions } from './types'
 import { apiErrorMessages } from '../../shared/api-utils'
 import { planBuildRequestSchema } from '../../shared/api-schemas'
-import type { SimulationFinding } from '../../shared/types/lap-api'
+import type { OperationChargeSummary, PlanBuildProgress, SimulationFinding } from '../../shared/types/lap-api'
+
+type BuildServiceError = Error & {
+  charge?: OperationChargeSummary
+}
 
 export async function processPlanBuild(
   rawData: PlanBuildRequestData & {
@@ -133,7 +137,7 @@ export async function processPlanBuild(
             options.onProgress({
               profileId,
               provider: currentWorkflowModelId,
-              stage: stage as any,
+              stage: stage as PlanBuildProgress['stage'],
               current,
               total,
               charCount,
@@ -255,7 +259,7 @@ export async function processPlanBuild(
 
   } catch (error) {
     const finalError = error instanceof Error ? error : new Error(String(error))
-    const charge = (finalError as any).charge
+    const charge = (finalError as BuildServiceError).charge
     
     const failedResourceUsage = requestedExecution
       ? summarizeResourceUsage({

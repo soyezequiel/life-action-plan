@@ -3,8 +3,20 @@ import { apiErrorMessages, encodeSseData, sseHeaders } from '../../_shared'
 import { planSimulateRequestSchema } from '../../_schemas'
 import { resolveUserId } from '../../_user-settings'
 import { processPlanSimulate } from '../../../../src/lib/services'
+import type { ChargeReasonCode } from '../../../../src/shared/types/lap-api'
+import type { ExecutionBlockReason } from '../../../../src/shared/schemas/execution-context'
 
 export const maxDuration = 60
+
+type RouteChargePayload = Record<string, unknown> & {
+  reasonCode?: ChargeReasonCode | null
+}
+
+type RouteError = Error & {
+  executionBlockReasonCode?: ExecutionBlockReason | null
+  charge?: RouteChargePayload
+  resourceUsage?: unknown
+}
 
 export async function POST(request: Request): Promise<Response> {
   const parsed = planSimulateRequestSchema.safeParse(await request.json().catch(() => null))
@@ -50,14 +62,15 @@ export async function POST(request: Request): Promise<Response> {
             ...result
           }
         })
-      } catch (error: any) {
+      } catch (cause: unknown) {
         const { toPlanBuildErrorMessage, toExecutionBlockErrorMessage, toChargeErrorMessage } = await import('../../_plan')
+        const error = (cause instanceof Error ? cause : new Error(String(cause))) as RouteError
         
         let errorMessage: string
-        if (error instanceof Error && error.message === 'PLAN_EXECUTION_BLOCKED') {
-          errorMessage = toExecutionBlockErrorMessage((error as any).executionBlockReasonCode ?? null)
-        } else if (error instanceof Error && (error.message === 'OPERATION_CHARGE_REJECTED' || error.message === 'OPERATION_CHARGE_FAILED')) {
-          errorMessage = toChargeErrorMessage((error as any).charge?.reasonCode ?? null)
+        if (error.message === 'PLAN_EXECUTION_BLOCKED') {
+          errorMessage = toExecutionBlockErrorMessage(error.executionBlockReasonCode ?? null)
+        } else if (error.message === 'OPERATION_CHARGE_REJECTED' || error.message === 'OPERATION_CHARGE_FAILED') {
+          errorMessage = toChargeErrorMessage(error.charge?.reasonCode ?? null)
         } else {
           errorMessage = toPlanBuildErrorMessage(error)
         }

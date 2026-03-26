@@ -1,9 +1,18 @@
 export type FlowStepType = 'action' | 'validation' | 'persistence' | 'external' | 'branch' | 'loop' | 'output'
 
+export type FlowPhaseGroupId = 'understand' | 'plan' | 'deliver'
+
+export type FlowPhaseGroup = {
+  id: FlowPhaseGroupId;
+  label: string;
+  color: string;
+}
+
 export type FlowPhase = {
   id: string;
   name: string;
   color: string;
+  groupId: FlowPhaseGroupId;
 }
 
 export type FlowStep = {
@@ -20,4 +29,4 @@ export type FlowStep = {
 
 // ─── Runtime data types (injected from pipeline execution) ───────────────────
 
-export type FlowNodeRuntimeStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped'
+export type FlowNodeRuntimeStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped' | 'exhausted'

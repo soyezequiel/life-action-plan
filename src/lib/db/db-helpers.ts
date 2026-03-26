@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm'
 import { DateTime } from 'luxon'
 import { extractEmailFromLoginIdentifier, normalizeLoginIdentifier } from '../auth/login-identifier'

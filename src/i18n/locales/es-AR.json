@@ -503,6 +503,8 @@
       "repair_attempt_label": "Intento {{n}}",
       "repair_findings_count": "{{count}} hallazgos",
       "repair_notes": "Notas de reparacion",
+      "repair_exhausted": "Ciclos agotados - quedan fallas sin resolver",
+      "field_domain_card": "Conocimiento de dominio",
       "output_title": "Detalle de Entrega",
       "output_delivery_mode": "Modo de entrega",
       "output_final_score": "Puntaje final",

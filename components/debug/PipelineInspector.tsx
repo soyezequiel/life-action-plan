@@ -4,7 +4,7 @@ import './pipeline-inspector.css';
 interface PipelineInspectorProps {
   isOpen: boolean;
   onClose: () => void;
-  data: any;
+  data: unknown;
 }
 
 export const PipelineInspector: React.FC<PipelineInspectorProps> = ({ isOpen, onClose, data }) => {

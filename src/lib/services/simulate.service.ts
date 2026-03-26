@@ -21,9 +21,14 @@ import type { ResourceUsageSummary } from '../../shared/types/resource-usage'
 import type { PlanSimulateRequestData, SimulateResult, SimulateServiceOptions } from './types'
 import { apiErrorMessages } from '../../shared/api-utils'
 import { planSimulateRequestSchema } from '../../shared/api-schemas'
+import type { OperationChargeSummary } from '../../shared/types/lap-api'
 
 const SIMULATION_PROVIDER_ID = 'lap'
 const SIMULATION_MODEL_ID = 'lap:plan-simulator'
+
+type SimulateServiceError = Error & {
+  charge?: OperationChargeSummary
+}
 
 export async function processPlanSimulate(
   rawData: PlanSimulateRequestData,
@@ -129,7 +134,7 @@ export async function processPlanSimulate(
 
   } catch (error) {
     const finalError = error instanceof Error ? error : new Error(String(error))
-    const charge = (finalError as any).charge
+    const charge = (finalError as SimulateServiceError).charge
 
     await trackEvent('ERROR_OCCURRED', {
       code: 'PLAN_SIMULATION_FAILED',

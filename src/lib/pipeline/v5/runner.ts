@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 
 import type { PhaseIO } from '../phase-io';
+import { generateDomainCard } from '../../domain/domain-knowledge/generator';
 import type { AgentRuntime } from '../../runtime/types';
 import { getCardsByGoalType, getKnowledgeCard, type DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
 import type { HabitState, HabitStateStore } from '../../domain/habit-state';
@@ -87,12 +88,19 @@ export interface FlowRunnerV5Config {
 }
 
 export interface FlowRunnerV5Tracker {
-  onPhaseStart?: (phase: PipelinePhaseV5, input?: unknown) => void;
+  onPhaseStart?: (
+    phase: PipelinePhaseV5,
+    details?: { input?: unknown; startedAt?: string | null }
+  ) => void;
   onPhaseSuccess?: (phase: PipelinePhaseV5, result: unknown, io?: PhaseIO) => void;
   onPhaseFailure?: (phase: PipelinePhaseV5, error: Error) => void;
   onPhaseSkipped?: (phase: PipelinePhaseV5) => void;
   onProgress?: (phase: PipelinePhaseV5, progress: Record<string, unknown>) => void;
   onRepairAttempt?: (attempt: number, maxAttempts: number, findings: Array<{ severity: string; message: string }>) => void;
+  onRepairExhausted?: (
+    repairCycles: number,
+    remainingFindings: Array<{ severity: string; message: string }>
+  ) => void;
 }
 
 export interface FlowRunnerV5Context {
@@ -150,6 +158,27 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+const STOP_WORDS = new Set([
+  'quiero', 'quisiera', 'necesito', 'tengo', 'poder', 'como',
+  'para', 'por', 'con', 'sin', 'una', 'uno', 'unos', 'unas',
+  'los', 'las', 'del', 'que', 'mas', 'muy', 'pero', 'este',
+  'esta', 'esto', 'eso', 'esa', 'ese', 'ser', 'estar', 'hacer',
+  'aprender', 'lograr', 'mejorar', 'empezar', 'comenzar',
+]);
+
+function inferDomainLabel(text: string): string {
+  const words = text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, ' ')
+    .split(/\s+/)
+    .filter((word) => word.length > 2 && !STOP_WORDS.has(word))
+    .slice(0, 3);
+
+  return words.join('-');
+}
+
 function supportsHabitState(classification: ClassifyOutput | undefined): boolean {
   if (!classification) {
     return false;
@@ -193,6 +222,19 @@ async function resolveDomainCard(config: FlowRunnerV5Config, classification: Cla
     return getKnowledgeCard('running');
   }
 
+  const domainLabel = config.domainHint ?? inferDomainLabel(config.text);
+  if (domainLabel) {
+    try {
+      return await generateDomainCard(config.runtime, {
+        goalText: config.text,
+        classification,
+        domainLabel,
+      });
+    } catch {
+      // Degrade to generic compatible cards when dynamic generation fails.
+    }
+  }
+
   const compatibleCards = await getCardsByGoalType(classification.goalType);
   return compatibleCards[0];
 }
@@ -221,8 +263,8 @@ export class FlowRunnerV5 {
     await this.executePhase('template', tracker);
     await this.executePhase('schedule', tracker);
 
-    let attempt = 0;
-    while (true) {
+    let cycle = 1;
+    while (cycle <= MAX_REPAIR_CYCLES) {
       await this.executePhase('hardValidate', tracker);
       await this.executePhase('softValidate', tracker);
       await this.executePhase('coveVerify', tracker);
@@ -232,22 +274,29 @@ export class FlowRunnerV5 {
         break;
       }
 
-      if (attempt >= MAX_REPAIR_CYCLES) {
+      this.context.repairCycles = cycle;
+      const findings = toRepairTrackerFindings(
+        this.context.hardValidate ?? { findings: [] },
+        this.context.softValidate ?? { findings: [] },
+        this.context.coveVerify ?? { findings: [] },
+      );
+
+      tracker.onRepairAttempt?.(
+        cycle,
+        MAX_REPAIR_CYCLES,
+        findings,
+      );
+
+      if (cycle === MAX_REPAIR_CYCLES) {
+        tracker.onRepairExhausted?.(
+          cycle,
+          findings,
+        );
         break;
       }
 
-      attempt += 1;
-      this.context.repairCycles = attempt;
-      tracker.onRepairAttempt?.(
-        attempt,
-        MAX_REPAIR_CYCLES,
-        toRepairTrackerFindings(
-          this.context.hardValidate ?? { findings: [] },
-          this.context.softValidate ?? { findings: [] },
-          this.context.coveVerify ?? { findings: [] },
-        ),
-      );
       await this.executePhase('repair', tracker);
+      cycle += 1;
     }
 
     await this.executePhase('package', tracker);
@@ -262,8 +311,6 @@ export class FlowRunnerV5 {
   }
 
   async executePhase(phase: PipelinePhaseV5, tracker: FlowRunnerV5Tracker = {}): Promise<unknown> {
-    tracker.onPhaseStart?.(phase);
-
     try {
       switch (phase) {
         case 'classify':
@@ -352,6 +399,18 @@ export class FlowRunnerV5 {
     tracker.onProgress?.(phase, { message, ...extra });
   }
 
+  private announcePhaseStart<I>(
+    tracker: FlowRunnerV5Tracker,
+    phase: PipelinePhaseV5,
+    input: I,
+    startedAt: string,
+  ): void {
+    tracker.onPhaseStart?.(phase, {
+      input,
+      startedAt,
+    });
+  }
+
   private commitPhaseIO<I, O>(
     phase: keyof PhaseIORegistryV5,
     input: I,
@@ -377,6 +436,7 @@ export class FlowRunnerV5 {
   private async runClassifyPhase(tracker: FlowRunnerV5Tracker): Promise<ClassifyOutput> {
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: ClassifyInput = { text: this.context.config.text };
+    this.announcePhaseStart(tracker, 'classify', input, startedAt);
     const output = classifyGoal(input.text);
     this.context.classification = output;
     this.context.domainCard = await resolveDomainCard(this.context.config, output);
@@ -391,6 +451,7 @@ export class FlowRunnerV5 {
     }
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: RequirementsInput = { classification: this.context.classification };
+    this.announcePhaseStart(tracker, 'requirements', input, startedAt);
     this.trackProgress(tracker, 'requirements', 'Generando preguntas base.');
     const output = await generateRequirements(this.context.config.runtime, this.context.classification);
     this.context.requirements = output;
@@ -400,6 +461,7 @@ export class FlowRunnerV5 {
   private async runProfilePhase(tracker: FlowRunnerV5Tracker): Promise<ProfileOutput> {
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: ProfileInput = { answers: this.context.config.answers };
+    this.announcePhaseStart(tracker, 'profile', input, startedAt);
     this.trackProgress(tracker, 'profile', 'Convirtiendo respuestas en perfil operativo.');
     const output = await buildProfile(this.context.config.runtime, input.answers);
     this.context.profile = output;
@@ -416,6 +478,7 @@ export class FlowRunnerV5 {
       classification: this.context.classification,
       habitStates: this.context.habitStates ?? [],
     };
+    this.announcePhaseStart(tracker, 'strategy', input, startedAt);
     this.trackProgress(tracker, 'strategy', 'Armando roadmap estrategico.');
     const output = await generateStrategy(this.context.config.runtime, input, this.context.domainCard);
     this.context.strategy = output;
@@ -428,6 +491,7 @@ export class FlowRunnerV5 {
     }
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: TemplateInput = { roadmap: this.context.strategy };
+    this.announcePhaseStart(tracker, 'template', input, startedAt);
     const output = buildTemplate(input, this.context.classification, this.context.profile, this.context.domainCard);
     output.activities = output.activities.map((activity, index) => ({
       ...activity,
@@ -443,6 +507,7 @@ export class FlowRunnerV5 {
     }
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: ScheduleInput = { activities: this.context.template.activities };
+    this.announcePhaseStart(tracker, 'schedule', input, startedAt);
     const schedulerInput: SchedulerInput = {
       activities: input.activities,
       availability: this.context.config.availability,
@@ -466,6 +531,7 @@ export class FlowRunnerV5 {
       schedule: this.context.schedule,
       originalInput: this.context.scheduleInput,
     };
+    this.announcePhaseStart(tracker, 'hardValidate', input, startedAt);
     const output = await executeHardValidator(input);
     this.context.hardValidate = output;
     return this.commitPhaseIO('hardValidate', input, output, startedAt, tracker);
@@ -480,6 +546,7 @@ export class FlowRunnerV5 {
       schedule: this.context.schedule,
       profile: this.context.profile,
     };
+    this.announcePhaseStart(tracker, 'softValidate', input, startedAt);
     const output = await executeSoftValidator(input);
     this.context.softValidate = output;
     return this.commitPhaseIO('softValidate', input, output, startedAt, tracker);
@@ -491,6 +558,7 @@ export class FlowRunnerV5 {
     }
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: CoVeVerifyInput = { schedule: this.context.schedule };
+    this.announcePhaseStart(tracker, 'coveVerify', input, startedAt);
     this.trackProgress(tracker, 'coveVerify', 'Verificando consistencia del calendario.');
     const output = await executeCoVeVerifier(this.context.config.runtime, input);
     this.context.coveVerify = output;
@@ -510,8 +578,9 @@ export class FlowRunnerV5 {
       originalInput: this.context.scheduleInput,
       profile: this.context.profile,
     };
+    this.announcePhaseStart(tracker, 'repair', input, startedAt);
     this.trackProgress(tracker, 'repair', 'Aplicando reparaciones sobre el calendario.', {
-      cycle: this.context.repairCycles + 1,
+      cycle: this.context.repairCycles,
     });
     const output = await executeRepairManager(this.context.config.runtime, input);
     this.context.repair = output;
@@ -546,6 +615,7 @@ export class FlowRunnerV5 {
           }
         : undefined,
     };
+    this.announcePhaseStart(tracker, 'package', input, startedAt);
     const output = packagePlan(input);
     if (this.context.config.habitStateStore && output.habitStates.length > 0) {
       await this.context.config.habitStateStore.save(output.habitStates);
@@ -569,6 +639,7 @@ export class FlowRunnerV5 {
       anchorAt: this.context.config.adaptiveAnchorAt ?? startedAt,
       userFeedback: this.context.config.userFeedback,
     };
+    this.announcePhaseStart(tracker, 'adapt', input, startedAt);
     this.trackProgress(tracker, 'adapt', 'Evaluando riesgo y modo de adaptacion de la semana.');
     const output = await generateAdaptiveResponse(input);
     this.context.adapt = output;

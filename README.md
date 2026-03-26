@@ -20,7 +20,7 @@ Built with Next.js 15, React 19, TypeScript, PostgreSQL, and Drizzle ORM.
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 15 (App Router, Turbopack) |
+| Framework | Next.js 15 (App Router) |
 | UI | React 19, CSS Modules, Framer Motion |
 | Language | TypeScript (strict) |
 | Database | PostgreSQL + Drizzle ORM |
@@ -87,7 +87,8 @@ npm run smoke:deploy
 
 | Script | Description |
 |--------|-------------|
-| `npm run dev` | Start dev server (Turbopack) |
+| `npm run dev` | Start dev server (stable webpack dev server) |
+| `npm run dev:turbo` | Start dev server with Turbopack |
 | `npm run build` | Production build |
 | `npm run start` | Start production server |
 | `npm run typecheck` | Type-check without emitting |

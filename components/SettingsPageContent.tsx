@@ -101,9 +101,9 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const client = useLapClient()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const intent = searchParams.get('intent')
-  const requestedMode = searchParams.get('mode')
-  const requestedProvider = searchParams.get('provider')
+  const intent = searchParams?.get('intent')
+  const requestedMode = searchParams?.get('mode')
+  const requestedProvider = searchParams?.get('provider')
   const shouldBuild = intent === 'build'
   const localProviderBlocked = requestedProvider === 'ollama' && deploymentMode !== 'local'
   const localBuildIntent = shouldBuild && requestedProvider === 'ollama' && !localProviderBlocked

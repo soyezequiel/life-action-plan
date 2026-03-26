@@ -1,128 +1,132 @@
-import type { FlowStep, FlowPhase } from './types'
+import type { FlowPhase, FlowPhaseGroup, FlowStep } from './types'
+
+export const FLOW_PHASE_GROUPS: FlowPhaseGroup[] = [
+  { id: 'understand', label: 'Entender', color: '#6ed7a5' },
+  { id: 'plan', label: 'Planificar', color: '#8fa8ff' },
+  { id: 'deliver', label: 'Validar y entregar', color: '#f2bf82' }
+]
 
 export const FLOW_PHASES: FlowPhase[] = [
-  { id: 'intake', name: '1. Ingesta Multi-Agente', color: '#6ed7a5' },
-  { id: 'enrich', name: '2. Enriquecimiento (LLM)', color: '#4fc3f7' },
-  { id: 'readiness', name: '3. Comprobación de Preparación', color: '#80deea' },
-  { id: 'build', name: '4. Construcción', color: '#f2bf82' },
-  { id: 'simulation', name: '5. Auditoría de Realidad', color: '#b987ff' },
-  { id: 'repair', name: '6. Loop de Reparación', color: '#ff8a65' },
-  { id: 'output', name: '7. Entrega Final', color: '#ffffff' }
+  { id: 'classify', name: 'Classify', color: '#6ed7a5', groupId: 'understand' },
+  { id: 'requirements', name: 'Requirements', color: '#6ed7a5', groupId: 'understand' },
+  { id: 'profile', name: 'Profile', color: '#6ed7a5', groupId: 'understand' },
+  { id: 'strategy', name: 'Strategy', color: '#8fa8ff', groupId: 'plan' },
+  { id: 'template', name: 'Template', color: '#8fa8ff', groupId: 'plan' },
+  { id: 'schedule', name: 'Schedule', color: '#8fa8ff', groupId: 'plan' },
+  { id: 'hardValidate', name: 'Hard Validate', color: '#f2bf82', groupId: 'deliver' },
+  { id: 'softValidate', name: 'Soft Validate', color: '#f2bf82', groupId: 'deliver' },
+  { id: 'coveVerify', name: 'CoVe Verify', color: '#f2bf82', groupId: 'deliver' },
+  { id: 'repair', name: 'Repair', color: '#f2bf82', groupId: 'deliver' },
+  { id: 'package', name: 'Package', color: '#f2bf82', groupId: 'deliver' },
+  { id: 'adapt', name: 'Adapt', color: '#f2bf82', groupId: 'deliver' }
 ]
 
 export const FLOW_STEPS: FlowStep[] = [
-  // 1. INGESTA
   {
-    id: 'user-narrative-input',
-    phaseId: 'intake',
-    name: 'ENTRADA: Narrativa de Vida',
-    description: 'Captura de texto/voz del usuario.',
-    type: 'action',
-    questions: ['¿Cuál es tu objetivo?', '¿Qué disponibilidad tenés?']
-  },
-  {
-    id: 'intake-agent',
-    phaseId: 'intake',
-    name: 'Agente: Analista de Ingesta',
-    description: 'Extracción de intenciones y metas SMART.',
-    type: 'external',
-    dependsOn: ['user-narrative-input'],
-    tags: ['ia', 'parsing'],
-    prompt: 'Analizá y extraé metas concretas y métricas de éxito.'
-  },
-
-  // 2. ENRIQUECIMIENTO
-  {
-    id: 'enrichment-agent',
-    phaseId: 'enrich',
-    name: 'Agente: Enriquecedor de Perfil',
-    description: 'Inferencia de rasgos y campos faltantes.',
-    type: 'external',
-    dependsOn: ['intake-agent'],
-    tags: ['ia', 'inferencia'],
-    prompt: 'Inferí energía, disciplina y obstáculos basados en su narrativa.'
-  },
-
-  // 3. COMPROBACIÓN DE PREPARACIÓN
-  {
-    id: 'readiness-gate',
-    phaseId: 'readiness',
-    name: 'Comprobación: ¿Listo para planificar?',
-    description: 'Valida que el perfil tenga datos suficientes para construir un plan viable.',
+    id: 'classify',
+    phaseId: 'classify',
+    name: 'Classify Goal',
+    description: 'Clasifica el objetivo y detecta senales para decidir el tipo de plan.',
     type: 'validation',
-    dependsOn: ['enrichment-agent'],
-    tags: ['compuerta', 'validación'],
-    questions: ['¿El perfil tiene datos suficientes?', '¿Hay restricciones críticas?']
+    tags: ['goal-type', 'signals']
   },
-
-  // 4. CONSTRUCCIÓN
   {
-    id: 'strategist-agent',
-    phaseId: 'build',
-    name: 'Agente: Estratega Principal',
-    description: 'Diseño del plan de acción inicial.',
+    id: 'requirements',
+    phaseId: 'requirements',
+    name: 'Generate Requirements',
+    description: 'Genera preguntas concretas para completar el contexto minimo del objetivo.',
     type: 'external',
-    dependsOn: ['readiness-gate'],
-    tags: ['ia', 'estrategia'],
-    prompt: 'Generá un plan realista de 1 mes respetando sueño/trabajo.'
+    dependsOn: ['classify'],
+    tags: ['llm', 'questions']
   },
-
-  // 5. SIMULACIÓN (Auditoría)
   {
-    id: 'simulator-agent',
-    phaseId: 'simulation',
-    name: 'Agente: Simulador de Realidad',
-    description: 'Evaluación de colisiones, fatiga y viabilidad.',
+    id: 'profile',
+    phaseId: 'profile',
+    name: 'Build Profile',
+    description: 'Convierte respuestas abiertas en un perfil operativo con disponibilidad y restricciones.',
     type: 'external',
-    dependsOn: ['strategist-agent', 're-verification-loop'], // LOOP BACK
-    tags: ['ia', 'auditoría'],
-    prompt: 'Detectá lapsos imposibles o sobrecarga energética.',
-    questions: ['¿Estado: PASA | FALLA?']
-  },
-
-  // 6. LOOP DE REPARACIÓN (Decisión y Corrección)
-  {
-    id: 'viability-branch',
-    phaseId: 'repair',
-    name: 'Decisión: ¿Plan Viable?',
-    description: 'Bifurcación lógica basada en el resultado de la simulación.',
-    type: 'branch',
-    dependsOn: ['simulator-agent'],
-    questions: [
-      'Si PASA → Ir a Entrega', 
-      'Si FALLA → Enviar a Reparación Quirúrgica'
-    ]
+    dependsOn: ['requirements'],
+    tags: ['llm', 'constraints']
   },
   {
-    id: 'repair-agent',
-    phaseId: 'repair',
-    name: 'Agente: Reparación Quirúrgica',
-    description: 'Corrección activa de los problemas detectados.',
+    id: 'strategy',
+    phaseId: 'strategy',
+    name: 'Build Strategy',
+    description: 'Arma el roadmap estrategico con etapas e hitos usando el perfil y el tipo de objetivo.',
     type: 'external',
-    dependsOn: ['viability-branch'],
-    tags: ['ia', 'reparación', 'entrada-loop'],
-    prompt: 'Repará EXCLUSIVAMENTE los puntos marcados como fallidos por el simulador.',
-    questions: ['¿Se resolvieron los conflictos?']
+    dependsOn: ['profile'],
+    tags: ['llm', 'roadmap']
   },
   {
-    id: 're-verification-loop',
+    id: 'template',
+    phaseId: 'template',
+    name: 'Build Template',
+    description: 'Baja la estrategia a actividades pedibles por el scheduler de manera deterministica.',
+    type: 'action',
+    dependsOn: ['strategy'],
+    tags: ['activities']
+  },
+  {
+    id: 'schedule',
+    phaseId: 'schedule',
+    name: 'Solve Schedule',
+    description: 'Resuelve el calendario semanal con el scheduler MILP.',
+    type: 'action',
+    dependsOn: ['template'],
+    tags: ['milp', 'calendar']
+  },
+  {
+    id: 'hardValidate',
+    phaseId: 'hardValidate',
+    name: 'Hard Validate',
+    description: 'Verifica reglas duras del calendario contra disponibilidad, duracion y frecuencia.',
+    type: 'validation',
+    dependsOn: ['schedule', 'repair'],
+    tags: ['fail-fast', 'rules']
+  },
+  {
+    id: 'softValidate',
+    phaseId: 'softValidate',
+    name: 'Soft Validate',
+    description: 'Evalua calidad practica del plan: fatiga, cambios de foco y descanso.',
+    type: 'validation',
+    dependsOn: ['hardValidate'],
+    tags: ['warn', 'quality']
+  },
+  {
+    id: 'coveVerify',
+    phaseId: 'coveVerify',
+    name: 'CoVe Verify',
+    description: 'Hace chequeos de verificacion sobre el calendario y devuelve hallazgos explicitos.',
+    type: 'external',
+    dependsOn: ['softValidate'],
+    tags: ['llm', 'verification']
+  },
+  {
+    id: 'repair',
     phaseId: 'repair',
-    name: 'Re-Verificación (VOLVER AL LOOP)',
-    description: 'El plan corregido vuelve a ser auditado por el simulador de realidad.',
+    name: 'Repair Loop',
+    description: 'Aplica reparaciones sobre el calendario si hay fallas o advertencias relevantes.',
     type: 'loop',
-    dependsOn: ['repair-agent'],
-    tags: ['salida-loop'],
-    questions: ['¿Regresar a simulación para validez final?']
+    dependsOn: ['coveVerify'],
+    tags: ['repair', 'loop']
   },
-
-  // 7. ENTREGA
   {
-    id: 'final-delivery-bundle',
-    phaseId: 'output',
-    name: 'SALIDA: Plan Validado',
-    description: 'Entrega final después de confirmar viabilidad.',
+    id: 'package',
+    phaseId: 'package',
+    name: 'Package Result',
+    description: 'Empaqueta el resultado final en items del plan, resumen y advertencias honestas.',
     type: 'output',
-    dependsOn: ['viability-branch'],
-    questions: ['¿El plan final es "Infalible"?']
+    dependsOn: ['coveVerify'],
+    tags: ['delivery', 'quality']
+  },
+  {
+    id: 'adapt',
+    phaseId: 'adapt',
+    name: 'Adapt Week',
+    description: 'Evalua adherencia, pronostica riesgo y emite el payload operativo para relanzar la semana.',
+    type: 'external',
+    dependsOn: ['package'],
+    tags: ['feedback', 'rerun']
   }
 ]
