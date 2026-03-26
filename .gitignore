@@ -3,6 +3,10 @@ dist
 out
 .next
 .codex
+.codex-artifacts
+.codex-temp
+.agent
+.agents
 .DS_Store
 .eslintcache
 *.log*
@@ -17,3 +21,18 @@ out
 _referencia_lightning
 .claude/settings.local.json
 .claude/launch.json
+
+# Archivos temporales de debug/outputs
+*.txt
+!README*.txt
+tmp*.json
+tmp*.txt
+debug_*.txt
+err*.txt
+err*.json
+out*.txt
+output*.json
+tests_*output*.txt
+typecheck*.txt
+typecheck*.log
+vitest_output.txt
