@@ -1,6 +1,9 @@
 import type { PhaseIO } from '../phase-io';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
+import type { HabitState } from '../../domain/habit-state';
 import type { ActivityRequest, SchedulerOutput, SchedulerInput } from '../../scheduler/types';
+import type { V5Plan } from '../../domain/rolling-wave-plan';
+import type { SlackPolicy } from '../../domain/slack-policy';
 import type { PlanItem } from '../../domain/plan-item';
 
 // ─── 1. Classify ──────────────────────────────────────────────────────────────
@@ -35,6 +38,7 @@ export interface StrategicRoadmap {
 export interface StrategyInput {
   profile: UserProfileV5;
   classification: GoalClassification;
+  habitStates?: HabitState[];
 }
 export type StrategyOutput = StrategicRoadmap;
 
@@ -97,7 +101,10 @@ export interface RepairOutput {
 
 // ─── 11. Packager ─────────────────────────────────────────────────────────────
 export interface PlanPackage {
+  plan: V5Plan;
   items: PlanItem[];
+  habitStates: HabitState[];
+  slackPolicy: SlackPolicy;
   summary_esAR: string;
   qualityScore: number;
   implementationIntentions: string[];
@@ -114,6 +121,10 @@ export interface PackageInput {
   softFindings?: SoftFinding[];
   coveFindings?: CoVeFinding[];
   repairSummary?: Pick<RepairOutput, 'patchesApplied' | 'iterations' | 'scoreAfter'>;
+  profile?: UserProfileV5;
+  currentHabitStates?: HabitState[];
+  habitProgressionKeys?: string[];
+  slackPolicy?: SlackPolicy;
 }
 export type PackageOutput = PlanPackage;
 

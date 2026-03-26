@@ -41,8 +41,8 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
       blocked: [],
       preferences: [],
       activities: [
-        { id: 'run-1', label: 'Correr', durationMin: 60, frequencyPerWeek: 3, goalId: 'g1', constraintTier: 'hard' },
-        { id: 'guitar-1', label: 'Guitarra', durationMin: 30, frequencyPerWeek: 5, goalId: 'g2', constraintTier: 'hard' }
+        { id: 'run-1', label: 'Correr', equivalenceGroupId: 'cardio-outdoor-base', durationMin: 60, frequencyPerWeek: 3, goalId: 'g1', constraintTier: 'hard' },
+        { id: 'guitar-1', label: 'Guitarra', equivalenceGroupId: 'guitar-technique', durationMin: 30, frequencyPerWeek: 5, goalId: 'g2', constraintTier: 'hard' }
       ]
     };
 
@@ -61,9 +61,9 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
       blocked: [],
       preferences: [],
       activities: [
-        { id: 'a1', label: 'A1', durationMin: 60, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'hard', preferredSlots: ['morning'] },
-        { id: 'a2', label: 'A2', durationMin: 60, frequencyPerWeek: 1, goalId: 'g2', constraintTier: 'hard', preferredSlots: ['morning'] },
-        { id: 'a3', label: 'A3', durationMin: 60, frequencyPerWeek: 1, goalId: 'g3', constraintTier: 'hard', preferredSlots: ['morning'] }
+        { id: 'a1', label: 'A1', equivalenceGroupId: 'group-a1', durationMin: 60, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'hard', preferredSlots: ['morning'] },
+        { id: 'a2', label: 'A2', equivalenceGroupId: 'group-a2', durationMin: 60, frequencyPerWeek: 1, goalId: 'g2', constraintTier: 'hard', preferredSlots: ['morning'] },
+        { id: 'a3', label: 'A3', equivalenceGroupId: 'group-a3', durationMin: 60, frequencyPerWeek: 1, goalId: 'g3', constraintTier: 'hard', preferredSlots: ['morning'] }
       ]
     };
 
@@ -84,7 +84,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
       blocked: [],
       preferences: [],
       activities: [
-        { id: 'gym', label: 'Gym', durationMin: 60, frequencyPerWeek: 4, goalId: 'g1', constraintTier: 'soft_strong' }
+        { id: 'gym', label: 'Gym', equivalenceGroupId: 'gym-indoors', durationMin: 60, frequencyPerWeek: 4, goalId: 'g1', constraintTier: 'soft_strong' }
       ]
     };
 
@@ -106,7 +106,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
       blocked: [],
       preferences: [],
       activities: [
-        { id: 'cook', label: 'Cocinar', durationMin: 120, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_weak', avoidDays: ['wednesday'] }
+        { id: 'cook', label: 'Cocinar', equivalenceGroupId: 'home-cooking', durationMin: 120, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_weak', avoidDays: ['wednesday'] }
       ]
     };
 
@@ -130,7 +130,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
       ],
       preferences: [],
       activities: [
-        { id: 'leer', label: 'Leyendo', durationMin: 60, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_strong' }
+        { id: 'leer', label: 'Leyendo', equivalenceGroupId: 'reading-focus', durationMin: 60, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_strong' }
       ]
     };
 
@@ -154,8 +154,8 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
       blocked: [],
       preferences: [],
       activities: [
-        { id: 'actA', label: 'Deporte A', durationMin: 60, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_strong' },
-        { id: 'actB', label: 'Deporte B', durationMin: 60, frequencyPerWeek: 1, goalId: 'g2', constraintTier: 'soft_strong' },
+        { id: 'actA', label: 'Deporte A', equivalenceGroupId: 'sport-a', durationMin: 60, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_strong' },
+        { id: 'actB', label: 'Deporte B', equivalenceGroupId: 'sport-b', durationMin: 60, frequencyPerWeek: 1, goalId: 'g2', constraintTier: 'soft_strong' },
       ]
     };
 
@@ -183,7 +183,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
       blocked: [],
       preferences: [],
       activities: [
-        { id: 'run', label: 'Running', durationMin: 60, frequencyPerWeek: 2, goalId: 'g1', constraintTier: 'hard', minRestDaysBetween: 1 }
+        { id: 'run', label: 'Running', equivalenceGroupId: 'cardio-outdoor-base', durationMin: 60, frequencyPerWeek: 2, goalId: 'g1', constraintTier: 'hard', minRestDaysBetween: 1 }
       ]
     };
 
@@ -201,6 +201,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
     const activities = Array.from({ length: 7 }).map((_, i) => ({
       id: `act-${i}`,
       label: `Actividad ${i}`,
+      equivalenceGroupId: `group-${i}`,
       durationMin: 60,
       frequencyPerWeek: 3 + (i % 3), // oscila 3, 4, 5
       goalId: `g${i}`,
@@ -257,7 +258,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
       blocked: [],
       preferences: [],
       activities: [
-        { id: 'act1', label: 'Act 1', durationMin: 60, frequencyPerWeek: 3, goalId: 'g1', constraintTier: 'soft_strong' }
+        { id: 'act1', label: 'Act 1', equivalenceGroupId: 'group-act1', durationMin: 60, frequencyPerWeek: 3, goalId: 'g1', constraintTier: 'soft_strong' }
       ]
     };
 

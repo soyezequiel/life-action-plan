@@ -44,6 +44,7 @@ export const DomainKnowledgeCardSchema = z.object({
     label: z.string(),
     typicalDurationMin: z.number().int().positive(),
     tags: z.array(z.string()),
+    equivalenceGroupId: z.string(),
   })).min(1),
 
   /** Trackable metrics for this domain */

@@ -3,6 +3,8 @@ import { DateTime } from 'luxon';
 import type { PhaseIO } from '../phase-io';
 import type { AgentRuntime } from '../../runtime/types';
 import { getCardsByGoalType, getKnowledgeCard, type DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
+import type { HabitState, HabitStateStore } from '../../domain/habit-state';
+import type { SlackPolicy } from '../../domain/slack-policy';
 import type {
   BlockedSlot,
   SchedulerInput,
@@ -74,6 +76,10 @@ export interface FlowRunnerV5Config {
   goalId?: string;
   domainHint?: string;
   userFeedback?: string;
+  slackPolicy?: SlackPolicy;
+  habitStateStore?: HabitStateStore;
+  previousProgressionKeys?: string[];
+  initialHabitStates?: HabitState[];
 }
 
 export interface FlowRunnerV5Tracker {
@@ -100,6 +106,8 @@ export interface FlowRunnerV5Context {
   coveVerify?: CoVeVerifyOutput;
   repair?: RepairOutput;
   package?: PackageOutput;
+  habitStates?: HabitState[];
+  habitProgressionKeys?: string[];
   domainCard?: DomainKnowledgeCard;
   repairCycles: number;
 }
@@ -125,6 +133,27 @@ function hasFailingFindings(
   cove: CoVeVerifyOutput | undefined,
 ): boolean {
   return (hard?.findings.length ?? 0) > 0 || (cove?.findings.some((finding) => finding.severity === 'FAIL') ?? false);
+}
+
+function slugify(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function supportsHabitState(classification: ClassifyOutput | undefined): boolean {
+  if (!classification) {
+    return false;
+  }
+
+  if (classification.extractedSignals.isRecurring || classification.extractedSignals.requiresSkillProgression) {
+    return true;
+  }
+
+  return classification.goalType === 'QUANT_TARGET_TRACKING' || classification.goalType === 'IDENTITY_EXPLORATION';
 }
 
 function toRepairTrackerFindings(
@@ -269,6 +298,45 @@ export class FlowRunnerV5 {
     return this.context.config.weekStartDate ?? DEFAULT_WEEK_START;
   }
 
+  private resolveHabitProgressionKeys(): string[] {
+    if ((this.context.config.previousProgressionKeys?.length ?? 0) > 0) {
+      return Array.from(new Set(this.context.config.previousProgressionKeys));
+    }
+
+    if (!supportsHabitState(this.context.classification)) {
+      return [];
+    }
+
+    const fallback = slugify(
+      this.context.domainCard?.domainLabel ??
+      this.context.config.domainHint ??
+      this.context.config.goalId ??
+      this.context.config.text,
+    );
+
+    return fallback ? [fallback] : [];
+  }
+
+  private async hydrateHabitStates(): Promise<void> {
+    if ((this.context.habitStates?.length ?? 0) > 0) {
+      return;
+    }
+
+    const providedStates = this.context.config.initialHabitStates;
+    if ((providedStates?.length ?? 0) > 0) {
+      this.context.habitStates = providedStates;
+      return;
+    }
+
+    const progressionKeys = this.context.habitProgressionKeys ?? [];
+    if (!this.context.config.habitStateStore || progressionKeys.length === 0) {
+      this.context.habitStates = [];
+      return;
+    }
+
+    this.context.habitStates = await this.context.config.habitStateStore.loadByProgressionKeys(progressionKeys);
+  }
+
   private trackProgress(
     tracker: FlowRunnerV5Tracker,
     phase: PipelinePhaseV5,
@@ -306,6 +374,8 @@ export class FlowRunnerV5 {
     const output = classifyGoal(input.text);
     this.context.classification = output;
     this.context.domainCard = await resolveDomainCard(this.context.config, output);
+    this.context.habitProgressionKeys = this.resolveHabitProgressionKeys();
+    await this.hydrateHabitStates();
     return this.commitPhaseIO('classify', input, output, startedAt, tracker);
   }
 
@@ -338,6 +408,7 @@ export class FlowRunnerV5 {
     const input: StrategyInput = {
       profile: this.context.profile,
       classification: this.context.classification,
+      habitStates: this.context.habitStates ?? [],
     };
     this.trackProgress(tracker, 'strategy', 'Armando roadmap estrategico.');
     const output = await generateStrategy(this.context.config.runtime, input, this.context.domainCard);
@@ -454,6 +525,10 @@ export class FlowRunnerV5 {
       goalText: this.context.config.text,
       goalId: this.context.config.goalId,
       weekStartDate: this.weekStartDate(),
+      profile: this.context.profile,
+      currentHabitStates: this.context.habitStates,
+      habitProgressionKeys: this.context.habitProgressionKeys,
+      slackPolicy: this.context.config.slackPolicy,
       hardFindings: this.context.hardValidate?.findings ?? [],
       softFindings: this.context.softValidate?.findings ?? [],
       coveFindings: this.context.coveVerify?.findings ?? [],
@@ -466,7 +541,11 @@ export class FlowRunnerV5 {
         : undefined,
     };
     const output = packagePlan(input);
+    if (this.context.config.habitStateStore && output.habitStates.length > 0) {
+      await this.context.config.habitStateStore.save(output.habitStates);
+    }
     this.context.package = output;
+    this.context.habitStates = output.habitStates;
     return this.commitPhaseIO('package', input, output, startedAt, tracker);
   }
 

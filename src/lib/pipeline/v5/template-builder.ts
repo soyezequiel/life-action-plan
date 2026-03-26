@@ -1,5 +1,6 @@
 import type { TemplateInput, TemplateOutput } from './phase-io-v5';
 import type { DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
+import { createStandaloneEquivalenceGroupId } from '../../domain/equivalence';
 import type { ActivityRequest } from '../../scheduler/types';
 import type { UserProfileV5 } from './phase-io-v5';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
@@ -55,6 +56,7 @@ export function buildTemplate(
       activities.push({
         id: generateId(`act-${task.id}`),
         label: task.label,
+        equivalenceGroupId: task.equivalenceGroupId,
         durationMin: task.typicalDurationMin,
         frequencyPerWeek: baseFreq,
         goalId: 'generated-goal',
@@ -67,6 +69,7 @@ export function buildTemplate(
       activities.push({
         id: generateId('act-phase'),
         label: phase.name,
+        equivalenceGroupId: createStandaloneEquivalenceGroupId(phase.name),
         durationMin: 60,
         frequencyPerWeek: baseFreq,
         goalId: 'generated-goal',
@@ -80,6 +83,7 @@ export function buildTemplate(
     activities.push({
       id: generateId('act-general'),
       label: 'Actividad Principal',
+      equivalenceGroupId: createStandaloneEquivalenceGroupId('actividad-principal'),
       durationMin: 45,
       frequencyPerWeek: baseFreq,
       goalId: 'generated-goal',

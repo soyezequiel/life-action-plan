@@ -25,6 +25,7 @@ export type SchedulingPreference = z.infer<typeof SchedulingPreferenceSchema>;
 export const ActivityRequestSchema = z.object({
   id: z.string(),
   label: z.string(),
+  equivalenceGroupId: z.string(),
   durationMin: z.number(),
   frequencyPerWeek: z.number(),
   goalId: z.string(),

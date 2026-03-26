@@ -10,6 +10,7 @@
     "start": "next start",
     "lap:run": "tsx scripts/lap-runner.ts",
     "lap:run:example": "start http://localhost:3000/debug/flow && tsx scripts/lap-runner.ts scripts/example-config.json",
+    "lap:run:v5-example": "tsx scripts/lap-runner-v5-example.ts",
     "lap:inspect": "tsx scripts/inspect-results.ts",
     "lap:flow:viewer": "start http://localhost:3000/debug/flow",
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json --incremental false",

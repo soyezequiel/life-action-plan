@@ -129,6 +129,7 @@ function makeConfig(
 
 function makeActivity(overrides: Partial<ActivityRequest> & Pick<ActivityRequest, 'id' | 'label'>): ActivityRequest {
   return {
+    equivalenceGroupId: `group-${overrides.id}`,
     durationMin: 60,
     frequencyPerWeek: 1,
     goalId: 'goal-v5-test',
@@ -185,22 +186,24 @@ describe('FlowRunnerV5', () => {
     const runner = new FlowRunnerV5(makeConfig('correr 3 veces por semana', {}, { goalId: 'goal-running' }));
 
     const context = await runner.runFullPipeline();
-    const timeEvents = context.package?.items.filter((item) => item.kind === 'time_event') ?? [];
+    const timeEvents = context.package?.plan.operational.scheduledEvents ?? [];
 
     expect(context.classification?.goalType).toBe('RECURRENT_HABIT');
     expect(context.template?.activities).toHaveLength(1);
+    expect(context.template?.activities[0]?.equivalenceGroupId).toBe('cardio-outdoor-base');
     expect(context.template?.activities[0]?.frequencyPerWeek).toBe(3);
     expect(context.schedule?.events).toHaveLength(3);
     expect(context.schedule?.unscheduled).toHaveLength(0);
     expect(timeEvents).toHaveLength(3);
+    expect(context.package?.plan.detail.weeks).toHaveLength(2);
   });
 
   it('happy path complejo: aprender guitarra arma un plan con progresion y sesiones', async () => {
     const runner = new FlowRunnerV5(makeConfig('aprender guitarra', {}, { goalId: 'goal-guitar' }));
 
     const context = await runner.runFullPipeline();
-    const timeEvents = context.package?.items.filter((item) => item.kind === 'time_event') ?? [];
-    const milestones = context.package?.items.filter((item) => item.kind === 'milestone') ?? [];
+    const timeEvents = context.package?.plan.operational.scheduledEvents ?? [];
+    const milestones = context.package?.plan.skeleton.milestones ?? [];
 
     expect(context.classification?.goalType).toBe('SKILL_ACQUISITION');
     expect(context.template?.activities.length ?? 0).toBeGreaterThanOrEqual(5);
@@ -208,6 +211,7 @@ describe('FlowRunnerV5', () => {
     expect(context.phaseIO.strategy?.output.phases.length).toBeGreaterThanOrEqual(2);
     expect(milestones.length).toBeGreaterThanOrEqual(1);
     expect(context.package?.summary_esAR).toContain('aprender guitarra');
+    expect(context.package?.habitStates[0]?.progressionKey).toBe('guitarra');
   });
 
   it('escenario multi objetivo: valida un plan combinado inyectando una plantilla mixta', async () => {
@@ -237,7 +241,7 @@ describe('FlowRunnerV5', () => {
     expect(scheduledTitles).toEqual(
       expect.arrayContaining(['Running suave', 'Practica de guitarra', 'Revision semanal de ahorro']),
     );
-    expect(context.package?.items.filter((item) => item.kind === 'time_event')).toHaveLength(3);
+    expect(context.package?.plan.operational.scheduledEvents).toHaveLength(3);
     expect(context.package?.summary_esAR).toContain('correr + guitarra + ahorrar');
   });
 
@@ -361,7 +365,79 @@ describe('FlowRunnerV5', () => {
     expect(context.coveVerify?.findings.some((finding) => finding.severity === 'FAIL')).toBe(false);
   });
 
-  it('package wiring: genera items, summary y qualityScore desde el runner', async () => {
+  it('recupera HabitState previo y lo pasa a Strategy antes de empaquetar', async () => {
+    let capturedPrompt = '';
+    const loadCalls: string[][] = [];
+    const saveCalls: string[][] = [];
+    const store = {
+      async loadByProgressionKeys(progressionKeys: string[]) {
+        loadCalls.push(progressionKeys);
+        return [
+          {
+            progressionKey: 'running',
+            weeksActive: 4,
+            level: 2,
+            currentDose: {
+              sessionsPerWeek: 3,
+              minimumViable: {
+                minutes: 15,
+                description: 'Trote corto',
+              },
+            },
+            protectedFromReset: true,
+          },
+        ];
+      },
+      async save(states: Array<{ progressionKey: string }>) {
+        saveCalls.push(states.map((state) => state.progressionKey));
+      },
+    };
+
+    const runner = new FlowRunnerV5(
+      makeConfig(
+        'correr 3 veces por semana',
+        {
+          strategy: (prompt) => {
+            capturedPrompt = prompt;
+            return {
+              phases: [
+                { name: 'Consolidacion', durationWeeks: 2, focus_esAR: 'Mantener una rutina ya instalada.' },
+              ],
+              milestones: ['Sostener una semana completa sin reiniciar'],
+            };
+          },
+        },
+        {
+          goalId: 'goal-running',
+          habitStateStore: store,
+          previousProgressionKeys: ['running'],
+        },
+      ),
+    );
+
+    const context = await runner.runFullPipeline();
+
+    expect(loadCalls).toEqual([['running']]);
+    expect(context.phaseIO.strategy?.input.habitStates).toEqual([
+      expect.objectContaining({
+        progressionKey: 'running',
+        weeksActive: 4,
+        level: 2,
+      }),
+    ]);
+    expect(capturedPrompt).toContain('weeksActive=4');
+    expect(capturedPrompt).toContain('evita una fase de "introduccion"');
+    expect(context.package?.habitStates[0]).toEqual(
+      expect.objectContaining({
+        progressionKey: 'running',
+        weeksActive: 4,
+        level: 2,
+      }),
+    );
+    expect(saveCalls).toEqual([['running']]);
+  });
+
+  it('package wiring: genera el plan de 3 capas, summary y qualityScore desde el runner', async () => {
     const activity = makeActivity({ id: 'portfolio', label: 'Bloque de portfolio', durationMin: 60 });
     const runner = new FlowRunnerV5(
       makeConfig('terminar portfolio', {}, { goalId: 'goal-portfolio' }),
@@ -393,9 +469,13 @@ describe('FlowRunnerV5', () => {
     const pkg = runner.getContext().package;
 
     expect(pkg?.items.length).toBeGreaterThanOrEqual(4);
+    expect(pkg?.plan.skeleton.horizonWeeks).toBe(12);
+    expect(pkg?.plan.detail.horizonWeeks).toBe(2);
+    expect(pkg?.plan.operational.horizonDays).toBe(7);
     expect(pkg?.summary_esAR).toContain('terminar portfolio');
     expect(pkg?.qualityScore).toBeGreaterThan(0);
     expect(pkg?.implementationIntentions.length).toBeGreaterThan(0);
+    expect(pkg?.habitStates).toEqual([]);
   });
 
   it('emite PhaseIO para cada fase sincronica relevante cuando el repair loop corre una vez', async () => {
