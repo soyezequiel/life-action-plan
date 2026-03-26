@@ -1,6 +1,37 @@
+import { z } from 'zod';
+
+import { t } from '../../../i18n';
 import type { DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
 import type { AgentRuntime } from '../../runtime/types';
 import type { StrategyInput, StrategyOutput } from './phase-io-v5';
+
+const strategicRoadmapPhaseSchema = z.object({
+  name: z.string().trim().min(1),
+  durationWeeks: z.number().optional(),
+  focus_esAR: z.string().trim().min(1),
+}).strict();
+
+const strategyOutputSchema = z.object({
+  phases: z.array(strategicRoadmapPhaseSchema).min(1),
+  milestones: z.array(z.string().trim().min(1)),
+}).strict();
+
+function normalizeStrategyOutput(output: StrategyOutput): StrategyOutput {
+  const phases = output.phases.map((phase) => ({
+    name: phase.name.trim(),
+    durationWeeks: phase.durationWeeks,
+    focus_esAR: phase.focus_esAR.trim(),
+  }));
+
+  const uniqueMilestones = Array.from(
+    new Set(output.milestones.map((milestone) => milestone.trim()).filter(Boolean)),
+  );
+
+  return {
+    phases,
+    milestones: phases.map((phase, index) => uniqueMilestones[index] ?? phase.focus_esAR),
+  };
+}
 
 export async function generateStrategy(
   runtime: AgentRuntime,
@@ -34,7 +65,7 @@ Clasificacion del objetivo:
 - Tipo: ${input.classification.goalType}
 - Riesgo: ${input.classification.risk}
 
-${domainCard ? `Conocimiento de Dominio (usa esto para las fases, frecuencias y progresiones):
+${domainCard ? `Conocimiento de dominio (usa esto para las fases, frecuencias y progresiones):
 - Dominio: ${domainCard.domainLabel}
 - Tareas tipicas: ${domainCard.tasks.map((task) => task.label).join(', ')}
 - Progresiones: ${domainCard.progression?.levels.map((level) => level.description).join(' -> ') || 'N/A'}
@@ -42,46 +73,54 @@ ${domainCard ? `Conocimiento de Dominio (usa esto para las fases, frecuencias y 
 ${habitStateBlock}
 El roadmap debe tener:
 - listado de fases logicas (ej: "fundamentos", "consolidacion", "avanzado")
-- hitos (milestones) concretos con su orden o estimacion
+- hitos concretos con su orden o estimacion
 
-Genera un resultado en formato JSON valido que cumpla con esta interfaz original en TypeScript:
+Genera un resultado en formato JSON valido que cumpla con esta interfaz:
 {
   "phases": [
     {
-      "name": "string (nombre de la fase)",
+      "name": "string",
       "durationWeeks": number,
-      "focus_esAR": "string (enfoque de la fase en espanol argentino)"
+      "focus_esAR": "string"
     }
   ],
   "milestones": [
-    "string (ej: Correr 5km sin detenerse)"
+    "string"
   ]
 }
 
-Responde SOLO con JSON valido, sin delimitadores de markdown (\`\`\`).
+Responde SOLO con JSON valido, sin markdown.
 `;
 
   const response = await runtime.chat([{ role: 'user', content: prompt }]);
 
   try {
     let raw = response.content.trim();
-    if (raw.startsWith('\`\`\`json')) {
+    if (raw.startsWith('```json')) {
       raw = raw.slice(7);
-    } else if (raw.startsWith('\`\`\`')) {
+    } else if (raw.startsWith('```')) {
       raw = raw.slice(3);
     }
-    if (raw.endsWith('\`\`\`')) {
+    if (raw.endsWith('```')) {
       raw = raw.slice(0, -3);
     }
     const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-    return JSON.parse(cleanRaw) as StrategyOutput;
+    return normalizeStrategyOutput(strategyOutputSchema.parse(JSON.parse(cleanRaw)));
   } catch {
-    return {
+    return normalizeStrategyOutput({
       phases: [
-        { name: 'fundamentos', durationWeeks: 4, focus_esAR: 'Establecer bases iniciales y habito' },
-        { name: 'desarrollo', durationWeeks: 4, focus_esAR: 'Incrementar la intensidad y el enfoque' },
+        {
+          name: t('pipeline.v5.strategy.fallback.phase_foundations_name'),
+          durationWeeks: 4,
+          focus_esAR: t('pipeline.v5.strategy.fallback.phase_foundations_focus'),
+        },
+        {
+          name: t('pipeline.v5.strategy.fallback.phase_development_name'),
+          durationWeeks: 4,
+          focus_esAR: t('pipeline.v5.strategy.fallback.phase_development_focus'),
+        },
       ],
-      milestones: ['Completar el primer mes con 80% de adherencia'],
-    };
+      milestones: [t('pipeline.v5.strategy.fallback.milestone_first_month')],
+    });
   }
 }

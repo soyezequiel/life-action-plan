@@ -1,6 +1,13 @@
-import type { AgentRuntime } from '../../runtime/types';
+import { z } from 'zod';
+
+import { t } from '../../../i18n';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
+import type { AgentRuntime } from '../../runtime/types';
 import type { RequirementsOutput } from './phase-io-v5';
+
+const requirementsOutputSchema = z.object({
+  questions: z.array(z.string().trim().min(1)).min(2).max(6),
+}).strict();
 
 /**
  * Fase 2: Dado un GoalClassification, genera un set de preguntas concretas
@@ -8,47 +15,54 @@ import type { RequirementsOutput } from './phase-io-v5';
  */
 export async function generateRequirements(
   runtime: AgentRuntime,
-  classification: GoalClassification
+  classification: GoalClassification,
 ): Promise<RequirementsOutput> {
   const prompt = `
 Eres un asistente que formula preguntas clave para planificar un objetivo particular.
 El sistema acaba de clasificar este objetivo general como: ${classification.goalType} (Riesgo: ${classification.risk}).
 
-Dependiendo del GoalType enfócate en:
+Dependiendo del GoalType enfocate en:
 - SKILL_ACQUISITION: nivel actual, tiempo disponible, experiencia previa.
-- QUANT_TARGET_TRACKING: target numérico, plazo, situación actual.
+- QUANT_TARGET_TRACKING: target numerico, plazo, situacion actual.
 - FINITE_PROJECT: deadline, entregables, recursos.
 - RECURRENT_HABIT: triggers actuales, consistencia pasada, bloqueos.
-- IDENTITY_EXPLORATION: valores relevantes, qué le genera sentido, mentores locales.
-- RELATIONAL_EMOTIONAL: dinámicas vinculares actuales, nivel de comunicación.
+- IDENTITY_EXPLORATION: valores relevantes, que le genera sentido, mentores locales.
+- RELATIONAL_EMOTIONAL: dinamicas vinculares actuales, nivel de comunicacion.
 - HIGH_UNCERTAINTY_TRANSFORM: expectativas realistas, riesgos importantes, bloqueos emocionales.
 
-Señales extraídas automáticamente: ${JSON.stringify(classification.extractedSignals)}
+Senales extraidas automaticamente: ${JSON.stringify(classification.extractedSignals)}
 
-Generá un JSON con un array "questions" de strings con exactamente entre 3 y 4 preguntas puntuales en español argentino ("¿Qué querés...", "¿Podés...").
-Responde SOLO con JSON válido, sin formati de markdown (\`\`\`), por ejemplo: {"questions": ["¿Cuántas horas libres tenés a la semana?"]}
+Genera un JSON con un array "questions" de strings con exactamente entre 3 y 4 preguntas puntuales en espanol argentino.
+Responde SOLO con JSON valido, sin markdown, por ejemplo: {"questions": ["Cuantas horas libres tenes a la semana?"]}
 `;
 
   const response = await runtime.chat([{ role: 'user', content: prompt }]);
-  
+
   try {
     let raw = response.content.trim();
-    if (raw.startsWith('\`\`\`json')) {
+    if (raw.startsWith('```json')) {
       raw = raw.slice(7);
-    } else if (raw.startsWith('\`\`\`')) {
+    } else if (raw.startsWith('```')) {
       raw = raw.slice(3);
     }
-    if (raw.endsWith('\`\`\`')) {
+    if (raw.endsWith('```')) {
       raw = raw.slice(0, -3);
     }
     const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-    return JSON.parse(cleanRaw) as RequirementsOutput;
-  } catch (e) {
-    // Fallback silencioso por timeout o parsing malformado
-    const fb = ["¿Cuántas horas a la semana tenés para dedicarle a este objetivo?"];
-    if (classification.goalType === 'SKILL_ACQUISITION') fb.push("¿Qué nivel de experiencia ya tenés en esto?");
-    if (classification.goalType === 'FINITE_PROJECT') fb.push("¿Para cuándo necesitás tener esto terminado?");
-    if (classification.goalType === 'QUANT_TARGET_TRACKING') fb.push("¿Cuál es tu número meta exacto a alcanzar?");
-    return { questions: fb };
+    return requirementsOutputSchema.parse(JSON.parse(cleanRaw));
+  } catch {
+    const questions = [t('pipeline.v5.requirements.fallback.hours')];
+
+    if (classification.goalType === 'SKILL_ACQUISITION') {
+      questions.push(t('pipeline.v5.requirements.fallback.skill_level'));
+    } else if (classification.goalType === 'FINITE_PROJECT') {
+      questions.push(t('pipeline.v5.requirements.fallback.deadline'));
+    } else if (classification.goalType === 'QUANT_TARGET_TRACKING') {
+      questions.push(t('pipeline.v5.requirements.fallback.numeric_target'));
+    } else {
+      questions.push(t('pipeline.v5.requirements.fallback.current_state'));
+    }
+
+    return { questions };
   }
 }

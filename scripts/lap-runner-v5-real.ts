@@ -222,6 +222,7 @@ async function run(): Promise<void> {
   loadLocalEnv();
 
   const cliOptions = parseCliOptions(process.argv.slice(2));
+  const inlineAdaptive = cliOptions.inlineAdaptive ?? true;
   const thinkingMode = resolveThinkingMode(cliOptions.thinkingMode);
   const outputFile = resolve(process.cwd(), cliOptions.outputFile || DEFAULT_OUTPUT_FILE);
   const selection = await resolveRealRunnerSelection({
@@ -266,7 +267,7 @@ async function run(): Promise<void> {
       frozenHorizonDays: 2
     },
     habitStateStore: createHabitStateStore(),
-    inlineAdaptive: cliOptions.inlineAdaptive ?? false
+    inlineAdaptive
   });
 
   const diagnosticMode = resolveDiagnosticMode(cliOptions);
@@ -428,9 +429,7 @@ async function run(): Promise<void> {
   };
 
   try {
-    const context = cliOptions.inlineAdaptive
-      ? await runner.runFullPipeline(tracker)
-      : await runner.runBuildPipeline(tracker);
+    const context = await runner.runFullPipeline(tracker);
 
     if (!context.package) {
       throw new Error('V5 real runner finished without package output.');

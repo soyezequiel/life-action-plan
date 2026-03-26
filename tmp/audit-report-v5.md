@@ -245,7 +245,35 @@ const strategyOutputSchema = z.object({ phases: z.array(...), milestones: z.arra
 
 ---
 
-### DEF-009 — COVE-REST semántica inconsistente: solo 1 finding puede existir por código
+### DEF-009 — `--verbose` no agrega valor diagnóstico sobre `--diagnostic`
+**Severidad**: LOW
+**Descripción**: El modo `--verbose` activa `diagnostic: true` y añade una sección "Phase IO Details (verbose)" que repite exactamente las mismas keyMetrics ya visibles en la tabla de fases. No hay desglose de tokens por fase, LLM responses raw, ni detalle de constraints del scheduler.
+**Evidencia**: run 3 --verbose output: "Phase IO Details" = copia exacta de la tabla de fases. Sin información adicional.
+**Fix sugerido**: Agregar al modo verbose: tokens por LLM call, raw LLM response (truncada), constraint details del scheduler.
+**Archivos**: `scripts/diagnostic-renderer.ts`
+
+---
+
+### DEF-010 — COVE-OVERLAP answer expone fact técnico en lenguaje máquina
+**Severidad**: MEDIUM
+**Descripción**: En run 3 el LLM devolvió `"No, overlaps=0."` como answer del finding COVE-OVERLAP. Esta string mezcla lenguaje natural con un fact interno (`overlaps=0`) que es jerga técnica. Viola la regla abuela-proof de CLAUDE.md.
+**Evidencia**: run 3 finding: `"message": "No, overlaps=0."` — visible en el output final de warnings.
+**Spec reference**: CLAUDE.md — "Abuela-proof: la UI no debe exponer jerga técnica".
+**Fix sugerido**: En `applyGrounding`, si el answer del LLM contiene patrones tipo `key=value`, sustituirlo por el answer determinístico correspondiente.
+**Archivos**: `src/lib/pipeline/v5/cove-verifier.ts:286-333`
+
+---
+
+### DEF-011 — Items count no-determinista entre runs (19 vs 20)
+**Severidad**: LOW
+**Descripción**: El número de items en el output varía entre runs (19 en runs 1 y 2, 20 en run 3) porque el LLM genera 3 o 4 milestones según el run. El packager crea 1 MilestoneItem por milestone → items.length es no-determinista.
+**Evidencia**: run 1/2: `"items": 19, "strategy": "3 milestones"` | run 3: `"items": 20, "strategy": "4 milestones"`
+**Fix sugerido**: El número de milestones debería estar fijado por el tipo de objetivo (SKILL_ACQUISITION siempre genera N milestones según las fases del roadmap). Agregar validación Zod con `.length()` específico.
+**Archivos**: `src/lib/pipeline/v5/strategy.ts`, `src/lib/pipeline/v5/packager.ts`
+
+---
+
+### DEF-013 — COVE-REST semántica inconsistente: solo 1 finding puede existir por código
 **Severidad**: LOW
 **Fase**: COVE_VERIFY (Fase 9)
 **Descripción**: `normalizeFindings()` usa un Map keyed por `code`, garantizando solo 1 finding por código. Si el LLM genera 2 findings con code `COVE-REST` (el segundo más relevante), el primero silenciosamente se sobreescribe.

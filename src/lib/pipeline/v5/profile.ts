@@ -1,5 +1,15 @@
+import { z } from 'zod';
+
 import type { AgentRuntime } from '../../runtime/types';
 import type { UserProfileV5 } from './phase-io-v5';
+
+const userProfileV5Schema = z.object({
+  freeHoursWeekday: z.number(),
+  freeHoursWeekend: z.number(),
+  energyLevel: z.enum(['low', 'medium', 'high']),
+  fixedCommitments: z.array(z.string()),
+  scheduleConstraints: z.array(z.string()),
+}).strict();
 
 /**
  * Fase 3: Extrae info estructurada (incluyendo anclas numéricos) 
@@ -45,15 +55,7 @@ Devuelve SOLO este formato JSON exacto sin bloques markdown ni comentarios expli
       raw = raw.slice(0, -3);
     }
     const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-    const data = JSON.parse(cleanRaw);
-    
-    return {
-      freeHoursWeekday: Number(data.freeHoursWeekday) || 2,
-      freeHoursWeekend: Number(data.freeHoursWeekend) || 4,
-      energyLevel: ['low', 'medium', 'high'].includes(data.energyLevel) ? data.energyLevel : 'medium',
-      fixedCommitments: Array.isArray(data.fixedCommitments) ? data.fixedCommitments : [],
-      scheduleConstraints: Array.isArray(data.scheduleConstraints) ? data.scheduleConstraints : []
-    };
+    return userProfileV5Schema.parse(JSON.parse(cleanRaw));
   } catch (e) {
     // Fallback determinístico si falla LLM
     return {
@@ -61,7 +63,7 @@ Devuelve SOLO este formato JSON exacto sin bloques markdown ni comentarios expli
       freeHoursWeekend: 5,
       energyLevel: 'medium',
       fixedCommitments: [],
-      scheduleConstraints: ["Recuperación automática de perfil"]
+      scheduleConstraints: []
     };
   }
 }

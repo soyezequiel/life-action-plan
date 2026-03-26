@@ -134,6 +134,42 @@ function getMeta(code: string, table: Record<string, FindingMeta>): FindingMeta 
   return table[code] ?? DEFAULT_META;
 }
 
+function withExtraRelatedFiles(meta: FindingMeta, extraFiles: string[]): FindingMeta {
+  return {
+    ...meta,
+    relatedFiles: Array.from(new Set([...meta.relatedFiles, ...extraFiles])),
+  };
+}
+
+function resolveCoveMeta(finding: CoVeFinding): FindingMeta {
+  const baseMeta = getMeta(finding.code, COVE_FINDING_META);
+  const supportingFacts = new Set(finding.supportingFacts);
+
+  if (!finding.groundedByFacts) {
+    return withExtraRelatedFiles(
+      {
+        ...baseMeta,
+        rootCause: 'La verificacion CoVe del LLM no coincide con los facts deterministas calculados para este calendario.',
+        nextCheck: 'Revisa la serializacion de facts y la logica de grounding en el verificador CoVe.',
+      },
+      ['src/lib/pipeline/v5/cove-verifier.ts'],
+    );
+  }
+
+  if (finding.code === 'COVE-OVERLAP' && supportingFacts.has('overlaps=0')) {
+    return withExtraRelatedFiles(
+      {
+        ...baseMeta,
+        rootCause: 'El calendario no tiene overlaps reales; si este finding persiste, el problema esta en la interpretacion del verificador y no en el scheduler.',
+        nextCheck: 'Inspecciona los supportingFacts y valida la logica de applyGrounding para overlaps.',
+      },
+      ['src/lib/pipeline/v5/cove-verifier.ts'],
+    );
+  }
+
+  return baseMeta;
+}
+
 export function normalizeHardFindings(findings: HardFinding[]): NormalizedFinding[] {
   return findings.map((f) => {
     const meta = getMeta(f.code, HARD_FINDING_META);
@@ -168,7 +204,7 @@ export function normalizeSoftFindings(findings: SoftFinding[]): NormalizedFindin
 
 export function normalizeCoveFindings(findings: CoVeFinding[]): NormalizedFinding[] {
   return findings.map((f) => {
-    const meta = getMeta(f.code, COVE_FINDING_META);
+    const meta = resolveCoveMeta(f);
     return {
       severity: f.severity,
       phase: 'coveVerify',

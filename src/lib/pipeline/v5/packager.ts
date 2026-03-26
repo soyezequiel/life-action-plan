@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 
+import { t } from '../../../i18n';
 import { mergeHabitStateForReplan, type HabitState } from '../../domain/habit-state';
 import {
   V5PlanSchema,
@@ -13,7 +14,7 @@ import {
   type V5Skeleton,
 } from '../../domain/rolling-wave-plan';
 import { SlackPolicySchema, type SlackPolicy } from '../../domain/slack-policy';
-import type { FlexTaskItem, MetricItem, MilestoneItem, PlanItem, TimeEventItem } from '../../domain/plan-item';
+import type { FlexTaskItem, MetricItem, MilestoneItem, PlanItem, TimeEventItem, TriggerRuleItem } from '../../domain/plan-item';
 import type {
   CoVeFinding,
   HardFinding,
@@ -157,6 +158,35 @@ function buildMetricItems(
         freq: 'weekly',
         aggregation: 'count',
       },
+      createdAt,
+      updatedAt: createdAt,
+    },
+  ];
+}
+
+function buildTriggerRuleItems(goalId: string, createdAt: string): TriggerRuleItem[] {
+  return [
+    {
+      id: 'trigger-low-adherence',
+      kind: 'trigger_rule',
+      title: t('pipeline.v5.package.trigger.low_adherence_title'),
+      status: 'active',
+      goalIds: [goalId],
+      enabled: true,
+      conditions: [
+        {
+          left: { type: 'metric', ref: 'plan_quality_score' },
+          op: 'lt',
+          right: { value: 70 },
+        },
+      ],
+      actions: [
+        {
+          type: 'create_task',
+          payload: { title: t('pipeline.v5.package.trigger.review_task_title'), estimateMin: 30 },
+        },
+      ],
+      throttle: { minHoursBetweenRuns: 168 },
       createdAt,
       updatedAt: createdAt,
     },
@@ -626,6 +656,7 @@ export function packagePlan(input: PackageInput): PlanPackage {
     ...milestones,
     ...buildBacklogItems(input.finalSchedule.unscheduled, goalId, createdAt),
     ...buildMetricItems(qualityScore, timeEvents.length, goalId, createdAt),
+    ...buildTriggerRuleItems(goalId, createdAt),
   ];
   const habitStates = buildHabitStates(input, timeEvents);
   const plan = buildPlan(input, goalIds, milestones, timeEvents, createdAt, updatedAt, weekStartDate, slackPolicy);

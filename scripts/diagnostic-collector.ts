@@ -208,6 +208,7 @@ export class DiagnosticCollector {
   private coveOutput: CoVeVerifyOutput | null = null;
   private repairOutput: RepairOutput | null = null;
   private packageOutput: PackageOutput | null = null;
+  private adaptOutput: AdaptOutput | null = null;
 
   setRunMeta(meta: {
     modelId: string;
@@ -431,6 +432,9 @@ export class DiagnosticCollector {
       case 'package':
         this.packageOutput = output as PackageOutput;
         this.qualityScore = (output as PackageOutput).qualityScore;
+        break;
+      case 'adapt':
+        this.adaptOutput = output as AdaptOutput;
         break;
     }
   }

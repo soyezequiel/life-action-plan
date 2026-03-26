@@ -263,6 +263,8 @@ export class FlowRunnerV5 {
 
     if (this.context.config.inlineAdaptive ?? true) {
       await this.executePhase('adapt', tracker);
+    } else {
+      tracker.onPhaseSkipped?.('adapt');
     }
 
     return this.context;

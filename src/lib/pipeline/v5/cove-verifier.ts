@@ -149,10 +149,12 @@ export function buildCoVeFacts(input: CoVeVerifyInput): CoVeFacts {
     return right.minutes - left.minutes;
   });
   const maxSessionsPerDay = busiestDays[0]?.sessions ?? 0;
+  const maxMinutesPerDay = busiestDays[0]?.minutes ?? 0;
   const topTwoSessions = (busiestDays[0]?.sessions ?? 0) + (busiestDays[1]?.sessions ?? 0);
-  const concentrated = maxSessionsPerDay >= 4
-    || (input.schedule.events.length >= 6 && topTwoSessions / Math.max(input.schedule.events.length, 1) >= 0.6)
-    || (loadsByDate.size > 0 && loadsByDate.size <= Math.ceil(input.schedule.events.length / 2));
+  const activeDays = loadsByDate.size;
+  const concentrated = (maxSessionsPerDay >= 4 && maxMinutesPerDay >= 90)
+    || (input.schedule.events.length >= 8 && topTwoSessions / Math.max(input.schedule.events.length, 1) >= 0.65)
+    || (activeDays > 0 && activeDays <= 3 && input.schedule.events.length >= 6);
 
   return {
     totalEvents: input.schedule.events.length,
@@ -283,11 +285,18 @@ function inferCode(raw: RawCoVeFinding): CoVeFinding['code'] {
   return 'COVE-OTHER';
 }
 
+// Returns true if the answer contains raw fact patterns (e.g. "overlaps=0", "restDays=1")
+// that should be replaced with natural language from the deterministic finding.
+function looksLikeRawFact(answer: string): boolean {
+  return /\b\w+=\d+/.test(answer);
+}
+
 function applyGrounding(raw: RawCoVeFinding, facts: CoVeFacts): CoVeFinding {
   const code = inferCode(raw);
   let severity = raw.severity;
   let groundedByFacts = true;
   let supportingFacts: string[] = [];
+  let answer = raw.answer;
 
   if (code === 'COVE-REST') {
     supportingFacts = [`restDays=${facts.restDays}`, `activeDates=${facts.activeDates.join(',') || 'none'}`];
@@ -295,11 +304,29 @@ function applyGrounding(raw: RawCoVeFinding, facts: CoVeFacts): CoVeFinding {
       severity = 'WARN';
       groundedByFacts = false;
     }
+    // DEF-002: LLM must not escalate INFO→WARN when facts confirm rest days exist
+    if (severity === 'WARN' && facts.restDays > 0) {
+      severity = 'INFO';
+      groundedByFacts = true;
+    }
+    // DEF-010: replace raw fact dumps with natural language
+    if (looksLikeRawFact(answer)) {
+      answer = deterministicRestFinding(facts).answer;
+    }
   } else if (code === 'COVE-OVERLAP') {
     supportingFacts = [`overlaps=${facts.overlaps}`];
     if (severity === 'FAIL' && facts.overlaps === 0) {
       severity = 'WARN';
       groundedByFacts = false;
+    }
+    // DEF-002: LLM must not escalate INFO→WARN when facts confirm zero overlaps
+    if (severity === 'WARN' && facts.overlaps === 0) {
+      severity = 'INFO';
+      groundedByFacts = true;
+    }
+    // DEF-010: replace raw fact dumps with natural language
+    if (looksLikeRawFact(answer)) {
+      answer = deterministicOverlapFinding(facts).answer;
     }
   } else if (code === 'COVE-DISTRIBUTION') {
     supportingFacts = [
@@ -309,6 +336,15 @@ function applyGrounding(raw: RawCoVeFinding, facts: CoVeFacts): CoVeFinding {
     if (severity === 'FAIL') {
       severity = 'WARN';
       groundedByFacts = facts.concentrated;
+    }
+    // DEF-002: LLM must not escalate INFO→WARN when facts confirm even distribution
+    if (severity === 'WARN' && !facts.concentrated) {
+      severity = 'INFO';
+      groundedByFacts = true;
+    }
+    // DEF-010: replace raw fact dumps with natural language
+    if (looksLikeRawFact(answer)) {
+      answer = deterministicDistributionFinding(facts).answer;
     }
   } else {
     supportingFacts = [
@@ -325,7 +361,7 @@ function applyGrounding(raw: RawCoVeFinding, facts: CoVeFacts): CoVeFinding {
   return {
     code,
     question: raw.question,
-    answer: raw.answer,
+    answer,
     severity,
     groundedByFacts,
     supportingFacts,
@@ -356,7 +392,7 @@ Facts:
 - overlaps=${facts.overlaps}
 - maxSessionsPerDay=${facts.maxSessionsPerDay}
 - concentrated=${facts.concentrated}
-- busiestDays=${facts.busiestDays.map((day) => `${day.date}:${day.sessions}x${day.minutes}m`).join(',') || 'none'}
+- busiestDays=${facts.busiestDays.map((day) => `${day.date}:sessions=${day.sessions},totalMin=${day.minutes}`).join(',') || 'none'}
 
 Devuelve SOLO JSON estricto con 2 a 4 findings:
 {
