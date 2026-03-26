@@ -186,7 +186,7 @@ async function resolveDomainCard(config: FlowRunnerV5Config, classification: Cla
   if (/\bguitarra\b/.test(normalized)) {
     return getKnowledgeCard('guitarra');
   }
-  if (/\b(ingles|ingles|idioma|idiomas|frances|portugues)\b/.test(normalized)) {
+  if (/\b(ingl[eé]s|idioma|idiomas|franc[eé]s|portugu[eé]s)\b/.test(normalized)) {
     return getKnowledgeCard('idiomas');
   }
   if (/\b(correr|running|maraton|5k|10k)\b/.test(normalized)) {

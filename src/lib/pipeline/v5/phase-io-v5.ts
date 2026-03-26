@@ -71,7 +71,7 @@ export interface SoftFinding {
 export interface SoftValidateInput { schedule: SchedulerOutput; profile: UserProfileV5; }
 export interface SoftValidateOutput { findings: SoftFinding[]; }
 
-// ─── 9. CoVe Vefify ───────────────────────────────────────────────────────────
+// ─── 9. CoVe Verify ───────────────────────────────────────────────────────────
 export interface CoVeFinding {
   question: string;
   answer: string;
