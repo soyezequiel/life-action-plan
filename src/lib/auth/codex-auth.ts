@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import path from 'node:path'
+import { existsSync } from 'node:fs'
 import { DateTime } from 'luxon'
 
 const CODEX_AUTH_REFRESH_URL = 'https://auth.openai.com/oauth/token'
@@ -22,6 +23,7 @@ interface CodexAuthFile {
 
 interface JwtPayload {
   exp?: number
+  [key: string]: unknown
 }
 
 export interface CodexAuthAvailability {
@@ -36,6 +38,15 @@ export interface CodexAuthSession {
   idToken: string | null
 }
 
+export interface CodexAuthIdentity {
+  authFilePath: string
+  authSource: 'lap' | 'shared'
+  accountId: string
+  email: string | null
+  name: string | null
+  planType: string | null
+}
+
 let activeRefreshPromise: Promise<CodexAuthSession> | null = null
 
 function getCodexHomeDir(): string {
@@ -43,7 +54,21 @@ function getCodexHomeDir(): string {
   return configuredHome || path.join(homedir(), '.codex')
 }
 
+function getLapHomeDir(): string {
+  const configuredHome = process.env.LAP_HOME?.trim()
+  return configuredHome || path.join(homedir(), '.lap')
+}
+
+export function getLapCodexAuthFilePath(): string {
+  return path.join(getLapHomeDir(), 'codex', 'auth.json')
+}
+
 export function getCodexAuthFilePath(): string {
+  const lapAuthPath = getLapCodexAuthFilePath()
+  if (existsSync(lapAuthPath)) {
+    return lapAuthPath
+  }
+
   return path.join(getCodexHomeDir(), 'auth.json')
 }
 
@@ -86,6 +111,48 @@ function parseJwtPayload(token: string | null): JwtPayload | null {
   }
 }
 
+function getNestedAuthClaims(claims: Record<string, unknown> | null): Record<string, unknown> | null {
+  if (!claims) {
+    return null
+  }
+
+  const nestedAuthClaims = claims['https://api.openai.com/auth']
+  return nestedAuthClaims && typeof nestedAuthClaims === 'object'
+    ? nestedAuthClaims as Record<string, unknown>
+    : null
+}
+
+export function extractCodexAccountIdFromIdToken(idToken: string | null | undefined): string | null {
+  const payload = parseJwtPayload(normalizeString(idToken))
+  const claims = payload && typeof payload === 'object'
+    ? payload as Record<string, unknown>
+    : null
+
+  if (!claims) {
+    return null
+  }
+
+  const nestedAuthRecord = getNestedAuthClaims(claims)
+
+  const candidates = [
+    claims.chatgpt_account_id,
+    claims.account_id,
+    claims['https://chatgpt.com/chatgpt_account_id'],
+    claims['https://auth.openai.com/chatgpt_account_id'],
+    nestedAuthRecord?.chatgpt_account_id,
+    nestedAuthRecord?.account_id
+  ]
+
+  for (const candidate of candidates) {
+    const normalized = normalizeString(candidate)
+    if (normalized) {
+      return normalized
+    }
+  }
+
+  return null
+}
+
 function hasFreshAccessToken(accessToken: string | null): boolean {
   if (!accessToken) {
     return false
@@ -101,7 +168,11 @@ function hasFreshAccessToken(accessToken: string | null): boolean {
 }
 
 function resolveAccountId(tokens: CodexAuthTokensFile | null | undefined): string | null {
-  return normalizeString(tokens?.account_id)
+  return normalizeString(tokens?.account_id) ?? extractCodexAccountIdFromIdToken(tokens?.id_token)
+}
+
+function resolveCodexAuthSource(filePath: string): 'lap' | 'shared' {
+  return filePath === getLapCodexAuthFilePath() ? 'lap' : 'shared'
 }
 
 async function readCodexAuthFile(filePath = getCodexAuthFilePath()): Promise<CodexAuthFile | null> {
@@ -195,6 +266,35 @@ async function refreshCodexSession(authFile: CodexAuthFile, filePath = getCodexA
     refreshToken: nextRefreshToken,
     accountId: nextAccountId,
     idToken: nextIdToken
+  }
+}
+
+export async function getCodexAuthIdentity(filePath = getCodexAuthFilePath()): Promise<CodexAuthIdentity | null> {
+  const authFile = await readCodexAuthFile(filePath)
+  const tokens = authFile?.tokens ?? null
+  const accountId = resolveAccountId(tokens)
+  const idTokenClaims = parseJwtPayload(normalizeString(tokens?.id_token))
+  const accessTokenClaims = parseJwtPayload(normalizeString(tokens?.access_token))
+
+  if (!accountId) {
+    return null
+  }
+
+  const nestedIdClaims = getNestedAuthClaims(idTokenClaims)
+  const nestedAccessClaims = getNestedAuthClaims(accessTokenClaims)
+
+  return {
+    authFilePath: filePath,
+    authSource: resolveCodexAuthSource(filePath),
+    accountId,
+    email: normalizeString(idTokenClaims?.email) ?? normalizeString(accessTokenClaims?.email),
+    name: normalizeString(idTokenClaims?.name)
+      ?? normalizeString(idTokenClaims?.preferred_username)
+      ?? normalizeString(accessTokenClaims?.name),
+    planType: normalizeString(nestedIdClaims?.chatgpt_plan_type)
+      ?? normalizeString(idTokenClaims?.chatgpt_plan_type)
+      ?? normalizeString(nestedAccessClaims?.chatgpt_plan_type)
+      ?? normalizeString(accessTokenClaims?.chatgpt_plan_type)
   }
 }
 

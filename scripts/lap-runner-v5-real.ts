@@ -7,8 +7,18 @@ import { createPipelineRuntimeRecorder } from '../src/lib/flow/pipeline-runtime-
 import { FlowRunnerV5 } from '../src/lib/pipeline/v5/runner';
 import type { FlowRunnerV5Tracker } from '../src/lib/pipeline/v5/runner';
 import { buildSchedulingContextFromRunnerConfig } from '../src/lib/pipeline/v5/scheduling-context';
+import { getCodexAuthFilePath, getCodexAuthIdentity } from '../src/lib/auth/codex-auth';
+import {
+  fetchCodexUsageSnapshot,
+  formatCodexCreditsLine,
+  formatCodexRateLimitLines,
+  formatCodexUsageDeltaLines
+} from '../src/lib/auth/codex-usage';
 import { resolveRealRunnerSelection } from '../src/lib/runtime/real-runner-selection';
 import type { AvailabilityWindow, BlockedSlot } from '../src/lib/scheduler/types';
+import { traceCollector } from '../src/debug/trace-collector';
+import { DiagnosticCollector } from './diagnostic-collector';
+import { renderDiagnosticReport, type RenderMode } from './diagnostic-renderer';
 
 const DEFAULT_OUTPUT_FILE = resolve(process.cwd(), 'tmp/pipeline-v5-real.json');
 const DEFAULT_TIMEZONE = 'America/Argentina/Buenos_Aires';
@@ -34,6 +44,9 @@ interface CliOptions {
   outputFile?: string;
   thinkingMode?: 'enabled' | 'disabled';
   inlineAdaptive?: boolean;
+  diagnostic?: boolean;
+  verbose?: boolean;
+  json?: boolean;
 }
 
 function loadLocalEnv(): void {
@@ -85,10 +98,34 @@ function parseCliOptions(argv: string[]): CliOptions {
 
     if (token === '--build-only') {
       options.inlineAdaptive = false;
+      continue;
+    }
+
+    if (token === '--diagnostic') {
+      options.diagnostic = true;
+      continue;
+    }
+
+    if (token === '--verbose') {
+      options.verbose = true;
+      options.diagnostic = true;
+      continue;
+    }
+
+    if (token === '--json') {
+      options.json = true;
+      options.diagnostic = true;
     }
   }
 
   return options;
+}
+
+function resolveDiagnosticMode(options: CliOptions): { enabled: boolean; mode: RenderMode } {
+  if (options.json) return { enabled: true, mode: 'json' };
+  if (options.verbose) return { enabled: true, mode: 'verbose' };
+  if (options.diagnostic) return { enabled: true, mode: 'human' };
+  return { enabled: false, mode: 'human' };
 }
 
 function resolveThinkingMode(cliThinkingMode?: 'enabled' | 'disabled'): 'enabled' | 'disabled' | undefined {
@@ -132,6 +169,55 @@ function createHabitStateStore(): HabitStateStore {
   };
 }
 
+function formatCodexAccountLabel(identity: Awaited<ReturnType<typeof getCodexAuthIdentity>>): string {
+  if (!identity) {
+    return 'Cuenta no identificada';
+  }
+
+  const parts = [
+    identity.name,
+    identity.email ? `<${identity.email}>` : null
+  ].filter(Boolean);
+
+  if (parts.length > 0) {
+    return parts.join(' ');
+  }
+
+  return identity.accountId;
+}
+
+async function printCodexUsageSnapshot(stage: 'antes' | 'despues'): Promise<import('../src/lib/auth/codex-usage').CodexUsageSnapshot | null> {
+  try {
+    const snapshot = await fetchCodexUsageSnapshot();
+    console.error(`[V5 Real] ${formatCodexCreditsLine(snapshot)} (${stage})`);
+    for (const line of formatCodexRateLimitLines(snapshot, DEFAULT_TIMEZONE)) {
+      console.error(`[V5 Real] ${line} (${stage})`);
+    }
+    return snapshot;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[V5 Real] No pude leer el credito de Codex (${stage}): ${message}`);
+    return null;
+  }
+}
+
+function collectTraceUsage(traceId: string | null): { promptTokens: number; completionTokens: number; spans: number } {
+  if (!traceId) {
+    return { promptTokens: 0, completionTokens: 0, spans: 0 };
+  }
+
+  const trace = traceCollector.getSnapshot().find((snapshot) => snapshot.traceId === traceId);
+  if (!trace) {
+    return { promptTokens: 0, completionTokens: 0, spans: 0 };
+  }
+
+  return trace.spans.reduce((totals, span) => ({
+    promptTokens: totals.promptTokens + (span.usage?.promptTokens ?? 0),
+    completionTokens: totals.completionTokens + (span.usage?.completionTokens ?? 0),
+    spans: totals.spans + (span.usage ? 1 : 0)
+  }), { promptTokens: 0, completionTokens: 0, spans: 0 });
+}
+
 async function run(): Promise<void> {
   loadLocalEnv();
 
@@ -144,12 +230,16 @@ async function run(): Promise<void> {
   });
   const modelId = selection.modelId;
   const runtime = getProvider(modelId, selection.runtimeConfig);
+  const traceId = traceCollector.startTrace('cli-v5-real', modelId, {
+    command: `npx tsx scripts/lap-runner-v5-real.ts ${process.argv.slice(2).join(' ')}`.trim()
+  });
   const runtimeRecorder = createPipelineRuntimeRecorder({
     source: 'cli-v5',
     modelId,
     goalText: DEFAULT_GOAL_TEXT,
     outputFile
   });
+  let runError: Error | null = null;
   const schedulingContext = buildSchedulingContextFromRunnerConfig({
     timezone: DEFAULT_TIMEZONE,
     weekStartDate: DEFAULT_WEEK_START,
@@ -179,8 +269,31 @@ async function run(): Promise<void> {
     inlineAdaptive: cliOptions.inlineAdaptive ?? false
   });
 
+  const diagnosticMode = resolveDiagnosticMode(cliOptions);
+  const authLabel = selection.runtimeConfig.authMode === 'codex-oauth' ? `Codex local (${getCodexAuthFilePath()})` : 'API key';
+  const codexIdentity = selection.runtimeConfig.authMode === 'codex-oauth'
+    ? await getCodexAuthIdentity()
+    : null;
+  let codexUsageBefore: import('../src/lib/auth/codex-usage').CodexUsageSnapshot | null = null;
+  const collector = new DiagnosticCollector();
+  collector.setRunMeta({
+    modelId,
+    authMode: authLabel,
+    outputFile,
+    startedAt: new Date().toISOString(),
+    command: `npx tsx scripts/lap-runner-v5-real.ts ${process.argv.slice(2).join(' ')}`.trim(),
+  });
+
   console.error(`[V5 Real] Modelo activo: ${modelId}`);
-  console.error(`[V5 Real] Autenticacion: ${selection.runtimeConfig.authMode === 'codex-oauth' ? 'Codex local' : 'API key'}`);
+  console.error(`[V5 Real] Autenticacion: ${authLabel}`);
+  if (codexIdentity) {
+    const authSourceLabel = codexIdentity.authSource === 'lap' ? 'LAP independiente' : 'Codex compartida';
+    const planLabel = codexIdentity.planType ? ` | plan=${codexIdentity.planType}` : '';
+    console.error(`[V5 Real] Cuenta Codex: ${formatCodexAccountLabel(codexIdentity)}`);
+    console.error(`[V5 Real] Account ID: ${codexIdentity.accountId}${planLabel}`);
+    console.error(`[V5 Real] Fuente auth: ${authSourceLabel} (${codexIdentity.authFilePath})`);
+    codexUsageBefore = await printCodexUsageSnapshot('antes');
+  }
   console.error(`[V5 Real] Running ${modelId} -> ${outputFile}`);
 
   runtimeRecorder.startRun({
@@ -233,6 +346,7 @@ async function run(): Promise<void> {
     },
     onPhaseSuccess: (phase, _result, io) => {
       runtimeRecorder.markPhaseSuccess(phase, io);
+      collector.recordPhaseSuccess(phase, io);
       if (isRepairLoopPhase(phase)) {
         const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
         runtimeRecorder.markRepairCyclePhaseComplete(cycle, phase, 'success', {
@@ -264,6 +378,7 @@ async function run(): Promise<void> {
     },
     onPhaseFailure: (phase, error) => {
       runtimeRecorder.markPhaseFailure(phase, error);
+      collector.recordPhaseFailure(phase, error);
       if (isRepairLoopPhase(phase)) {
         const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
         runtimeRecorder.markRepairCyclePhaseComplete(cycle, phase, 'error', {
@@ -273,6 +388,7 @@ async function run(): Promise<void> {
     },
     onPhaseSkipped: (phase) => {
       runtimeRecorder.markPhaseSkipped(phase, `Phase ${phase} skipped.`);
+      collector.recordPhaseSkipped(phase);
       if (phase === 'repair') {
         const cycle = runtimeRecorder.getSnapshot().repairCycles + 1;
         runtimeRecorder.markRepairCyclePhaseComplete(cycle, 'repair', 'skipped', {
@@ -295,10 +411,12 @@ async function run(): Promise<void> {
     },
     onRepairAttempt: (attempt, maxAttempts, findings) => {
       runtimeRecorder.recordRepairAttempt(attempt, maxAttempts, findings);
+      collector.recordRepairAttempt(attempt, maxAttempts, findings);
       console.error(`[V5 Real] repair ${attempt}/${maxAttempts} with ${findings.length} findings`);
     },
     onRepairExhausted: (repairCycles, remainingFindings) => {
       runtimeRecorder.markRepairExhausted();
+      collector.recordRepairExhausted(repairCycles, remainingFindings);
       runtimeRecorder.markRepairCyclePhaseComplete(repairCycles, 'repair', 'exhausted', {
         summaryLabel: 'Agotado'
       });
@@ -319,28 +437,79 @@ async function run(): Promise<void> {
     }
 
     runtimeRecorder.completeRun('success');
+    collector.setRunCompletion('success', context.package.qualityScore);
 
     mkdirSync(resolve(outputFile, '..'), { recursive: true });
     writeFileSync(outputFile, JSON.stringify(context.package, null, 2), 'utf8');
 
-    console.log('\n--- V5 REAL PIPELINE RESULT START ---');
-    console.log(JSON.stringify({
-      modelId,
-      summary_esAR: context.package.summary_esAR,
-      qualityScore: context.package.qualityScore,
-      warnings: context.package.warnings,
-      skeletonPhases: context.package.plan.skeleton.phases.length,
-      detailWeeks: context.package.plan.detail.weeks.length,
-      operationalDays: context.package.plan.operational.days.length,
-      habitStates: context.package.habitStates.length,
-      outputFile
-    }, null, 2));
-    console.log('--- V5 REAL PIPELINE RESULT END ---\n');
+    if (diagnosticMode.enabled) {
+      const report = collector.getReport();
+      const rendered = renderDiagnosticReport(report, diagnosticMode.mode);
+      if (rendered.stderr) console.error(rendered.stderr);
+      console.log(rendered.stdout);
+
+      const hasUnresolvedFails = report.findings.some((f) => f.severity === 'FAIL');
+      if (hasUnresolvedFails && (report.run.qualityScore ?? 1) < 0.5) {
+        process.exitCode = 2;
+      }
+    } else {
+      console.log('\n--- V5 REAL PIPELINE RESULT START ---');
+      console.log(JSON.stringify({
+        modelId,
+        summary_esAR: context.package.summary_esAR,
+        qualityScore: context.package.qualityScore,
+        warnings: context.package.warnings,
+        skeletonPhases: context.package.plan.skeleton.phases.length,
+        detailWeeks: context.package.plan.detail.weeks.length,
+        operationalDays: context.package.plan.operational.days.length,
+        habitStates: context.package.habitStates.length,
+        outputFile
+      }, null, 2));
+      console.log('--- V5 REAL PIPELINE RESULT END ---\n');
+    }
   } catch (error) {
+    runError = error instanceof Error ? error : new Error(String(error));
     runtimeRecorder.completeRun('error', {
       message: error instanceof Error ? error.message : String(error)
     });
+    collector.setRunCompletion('error');
+
+    if (diagnosticMode.enabled) {
+      const report = collector.getReport();
+      const rendered = renderDiagnosticReport(report, diagnosticMode.mode);
+      if (rendered.stderr) console.error(rendered.stderr);
+      console.log(rendered.stdout);
+    }
+
     throw error;
+  } finally {
+    const traceUsage = collectTraceUsage(traceId);
+    if (traceUsage.spans > 0) {
+      runtimeRecorder.setRunMetadata({
+        tokensUsed: {
+          input: traceUsage.promptTokens,
+          output: traceUsage.completionTokens
+        }
+      });
+      console.error(
+        `[V5 Real] Tokens consumidos: entrada=${traceUsage.promptTokens} | salida=${traceUsage.completionTokens} | llamadas=${traceUsage.spans}`
+      );
+    }
+
+    if (codexIdentity) {
+      const codexUsageAfter = await printCodexUsageSnapshot('despues');
+      for (const deltaLine of formatCodexUsageDeltaLines(codexUsageBefore, codexUsageAfter)) {
+        console.error(`[V5 Real] ${deltaLine}`);
+      }
+    }
+
+    if (traceId) {
+      if (runError) {
+        traceCollector.failTrace(traceId, runError);
+      } else {
+        traceCollector.completeTrace(traceId);
+      }
+    }
   }
 }
 
