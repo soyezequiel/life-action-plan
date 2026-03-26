@@ -1,13 +1,17 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { generateText, streamText } from 'ai'
+import { getCodexAuthSession } from '../auth/codex-auth'
 import type { AgentRuntime, LLMMessage, LLMResponse, ToolCall } from '../runtime/types'
 import { DEFAULT_OPENROUTER_BUILD_MODEL, getModelProviderName, supportsOllamaThinking } from './provider-metadata'
+
+type ProviderAuthMode = 'api-key' | 'codex-oauth'
 
 interface ProviderConfig {
   apiKey: string
   baseURL?: string
   model?: string
   thinkingMode?: 'enabled' | 'disabled'
+  authMode?: ProviderAuthMode
 }
 
 interface ProviderTimeouts {
@@ -56,6 +60,9 @@ const OLLAMA_MAX_OUTPUT_TOKENS = 4096
 const OPENAI_REASONING_SUMMARY_MODE = 'auto'
 const MODEL_TIMEOUT_MESSAGE = 'El asistente tardo demasiado en responder. Intentalo de nuevo.'
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
+const CODEX_BETA_RESPONSES = 'responses=experimental'
+const CODEX_ORIGINATOR = 'codex_cli_rs'
+const DEFAULT_CODEX_INSTRUCTIONS = 'You are a helpful assistant. Follow the requested output format exactly.'
 
 export function getProviderTimeouts(modelId: string): ProviderTimeouts {
   const providerName = getModelProviderName(modelId)
@@ -98,6 +105,116 @@ function getOpenRouterHeaders(): Record<string, string> {
   }
 
   return headers
+}
+
+function isCodexAuthMode(config: ProviderConfig): boolean {
+  return config.authMode === 'codex-oauth'
+}
+
+function extractCodexTextContent(content: unknown): string {
+  if (typeof content === 'string') {
+    return content.trim()
+  }
+
+  if (!Array.isArray(content)) {
+    return ''
+  }
+
+  return content
+    .flatMap((item) => {
+      if (!item || typeof item !== 'object') {
+        return []
+      }
+
+      const text = (item as { text?: unknown }).text
+      return typeof text === 'string' && text.trim().length > 0
+        ? [text.trim()]
+        : []
+    })
+    .join('\n')
+    .trim()
+}
+
+function patchCodexRequestBody(body: BodyInit | null | undefined): BodyInit | undefined {
+  if (typeof body !== 'string') {
+    return body ?? undefined
+  }
+
+  try {
+    const parsed = JSON.parse(body) as Record<string, unknown>
+    const input = Array.isArray(parsed.input) ? parsed.input : undefined
+    const instructionParts: string[] = []
+
+    if (typeof parsed.instructions === 'string' && parsed.instructions.trim().length > 0) {
+      instructionParts.push(parsed.instructions.trim())
+    }
+
+    const filteredInput = input?.filter((item) => {
+      if (!item || typeof item !== 'object') {
+        return true
+      }
+
+      const role = (item as { role?: unknown }).role
+      if (role !== 'developer' && role !== 'system') {
+        return true
+      }
+
+      const content = extractCodexTextContent((item as { content?: unknown }).content)
+      if (content.length > 0) {
+        instructionParts.push(content)
+      }
+
+      return false
+    })
+
+    return JSON.stringify({
+      ...parsed,
+      ...(filteredInput ? { input: filteredInput } : {}),
+      instructions: instructionParts.join('\n\n').trim() || DEFAULT_CODEX_INSTRUCTIONS,
+      max_output_tokens: undefined,
+      max_completion_tokens: undefined,
+      store: false
+    })
+  } catch {
+    return body
+  }
+}
+
+async function sendCodexRequest(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+  forceRefresh = false
+): Promise<Response> {
+  const session = await getCodexAuthSession(forceRefresh ? { forceRefresh: true } : undefined)
+  const headers = new Headers(init?.headers)
+
+  headers.set('Authorization', `Bearer ${session.accessToken}`)
+  headers.set('chatgpt-account-id', session.accountId)
+  headers.set('OpenAI-Beta', CODEX_BETA_RESPONSES)
+  headers.set('originator', CODEX_ORIGINATOR)
+  headers.set('accept', 'text/event-stream')
+
+  return fetch(input, {
+    ...init,
+    headers,
+    body: patchCodexRequestBody(init?.body)
+  })
+}
+
+function createCodexFetch() {
+  return async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const firstResponse = await sendCodexRequest(input, init)
+
+    if (firstResponse.status !== 401) {
+      return firstResponse
+    }
+
+    try {
+      return await sendCodexRequest(input, init, true)
+    } catch {
+      return firstResponse
+    }
+  }
 }
 
 async function runWithTimeout<T>(
@@ -206,6 +323,27 @@ async function runWithInactivityTimeout<T>(
 
 import { traceCollector } from '../../debug/trace-collector'
 
+function buildOpenAIProviderOptions(model: string, authMode?: ProviderAuthMode) {
+  const openaiOptions: {
+    reasoningSummary?: string
+    store?: boolean
+  } = {}
+
+  if (shouldRequestOpenAIReasoningSummary(model)) {
+    openaiOptions.reasoningSummary = OPENAI_REASONING_SUMMARY_MODE
+  }
+
+  if (authMode === 'codex-oauth') {
+    openaiOptions.store = false
+  }
+
+  return Object.keys(openaiOptions).length > 0
+    ? {
+        openai: openaiOptions
+      }
+    : undefined
+}
+
 function createOpenAIRuntime(
   model: string,
   config: ProviderConfig,
@@ -217,7 +355,8 @@ function createOpenAIRuntime(
     apiKey: config.apiKey,
     baseURL: config.baseURL,
     headers: options?.headers,
-    name: options?.providerName
+    name: options?.providerName,
+    fetch: isCodexAuthMode(config) ? createCodexFetch() : undefined
   })
 
   const llmModel = openai.responses(model)
@@ -228,13 +367,7 @@ function createOpenAIRuntime(
     provider: options?.providerName || 'openai'
   })
 
-  const providerOptions = shouldRequestOpenAIReasoningSummary(model)
-    ? {
-        openai: {
-          reasoningSummary: OPENAI_REASONING_SUMMARY_MODE
-        }
-      }
-    : undefined
+  const providerOptions = buildOpenAIProviderOptions(model, config.authMode)
   const mapMessages = (messages: LLMMessage[]) =>
     messages.map((message) => ({
       role: message.role as 'system' | 'user' | 'assistant',
@@ -325,6 +458,54 @@ async function collectStreamedResponse(
       })
 
       try {
+        if (isCodexAuthMode(config)) {
+          const streamedResponse = await runWithInactivityTimeout(async (timeoutController) => {
+            const result = streamText({
+              model: llmModel,
+              messages: mapMessages(messages),
+              maxOutputTokens,
+              abortSignal: timeoutController.abortSignal,
+              ...(providerOptions ? { providerOptions } : {})
+            })
+
+            let fullText = ''
+            let thinkingOpen = false
+
+            for await (const chunk of result.fullStream) {
+              timeoutController.recordActivity()
+              const streamError = getOpenAIChunkError(chunk as { type?: string; error?: unknown })
+              if (streamError) {
+                throw streamError
+              }
+
+              const appended = appendOpenAIStreamChunk(
+                fullText,
+                thinkingOpen,
+                chunk as { type?: string; delta?: string; text?: string }
+              )
+
+              fullText = appended.nextText
+              thinkingOpen = appended.nextThinkingOpen
+            }
+
+            if (thinkingOpen) {
+              fullText += '</think>'
+            }
+
+            const usage = await result.usage
+            return {
+              content: fullText,
+              usage: {
+                promptTokens: usage?.inputTokens ?? 0,
+                completionTokens: usage?.outputTokens ?? 0
+              }
+            }
+          }, timeouts.streamMs, MODEL_TIMEOUT_MESSAGE)
+
+          traceCollector.completeSpan(traceId, spanId, streamedResponse)
+          return streamedResponse
+        }
+
         const result = await runWithTimeout(
           (abortSignal) => generateText({
             model: llmModel,

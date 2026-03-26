@@ -5,11 +5,18 @@ import { getCredentialConfigurationSecret } from '../auth/credential-config'
 import { getDeploymentMode, type DeploymentMode } from '../env/deployment'
 import type { ResolvedExecutionContext } from '../../shared/types/execution-context'
 import { resolveExecutionContext, type RequestedExecutionMode } from './execution-context-resolver'
+import { DEFAULT_CODEX_BUILD_MODEL } from '../providers/provider-metadata'
+
+const CODEX_BACKEND_BASE_URL = 'https://chatgpt.com/backend-api/codex'
+const CODEX_OAUTH_PLACEHOLDER_KEY = 'chatgpt-oauth'
+
+export type BuildRuntimeAuthMode = 'api-key' | 'codex-oauth'
 
 export interface BuildRuntimeConfig {
   modelId: string
   apiKey: string
   baseURL?: string
+  authMode?: BuildRuntimeAuthMode
 }
 
 export interface ResolvePlanBuildExecutionInput {
@@ -66,6 +73,15 @@ async function resolveBuildRuntimeConfig(input: {
 }): Promise<BuildRuntimeConfig | null> {
   if (!input.executionContext.canExecute) {
     return null
+  }
+
+  if (input.executionContext.mode === 'codex-cloud') {
+    return {
+      modelId: input.modelId,
+      apiKey: CODEX_OAUTH_PLACEHOLDER_KEY,
+      baseURL: CODEX_BACKEND_BASE_URL,
+      authMode: 'codex-oauth'
+    }
   }
 
   if (input.executionContext.executionTarget !== 'cloud') {
@@ -133,7 +149,9 @@ export function toOperationChargeSkipReason(decision: BillingPolicyDecision): Op
 export async function resolvePlanBuildExecution(
   input: ResolvePlanBuildExecutionInput
 ): Promise<ResolvedPlanBuildExecution> {
-  const requestedModelId = input.modelId.trim()
+  const requestedModelId = input.requestedMode === 'codex-cloud'
+    ? DEFAULT_CODEX_BUILD_MODEL
+    : input.modelId.trim()
   const deploymentMode = input.deploymentMode ?? getDeploymentMode()
   const executionContext = await resolveExecutionContext({
     modelId: requestedModelId,

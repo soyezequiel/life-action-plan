@@ -4,7 +4,8 @@ const mocks = vi.hoisted(() => ({
   findCredentialConfigurationMock: vi.fn(),
   ensureBackendEnvCredentialConfigurationMock: vi.fn(),
   getCredentialConfigurationMock: vi.fn(),
-  listCredentialConfigurationsMock: vi.fn()
+  listCredentialConfigurationsMock: vi.fn(),
+  getCodexAuthAvailabilityMock: vi.fn()
 }))
 
 vi.mock('../src/lib/auth/credential-config', async () => {
@@ -19,6 +20,10 @@ vi.mock('../src/lib/auth/credential-config', async () => {
   }
 })
 
+vi.mock('../src/lib/auth/codex-auth', () => ({
+  getCodexAuthAvailability: mocks.getCodexAuthAvailabilityMock
+}))
+
 import { resolveExecutionContext } from '../src/lib/runtime/execution-context-resolver'
 
 describe('execution context resolver', () => {
@@ -27,6 +32,11 @@ describe('execution context resolver', () => {
     mocks.ensureBackendEnvCredentialConfigurationMock.mockReset()
     mocks.getCredentialConfigurationMock.mockReset()
     mocks.listCredentialConfigurationsMock.mockReset()
+    mocks.getCodexAuthAvailabilityMock.mockReset()
+    mocks.getCodexAuthAvailabilityMock.mockResolvedValue({
+      available: true,
+      reason: null
+    })
     delete process.env.LAP_ENABLE_CODEX_SERVICE_MODE
   })
 
@@ -188,39 +198,19 @@ describe('execution context resolver', () => {
     }))
   })
 
-  it('permite codex-cloud en local usando una credencial backend activa sin cobrar', async () => {
-    mocks.findCredentialConfigurationMock.mockImplementation(async (locator) => {
-      if (locator.owner === 'backend' && locator.label === 'default') {
-        return {
-          id: 'cred-backend-codex',
-          owner: 'backend',
-          ownerId: 'backend-system',
-          providerId: 'openrouter',
-          secretType: 'api-key',
-          label: 'default',
-          status: 'active',
-          lastValidatedAt: null,
-          lastValidationError: null,
-          metadata: null,
-          createdAt: '2026-03-21T00:00:00.000Z',
-          updatedAt: '2026-03-21T00:00:00.000Z'
-        }
-      }
-
-      return null
-    })
-
+  it('permite codex-cloud en local usando la sesion local de Codex sin cobrar', async () => {
     const context = await resolveExecutionContext({
-      modelId: 'openrouter:openai/gpt-4o-mini',
+      modelId: 'openai:gpt-5-codex',
       requestedMode: 'codex-cloud',
       deploymentMode: 'local'
     })
 
+    expect(mocks.getCodexAuthAvailabilityMock).toHaveBeenCalledTimes(1)
     expect(context).toEqual(expect.objectContaining({
       mode: 'codex-cloud',
       resourceOwner: 'backend',
-      credentialSource: 'backend-stored',
-      credentialId: 'cred-backend-codex',
+      credentialSource: 'none',
+      credentialId: null,
       canExecute: true,
       resolutionSource: 'requested-mode',
       chargePolicy: 'skip',
@@ -237,10 +227,32 @@ describe('execution context resolver', () => {
 
     expect(context).toEqual(expect.objectContaining({
       mode: 'codex-cloud',
-      credentialSource: 'backend-stored',
+      credentialSource: 'none',
       canExecute: false,
       resolutionSource: 'requested-mode',
       blockReasonCode: 'codex_mode_unavailable'
+    }))
+  })
+
+  it('bloquea codex-cloud cuando falta una sesion local de Codex', async () => {
+    mocks.getCodexAuthAvailabilityMock.mockResolvedValue({
+      available: false,
+      reason: 'No pude leer la sesion local de Codex.'
+    })
+
+    const context = await resolveExecutionContext({
+      modelId: 'openai:gpt-5-codex',
+      requestedMode: 'codex-cloud',
+      deploymentMode: 'local'
+    })
+
+    expect(context).toEqual(expect.objectContaining({
+      mode: 'codex-cloud',
+      credentialSource: 'none',
+      credentialId: null,
+      canExecute: false,
+      resolutionSource: 'requested-mode',
+      blockReasonCode: 'codex_auth_missing'
     }))
   })
 

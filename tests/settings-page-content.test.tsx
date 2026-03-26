@@ -164,7 +164,7 @@ function createBuildPreviewResponse(url: string): Response {
         mode: 'codex-cloud',
         resourceOwner: 'backend',
         executionTarget: 'cloud',
-        credentialSource: 'backend-stored',
+        credentialSource: 'none',
         chargePolicy: 'skip',
         chargeReason: 'internal_tooling',
         chargeable: false,
@@ -174,8 +174,8 @@ function createBuildPreviewResponse(url: string): Response {
         canExecute: true,
         blockReasonCode: null,
         blockReasonDetail: null,
-        providerId: 'openrouter',
-        modelId: 'openrouter:openai/gpt-4o-mini'
+        providerId: 'openai',
+        modelId: 'openai:gpt-5-codex'
       }
     }), {
       status: 200,
@@ -523,6 +523,8 @@ describe('settings page content', () => {
 
     expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.codex-cloud')}`)).toBeTruthy()
     expect(await screen.findByText(t('resource_usage.billing.internal_tooling'))).toBeTruthy()
+    expect(screen.queryByText('OpenRouter')).toBeNull()
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('provider=openai%3Agpt-5-codex'))
   })
 
   it('normaliza un error claro cuando la wallet no responde como NWC compatible', () => {

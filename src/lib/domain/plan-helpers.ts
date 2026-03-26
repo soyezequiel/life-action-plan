@@ -248,6 +248,13 @@ export function toPlanBuildErrorMessage(error: unknown): string {
   }
 
   if (
+    normalized.includes('codex_auth') ||
+    normalized.includes('codex session')
+  ) {
+    return t('errors.codex_auth_required')
+  }
+
+  if (
     normalized.includes('user_supplied_api_key_missing') ||
     normalized.includes('user_credential_secret_unavailable') ||
     normalized.includes('api key') ||
@@ -303,6 +310,8 @@ export function toExecutionBlockErrorMessage(reasonCode: ExecutionBlockReason | 
     case 'user_credential_missing':
     case 'cloud_credential_missing':
       return t('errors.no_api_key')
+    case 'codex_auth_missing':
+      return t('errors.codex_auth_required')
     case 'backend_credential_missing':
     case 'codex_mode_unavailable':
       return t('errors.service_unavailable')

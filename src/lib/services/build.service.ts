@@ -1,7 +1,6 @@
 import { getDeploymentMode } from '../env/deployment'
 import {
   resolvePlanBuildExecution,
-  toOperationChargeSkipReason,
   type ResolvedPlanBuildExecution
 } from '../runtime/build-execution'
 import {
@@ -24,7 +23,7 @@ import {
   getProfileTimezone,
   parseStoredProfile
 } from '../domain/plan-helpers'
-import { resolveBuildModel } from '../providers/provider-metadata'
+import { DEFAULT_CODEX_BUILD_MODEL, resolveBuildModel } from '../providers/provider-metadata'
 import { summarizeResourceUsage } from '../runtime/resource-usage-summary'
 import { toResourceUsageTrackingPayload } from '../runtime/resource-usage-tracking'
 import { executePlanGenerationWorkflow } from '../domain/plan-generation'
@@ -49,7 +48,9 @@ export async function processPlanBuild(
   const { profileId, apiKey, provider, backendCredentialId, resourceMode, thinkingMode } = data
   const previousFindings = rawData.previousFindings
   const buildConstraints = rawData.buildConstraints
-  const requestedModelId = resolveBuildModel(provider)
+  let requestedModelId = resourceMode === 'codex'
+    ? DEFAULT_CODEX_BUILD_MODEL
+    : resolveBuildModel(provider)
   const deploymentMode = getDeploymentMode()
   const userId = options.userId
   const requestedMode = resourceMode === 'backend'
@@ -85,6 +86,7 @@ export async function processPlanBuild(
       userSuppliedApiKey: apiKey,
       backendCredentialId
     })
+    requestedModelId = requestedExecution.requestedModelId
 
     const { executionContext, billingPolicy } = requestedExecution
     const requestedResourceUsage = summarizeResourceUsage({

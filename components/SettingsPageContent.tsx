@@ -18,6 +18,7 @@ import { decryptBlob, deriveKeyFromPassword, encryptBlob, generateSalt } from '.
 import { downloadVaultBackup, uploadVaultBackup } from '../src/lib/client/vault-sync'
 import type { DeploymentMode } from '../src/lib/env/deployment'
 import {
+  DEFAULT_CODEX_BUILD_MODEL,
   DEFAULT_OPENAI_BUILD_MODEL,
   getDefaultBuildModelForProvider,
   getProviderLabelKey,
@@ -143,7 +144,9 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     ? requestedBuildModel
     : llmMode === 'own'
       ? getDefaultBuildModelForProvider(selectedLocalKey?.provider ?? '') ?? requestedBuildModel
-      : selectedServiceModel?.modelId ?? requestedBuildModel
+      : llmMode === 'codex'
+        ? DEFAULT_CODEX_BUILD_MODEL
+        : selectedServiceModel?.modelId ?? requestedBuildModel
   const selectedProviderLabel = localBuildIntent
     ? t(getProviderLabelKey(activeBuildModel))
     : llmMode === 'own'
@@ -165,7 +168,9 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       ? buildUsage?.canExecute === true
       : llmMode === 'own'
         ? Boolean(selectedLocalKey && protectionPassword.trim() && buildUsage?.canExecute)
-        : Boolean((selectedServiceModel || serviceModels.length > 0) && buildUsage?.canExecute)
+        : llmMode === 'codex'
+          ? buildUsage?.canExecute === true
+          : Boolean((selectedServiceModel || serviceModels.length > 0) && buildUsage?.canExecute)
   )
 
   useEffect(() => {
@@ -604,7 +609,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                 onBackup={handleBackupVault}
                 onRestore={handleRestoreVault}
               />
-            ) : !localBuildIntent && advancedVisible ? (
+            ) : !localBuildIntent && advancedVisible && llmMode !== 'codex' ? (
               <ServiceAiSelector
                 models={serviceModels}
                 selectedModelId={selectedServiceModelId}

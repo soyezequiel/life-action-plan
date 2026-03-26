@@ -1093,6 +1093,12 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
                         return
                       }
 
+                      if (nextMode === 'codex') {
+                        setProvider('openai')
+                        setHasUserApiKey(false)
+                        return
+                      }
+
                       if (provider === 'ollama') {
                         setProvider('openai')
                       }
@@ -1108,7 +1114,7 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
                     <option value="local">{t('flow.gate.mode_local')}</option>
                   </select>
                 </label>
-                {llmMode !== 'local' && (
+                {llmMode !== 'local' && llmMode !== 'codex' && (
                   <label className={styles.field}>
                     <span>{t('flow.gate.provider')}</span>
                     <select className="intake-control" value={provider} onChange={(event) => setProvider(event.target.value)}>

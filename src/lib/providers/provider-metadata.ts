@@ -2,6 +2,7 @@ export type SupportedModelProvider = 'openai' | 'openrouter' | 'ollama' | 'unkno
 export type SupportedCloudModelProvider = Extract<SupportedModelProvider, 'openai' | 'openrouter'>
 
 export const DEFAULT_OPENAI_BUILD_MODEL = 'openai:gpt-4o-mini'
+export const DEFAULT_CODEX_BUILD_MODEL = 'openai:gpt-5-codex'
 export const DEFAULT_OPENROUTER_BUILD_MODEL = 'openrouter:openai/gpt-4o-mini'
 export const DEFAULT_OLLAMA_BUILD_MODEL = 'ollama:qwen3:8b'
 

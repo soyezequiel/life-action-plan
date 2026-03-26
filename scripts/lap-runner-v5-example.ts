@@ -12,6 +12,10 @@ const TIMEZONE = 'America/Argentina/Buenos_Aires';
 const WEEK_START = '2026-03-30T03:00:00Z';
 const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
+interface CliOptions {
+  inlineAdaptive?: boolean;
+}
+
 const PROFILE: UserProfileV5 = {
   freeHoursWeekday: 3,
   freeHoursWeekend: 6,
@@ -130,7 +134,25 @@ function createHabitStateStore(): HabitStateStore {
   };
 }
 
+function parseCliOptions(argv: string[]): CliOptions {
+  const options: CliOptions = {};
+
+  for (const token of argv) {
+    if (token === '--inline-adapt') {
+      options.inlineAdaptive = true;
+      continue;
+    }
+
+    if (token === '--build-only') {
+      options.inlineAdaptive = false;
+    }
+  }
+
+  return options;
+}
+
 async function run(): Promise<void> {
+  const cliOptions = parseCliOptions(process.argv.slice(2));
   const runner = new FlowRunnerV5({
     runtime: createRuntime(),
     text: 'aprender guitarra',
@@ -149,9 +171,22 @@ async function run(): Promise<void> {
       frozenHorizonDays: 2,
     },
     habitStateStore: createHabitStateStore(),
+    inlineAdaptive: cliOptions.inlineAdaptive ?? false,
   });
 
-  const context = await runner.runFullPipeline({
+  const context = await (cliOptions.inlineAdaptive
+    ? runner.runFullPipeline({
+      onPhaseStart: (phase) => {
+        console.error(`[V5 Example] -> ${phase}`);
+      },
+      onPhaseSkipped: (phase) => {
+        console.error(`[V5 Example] skipped: ${phase}`);
+      },
+      onRepairAttempt: (attempt, maxAttempts, findings) => {
+        console.error(`[V5 Example] repair ${attempt}/${maxAttempts} with ${findings.length} findings`);
+      },
+    })
+    : runner.runBuildPipeline({
     onPhaseStart: (phase) => {
       console.error(`[V5 Example] -> ${phase}`);
     },
@@ -161,7 +196,7 @@ async function run(): Promise<void> {
     onRepairAttempt: (attempt, maxAttempts, findings) => {
       console.error(`[V5 Example] repair ${attempt}/${maxAttempts} with ${findings.length} findings`);
     },
-  });
+  }));
 
   if (!context.package) {
     throw new Error('V5 example finished without package output');

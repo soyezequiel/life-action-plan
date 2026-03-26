@@ -67,13 +67,13 @@ describe('execution context contract', () => {
     expect(context.chargeReason).toBe('user_resource')
   })
 
-  it('crea un contexto valido para codex-cloud sin cobro pero usando credencial backend', () => {
+  it('crea un contexto valido para codex-cloud sin cobro y sin API key persistida', () => {
     const context = createResourceExecutionContext({
       mode: 'codex-cloud',
-      credentialSource: 'backend-stored',
+      credentialSource: 'none',
       provider: {
-        providerId: 'openrouter',
-        modelId: 'openrouter:openai/gpt-4o-mini',
+        providerId: 'openai',
+        modelId: 'openai:gpt-5-codex',
         providerKind: 'cloud'
       }
     })

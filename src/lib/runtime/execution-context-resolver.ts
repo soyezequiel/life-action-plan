@@ -13,6 +13,7 @@ import {
   getCredentialConfiguration,
   listCredentialConfigurations
 } from '../auth/credential-config'
+import { getCodexAuthAvailability } from '../auth/codex-auth'
 import { DEFAULT_USER_ID, getApiKeySettingKey, type CloudApiKeyProvider } from '../auth/user-settings'
 import { canUseLocalOllama, getDeploymentMode, type DeploymentMode } from '../env/deployment'
 import { getModelProviderName, isCloudModel, isLocalModel } from '../providers/provider-metadata'
@@ -283,10 +284,33 @@ async function resolveCloudRequestedMode(input: {
     return createBlockedContext({
       mode: 'codex-cloud',
       provider: input.provider,
-      credentialSource: 'backend-stored',
+      credentialSource: 'none',
       resolutionSource: 'requested-mode',
       blockReasonCode: 'codex_mode_unavailable',
       blockReasonDetail: 'Codex service mode is only available in local development unless explicitly enabled.'
+    })
+  }
+
+  if (input.requestedMode === 'codex-cloud') {
+    const authAvailability = await getCodexAuthAvailability()
+
+    if (!authAvailability.available) {
+      return createBlockedContext({
+        mode: 'codex-cloud',
+        provider: input.provider,
+        credentialSource: 'none',
+        resolutionSource: 'requested-mode',
+        blockReasonCode: 'codex_auth_missing',
+        blockReasonDetail: authAvailability.reason ?? 'Local Codex authentication is unavailable.'
+      })
+    }
+
+    return createExecutableContext({
+      mode: 'codex-cloud',
+      provider: input.provider,
+      credentialSource: 'none',
+      credentialId: null,
+      resolutionSource: 'requested-mode'
     })
   }
 

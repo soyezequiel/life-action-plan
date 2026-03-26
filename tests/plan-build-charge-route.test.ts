@@ -433,21 +433,21 @@ describe('plan build charge route', () => {
     }))
   })
 
-  it('no cobra cuando el build usa el modo codex sobre credenciales del backend', async () => {
+  it('no cobra cuando el build usa el modo codex sobre la sesion local de Codex', async () => {
     mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution({
       executionContext: {
         mode: 'codex-cloud',
         resourceOwner: 'backend',
         executionTarget: 'cloud',
-        credentialSource: 'backend-stored',
+        credentialSource: 'none',
         provider: {
-          providerId: 'openrouter',
-          modelId: 'openrouter:openai/gpt-4o-mini',
+          providerId: 'openai',
+          modelId: 'openai:gpt-5-codex',
           providerKind: 'cloud'
         },
         chargePolicy: 'skip',
         chargeReason: 'internal_tooling',
-        credentialId: 'cred-backend-codex',
+        credentialId: null,
         canExecute: true,
         resolutionSource: 'requested-mode',
         blockReasonCode: null,
@@ -469,8 +469,10 @@ describe('plan build charge route', () => {
         skipReasonDetail: 'INTERNAL_TOOLING_MODE'
       },
       runtime: {
-        modelId: 'openrouter:openai/gpt-4o-mini',
-        apiKey: 'backend-codex-key'
+        modelId: 'openai:gpt-5-codex',
+        apiKey: 'chatgpt-oauth',
+        baseURL: 'https://chatgpt.com/backend-api/codex',
+        authMode: 'codex-oauth'
       }
     }))
     mocks.toOperationChargeSkipReasonMock.mockReturnValue({
@@ -547,13 +549,13 @@ describe('plan build charge route', () => {
       executionMode: 'codex-cloud',
       resourceOwner: 'backend',
       executionTarget: 'cloud',
-      credentialSource: 'backend-stored',
+      credentialSource: 'none',
       chargePolicy: 'skip',
       chargeReason: 'internal_tooling',
       chargeable: false,
       billingReasonCode: 'internal_tooling',
-      providerId: 'openrouter',
-      modelId: 'openrouter:openai/gpt-4o-mini'
+      providerId: 'openai',
+      modelId: 'openai:gpt-5-codex'
     }))
     expect(result).toEqual(expect.objectContaining({
       success: true,

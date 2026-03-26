@@ -24,6 +24,7 @@ export const executionBlockReasonSchema = z.enum([
   'user_credential_missing',
   'backend_credential_missing',
   'codex_mode_unavailable',
+  'codex_auth_missing',
   'backend_local_unavailable',
   'user_local_not_supported'
 ])
@@ -76,7 +77,7 @@ const executionModeSpecEntries = [
     mode: 'codex-cloud',
     resourceOwner: 'backend',
     executionTarget: 'cloud',
-    allowedCredentialSources: ['backend-stored'],
+    allowedCredentialSources: ['none'],
     chargePolicy: 'skip',
     chargeReason: 'internal_tooling'
   },

@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { t } from '../../../../../../src/i18n'
 import { getDeploymentMode } from '../../../../../../src/lib/env/deployment'
 import {
+  DEFAULT_CODEX_BUILD_MODEL,
   DEFAULT_OPENAI_BUILD_MODEL,
   DEFAULT_OPENROUTER_BUILD_MODEL,
   resolveBuildModel
@@ -40,6 +41,10 @@ function resolveGateSummary(input: {
 
     if (input.blockReasonCode === 'codex_mode_unavailable') {
       return t('flow.gate.summary_codex_unavailable')
+    }
+
+    if (input.blockReasonCode === 'codex_auth_missing') {
+      return t('flow.gate.summary_codex_missing')
     }
 
     if (input.blockReasonCode === 'backend_local_unavailable') {
@@ -130,7 +135,9 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
 
   const deploymentMode = getDeploymentMode()
   const userId = resolveUserId(request)
-  let resolvedModel = resolveBuildModel(parsed.data.provider)
+  let resolvedModel = parsed.data.llmMode === 'codex'
+    ? DEFAULT_CODEX_BUILD_MODEL
+    : resolveBuildModel(parsed.data.provider)
   const requestedMode = parsed.data.llmMode === 'local'
     ? 'backend-local'
     : parsed.data.llmMode === 'own'
@@ -157,6 +164,7 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
         userSuppliedApiKey: '',
         backendCredentialId
       })
+  resolvedModel = execution.requestedModelId
   const usage = summarizeResourceUsage({
     executionContext: execution.executionContext,
     billingPolicy: execution.billingPolicy

@@ -73,16 +73,16 @@ describe('billing policy', () => {
     }))
   })
 
-  it('saltea el cobro si el modo codex usa el backend solo como herramienta interna', () => {
+  it('saltea el cobro si el modo codex usa la sesion local solo como herramienta interna', () => {
     const decision = resolveBillingPolicy({
       operation: 'plan_build',
       executionContext: createContext({
         mode: 'codex-cloud',
         resourceOwner: 'backend',
-        credentialSource: 'backend-stored',
+        credentialSource: 'none',
         chargePolicy: 'skip',
         chargeReason: 'internal_tooling',
-        credentialId: 'cred-backend-codex',
+        credentialId: null,
         resolutionSource: 'requested-mode'
       })
     })

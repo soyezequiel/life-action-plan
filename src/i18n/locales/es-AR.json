@@ -615,7 +615,7 @@
       "own_key_title": "Tengo mi propia cuenta",
       "own_key_hint": "Pensado para perfiles tecnicos. Pulso no cobra este uso.",
       "codex_title": "Usar desde Codex",
-      "codex_hint": "Usa el servicio de Pulso desde esta maquina sin pedir billetera.",
+      "codex_hint": "Usa tu sesion local de Codex en esta maquina y consume esos creditos sin pedir billetera.",
       "service_title": "Que Pulso lo haga por mi",
       "service_hint": "Pulso se ocupa del armado y te avisa si hay un costo."
     },
@@ -666,7 +666,7 @@
     "mode": {
       "backend-cloud": "Vas a usar el servicio de Pulso para esta accion.",
       "user-cloud": "Vas a usar tu propia conexion para esta accion.",
-      "codex-cloud": "Vas a usar el servicio de Pulso desde Codex sin cobro en sats.",
+      "codex-cloud": "Vas a usar tu sesion local de Codex en esta maquina sin cobro en sats desde Pulso.",
       "backend-local": "Pulso pone la maquina que arma el plan.",
       "user-local": "Esta ruta usaria tu propia maquina."
     },
@@ -679,7 +679,7 @@
     "billing": {
       "charge": "Como usa el servicio de Pulso, esta accion se cobra.",
       "user_resource": "Como usas tu propia conexion, esta accion no se cobra desde Pulso.",
-      "internal_tooling": "Este modo usa el servicio de Pulso sin pedir cobro en sats.",
+      "internal_tooling": "Este modo usa tu sesion de Codex en esta maquina sin pedir cobro en sats.",
       "operation_not_chargeable": "Esta accion no tiene cobro configurado por ahora.",
       "execution_blocked": "Antes de ejecutar, primero hay que destrabar esta ruta."
     },
@@ -687,6 +687,7 @@
       "user_credential_missing": "Falta tu clave para esta ruta.",
       "backend_credential_missing": "Falta la configuracion del sistema para esta ruta.",
       "codex_mode_unavailable": "Este modo solo se habilita en desarrollo local.",
+      "codex_auth_missing": "Primero inicia sesion en Codex en esta maquina para usar esta ruta.",
       "user_local_not_supported": "Esta ruta todavia no se puede ejecutar desde la web.",
       "other": "Esta ruta no esta disponible ahora."
     }

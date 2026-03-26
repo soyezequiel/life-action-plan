@@ -230,15 +230,15 @@ describe('build preview route', () => {
         mode: 'codex-cloud',
         resourceOwner: 'backend',
         executionTarget: 'cloud',
-        credentialSource: 'backend-stored',
+        credentialSource: 'none',
         provider: {
-          providerId: 'openrouter',
-          modelId: 'openrouter:openai/gpt-4o-mini',
+          providerId: 'openai',
+          modelId: 'openai:gpt-5-codex',
           providerKind: 'cloud'
         },
         chargePolicy: 'skip',
         chargeReason: 'internal_tooling',
-        credentialId: 'cred-backend-codex',
+        credentialId: null,
         canExecute: true,
         resolutionSource: 'requested-mode',
         blockReasonCode: null,
@@ -260,8 +260,10 @@ describe('build preview route', () => {
         skipReasonDetail: 'INTERNAL_TOOLING_MODE'
       },
       runtime: {
-        modelId: 'openrouter:openai/gpt-4o-mini',
-        apiKey: 'backend-key'
+        modelId: 'openai:gpt-5-codex',
+        apiKey: 'chatgpt-oauth',
+        baseURL: 'https://chatgpt.com/backend-api/codex',
+        authMode: 'codex-oauth'
       }
     })
 

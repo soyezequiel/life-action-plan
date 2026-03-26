@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { resolvedExecutionContextSchema } from '../src/shared/schemas'
+import { DEFAULT_CODEX_BUILD_MODEL } from '../src/lib/providers/provider-metadata'
 
 const mocks = vi.hoisted(() => ({
   resolveExecutionContextMock: vi.fn(),
@@ -92,26 +93,25 @@ describe('build execution runtime', () => {
     expect(resolution.billingPolicy.estimatedCostSats).toBeGreaterThan(0)
   })
 
-  it('usa el secreto persistido del backend y saltea cobro cuando el contexto resuelto es codex-cloud', async () => {
+  it('usa OAuth local de Codex y saltea cobro cuando el contexto resuelto es codex-cloud', async () => {
     mocks.resolveExecutionContextMock.mockResolvedValue(resolvedExecutionContextSchema.parse({
       mode: 'codex-cloud',
       resourceOwner: 'backend',
       executionTarget: 'cloud',
-      credentialSource: 'backend-stored',
+      credentialSource: 'none',
       provider: {
-        providerId: 'openrouter',
-        modelId: 'openrouter:openai/gpt-4o-mini',
+        providerId: 'openai',
+        modelId: DEFAULT_CODEX_BUILD_MODEL,
         providerKind: 'cloud'
       },
       chargePolicy: 'skip',
       chargeReason: 'internal_tooling',
-      credentialId: 'cred-backend-codex',
+      credentialId: null,
       canExecute: true,
       resolutionSource: 'requested-mode',
       blockReasonCode: null,
       blockReasonDetail: null
     }))
-    mocks.getCredentialConfigurationSecretMock.mockResolvedValue('backend-codex-key')
 
     const resolution = await resolvePlanBuildExecution({
       modelId: 'openrouter:openai/gpt-4o-mini',
@@ -119,10 +119,17 @@ describe('build execution runtime', () => {
       requestedMode: 'codex-cloud'
     })
 
-    expect(mocks.getCredentialConfigurationSecretMock).toHaveBeenCalledWith('cred-backend-codex')
+    expect(mocks.resolveExecutionContextMock).toHaveBeenCalledWith(expect.objectContaining({
+      modelId: DEFAULT_CODEX_BUILD_MODEL,
+      requestedMode: 'codex-cloud'
+    }))
+    expect(mocks.getCredentialConfigurationSecretMock).not.toHaveBeenCalled()
+    expect(resolution.requestedModelId).toBe(DEFAULT_CODEX_BUILD_MODEL)
     expect(resolution.runtime).toEqual({
-      modelId: 'openrouter:openai/gpt-4o-mini',
-      apiKey: 'backend-codex-key'
+      modelId: DEFAULT_CODEX_BUILD_MODEL,
+      apiKey: 'chatgpt-oauth',
+      baseURL: 'https://chatgpt.com/backend-api/codex',
+      authMode: 'codex-oauth'
     })
     expect(resolution.billingPolicy.chargeable).toBe(false)
     expect(resolution.billingPolicy.skipReasonCode).toBe('internal_tooling')

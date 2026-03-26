@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { solveSchedule } from '../../src/lib/scheduler/solver';
+import { existsSync } from 'fs';
+import { solveSchedule, resolveHighsWasmPath } from '../../src/lib/scheduler/solver';
 import { explainUnscheduled, generateTradeoffs } from '../../src/lib/scheduler/explainer';
 import type { SchedulerInput } from '../../src/lib/scheduler/types';
 import type { TimeEventItem } from '../../src/lib/domain/plan-item';
@@ -261,6 +262,12 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
     expect(output.events).toHaveLength(0);
     expect(output.unscheduled).toHaveLength(0);
     expect(output.metrics.fillRate).toBe(1);
+  });
+
+  it('10. Runtime server: resuelve highs.wasm desde node_modules', () => {
+    const wasmPath = resolveHighsWasmPath(process.cwd());
+    expect(wasmPath.replace(/\\/g, '/')).toContain('/node_modules/highs/build/highs.wasm');
+    expect(existsSync(wasmPath)).toBe(true);
   });
 
   it('10. Edge case sin disponibilidad: todo bloqueado -> todas a unscheduled', async () => {

@@ -2,11 +2,12 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
 import type { HabitState, HabitStateStore } from '../src/lib/domain/habit-state';
-import { DEFAULT_OLLAMA_BUILD_MODEL, DEFAULT_OPENAI_BUILD_MODEL, DEFAULT_OPENROUTER_BUILD_MODEL, getModelProviderName } from '../src/lib/providers/provider-metadata';
 import { getProvider } from '../src/lib/providers/provider-factory';
 import { createPipelineRuntimeRecorder } from '../src/lib/flow/pipeline-runtime-data';
 import { FlowRunnerV5 } from '../src/lib/pipeline/v5/runner';
+import type { FlowRunnerV5Tracker } from '../src/lib/pipeline/v5/runner';
 import { buildSchedulingContextFromRunnerConfig } from '../src/lib/pipeline/v5/scheduling-context';
+import { resolveRealRunnerSelection } from '../src/lib/runtime/real-runner-selection';
 import type { AvailabilityWindow, BlockedSlot } from '../src/lib/scheduler/types';
 
 const DEFAULT_OUTPUT_FILE = resolve(process.cwd(), 'tmp/pipeline-v5-real.json');
@@ -32,6 +33,7 @@ interface CliOptions {
   modelId?: string;
   outputFile?: string;
   thinkingMode?: 'enabled' | 'disabled';
+  inlineAdaptive?: boolean;
 }
 
 function loadLocalEnv(): void {
@@ -73,27 +75,20 @@ function parseCliOptions(argv: string[]): CliOptions {
     if (token === '--thinking' && (next === 'enabled' || next === 'disabled')) {
       options.thinkingMode = next;
       index += 1;
+      continue;
+    }
+
+    if (token === '--inline-adapt') {
+      options.inlineAdaptive = true;
+      continue;
+    }
+
+    if (token === '--build-only') {
+      options.inlineAdaptive = false;
     }
   }
 
   return options;
-}
-
-function resolveModelId(cliModelId?: string): string {
-  const explicit = cliModelId?.trim() || process.env.LAP_V5_REAL_MODEL?.trim();
-  if (explicit) {
-    return explicit;
-  }
-
-  if (process.env.OPENAI_API_KEY?.trim()) {
-    return DEFAULT_OPENAI_BUILD_MODEL;
-  }
-
-  if (process.env.OPENROUTER_API_KEY?.trim()) {
-    return DEFAULT_OPENROUTER_BUILD_MODEL;
-  }
-
-  return DEFAULT_OLLAMA_BUILD_MODEL;
 }
 
 function resolveThinkingMode(cliThinkingMode?: 'enabled' | 'disabled'): 'enabled' | 'disabled' | undefined {
@@ -107,49 +102,6 @@ function resolveThinkingMode(cliThinkingMode?: 'enabled' | 'disabled'): 'enabled
   }
 
   return undefined;
-}
-
-function resolveRuntimeConfig(
-  modelId: string,
-  thinkingMode?: 'enabled' | 'disabled'
-): { apiKey: string; baseURL?: string; thinkingMode?: 'enabled' | 'disabled' } {
-  const providerName = getModelProviderName(modelId);
-
-  if (providerName === 'openai') {
-    const apiKey = process.env.OPENAI_API_KEY?.trim() || '';
-    if (!apiKey) {
-      throw new Error(`OPENAI_API_KEY is required to run ${modelId}.`);
-    }
-
-    return {
-      apiKey,
-      baseURL: process.env.OPENAI_BASE_URL?.trim() || undefined,
-      thinkingMode
-    };
-  }
-
-  if (providerName === 'openrouter') {
-    const apiKey = process.env.OPENROUTER_API_KEY?.trim() || '';
-    if (!apiKey) {
-      throw new Error(`OPENROUTER_API_KEY is required to run ${modelId}.`);
-    }
-
-    return {
-      apiKey,
-      baseURL: process.env.OPENROUTER_BASE_URL?.trim() || undefined,
-      thinkingMode
-    };
-  }
-
-  if (providerName === 'ollama') {
-    return {
-      apiKey: '',
-      baseURL: process.env.OLLAMA_BASE_URL?.trim() || 'http://localhost:11434',
-      thinkingMode
-    };
-  }
-
-  throw new Error(`Unsupported provider for model "${modelId}".`);
 }
 
 function makeAvailability(startTime = '07:00', endTime = '22:00'): AvailabilityWindow[] {
@@ -184,10 +136,14 @@ async function run(): Promise<void> {
   loadLocalEnv();
 
   const cliOptions = parseCliOptions(process.argv.slice(2));
-  const modelId = resolveModelId(cliOptions.modelId);
   const thinkingMode = resolveThinkingMode(cliOptions.thinkingMode);
   const outputFile = resolve(process.cwd(), cliOptions.outputFile || DEFAULT_OUTPUT_FILE);
-  const runtime = getProvider(modelId, resolveRuntimeConfig(modelId, thinkingMode));
+  const selection = await resolveRealRunnerSelection({
+    cliModelId: cliOptions.modelId,
+    thinkingMode
+  });
+  const modelId = selection.modelId;
+  const runtime = getProvider(modelId, selection.runtimeConfig);
   const runtimeRecorder = createPipelineRuntimeRecorder({
     source: 'cli-v5',
     modelId,
@@ -219,9 +175,12 @@ async function run(): Promise<void> {
       maxChurnMovesPerWeek: 3,
       frozenHorizonDays: 2
     },
-    habitStateStore: createHabitStateStore()
+    habitStateStore: createHabitStateStore(),
+    inlineAdaptive: cliOptions.inlineAdaptive ?? false
   });
 
+  console.error(`[V5 Real] Modelo activo: ${modelId}`);
+  console.error(`[V5 Real] Autenticacion: ${selection.runtimeConfig.authMode === 'codex-oauth' ? 'Codex local' : 'API key'}`);
   console.error(`[V5 Real] Running ${modelId} -> ${outputFile}`);
 
   runtimeRecorder.startRun({
@@ -258,98 +217,102 @@ async function run(): Promise<void> {
     return `${Array.isArray(payload.patchesApplied) ? payload.patchesApplied.length : 0} patches`;
   }
 
-  try {
-    const context = await runner.runFullPipeline({
-      onPhaseStart: (phase, details) => {
-        runtimeRecorder.markPhaseStart(phase, {
-          startedAt: details?.startedAt ?? null,
-          input: details?.input
-        });
-        if (isRepairLoopPhase(phase)) {
-          const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
-          runtimeRecorder.markRepairCyclePhaseStart(cycle, phase, {
-            startedAt: details?.startedAt ?? null
-          });
-        }
-        console.error(`[V5 Real] -> ${phase}`);
-      },
-      onPhaseSuccess: (phase, _result, io) => {
-        runtimeRecorder.markPhaseSuccess(phase, io);
-        if (isRepairLoopPhase(phase)) {
-          const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
-          runtimeRecorder.markRepairCyclePhaseComplete(cycle, phase, 'success', {
-            io,
-            summaryLabel: summarizeRepairPhase(phase, io?.output)
-          });
-          if (phase === 'repair') {
-            const payload = io?.output && typeof io.output === 'object' ? io.output as Record<string, unknown> : null;
-            const snapshot = runtimeRecorder.getSnapshot();
-            const attemptFindings = snapshot.repairAttempts.slice().reverse().find((a) => a.attempt === cycle)?.findings ?? [];
-            runtimeRecorder.finalizeRepairCycle(cycle, {
-              status: 'repaired',
-              findings: attemptFindings,
-              scoreBefore: typeof payload?.scoreBefore === 'number' ? payload.scoreBefore : null,
-              scoreAfter: typeof payload?.scoreAfter === 'number' ? payload.scoreAfter : null
-            });
-          }
-        }
-        if (phase === 'classify') {
-          const domainCard = runner.getContext().domainCard;
-          if (domainCard) {
-            runtimeRecorder.setDomainCardMeta({
-              domainLabel: domainCard.domainLabel,
-              method: domainCard.generationMeta.method,
-              confidence: domainCard.generationMeta.confidence
-            });
-          }
-        }
-      },
-      onPhaseFailure: (phase, error) => {
-        runtimeRecorder.markPhaseFailure(phase, error);
-        if (isRepairLoopPhase(phase)) {
-          const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
-          runtimeRecorder.markRepairCyclePhaseComplete(cycle, phase, 'error', {
-            summaryLabel: error.message
-          });
-        }
-      },
-      onPhaseSkipped: (phase) => {
-        runtimeRecorder.markPhaseSkipped(phase, `Phase ${phase} skipped.`);
-        if (phase === 'repair') {
-          const cycle = runtimeRecorder.getSnapshot().repairCycles + 1;
-          runtimeRecorder.markRepairCyclePhaseComplete(cycle, 'repair', 'skipped', {
-            summaryLabel: 'Sin fallas'
-          });
-          const ctx = runner.getContext();
-          const findings = [
-            ...(ctx.hardValidate?.findings ?? []).map((f) => ({ severity: f.severity, message: f.description })),
-            ...(ctx.softValidate?.findings ?? []).map((f) => ({ severity: f.severity, message: f.suggestion_esAR })),
-            ...(ctx.coveVerify?.findings ?? []).map((f) => ({ severity: f.severity, message: f.answer }))
-          ];
-          runtimeRecorder.finalizeRepairCycle(cycle, { status: 'clean', findings });
-        }
-        console.error(`[V5 Real] skipped: ${phase}`);
-      },
-      onProgress: (phase, progress) => {
-        runtimeRecorder.recordProgress(phase, progress);
-        const message = typeof progress.message === 'string' ? progress.message : '';
-        console.error(`[V5 Real] progress ${phase}${message ? `: ${message}` : ''}`);
-      },
-      onRepairAttempt: (attempt, maxAttempts, findings) => {
-        runtimeRecorder.recordRepairAttempt(attempt, maxAttempts, findings);
-        console.error(`[V5 Real] repair ${attempt}/${maxAttempts} with ${findings.length} findings`);
-      },
-      onRepairExhausted: (repairCycles, remainingFindings) => {
-        runtimeRecorder.markRepairExhausted();
-        runtimeRecorder.markRepairCyclePhaseComplete(repairCycles, 'repair', 'exhausted', {
-          summaryLabel: 'Agotado'
-        });
-        runtimeRecorder.finalizeRepairCycle(repairCycles, {
-          status: 'exhausted',
-          findings: remainingFindings
+  const tracker: FlowRunnerV5Tracker = {
+    onPhaseStart: (phase, details) => {
+      runtimeRecorder.markPhaseStart(phase, {
+        startedAt: details?.startedAt ?? null,
+        input: details?.input
+      });
+      if (isRepairLoopPhase(phase)) {
+        const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
+        runtimeRecorder.markRepairCyclePhaseStart(cycle, phase, {
+          startedAt: details?.startedAt ?? null
         });
       }
-    });
+      console.error(`[V5 Real] -> ${phase}`);
+    },
+    onPhaseSuccess: (phase, _result, io) => {
+      runtimeRecorder.markPhaseSuccess(phase, io);
+      if (isRepairLoopPhase(phase)) {
+        const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
+        runtimeRecorder.markRepairCyclePhaseComplete(cycle, phase, 'success', {
+          io,
+          summaryLabel: summarizeRepairPhase(phase, io?.output)
+        });
+        if (phase === 'repair') {
+          const payload = io?.output && typeof io.output === 'object' ? io.output as Record<string, unknown> : null;
+          const snapshot = runtimeRecorder.getSnapshot();
+          const attemptFindings = snapshot.repairAttempts.slice().reverse().find((a) => a.attempt === cycle)?.findings ?? [];
+          runtimeRecorder.finalizeRepairCycle(cycle, {
+            status: 'repaired',
+            findings: attemptFindings,
+            scoreBefore: typeof payload?.scoreBefore === 'number' ? payload.scoreBefore : null,
+            scoreAfter: typeof payload?.scoreAfter === 'number' ? payload.scoreAfter : null
+          });
+        }
+      }
+      if (phase === 'classify') {
+        const domainCard = runner.getContext().domainCard;
+        if (domainCard) {
+          runtimeRecorder.setDomainCardMeta({
+            domainLabel: domainCard.domainLabel,
+            method: domainCard.generationMeta.method,
+            confidence: domainCard.generationMeta.confidence
+          });
+        }
+      }
+    },
+    onPhaseFailure: (phase, error) => {
+      runtimeRecorder.markPhaseFailure(phase, error);
+      if (isRepairLoopPhase(phase)) {
+        const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
+        runtimeRecorder.markRepairCyclePhaseComplete(cycle, phase, 'error', {
+          summaryLabel: error.message
+        });
+      }
+    },
+    onPhaseSkipped: (phase) => {
+      runtimeRecorder.markPhaseSkipped(phase, `Phase ${phase} skipped.`);
+      if (phase === 'repair') {
+        const cycle = runtimeRecorder.getSnapshot().repairCycles + 1;
+        runtimeRecorder.markRepairCyclePhaseComplete(cycle, 'repair', 'skipped', {
+          summaryLabel: 'Sin fallas'
+        });
+        const ctx = runner.getContext();
+        const findings = [
+          ...(ctx.hardValidate?.findings ?? []).map((f) => ({ severity: f.severity, message: f.description })),
+          ...(ctx.softValidate?.findings ?? []).map((f) => ({ severity: f.severity, message: f.suggestion_esAR })),
+          ...(ctx.coveVerify?.findings ?? []).map((f) => ({ severity: f.severity, message: f.answer }))
+        ];
+        runtimeRecorder.finalizeRepairCycle(cycle, { status: 'clean', findings });
+      }
+      console.error(`[V5 Real] skipped: ${phase}`);
+    },
+    onProgress: (phase, progress) => {
+      runtimeRecorder.recordProgress(phase, progress);
+      const message = typeof progress.message === 'string' ? progress.message : '';
+      console.error(`[V5 Real] progress ${phase}${message ? `: ${message}` : ''}`);
+    },
+    onRepairAttempt: (attempt, maxAttempts, findings) => {
+      runtimeRecorder.recordRepairAttempt(attempt, maxAttempts, findings);
+      console.error(`[V5 Real] repair ${attempt}/${maxAttempts} with ${findings.length} findings`);
+    },
+    onRepairExhausted: (repairCycles, remainingFindings) => {
+      runtimeRecorder.markRepairExhausted();
+      runtimeRecorder.markRepairCyclePhaseComplete(repairCycles, 'repair', 'exhausted', {
+        summaryLabel: 'Agotado'
+      });
+      runtimeRecorder.finalizeRepairCycle(repairCycles, {
+        status: 'exhausted',
+        findings: remainingFindings
+      });
+    }
+  };
+
+  try {
+    const context = cliOptions.inlineAdaptive
+      ? await runner.runFullPipeline(tracker)
+      : await runner.runBuildPipeline(tracker);
 
     if (!context.package) {
       throw new Error('V5 real runner finished without package output.');

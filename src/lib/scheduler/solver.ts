@@ -15,12 +15,21 @@
 import highs from 'highs';
 import { DateTime } from 'luxon';
 import { randomUUID } from 'crypto';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
 
 import { buildConstraints, SLOT_DURATION_MIN, SLOTS_PER_DAY } from './constraint-builder';
 import { buildMilpModel } from './milp-model';
 import { generateTradeoffs } from './explainer';
 import type { SchedulerInput, SchedulerOutput } from './types';
 import type { TimeEventItem } from '../domain/plan-item';
+
+const HIGHS_WASM_FILENAME = 'highs.wasm';
+
+export function resolveHighsWasmPath(cwd = process.cwd()): string {
+  const nodeModulesCandidate = resolve(cwd, 'node_modules', 'highs', 'build', HIGHS_WASM_FILENAME);
+  return existsSync(nodeModulesCandidate) ? nodeModulesCandidate : HIGHS_WASM_FILENAME;
+}
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
@@ -40,7 +49,13 @@ export async function solveSchedule(
   const lpModel = buildMilpModel(params);
 
   // 2. Invoke HiGHS solver with a 3-second wall-clock limit
-  const solver = await highs();
+  const solver = await highs({
+    locateFile: (file: string) => (
+      file === HIGHS_WASM_FILENAME
+        ? resolveHighsWasmPath()
+        : file
+    ),
+  });
   const result = solver.solve(lpModel, {
     time_limit: 3,          // seconds
     presolve: 'on',
