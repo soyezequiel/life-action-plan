@@ -1,23 +1,23 @@
 {
   "schemaVersion": 2,
   "pipeline": "v5",
-  "updatedAt": "2026-03-26T19:07:40.920Z",
+  "updatedAt": "2026-03-26T19:36:01.728Z",
   "run": {
-    "runId": "323ec85d-6b72-4161-86b8-481ef6b238fd",
+    "runId": "846074c8-2d3a-4e50-869e-6584157f5467",
     "source": "cli-v5",
     "status": "success",
-    "startedAt": "2026-03-26T19:07:18.447Z",
-    "finishedAt": "2026-03-26T19:07:40.916Z",
+    "startedAt": "2026-03-26T19:35:42.556Z",
+    "finishedAt": "2026-03-26T19:36:01.724Z",
     "modelId": "openai:gpt-5-codex",
     "goalText": "Quiero aprender a tocar la guitarra y sostener una practica semanal realista sin quemarme.",
     "profileId": null,
-    "outputFile": "F:\\proyectos\\planificador-vida\\tmp\\pipeline-v5-credit-check-3.json",
+    "outputFile": "F:\\proyectos\\planificador-vida\\tmp\\pipeline-v5-real.json",
     "tokensUsed": {
       "input": 1791,
-      "output": 2107
+      "output": 1568
     },
     "resourceUsage": null,
-    "updatedAt": "2026-03-26T19:07:40.920Z"
+    "updatedAt": "2026-03-26T19:36:01.728Z"
   },
   "phaseStatuses": {
     "classify": "success",
@@ -53,9 +53,9 @@
         }
       },
       "processing": "Clasifica el objetivo y detecta senales para decidir el tipo de plan.",
-      "startedAt": "2026-03-26T19:07:18.448Z",
-      "finishedAt": "2026-03-26T19:07:19.968Z",
-      "durationMs": 1520
+      "startedAt": "2026-03-26T19:35:42.558Z",
+      "finishedAt": "2026-03-26T19:35:45.601Z",
+      "durationMs": 3043
     },
     "requirements": {
       "input": {
@@ -76,15 +76,15 @@
       },
       "output": {
         "questions": [
-          "¿Cuál es tu nivel actual con esta habilidad y qué aspectos te cuestan más?",
-          "¿Qué experiencia previa tenés que puedas aprovechar para avanzar?",
-          "¿Cuánto tiempo libre por semana podés dedicarle a practicar seriamente?"
+          "¿Qué nivel sentís que tenés hoy en esta habilidad?",
+          "¿Cuántas horas podés dedicarle por semana para practicar?",
+          "¿Qué experiencias o cursos previos ya hiciste en este tema?"
         ]
       },
       "processing": "Genera preguntas concretas para completar el contexto minimo del objetivo.",
-      "startedAt": "2026-03-26T19:07:19.970Z",
-      "finishedAt": "2026-03-26T19:07:22.232Z",
-      "durationMs": 2262
+      "startedAt": "2026-03-26T19:35:45.602Z",
+      "finishedAt": "2026-03-26T19:35:47.121Z",
+      "durationMs": 1519
     },
     "profile": {
       "input": {
@@ -103,13 +103,14 @@
           "Trabajo de lunes a viernes"
         ],
         "scheduleConstraints": [
-          "Evitar practicar muy tarde"
+          "Evitar practicar muy tarde",
+          "Es más difícil empezar cuando llega cansado"
         ]
       },
       "processing": "Convierte respuestas abiertas en un perfil operativo con disponibilidad y restricciones.",
-      "startedAt": "2026-03-26T19:07:22.234Z",
-      "finishedAt": "2026-03-26T19:07:26.859Z",
-      "durationMs": 4625
+      "startedAt": "2026-03-26T19:35:47.122Z",
+      "finishedAt": "2026-03-26T19:35:50.345Z",
+      "durationMs": 3223
     },
     "strategy": {
       "input": {
@@ -121,7 +122,8 @@
             "Trabajo de lunes a viernes"
           ],
           "scheduleConstraints": [
-            "Evitar practicar muy tarde"
+            "Evitar practicar muy tarde",
+            "Es más difícil empezar cuando llega cansado"
           ]
         },
         "classification": {
@@ -157,67 +159,65 @@
       "output": {
         "phases": [
           {
-            "name": "Cejillas y pentatónica fluidas",
+            "name": "Consolidación de acordes y control rítmico",
             "durationWeeks": 4,
-            "focus_esAR": "pulir la técnica de cejilla, afianzar patrones pentatónicos en tempo moderado y mantener calentamientos diarios eficientes"
+            "focus_esAR": "afinar cambios de acordes abiertos y con cejilla con pulso sólido y articulación clara"
           },
           {
-            "name": "Repertorio y teoría aplicada",
+            "name": "Expansión melódica y teoría aplicada",
             "durationWeeks": 5,
-            "focus_esAR": "incorporar canciones que combinen cejilla y acordes abiertos mientras se trabaja armonía funcional básica y entrenamiento auditivo orientado al repertorio"
+            "focus_esAR": "integrar escala pentatónica en todo el mástil, conectar con arpegios y fundamentos de armonía funcional"
           },
           {
-            "name": "Integración creativa e improvisación",
-            "durationWeeks": 4,
-            "focus_esAR": "llevar lo aprendido a improvisaciones controladas y crear arreglos sencillos que integren técnica, teoría y expresividad"
+            "name": "Interpretación e improvisación creativa",
+            "durationWeeks": 5,
+            "focus_esAR": "combinar repertorio trabajado con improvisaciones sobre backing tracks y dinámicas expresivas"
           }
         ],
         "milestones": [
-          "Cambiar entre acordes abiertos y cejilla en tempo de 90 bpm sin cortes",
-          "Ejecutar dos posiciones completas de la escala pentatónica mayor y menor en las primeras 7 posiciones",
-          "Montar tres canciones con cejilla y dinámicas controladas",
-          "Improvisar un solo de 12 compases sobre backing track I-IV-V usando licks propios",
-          "Arreglar y grabar una mini pieza combinando arpegios, cejilla y fraseos pentatónicos"
+          "Transitar entre acordes abiertos y cejilla en cualquier progresión a 80 bpm sin cortes",
+          "Recorrer la escala pentatónica en cinco posiciones con metrónomo a 90 bpm",
+          "Tocar dos canciones completas aplicando dinámicas y arreglos propios",
+          "Improvisar sobre un backing track en dos tonalidades, incorporando motivos melódicos y silencios intencionales"
         ]
       },
       "processing": "Arma el roadmap estrategico con etapas e hitos usando el perfil y el tipo de objetivo.",
-      "startedAt": "2026-03-26T19:07:26.860Z",
-      "finishedAt": "2026-03-26T19:07:31.657Z",
-      "durationMs": 4797
+      "startedAt": "2026-03-26T19:35:50.346Z",
+      "finishedAt": "2026-03-26T19:35:53.541Z",
+      "durationMs": 3195
     },
     "template": {
       "input": {
         "roadmap": {
           "phases": [
             {
-              "name": "Cejillas y pentatónica fluidas",
+              "name": "Consolidación de acordes y control rítmico",
               "durationWeeks": 4,
-              "focus_esAR": "pulir la técnica de cejilla, afianzar patrones pentatónicos en tempo moderado y mantener calentamientos diarios eficientes"
+              "focus_esAR": "afinar cambios de acordes abiertos y con cejilla con pulso sólido y articulación clara"
             },
             {
-              "name": "Repertorio y teoría aplicada",
+              "name": "Expansión melódica y teoría aplicada",
               "durationWeeks": 5,
-              "focus_esAR": "incorporar canciones que combinen cejilla y acordes abiertos mientras se trabaja armonía funcional básica y entrenamiento auditivo orientado al repertorio"
+              "focus_esAR": "integrar escala pentatónica en todo el mástil, conectar con arpegios y fundamentos de armonía funcional"
             },
             {
-              "name": "Integración creativa e improvisación",
-              "durationWeeks": 4,
-              "focus_esAR": "llevar lo aprendido a improvisaciones controladas y crear arreglos sencillos que integren técnica, teoría y expresividad"
+              "name": "Interpretación e improvisación creativa",
+              "durationWeeks": 5,
+              "focus_esAR": "combinar repertorio trabajado con improvisaciones sobre backing tracks y dinámicas expresivas"
             }
           ],
           "milestones": [
-            "Cambiar entre acordes abiertos y cejilla en tempo de 90 bpm sin cortes",
-            "Ejecutar dos posiciones completas de la escala pentatónica mayor y menor en las primeras 7 posiciones",
-            "Montar tres canciones con cejilla y dinámicas controladas",
-            "Improvisar un solo de 12 compases sobre backing track I-IV-V usando licks propios",
-            "Arreglar y grabar una mini pieza combinando arpegios, cejilla y fraseos pentatónicos"
+            "Transitar entre acordes abiertos y cejilla en cualquier progresión a 80 bpm sin cortes",
+            "Recorrer la escala pentatónica en cinco posiciones con metrónomo a 90 bpm",
+            "Tocar dos canciones completas aplicando dinámicas y arreglos propios",
+            "Improvisar sobre un backing track en dos tonalidades, incorporando motivos melódicos y silencios intencionales"
           ]
         }
       },
       "output": {
         "activities": [
           {
-            "id": "act-guitar_warmup-vyvygd3",
+            "id": "act-guitar_warmup-ucgjtkm",
             "label": "Calentamiento técnico (escalas lentas + cromáticos)",
             "equivalenceGroupId": "guitar-technique",
             "durationMin": 10,
@@ -227,7 +227,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_technique-dpccpq9",
+            "id": "act-guitar_technique-8akv8ia",
             "label": "Práctica técnica enfocada (técnica específica)",
             "equivalenceGroupId": "guitar-technique",
             "durationMin": 20,
@@ -237,7 +237,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_repertoire-xo9kady",
+            "id": "act-guitar_repertoire-8bl7vvs",
             "label": "Aprendizaje de repertorio (canción o fragmento)",
             "equivalenceGroupId": "guitar-musicality",
             "durationMin": 25,
@@ -247,7 +247,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_theory-mkomrcv",
+            "id": "act-guitar_theory-gn0wi6x",
             "label": "Teoría musical y armonía aplicada",
             "equivalenceGroupId": "guitar-theory",
             "durationMin": 20,
@@ -257,7 +257,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_ear_training-3z0dwp6",
+            "id": "act-guitar_ear_training-fvy4vps",
             "label": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
             "equivalenceGroupId": "guitar-musicianship",
             "durationMin": 15,
@@ -267,7 +267,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_improv-34pdoe9",
+            "id": "act-guitar_improv-3nrm12u",
             "label": "Improvisación libre o sobre backing track",
             "equivalenceGroupId": "guitar-musicality",
             "durationMin": 20,
@@ -277,7 +277,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_review-b2gyws8",
+            "id": "act-guitar_review-dz4rg7k",
             "label": "Repaso espaciado de material anterior",
             "equivalenceGroupId": "guitar-review",
             "durationMin": 15,
@@ -289,15 +289,15 @@
         ]
       },
       "processing": "Baja la estrategia a actividades pedibles por el scheduler de manera deterministica.",
-      "startedAt": "2026-03-26T19:07:31.658Z",
-      "finishedAt": "2026-03-26T19:07:31.659Z",
+      "startedAt": "2026-03-26T19:35:53.541Z",
+      "finishedAt": "2026-03-26T19:35:53.542Z",
       "durationMs": 1
     },
     "schedule": {
       "input": {
         "activities": [
           {
-            "id": "act-guitar_warmup-vyvygd3",
+            "id": "act-guitar_warmup-ucgjtkm",
             "label": "Calentamiento técnico (escalas lentas + cromáticos)",
             "equivalenceGroupId": "guitar-technique",
             "durationMin": 10,
@@ -307,7 +307,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_technique-dpccpq9",
+            "id": "act-guitar_technique-8akv8ia",
             "label": "Práctica técnica enfocada (técnica específica)",
             "equivalenceGroupId": "guitar-technique",
             "durationMin": 20,
@@ -317,7 +317,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_repertoire-xo9kady",
+            "id": "act-guitar_repertoire-8bl7vvs",
             "label": "Aprendizaje de repertorio (canción o fragmento)",
             "equivalenceGroupId": "guitar-musicality",
             "durationMin": 25,
@@ -327,7 +327,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_theory-mkomrcv",
+            "id": "act-guitar_theory-gn0wi6x",
             "label": "Teoría musical y armonía aplicada",
             "equivalenceGroupId": "guitar-theory",
             "durationMin": 20,
@@ -337,7 +337,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_ear_training-3z0dwp6",
+            "id": "act-guitar_ear_training-fvy4vps",
             "label": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
             "equivalenceGroupId": "guitar-musicianship",
             "durationMin": 15,
@@ -347,7 +347,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_improv-34pdoe9",
+            "id": "act-guitar_improv-3nrm12u",
             "label": "Improvisación libre o sobre backing track",
             "equivalenceGroupId": "guitar-musicality",
             "durationMin": 20,
@@ -357,7 +357,7 @@
             "minRestDaysBetween": 1
           },
           {
-            "id": "act-guitar_review-b2gyws8",
+            "id": "act-guitar_review-dz4rg7k",
             "label": "Repaso espaciado de material anterior",
             "equivalenceGroupId": "guitar-review",
             "durationMin": 15,
@@ -371,7 +371,7 @@
       "output": {
         "events": [
           {
-            "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+            "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
             "kind": "time_event",
             "title": "Calentamiento técnico (escalas lentas + cromáticos)",
             "status": "active",
@@ -381,11 +381,11 @@
             "startAt": "2026-03-30T23:00:00.000Z",
             "durationMin": 10,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+            "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
             "kind": "time_event",
             "title": "Calentamiento técnico (escalas lentas + cromáticos)",
             "status": "active",
@@ -395,11 +395,11 @@
             "startAt": "2026-04-05T18:00:00.000Z",
             "durationMin": 10,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+            "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
             "kind": "time_event",
             "title": "Práctica técnica enfocada (técnica específica)",
             "status": "active",
@@ -409,11 +409,11 @@
             "startAt": "2026-03-30T21:00:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+            "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
             "kind": "time_event",
             "title": "Práctica técnica enfocada (técnica específica)",
             "status": "active",
@@ -423,11 +423,11 @@
             "startAt": "2026-04-04T12:30:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+            "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
             "kind": "time_event",
             "title": "Aprendizaje de repertorio (canción o fragmento)",
             "status": "active",
@@ -437,11 +437,11 @@
             "startAt": "2026-04-02T23:30:00.000Z",
             "durationMin": 25,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+            "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
             "kind": "time_event",
             "title": "Aprendizaje de repertorio (canción o fragmento)",
             "status": "active",
@@ -451,11 +451,11 @@
             "startAt": "2026-04-05T00:00:00.000Z",
             "durationMin": 25,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+            "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
             "kind": "time_event",
             "title": "Teoría musical y armonía aplicada",
             "status": "active",
@@ -465,11 +465,11 @@
             "startAt": "2026-04-01T23:00:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+            "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
             "kind": "time_event",
             "title": "Teoría musical y armonía aplicada",
             "status": "active",
@@ -479,11 +479,11 @@
             "startAt": "2026-04-05T12:30:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+            "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
             "kind": "time_event",
             "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
             "status": "active",
@@ -493,11 +493,11 @@
             "startAt": "2026-04-01T22:00:00.000Z",
             "durationMin": 15,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+            "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
             "kind": "time_event",
             "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
             "status": "active",
@@ -507,11 +507,11 @@
             "startAt": "2026-04-05T23:30:00.000Z",
             "durationMin": 15,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+            "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
             "kind": "time_event",
             "title": "Improvisación libre o sobre backing track",
             "status": "active",
@@ -521,11 +521,11 @@
             "startAt": "2026-04-01T00:00:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+            "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
             "kind": "time_event",
             "title": "Improvisación libre o sobre backing track",
             "status": "active",
@@ -535,11 +535,11 @@
             "startAt": "2026-04-03T00:00:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+            "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
             "kind": "time_event",
             "title": "Repaso espaciado de material anterior",
             "status": "active",
@@ -549,11 +549,11 @@
             "startAt": "2026-03-31T21:00:00.000Z",
             "durationMin": 15,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+            "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
             "kind": "time_event",
             "title": "Repaso espaciado de material anterior",
             "status": "active",
@@ -563,29 +563,29 @@
             "startAt": "2026-04-05T17:00:00.000Z",
             "durationMin": 15,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           }
         ],
         "unscheduled": [],
         "tradeoffs": [],
         "metrics": {
           "fillRate": 1,
-          "solverTimeMs": 121,
+          "solverTimeMs": 113,
           "solverStatus": "optimal"
         }
       },
       "processing": "Resuelve el calendario semanal con el scheduler MILP.",
-      "startedAt": "2026-03-26T19:07:31.660Z",
-      "finishedAt": "2026-03-26T19:07:31.785Z",
-      "durationMs": 125
+      "startedAt": "2026-03-26T19:35:53.543Z",
+      "finishedAt": "2026-03-26T19:35:53.661Z",
+      "durationMs": 118
     },
     "hardValidate": {
       "input": {
         "schedule": {
           "events": [
             {
-              "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+              "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
               "kind": "time_event",
               "title": "Calentamiento técnico (escalas lentas + cromáticos)",
               "status": "active",
@@ -595,11 +595,11 @@
               "startAt": "2026-03-30T23:00:00.000Z",
               "durationMin": 10,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+              "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
               "kind": "time_event",
               "title": "Calentamiento técnico (escalas lentas + cromáticos)",
               "status": "active",
@@ -609,11 +609,11 @@
               "startAt": "2026-04-05T18:00:00.000Z",
               "durationMin": 10,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+              "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
               "kind": "time_event",
               "title": "Práctica técnica enfocada (técnica específica)",
               "status": "active",
@@ -623,11 +623,11 @@
               "startAt": "2026-03-30T21:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+              "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
               "kind": "time_event",
               "title": "Práctica técnica enfocada (técnica específica)",
               "status": "active",
@@ -637,11 +637,11 @@
               "startAt": "2026-04-04T12:30:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+              "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
               "kind": "time_event",
               "title": "Aprendizaje de repertorio (canción o fragmento)",
               "status": "active",
@@ -651,11 +651,11 @@
               "startAt": "2026-04-02T23:30:00.000Z",
               "durationMin": 25,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+              "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
               "kind": "time_event",
               "title": "Aprendizaje de repertorio (canción o fragmento)",
               "status": "active",
@@ -665,11 +665,11 @@
               "startAt": "2026-04-05T00:00:00.000Z",
               "durationMin": 25,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+              "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
               "kind": "time_event",
               "title": "Teoría musical y armonía aplicada",
               "status": "active",
@@ -679,11 +679,11 @@
               "startAt": "2026-04-01T23:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+              "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
               "kind": "time_event",
               "title": "Teoría musical y armonía aplicada",
               "status": "active",
@@ -693,11 +693,11 @@
               "startAt": "2026-04-05T12:30:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+              "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
               "kind": "time_event",
               "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
               "status": "active",
@@ -707,11 +707,11 @@
               "startAt": "2026-04-01T22:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+              "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
               "kind": "time_event",
               "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
               "status": "active",
@@ -721,11 +721,11 @@
               "startAt": "2026-04-05T23:30:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+              "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
               "kind": "time_event",
               "title": "Improvisación libre o sobre backing track",
               "status": "active",
@@ -735,11 +735,11 @@
               "startAt": "2026-04-01T00:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+              "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
               "kind": "time_event",
               "title": "Improvisación libre o sobre backing track",
               "status": "active",
@@ -749,11 +749,11 @@
               "startAt": "2026-04-03T00:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+              "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
               "kind": "time_event",
               "title": "Repaso espaciado de material anterior",
               "status": "active",
@@ -763,11 +763,11 @@
               "startAt": "2026-03-31T21:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+              "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
               "kind": "time_event",
               "title": "Repaso espaciado de material anterior",
               "status": "active",
@@ -777,22 +777,22 @@
               "startAt": "2026-04-05T17:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             }
           ],
           "unscheduled": [],
           "tradeoffs": [],
           "metrics": {
             "fillRate": 1,
-            "solverTimeMs": 121,
+            "solverTimeMs": 113,
             "solverStatus": "optimal"
           }
         },
         "originalInput": {
           "activities": [
             {
-              "id": "act-guitar_warmup-vyvygd3",
+              "id": "act-guitar_warmup-ucgjtkm",
               "label": "Calentamiento técnico (escalas lentas + cromáticos)",
               "equivalenceGroupId": "guitar-technique",
               "durationMin": 10,
@@ -802,7 +802,7 @@
               "minRestDaysBetween": 1
             },
             {
-              "id": "act-guitar_technique-dpccpq9",
+              "id": "act-guitar_technique-8akv8ia",
               "label": "Práctica técnica enfocada (técnica específica)",
               "equivalenceGroupId": "guitar-technique",
               "durationMin": 20,
@@ -812,7 +812,7 @@
               "minRestDaysBetween": 1
             },
             {
-              "id": "act-guitar_repertoire-xo9kady",
+              "id": "act-guitar_repertoire-8bl7vvs",
               "label": "Aprendizaje de repertorio (canción o fragmento)",
               "equivalenceGroupId": "guitar-musicality",
               "durationMin": 25,
@@ -822,7 +822,7 @@
               "minRestDaysBetween": 1
             },
             {
-              "id": "act-guitar_theory-mkomrcv",
+              "id": "act-guitar_theory-gn0wi6x",
               "label": "Teoría musical y armonía aplicada",
               "equivalenceGroupId": "guitar-theory",
               "durationMin": 20,
@@ -832,7 +832,7 @@
               "minRestDaysBetween": 1
             },
             {
-              "id": "act-guitar_ear_training-3z0dwp6",
+              "id": "act-guitar_ear_training-fvy4vps",
               "label": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
               "equivalenceGroupId": "guitar-musicianship",
               "durationMin": 15,
@@ -842,7 +842,7 @@
               "minRestDaysBetween": 1
             },
             {
-              "id": "act-guitar_improv-34pdoe9",
+              "id": "act-guitar_improv-3nrm12u",
               "label": "Improvisación libre o sobre backing track",
               "equivalenceGroupId": "guitar-musicality",
               "durationMin": 20,
@@ -852,7 +852,7 @@
               "minRestDaysBetween": 1
             },
             {
-              "id": "act-guitar_review-b2gyws8",
+              "id": "act-guitar_review-dz4rg7k",
               "label": "Repaso espaciado de material anterior",
               "equivalenceGroupId": "guitar-review",
               "durationMin": 15,
@@ -943,7 +943,8 @@
             "Trabajo de lunes a viernes"
           ],
           "scheduleConstraints": [
-            "Evitar practicar muy tarde"
+            "Evitar practicar muy tarde",
+            "Es más difícil empezar cuando llega cansado"
           ]
         },
         "timezone": "America/Argentina/Buenos_Aires"
@@ -952,16 +953,16 @@
         "findings": []
       },
       "processing": "Verifica reglas duras del calendario contra disponibilidad, duracion y frecuencia.",
-      "startedAt": "2026-03-26T19:07:31.787Z",
-      "finishedAt": "2026-03-26T19:07:31.795Z",
-      "durationMs": 8
+      "startedAt": "2026-03-26T19:35:53.663Z",
+      "finishedAt": "2026-03-26T19:35:53.670Z",
+      "durationMs": 7
     },
     "softValidate": {
       "input": {
         "schedule": {
           "events": [
             {
-              "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+              "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
               "kind": "time_event",
               "title": "Calentamiento técnico (escalas lentas + cromáticos)",
               "status": "active",
@@ -971,11 +972,11 @@
               "startAt": "2026-03-30T23:00:00.000Z",
               "durationMin": 10,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+              "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
               "kind": "time_event",
               "title": "Calentamiento técnico (escalas lentas + cromáticos)",
               "status": "active",
@@ -985,11 +986,11 @@
               "startAt": "2026-04-05T18:00:00.000Z",
               "durationMin": 10,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+              "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
               "kind": "time_event",
               "title": "Práctica técnica enfocada (técnica específica)",
               "status": "active",
@@ -999,11 +1000,11 @@
               "startAt": "2026-03-30T21:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+              "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
               "kind": "time_event",
               "title": "Práctica técnica enfocada (técnica específica)",
               "status": "active",
@@ -1013,11 +1014,11 @@
               "startAt": "2026-04-04T12:30:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+              "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
               "kind": "time_event",
               "title": "Aprendizaje de repertorio (canción o fragmento)",
               "status": "active",
@@ -1027,11 +1028,11 @@
               "startAt": "2026-04-02T23:30:00.000Z",
               "durationMin": 25,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+              "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
               "kind": "time_event",
               "title": "Aprendizaje de repertorio (canción o fragmento)",
               "status": "active",
@@ -1041,11 +1042,11 @@
               "startAt": "2026-04-05T00:00:00.000Z",
               "durationMin": 25,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+              "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
               "kind": "time_event",
               "title": "Teoría musical y armonía aplicada",
               "status": "active",
@@ -1055,11 +1056,11 @@
               "startAt": "2026-04-01T23:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+              "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
               "kind": "time_event",
               "title": "Teoría musical y armonía aplicada",
               "status": "active",
@@ -1069,11 +1070,11 @@
               "startAt": "2026-04-05T12:30:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+              "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
               "kind": "time_event",
               "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
               "status": "active",
@@ -1083,11 +1084,11 @@
               "startAt": "2026-04-01T22:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+              "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
               "kind": "time_event",
               "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
               "status": "active",
@@ -1097,11 +1098,11 @@
               "startAt": "2026-04-05T23:30:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+              "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
               "kind": "time_event",
               "title": "Improvisación libre o sobre backing track",
               "status": "active",
@@ -1111,11 +1112,11 @@
               "startAt": "2026-04-01T00:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+              "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
               "kind": "time_event",
               "title": "Improvisación libre o sobre backing track",
               "status": "active",
@@ -1125,11 +1126,11 @@
               "startAt": "2026-04-03T00:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+              "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
               "kind": "time_event",
               "title": "Repaso espaciado de material anterior",
               "status": "active",
@@ -1139,11 +1140,11 @@
               "startAt": "2026-03-31T21:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+              "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
               "kind": "time_event",
               "title": "Repaso espaciado de material anterior",
               "status": "active",
@@ -1153,15 +1154,15 @@
               "startAt": "2026-04-05T17:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             }
           ],
           "unscheduled": [],
           "tradeoffs": [],
           "metrics": {
             "fillRate": 1,
-            "solverTimeMs": 121,
+            "solverTimeMs": 113,
             "solverStatus": "optimal"
           }
         },
@@ -1173,7 +1174,8 @@
             "Trabajo de lunes a viernes"
           ],
           "scheduleConstraints": [
-            "Evitar practicar muy tarde"
+            "Evitar practicar muy tarde",
+            "Es más difícil empezar cuando llega cansado"
           ]
         },
         "timezone": "America/Argentina/Buenos_Aires"
@@ -1182,8 +1184,8 @@
         "findings": []
       },
       "processing": "Evalua calidad practica del plan: fatiga, cambios de foco y descanso.",
-      "startedAt": "2026-03-26T19:07:31.797Z",
-      "finishedAt": "2026-03-26T19:07:31.800Z",
+      "startedAt": "2026-03-26T19:35:53.672Z",
+      "finishedAt": "2026-03-26T19:35:53.675Z",
       "durationMs": 3
     },
     "coveVerify": {
@@ -1191,7 +1193,7 @@
         "schedule": {
           "events": [
             {
-              "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+              "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
               "kind": "time_event",
               "title": "Calentamiento técnico (escalas lentas + cromáticos)",
               "status": "active",
@@ -1201,11 +1203,11 @@
               "startAt": "2026-03-30T23:00:00.000Z",
               "durationMin": 10,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+              "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
               "kind": "time_event",
               "title": "Calentamiento técnico (escalas lentas + cromáticos)",
               "status": "active",
@@ -1215,11 +1217,11 @@
               "startAt": "2026-04-05T18:00:00.000Z",
               "durationMin": 10,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+              "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
               "kind": "time_event",
               "title": "Práctica técnica enfocada (técnica específica)",
               "status": "active",
@@ -1229,11 +1231,11 @@
               "startAt": "2026-03-30T21:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+              "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
               "kind": "time_event",
               "title": "Práctica técnica enfocada (técnica específica)",
               "status": "active",
@@ -1243,11 +1245,11 @@
               "startAt": "2026-04-04T12:30:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+              "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
               "kind": "time_event",
               "title": "Aprendizaje de repertorio (canción o fragmento)",
               "status": "active",
@@ -1257,11 +1259,11 @@
               "startAt": "2026-04-02T23:30:00.000Z",
               "durationMin": 25,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+              "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
               "kind": "time_event",
               "title": "Aprendizaje de repertorio (canción o fragmento)",
               "status": "active",
@@ -1271,11 +1273,11 @@
               "startAt": "2026-04-05T00:00:00.000Z",
               "durationMin": 25,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+              "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
               "kind": "time_event",
               "title": "Teoría musical y armonía aplicada",
               "status": "active",
@@ -1285,11 +1287,11 @@
               "startAt": "2026-04-01T23:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+              "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
               "kind": "time_event",
               "title": "Teoría musical y armonía aplicada",
               "status": "active",
@@ -1299,11 +1301,11 @@
               "startAt": "2026-04-05T12:30:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+              "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
               "kind": "time_event",
               "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
               "status": "active",
@@ -1313,11 +1315,11 @@
               "startAt": "2026-04-01T22:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+              "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
               "kind": "time_event",
               "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
               "status": "active",
@@ -1327,11 +1329,11 @@
               "startAt": "2026-04-05T23:30:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+              "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
               "kind": "time_event",
               "title": "Improvisación libre o sobre backing track",
               "status": "active",
@@ -1341,11 +1343,11 @@
               "startAt": "2026-04-01T00:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+              "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
               "kind": "time_event",
               "title": "Improvisación libre o sobre backing track",
               "status": "active",
@@ -1355,11 +1357,11 @@
               "startAt": "2026-04-03T00:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+              "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
               "kind": "time_event",
               "title": "Repaso espaciado de material anterior",
               "status": "active",
@@ -1369,11 +1371,11 @@
               "startAt": "2026-03-31T21:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+              "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
               "kind": "time_event",
               "title": "Repaso espaciado de material anterior",
               "status": "active",
@@ -1383,15 +1385,15 @@
               "startAt": "2026-04-05T17:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             }
           ],
           "unscheduled": [],
           "tradeoffs": [],
           "metrics": {
             "fillRate": 1,
-            "solverTimeMs": 121,
+            "solverTimeMs": 113,
             "solverStatus": "optimal"
           }
         },
@@ -1404,7 +1406,8 @@
             "Trabajo de lunes a viernes"
           ],
           "scheduleConstraints": [
-            "Evitar practicar muy tarde"
+            "Evitar practicar muy tarde",
+            "Es más difícil empezar cuando llega cansado"
           ]
         }
       },
@@ -1412,8 +1415,8 @@
         "findings": [
           {
             "code": "COVE-REST",
-            "question": "¿Existe al menos un día libre para descanso?",
-            "answer": "Sí, restDays=1 confirma un día sin actividades (2026-04-03).",
+            "question": "¿Hay al menos un día de descanso completo en la semana operativa?",
+            "answer": "Sí, quedan 1 día(s) completo(s) sin sesiones en la ventana operativa semanal.",
             "severity": "INFO",
             "groundedByFacts": true,
             "supportingFacts": [
@@ -1423,9 +1426,9 @@
           },
           {
             "code": "COVE-DISTRIBUTION",
-            "question": "¿Se supera el máximo de 4 sesiones por día?",
-            "answer": "No, el tope observado es 4 sesiones el 2026-04-05, igual al límite maxSessionsPerDay=4.",
-            "severity": "INFO",
+            "question": "¿La carga está demasiado concentrada en un solo día?",
+            "answer": "Sí, el 2026-04-05 se programan 4 sesiones de 60m cada una, saturando las 4h libres del fin de semana.",
+            "severity": "WARN",
             "groundedByFacts": true,
             "supportingFacts": [
               "maxSessionsPerDay=4",
@@ -1434,8 +1437,8 @@
           },
           {
             "code": "COVE-OVERLAP",
-            "question": "¿Existen solapamientos reales entre eventos del calendario?",
-            "answer": "No, no se detectaron solapamientos reales entre los eventos programados.",
+            "question": "¿Hay solapamientos entre eventos?",
+            "answer": "No, overlaps=0.",
             "severity": "INFO",
             "groundedByFacts": true,
             "supportingFacts": [
@@ -1445,16 +1448,16 @@
         ]
       },
       "processing": "Hace chequeos de verificacion sobre el calendario y devuelve hallazgos explicitos.",
-      "startedAt": "2026-03-26T19:07:31.801Z",
-      "finishedAt": "2026-03-26T19:07:40.880Z",
-      "durationMs": 9079
+      "startedAt": "2026-03-26T19:35:53.676Z",
+      "finishedAt": "2026-03-26T19:36:01.696Z",
+      "durationMs": 8020
     },
     "package": {
       "input": {
         "finalSchedule": {
           "events": [
             {
-              "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+              "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
               "kind": "time_event",
               "title": "Calentamiento técnico (escalas lentas + cromáticos)",
               "status": "active",
@@ -1464,11 +1467,11 @@
               "startAt": "2026-03-30T23:00:00.000Z",
               "durationMin": 10,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+              "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
               "kind": "time_event",
               "title": "Calentamiento técnico (escalas lentas + cromáticos)",
               "status": "active",
@@ -1478,11 +1481,11 @@
               "startAt": "2026-04-05T18:00:00.000Z",
               "durationMin": 10,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+              "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
               "kind": "time_event",
               "title": "Práctica técnica enfocada (técnica específica)",
               "status": "active",
@@ -1492,11 +1495,11 @@
               "startAt": "2026-03-30T21:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.784Z",
-              "updatedAt": "2026-03-26T19:07:31.784Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+              "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
               "kind": "time_event",
               "title": "Práctica técnica enfocada (técnica específica)",
               "status": "active",
@@ -1506,11 +1509,11 @@
               "startAt": "2026-04-04T12:30:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+              "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
               "kind": "time_event",
               "title": "Aprendizaje de repertorio (canción o fragmento)",
               "status": "active",
@@ -1520,11 +1523,11 @@
               "startAt": "2026-04-02T23:30:00.000Z",
               "durationMin": 25,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.660Z",
+              "updatedAt": "2026-03-26T19:35:53.660Z"
             },
             {
-              "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+              "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
               "kind": "time_event",
               "title": "Aprendizaje de repertorio (canción o fragmento)",
               "status": "active",
@@ -1534,11 +1537,11 @@
               "startAt": "2026-04-05T00:00:00.000Z",
               "durationMin": 25,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+              "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
               "kind": "time_event",
               "title": "Teoría musical y armonía aplicada",
               "status": "active",
@@ -1548,11 +1551,11 @@
               "startAt": "2026-04-01T23:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+              "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
               "kind": "time_event",
               "title": "Teoría musical y armonía aplicada",
               "status": "active",
@@ -1562,11 +1565,11 @@
               "startAt": "2026-04-05T12:30:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+              "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
               "kind": "time_event",
               "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
               "status": "active",
@@ -1576,11 +1579,11 @@
               "startAt": "2026-04-01T22:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+              "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
               "kind": "time_event",
               "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
               "status": "active",
@@ -1590,11 +1593,11 @@
               "startAt": "2026-04-05T23:30:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+              "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
               "kind": "time_event",
               "title": "Improvisación libre o sobre backing track",
               "status": "active",
@@ -1604,11 +1607,11 @@
               "startAt": "2026-04-01T00:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+              "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
               "kind": "time_event",
               "title": "Improvisación libre o sobre backing track",
               "status": "active",
@@ -1618,11 +1621,11 @@
               "startAt": "2026-04-03T00:00:00.000Z",
               "durationMin": 20,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+              "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
               "kind": "time_event",
               "title": "Repaso espaciado de material anterior",
               "status": "active",
@@ -1632,11 +1635,11 @@
               "startAt": "2026-03-31T21:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             },
             {
-              "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+              "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
               "kind": "time_event",
               "title": "Repaso espaciado de material anterior",
               "status": "active",
@@ -1646,15 +1649,15 @@
               "startAt": "2026-04-05T17:00:00.000Z",
               "durationMin": 15,
               "rigidity": "soft",
-              "createdAt": "2026-03-26T19:07:31.785Z",
-              "updatedAt": "2026-03-26T19:07:31.785Z"
+              "createdAt": "2026-03-26T19:35:53.661Z",
+              "updatedAt": "2026-03-26T19:35:53.661Z"
             }
           ],
           "unscheduled": [],
           "tradeoffs": [],
           "metrics": {
             "fillRate": 1,
-            "solverTimeMs": 121,
+            "solverTimeMs": 113,
             "solverStatus": "optimal"
           }
         },
@@ -1675,27 +1678,26 @@
         "roadmap": {
           "phases": [
             {
-              "name": "Cejillas y pentatónica fluidas",
+              "name": "Consolidación de acordes y control rítmico",
               "durationWeeks": 4,
-              "focus_esAR": "pulir la técnica de cejilla, afianzar patrones pentatónicos en tempo moderado y mantener calentamientos diarios eficientes"
+              "focus_esAR": "afinar cambios de acordes abiertos y con cejilla con pulso sólido y articulación clara"
             },
             {
-              "name": "Repertorio y teoría aplicada",
+              "name": "Expansión melódica y teoría aplicada",
               "durationWeeks": 5,
-              "focus_esAR": "incorporar canciones que combinen cejilla y acordes abiertos mientras se trabaja armonía funcional básica y entrenamiento auditivo orientado al repertorio"
+              "focus_esAR": "integrar escala pentatónica en todo el mástil, conectar con arpegios y fundamentos de armonía funcional"
             },
             {
-              "name": "Integración creativa e improvisación",
-              "durationWeeks": 4,
-              "focus_esAR": "llevar lo aprendido a improvisaciones controladas y crear arreglos sencillos que integren técnica, teoría y expresividad"
+              "name": "Interpretación e improvisación creativa",
+              "durationWeeks": 5,
+              "focus_esAR": "combinar repertorio trabajado con improvisaciones sobre backing tracks y dinámicas expresivas"
             }
           ],
           "milestones": [
-            "Cambiar entre acordes abiertos y cejilla en tempo de 90 bpm sin cortes",
-            "Ejecutar dos posiciones completas de la escala pentatónica mayor y menor en las primeras 7 posiciones",
-            "Montar tres canciones con cejilla y dinámicas controladas",
-            "Improvisar un solo de 12 compases sobre backing track I-IV-V usando licks propios",
-            "Arreglar y grabar una mini pieza combinando arpegios, cejilla y fraseos pentatónicos"
+            "Transitar entre acordes abiertos y cejilla en cualquier progresión a 80 bpm sin cortes",
+            "Recorrer la escala pentatónica en cinco posiciones con metrónomo a 90 bpm",
+            "Tocar dos canciones completas aplicando dinámicas y arreglos propios",
+            "Improvisar sobre un backing track en dos tonalidades, incorporando motivos melódicos y silencios intencionales"
           ]
         },
         "goalText": "Quiero aprender a tocar la guitarra y sostener una practica semanal realista sin quemarme.",
@@ -1709,7 +1711,8 @@
             "Trabajo de lunes a viernes"
           ],
           "scheduleConstraints": [
-            "Evitar practicar muy tarde"
+            "Evitar practicar muy tarde",
+            "Es más difícil empezar cuando llega cansado"
           ]
         },
         "currentHabitStates": [
@@ -1740,8 +1743,8 @@
         "coveFindings": [
           {
             "code": "COVE-REST",
-            "question": "¿Existe al menos un día libre para descanso?",
-            "answer": "Sí, restDays=1 confirma un día sin actividades (2026-04-03).",
+            "question": "¿Hay al menos un día de descanso completo en la semana operativa?",
+            "answer": "Sí, quedan 1 día(s) completo(s) sin sesiones en la ventana operativa semanal.",
             "severity": "INFO",
             "groundedByFacts": true,
             "supportingFacts": [
@@ -1751,9 +1754,9 @@
           },
           {
             "code": "COVE-DISTRIBUTION",
-            "question": "¿Se supera el máximo de 4 sesiones por día?",
-            "answer": "No, el tope observado es 4 sesiones el 2026-04-05, igual al límite maxSessionsPerDay=4.",
-            "severity": "INFO",
+            "question": "¿La carga está demasiado concentrada en un solo día?",
+            "answer": "Sí, el 2026-04-05 se programan 4 sesiones de 60m cada una, saturando las 4h libres del fin de semana.",
+            "severity": "WARN",
             "groundedByFacts": true,
             "supportingFacts": [
               "maxSessionsPerDay=4",
@@ -1762,8 +1765,8 @@
           },
           {
             "code": "COVE-OVERLAP",
-            "question": "¿Existen solapamientos reales entre eventos del calendario?",
-            "answer": "No, no se detectaron solapamientos reales entre los eventos programados.",
+            "question": "¿Hay solapamientos entre eventos?",
+            "answer": "No, overlaps=0.",
             "severity": "INFO",
             "groundedByFacts": true,
             "supportingFacts": [
@@ -1779,8 +1782,8 @@
             "goal-guitar-v5-real"
           ],
           "timezone": "America/Argentina/Buenos_Aires",
-          "createdAt": "2026-03-26T19:07:31.784Z",
-          "updatedAt": "2026-03-26T19:07:31.784Z",
+          "createdAt": "2026-03-26T19:35:53.660Z",
+          "updatedAt": "2026-03-26T19:35:53.660Z",
           "skeleton": {
             "horizonWeeks": 12,
             "goalIds": [
@@ -1789,7 +1792,7 @@
             "phases": [
               {
                 "phaseId": "phase-1",
-                "title": "Cejillas y pentatónica fluidas",
+                "title": "Consolidación de acordes y control rítmico",
                 "startWeek": 1,
                 "endWeek": 4,
                 "startDate": "2026-03-30",
@@ -1798,47 +1801,47 @@
                   "goal-guitar-v5-real"
                 ],
                 "objectives": [
-                  "pulir la técnica de cejilla, afianzar patrones pentatónicos en tempo moderado y mantener calentamientos diarios eficientes"
+                  "afinar cambios de acordes abiertos y con cejilla con pulso sólido y articulación clara"
                 ],
                 "frequencies": [
                   {
-                    "activityId": "act-guitar_repertoire-xo9kady",
+                    "activityId": "act-guitar_repertoire-8bl7vvs",
                     "title": "Aprendizaje de repertorio (canción o fragmento)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 25
                   },
                   {
-                    "activityId": "act-guitar_warmup-vyvygd3",
+                    "activityId": "act-guitar_warmup-ucgjtkm",
                     "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 10
                   },
                   {
-                    "activityId": "act-guitar_ear_training-3z0dwp6",
+                    "activityId": "act-guitar_ear_training-fvy4vps",
                     "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 15
                   },
                   {
-                    "activityId": "act-guitar_improv-34pdoe9",
+                    "activityId": "act-guitar_improv-3nrm12u",
                     "title": "Improvisación libre o sobre backing track",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 20
                   },
                   {
-                    "activityId": "act-guitar_technique-dpccpq9",
+                    "activityId": "act-guitar_technique-8akv8ia",
                     "title": "Práctica técnica enfocada (técnica específica)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 20
                   },
                   {
-                    "activityId": "act-guitar_review-b2gyws8",
+                    "activityId": "act-guitar_review-dz4rg7k",
                     "title": "Repaso espaciado de material anterior",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 15
                   },
                   {
-                    "activityId": "act-guitar_theory-mkomrcv",
+                    "activityId": "act-guitar_theory-gn0wi6x",
                     "title": "Teoría musical y armonía aplicada",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 20
@@ -1848,7 +1851,7 @@
               },
               {
                 "phaseId": "phase-2",
-                "title": "Repertorio y teoría aplicada",
+                "title": "Expansión melódica y teoría aplicada",
                 "startWeek": 5,
                 "endWeek": 9,
                 "startDate": "2026-04-27",
@@ -1857,47 +1860,47 @@
                   "goal-guitar-v5-real"
                 ],
                 "objectives": [
-                  "incorporar canciones que combinen cejilla y acordes abiertos mientras se trabaja armonía funcional básica y entrenamiento auditivo orientado al repertorio"
+                  "integrar escala pentatónica en todo el mástil, conectar con arpegios y fundamentos de armonía funcional"
                 ],
                 "frequencies": [
                   {
-                    "activityId": "act-guitar_repertoire-xo9kady",
+                    "activityId": "act-guitar_repertoire-8bl7vvs",
                     "title": "Aprendizaje de repertorio (canción o fragmento)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 25
                   },
                   {
-                    "activityId": "act-guitar_warmup-vyvygd3",
+                    "activityId": "act-guitar_warmup-ucgjtkm",
                     "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 10
                   },
                   {
-                    "activityId": "act-guitar_ear_training-3z0dwp6",
+                    "activityId": "act-guitar_ear_training-fvy4vps",
                     "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 15
                   },
                   {
-                    "activityId": "act-guitar_improv-34pdoe9",
+                    "activityId": "act-guitar_improv-3nrm12u",
                     "title": "Improvisación libre o sobre backing track",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 20
                   },
                   {
-                    "activityId": "act-guitar_technique-dpccpq9",
+                    "activityId": "act-guitar_technique-8akv8ia",
                     "title": "Práctica técnica enfocada (técnica específica)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 20
                   },
                   {
-                    "activityId": "act-guitar_review-b2gyws8",
+                    "activityId": "act-guitar_review-dz4rg7k",
                     "title": "Repaso espaciado de material anterior",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 15
                   },
                   {
-                    "activityId": "act-guitar_theory-mkomrcv",
+                    "activityId": "act-guitar_theory-gn0wi6x",
                     "title": "Teoría musical y armonía aplicada",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 20
@@ -1909,7 +1912,7 @@
               },
               {
                 "phaseId": "phase-3",
-                "title": "Integración creativa e improvisación",
+                "title": "Interpretación e improvisación creativa",
                 "startWeek": 10,
                 "endWeek": 12,
                 "startDate": "2026-06-01",
@@ -1918,47 +1921,47 @@
                   "goal-guitar-v5-real"
                 ],
                 "objectives": [
-                  "llevar lo aprendido a improvisaciones controladas y crear arreglos sencillos que integren técnica, teoría y expresividad"
+                  "combinar repertorio trabajado con improvisaciones sobre backing tracks y dinámicas expresivas"
                 ],
                 "frequencies": [
                   {
-                    "activityId": "act-guitar_repertoire-xo9kady",
+                    "activityId": "act-guitar_repertoire-8bl7vvs",
                     "title": "Aprendizaje de repertorio (canción o fragmento)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 25
                   },
                   {
-                    "activityId": "act-guitar_warmup-vyvygd3",
+                    "activityId": "act-guitar_warmup-ucgjtkm",
                     "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 10
                   },
                   {
-                    "activityId": "act-guitar_ear_training-3z0dwp6",
+                    "activityId": "act-guitar_ear_training-fvy4vps",
                     "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 15
                   },
                   {
-                    "activityId": "act-guitar_improv-34pdoe9",
+                    "activityId": "act-guitar_improv-3nrm12u",
                     "title": "Improvisación libre o sobre backing track",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 20
                   },
                   {
-                    "activityId": "act-guitar_technique-dpccpq9",
+                    "activityId": "act-guitar_technique-8akv8ia",
                     "title": "Práctica técnica enfocada (técnica específica)",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 20
                   },
                   {
-                    "activityId": "act-guitar_review-b2gyws8",
+                    "activityId": "act-guitar_review-dz4rg7k",
                     "title": "Repaso espaciado de material anterior",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 15
                   },
                   {
-                    "activityId": "act-guitar_theory-mkomrcv",
+                    "activityId": "act-guitar_theory-gn0wi6x",
                     "title": "Teoría musical y armonía aplicada",
                     "sessionsPerWeek": 2,
                     "minutesPerSession": 20
@@ -1973,65 +1976,53 @@
               {
                 "id": "milestone-1",
                 "kind": "milestone",
-                "title": "Cambiar entre acordes abiertos y cejilla en tempo de 90 bpm sin cortes",
-                "notes": "pulir la técnica de cejilla, afianzar patrones pentatónicos en tempo moderado y mantener calentamientos diarios eficientes",
+                "title": "Transitar entre acordes abiertos y cejilla en cualquier progresión a 80 bpm sin cortes",
+                "notes": "afinar cambios de acordes abiertos y con cejilla con pulso sólido y articulación clara",
                 "status": "draft",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "dueDate": "2026-04-27"
               },
               {
                 "id": "milestone-2",
                 "kind": "milestone",
-                "title": "Ejecutar dos posiciones completas de la escala pentatónica mayor y menor en las primeras 7 posiciones",
-                "notes": "incorporar canciones que combinen cejilla y acordes abiertos mientras se trabaja armonía funcional básica y entrenamiento auditivo orientado al repertorio",
+                "title": "Recorrer la escala pentatónica en cinco posiciones con metrónomo a 90 bpm",
+                "notes": "integrar escala pentatónica en todo el mástil, conectar con arpegios y fundamentos de armonía funcional",
                 "status": "draft",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "dueDate": "2026-06-01"
               },
               {
                 "id": "milestone-3",
                 "kind": "milestone",
-                "title": "Montar tres canciones con cejilla y dinámicas controladas",
-                "notes": "llevar lo aprendido a improvisaciones controladas y crear arreglos sencillos que integren técnica, teoría y expresividad",
+                "title": "Tocar dos canciones completas aplicando dinámicas y arreglos propios",
+                "notes": "combinar repertorio trabajado con improvisaciones sobre backing tracks y dinámicas expresivas",
                 "status": "draft",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
-                "dueDate": "2026-06-29"
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
+                "dueDate": "2026-07-06"
               },
               {
                 "id": "milestone-4",
                 "kind": "milestone",
-                "title": "Improvisar un solo de 12 compases sobre backing track I-IV-V usando licks propios",
+                "title": "Improvisar sobre un backing track en dos tonalidades, incorporando motivos melódicos y silencios intencionales",
                 "status": "draft",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
-                "dueDate": "2026-07-13"
-              },
-              {
-                "id": "milestone-5",
-                "kind": "milestone",
-                "title": "Arreglar y grabar una mini pieza combinando arpegios, cejilla y fraseos pentatónicos",
-                "status": "draft",
-                "goalIds": [
-                  "goal-guitar-v5-real"
-                ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
-                "dueDate": "2026-07-27"
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
+                "dueDate": "2026-07-20"
               }
             ]
           },
@@ -2041,393 +2032,393 @@
             "endDate": "2026-04-12",
             "scheduledEvents": [
               {
-                "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+                "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
                 "kind": "time_event",
                 "title": "Práctica técnica enfocada (técnica específica)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-03-30T21:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+                "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
                 "kind": "time_event",
                 "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-03-30T23:00:00.000Z",
                 "durationMin": 10,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+                "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
                 "kind": "time_event",
                 "title": "Repaso espaciado de material anterior",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-03-31T21:00:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+                "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
                 "kind": "time_event",
                 "title": "Improvisación libre o sobre backing track",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-01T00:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+                "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
                 "kind": "time_event",
                 "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-01T22:00:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+                "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
                 "kind": "time_event",
                 "title": "Teoría musical y armonía aplicada",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-01T23:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+                "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
                 "kind": "time_event",
                 "title": "Aprendizaje de repertorio (canción o fragmento)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-02T23:30:00.000Z",
                 "durationMin": 25,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+                "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
                 "kind": "time_event",
                 "title": "Improvisación libre o sobre backing track",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-03T00:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+                "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
                 "kind": "time_event",
                 "title": "Práctica técnica enfocada (técnica específica)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-04T12:30:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+                "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
                 "kind": "time_event",
                 "title": "Aprendizaje de repertorio (canción o fragmento)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-05T00:00:00.000Z",
                 "durationMin": 25,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+                "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
                 "kind": "time_event",
                 "title": "Teoría musical y armonía aplicada",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-05T12:30:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+                "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
                 "kind": "time_event",
                 "title": "Repaso espaciado de material anterior",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-05T17:00:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+                "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
                 "kind": "time_event",
                 "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-05T18:00:00.000Z",
                 "durationMin": 10,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+                "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
                 "kind": "time_event",
                 "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-05T23:30:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_technique-dpccpq9_s36_0e408c38-w2",
+                "id": "act-guitar_technique-8akv8ia_s36_0bac5adc-w2",
                 "kind": "time_event",
                 "title": "Práctica técnica enfocada (técnica específica)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-06T21:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_warmup-vyvygd3_s40_82f8c911-w2",
+                "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce-w2",
                 "kind": "time_event",
                 "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-06T23:00:00.000Z",
                 "durationMin": 10,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_review-b2gyws8_s84_103f7b62-w2",
+                "id": "act-guitar_review-dz4rg7k_s84_97c0636a-w2",
                 "kind": "time_event",
                 "title": "Repaso espaciado de material anterior",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-07T21:00:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_improv-34pdoe9_s90_1a337ec3-w2",
+                "id": "act-guitar_improv-3nrm12u_s90_056a86fa-w2",
                 "kind": "time_event",
                 "title": "Improvisación libre o sobre backing track",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-08T00:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_ear_training-3z0dwp6_s134_185be252-w2",
+                "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b-w2",
                 "kind": "time_event",
                 "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-08T22:00:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_theory-mkomrcv_s136_7e732d15-w2",
+                "id": "act-guitar_theory-gn0wi6x_s136_00d102be-w2",
                 "kind": "time_event",
                 "title": "Teoría musical y armonía aplicada",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-08T23:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8-w2",
+                "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230-w2",
                 "kind": "time_event",
                 "title": "Aprendizaje de repertorio (canción o fragmento)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-09T23:30:00.000Z",
                 "durationMin": 25,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_improv-34pdoe9_s186_021fb699-w2",
+                "id": "act-guitar_improv-3nrm12u_s186_9be7db42-w2",
                 "kind": "time_event",
                 "title": "Improvisación libre o sobre backing track",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-10T00:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6-w2",
+                "id": "act-guitar_technique-8akv8ia_s259_8f451b7f-w2",
                 "kind": "time_event",
                 "title": "Práctica técnica enfocada (técnica específica)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-11T12:30:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e-w2",
+                "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a-w2",
                 "kind": "time_event",
                 "title": "Aprendizaje de repertorio (canción o fragmento)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-12T00:00:00.000Z",
                 "durationMin": 25,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_theory-mkomrcv_s307_c92d1843-w2",
+                "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d-w2",
                 "kind": "time_event",
                 "title": "Teoría musical y armonía aplicada",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-12T12:30:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_review-b2gyws8_s316_a0f3abea-w2",
+                "id": "act-guitar_review-dz4rg7k_s316_aabfc035-w2",
                 "kind": "time_event",
                 "title": "Repaso espaciado de material anterior",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-12T17:00:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_warmup-vyvygd3_s318_a62841bf-w2",
+                "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629-w2",
                 "kind": "time_event",
                 "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-12T18:00:00.000Z",
                 "durationMin": 10,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18-w2",
+                "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8-w2",
                 "kind": "time_event",
                 "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-12T23:30:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
@@ -2440,197 +2431,197 @@
                 "endDate": "2026-04-05",
                 "scheduledEvents": [
                   {
-                    "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+                    "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
                     "kind": "time_event",
                     "title": "Práctica técnica enfocada (técnica específica)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.784Z",
-                    "updatedAt": "2026-03-26T19:07:31.784Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-03-30T21:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+                    "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
                     "kind": "time_event",
                     "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.784Z",
-                    "updatedAt": "2026-03-26T19:07:31.784Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-03-30T23:00:00.000Z",
                     "durationMin": 10,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+                    "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
                     "kind": "time_event",
                     "title": "Repaso espaciado de material anterior",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-03-31T21:00:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+                    "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
                     "kind": "time_event",
                     "title": "Improvisación libre o sobre backing track",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-01T00:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+                    "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
                     "kind": "time_event",
                     "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-01T22:00:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+                    "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
                     "kind": "time_event",
                     "title": "Teoría musical y armonía aplicada",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-01T23:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+                    "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
                     "kind": "time_event",
                     "title": "Aprendizaje de repertorio (canción o fragmento)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-02T23:30:00.000Z",
                     "durationMin": 25,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+                    "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
                     "kind": "time_event",
                     "title": "Improvisación libre o sobre backing track",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-03T00:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+                    "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
                     "kind": "time_event",
                     "title": "Práctica técnica enfocada (técnica específica)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-04T12:30:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+                    "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
                     "kind": "time_event",
                     "title": "Aprendizaje de repertorio (canción o fragmento)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-05T00:00:00.000Z",
                     "durationMin": 25,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+                    "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
                     "kind": "time_event",
                     "title": "Teoría musical y armonía aplicada",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-05T12:30:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+                    "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
                     "kind": "time_event",
                     "title": "Repaso espaciado de material anterior",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-05T17:00:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+                    "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
                     "kind": "time_event",
                     "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.784Z",
-                    "updatedAt": "2026-03-26T19:07:31.784Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-05T18:00:00.000Z",
                     "durationMin": 10,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+                    "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
                     "kind": "time_event",
                     "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-05T23:30:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
@@ -2643,197 +2634,197 @@
                 "endDate": "2026-04-12",
                 "scheduledEvents": [
                   {
-                    "id": "act-guitar_technique-dpccpq9_s36_0e408c38-w2",
+                    "id": "act-guitar_technique-8akv8ia_s36_0bac5adc-w2",
                     "kind": "time_event",
                     "title": "Práctica técnica enfocada (técnica específica)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.784Z",
-                    "updatedAt": "2026-03-26T19:07:31.784Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-06T21:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_warmup-vyvygd3_s40_82f8c911-w2",
+                    "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce-w2",
                     "kind": "time_event",
                     "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.784Z",
-                    "updatedAt": "2026-03-26T19:07:31.784Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-06T23:00:00.000Z",
                     "durationMin": 10,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_review-b2gyws8_s84_103f7b62-w2",
+                    "id": "act-guitar_review-dz4rg7k_s84_97c0636a-w2",
                     "kind": "time_event",
                     "title": "Repaso espaciado de material anterior",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-07T21:00:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_improv-34pdoe9_s90_1a337ec3-w2",
+                    "id": "act-guitar_improv-3nrm12u_s90_056a86fa-w2",
                     "kind": "time_event",
                     "title": "Improvisación libre o sobre backing track",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-08T00:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_ear_training-3z0dwp6_s134_185be252-w2",
+                    "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b-w2",
                     "kind": "time_event",
                     "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-08T22:00:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_theory-mkomrcv_s136_7e732d15-w2",
+                    "id": "act-guitar_theory-gn0wi6x_s136_00d102be-w2",
                     "kind": "time_event",
                     "title": "Teoría musical y armonía aplicada",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-08T23:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8-w2",
+                    "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230-w2",
                     "kind": "time_event",
                     "title": "Aprendizaje de repertorio (canción o fragmento)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-09T23:30:00.000Z",
                     "durationMin": 25,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_improv-34pdoe9_s186_021fb699-w2",
+                    "id": "act-guitar_improv-3nrm12u_s186_9be7db42-w2",
                     "kind": "time_event",
                     "title": "Improvisación libre o sobre backing track",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-10T00:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6-w2",
+                    "id": "act-guitar_technique-8akv8ia_s259_8f451b7f-w2",
                     "kind": "time_event",
                     "title": "Práctica técnica enfocada (técnica específica)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-11T12:30:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e-w2",
+                    "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a-w2",
                     "kind": "time_event",
                     "title": "Aprendizaje de repertorio (canción o fragmento)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-12T00:00:00.000Z",
                     "durationMin": 25,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_theory-mkomrcv_s307_c92d1843-w2",
+                    "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d-w2",
                     "kind": "time_event",
                     "title": "Teoría musical y armonía aplicada",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-12T12:30:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_review-b2gyws8_s316_a0f3abea-w2",
+                    "id": "act-guitar_review-dz4rg7k_s316_aabfc035-w2",
                     "kind": "time_event",
                     "title": "Repaso espaciado de material anterior",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-12T17:00:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_warmup-vyvygd3_s318_a62841bf-w2",
+                    "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629-w2",
                     "kind": "time_event",
                     "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.784Z",
-                    "updatedAt": "2026-03-26T19:07:31.784Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-12T18:00:00.000Z",
                     "durationMin": 10,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18-w2",
+                    "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8-w2",
                     "kind": "time_event",
                     "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-12T23:30:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
@@ -2849,197 +2840,197 @@
             "frozen": true,
             "scheduledEvents": [
               {
-                "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+                "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
                 "kind": "time_event",
                 "title": "Práctica técnica enfocada (técnica específica)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-03-30T21:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+                "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
                 "kind": "time_event",
                 "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-03-30T23:00:00.000Z",
                 "durationMin": 10,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+                "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
                 "kind": "time_event",
                 "title": "Repaso espaciado de material anterior",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-03-31T21:00:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+                "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
                 "kind": "time_event",
                 "title": "Improvisación libre o sobre backing track",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-01T00:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+                "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
                 "kind": "time_event",
                 "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-01T22:00:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+                "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
                 "kind": "time_event",
                 "title": "Teoría musical y armonía aplicada",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-01T23:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+                "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
                 "kind": "time_event",
                 "title": "Aprendizaje de repertorio (canción o fragmento)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-02T23:30:00.000Z",
                 "durationMin": 25,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+                "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
                 "kind": "time_event",
                 "title": "Improvisación libre o sobre backing track",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-03T00:00:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+                "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
                 "kind": "time_event",
                 "title": "Práctica técnica enfocada (técnica específica)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-04T12:30:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+                "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
                 "kind": "time_event",
                 "title": "Aprendizaje de repertorio (canción o fragmento)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-05T00:00:00.000Z",
                 "durationMin": 25,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+                "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
                 "kind": "time_event",
                 "title": "Teoría musical y armonía aplicada",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-05T12:30:00.000Z",
                 "durationMin": 20,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+                "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
                 "kind": "time_event",
                 "title": "Repaso espaciado de material anterior",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-05T17:00:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+                "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
                 "kind": "time_event",
                 "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.784Z",
-                "updatedAt": "2026-03-26T19:07:31.784Z",
+                "createdAt": "2026-03-26T19:35:53.660Z",
+                "updatedAt": "2026-03-26T19:35:53.660Z",
                 "startAt": "2026-04-05T18:00:00.000Z",
                 "durationMin": 10,
                 "rigidity": "soft"
               },
               {
-                "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+                "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
                 "kind": "time_event",
                 "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                 "status": "active",
                 "goalIds": [
                   "goal-guitar-v5-real"
                 ],
-                "createdAt": "2026-03-26T19:07:31.785Z",
-                "updatedAt": "2026-03-26T19:07:31.785Z",
+                "createdAt": "2026-03-26T19:35:53.661Z",
+                "updatedAt": "2026-03-26T19:35:53.661Z",
                 "startAt": "2026-04-05T23:30:00.000Z",
                 "durationMin": 15,
                 "rigidity": "soft"
@@ -3087,29 +3078,29 @@
                 "date": "2026-03-30",
                 "scheduledEvents": [
                   {
-                    "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+                    "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
                     "kind": "time_event",
                     "title": "Práctica técnica enfocada (técnica específica)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.784Z",
-                    "updatedAt": "2026-03-26T19:07:31.784Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-03-30T21:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+                    "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
                     "kind": "time_event",
                     "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.784Z",
-                    "updatedAt": "2026-03-26T19:07:31.784Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-03-30T23:00:00.000Z",
                     "durationMin": 10,
                     "rigidity": "soft"
@@ -3129,29 +3120,29 @@
                 "date": "2026-03-31",
                 "scheduledEvents": [
                   {
-                    "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+                    "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
                     "kind": "time_event",
                     "title": "Repaso espaciado de material anterior",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-03-31T21:00:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+                    "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
                     "kind": "time_event",
                     "title": "Improvisación libre o sobre backing track",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-01T00:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
@@ -3171,29 +3162,29 @@
                 "date": "2026-04-01",
                 "scheduledEvents": [
                   {
-                    "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+                    "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
                     "kind": "time_event",
                     "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-01T22:00:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+                    "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
                     "kind": "time_event",
                     "title": "Teoría musical y armonía aplicada",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-01T23:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
@@ -3213,29 +3204,29 @@
                 "date": "2026-04-02",
                 "scheduledEvents": [
                   {
-                    "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+                    "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
                     "kind": "time_event",
                     "title": "Aprendizaje de repertorio (canción o fragmento)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-02T23:30:00.000Z",
                     "durationMin": 25,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+                    "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
                     "kind": "time_event",
                     "title": "Improvisación libre o sobre backing track",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-03T00:00:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
@@ -3260,29 +3251,29 @@
                 "date": "2026-04-04",
                 "scheduledEvents": [
                   {
-                    "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+                    "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
                     "kind": "time_event",
                     "title": "Práctica técnica enfocada (técnica específica)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-04T12:30:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+                    "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
                     "kind": "time_event",
                     "title": "Aprendizaje de repertorio (canción o fragmento)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-05T00:00:00.000Z",
                     "durationMin": 25,
                     "rigidity": "soft"
@@ -3302,57 +3293,57 @@
                 "date": "2026-04-05",
                 "scheduledEvents": [
                   {
-                    "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+                    "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
                     "kind": "time_event",
                     "title": "Teoría musical y armonía aplicada",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-05T12:30:00.000Z",
                     "durationMin": 20,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+                    "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
                     "kind": "time_event",
                     "title": "Repaso espaciado de material anterior",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-05T17:00:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+                    "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
                     "kind": "time_event",
                     "title": "Calentamiento técnico (escalas lentas + cromáticos)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.784Z",
-                    "updatedAt": "2026-03-26T19:07:31.784Z",
+                    "createdAt": "2026-03-26T19:35:53.660Z",
+                    "updatedAt": "2026-03-26T19:35:53.660Z",
                     "startAt": "2026-04-05T18:00:00.000Z",
                     "durationMin": 10,
                     "rigidity": "soft"
                   },
                   {
-                    "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+                    "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
                     "kind": "time_event",
                     "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
                     "status": "active",
                     "goalIds": [
                       "goal-guitar-v5-real"
                     ],
-                    "createdAt": "2026-03-26T19:07:31.785Z",
-                    "updatedAt": "2026-03-26T19:07:31.785Z",
+                    "createdAt": "2026-03-26T19:35:53.661Z",
+                    "updatedAt": "2026-03-26T19:35:53.661Z",
                     "startAt": "2026-04-05T23:30:00.000Z",
                     "durationMin": 15,
                     "rigidity": "soft"
@@ -3366,7 +3357,7 @@
         },
         "items": [
           {
-            "id": "act-guitar_technique-dpccpq9_s36_0e408c38",
+            "id": "act-guitar_technique-8akv8ia_s36_0bac5adc",
             "kind": "time_event",
             "title": "Práctica técnica enfocada (técnica específica)",
             "status": "active",
@@ -3376,11 +3367,11 @@
             "startAt": "2026-03-30T21:00:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_warmup-vyvygd3_s40_82f8c911",
+            "id": "act-guitar_warmup-ucgjtkm_s40_8c516bce",
             "kind": "time_event",
             "title": "Calentamiento técnico (escalas lentas + cromáticos)",
             "status": "active",
@@ -3390,11 +3381,11 @@
             "startAt": "2026-03-30T23:00:00.000Z",
             "durationMin": 10,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_review-b2gyws8_s84_103f7b62",
+            "id": "act-guitar_review-dz4rg7k_s84_97c0636a",
             "kind": "time_event",
             "title": "Repaso espaciado de material anterior",
             "status": "active",
@@ -3404,11 +3395,11 @@
             "startAt": "2026-03-31T21:00:00.000Z",
             "durationMin": 15,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_improv-34pdoe9_s90_1a337ec3",
+            "id": "act-guitar_improv-3nrm12u_s90_056a86fa",
             "kind": "time_event",
             "title": "Improvisación libre o sobre backing track",
             "status": "active",
@@ -3418,11 +3409,11 @@
             "startAt": "2026-04-01T00:00:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_ear_training-3z0dwp6_s134_185be252",
+            "id": "act-guitar_ear_training-fvy4vps_s134_afb3c31b",
             "kind": "time_event",
             "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
             "status": "active",
@@ -3432,11 +3423,11 @@
             "startAt": "2026-04-01T22:00:00.000Z",
             "durationMin": 15,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_theory-mkomrcv_s136_7e732d15",
+            "id": "act-guitar_theory-gn0wi6x_s136_00d102be",
             "kind": "time_event",
             "title": "Teoría musical y armonía aplicada",
             "status": "active",
@@ -3446,11 +3437,11 @@
             "startAt": "2026-04-01T23:00:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_repertoire-xo9kady_s185_e2606eb8",
+            "id": "act-guitar_repertoire-8bl7vvs_s185_eb6e2230",
             "kind": "time_event",
             "title": "Aprendizaje de repertorio (canción o fragmento)",
             "status": "active",
@@ -3460,11 +3451,11 @@
             "startAt": "2026-04-02T23:30:00.000Z",
             "durationMin": 25,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_improv-34pdoe9_s186_021fb699",
+            "id": "act-guitar_improv-3nrm12u_s186_9be7db42",
             "kind": "time_event",
             "title": "Improvisación libre o sobre backing track",
             "status": "active",
@@ -3474,11 +3465,11 @@
             "startAt": "2026-04-03T00:00:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_technique-dpccpq9_s259_3e1a67e6",
+            "id": "act-guitar_technique-8akv8ia_s259_8f451b7f",
             "kind": "time_event",
             "title": "Práctica técnica enfocada (técnica específica)",
             "status": "active",
@@ -3488,11 +3479,11 @@
             "startAt": "2026-04-04T12:30:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_repertoire-xo9kady_s282_217f6d0e",
+            "id": "act-guitar_repertoire-8bl7vvs_s282_07faad9a",
             "kind": "time_event",
             "title": "Aprendizaje de repertorio (canción o fragmento)",
             "status": "active",
@@ -3502,11 +3493,11 @@
             "startAt": "2026-04-05T00:00:00.000Z",
             "durationMin": 25,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_theory-mkomrcv_s307_c92d1843",
+            "id": "act-guitar_theory-gn0wi6x_s307_8ebb317d",
             "kind": "time_event",
             "title": "Teoría musical y armonía aplicada",
             "status": "active",
@@ -3516,11 +3507,11 @@
             "startAt": "2026-04-05T12:30:00.000Z",
             "durationMin": 20,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_review-b2gyws8_s316_a0f3abea",
+            "id": "act-guitar_review-dz4rg7k_s316_aabfc035",
             "kind": "time_event",
             "title": "Repaso espaciado de material anterior",
             "status": "active",
@@ -3530,11 +3521,11 @@
             "startAt": "2026-04-05T17:00:00.000Z",
             "durationMin": 15,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
-            "id": "act-guitar_warmup-vyvygd3_s318_a62841bf",
+            "id": "act-guitar_warmup-ucgjtkm_s318_0d5bc629",
             "kind": "time_event",
             "title": "Calentamiento técnico (escalas lentas + cromáticos)",
             "status": "active",
@@ -3544,11 +3535,11 @@
             "startAt": "2026-04-05T18:00:00.000Z",
             "durationMin": 10,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
-            "id": "act-guitar_ear_training-3z0dwp6_s329_5f55ba18",
+            "id": "act-guitar_ear_training-fvy4vps_s329_66b063c8",
             "kind": "time_event",
             "title": "Entrenamiento auditivo (solfeo, intervalos, transcripción)",
             "status": "active",
@@ -3558,71 +3549,59 @@
             "startAt": "2026-04-05T23:30:00.000Z",
             "durationMin": 15,
             "rigidity": "soft",
-            "createdAt": "2026-03-26T19:07:31.785Z",
-            "updatedAt": "2026-03-26T19:07:31.785Z"
+            "createdAt": "2026-03-26T19:35:53.661Z",
+            "updatedAt": "2026-03-26T19:35:53.661Z"
           },
           {
             "id": "milestone-1",
             "kind": "milestone",
-            "title": "Cambiar entre acordes abiertos y cejilla en tempo de 90 bpm sin cortes",
-            "notes": "pulir la técnica de cejilla, afianzar patrones pentatónicos en tempo moderado y mantener calentamientos diarios eficientes",
+            "title": "Transitar entre acordes abiertos y cejilla en cualquier progresión a 80 bpm sin cortes",
+            "notes": "afinar cambios de acordes abiertos y con cejilla con pulso sólido y articulación clara",
             "status": "draft",
             "goalIds": [
               "goal-guitar-v5-real"
             ],
             "dueDate": "2026-04-27",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
             "id": "milestone-2",
             "kind": "milestone",
-            "title": "Ejecutar dos posiciones completas de la escala pentatónica mayor y menor en las primeras 7 posiciones",
-            "notes": "incorporar canciones que combinen cejilla y acordes abiertos mientras se trabaja armonía funcional básica y entrenamiento auditivo orientado al repertorio",
+            "title": "Recorrer la escala pentatónica en cinco posiciones con metrónomo a 90 bpm",
+            "notes": "integrar escala pentatónica en todo el mástil, conectar con arpegios y fundamentos de armonía funcional",
             "status": "draft",
             "goalIds": [
               "goal-guitar-v5-real"
             ],
             "dueDate": "2026-06-01",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
             "id": "milestone-3",
             "kind": "milestone",
-            "title": "Montar tres canciones con cejilla y dinámicas controladas",
-            "notes": "llevar lo aprendido a improvisaciones controladas y crear arreglos sencillos que integren técnica, teoría y expresividad",
+            "title": "Tocar dos canciones completas aplicando dinámicas y arreglos propios",
+            "notes": "combinar repertorio trabajado con improvisaciones sobre backing tracks y dinámicas expresivas",
             "status": "draft",
             "goalIds": [
               "goal-guitar-v5-real"
             ],
-            "dueDate": "2026-06-29",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "dueDate": "2026-07-06",
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
             "id": "milestone-4",
             "kind": "milestone",
-            "title": "Improvisar un solo de 12 compases sobre backing track I-IV-V usando licks propios",
+            "title": "Improvisar sobre un backing track en dos tonalidades, incorporando motivos melódicos y silencios intencionales",
             "status": "draft",
             "goalIds": [
               "goal-guitar-v5-real"
             ],
-            "dueDate": "2026-07-13",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
-          },
-          {
-            "id": "milestone-5",
-            "kind": "milestone",
-            "title": "Arreglar y grabar una mini pieza combinando arpegios, cejilla y fraseos pentatónicos",
-            "status": "draft",
-            "goalIds": [
-              "goal-guitar-v5-real"
-            ],
-            "dueDate": "2026-07-27",
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "dueDate": "2026-07-20",
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
             "id": "metric-plan-quality",
@@ -3636,7 +3615,7 @@
             "unit": "puntos",
             "direction": "increase",
             "target": {
-              "targetValue": 100
+              "targetValue": 95
             },
             "cadence": {
               "freq": "weekly",
@@ -3644,12 +3623,12 @@
             },
             "series": [
               {
-                "at": "2026-03-26T19:07:31.784Z",
-                "value": 100
+                "at": "2026-03-26T19:35:53.660Z",
+                "value": 95
               }
             ],
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           },
           {
             "id": "metric-sessions-week",
@@ -3669,8 +3648,8 @@
               "freq": "weekly",
               "aggregation": "count"
             },
-            "createdAt": "2026-03-26T19:07:31.784Z",
-            "updatedAt": "2026-03-26T19:07:31.784Z"
+            "createdAt": "2026-03-26T19:35:53.660Z",
+            "updatedAt": "2026-03-26T19:35:53.660Z"
           }
         ],
         "habitStates": [
@@ -3694,68 +3673,70 @@
           "frozenHorizonDays": 2
         },
         "timezone": "America/Argentina/Buenos_Aires",
-        "summary_esAR": "Este plan convierte \"Quiero aprender a tocar la guitarra y sostener una practica semanal realista sin quemarme.\" en 14 bloques concretos para esta semana. Lo organizamos en 3 etapas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
-        "qualityScore": 100,
+        "summary_esAR": "Este plan convierte \"Quiero aprender a tocar la guitarra y sostener una practica semanal realista sin quemarme.\" en 14 bloques concretos para esta semana. Lo organizamos en 3 etapas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 95/100. Ojo: hay 1 advertencia para mirar con calma.",
+        "qualityScore": 95,
         "implementationIntentions": [
           "Si llega lunes a las 18:00, entonces hago Práctica técnica enfocada (técnica específica) durante 20 minutos.",
           "Si llega lunes a las 20:00, entonces hago Calentamiento técnico (escalas lentas + cromáticos) durante 10 minutos.",
           "Si llega martes a las 18:00, entonces hago Repaso espaciado de material anterior durante 15 minutos.",
           "Si llega martes a las 21:00, entonces hago Improvisación libre o sobre backing track durante 20 minutos."
         ],
-        "warnings": [],
+        "warnings": [
+          "Sí, el 2026-04-05 se programan 4 sesiones de 60m cada una, saturando las 4h libres del fin de semana."
+        ],
         "tradeoffs": []
       },
       "processing": "Empaqueta el resultado final en items del plan, resumen y advertencias honestas.",
-      "startedAt": "2026-03-26T19:07:40.885Z",
-      "finishedAt": "2026-03-26T19:07:40.915Z",
-      "durationMs": 30
+      "startedAt": "2026-03-26T19:36:01.699Z",
+      "finishedAt": "2026-03-26T19:36:01.722Z",
+      "durationMs": 23
     }
   },
   "phaseTimeline": {
     "classify": {
-      "startedAt": "2026-03-26T19:07:18.448Z",
-      "finishedAt": "2026-03-26T19:07:19.968Z",
-      "durationMs": 1520
+      "startedAt": "2026-03-26T19:35:42.558Z",
+      "finishedAt": "2026-03-26T19:35:45.601Z",
+      "durationMs": 3043
     },
     "requirements": {
-      "startedAt": "2026-03-26T19:07:19.970Z",
-      "finishedAt": "2026-03-26T19:07:22.232Z",
-      "durationMs": 2262
+      "startedAt": "2026-03-26T19:35:45.602Z",
+      "finishedAt": "2026-03-26T19:35:47.121Z",
+      "durationMs": 1519
     },
     "profile": {
-      "startedAt": "2026-03-26T19:07:22.234Z",
-      "finishedAt": "2026-03-26T19:07:26.859Z",
-      "durationMs": 4625
+      "startedAt": "2026-03-26T19:35:47.122Z",
+      "finishedAt": "2026-03-26T19:35:50.345Z",
+      "durationMs": 3223
     },
     "strategy": {
-      "startedAt": "2026-03-26T19:07:26.860Z",
-      "finishedAt": "2026-03-26T19:07:31.657Z",
-      "durationMs": 4797
+      "startedAt": "2026-03-26T19:35:50.346Z",
+      "finishedAt": "2026-03-26T19:35:53.541Z",
+      "durationMs": 3195
     },
     "template": {
-      "startedAt": "2026-03-26T19:07:31.658Z",
-      "finishedAt": "2026-03-26T19:07:31.659Z",
+      "startedAt": "2026-03-26T19:35:53.541Z",
+      "finishedAt": "2026-03-26T19:35:53.542Z",
       "durationMs": 1
     },
     "schedule": {
-      "startedAt": "2026-03-26T19:07:31.660Z",
-      "finishedAt": "2026-03-26T19:07:31.785Z",
-      "durationMs": 125
+      "startedAt": "2026-03-26T19:35:53.543Z",
+      "finishedAt": "2026-03-26T19:35:53.661Z",
+      "durationMs": 118
     },
     "hardValidate": {
-      "startedAt": "2026-03-26T19:07:31.787Z",
-      "finishedAt": "2026-03-26T19:07:31.795Z",
-      "durationMs": 8
+      "startedAt": "2026-03-26T19:35:53.663Z",
+      "finishedAt": "2026-03-26T19:35:53.670Z",
+      "durationMs": 7
     },
     "softValidate": {
-      "startedAt": "2026-03-26T19:07:31.797Z",
-      "finishedAt": "2026-03-26T19:07:31.800Z",
+      "startedAt": "2026-03-26T19:35:53.672Z",
+      "finishedAt": "2026-03-26T19:35:53.675Z",
       "durationMs": 3
     },
     "coveVerify": {
-      "startedAt": "2026-03-26T19:07:31.801Z",
-      "finishedAt": "2026-03-26T19:07:40.880Z",
-      "durationMs": 9079
+      "startedAt": "2026-03-26T19:35:53.676Z",
+      "finishedAt": "2026-03-26T19:36:01.696Z",
+      "durationMs": 8020
     },
     "repair": {
       "startedAt": null,
@@ -3763,9 +3744,9 @@
       "durationMs": null
     },
     "package": {
-      "startedAt": "2026-03-26T19:07:40.885Z",
-      "finishedAt": "2026-03-26T19:07:40.915Z",
-      "durationMs": 30
+      "startedAt": "2026-03-26T19:36:01.699Z",
+      "finishedAt": "2026-03-26T19:36:01.722Z",
+      "durationMs": 23
     }
   },
   "progress": null,
@@ -3778,8 +3759,8 @@
       "status": "clean",
       "findings": {
         "fail": 0,
-        "warn": 0,
-        "info": 3
+        "warn": 1,
+        "info": 2
       },
       "scoreBefore": null,
       "scoreAfter": null,
@@ -3787,32 +3768,32 @@
         {
           "phase": "hardValidate",
           "status": "success",
-          "startedAt": "2026-03-26T19:07:31.787Z",
-          "finishedAt": "2026-03-26T19:07:31.795Z",
-          "durationMs": 8,
+          "startedAt": "2026-03-26T19:35:53.663Z",
+          "finishedAt": "2026-03-26T19:35:53.670Z",
+          "durationMs": 7,
           "summaryLabel": "0 FAIL"
         },
         {
           "phase": "softValidate",
           "status": "success",
-          "startedAt": "2026-03-26T19:07:31.797Z",
-          "finishedAt": "2026-03-26T19:07:31.800Z",
+          "startedAt": "2026-03-26T19:35:53.672Z",
+          "finishedAt": "2026-03-26T19:35:53.675Z",
           "durationMs": 3,
           "summaryLabel": "0 INFO"
         },
         {
           "phase": "coveVerify",
           "status": "success",
-          "startedAt": "2026-03-26T19:07:31.801Z",
-          "finishedAt": "2026-03-26T19:07:40.880Z",
-          "durationMs": 9079,
-          "summaryLabel": "3 INFO"
+          "startedAt": "2026-03-26T19:35:53.676Z",
+          "finishedAt": "2026-03-26T19:36:01.696Z",
+          "durationMs": 8020,
+          "summaryLabel": "1 WARN"
         },
         {
           "phase": "repair",
           "status": "skipped",
-          "startedAt": "2026-03-26T19:07:40.883Z",
-          "finishedAt": "2026-03-26T19:07:40.883Z",
+          "startedAt": "2026-03-26T19:36:01.698Z",
+          "finishedAt": "2026-03-26T19:36:01.698Z",
           "durationMs": 0,
           "summaryLabel": "Sin fallas"
         }
