@@ -49,6 +49,11 @@ interface CliOptions {
   json?: boolean;
 }
 
+interface ViewerLinks {
+  flowUrl: string;
+  dashboardUrl: string;
+}
+
 function loadLocalEnv(): void {
   if (typeof process.loadEnvFile !== 'function') {
     return;
@@ -218,6 +223,16 @@ function collectTraceUsage(traceId: string | null): { promptTokens: number; comp
   }), { promptTokens: 0, completionTokens: 0, spans: 0 });
 }
 
+function resolveViewerLinks(): ViewerLinks {
+  const port = process.env.PORT?.trim() || '3000';
+  const baseUrl = `http://localhost:${port}`;
+
+  return {
+    flowUrl: `${baseUrl}/debug/flow`,
+    dashboardUrl: `${baseUrl}/debug/plan-v5`
+  };
+}
+
 async function run(): Promise<void> {
   loadLocalEnv();
 
@@ -230,6 +245,7 @@ async function run(): Promise<void> {
     thinkingMode
   });
   const modelId = selection.modelId;
+  const viewerLinks = resolveViewerLinks();
   const runtime = getProvider(modelId, selection.runtimeConfig);
   const traceId = traceCollector.startTrace('cli-v5-real', modelId, {
     command: `npx tsx scripts/lap-runner-v5-real.ts ${process.argv.slice(2).join(' ')}`.trim()
@@ -466,6 +482,12 @@ async function run(): Promise<void> {
       }, null, 2));
       console.log('--- V5 REAL PIPELINE RESULT END ---\n');
     }
+
+    console.error('[V5 Real] Vistas disponibles:');
+    console.error(`[V5 Real] Flow Viewer: ${viewerLinks.flowUrl}`);
+    console.error(`[V5 Real] Dashboard V5: ${viewerLinks.dashboardUrl}`);
+    console.error(`[V5 Real] JSON: ${outputFile}`);
+    console.error('[V5 Real] Si no ves las vistas, levanta la app con npm run dev y abre esas URLs.');
   } catch (error) {
     runError = error instanceof Error ? error : new Error(String(error));
     runtimeRecorder.completeRun('error', {

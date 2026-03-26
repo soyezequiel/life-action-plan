@@ -710,6 +710,17 @@
     "page": {
       "title": "Mi plan semanal"
     },
+    "preview": {
+      "page": {
+        "eyebrow": "Debug V5",
+        "title": "Vista previa del runner real",
+        "subtitle": "Esta pantalla carga el ultimo JSON generado por `scripts/lap-runner-v5-real.ts` y te deja recorrer todas las vistas del dashboard.",
+        "openFlow": "Abrir Flow Viewer",
+        "outputFile": "Archivo de salida"
+      },
+      "empty": "Todavia no encuentro un resultado del runner real para mostrar.",
+      "hint": "Corre `npx tsx scripts/lap-runner-v5-real.ts` y luego vuelve a esta pantalla."
+    },
     "tabs": {
       "week": "Mi semana",
       "calendar": "Calendario",
