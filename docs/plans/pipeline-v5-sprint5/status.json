@@ -1,0 +1,13 @@
+{
+  "plan_id": "pipeline-v5-sprint5",
+  "status": "in-progress",
+  "created_by": "antigravity",
+  "created_at": "2026-03-25T21:55:00-03:00",
+  "updated_at": "2026-03-25T22:04:04-03:00",
+  "updated_by": "codex",
+  "assigned_to": "codex",
+  "priority": "high",
+  "tags": ["pipeline", "backend", "v5", "adaptive"],
+  "blockers": [],
+  "notes": "Tareas 1 y 2 completadas por Codex. Pendientes: adaptive.ts y adaptive.test.ts."
+}
