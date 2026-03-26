@@ -64,13 +64,14 @@ function buildMilestones(
   roadmap: StrategicRoadmap | undefined,
   goalId: string,
   weekStartDate: string,
+  timezone: string,
   createdAt: string,
 ): MilestoneItem[] {
   if (!roadmap) {
     return [];
   }
 
-  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' });
+  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).setZone(timezone).startOf('day');
   let accumulatedWeeks = 0;
 
   return roadmap.milestones.map((milestone, index) => {
@@ -162,11 +163,11 @@ function buildMetricItems(
   ];
 }
 
-function buildImplementationIntentions(events: TimeEventItem[]): string[] {
+function buildImplementationIntentions(events: TimeEventItem[], timezone: string): string[] {
   const uniqueIntentions = new Map<string, string>();
 
   for (const event of events) {
-    const start = DateTime.fromISO(event.startAt, { zone: 'UTC' });
+    const start = DateTime.fromISO(event.startAt, { zone: 'UTC' }).setZone(timezone);
     const key = `${event.title}-${start.weekday}-${start.toFormat('HH:mm')}`;
     if (uniqueIntentions.has(key)) {
       continue;
@@ -194,7 +195,6 @@ function buildImplementationIntentions(events: TimeEventItem[]): string[] {
 
 function buildWarnings(
   input: PackageInput,
-  qualityScore: number,
 ): string[] {
   const warnings = new Set<string>();
 
@@ -216,8 +216,8 @@ function buildWarnings(
     warnings.add('El plan tuvo reparaciones automaticas; conviene revisarlo rapido antes de arrancar.');
   }
 
-  if (qualityScore < 70) {
-    warnings.add('El plan es usable, pero viene con compromisos reales entre carga, descanso y disponibilidad.');
+  if (input.repairSummary?.status === 'fixed') {
+    warnings.add('El plan pasó por una reparación automática y conviene revisarlo rápido antes de empezar.');
   }
 
   return Array.from(warnings);
@@ -288,10 +288,11 @@ function buildSkeleton(
   goalIds: string[],
   goalText: string | undefined,
   weekStartDate: string,
+  timezone: string,
   milestones: MilestoneItem[],
   events: TimeEventItem[],
 ): V5Skeleton {
-  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).startOf('day');
+  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).setZone(timezone).startOf('day');
   const frequencies = buildFrequencies(events);
 
   if (!roadmap || roadmap.phases.length === 0) {
@@ -317,7 +318,7 @@ function buildSkeleton(
     const endDate = weekStart.plus({ weeks: endWeek }).minus({ days: 1 }).toISODate() ?? '';
     const milestoneIds = milestones
       .filter((milestone) => {
-        const due = DateTime.fromISO(milestone.dueDate, { zone: 'UTC' });
+        const due = DateTime.fromISO(milestone.dueDate, { zone: timezone });
         return due >= weekStart.plus({ weeks: cursorWeek - 1 }) && due <= weekStart.plus({ weeks: endWeek }).minus({ days: 1 });
       })
       .map((milestone) => milestone.id);
@@ -363,8 +364,8 @@ function shiftEventByWeeks(event: TimeEventItem, weeks: number): TimeEventItem {
   };
 }
 
-function buildDetail(events: TimeEventItem[], weekStartDate: string): V5Detail {
-  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).startOf('day');
+function buildDetail(events: TimeEventItem[], weekStartDate: string, timezone: string): V5Detail {
+  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).setZone(timezone).startOf('day');
   const weeks = Array.from({ length: DETAIL_HORIZON_WEEKS }, (_, index) => {
     const scheduledEvents = events
       .map((event) => shiftEventByWeeks(event, index))
@@ -393,15 +394,16 @@ function buildDetail(events: TimeEventItem[], weekStartDate: string): V5Detail {
 function buildOperationalBuffers(
   events: TimeEventItem[],
   weekStartDate: string,
+  timezone: string,
   slackPolicy: SlackPolicy,
 ): OperationalBuffer[] {
-  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).startOf('day');
+  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).setZone(timezone).startOf('day');
   const buffers: OperationalBuffer[] = [];
   const candidateDays = Array.from({ length: OPERATIONAL_HORIZON_DAYS }, (_, index) => {
     const dayStart = weekStart.plus({ days: index });
     const date = dayStart.toISODate() ?? '';
     const dayEvents = events.filter((event) =>
-      DateTime.fromISO(event.startAt, { zone: 'UTC' }).toISODate() === date,
+      DateTime.fromISO(event.startAt, { zone: 'UTC' }).setZone(timezone).toISODate() === date,
     );
 
     return {
@@ -425,9 +427,12 @@ function buildOperationalBuffers(
     const currentAllocated = allocatedPerDay.get(bucket.index) ?? 0;
     const lastEventEnd = bucket.dayEvents.reduce((latest, event) => {
       const eventEnd = DateTime.fromISO(event.startAt, { zone: 'UTC' }).plus({ minutes: event.durationMin });
-      return eventEnd > latest ? eventEnd : latest;
+      const eventEndLocal = eventEnd.setZone(timezone);
+      return eventEndLocal > latest ? eventEndLocal : latest;
     }, bucket.dayStart.plus({ hours: 18 }));
-    const startAt = lastEventEnd.plus({ minutes: currentAllocated }).toISO() ?? bucket.dayStart.toISO() ?? '';
+    const startAt = lastEventEnd.plus({ minutes: currentAllocated }).toUTC().toISO()
+      ?? bucket.dayStart.toUTC().toISO()
+      ?? '';
 
     buffers.push({
       id: `buffer-slack-${bucket.index + 1}-${Math.floor(currentAllocated / 30) + 1}`,
@@ -451,18 +456,19 @@ function buildOperationalDays(
   events: TimeEventItem[],
   buffers: OperationalBuffer[],
   weekStartDate: string,
+  timezone: string,
 ): OperationalDay[] {
-  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).startOf('day');
+  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).setZone(timezone).startOf('day');
 
   return Array.from({ length: OPERATIONAL_HORIZON_DAYS }, (_, index) => {
     const date = weekStart.plus({ days: index }).toISODate() ?? '';
     return {
       date,
       scheduledEvents: events.filter((event) =>
-        DateTime.fromISO(event.startAt, { zone: 'UTC' }).toISODate() === date,
+        DateTime.fromISO(event.startAt, { zone: 'UTC' }).setZone(timezone).toISODate() === date,
       ),
       buffers: buffers.filter((buffer) =>
-        DateTime.fromISO(buffer.startAt, { zone: 'UTC' }).toISODate() === date,
+        DateTime.fromISO(buffer.startAt, { zone: 'UTC' }).setZone(timezone).toISODate() === date,
       ),
     };
   });
@@ -471,10 +477,11 @@ function buildOperationalDays(
 function buildOperational(
   events: TimeEventItem[],
   weekStartDate: string,
+  timezone: string,
   slackPolicy: SlackPolicy,
 ): V5Operational {
-  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).startOf('day');
-  const buffers = buildOperationalBuffers(events, weekStartDate, slackPolicy);
+  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).setZone(timezone).startOf('day');
+  const buffers = buildOperationalBuffers(events, weekStartDate, timezone, slackPolicy);
   return {
     horizonDays: 7,
     startDate: weekStart.toISODate() ?? '',
@@ -482,7 +489,7 @@ function buildOperational(
     frozen: true,
     scheduledEvents: events,
     buffers,
-    days: buildOperationalDays(events, buffers, weekStartDate),
+    days: buildOperationalDays(events, buffers, weekStartDate, timezone),
     totalBufferMin: buffers.reduce((total, buffer) => total + buffer.durationMin, 0),
   };
 }
@@ -581,11 +588,12 @@ function buildPlan(
 ): V5Plan {
   return V5PlanSchema.parse({
     goalIds,
+    timezone: input.timezone,
     createdAt,
     updatedAt,
-    skeleton: buildSkeleton(input.roadmap, goalIds, input.goalText, weekStartDate, milestones, timeEvents),
-    detail: buildDetail(timeEvents, weekStartDate),
-    operational: buildOperational(timeEvents, weekStartDate, slackPolicy),
+    skeleton: buildSkeleton(input.roadmap, goalIds, input.goalText, weekStartDate, input.timezone, milestones, timeEvents),
+    detail: buildDetail(timeEvents, weekStartDate, input.timezone),
+    operational: buildOperational(timeEvents, weekStartDate, input.timezone, slackPolicy),
   });
 }
 
@@ -608,12 +616,11 @@ export function packagePlan(input: PackageInput): PlanPackage {
     DateTime.fromISO(right.startAt, { zone: 'UTC' }).toMillis(),
   );
 
-  const qualityScore = input.repairSummary?.scoreAfter ??
-    computeQualityScore(input.finalSchedule.metrics.fillRate, hardFindings, softFindings, coveFindings);
+  const qualityScore = computeQualityScore(input.finalSchedule.metrics.fillRate, hardFindings, softFindings, coveFindings);
 
-  const implementationIntentions = buildImplementationIntentions(timeEvents);
-  const warnings = buildWarnings(input, qualityScore);
-  const milestones = buildMilestones(input.roadmap, goalId, weekStartDate, createdAt);
+  const implementationIntentions = buildImplementationIntentions(timeEvents, input.timezone);
+  const warnings = buildWarnings(input);
+  const milestones = buildMilestones(input.roadmap, goalId, weekStartDate, input.timezone, createdAt);
   const items: PlanItem[] = [
     ...timeEvents,
     ...milestones,
@@ -628,6 +635,7 @@ export function packagePlan(input: PackageInput): PlanPackage {
     items,
     habitStates,
     slackPolicy,
+    timezone: input.timezone,
     summary_esAR: buildSummary(input.goalText, timeEvents.length, input.roadmap, qualityScore, warnings.length),
     qualityScore,
     implementationIntentions,

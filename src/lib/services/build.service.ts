@@ -18,6 +18,7 @@ import {
   getProfile
 } from '../db/db-helpers'
 import {
+  buildPendingAdaptiveState,
   buildPlanManifest,
   createUniquePlanSlug,
   getProfileTimezone,
@@ -211,7 +212,12 @@ export async function processPlanBuild(
       tokensOutput: result.tokensUsed.output,
       costUsd: actualCostUsd,
       costSats: actualCostSats,
-      charge: finalChargeRecord
+      charge: finalChargeRecord,
+      v5: {
+        package: workflowResult.package,
+        adaptive: buildPendingAdaptiveState(),
+        run: workflowResult.phaseSnapshot
+      }
     })
     const planId = await createPlan(profileId, result.nombre, planSlug, manifest)
 

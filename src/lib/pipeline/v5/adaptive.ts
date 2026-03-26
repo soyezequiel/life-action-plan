@@ -44,6 +44,7 @@ const PlanPackageSchema = z.object({
   items: z.array(PlanItemSchema),
   habitStates: z.array(HabitStateSchema),
   slackPolicy: SlackPolicySchema,
+  timezone: z.string(),
   summary_esAR: z.string(),
   qualityScore: z.number(),
   implementationIntentions: z.array(z.string()),

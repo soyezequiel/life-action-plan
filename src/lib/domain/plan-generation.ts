@@ -7,7 +7,9 @@ import type { PlanEvent } from '../../shared/types/lap-api';
 import { apiErrorMessages } from '../../shared/api-utils';
 import { DEFAULT_OLLAMA_FALLBACK_MODEL, buildWithOllamaFallback } from '../../utils/plan-build-fallback';
 import { FlowRunnerV5 } from '../pipeline/v5/runner';
+import { buildSchedulingContextFromProfile } from '../pipeline/v5/scheduling-context';
 import type { FlowRunnerV5Context, PipelinePhaseV5 } from '../pipeline/v5/runner';
+import type { AdaptiveStatus, PlanPackage, V5PhaseSnapshot } from '../pipeline/v5/phase-io-v5';
 import { getProvider } from '../providers/provider-factory';
 import type { AgentRuntime } from '../runtime/types';
 import type { ResolvedPlanBuildExecution } from '../runtime/build-execution';
@@ -41,6 +43,9 @@ export interface PlanGenerationOptions {
 
 export interface PlanGenerationOutcome {
   result: GeneratedPlan;
+  package: PlanPackage;
+  phaseSnapshot: V5PhaseSnapshot;
+  adaptiveStatus: AdaptiveStatus;
   fallbackUsed: boolean;
   finalModelId: string;
   requestedExecution: ResolvedPlanBuildExecution;
@@ -49,9 +54,6 @@ export interface PlanGenerationOutcome {
 }
 
 const TRACE_SKILL_NAME = 'plan-builder-v5';
-const DEFAULT_WEEKDAY_START = '07:00';
-const DEFAULT_WEEKDAY_END = '22:00';
-const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 const REPAIR_LOOP_PHASES = ['hardValidate', 'softValidate', 'coveVerify', 'repair'] as const
 
 type RepairLoopPhase = (typeof REPAIR_LOOP_PHASES)[number]
@@ -84,18 +86,6 @@ function getProfileTimezone(profile: Perfil): string {
   return profile.participantes[0]?.datosPersonales?.ubicacion?.zonaHoraria || 'America/Argentina/Buenos_Aires';
 }
 
-function buildAvailability(profile: Perfil) {
-  const baseRoutine = profile.participantes[0]?.rutinaDiaria?.porDefecto;
-  const startTime = normalizeText(baseRoutine?.despertar) || DEFAULT_WEEKDAY_START;
-  const endTime = normalizeText(baseRoutine?.dormir) || DEFAULT_WEEKDAY_END;
-
-  return WEEK_DAYS.map((day) => ({
-    day,
-    startTime,
-    endTime
-  }));
-}
-
 function buildAnswers(
   profile: Perfil,
   previousFindings?: PlanGenerationOptions['previousFindings'],
@@ -121,8 +111,8 @@ function buildAnswers(
   return {
     disponibilidad: `Tengo aproximadamente ${weekdayFree} horas libres en dias laborales y ${weekendFree} horas en dias de descanso.`,
     rutina: [
-      `Me despierto cerca de ${normalizeText(participant?.rutinaDiaria?.porDefecto?.despertar) || DEFAULT_WEEKDAY_START}.`,
-      `Termino el dia cerca de ${normalizeText(participant?.rutinaDiaria?.porDefecto?.dormir) || DEFAULT_WEEKDAY_END}.`,
+      `Me despierto cerca de ${normalizeText(participant?.rutinaDiaria?.porDefecto?.despertar) || '07:00'}.`,
+      `Termino el dia cerca de ${normalizeText(participant?.rutinaDiaria?.porDefecto?.dormir) || '22:00'}.`,
       normalizeText(participant?.rutinaDiaria?.porDefecto?.trabajoInicio) && normalizeText(participant?.rutinaDiaria?.porDefecto?.trabajoFin)
         ? `Mi bloque principal ocupado va de ${participant?.rutinaDiaria?.porDefecto?.trabajoInicio} a ${participant?.rutinaDiaria?.porDefecto?.trabajoFin}.`
         : ''
@@ -198,14 +188,6 @@ function convertPackageToGeneratedPlan(
     eventos,
     tokensUsed
   };
-}
-
-function resolveWeekStartDate(timezone: string): string {
-  return DateTime.now()
-    .setZone(timezone)
-    .startOf('week')
-    .setZone('utc')
-    .toISO() ?? DateTime.utc().startOf('week').toISO() ?? '';
 }
 
 function toStageForPhase(phase: PipelinePhaseV5): { stage: string; current: number; total: number } {
@@ -350,14 +332,16 @@ function createRunner(
   options: PlanGenerationOptions
 ): FlowRunnerV5 {
   const primaryGoal = getPrimaryGoal(profile);
-  const timezone = getProfileTimezone(profile);
+  const schedulingContext = buildSchedulingContextFromProfile(profile);
 
   return new FlowRunnerV5({
     runtime,
     text: primaryGoal.text,
     answers: buildAnswers(profile, options.previousFindings, options.buildConstraints),
-    availability: buildAvailability(profile),
-    weekStartDate: resolveWeekStartDate(timezone),
+    timezone: schedulingContext.timezone,
+    availability: schedulingContext.availability,
+    blocked: schedulingContext.blocked,
+    weekStartDate: schedulingContext.weekStartDate,
     goalId: primaryGoal.id,
     slackPolicy: {
       weeklyTimeBufferMin: 120,
@@ -381,6 +365,22 @@ function resolveActiveExecution(
   }
 
   return null;
+}
+
+function toV5PhaseSnapshot(
+  snapshot: ReturnType<ReturnType<typeof createPipelineRuntimeRecorder>['getSnapshot']>,
+  qualityScore: number,
+): V5PhaseSnapshot {
+  return {
+    runId: snapshot.run.runId,
+    modelId: snapshot.run.modelId,
+    qualityScore,
+    startedAt: snapshot.run.startedAt,
+    finishedAt: snapshot.run.finishedAt,
+    phaseTimeline: snapshot.phaseTimeline,
+    phaseStatuses: snapshot.phaseStatuses,
+    repairTimeline: snapshot.repairTimeline,
+  };
 }
 
 export async function executePlanGenerationWorkflow(
@@ -460,7 +460,7 @@ export async function executePlanGenerationWorkflow(
         );
         const runner = createRunner(instrumentedRuntime, profile, options);
         const phaseSignals = new Set<string>();
-        const context = await runner.runFullPipeline({
+        const context = await runner.runBuildPipeline({
           onPhaseStart: (phase, details) => {
             runtimeRecorder.markPhaseStart(phase, {
               startedAt: details?.startedAt ?? null,
@@ -558,13 +558,20 @@ export async function executePlanGenerationWorkflow(
         });
 
         const metrics = extractTraceMetrics(traceId ?? null, activeExecution.runtime.modelId);
-        return convertPackageToGeneratedPlan(
-          context,
-          goalId,
-          goalText,
-          timezone,
-          { input: metrics.input, output: metrics.output }
-        );
+        if (!context.package) {
+          throw new Error('V5 package missing after build pipeline run.');
+        }
+
+        return {
+          generatedPlan: convertPackageToGeneratedPlan(
+            context,
+            goalId,
+            goalText,
+            timezone,
+            { input: metrics.input, output: metrics.output }
+          ),
+          package: context.package,
+        };
       },
       {
         allowFallback,
@@ -587,6 +594,7 @@ export async function executePlanGenerationWorkflow(
 
     onProgress?.('saving', 4, 4, metrics.charCount);
     runtimeRecorder.setRunMetadata({
+      modelId: finalExecution.runtime?.modelId ?? buildResult.modelId,
       tokensUsed: {
         input: metrics.input,
         output: metrics.output
@@ -597,18 +605,22 @@ export async function executePlanGenerationWorkflow(
       })
     })
     runtimeRecorder.completeRun('success');
+    const runtimeSnapshot = runtimeRecorder.getSnapshot();
     if (traceId) {
       traceCollector.completeTrace(traceId);
     }
 
     return {
       result: {
-        ...buildResult.result,
+        ...buildResult.result.generatedPlan,
         tokensUsed: {
           input: metrics.input,
           output: metrics.output
         }
       },
+      package: buildResult.result.package,
+      phaseSnapshot: toV5PhaseSnapshot(runtimeSnapshot, buildResult.result.package.qualityScore),
+      adaptiveStatus: 'pending',
       fallbackUsed: buildResult.fallbackUsed,
       finalModelId: buildResult.modelId,
       requestedExecution,

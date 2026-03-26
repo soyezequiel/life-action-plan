@@ -8,7 +8,8 @@ import type { HabitState, HabitStateStore } from '../src/lib/domain/habit-state'
 import type { AvailabilityWindow } from '../src/lib/scheduler/types';
 
 const OUTPUT_FILE = resolve(process.cwd(), 'tmp/pipeline-v5-example.json');
-const WEEK_START = '2026-03-30T00:00:00Z';
+const TIMEZONE = 'America/Argentina/Buenos_Aires';
+const WEEK_START = '2026-03-30T03:00:00Z';
 const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
 const PROFILE: UserProfileV5 = {
@@ -138,6 +139,7 @@ async function run(): Promise<void> {
       frenos: 'Si llego cansado, me cuesta arrancar.',
       objetivo: 'Quiero consolidar la práctica y tocar canciones completas.',
     },
+    timezone: TIMEZONE,
     availability: makeAvailability(),
     weekStartDate: WEEK_START,
     goalId: 'goal-guitar-v5-example',

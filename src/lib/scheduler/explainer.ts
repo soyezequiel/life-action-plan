@@ -19,7 +19,6 @@ import {
   slotToDay,
   slotInDay,
   getTimeOfDayBucket,
-  SLOTS_PER_DAY,
 } from './constraint-builder';
 
 // ─── Time-of-day labels in Spanish ───────────────────────────────────────────
@@ -167,7 +166,7 @@ export function generateTradeoffs(
 /** Construye la razón técnica (interna, no mostrada al usuario). */
 function buildReason(act: ActivityParams, placed: number): string {
   if (act.feasibleStarts.length === 0) {
-    return `No hay ningún hueco disponible de ${act.durationSlots * 30} min en la semana`;
+    return `No hay ningún hueco disponible de ${act.requestedDurationMin} min en la semana`;
   }
   if (placed === 0) {
     return `Todos los slots factibles están ocupados por otras actividades`;
@@ -183,7 +182,7 @@ function buildSuggestion(
 ): string {
   const label = act.label;
   const freq = act.frequencyPerWeek;
-  const durMin = act.durationSlots * 30;
+  const durMin = act.requestedDurationMin;
 
   // Caso 1: sin slots factibles en absoluto → no hay disponibilidad
   if (act.feasibleStarts.length === 0) {

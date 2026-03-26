@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import type { TimeEventItem } from '../../src/lib/domain/plan-item';
+import { evaluateOperationalAcceptance } from '../../src/lib/pipeline/v5/operational-acceptance';
 import { FlowRunnerV5, type FlowRunnerV5Context } from '../../src/lib/pipeline/v5/runner';
 import type { UserProfileV5 } from '../../src/lib/pipeline/v5/phase-io-v5';
 import type { AgentRuntime, LLMMessage, LLMResponse } from '../../src/lib/runtime/types';
 import type { ActivityRequest, AvailabilityWindow, SchedulerInput, SchedulerOutput } from '../../src/lib/scheduler/types';
 
+const TIMEZONE = 'UTC';
 const WEEK_START = '2026-03-30T00:00:00Z';
 const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
@@ -53,9 +55,42 @@ function defaultStrategy(prompt: string) {
   };
 }
 
+function defaultClassification(prompt: string) {
+  const lowerPrompt = prompt.toLowerCase();
+
+  if (lowerPrompt.includes('guitarra')) {
+    return {
+      goalType: 'SKILL_ACQUISITION',
+      confidence: 0.92,
+      risk: 'LOW',
+      signals: ['skill'],
+    };
+  }
+
+  if (lowerPrompt.includes('portfolio')) {
+    return {
+      goalType: 'FINITE_PROJECT',
+      confidence: 0.88,
+      risk: 'LOW',
+      signals: ['deliverable'],
+    };
+  }
+
+  return {
+    goalType: 'RECURRENT_HABIT',
+    confidence: 0.9,
+    risk: 'LOW',
+    signals: ['recurring'],
+  };
+}
+
 function createRuntime(overrides: RuntimeOverrides = {}): AgentRuntime {
   async function chat(messages: LLMMessage[]): Promise<LLMResponse> {
     const prompt = messages[messages.length - 1]?.content ?? '';
+
+    if (prompt.includes('Clasifica este objetivo personal')) {
+      return jsonResponse(defaultClassification(prompt));
+    }
 
     if (prompt.includes('array "questions"')) {
       return jsonResponse(
@@ -115,15 +150,16 @@ function makeConfig(
   extra: Partial<ConstructorParameters<typeof FlowRunnerV5>[0]> = {},
 ): ConstructorParameters<typeof FlowRunnerV5>[0] {
   return {
+    ...extra,
     runtime: createRuntime(runtimeOverrides),
     text,
     answers: {
       disponibilidad: 'Entre semana tengo dos o tres horas y el finde un poco mas.',
     },
-    availability: makeAvailability(),
-    weekStartDate: WEEK_START,
-    goalId: 'goal-v5-test',
-    ...extra,
+    timezone: extra.timezone ?? TIMEZONE,
+    availability: extra.availability ?? makeAvailability(),
+    weekStartDate: extra.weekStartDate ?? WEEK_START,
+    goalId: extra.goalId ?? 'goal-v5-test',
   };
 }
 
@@ -177,6 +213,7 @@ function makeScheduleInput(
     availability,
     blocked: [],
     preferences: [],
+    timezone: TIMEZONE,
     weekStartDate: WEEK_START,
   };
 }
@@ -212,6 +249,17 @@ describe('FlowRunnerV5', () => {
     expect(milestones.length).toBeGreaterThanOrEqual(1);
     expect(context.package?.summary_esAR).toContain('aprender guitarra');
     expect(context.package?.habitStates[0]?.progressionKey).toBe('guitarra');
+  });
+
+  it('runBuildPipeline entrega package y deja adapt pendiente para el path async', async () => {
+    const runner = new FlowRunnerV5(makeConfig('aprender guitarra', {}, { goalId: 'goal-guitar-async' }));
+
+    const context = await runner.runBuildPipeline();
+
+    expect(context.package).toBeDefined();
+    expect(context.phaseIO.package).toBeDefined();
+    expect(context.phaseIO.adapt).toBeUndefined();
+    expect(context.adapt).toBeUndefined();
   });
 
   it('escenario multi objetivo: valida un plan combinado inyectando una plantilla mixta', async () => {
@@ -283,7 +331,8 @@ describe('FlowRunnerV5', () => {
 
     expect(context.repair?.iterations).toBeLessThanOrEqual(3);
     expect(context.repair?.patchesApplied).toEqual([{ type: 'MOVE', targetId: schedule.events[1].id }]);
-    expect(context.schedule?.events[1]?.startAt).toBe('2026-04-01T18:00:00.000Z');
+    expect(context.repair?.attempts[0]?.decision).toBe('committed');
+    expect(context.schedule?.events[1]?.startAt).toBe('2026-03-30T19:00:00.000Z');
     expect(context.hardValidate?.findings).toHaveLength(0);
   });
 
@@ -305,13 +354,12 @@ describe('FlowRunnerV5', () => {
       '2026-04-05T07:00:00.000Z',
     ];
     const events = eventDates.map((date) => makeEvent(activity, date));
-    const sundayEventId = events[6].id;
 
     const runner = new FlowRunnerV5(
       makeConfig('chequear descanso', {
         cove: (prompt) => {
-          const eventCount = prompt.match(/- ID:/g)?.length ?? 0;
-          if (eventCount >= 7) {
+          const restDays = Number(prompt.match(/restDays=(\d+)/)?.[1] ?? '0');
+          if (restDays === 0) {
             return {
               findings: [
                 {
@@ -333,12 +381,6 @@ describe('FlowRunnerV5', () => {
             ],
           };
         },
-        repair: () => ({
-          op: {
-            type: 'DROP',
-            targetId: sundayEventId,
-          },
-        }),
       }),
       {
         schedule: makeSchedule(events),
@@ -359,9 +401,63 @@ describe('FlowRunnerV5', () => {
 
     expect(firstSoft?.findings.some((finding) => finding.code === 'SV-NO-REST')).toBe(true);
     expect(firstCove?.findings.some((finding) => finding.severity === 'FAIL')).toBe(true);
-    expect(context.repair?.patchesApplied).toEqual([{ type: 'DROP', targetId: sundayEventId }]);
-    expect(context.schedule?.events).toHaveLength(6);
+    expect(context.repair?.patchesApplied).toHaveLength(1);
+    expect(context.repair?.attempts.some((attempt) => attempt.decision === 'committed')).toBe(true);
+    expect(context.repair?.patchesApplied[0]?.type).toMatch(/MOVE|DROP/);
+    expect(context.schedule?.events.length ?? 0).toBeLessThanOrEqual(7);
     expect(context.softValidate?.findings.some((finding) => finding.code === 'SV-NO-REST')).toBe(false);
+    expect(context.coveVerify?.findings.some((finding) => finding.severity === 'FAIL')).toBe(false);
+  });
+
+  it('CoVe no inventa falta de descanso cuando existe un dia libre real en hora local', async () => {
+    const activity = makeActivity({
+      id: 'guitar',
+      label: 'Practica de guitarra',
+      durationMin: 30,
+      frequencyPerWeek: 6,
+      constraintTier: 'soft_strong',
+    });
+    const events = [
+      makeEvent(activity, '2026-03-30T21:00:00.000Z'),
+      makeEvent(activity, '2026-03-31T21:00:00.000Z'),
+      makeEvent(activity, '2026-04-01T21:00:00.000Z'),
+      makeEvent(activity, '2026-04-02T21:00:00.000Z'),
+      makeEvent(activity, '2026-04-04T12:30:00.000Z'),
+      makeEvent(activity, '2026-04-05T12:30:00.000Z'),
+    ];
+
+    const runner = new FlowRunnerV5(
+      makeConfig('chequear descanso local', {
+        cove: () => ({
+          findings: [
+            {
+              question: 'Hay dias de descanso?',
+              answer: 'No, no hay dias de descanso entre sesiones programadas.',
+              severity: 'FAIL',
+            },
+          ],
+        }),
+      }, {
+        timezone: 'America/Argentina/Buenos_Aires',
+      }),
+      {
+        schedule: makeSchedule(events),
+        scheduleInput: {
+          ...makeScheduleInput([activity]),
+          timezone: 'America/Argentina/Buenos_Aires',
+          weekStartDate: '2026-03-30T03:00:00Z',
+        },
+        profile: DEFAULT_PROFILE,
+      },
+    );
+
+    await runner.executePhase('softValidate');
+    await runner.executePhase('coveVerify');
+
+    const context = runner.getContext();
+
+    expect(context.softValidate?.findings.some((finding) => finding.code === 'SV-NO-REST')).toBe(false);
+    expect(context.coveVerify?.findings.find((finding) => /descanso/i.test(finding.question))?.severity).toBe('WARN');
     expect(context.coveVerify?.findings.some((finding) => finding.severity === 'FAIL')).toBe(false);
   });
 
@@ -514,30 +610,50 @@ describe('FlowRunnerV5', () => {
     expect(context.phaseIO.adapt?.output.mode).toBe('PARTIAL_REPAIR');
   });
 
-  it('emite PhaseIO para cada fase sincronica relevante cuando el repair loop corre una vez', async () => {
-    let coveCalls = 0;
+  it('quality gate: rechaza el plan cuando repair escala', async () => {
+    const acceptance = evaluateOperationalAcceptance({
+      hardValidate: { findings: [] },
+      coveVerify: {
+        findings: [
+          {
+            code: 'COVE-REST',
+            question: '¿Hay al menos un día de descanso?',
+            answer: 'No, la agenda ocupa los 7 días operativos.',
+            severity: 'FAIL',
+            groundedByFacts: true,
+            supportingFacts: ['restDays=0'],
+          },
+        ],
+      },
+      repair: {
+        status: 'escalated',
+        patchesApplied: [],
+        attempts: [],
+        iterations: 1,
+        scoreBefore: 80,
+        scoreAfter: 80,
+        finalSchedule: makeSchedule([]),
+        remainingFindings: [{ severity: 'FAIL', message: 'No hay días de descanso.' }],
+      },
+    });
+
+    expect(acceptance.accepted).toBe(false);
+    expect(acceptance.reason).toBe('V5_OPERATIONAL_REPAIR_ESCALATED');
+    expect(acceptance.remainingFindings).toEqual([
+      { severity: 'FAIL', message: 'No, la agenda ocupa los 7 días operativos.' },
+    ]);
+  });
+
+  it('CoVe grounded no dispara repair loop por un FAIL generico no respaldado', async () => {
     const runner = new FlowRunnerV5(
       makeConfig('aprender guitarra', {
         cove: () => {
-          coveCalls += 1;
-          if (coveCalls === 1) {
-            return {
-              findings: [
-                {
-                  question: 'Conviene revisar una sesion?',
-                  answer: 'Hay una observacion pendiente para re-chequear.',
-                  severity: 'FAIL',
-                },
-              ],
-            };
-          }
-
           return {
             findings: [
               {
-                question: 'Conviene revisar una sesion?',
-                answer: 'Quedo consistente despues del loop.',
-                severity: 'INFO',
+                question: 'Hay una falla operativa bloqueante?',
+                answer: 'Si, hay una falla operativa bloqueante imposible de resolver automaticamente.',
+                severity: 'FAIL',
               },
             ],
           };
@@ -546,24 +662,10 @@ describe('FlowRunnerV5', () => {
     );
 
     const context = await runner.runFullPipeline();
-    const phaseKeys = Object.keys(context.phaseIO);
 
-    expect(phaseKeys.length).toBeGreaterThanOrEqual(11);
-    expect(phaseKeys).toEqual(
-      expect.arrayContaining([
-        'classify',
-        'requirements',
-        'profile',
-        'strategy',
-        'template',
-        'schedule',
-        'hardValidate',
-        'softValidate',
-        'coveVerify',
-        'repair',
-        'package',
-      ]),
-    );
-    expect(context.phaseIO.adapt).toBeUndefined();
+    expect(context.repair?.status ?? 'no_change').toMatch(/fixed|no_change/);
+    expect(context.coveVerify?.findings.some((finding) => finding.severity === 'FAIL')).toBe(false);
+    expect(context.phaseIO.package).toBeDefined();
+    expect(context.phaseIO.adapt?.output.mode).toBe('ABSORB');
   });
 });

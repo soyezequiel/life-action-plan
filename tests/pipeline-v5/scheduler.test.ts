@@ -5,6 +5,9 @@ import type { SchedulerInput } from '../../src/lib/scheduler/types';
 import type { TimeEventItem } from '../../src/lib/domain/plan-item';
 import { DateTime } from 'luxon';
 
+const TIMEZONE = 'UTC';
+const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+
 /**
  * Verifica recursivamente que no haya overlaps en los eventos generados
  */
@@ -33,6 +36,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
   it('1. Caso simple: 2 actividades, horario amplio libre -> todo entra sin conflictos', async () => {
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [
         { day: 'monday', startTime: '08:00', endTime: '20:00' },
         { day: 'wednesday', startTime: '08:00', endTime: '20:00' },
@@ -55,6 +59,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
   it('2. Overlap: 3 actividades quieren lunes a las 09:00 -> solver coloca sin overlap', async () => {
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [
         { day: 'monday', startTime: '09:00', endTime: '12:00' } // 3 block de 1 hora
       ],
@@ -78,6 +83,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
   it('3. Soft strong: gym pedido 4x/sem pero solo hay espacio para 3 -> se programa 3', async () => {
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [
         { day: 'tuesday', startTime: '18:00', endTime: '21:00' } // 3 bloques de 1 hora
       ],
@@ -100,6 +106,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
     // al ser soft_weak igual prefiere programarlo (penalmente es mejor programar que dejar unscheduled).
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [
         { day: 'wednesday', startTime: '18:00', endTime: '20:00' }
       ],
@@ -122,6 +129,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
   it('5. Agenda llena: blocked slots cubren casi todo -> unscheduled con explicación en español', async () => {
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [
         { day: 'thursday', startTime: '09:00', endTime: '10:00' }
       ],
@@ -148,6 +156,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
   it('6. Trade-offs: 2 actividades compiten por mismo bloque -> tradeoff generado', async () => {
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [
         { day: 'saturday', startTime: '10:00', endTime: '11:00' } // 1 block de 1 hr
       ],
@@ -175,6 +184,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
   it('7. Rest days: running con minRestDaysBetween=1 -> no hay corrida días seguidos', async () => {
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [
         { day: 'monday', startTime: '20:00', endTime: '21:00' },
         { day: 'tuesday', startTime: '20:00', endTime: '21:00' },
@@ -210,6 +220,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
 
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [
         { day: 'monday', startTime: '08:00', endTime: '22:00' },
         { day: 'tuesday', startTime: '08:00', endTime: '22:00' },
@@ -237,6 +248,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
   it('9. Edge case vacío: 0 actividades -> output vacío sin error', async () => {
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [
         { day: 'monday', startTime: '08:00', endTime: '12:00' }
       ],
@@ -254,6 +266,7 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
   it('10. Edge case sin disponibilidad: todo bloqueado -> todas a unscheduled', async () => {
     const input: SchedulerInput = {
       weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
       availability: [],
       blocked: [],
       preferences: [],
@@ -269,6 +282,66 @@ describe('Scheduler MILP - Suite Exhaustiva', () => {
 
     const explainerRes = explainUnscheduled(input, output);
     expect(explainerRes[0].suggestion_esAR).toContain('No hay espacio');
+  });
+
+  it('11. Preserve requested durations: no infla sesiones de 10/15/20/25 minutos a 30', async () => {
+    const input: SchedulerInput = {
+      weekStartDate: '2026-03-30T00:00:00Z',
+      timezone: TIMEZONE,
+      availability: [
+        { day: 'monday', startTime: '08:00', endTime: '10:00' },
+        { day: 'wednesday', startTime: '08:00', endTime: '10:00' },
+      ],
+      blocked: [],
+      preferences: [],
+      activities: [
+        { id: 'a10', label: 'A10', equivalenceGroupId: 'group-a10', durationMin: 10, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_strong' },
+        { id: 'a15', label: 'A15', equivalenceGroupId: 'group-a15', durationMin: 15, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_strong' },
+        { id: 'a20', label: 'A20', equivalenceGroupId: 'group-a20', durationMin: 20, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_strong' },
+        { id: 'a25', label: 'A25', equivalenceGroupId: 'group-a25', durationMin: 25, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_strong' },
+      ],
+    };
+
+    const output = await solveSchedule(input);
+    const durations = output.events.map((event) => event.durationMin).sort((left, right) => left - right);
+
+    expect(durations).toEqual([10, 15, 20, 25]);
+  });
+
+  it('12. Timezone + work block: en Argentina no programa madrugadas ni sesiones dentro de 09:00-18:00 local', async () => {
+    const timezone = 'America/Argentina/Buenos_Aires';
+    const input: SchedulerInput = {
+      weekStartDate: '2026-03-30T03:00:00Z',
+      timezone,
+      availability: WEEK_DAYS.map((day) => ({ day, startTime: '07:00', endTime: '22:00' })),
+      blocked: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].map((day) => ({
+        day,
+        startTime: '09:00',
+        endTime: '18:00',
+        reason: 'Trabajo',
+      })),
+      preferences: [],
+      activities: [
+        { id: 'gtr-a', label: 'Guitarra A', equivalenceGroupId: 'gtr-a', durationMin: 20, frequencyPerWeek: 2, goalId: 'g1', constraintTier: 'soft_strong' },
+        { id: 'gtr-b', label: 'Guitarra B', equivalenceGroupId: 'gtr-b', durationMin: 25, frequencyPerWeek: 2, goalId: 'g1', constraintTier: 'soft_strong' },
+        { id: 'gtr-c', label: 'Guitarra C', equivalenceGroupId: 'gtr-c', durationMin: 15, frequencyPerWeek: 1, goalId: 'g1', constraintTier: 'soft_strong' },
+      ],
+    };
+
+    const output = await solveSchedule(input);
+
+    expect(output.events.length).toBe(5);
+    for (const event of output.events) {
+      const localStart = DateTime.fromISO(event.startAt, { zone: 'UTC' }).setZone(timezone);
+      const weekday = localStart.weekday;
+      const minutes = localStart.hour * 60 + localStart.minute;
+
+      expect(minutes).toBeGreaterThanOrEqual(7 * 60);
+      expect(minutes + event.durationMin).toBeLessThanOrEqual(22 * 60);
+      if (weekday >= 1 && weekday <= 5) {
+        expect(minutes < 9 * 60 || minutes >= 18 * 60).toBe(true);
+      }
+    }
   });
 
 });

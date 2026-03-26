@@ -512,7 +512,10 @@
       "zoom_in": "Aumentar Zoom",
       "zoom_out": "Disminuir Zoom",
       "fit_view": "Ajustar Vista",
-      "interactive": "Activar Interacción"
+      "interactive": "Activar Interacción",
+      "viewing_run": "Viendo run",
+      "latest_run": "Ultimo run",
+      "latest_success": "Ultimo exitoso"
     }
   },
   "auth": {
@@ -725,6 +728,9 @@
       "safe": "Semana en equilibrio",
       "atRisk": "Semana con algunos ajustes",
       "critical": "Semana para reorganizar",
+      "pending": "El plan ya quedo armado. Los ajustes de adaptacion todavia estan pendientes.",
+      "pendingPill": "Adapt pendiente",
+      "pendingDetail": "La fase de adaptacion corre por separado y todavia no se calculo.",
       "adaptiveAvailable": "Hay ajustes sugeridos para esta semana.",
       "adaptiveUnavailable": "Tu plan esta estable por ahora.",
       "mode": {

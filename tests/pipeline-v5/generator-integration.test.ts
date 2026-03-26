@@ -6,6 +6,7 @@ import type { UserProfileV5 } from '../../src/lib/pipeline/v5/phase-io-v5';
 import type { AgentRuntime, LLMMessage, LLMResponse } from '../../src/lib/runtime/types';
 import type { AvailabilityWindow } from '../../src/lib/scheduler/types';
 
+const TIMEZONE = 'UTC';
 const WEEK_START = '2026-03-30T00:00:00Z';
 const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
@@ -31,6 +32,14 @@ function makeAvailability(startTime = '06:00', endTime = '22:00'): AvailabilityW
 function createRuntime(handler: (prompt: string) => Promise<LLMResponse> | LLMResponse): AgentRuntime {
   async function chat(messages: LLMMessage[]): Promise<LLMResponse> {
     const prompt = messages[messages.length - 1]?.content ?? '';
+    if (prompt.includes('Clasifica este objetivo personal')) {
+      return jsonResponse({
+        goalType: prompt.toLowerCase().includes('guitarra') ? 'SKILL_ACQUISITION' : 'RECURRENT_HABIT',
+        confidence: 0.9,
+        risk: 'LOW',
+        signals: ['test'],
+      });
+    }
     return handler(prompt);
   }
 
@@ -51,15 +60,16 @@ function makeConfig(
   extra: Partial<ConstructorParameters<typeof FlowRunnerV5>[0]> = {},
 ): ConstructorParameters<typeof FlowRunnerV5>[0] {
   return {
+    ...extra,
     runtime,
     text,
     answers: {
       disponibilidad: 'Entre semana tengo dos o tres horas y el finde un poco mas.',
     },
-    availability: makeAvailability(),
-    weekStartDate: WEEK_START,
-    goalId: 'goal-v5-generator-test',
-    ...extra,
+    timezone: extra.timezone ?? TIMEZONE,
+    availability: extra.availability ?? makeAvailability(),
+    weekStartDate: extra.weekStartDate ?? WEEK_START,
+    goalId: extra.goalId ?? 'goal-v5-generator-test',
   };
 }
 

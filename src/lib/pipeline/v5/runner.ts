@@ -14,10 +14,11 @@ import type {
   SchedulerOutput,
 } from '../../scheduler/types';
 import { solveSchedule } from '../../scheduler/solver';
-import { classifyGoal } from './classify';
+import { classifyGoalWithRuntime } from './classify';
 import { executeCoVeVerifier } from './cove-verifier';
 import { generateAdaptiveResponse } from './adaptive';
 import { executeHardValidator } from './hard-validator';
+import { evaluateOperationalAcceptance } from './operational-acceptance';
 import { packagePlan } from './packager';
 import { buildProfile } from './profile';
 import { executeRepairManager } from './repair-manager';
@@ -72,6 +73,7 @@ export interface FlowRunnerV5Config {
   runtime: AgentRuntime;
   text: string;
   answers: Record<string, string>;
+  timezone: string;
   availability: AvailabilityWindow[];
   blocked?: BlockedSlot[];
   preferences?: SchedulingPreference[];
@@ -85,6 +87,7 @@ export interface FlowRunnerV5Config {
   habitStateStore?: HabitStateStore;
   previousProgressionKeys?: string[];
   initialHabitStates?: HabitState[];
+  inlineAdaptive?: boolean;
 }
 
 export interface FlowRunnerV5Tracker {
@@ -256,24 +259,28 @@ export class FlowRunnerV5 {
   }
 
   async runFullPipeline(tracker: FlowRunnerV5Tracker = {}): Promise<FlowRunnerV5Context> {
+    await this.runBuildPipeline(tracker);
+
+    if (this.context.config.inlineAdaptive ?? true) {
+      await this.executePhase('adapt', tracker);
+    }
+
+    return this.context;
+  }
+
+  async runBuildPipeline(tracker: FlowRunnerV5Tracker = {}): Promise<FlowRunnerV5Context> {
     await this.executePhase('classify', tracker);
     await this.executePhase('requirements', tracker);
     await this.executePhase('profile', tracker);
     await this.executePhase('strategy', tracker);
     await this.executePhase('template', tracker);
     await this.executePhase('schedule', tracker);
+    await this.executePhase('hardValidate', tracker);
+    await this.executePhase('softValidate', tracker);
+    await this.executePhase('coveVerify', tracker);
 
-    let cycle = 1;
-    while (cycle <= MAX_REPAIR_CYCLES) {
-      await this.executePhase('hardValidate', tracker);
-      await this.executePhase('softValidate', tracker);
-      await this.executePhase('coveVerify', tracker);
-
-      if (!hasFailingFindings(this.context.hardValidate, this.context.coveVerify)) {
-        tracker.onPhaseSkipped?.('repair');
-        break;
-      }
-
+    let repaired = false;
+    for (let cycle = 1; hasFailingFindings(this.context.hardValidate, this.context.coveVerify) && cycle <= MAX_REPAIR_CYCLES; cycle += 1) {
       this.context.repairCycles = cycle;
       const findings = toRepairTrackerFindings(
         this.context.hardValidate ?? { findings: [] },
@@ -281,32 +288,36 @@ export class FlowRunnerV5 {
         this.context.coveVerify ?? { findings: [] },
       );
 
-      tracker.onRepairAttempt?.(
-        cycle,
-        MAX_REPAIR_CYCLES,
-        findings,
-      );
+      tracker.onRepairAttempt?.(cycle, MAX_REPAIR_CYCLES, findings);
+      await this.executePhase('repair', tracker);
 
-      if (cycle === MAX_REPAIR_CYCLES) {
-        tracker.onRepairExhausted?.(
-          cycle,
-          findings,
-        );
+      if (this.context.repair?.status === 'escalated') {
+        tracker.onRepairExhausted?.(cycle, this.context.repair.remainingFindings);
         break;
       }
 
-      await this.executePhase('repair', tracker);
-      cycle += 1;
+      repaired = true;
+      await this.executePhase('hardValidate', tracker);
+      await this.executePhase('softValidate', tracker);
+      await this.executePhase('coveVerify', tracker);
+    }
+
+    if (!repaired && !hasFailingFindings(this.context.hardValidate, this.context.coveVerify)) {
+      tracker.onPhaseSkipped?.('repair');
+    }
+
+    const acceptance = evaluateOperationalAcceptance({
+      hardValidate: this.context.hardValidate,
+      coveVerify: this.context.coveVerify,
+      repair: this.context.repair,
+    });
+
+    if (!acceptance.accepted) {
+      tracker.onRepairExhausted?.(this.context.repairCycles, acceptance.remainingFindings);
+      throw new Error(`${acceptance.reason}:${acceptance.remainingFindings.map((finding) => finding.message).join(' | ')}`);
     }
 
     await this.executePhase('package', tracker);
-
-    if ((this.context.config.activityLogs?.length ?? 0) > 0 || this.context.config.userFeedback) {
-      await this.executePhase('adapt', tracker);
-    } else {
-      tracker.onPhaseSkipped?.('adapt');
-    }
-
     return this.context;
   }
 
@@ -437,7 +448,7 @@ export class FlowRunnerV5 {
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: ClassifyInput = { text: this.context.config.text };
     this.announcePhaseStart(tracker, 'classify', input, startedAt);
-    const output = classifyGoal(input.text);
+    const output = await classifyGoalWithRuntime(this.context.config.runtime, input.text);
     this.context.classification = output;
     this.context.domainCard = await resolveDomainCard(this.context.config, output);
     this.context.habitProgressionKeys = this.resolveHabitProgressionKeys();
@@ -513,6 +524,7 @@ export class FlowRunnerV5 {
       availability: this.context.config.availability,
       blocked: this.context.config.blocked ?? [],
       preferences: this.context.config.preferences ?? [],
+      timezone: this.context.config.timezone,
       weekStartDate: this.weekStartDate(),
     };
     this.context.scheduleInput = schedulerInput;
@@ -523,13 +535,15 @@ export class FlowRunnerV5 {
   }
 
   private async runHardValidatePhase(tracker: FlowRunnerV5Tracker): Promise<HardValidateOutput> {
-    if (!this.context.schedule || !this.context.scheduleInput) {
-      throw new Error('V5_HARD_VALIDATE_NEEDS_SCHEDULE');
+    if (!this.context.schedule || !this.context.scheduleInput || !this.context.profile) {
+      throw new Error('V5_HARD_VALIDATE_NEEDS_SCHEDULE_INPUT_PROFILE');
     }
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: HardValidateInput = {
       schedule: this.context.schedule,
       originalInput: this.context.scheduleInput,
+      profile: this.context.profile,
+      timezone: this.context.config.timezone,
     };
     this.announcePhaseStart(tracker, 'hardValidate', input, startedAt);
     const output = await executeHardValidator(input);
@@ -545,6 +559,7 @@ export class FlowRunnerV5 {
     const input: SoftValidateInput = {
       schedule: this.context.schedule,
       profile: this.context.profile,
+      timezone: this.context.config.timezone,
     };
     this.announcePhaseStart(tracker, 'softValidate', input, startedAt);
     const output = await executeSoftValidator(input);
@@ -553,11 +568,15 @@ export class FlowRunnerV5 {
   }
 
   private async runCoVePhase(tracker: FlowRunnerV5Tracker): Promise<CoVeVerifyOutput> {
-    if (!this.context.schedule) {
-      throw new Error('V5_COVE_NEEDS_SCHEDULE');
+    if (!this.context.schedule || !this.context.profile) {
+      throw new Error('V5_COVE_NEEDS_SCHEDULE_AND_PROFILE');
     }
     const startedAt = DateTime.utc().toISO() ?? '';
-    const input: CoVeVerifyInput = { schedule: this.context.schedule };
+    const input: CoVeVerifyInput = {
+      schedule: this.context.schedule,
+      timezone: this.context.config.timezone,
+      profile: this.context.profile,
+    };
     this.announcePhaseStart(tracker, 'coveVerify', input, startedAt);
     this.trackProgress(tracker, 'coveVerify', 'Verificando consistencia del calendario.');
     const output = await executeCoVeVerifier(this.context.config.runtime, input);
@@ -609,11 +628,13 @@ export class FlowRunnerV5 {
       coveFindings: this.context.coveVerify?.findings ?? [],
       repairSummary: this.context.repair
         ? {
+            status: this.context.repair.status,
             patchesApplied: this.context.repair.patchesApplied,
             iterations: this.context.repair.iterations,
             scoreAfter: this.context.repair.scoreAfter,
           }
         : undefined,
+      timezone: this.context.config.timezone,
     };
     this.announcePhaseStart(tracker, 'package', input, startedAt);
     const output = packagePlan(input);
@@ -628,9 +649,6 @@ export class FlowRunnerV5 {
   private async runAdaptPhase(tracker: FlowRunnerV5Tracker): Promise<AdaptOutput> {
     if (!this.context.package) {
       throw new Error('V5_ADAPT_NEEDS_PACKAGE');
-    }
-    if ((this.context.config.activityLogs?.length ?? 0) === 0 && !this.context.config.userFeedback) {
-      throw new Error('V5_ADAPT_NEEDS_ACTIVITY_LOGS_OR_FEEDBACK');
     }
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: AdaptInput = {

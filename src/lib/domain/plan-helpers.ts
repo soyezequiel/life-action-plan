@@ -5,6 +5,13 @@ import { toConfigErrorMessage } from '../../shared/config-errors'
 import type { ChargeReasonCode, OperationChargeSummary, PlanSimulationSnapshot } from '../../shared/types/lap-api'
 import type { ExecutionBlockReason } from '../../shared/types/execution-context'
 import { getPlanBySlug } from '../db/db-helpers'
+import type { PlanPackage, StoredAdaptiveState, V5PhaseSnapshot } from '../pipeline/v5/phase-io-v5'
+
+export interface StoredPlanV5Manifest {
+  package?: PlanPackage | null
+  adaptive?: StoredAdaptiveState | null
+  run?: V5PhaseSnapshot | null
+}
 
 export function parseStoredProfile(data: string): Perfil | null {
   try {
@@ -55,6 +62,7 @@ export function buildPlanManifest(params: {
   costUsd: number
   costSats: number
   charge?: OperationChargeSummary | null
+  v5?: StoredPlanV5Manifest | null
 }): string {
   const now = DateTime.utc().toISO() ?? '2026-03-20T00:00:00.000Z'
 
@@ -85,6 +93,7 @@ export function buildPlanManifest(params: {
     ramas: {},
     archivados: {},
     ultimaSimulacion: null,
+    v5: params.v5 ?? undefined,
     ultimoCobro: params.charge ?? null,
     costoAcumulado: {
       llamadasModelo: { alto: 1, medio: 0, bajo: 0 },
@@ -93,6 +102,52 @@ export function buildPlanManifest(params: {
       estimacionUSD: params.costUsd,
       estimacionSats: params.costSats
     }
+  })
+}
+
+export function buildPendingAdaptiveState(nowIso = DateTime.utc().toISO() ?? '2026-03-20T00:00:00.000Z'): StoredAdaptiveState {
+  return {
+    status: 'pending',
+    output: null,
+    updatedAt: nowIso,
+    lastError: null
+  }
+}
+
+export function readPlanV5Manifest(manifestJson: string | null | undefined): StoredPlanV5Manifest | null {
+  const manifest = safeParseJsonRecord(manifestJson)
+  const candidate = manifest.v5
+
+  if (!candidate || typeof candidate !== 'object') {
+    return null
+  }
+
+  const v5 = candidate as Record<string, unknown>
+  return {
+    package: (v5.package && typeof v5.package === 'object' ? v5.package : null) as PlanPackage | null,
+    adaptive: (v5.adaptive && typeof v5.adaptive === 'object' ? v5.adaptive : null) as StoredAdaptiveState | null,
+    run: (v5.run && typeof v5.run === 'object' ? v5.run : null) as V5PhaseSnapshot | null
+  }
+}
+
+export function updatePlanManifestV5(
+  manifestJson: string | null | undefined,
+  next: Partial<StoredPlanV5Manifest>
+): string {
+  const manifest = safeParseJsonRecord(manifestJson)
+  const current = readPlanV5Manifest(manifestJson) ?? {}
+  const updatedAt = DateTime.utc().toISO() ?? '2026-03-20T00:00:00.000Z'
+
+  const merged: StoredPlanV5Manifest = {
+    package: typeof next.package !== 'undefined' ? next.package : current.package,
+    adaptive: typeof next.adaptive !== 'undefined' ? next.adaptive : current.adaptive,
+    run: typeof next.run !== 'undefined' ? next.run : current.run
+  }
+
+  return JSON.stringify({
+    ...manifest,
+    v5: merged,
+    ultimaModificacion: updatedAt
   })
 }
 

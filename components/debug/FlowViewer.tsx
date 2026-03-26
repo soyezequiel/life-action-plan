@@ -969,8 +969,12 @@ export function FlowViewerSurface({
   )
 }
 
+type RunView = 'latest' | 'latest-success'
+
 export function FlowViewer() {
-  const [pipelineData, setPipelineData] = useState<PipelineRuntimeData | null>(null)
+  const [latestData, setLatestData] = useState<PipelineRuntimeData | null>(null)
+  const [latestSuccessData, setLatestSuccessData] = useState<PipelineRuntimeData | null>(null)
+  const [activeView, setActiveView] = useState<RunView>('latest')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -986,7 +990,15 @@ export function FlowViewer() {
         const json = await response.json()
 
         if (!cancelled) {
-          setPipelineData((json.data ?? null) as PipelineRuntimeData | null)
+          const latest = (json.data ?? null) as PipelineRuntimeData | null
+          const success = (json.latestSuccess ?? null) as PipelineRuntimeData | null
+          setLatestData(latest)
+          setLatestSuccessData(success)
+
+          if (latest?.run.status === 'error' && success) {
+            setActiveView((prev) => prev === 'latest' && latestData === null ? 'latest-success' : prev)
+          }
+
           setLoading(false)
         }
       } catch {
@@ -1007,5 +1019,63 @@ export function FlowViewer() {
     }
   }, [])
 
-  return <FlowViewerSurface snapshot={pipelineData} isLoading={loading} />
+  const activeSnapshot = activeView === 'latest-success' && latestSuccessData
+    ? latestSuccessData
+    : latestData
+
+  const hasAlternative = latestSuccessData !== null && latestData?.run.status === 'error'
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {hasAlternative && (
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          padding: '8px 12px',
+          backgroundColor: '#1a1a2e',
+          borderBottom: '1px solid #2a2a3e',
+          alignItems: 'center',
+          fontSize: '13px'
+        }}>
+          <span style={{ color: '#888', marginRight: '4px' }}>{t('debug.flow.viewing_run')}:</span>
+          <button
+            onClick={() => setActiveView('latest')}
+            style={{
+              padding: '3px 10px',
+              borderRadius: '4px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '12px',
+              backgroundColor: activeView === 'latest' ? '#e74c3c' : '#2a2a3e',
+              color: activeView === 'latest' ? '#fff' : '#aaa'
+            }}
+          >
+            {t('debug.flow.latest_run')} ({latestData?.run.status})
+          </button>
+          <button
+            onClick={() => setActiveView('latest-success')}
+            style={{
+              padding: '3px 10px',
+              borderRadius: '4px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '12px',
+              backgroundColor: activeView === 'latest-success' ? '#27ae60' : '#2a2a3e',
+              color: activeView === 'latest-success' ? '#fff' : '#aaa'
+            }}
+          >
+            {t('debug.flow.latest_success')}
+          </button>
+          {latestData?.run.runId && (
+            <span style={{ color: '#555', marginLeft: 'auto', fontFamily: 'monospace', fontSize: '11px' }}>
+              runId: {activeSnapshot?.run.runId?.slice(0, 8)}
+            </span>
+          )}
+        </div>
+      )}
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <FlowViewerSurface snapshot={activeSnapshot} isLoading={loading} />
+      </div>
+    </div>
+  )
 }

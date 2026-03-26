@@ -1,6 +1,14 @@
 import { jsonResponse } from '../../_shared'
-import { readPipelineRuntimeData } from '@lib/flow/pipeline-runtime-data'
+import { readPipelineRuntimeData, readLatestSuccessfulRuntimeData } from '@lib/flow/pipeline-runtime-data'
 
 export async function GET(): Promise<Response> {
-  return jsonResponse({ data: readPipelineRuntimeData() })
+  const latest = readPipelineRuntimeData()
+  const latestSuccess = readLatestSuccessfulRuntimeData()
+
+  return jsonResponse({
+    data: latest,
+    latestSuccess: latestSuccess && latestSuccess.run.runId !== latest?.run.runId
+      ? latestSuccess
+      : null
+  })
 }

@@ -59,7 +59,12 @@ export interface HardFinding {
   description: string;
   affectedItems: string[];
 }
-export interface HardValidateInput { schedule: SchedulerOutput; originalInput: SchedulerInput; }
+export interface HardValidateInput {
+  schedule: SchedulerOutput;
+  originalInput: SchedulerInput;
+  profile: UserProfileV5;
+  timezone: string;
+}
 export interface HardValidateOutput { findings: HardFinding[]; }
 
 // ─── 8. Soft Validate ─────────────────────────────────────────────────────────
@@ -68,22 +73,42 @@ export interface SoftFinding {
   severity: 'WARN' | 'INFO';
   suggestion_esAR: string;
 }
-export interface SoftValidateInput { schedule: SchedulerOutput; profile: UserProfileV5; }
+export interface SoftValidateInput { schedule: SchedulerOutput; profile: UserProfileV5; timezone: string; }
 export interface SoftValidateOutput { findings: SoftFinding[]; }
 
 // ─── 9. CoVe Verify ───────────────────────────────────────────────────────────
 export interface CoVeFinding {
+  code: string;
   question: string;
   answer: string;
   severity: 'FAIL' | 'WARN' | 'INFO';
+  groundedByFacts: boolean;
+  supportingFacts: string[];
 }
-export interface CoVeVerifyInput { schedule: SchedulerOutput; }
+export interface CoVeVerifyInput {
+  schedule: SchedulerOutput;
+  timezone: string;
+  profile: UserProfileV5;
+}
 export interface CoVeVerifyOutput { findings: CoVeFinding[]; }
 
 // ─── 10. Repair Manager ───────────────────────────────────────────────────────
 export interface PatchOp {
   type: 'MOVE' | 'SWAP' | 'DROP' | 'RESIZE';
   targetId: string;
+}
+export interface RepairPatchCandidate extends PatchOp {
+  extraId?: string;
+  newStartAt?: string;
+  newDurationMin?: number;
+}
+export interface RepairAttemptRecord {
+  candidate: RepairPatchCandidate | null;
+  source: 'deterministic' | 'llm-ranked';
+  baselineScore: number;
+  candidateScore: number;
+  decision: 'committed' | 'reverted' | 'escalated';
+  remainingFindings: Array<{ severity: string; message: string }>;
 }
 export interface RepairInput {
   schedule: SchedulerOutput;
@@ -94,11 +119,15 @@ export interface RepairInput {
   profile: UserProfileV5;
 }
 export interface RepairOutput {
+  status: 'fixed' | 'no_change' | 'escalated';
   patchesApplied: PatchOp[];
   iterations: number;
   scoreBefore: number;
   scoreAfter: number;
   finalSchedule: SchedulerOutput;
+  remainingFindings: Array<{ severity: string; message: string }>;
+  attempts: RepairAttemptRecord[];
+  attemptedPatch?: PatchOp;
 }
 
 // ─── 11. Packager ─────────────────────────────────────────────────────────────
@@ -107,6 +136,7 @@ export interface PlanPackage {
   items: PlanItem[];
   habitStates: HabitState[];
   slackPolicy: SlackPolicy;
+  timezone: string;
   summary_esAR: string;
   qualityScore: number;
   implementationIntentions: string[];
@@ -115,6 +145,7 @@ export interface PlanPackage {
 }
 export interface PackageInput {
   finalSchedule: SchedulerOutput;
+  timezone: string;
   classification?: GoalClassification;
   roadmap?: StrategicRoadmap;
   goalText?: string;
@@ -123,7 +154,7 @@ export interface PackageInput {
   hardFindings?: HardFinding[];
   softFindings?: SoftFinding[];
   coveFindings?: CoVeFinding[];
-  repairSummary?: Pick<RepairOutput, 'patchesApplied' | 'iterations' | 'scoreAfter'>;
+  repairSummary?: Pick<RepairOutput, 'status' | 'patchesApplied' | 'iterations' | 'scoreAfter'>;
   profile?: UserProfileV5;
   currentHabitStates?: HabitState[];
   habitProgressionKeys?: string[];
@@ -133,6 +164,7 @@ export type PackageOutput = PlanPackage;
 
 // ─── 12. Adapt (Future/Feedback loop) ─────────────────────────────────────────
 export type AdaptiveMode = 'ABSORB' | 'PARTIAL_REPAIR' | 'REBASE';
+export type AdaptiveStatus = 'pending' | 'ready' | 'error';
 export type AdaptiveActivityOutcome = 'SUCCESS' | 'PARTIAL' | 'MISSED';
 export type AdaptiveRelaunchPhase =
   | 'strategy'
@@ -213,6 +245,77 @@ export interface AdaptiveOutput {
 
 export type AdaptInput = AdaptiveInput;
 export type AdaptOutput = AdaptiveOutput;
+
+export interface V5PhaseTimingSnapshot {
+  startedAt: string | null;
+  finishedAt: string | null;
+  durationMs: number | null;
+}
+
+export interface V5RepairPhaseSnapshot extends V5PhaseTimingSnapshot {
+  phase: 'hardValidate' | 'softValidate' | 'coveVerify' | 'repair';
+  status: 'pending' | 'running' | 'success' | 'error' | 'skipped' | 'exhausted';
+  summaryLabel: string | null;
+}
+
+export interface V5RepairCycleSnapshot {
+  cycle: number;
+  status: 'repaired' | 'clean' | 'exhausted';
+  findings: {
+    fail: number;
+    warn: number;
+    info: number;
+  };
+  scoreBefore: number | null;
+  scoreAfter: number | null;
+  phases: V5RepairPhaseSnapshot[];
+}
+
+export interface V5PhaseSnapshot {
+  runId: string;
+  modelId: string | null;
+  qualityScore: number;
+  startedAt: string;
+  finishedAt: string | null;
+  phaseTimeline: Partial<Record<
+    'classify'
+    | 'requirements'
+    | 'profile'
+    | 'strategy'
+    | 'template'
+    | 'schedule'
+    | 'hardValidate'
+    | 'softValidate'
+    | 'coveVerify'
+    | 'repair'
+    | 'package'
+    | 'adapt',
+    V5PhaseTimingSnapshot
+  >>;
+  phaseStatuses: Partial<Record<
+    'classify'
+    | 'requirements'
+    | 'profile'
+    | 'strategy'
+    | 'template'
+    | 'schedule'
+    | 'hardValidate'
+    | 'softValidate'
+    | 'coveVerify'
+    | 'repair'
+    | 'package'
+    | 'adapt',
+    'pending' | 'running' | 'success' | 'error' | 'skipped'
+  >>;
+  repairTimeline: V5RepairCycleSnapshot[];
+}
+
+export interface StoredAdaptiveState {
+  status: AdaptiveStatus;
+  output: AdaptiveOutput | null;
+  updatedAt: string;
+  lastError: string | null;
+}
 
 
 // ─── V5 Registry ──────────────────────────────────────────────────────────────

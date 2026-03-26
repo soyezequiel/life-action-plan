@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TimeEventItemSchema, type TimeEventItem } from '../domain/plan-item';
+import { TimeEventItemSchema } from '../domain/plan-item';
 
 export const AvailabilityWindowSchema = z.object({
   day: z.string(),
@@ -41,6 +41,7 @@ export const SchedulerInputSchema = z.object({
   availability: z.array(AvailabilityWindowSchema),
   blocked: z.array(BlockedSlotSchema),
   preferences: z.array(SchedulingPreferenceSchema),
+  timezone: z.string(),
   weekStartDate: z.string(),
 }).strict();
 export type SchedulerInput = z.infer<typeof SchedulerInputSchema>;

@@ -18,6 +18,7 @@ import { randomUUID } from 'crypto';
 
 import { buildConstraints, SLOT_DURATION_MIN, SLOTS_PER_DAY } from './constraint-builder';
 import { buildMilpModel } from './milp-model';
+import { generateTradeoffs } from './explainer';
 import type { SchedulerInput, SchedulerOutput } from './types';
 import type { TimeEventItem } from '../domain/plan-item';
 
@@ -102,7 +103,7 @@ export async function solveSchedule(
         status: 'active',
         goalIds: [act.goalId],
         startAt,
-        durationMin: act.durationSlots * SLOT_DURATION_MIN,
+        durationMin: act.requestedDurationMin,
         rigidity: act.constraintTier === 'hard' ? 'hard' : 'soft',
         createdAt: now,
         updatedAt: now,
@@ -141,7 +142,11 @@ export async function solveSchedule(
   return {
     events,
     unscheduled,
-    tradeoffs: [],
+    tradeoffs: unscheduled.length > 0 ? generateTradeoffs(input, { events, unscheduled, metrics: {
+      fillRate,
+      solverTimeMs,
+      solverStatus: effectiveStatus,
+    } }) : [],
     metrics: {
       fillRate,
       solverTimeMs,

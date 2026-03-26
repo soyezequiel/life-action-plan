@@ -3,11 +3,12 @@
 import { startTransition, useEffect, useState } from 'react';
 
 import { t } from '../../i18n';
-import type { AdaptiveOutput, PlanPackage } from '../pipeline/v5/phase-io-v5';
+import type { AdaptiveOutput, AdaptiveStatus, PlanPackage } from '../pipeline/v5/phase-io-v5';
 
 interface UsePlanV5Result {
   package: PlanPackage | null;
   adaptive: AdaptiveOutput | null;
+  adaptiveStatus: AdaptiveStatus;
   loading: boolean;
   error: string | null;
   refetch: () => void;
@@ -18,9 +19,23 @@ interface OkResponse<T> {
   data: T;
 }
 
+interface AdaptiveEnvelope {
+  ok: true;
+  status: AdaptiveStatus;
+  data: AdaptiveOutput | null;
+}
+
 interface ErrorResponse {
   ok: false;
   error: string;
+}
+
+function toUiError(message: string): string {
+  if (message === 'PLAN_V5_NOT_AVAILABLE' || message === t('errors.plan_not_found')) {
+    return t('planV5.empty');
+  }
+
+  return message;
 }
 
 async function readJson<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
@@ -41,6 +56,7 @@ async function readJson<T>(input: RequestInfo | URL, init?: RequestInit): Promis
 export function usePlanV5(planId?: string): UsePlanV5Result {
   const [planPackage, setPlanPackage] = useState<PlanPackage | null>(null);
   const [adaptive, setAdaptive] = useState<AdaptiveOutput | null>(null);
+  const [adaptiveStatus, setAdaptiveStatus] = useState<AdaptiveStatus>('pending');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [requestVersion, setRequestVersion] = useState(0);
@@ -62,7 +78,7 @@ export function usePlanV5(planId?: string): UsePlanV5Result {
           readJson<OkResponse<PlanPackage>>(`/api/plan/v5/package${suffix}`, {
             signal: controller.signal,
           }),
-          readJson<OkResponse<AdaptiveOutput | null>>(`/api/plan/v5/adaptive${suffix}`, {
+          readJson<AdaptiveEnvelope>(`/api/plan/v5/adaptive${suffix}`, {
             signal: controller.signal,
           }),
         ]);
@@ -73,17 +89,19 @@ export function usePlanV5(planId?: string): UsePlanV5Result {
 
         setPlanPackage(packageResponse.data);
         setAdaptive(adaptiveResponse.data);
+        setAdaptiveStatus(adaptiveResponse.status);
       } catch (cause) {
         if (controller.signal.aborted) {
           return;
         }
 
         const message = cause instanceof Error && cause.message.trim()
-          ? cause.message
+          ? toUiError(cause.message)
           : t('planV5.error');
         setError(message);
         setPlanPackage(null);
         setAdaptive(null);
+        setAdaptiveStatus('pending');
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -101,6 +119,7 @@ export function usePlanV5(planId?: string): UsePlanV5Result {
   return {
     package: planPackage,
     adaptive,
+    adaptiveStatus,
     loading,
     error,
     refetch() {

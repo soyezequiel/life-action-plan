@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { randomUUID } from 'crypto'
 import { resolve } from 'path'
 
 import { DateTime } from 'luxon'
@@ -58,6 +59,7 @@ export interface PipelineRuntimeError {
 }
 
 export interface PipelineRuntimeRunMetadata {
+  runId: string
   source: 'api-build' | 'cli-v5'
   status: 'running' | 'success' | 'error'
   startedAt: string
@@ -147,6 +149,7 @@ export interface PipelineRuntimeRecorder {
 }
 
 const CONTEXT_FILE = resolve(process.cwd(), 'tmp/pipeline-context.json')
+const CONTEXT_SUCCESS_FILE = resolve(process.cwd(), 'tmp/pipeline-context-success.json')
 const REPAIR_TIMELINE_PHASES: RepairTimelinePhase[] = ['hardValidate', 'softValidate', 'coveVerify', 'repair']
 
 export const PIPELINE_V5_PHASES: PipelinePhaseV5[] = [
@@ -177,6 +180,7 @@ function createPhaseStatuses(status: PhaseStatus = 'pending'): Record<PipelinePh
 
 function emptyRunMetadata(input: PipelineRuntimeInit, startedAt: string): PipelineRuntimeRunMetadata {
   return {
+    runId: randomUUID(),
     source: input.source,
     status: 'running',
     startedAt,
@@ -352,6 +356,24 @@ export function readPipelineRuntimeData(): PipelineRuntimeData | null {
   } catch {
     return null
   }
+}
+
+export function readLatestSuccessfulRuntimeData(): PipelineRuntimeData | null {
+  if (!existsSync(CONTEXT_SUCCESS_FILE)) {
+    return null
+  }
+
+  try {
+    const raw = readFileSync(CONTEXT_SUCCESS_FILE, 'utf8')
+    return JSON.parse(raw) as PipelineRuntimeData
+  } catch {
+    return null
+  }
+}
+
+function persistSuccessSnapshot(snapshot: PipelineRuntimeData): void {
+  ensureContextDir()
+  writeFileSync(CONTEXT_SUCCESS_FILE, JSON.stringify(snapshot, null, 2), 'utf8')
 }
 
 function snapshotWithUpdate(
@@ -608,6 +630,11 @@ export function createPipelineRuntimeRecorder(initial: PipelineRuntimeInit): Pip
           }
         }
       })
+
+      if (status === 'success') {
+        persistSuccessSnapshot(snapshot)
+      }
+
       return snapshot
     },
     getSnapshot() {

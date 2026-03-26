@@ -24,6 +24,7 @@ function Probe({ planId }: { planId: string }) {
       <span>{state.loading ? t('planV5.loading') : 'ready'}</span>
       <span>{state.package?.summary_esAR ?? 'no-package'}</span>
       <span>{state.adaptive?.mode ?? 'no-adaptive'}</span>
+      <span>{`status:${state.adaptiveStatus}`}</span>
       <span>{state.error ?? 'no-error'}</span>
       <button type="button" onClick={state.refetch}>
         {t('planV5.refresh')}
@@ -42,9 +43,9 @@ describe('usePlanV5', () => {
     const adaptive = await getAdaptiveOutputMock('plan-v5-hook');
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(jsonResponse({ ok: true, data: pkg }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, data: adaptive }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, status: 'ready', data: adaptive }))
       .mockResolvedValueOnce(jsonResponse({ ok: true, data: pkg }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, data: adaptive }));
+      .mockResolvedValueOnce(jsonResponse({ ok: true, status: 'ready', data: adaptive }));
 
     vi.stubGlobal('fetch', fetchMock);
 
@@ -54,6 +55,7 @@ describe('usePlanV5', () => {
     expect(screen.getByText(t('planV5.loading'))).toBeTruthy();
     expect(await screen.findByText(pkg.summary_esAR)).toBeTruthy();
     expect(screen.getByText(adaptive.mode)).toBeTruthy();
+    expect(screen.getByText('status:ready')).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledTimes(2);
 
     await user.click(screen.getByRole('button', { name: t('planV5.refresh') }));

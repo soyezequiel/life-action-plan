@@ -11,6 +11,7 @@ import { FlowRunnerV5 } from '../../src/lib/pipeline/v5/runner';
 import type { AgentRuntime, LLMMessage, LLMResponse } from '../../src/lib/runtime/types';
 import type { ActivityRequest, AvailabilityWindow, SchedulerInput, SchedulerOutput } from '../../src/lib/scheduler/types';
 
+const TIMEZONE = 'UTC';
 const WEEK_START = '2026-03-30T00:00:00Z';
 const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
@@ -56,9 +57,33 @@ function defaultStrategy(prompt: string) {
   };
 }
 
+function defaultClassification(prompt: string) {
+  const lowerPrompt = prompt.toLowerCase();
+
+  if (lowerPrompt.includes('running')) {
+    return {
+      goalType: 'RECURRENT_HABIT',
+      confidence: 0.9,
+      risk: 'LOW',
+      signals: ['recurring'],
+    };
+  }
+
+  return {
+    goalType: 'SKILL_ACQUISITION',
+    confidence: 0.88,
+    risk: 'LOW',
+    signals: ['skill'],
+  };
+}
+
 function createRuntime(overrides: RuntimeOverrides = {}): AgentRuntime {
   async function chat(messages: LLMMessage[]): Promise<LLMResponse> {
     const prompt = messages[messages.length - 1]?.content ?? '';
+
+    if (prompt.includes('Clasifica este objetivo personal')) {
+      return jsonResponse(defaultClassification(prompt));
+    }
 
     if (prompt.includes('array "questions"')) {
       return jsonResponse(
@@ -118,15 +143,16 @@ function makeConfig(
   extra: Partial<ConstructorParameters<typeof FlowRunnerV5>[0]> = {},
 ): ConstructorParameters<typeof FlowRunnerV5>[0] {
   return {
+    ...extra,
     runtime: createRuntime(runtimeOverrides),
     text,
     answers: {
       disponibilidad: 'Entre semana tengo dos o tres horas y el finde un poco mas.',
     },
-    availability: makeAvailability(),
-    weekStartDate: WEEK_START,
-    goalId: 'goal-v5-robustness',
-    ...extra,
+    timezone: extra.timezone ?? TIMEZONE,
+    availability: extra.availability ?? makeAvailability(),
+    weekStartDate: extra.weekStartDate ?? WEEK_START,
+    goalId: extra.goalId ?? 'goal-v5-robustness',
   };
 }
 
@@ -180,6 +206,7 @@ function makeScheduleInput(
     availability,
     blocked: [],
     preferences: [],
+    timezone: TIMEZONE,
     weekStartDate: WEEK_START,
   };
 }
@@ -422,6 +449,8 @@ describe('pipeline v5 robustness', () => {
     const validation = await executeHardValidator({
       schedule: bikeSchedule,
       originalInput: makeScheduleInput([bike], availability),
+      profile: DEFAULT_PROFILE,
+      timezone: TIMEZONE,
     });
 
     expect(swapPlan.swaps).toEqual([
@@ -442,5 +471,43 @@ describe('pipeline v5 robustness', () => {
       }),
     );
     expect(validation.findings).toEqual([]);
+  });
+
+  it('hard validator falla en hora local real por madrugada, trabajo, exceso de carga y duración incorrecta', async () => {
+    const localTimezone = 'America/Argentina/Buenos_Aires';
+    const awakeActivity = makeActivity({ id: 'awake', label: 'Bloque madrugada', durationMin: 20, frequencyPerWeek: 1 });
+    const workActivity = makeActivity({ id: 'work', label: 'Bloque trabajo', durationMin: 60, frequencyPerWeek: 1 });
+    const loadActivity = makeActivity({ id: 'load', label: 'Bloque carga', durationMin: 120, frequencyPerWeek: 1 });
+
+    const validation = await executeHardValidator({
+      schedule: makeSchedule([
+        makeEvent(awakeActivity, '2026-03-30T07:30:00.000Z', 30),
+        makeEvent(workActivity, '2026-03-31T13:00:00.000Z', 90),
+        makeEvent(loadActivity, '2026-03-31T21:00:00.000Z', 120),
+      ]),
+      originalInput: {
+        activities: [awakeActivity, workActivity, loadActivity],
+        availability: WEEK_DAYS.map((day) => ({ day, startTime: '07:00', endTime: '22:00' })),
+        blocked: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].map((day) => ({
+          day,
+          startTime: '09:00',
+          endTime: '18:00',
+          reason: 'Trabajo',
+        })),
+        preferences: [],
+        timezone: localTimezone,
+        weekStartDate: '2026-03-30T03:00:00Z',
+      },
+      profile: DEFAULT_PROFILE,
+      timezone: localTimezone,
+    });
+
+    const codes = validation.findings.map((finding) => finding.code);
+    expect(codes).toEqual(expect.arrayContaining([
+      'HV-OUTSIDE_AWAKE_HOURS',
+      'HV-OVERLAPS_WORK',
+      'HV-DAY-OVER-CAPACITY',
+      'HV-DURATION',
+    ]));
   });
 });

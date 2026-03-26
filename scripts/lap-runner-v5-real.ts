@@ -6,10 +6,12 @@ import { DEFAULT_OLLAMA_BUILD_MODEL, DEFAULT_OPENAI_BUILD_MODEL, DEFAULT_OPENROU
 import { getProvider } from '../src/lib/providers/provider-factory';
 import { createPipelineRuntimeRecorder } from '../src/lib/flow/pipeline-runtime-data';
 import { FlowRunnerV5 } from '../src/lib/pipeline/v5/runner';
-import type { AvailabilityWindow } from '../src/lib/scheduler/types';
+import { buildSchedulingContextFromRunnerConfig } from '../src/lib/pipeline/v5/scheduling-context';
+import type { AvailabilityWindow, BlockedSlot } from '../src/lib/scheduler/types';
 
 const DEFAULT_OUTPUT_FILE = resolve(process.cwd(), 'tmp/pipeline-v5-real.json');
-const DEFAULT_WEEK_START = '2026-03-30T00:00:00Z';
+const DEFAULT_TIMEZONE = 'America/Argentina/Buenos_Aires';
+const DEFAULT_WEEK_START = '2026-03-30T03:00:00Z';
 const DEFAULT_GOAL_TEXT = 'Quiero aprender a tocar la guitarra y sostener una practica semanal realista sin quemarme.';
 const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 const PREVIOUS_HABIT_STATE: HabitState = {
@@ -154,6 +156,15 @@ function makeAvailability(startTime = '07:00', endTime = '22:00'): AvailabilityW
   return WEEK_DAYS.map((day) => ({ day, startTime, endTime }));
 }
 
+function makeBlocked(): BlockedSlot[] {
+  return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].map((day) => ({
+    day,
+    startTime: '09:00',
+    endTime: '18:00',
+    reason: 'Trabajo',
+  }));
+}
+
 function createHabitStateStore(): HabitStateStore {
   let savedStates: HabitState[] = [];
 
@@ -183,6 +194,12 @@ async function run(): Promise<void> {
     goalText: DEFAULT_GOAL_TEXT,
     outputFile
   });
+  const schedulingContext = buildSchedulingContextFromRunnerConfig({
+    timezone: DEFAULT_TIMEZONE,
+    weekStartDate: DEFAULT_WEEK_START,
+    availability: makeAvailability(),
+    blocked: makeBlocked(),
+  });
   const runner = new FlowRunnerV5({
     runtime,
     text: DEFAULT_GOAL_TEXT,
@@ -192,8 +209,10 @@ async function run(): Promise<void> {
       objetivo: 'Quiero consolidar la practica, mejorar acordes y poder tocar canciones completas.',
       experiencia: 'Ya sostuve algunas semanas de practica y no quiero volver a arrancar de cero.'
     },
-    availability: makeAvailability(),
-    weekStartDate: DEFAULT_WEEK_START,
+    timezone: schedulingContext.timezone,
+    availability: schedulingContext.availability,
+    blocked: schedulingContext.blocked,
+    weekStartDate: schedulingContext.weekStartDate,
     goalId: 'goal-guitar-v5-real',
     slackPolicy: {
       weeklyTimeBufferMin: 150,
@@ -212,14 +231,68 @@ async function run(): Promise<void> {
     outputFile
   });
 
+  const REPAIR_LOOP_PHASES = new Set(['hardValidate', 'softValidate', 'coveVerify', 'repair']);
+
+  function isRepairLoopPhase(phase: string): phase is 'hardValidate' | 'softValidate' | 'coveVerify' | 'repair' {
+    return REPAIR_LOOP_PHASES.has(phase);
+  }
+
+  function getRepairLoopCycle(phase: string, repairCycles: number): number {
+    return phase === 'repair' ? Math.max(repairCycles, 1) : repairCycles + 1;
+  }
+
+  function summarizeRepairPhase(phase: string, output: unknown): string | null {
+    const payload = output && typeof output === 'object' ? output as Record<string, unknown> : null;
+    if (!payload) return null;
+    if (phase === 'hardValidate') {
+      return `${Array.isArray(payload.findings) ? payload.findings.length : 0} FAIL`;
+    }
+    if (phase === 'softValidate' || phase === 'coveVerify') {
+      const findings = Array.isArray(payload.findings) ? payload.findings : [];
+      const failCount = findings.filter((f) => f && typeof f === 'object' && (f as Record<string, unknown>).severity === 'FAIL').length;
+      if (failCount > 0) return `${failCount} FAIL`;
+      const warnCount = findings.filter((f) => f && typeof f === 'object' && (f as Record<string, unknown>).severity === 'WARN').length;
+      if (warnCount > 0) return `${warnCount} WARN`;
+      return `${findings.filter((f) => f && typeof f === 'object' && (f as Record<string, unknown>).severity === 'INFO').length} INFO`;
+    }
+    return `${Array.isArray(payload.patchesApplied) ? payload.patchesApplied.length : 0} patches`;
+  }
+
   try {
     const context = await runner.runFullPipeline({
-      onPhaseStart: (phase) => {
-        runtimeRecorder.markPhaseStart(phase);
+      onPhaseStart: (phase, details) => {
+        runtimeRecorder.markPhaseStart(phase, {
+          startedAt: details?.startedAt ?? null,
+          input: details?.input
+        });
+        if (isRepairLoopPhase(phase)) {
+          const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
+          runtimeRecorder.markRepairCyclePhaseStart(cycle, phase, {
+            startedAt: details?.startedAt ?? null
+          });
+        }
         console.error(`[V5 Real] -> ${phase}`);
       },
       onPhaseSuccess: (phase, _result, io) => {
         runtimeRecorder.markPhaseSuccess(phase, io);
+        if (isRepairLoopPhase(phase)) {
+          const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
+          runtimeRecorder.markRepairCyclePhaseComplete(cycle, phase, 'success', {
+            io,
+            summaryLabel: summarizeRepairPhase(phase, io?.output)
+          });
+          if (phase === 'repair') {
+            const payload = io?.output && typeof io.output === 'object' ? io.output as Record<string, unknown> : null;
+            const snapshot = runtimeRecorder.getSnapshot();
+            const attemptFindings = snapshot.repairAttempts.slice().reverse().find((a) => a.attempt === cycle)?.findings ?? [];
+            runtimeRecorder.finalizeRepairCycle(cycle, {
+              status: 'repaired',
+              findings: attemptFindings,
+              scoreBefore: typeof payload?.scoreBefore === 'number' ? payload.scoreBefore : null,
+              scoreAfter: typeof payload?.scoreAfter === 'number' ? payload.scoreAfter : null
+            });
+          }
+        }
         if (phase === 'classify') {
           const domainCard = runner.getContext().domainCard;
           if (domainCard) {
@@ -233,9 +306,28 @@ async function run(): Promise<void> {
       },
       onPhaseFailure: (phase, error) => {
         runtimeRecorder.markPhaseFailure(phase, error);
+        if (isRepairLoopPhase(phase)) {
+          const cycle = getRepairLoopCycle(phase, runtimeRecorder.getSnapshot().repairCycles);
+          runtimeRecorder.markRepairCyclePhaseComplete(cycle, phase, 'error', {
+            summaryLabel: error.message
+          });
+        }
       },
       onPhaseSkipped: (phase) => {
         runtimeRecorder.markPhaseSkipped(phase, `Phase ${phase} skipped.`);
+        if (phase === 'repair') {
+          const cycle = runtimeRecorder.getSnapshot().repairCycles + 1;
+          runtimeRecorder.markRepairCyclePhaseComplete(cycle, 'repair', 'skipped', {
+            summaryLabel: 'Sin fallas'
+          });
+          const ctx = runner.getContext();
+          const findings = [
+            ...(ctx.hardValidate?.findings ?? []).map((f) => ({ severity: f.severity, message: f.description })),
+            ...(ctx.softValidate?.findings ?? []).map((f) => ({ severity: f.severity, message: f.suggestion_esAR })),
+            ...(ctx.coveVerify?.findings ?? []).map((f) => ({ severity: f.severity, message: f.answer }))
+          ];
+          runtimeRecorder.finalizeRepairCycle(cycle, { status: 'clean', findings });
+        }
         console.error(`[V5 Real] skipped: ${phase}`);
       },
       onProgress: (phase, progress) => {
@@ -247,8 +339,15 @@ async function run(): Promise<void> {
         runtimeRecorder.recordRepairAttempt(attempt, maxAttempts, findings);
         console.error(`[V5 Real] repair ${attempt}/${maxAttempts} with ${findings.length} findings`);
       },
-      onRepairExhausted: () => {
+      onRepairExhausted: (repairCycles, remainingFindings) => {
         runtimeRecorder.markRepairExhausted();
+        runtimeRecorder.markRepairCyclePhaseComplete(repairCycles, 'repair', 'exhausted', {
+          summaryLabel: 'Agotado'
+        });
+        runtimeRecorder.finalizeRepairCycle(repairCycles, {
+          status: 'exhausted',
+          findings: remainingFindings
+        });
       }
     });
 

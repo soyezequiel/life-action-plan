@@ -82,6 +82,7 @@ export type V5Operational = z.infer<typeof V5OperationalSchema>;
 
 export const V5PlanSchema = z.object({
   goalIds: z.array(z.string()),
+  timezone: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
   skeleton: V5SkeletonSchema,

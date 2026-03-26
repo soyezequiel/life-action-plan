@@ -14,14 +14,17 @@ export async function executeSoftValidator(input: SoftValidateInput): Promise<So
   // Agrupar eventos por día calendario (YYYY-MM-DD local a la base, o usando UTC del startAt)
   const eventsByDay: Record<string, TimeEventItem[]> = {};
   for (const ev of events) {
-    const dayKey = DateTime.fromISO(ev.startAt, { zone: 'UTC' }).toFormat('yyyy-MM-dd');
+    const dayKey = DateTime.fromISO(ev.startAt, { zone: 'UTC' }).setZone(input.timezone).toFormat('yyyy-MM-dd');
     if (!eventsByDay[dayKey]) eventsByDay[dayKey] = [];
     eventsByDay[dayKey].push(ev);
   }
 
   // a. Context switches excesivos y b. Deep work en baja energía
   for (const [day, dayEvents] of Object.entries(eventsByDay)) {
-    dayEvents.sort((a, b) => DateTime.fromISO(a.startAt).toMillis() - DateTime.fromISO(b.startAt).toMillis());
+    dayEvents.sort((a, b) =>
+      DateTime.fromISO(a.startAt, { zone: 'UTC' }).toMillis() -
+      DateTime.fromISO(b.startAt, { zone: 'UTC' }).toMillis(),
+    );
 
     // a. A -> B -> A pattern (Context switches)
     if (dayEvents.length >= 3) {
@@ -45,8 +48,9 @@ export async function executeSoftValidator(input: SoftValidateInput): Promise<So
     // b. Deep work (>= 60 min) tarde en la noche (empieza o termina después de las 21:00)
     for (const ev of dayEvents) {
       if (ev.durationMin >= 60) {
-        const startHour = DateTime.fromISO(ev.startAt, { zone: 'UTC' }).hour;
-        const endHour = DateTime.fromISO(ev.startAt, { zone: 'UTC' }).plus({ minutes: ev.durationMin }).hour;
+        const localStart = DateTime.fromISO(ev.startAt, { zone: 'UTC' }).setZone(input.timezone);
+        const startHour = localStart.hour;
+        const endHour = localStart.plus({ minutes: ev.durationMin }).hour;
         // Si la actividad cruza las 21:00 hs (asumiendo que 21, 22, 23 es baja energía para trabajo puro)
         if (startHour >= 21 || endHour >= 22 || (endHour >= 0 && endHour < 5)) {
           findings.push({

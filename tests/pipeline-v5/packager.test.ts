@@ -10,6 +10,7 @@ describe('packagePlan', () => {
     const input: PackageInput = {
       goalText: 'Correr 3 veces por semana',
       goalId: 'goal-1',
+      timezone: 'UTC',
       weekStartDate: '2026-03-30T00:00:00Z',
       classification: {
         goalType: 'RECURRENT_HABIT',
@@ -123,9 +124,12 @@ describe('packagePlan', () => {
       ],
       coveFindings: [
         {
+          code: 'COVE-DISTRIBUTION',
           question: 'Hay espacio para fuerza?',
           answer: 'No todo entra en la semana actual.',
           severity: 'WARN',
+          groundedByFacts: true,
+          supportingFacts: ['concentrated=true'],
         },
       ],
     };

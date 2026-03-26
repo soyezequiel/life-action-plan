@@ -22,7 +22,7 @@ const TABS: DashboardTab[] = ['week', 'calendar', 'habits', 'progress'];
 export function PlanDashboardV5() {
   const searchParams = useSearchParams();
   const planId = searchParams?.get('planId') ?? undefined;
-  const { package: pkg, adaptive, loading, error, refetch } = usePlanV5(planId);
+  const { package: pkg, adaptive, adaptiveStatus, loading, error, refetch } = usePlanV5(planId);
   const [activeTab, setActiveTab] = useState<DashboardTab>('week');
   const [tradeoffOpen, setTradeoffOpen] = useState(false);
   const [showAdaptive, setShowAdaptive] = useState(false);
@@ -64,6 +64,7 @@ export function PlanDashboardV5() {
       <PlanSummaryBar
         package={pkg}
         adaptive={adaptive}
+        adaptiveStatus={adaptiveStatus}
         onOpenChanges={() => setShowAdaptive((current) => !current)}
         onOpenTradeoffs={() => setTradeoffOpen(true)}
       />

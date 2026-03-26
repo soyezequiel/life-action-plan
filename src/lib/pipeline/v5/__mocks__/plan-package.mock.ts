@@ -10,7 +10,8 @@ import type {
   PlanPackage,
 } from '../phase-io-v5';
 
-const MOCK_WEEK_START = '2026-03-30T00:00:00Z';
+const MOCK_WEEK_START = '2026-03-30T03:00:00Z';
+const MOCK_TIMEZONE = 'America/Argentina/Buenos_Aires';
 const CREATED_AT = '2026-03-30T00:00:00.000Z';
 const GOAL_RUNNING = 'goal-running';
 const GOAL_GUITAR = 'goal-guitar';
@@ -45,6 +46,7 @@ function createBasePackage(planId: string): PlanPackage {
   const input: PackageInput = {
     goalText: 'Correr, practicar guitarra y sostener ingles sin desbordar la semana',
     goalId: planId,
+    timezone: MOCK_TIMEZONE,
     weekStartDate: MOCK_WEEK_START,
     classification: {
       goalType: 'RECURRENT_HABIT',
@@ -226,9 +228,12 @@ function createBasePackage(planId: string): PlanPackage {
     ],
     coveFindings: [
       {
+        code: 'COVE-DISTRIBUTION',
         question: 'Hay demasiado peso en los ultimos dias?',
         answer: 'El cierre de semana necesita un poco mas de aire para no sentirse pesado.',
         severity: 'WARN',
+        groundedByFacts: true,
+        supportingFacts: ['maxSessionsPerDay=2'],
       },
     ],
   };

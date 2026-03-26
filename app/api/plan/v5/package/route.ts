@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-import { getLatestProfileIdForUser, getPlansByProfile } from '../../../_db';
+import { getLatestProfileIdForUser, getPlan, getPlansByProfile } from '../../../_db';
 import { jsonResponse } from '../../../_shared';
 import { resolveUserId } from '../../../_user-settings';
 import { t } from '../../../../../src/i18n';
+import { readPlanV5Manifest } from '../../../../../src/lib/domain/plan-helpers';
 import type { PlanPackage } from '../../../../../src/lib/pipeline/v5/phase-io-v5';
-import { getPlanPackageMock } from '../../../../../src/lib/pipeline/v5/__mocks__/plan-package.mock';
 
 const packageQuerySchema = z.object({
   planId: z.string().trim().min(1).optional(),
@@ -21,7 +21,11 @@ const packageErrorSchema = z.object({
   error: z.string().trim().min(1),
 }).strict();
 
-async function resolveLatestPlanId(request: Request): Promise<string | null> {
+async function resolvePlanId(request: Request, explicitPlanId?: string): Promise<string | null> {
+  if (explicitPlanId) {
+    return explicitPlanId;
+  }
+
   const latestProfileId = await getLatestProfileIdForUser(resolveUserId(request));
   if (!latestProfileId) {
     return null;
@@ -49,12 +53,33 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   try {
-    const resolvedPlanId = parsedQuery.data.planId ?? await resolveLatestPlanId(request) ?? 'plan-v5-mock';
-    const data = getPlanPackageMock(resolvedPlanId);
+    const resolvedPlanId = await resolvePlanId(request, parsedQuery.data.planId);
+    if (!resolvedPlanId) {
+      return jsonResponse(packageErrorSchema.parse({
+        ok: false,
+        error: t('errors.plan_not_found'),
+      }), { status: 404 });
+    }
+
+    const plan = await getPlan(resolvedPlanId);
+    if (!plan) {
+      return jsonResponse(packageErrorSchema.parse({
+        ok: false,
+        error: t('errors.plan_not_found'),
+      }), { status: 404 });
+    }
+
+    const v5 = readPlanV5Manifest(plan.manifest);
+    if (!v5?.package) {
+      return jsonResponse(packageErrorSchema.parse({
+        ok: false,
+        error: 'PLAN_V5_NOT_AVAILABLE',
+      }), { status: 404 });
+    }
 
     return jsonResponse(packageSuccessSchema.parse({
       ok: true,
-      data,
+      data: v5.package,
     }));
   } catch {
     return jsonResponse(packageErrorSchema.parse({

@@ -91,6 +91,8 @@ export interface ActivityParams {
   activityIndex: number;
   /** Duration expressed in 30-min slots. */
   durationSlots: number;
+  /** Original requested duration preserved for serialization and validation. */
+  requestedDurationMin: number;
   /** Target sessions per week. */
   frequencyPerWeek: number;
   /** Constraint tier controls how misses are penalised. */
@@ -203,6 +205,7 @@ export function buildConstraints(input: SchedulerInput): MilpModelParams {
       label: act.label,
       activityIndex: idx,
       durationSlots: durSlots,
+      requestedDurationMin: act.durationMin,
       frequencyPerWeek: act.frequencyPerWeek,
       constraintTier: act.constraintTier,
       feasibleStarts,

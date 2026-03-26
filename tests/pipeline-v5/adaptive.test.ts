@@ -15,6 +15,7 @@ import type {
 
 const CREATED_AT = '2026-03-30T00:00:00.000Z';
 const WEEK_START = '2026-03-30T00:00:00Z';
+const TIMEZONE = 'UTC';
 const GOAL_ID = 'goal-adaptive';
 const ACTIVITY_ID = 'running';
 const PROGRESSION_KEY = 'running';
@@ -33,6 +34,7 @@ function makePlanPackage(): PlanPackage {
   const input: PackageInput = {
     goalText: 'Correr 3 veces por semana',
     goalId: GOAL_ID,
+    timezone: TIMEZONE,
     weekStartDate: WEEK_START,
     classification: {
       goalType: 'RECURRENT_HABIT',
