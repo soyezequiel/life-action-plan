@@ -162,14 +162,14 @@ const rangoEstimadoSchema = z.object({
 
 const objetivoSchema = z.object({
   id: z.string().max(20),
-  descripcion: z.string().max(500),
+  descripcion: z.string().max(2000),
   tipo: z.enum(['meta', 'habito', 'exploracion']),
   responsable: z.string().max(50),
   prioridad: z.number().int().min(1).max(5),
   plazo: z.string().max(50).nullable().default(null),
   tipoTimeline: z.enum(['controlable', 'externo', 'mixto']),
   rangoEstimado: rangoEstimadoSchema,
-  motivacion: z.string().max(200),
+  motivacion: z.string().max(2000),
   relaciones: z.array(relacionObjetivoSchema).default([]),
   horasSemanalesEstimadas: z.number().nonnegative()
 }).strict()
