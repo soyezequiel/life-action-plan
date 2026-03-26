@@ -155,6 +155,8 @@ const runtimeFallbacks: Record<string, string> = {
   'debug.flow.processing_model': 'Modelo',
   'debug.flow.processing_tokens': 'Tokens',
   'debug.flow.processing_total_tokens': 'Total',
+  'debug.flow.scale_label': 'Escala',
+  'debug.flow.scale_hint': 'Menor escala = mas detalle visible',
   'debug.flow.footer_quality': 'Quality',
   'debug.flow.footer_findings': 'Findings',
   'debug.flow.footer_repair': 'Repair',

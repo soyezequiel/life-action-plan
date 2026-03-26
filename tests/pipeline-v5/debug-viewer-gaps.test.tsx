@@ -94,12 +94,23 @@ function createViewerSnapshot() {
 describe('debug viewer v5 surface', () => {
   it('opens the drawer, switches phases, supports keyboard nav, and resizes', async () => {
     const user = userEvent.setup()
+    window.localStorage.clear()
 
-    render(<FlowViewerSurface snapshot={createViewerSnapshot()} />)
+    const { container } = render(<FlowViewerSurface snapshot={createViewerSnapshot()} />)
 
     expect((await screen.findAllByText('Requirements')).length).toBeGreaterThan(0)
     expect(screen.getByRole('tab', { name: t('debug.flow.tab_summary') })).toBeTruthy()
     expect(screen.getAllByText('4 preguntas').length).toBeGreaterThan(0)
+
+    fireEvent.change(screen.getByRole('slider', { name: t('debug.flow.scale_label') }), {
+      target: { value: '80' }
+    })
+
+    await waitFor(() => {
+      const viewer = container.querySelector('.flow-viewer') as HTMLElement
+      expect(viewer.style.getPropertyValue('--flow-density')).toBe('0.8')
+      expect(window.localStorage.getItem('pipeline-v5-debug-viewer-scale')).toBe('0.80')
+    })
 
     await user.click(screen.getByRole('button', { name: /Classify/i }))
 
@@ -107,10 +118,18 @@ describe('debug viewer v5 surface', () => {
       expect(screen.getAllByText('SKILL_ACQUISITION').length).toBeGreaterThan(0)
     })
 
+    await user.click(screen.getByRole('tab', { name: t('debug.flow.tab_output') }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: t('debug.flow.tab_output') }).getAttribute('aria-selected')).toBe('true')
+      expect(window.localStorage.getItem('pipeline-v5-debug-viewer-drawer-tab')).toBe('output')
+    })
+
     fireEvent.keyDown(window, { key: 'ArrowDown' })
 
     await waitFor(() => {
-      expect(screen.getAllByText('4 preguntas').length).toBeGreaterThan(0)
+      expect(screen.getByRole('tab', { name: t('debug.flow.tab_output') }).getAttribute('aria-selected')).toBe('true')
+      expect(screen.getAllByText('q1').length).toBeGreaterThan(0)
     })
 
     const drawer = document.querySelector('.flow-drawer') as HTMLElement

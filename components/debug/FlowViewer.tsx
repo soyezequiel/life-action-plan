@@ -22,6 +22,12 @@ const DEFAULT_DRAWER_RATIO = 0.4
 const MIN_DRAWER_HEIGHT = 280
 const MAX_DRAWER_HEIGHT_RATIO = 0.78
 const DRAWER_STORAGE_KEY = 'pipeline-v5-debug-viewer-drawer-height'
+const DRAWER_TAB_STORAGE_KEY = 'pipeline-v5-debug-viewer-drawer-tab'
+const VIEW_SCALE_STORAGE_KEY = 'pipeline-v5-debug-viewer-scale'
+const DEFAULT_VIEW_SCALE = 1
+const MIN_VIEW_SCALE = 0.72
+const MAX_VIEW_SCALE = 1.04
+const VIEW_SCALE_STEP = 0.04
 const PHASE_COUNT = 12
 
 const FIELD_LABELS: Record<string, string> = {
@@ -89,6 +95,39 @@ const FIELD_LABELS: Record<string, string> = {
 }
 
 type DrawerTab = 'summary' | 'input' | 'processing' | 'output'
+const DRAWER_TABS: DrawerTab[] = ['summary', 'input', 'processing', 'output']
+
+function isDrawerTab(value: string | null): value is DrawerTab {
+  return value !== null && DRAWER_TABS.includes(value as DrawerTab)
+}
+
+function getInitialDrawerTab(): DrawerTab {
+  if (typeof window === 'undefined') {
+    return 'summary'
+  }
+
+  const storedValue = window.localStorage.getItem(DRAWER_TAB_STORAGE_KEY)
+  return isDrawerTab(storedValue) ? storedValue : 'summary'
+}
+
+function clampViewScale(scale: number): number {
+  return Math.min(Math.max(scale, MIN_VIEW_SCALE), MAX_VIEW_SCALE)
+}
+
+function getInitialViewScale(): number {
+  if (typeof window === 'undefined') {
+    return DEFAULT_VIEW_SCALE
+  }
+
+  const storedValue = window.localStorage.getItem(VIEW_SCALE_STORAGE_KEY)
+  const parsedValue = storedValue ? Number.parseFloat(storedValue) : Number.NaN
+
+  if (Number.isFinite(parsedValue)) {
+    return clampViewScale(parsedValue)
+  }
+
+  return DEFAULT_VIEW_SCALE
+}
 
 function getDrawerHeightLimit(): number {
   if (typeof window === 'undefined') {
@@ -527,6 +566,8 @@ function PhaseDrawer({
   phase,
   isOpen,
   height,
+  activeTab,
+  onTabChange,
   onClose,
   onResizeStart
 }: {
@@ -534,14 +575,14 @@ function PhaseDrawer({
   phase: FlowViewerPhaseItem | null
   isOpen: boolean
   height: number
+  activeTab: DrawerTab
+  onTabChange: (tab: DrawerTab) => void
   onClose: () => void
   onResizeStart: (event: React.MouseEvent<HTMLDivElement>) => void
 }) {
-  const [activeTab, setActiveTab] = useState<DrawerTab>('summary')
   const [showRawJson, setShowRawJson] = useState(false)
 
   useEffect(() => {
-    setActiveTab('summary')
     setShowRawJson(false)
   }, [phase?.id])
 
@@ -600,14 +641,14 @@ function PhaseDrawer({
           </header>
 
           <div className="flow-drawer__tabs" role="tablist" aria-label={t('debug.flow.drawer_tabs')}>
-            {(['summary', 'input', 'processing', 'output'] as DrawerTab[]).map((tab) => (
+            {DRAWER_TABS.map((tab) => (
               <button
                 key={tab}
                 className={`flow-drawer__tab ${activeTab === tab ? 'flow-drawer__tab--active' : ''}`}
                 role="tab"
                 type="button"
                 aria-selected={activeTab === tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => onTabChange(tab)}
               >
                 {t(`debug.flow.tab_${tab}`)}
               </button>
@@ -640,6 +681,8 @@ export function FlowViewerSurface({
   const [selectedPhaseId, setSelectedPhaseId] = useState<FlowViewerPhaseItem['id'] | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(true)
   const [drawerHeight, setDrawerHeight] = useState(() => getInitialDrawerHeight())
+  const [activeDrawerTab, setActiveDrawerTab] = useState<DrawerTab>(() => getInitialDrawerTab())
+  const [viewScale, setViewScale] = useState(() => getInitialViewScale())
   const [nowMs, setNowMs] = useState(() => Date.now())
 
   const model = buildFlowViewerModel(snapshot, nowMs)
@@ -673,6 +716,22 @@ export function FlowViewerSurface({
     window.addEventListener('resize', handleWindowResize)
     return () => window.removeEventListener('resize', handleWindowResize)
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    window.localStorage.setItem(DRAWER_TAB_STORAGE_KEY, activeDrawerTab)
+  }, [activeDrawerTab])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    window.localStorage.setItem(VIEW_SCALE_STORAGE_KEY, viewScale.toFixed(2))
+  }, [viewScale])
 
   useEffect(() => {
     setNowMs(Date.now())
@@ -749,6 +808,10 @@ export function FlowViewerSurface({
     window.addEventListener('mouseup', handleMouseUp)
   }
 
+  function handleScaleChange(event: React.ChangeEvent<HTMLInputElement>): void {
+    setViewScale(clampViewScale(Number(event.currentTarget.value) / 100))
+  }
+
   if (!model.hasData && !isLoading) {
     return (
       <section className="flow-viewer flow-viewer--empty">
@@ -772,7 +835,11 @@ export function FlowViewerSurface({
   }
 
   return (
-    <section className="flow-viewer" aria-label={t('debug.flow.viewer_title')}>
+    <section
+      className="flow-viewer"
+      aria-label={t('debug.flow.viewer_title')}
+      style={{ ['--flow-density' as string]: String(viewScale) }}
+    >
       <header className="flow-viewer__header">
         <div className="flow-viewer__header-copy">
           <div className="flow-viewer__header-topline">
@@ -793,6 +860,24 @@ export function FlowViewerSurface({
           <span className="flow-chip">{`${t('debug.flow.meta_source')}: ${sourceLabel(model.source)}`}</span>
           <span className="flow-chip">{`${t('debug.flow.meta_model')}: ${model.modelId ?? '--'}`}</span>
           <span className="flow-chip">{`${t('debug.flow.meta_domain')}: ${model.domainChip ?? '--'}`}</span>
+          <label className="flow-scale-control">
+            <span className="flow-scale-control__label">
+              {`${t('debug.flow.scale_label')}: ${Math.round(viewScale * 100)}%`}
+            </span>
+            <input
+              className="flow-scale-control__slider"
+              type="range"
+              min={Math.round(MIN_VIEW_SCALE * 100)}
+              max={Math.round(MAX_VIEW_SCALE * 100)}
+              step={Math.round(VIEW_SCALE_STEP * 100)}
+              value={Math.round(viewScale * 100)}
+              onChange={handleScaleChange}
+              aria-label={t('debug.flow.scale_label')}
+            />
+            <span className="flow-scale-control__hint">
+              {t('debug.flow.scale_hint')}
+            </span>
+          </label>
         </div>
       </header>
 
@@ -867,6 +952,8 @@ export function FlowViewerSurface({
         phase={selectedPhase}
         isOpen={drawerOpen}
         height={drawerHeight}
+        activeTab={activeDrawerTab}
+        onTabChange={setActiveDrawerTab}
         onClose={() => setDrawerOpen(false)}
         onResizeStart={handleResizeStart}
       />
