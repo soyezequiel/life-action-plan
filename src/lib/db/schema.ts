@@ -74,6 +74,7 @@ export const plans = pgTable('plans', {
   nombre: text('nombre').notNull(),
   slug: text('slug').notNull().unique(),
   manifest: jsonb('manifest').notNull(),
+  reasoningTrace: jsonb('reasoning_trace'),
   createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
   updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull()
 })
