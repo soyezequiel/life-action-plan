@@ -14,6 +14,7 @@
     "lap:run:example": "tsx scripts/lap-runner-v5-example.ts",
     "lap:run:v5-example": "tsx scripts/lap-runner-v5-example.ts",
     "lap:run:v5-real": "tsx scripts/lap-runner-v5-real.ts",
+    "pulse:input": "tsx scripts/lap-runner-v5-interactive.ts",
     "codex:login": "tsx scripts/codex-login.ts",
     "lap:inspect": "tsx scripts/inspect-results.ts",
     "lap:flow:viewer": "start http://localhost:3000/debug/flow",
