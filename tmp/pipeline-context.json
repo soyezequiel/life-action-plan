@@ -1,12 +1,12 @@
 {
   "schemaVersion": 3,
   "pipeline": "v5",
-  "updatedAt": "2026-03-28T13:58:11.454Z",
+  "updatedAt": "2026-03-28T14:38:53.488Z",
   "run": {
-    "runId": "d6830afd-6d27-4c63-a4a2-1cbadb060f97",
+    "runId": "cfe2b05e-0eb8-4622-a894-e41270739a09",
     "source": "interactive",
     "status": "running",
-    "startedAt": "2026-03-28T13:58:11.452Z",
+    "startedAt": "2026-03-28T14:38:53.485Z",
     "finishedAt": null,
     "modelId": "openai:gpt-5-mini",
     "goalText": "Aprender guitarra",
@@ -14,7 +14,7 @@
     "outputFile": null,
     "tokensUsed": null,
     "resourceUsage": null,
-    "updatedAt": "2026-03-28T13:58:11.454Z"
+    "updatedAt": "2026-03-28T14:38:53.488Z"
   },
   "phaseStatuses": {
     "classify": "pending",
@@ -40,7 +40,7 @@
   "domainCardMeta": null,
   "interactiveMode": true,
   "currentPausePoint": {
-    "id": "b8bcdb2e-fc71-49c2-aa73-3ef90e1e70ec",
+    "id": "2d829bab-a477-4b8b-8b4c-becc027a57f9",
     "phase": "requirements",
     "type": "requirements_answer",
     "output": {
@@ -48,15 +48,15 @@
         "Cuantas horas por semana tienes libres?"
       ]
     },
-    "createdAt": "2026-03-28T13:58:11.453Z",
-    "updatedAt": "2026-03-28T13:58:11.454Z",
+    "createdAt": "2026-03-28T14:38:53.486Z",
+    "updatedAt": "2026-03-28T14:38:53.488Z",
     "userInput": {
       "answers": {}
     }
   },
   "pauseHistory": [
     {
-      "id": "b8bcdb2e-fc71-49c2-aa73-3ef90e1e70ec",
+      "id": "2d829bab-a477-4b8b-8b4c-becc027a57f9",
       "phase": "requirements",
       "type": "requirements_answer",
       "output": {
@@ -64,8 +64,8 @@
           "Cuantas horas por semana tienes libres?"
         ]
       },
-      "createdAt": "2026-03-28T13:58:11.453Z",
-      "updatedAt": "2026-03-28T13:58:11.454Z",
+      "createdAt": "2026-03-28T14:38:53.486Z",
+      "updatedAt": "2026-03-28T14:38:53.488Z",
       "userInput": {
         "answers": {}
       }
