@@ -110,6 +110,37 @@ function buildBacklogItems(
   }));
 }
 
+function buildDeferredPhaseTasks(
+  roadmap: StrategicRoadmap | undefined,
+  goalId: string,
+  weekStartDate: string,
+  timezone: string,
+  createdAt: string,
+): FlexTaskItem[] {
+  if (!roadmap || roadmap.phases.length === 0) {
+    return [];
+  }
+
+  const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).setZone(timezone).startOf('day');
+  let accumulatedWeeks = 0;
+
+  return roadmap.phases.map((phase, index) => {
+    accumulatedWeeks += Math.max(1, phase.durationWeeks ?? 2);
+    return {
+      id: `deferred-phase-${index + 1}`,
+      kind: 'flex_task',
+      title: phase.focus_esAR,
+      notes: `Etapa: ${phase.name}`,
+      status: 'waiting',
+      goalIds: [goalId],
+      estimateMin: 45,
+      dueDate: weekStart.plus({ weeks: accumulatedWeeks }).toISODate() ?? undefined,
+      createdAt,
+      updatedAt: createdAt,
+    };
+  });
+}
+
 function buildMetricItems(
   qualityScore: number,
   eventCount: number,
@@ -228,6 +259,10 @@ function buildWarnings(
 ): string[] {
   const warnings = new Set<string>();
 
+  if (input.finalSchedule.events.length === 0 && (input.finalSchedule.unscheduled?.length ?? 0) === 0) {
+    warnings.add('Todavia no hay bloques concretos en el calendario: antes hay que bajar este objetivo a pasos verificables.');
+  }
+
   if ((input.finalSchedule.unscheduled?.length ?? 0) > 0) {
     warnings.add('Hay actividades que no entraron en la semana y quedaron como pendientes.');
   }
@@ -266,6 +301,10 @@ function buildSummary(
   const warningsText = warningCount > 0
     ? ` Ojo: hay ${warningCount} advertencia${warningCount === 1 ? '' : 's'} para mirar con calma.`
     : '';
+
+  if (eventCount === 0) {
+    return `Este plan ordena${goalText ? ` "${goalText}"` : ' tu objetivo'} en etapas e hitos.${phasesText} Todavia no lo baja a bloques concretos de calendario para esta semana.${warningsText}`;
+  }
 
   return `Este plan convierte${goalText ? ` "${goalText}"` : ' tu objetivo'} en ${eventCount} bloques concretos para esta semana.${phasesText} El puntaje de calidad actual es ${qualityScore}/100.${warningsText}`;
 }
@@ -427,6 +466,10 @@ function buildOperationalBuffers(
   timezone: string,
   slackPolicy: SlackPolicy,
 ): OperationalBuffer[] {
+  if (events.length === 0) {
+    return [];
+  }
+
   const weekStart = DateTime.fromISO(weekStartDate, { zone: 'UTC' }).setZone(timezone).startOf('day');
   const buffers: OperationalBuffer[] = [];
   const candidateDays = Array.from({ length: OPERATIONAL_HORIZON_DAYS }, (_, index) => {
@@ -651,9 +694,13 @@ export function packagePlan(input: PackageInput): PlanPackage {
   const implementationIntentions = buildImplementationIntentions(timeEvents, input.timezone);
   const warnings = buildWarnings(input);
   const milestones = buildMilestones(input.roadmap, goalId, weekStartDate, input.timezone, createdAt);
+  const deferredPhaseTasks = timeEvents.length === 0 && (input.finalSchedule.unscheduled?.length ?? 0) === 0
+    ? buildDeferredPhaseTasks(input.roadmap, goalId, weekStartDate, input.timezone, createdAt)
+    : [];
   const items: PlanItem[] = [
     ...timeEvents,
     ...milestones,
+    ...deferredPhaseTasks,
     ...buildBacklogItems(input.finalSchedule.unscheduled, goalId, createdAt),
     ...buildMetricItems(qualityScore, timeEvents.length, goalId, createdAt),
     ...buildTriggerRuleItems(goalId, createdAt),

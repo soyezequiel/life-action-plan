@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import type { GoalClassification } from '../../src/lib/domain/goal-taxonomy';
 import type { TimeEventItem } from '../../src/lib/domain/plan-item';
 import { evaluateOperationalAcceptance } from '../../src/lib/pipeline/v5/operational-acceptance';
 import { FlowRunnerV5, type FlowRunnerV5Context } from '../../src/lib/pipeline/v5/runner';
@@ -25,6 +26,21 @@ const DEFAULT_PROFILE: UserProfileV5 = {
   energyLevel: 'medium',
   fixedCommitments: ['Trabajo de 9 a 18'],
   scheduleConstraints: ['Evitar trasnochar'],
+};
+
+const HIGH_UNCERTAINTY_LEGAL: GoalClassification = {
+  goalType: 'HIGH_UNCERTAINTY_TRANSFORM',
+  confidence: 0.7,
+  risk: 'HIGH_LEGAL',
+  extractedSignals: {
+    isRecurring: false,
+    hasDeliverable: false,
+    hasNumericTarget: false,
+    requiresSkillProgression: false,
+    dependsOnThirdParties: true,
+    isOpenEnded: false,
+    isRelational: false,
+  },
 };
 
 function jsonResponse(content: unknown): LLMResponse {
@@ -260,6 +276,76 @@ describe('FlowRunnerV5', () => {
     expect(context.phaseIO.package).toBeDefined();
     expect(context.phaseIO.adapt).toBeUndefined();
     expect(context.adapt).toBeUndefined();
+  });
+
+  it('convierte objetivos de alta incertidumbre en bloques concretos de validacion semanal', async () => {
+    const runner = new FlowRunnerV5(
+      makeConfig('ser presidente de argentina en las proximas elecciones', {}, { goalId: 'goal-uncertain' }),
+      {
+        classification: HIGH_UNCERTAINTY_LEGAL,
+        profile: DEFAULT_PROFILE,
+        strategy: {
+          phases: [
+            { name: 'Fundamentos', durationWeeks: 4, focus_esAR: 'Establecer la base legal y tecnica del objetivo.' },
+            { name: 'Consolidacion', durationWeeks: 6, focus_esAR: 'Validar la viabilidad real con terceros y restricciones formales.' },
+          ],
+          milestones: ['Definir un primer criterio verificable'],
+        },
+      },
+    );
+
+    await runner.executePhase('template');
+    await runner.executePhase('schedule');
+    await runner.executePhase('package');
+
+    const context = runner.getContext();
+
+    expect(context.template?.activities.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(context.schedule?.events.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(context.package?.items.some((item) => item.kind === 'time_event')).toBe(true);
+    expect(context.package?.items.some((item) => item.kind === 'milestone')).toBe(true);
+    expect(context.package?.summary_esAR).toContain('ser presidente de argentina en las proximas elecciones');
+    expect(context.package?.warnings).not.toContain(
+      'Todavia no hay bloques concretos en el calendario: antes hay que bajar este objetivo a pasos verificables.',
+    );
+  });
+
+  it('propaga el objetivo literal a requirements y strategy para evitar roadmaps genericos', async () => {
+    const capturedRequirementsPrompts: string[] = [];
+    const capturedStrategyPrompts: string[] = [];
+    const goalText = 'ser presidente de argentina en las proximas elecciones';
+
+    const runner = new FlowRunnerV5(
+      makeConfig(goalText, {
+        requirements: (prompt) => {
+          capturedRequirementsPrompts.push(prompt);
+          return {
+            questions: [
+              'Que ventana electoral o institucional queres trabajar primero?',
+              'Que activo politico, territorial o publico ya tenes hoy?',
+              'Que requisito externo o legal te podria frenar antes de arrancar?',
+            ],
+          };
+        },
+        strategy: (prompt) => {
+          capturedStrategyPrompts.push(prompt);
+          return {
+            phases: [
+              { name: 'Mapa inicial', durationWeeks: 2, focus_esAR: 'Traducir el objetivo a criterios y restricciones verificables.' },
+            ],
+            milestones: ['Tener un primer mapa verificable'],
+          };
+        },
+      }, { goalId: 'goal-goaltext' }),
+    );
+
+    await runner.executePhase('classify');
+    await runner.executePhase('requirements');
+    await runner.executePhase('profile');
+    await runner.executePhase('strategy');
+
+    expect(capturedRequirementsPrompts[0]).toContain(goalText);
+    expect(capturedStrategyPrompts[0]).toContain(goalText);
   });
 
   it('escenario multi objetivo: valida un plan combinado inyectando una plantilla mixta', async () => {

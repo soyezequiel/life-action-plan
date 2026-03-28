@@ -13,7 +13,10 @@ export interface ClassifyInput { text: string; }
 export type ClassifyOutput = GoalClassification;
 
 // ─── 2. Requirements ──────────────────────────────────────────────────────────
-export interface RequirementsInput { classification: GoalClassification; }
+export interface RequirementsInput {
+  goalText: string;
+  classification: GoalClassification;
+}
 export interface RequirementsOutput { questions: string[]; }
 
 // ─── 3. Profile ───────────────────────────────────────────────────────────────
@@ -38,6 +41,7 @@ export interface StrategicRoadmap {
   milestones: string[];
 }
 export interface StrategyInput {
+  goalText: string;
   profile: UserProfileV5;
   classification: GoalClassification;
   habitStates?: HabitState[];
@@ -45,7 +49,10 @@ export interface StrategyInput {
 export type StrategyOutput = StrategicRoadmap;
 
 // ─── 5. Template Builder ──────────────────────────────────────────────────────
-export interface TemplateInput { roadmap: StrategicRoadmap; }
+export interface TemplateInput {
+  goalText: string;
+  roadmap: StrategicRoadmap;
+}
 export interface TemplateOutput { activities: ActivityRequest[]; }
 
 // ─── 6. Schedule (MILP) ───────────────────────────────────────────────────────

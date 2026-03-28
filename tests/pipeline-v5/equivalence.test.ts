@@ -45,6 +45,7 @@ function makeActivity(overrides: Partial<ActivityRequest> & Pick<ActivityRequest
 describe('equivalence helpers', () => {
   it('template builder propaga equivalenceGroupId desde las tareas base del dominio', () => {
     const input: TemplateInput = {
+      goalText: 'Empezar a correr de forma constante',
       roadmap: {
         phases: [{ name: 'Base aeróbica', durationWeeks: 2, focus_esAR: 'Sostener cardio liviano.' }],
         milestones: ['Completar la primera semana'],
@@ -55,6 +56,42 @@ describe('equivalence helpers', () => {
 
     expect(template.activities).toHaveLength(1);
     expect(template.activities[0]?.equivalenceGroupId).toBe('cardio-outdoor-base');
+  });
+
+  it('genera bloques de reduccion de incertidumbre para objetivos sin tareas de dominio', () => {
+    const input: TemplateInput = {
+      goalText: 'Ser presidente de Argentina en las proximas elecciones',
+      roadmap: {
+        phases: [
+          { name: 'Fundamentos', durationWeeks: 4, focus_esAR: 'Establecer la base legal y tecnica del objetivo.' },
+          { name: 'Consolidacion', durationWeeks: 4, focus_esAR: 'Validar la viabilidad real con terceros y restricciones formales.' },
+        ],
+        milestones: ['Definir un primer criterio verificable'],
+      },
+    };
+    const classification: GoalClassification = {
+      goalType: 'HIGH_UNCERTAINTY_TRANSFORM',
+      confidence: 0.7,
+      risk: 'HIGH_LEGAL',
+      extractedSignals: {
+        isRecurring: false,
+        hasDeliverable: false,
+        hasNumericTarget: false,
+        requiresSkillProgression: false,
+        dependsOnThirdParties: true,
+        isOpenEnded: false,
+        isRelational: false,
+      },
+    };
+
+    const template = buildTemplate(input, classification, DEFAULT_PROFILE);
+
+    expect(template.activities.map((activity) => activity.label)).toEqual([
+      'Definir avance verificable para Ser presidente de Argentina...',
+      'Mapear requisitos y restricciones',
+      'Validar supuestos con terceros',
+      'Preparar hito: Definir un primer criterio ver...',
+    ]);
   });
 
   it('canSwap solo habilita actividades del mismo grupo de equivalencia', () => {

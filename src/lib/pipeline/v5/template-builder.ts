@@ -9,6 +9,65 @@ function generateId(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
+function shouldUseUncertaintyReductionTemplate(
+  classification: GoalClassification,
+  domainTasksAvailable: boolean,
+): boolean {
+  if (domainTasksAvailable) {
+    return false;
+  }
+
+  return classification.goalType === 'HIGH_UNCERTAINTY_TRANSFORM'
+    || classification.risk === 'HIGH_LEGAL';
+}
+
+function normalizeText(value: string | null | undefined): string {
+  return value?.trim() || '';
+}
+
+function stripGoalLead(text: string): string {
+  return normalizeText(text)
+    .replace(/^(quiero|quisiera|me gustaria|me gustaría|necesito|planeo|voy a|debo|tengo que)\s+/i, '')
+    .replace(/\s+/g, ' ');
+}
+
+function clipLabel(value: string, maxLength = 52): string {
+  const normalized = normalizeText(value);
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, maxLength - 3).trim()}...`;
+}
+
+function buildUncertaintyReductionActivities(
+  input: TemplateInput,
+  classification: GoalClassification,
+  goalId: string,
+): ActivityRequest[] {
+  const shortGoal = clipLabel(stripGoalLead(input.goalText), 31);
+  const milestone = clipLabel(input.roadmap.milestones[0] ?? '', 33);
+  const validationLabel = classification.extractedSignals.dependsOnThirdParties || classification.risk !== 'LOW'
+    ? 'Validar supuestos con terceros'
+    : 'Probar siguiente paso verificable';
+  const labels = [
+    shortGoal ? `Definir avance verificable para ${shortGoal}` : 'Definir avance verificable',
+    'Mapear requisitos y restricciones',
+    validationLabel,
+    milestone ? `Preparar hito: ${milestone}` : 'Preparar siguiente hito',
+  ];
+
+  return Array.from(new Set(labels)).map((label, index) => ({
+    id: generateId(`act-uncertainty-${index + 1}`),
+    label,
+    equivalenceGroupId: createStandaloneEquivalenceGroupId(label),
+    durationMin: index === 1 ? 60 : 45,
+    frequencyPerWeek: 1,
+    goalId,
+    constraintTier: index === 0 ? 'soft_strong' : 'soft_weak',
+  }));
+}
+
 export function buildTemplate(
   input: TemplateInput,
   classification: GoalClassification,
@@ -48,6 +107,8 @@ export function buildTemplate(
       ? domainCard.tasks.slice(0, 1)
       : domainCard.tasks
     : [];
+  const useUncertaintyReductionTemplate = shouldUseUncertaintyReductionTemplate(classification, domainTasks.length > 0);
+  const goalId = 'generated-goal';
 
   if (domainTasks.length > 0) {
     for (const task of domainTasks) {
@@ -57,11 +118,13 @@ export function buildTemplate(
         equivalenceGroupId: task.equivalenceGroupId,
         durationMin: task.typicalDurationMin,
         frequencyPerWeek: baseFreq,
-        goalId: 'generated-goal',
+        goalId,
         constraintTier: 'soft_strong',
         minRestDaysBetween,
       });
     }
+  } else if (useUncertaintyReductionTemplate) {
+    activities.push(...buildUncertaintyReductionActivities(input, classification, goalId));
   } else {
     for (const phase of phases) {
       activities.push({
@@ -70,7 +133,7 @@ export function buildTemplate(
         equivalenceGroupId: createStandaloneEquivalenceGroupId(phase.name),
         durationMin: 60,
         frequencyPerWeek: baseFreq,
-        goalId: 'generated-goal',
+        goalId,
         constraintTier: 'soft_weak',
         minRestDaysBetween,
       });
@@ -84,7 +147,7 @@ export function buildTemplate(
       equivalenceGroupId: createStandaloneEquivalenceGroupId('actividad-principal'),
       durationMin: 45,
       frequencyPerWeek: baseFreq,
-      goalId: 'generated-goal',
+      goalId,
       constraintTier: 'soft_weak',
       minRestDaysBetween,
     });

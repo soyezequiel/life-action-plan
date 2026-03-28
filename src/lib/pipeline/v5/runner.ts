@@ -463,10 +463,13 @@ export class FlowRunnerV5 {
       throw new Error('V5_REQUIREMENTS_NEEDS_CLASSIFICATION');
     }
     const startedAt = DateTime.utc().toISO() ?? '';
-    const input: RequirementsInput = { classification: this.context.classification };
+    const input: RequirementsInput = {
+      goalText: this.context.config.text,
+      classification: this.context.classification,
+    };
     this.announcePhaseStart(tracker, 'requirements', input, startedAt);
     this.trackProgress(tracker, 'requirements', 'Generando preguntas base.');
-    const output = await generateRequirements(this.context.config.runtime, this.context.classification);
+    const output = await generateRequirements(this.context.config.runtime, input);
     this.context.requirements = output;
     return this.commitPhaseIO('requirements', input, output, startedAt, tracker);
   }
@@ -487,6 +490,7 @@ export class FlowRunnerV5 {
     }
     const startedAt = DateTime.utc().toISO() ?? '';
     const input: StrategyInput = {
+      goalText: this.context.config.text,
       profile: this.context.profile,
       classification: this.context.classification,
       habitStates: this.context.habitStates ?? [],
@@ -503,7 +507,10 @@ export class FlowRunnerV5 {
       throw new Error('V5_TEMPLATE_NEEDS_STRATEGY_PROFILE_CLASSIFICATION');
     }
     const startedAt = DateTime.utc().toISO() ?? '';
-    const input: TemplateInput = { roadmap: this.context.strategy };
+    const input: TemplateInput = {
+      goalText: this.context.config.text,
+      roadmap: this.context.strategy,
+    };
     this.announcePhaseStart(tracker, 'template', input, startedAt);
     const output = buildTemplate(input, this.context.classification, this.context.profile, this.context.domainCard);
     output.activities = output.activities.map((activity, index) => ({

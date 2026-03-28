@@ -66,7 +66,7 @@ export function PlanDashboardV5Content({
 
       <div className={styles.viewCard}>
         {activeTab === 'week' && (
-          <WeekView operational={pkg.plan.operational} goalIds={pkg.plan.goalIds} />
+          <WeekView operational={pkg.plan.operational} goalIds={pkg.plan.goalIds} items={pkg.items} />
         )}
         {activeTab === 'calendar' && (
           <CalendarView detail={pkg.plan.detail} milestones={milestones} goalIds={pkg.plan.goalIds} />

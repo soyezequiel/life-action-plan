@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { DateTime } from 'luxon';
 
-import type { TimeEventItem } from '../../src/lib/domain/plan-item';
+import type { FlexTaskItem, MilestoneItem, PlanItem, TimeEventItem } from '../../src/lib/domain/plan-item';
 import type { OperationalBuffer, V5Operational } from '../../src/lib/domain/rolling-wave-plan';
 import { getCurrentLocale, t } from '../../src/i18n';
 import { humanize } from '../../src/lib/client/utils/humanize';
@@ -18,6 +18,7 @@ const TOTAL_HEIGHT = HOURS.length * HOUR_HEIGHT;
 interface WeekViewProps {
   operational: V5Operational;
   goalIds: string[];
+  items?: PlanItem[];
 }
 
 interface ScheduledEntry {
@@ -40,6 +41,12 @@ function formatClock(iso: string): string {
   return DateTime.fromISO(iso, { zone: 'UTC' })
     .setLocale(getCurrentLocale())
     .toFormat('HH:mm');
+}
+
+function formatDate(iso: string): string {
+  return DateTime.fromISO(iso, { zone: 'UTC' })
+    .setLocale(getCurrentLocale())
+    .toFormat('d LLL');
 }
 
 function buildEntries(day: V5Operational['days'][number]): ScheduledEntry[] {
@@ -80,21 +87,97 @@ function getBlockStyle(entry: ScheduledEntry) {
   };
 }
 
-export function WeekView({ operational, goalIds }: WeekViewProps) {
+function buildFallbackMeta(task: FlexTaskItem): string[] {
+  const parts: string[] = [];
+
+  if (typeof task.estimateMin === 'number') {
+    parts.push(`${t('planV5.week.estimate')}: ${t('dashboard.minutes', { min: task.estimateMin })}`);
+  }
+
+  if (task.dueDate) {
+    parts.push(`${t('planV5.week.dueDate')}: ${formatDate(task.dueDate)}`);
+  }
+
+  return parts;
+}
+
+export function WeekView({ operational, goalIds, items = [] }: WeekViewProps) {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const selectedEvent = operational.scheduledEvents.find((event) => event.id === selectedEventId) ?? null;
+  const hasScheduledBlocks = operational.days.some((day) => day.scheduledEvents.length > 0 || day.buffers.length > 0);
+  const flexTasks = items.filter((item): item is FlexTaskItem => item.kind === 'flex_task');
+  const milestones = items.filter((item): item is MilestoneItem => item.kind === 'milestone');
+  const hasDeferredPlan = !hasScheduledBlocks && (flexTasks.length > 0 || milestones.length > 0);
+  const sectionTitle = hasDeferredPlan ? t('planV5.week.deferredTitle') : t('planV5.week.title');
+  const sectionSubtitle = hasDeferredPlan ? t('planV5.week.deferredSubtitle') : t('planV5.week.subtitle');
 
   return (
     <section className={styles.section}>
       <div className={styles.header}>
         <div>
-          <h2 className={styles.title}>{t('planV5.week.title')}</h2>
-          <p className={styles.copy}>{t('planV5.week.subtitle')}</p>
+          <h2 className={styles.title}>{sectionTitle}</h2>
+          <p className={styles.copy}>{sectionSubtitle}</p>
         </div>
       </div>
 
-      {operational.days.every((day) => day.scheduledEvents.length === 0 && day.buffers.length === 0) ? (
-        <p className={styles.empty}>{t('planV5.week.empty')}</p>
+      {!hasScheduledBlocks ? (
+        hasDeferredPlan ? (
+          <div className={styles.fallbackLayout}>
+            <article className={styles.fallbackCard}>
+              <div className={styles.fallbackHeader}>
+                <h3 className={styles.fallbackTitle}>{t('planV5.week.flexTitle')}</h3>
+                <p className={styles.fallbackCopy}>{t('planV5.week.actionableHint')}</p>
+              </div>
+              {flexTasks.length === 0 ? (
+                <p className={styles.empty}>{t('planV5.week.noFlexTasks')}</p>
+              ) : (
+                <ul className={styles.fallbackList}>
+                  {flexTasks.map((task) => {
+                    const meta = buildFallbackMeta(task);
+                    return (
+                      <li key={task.id} className={styles.fallbackItem}>
+                        <div className={styles.fallbackItemHeader}>
+                          <strong className={styles.fallbackItemTitle}>{task.title}</strong>
+                          <span className={styles.fallbackBadge}>{t(`planV5.milestone.${task.status}`)}</span>
+                        </div>
+                        {task.notes && <p className={styles.fallbackNotes}>{task.notes}</p>}
+                        {meta.length > 0 && (
+                          <p className={styles.fallbackMeta}>{meta.join(' · ')}</p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </article>
+
+            <article className={styles.fallbackCard}>
+              <div className={styles.fallbackHeader}>
+                <h3 className={styles.fallbackTitle}>{t('planV5.week.milestonesTitle')}</h3>
+              </div>
+              {milestones.length === 0 ? (
+                <p className={styles.empty}>{t('planV5.week.noMilestones')}</p>
+              ) : (
+                <ul className={styles.fallbackList}>
+                  {milestones.map((milestone) => (
+                    <li key={milestone.id} className={styles.fallbackItem}>
+                      <div className={styles.fallbackItemHeader}>
+                        <strong className={styles.fallbackItemTitle}>{milestone.title}</strong>
+                        <span className={styles.fallbackBadge}>{t(`planV5.milestone.${milestone.status}`)}</span>
+                      </div>
+                      {milestone.notes && <p className={styles.fallbackNotes}>{milestone.notes}</p>}
+                      <p className={styles.fallbackMeta}>
+                        {t('planV5.week.dueDate')}: {formatDate(milestone.dueDate)}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          </div>
+        ) : (
+          <p className={styles.empty}>{t('planV5.week.empty')}</p>
+        )
       ) : (
         <div className={styles.grid} role="grid">
           <div className={styles.corner} />

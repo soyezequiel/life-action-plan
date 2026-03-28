@@ -208,6 +208,13 @@ describe('Goal Classifier – Regex-based (v5)', () => {
       const r = classify('Quiero cambiar de vida radicalmente');
       expect(r.goalType).toBe('HIGH_UNCERTAINTY_TRANSFORM');
     });
+
+    it('objetivos con gate externo fuerte tambien caen en HIGH_UNCERTAINTY_TRANSFORM', () => {
+      const r = classify('Ser presidente de Argentina en las proximas elecciones');
+      expect(r.goalType).toBe('HIGH_UNCERTAINTY_TRANSFORM');
+      expect(r.extractedSignals.dependsOnThirdParties).toBe(true);
+      expect(r.risk).toBe('MEDIUM');
+    });
   });
 
   // ── Risk detection ─────────────────────────────────────────────────────────

@@ -27,6 +27,7 @@ export function RequirementsAnswerStep(props: RequirementsAnswerStepProps) {
             <div className={styles.stack}>
               <span className={styles.stepBadge}>{t('flowInteractive.questionNumber', { count: index + 1 })}</span>
               <h3 className={styles.questionTitle}>{question}</h3>
+              <span className={styles.chip}>{t('flowInteractive.optionalLabel')}</span>
             </div>
             <textarea
               className={styles.textarea}

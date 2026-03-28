@@ -858,6 +858,16 @@ function getContextualGoalText(seed: InteractiveSessionSeed, extraContext?: stri
   return `${normalizedGoal}. Contexto adicional: ${context}`
 }
 
+export function shouldPauseScheduleReview(schedule: SchedulerOutput | null | undefined): boolean {
+  if (!schedule) {
+    return false
+  }
+
+  return schedule.events.length > 0
+    || schedule.unscheduled.length > 0
+    || (schedule.tradeoffs?.length ?? 0) > 0
+}
+
 function buildResponse(record: InteractiveSessionRecord): InteractiveSessionResponse {
   const snapshot = record.runtimeSnapshot
   return {
@@ -1247,7 +1257,7 @@ export class InteractivePipelineCoordinator {
     }
 
     if (phase === 'schedule') {
-      return config.pausePoints.schedule === 'always'
+      return config.pausePoints.schedule === 'always' && shouldPauseScheduleReview(context.schedule)
     }
 
     if (phase === 'package') {
@@ -1500,11 +1510,6 @@ export class InteractivePipelineCoordinator {
     if (params.pausePoint.type === 'requirements_answer') {
       const parsed = requirementsAnswerSchema.parse(params.input)
       const answers = resolveRequirementsAnswers(params.pausePoint, parsed.answers)
-      const validAnswers = Object.values(answers).filter((value) => value.trim().length > 10)
-
-      if (validAnswers.length === 0) {
-        throw new Error('INTERACTIVE_REQUIREMENTS_MINIMUM_ANSWER')
-      }
 
       params.recorder.applyUserInputToPause(params.pausePoint.id, { answers })
       applySnapshotMutation(params.recorder, () => {

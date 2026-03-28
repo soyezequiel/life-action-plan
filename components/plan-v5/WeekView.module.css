@@ -23,6 +23,89 @@
   line-height: 1.55;
 }
 
+.fallbackLayout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.fallbackCard {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 1.05rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(24, 24, 24, 0.94), rgba(14, 14, 14, 0.98));
+}
+
+.fallbackHeader {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.fallbackTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-family: var(--font-display);
+}
+
+.fallbackCopy {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.fallbackList {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fallbackItem {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.95rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.fallbackItemHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.fallbackItemTitle {
+  font-size: 0.96rem;
+  line-height: 1.35;
+}
+
+.fallbackBadge {
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(105, 167, 255, 0.18);
+  background: rgba(105, 167, 255, 0.12);
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.fallbackNotes,
+.fallbackMeta {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.fallbackMeta {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: 72px repeat(7, minmax(0, 1fr));
@@ -227,6 +310,7 @@
 }
 
 @media (max-width: 720px) {
+  .fallbackItemHeader,
   .detailHeader {
     flex-direction: column;
     align-items: stretch;

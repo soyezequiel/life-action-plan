@@ -56,6 +56,9 @@ Reglas adaptativas:
 Eres un planificador estrategico experto.
 Tu objetivo es generar un roadmap estrategico basado en la clasificacion del objetivo y el perfil del usuario.
 
+Objetivo literal del usuario:
+${input.goalText}
+
 Perfil del usuario:
 - Horas libres lunes a viernes: ${input.profile.freeHoursWeekday}
 - Horas libres fin de semana: ${input.profile.freeHoursWeekend}
@@ -74,6 +77,12 @@ ${habitStateBlock}
 El roadmap debe tener:
 - listado de fases logicas (ej: "fundamentos", "consolidacion", "avanzado")
 - hitos concretos con su orden o estimacion
+- foco suficiente para distinguir este objetivo de otro del mismo GoalType
+
+Si el objetivo tiene alta incertidumbre o depende de terceros:
+- baja la incertidumbre en pasos verificables
+- identifica validaciones externas, requisitos o pruebas de realidad
+- evita nombres de fase intercambiables como "fase 1" o "base"
 
 Genera un resultado en formato JSON valido que cumpla con esta interfaz:
 {

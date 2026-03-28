@@ -34,6 +34,8 @@ const NEARBY_TYPES = new Set<string>([
   'HIGH_UNCERTAINTY_TRANSFORM::IDENTITY_EXPLORATION',
 ]);
 
+const EXTERNAL_GATE_PATTERN = /entrevista|selecci[oó]n|admisi[oó]n|aprobaci[oó]n|permiso|visa|licencia|habilitaci[oó]n|beca|concurso|casting|audici[oó]n|elecci[oó]n(?:es)?|candidatura|postulaci[oó]n|postular|nombramiento|votos?|electo|elegid[oa]/i;
+
 function stripFormatting(content: string): string {
   return content
     .replace(/<think>[\s\S]*?<\/think>/gi, '')
@@ -107,7 +109,7 @@ export function classifyGoal(rawText: string): GoalClassification {
     hasDeliverable: /terminar|entregar|publicar|completar|lanzar|armar/i.test(text),
     hasNumericTarget: /\$|ahorrar|kg|kilos|libros|p[aá]ginas|veces/i.test(text),
     requiresSkillProgression: /aprender|mejorar en|estudiar|practicar|entrenar/i.test(text),
-    dependsOnThirdParties: /junto a|con mi|esperar a|delegar|contratar/i.test(text),
+    dependsOnThirdParties: /junto a|con mi|esperar a|delegar|contratar|equipo|cliente|socios?|jurado|votaci[oó]n|votos?|elecci[oó]n(?:es)?|candidatura|postulaci[oó]n|postular|entrevista|selecci[oó]n|admisi[oó]n|aprobaci[oó]n|permiso|visa|licencia|habilitaci[oó]n|beca|concurso|casting|audici[oó]n|nombramiento|electo|elegid[oa]/i.test(text),
     isOpenEnded: /explorar|descubrir|encontrar|buscar/i.test(text),
     isRelational: /relaci[oó]n|pareja|hijo|padre|madre|hermano|amigo|conocer gente/i.test(text),
   };
@@ -121,9 +123,19 @@ export function classifyGoal(rawText: string): GoalClassification {
   let goalType: GoalType = 'RECURRENT_HABIT';
   let confidence = 0.5;
 
-  if (text.includes('mudar') || text.includes('cambiar de vida')) {
+  if (text.includes('mudar') || text.includes('cambiar de vida') || EXTERNAL_GATE_PATTERN.test(text)) {
     goalType = 'HIGH_UNCERTAINTY_TRANSFORM';
-    confidence = 0.7;
+    confidence = 0.78;
+  } else if (
+    signals.dependsOnThirdParties
+    && !signals.hasDeliverable
+    && !signals.hasNumericTarget
+    && !signals.requiresSkillProgression
+    && !signals.isRecurring
+    && !signals.isRelational
+  ) {
+    goalType = 'HIGH_UNCERTAINTY_TRANSFORM';
+    confidence = 0.72;
   } else if (signals.isOpenEnded && !signals.hasDeliverable) {
     goalType = 'IDENTITY_EXPLORATION';
     confidence = 0.8;
