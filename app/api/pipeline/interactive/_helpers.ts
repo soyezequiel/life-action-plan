@@ -15,6 +15,7 @@ const INTERACTIVE_ERROR_STATUS: Record<string, number> = {
   INTERACTIVE_CLASSIFY_CONTEXT_TOO_SHORT: 400,
   INTERACTIVE_REQUIREMENTS_MINIMUM_ANSWER: 400,
   INTERACTIVE_PACKAGE_REGENERATE_PHASE_REQUIRED: 400,
+  INTERACTIVE_GO_BACK_TARGET_INVALID: 400,
   BUILD_RUNTIME_UNAVAILABLE: 503,
   PLAN_EXECUTION_BLOCKED: 503,
   INTERACTIVE_STATE_MISSING: 500,
@@ -67,6 +68,10 @@ function toInteractiveErrorMessage(error: unknown): string {
 
   if (errorCode === 'INTERACTIVE_PACKAGE_REGENERATE_PHASE_REQUIRED') {
     return t('errors.interactive_regenerate_phase_required')
+  }
+
+  if (errorCode === 'INTERACTIVE_GO_BACK_TARGET_INVALID') {
+    return t('errors.interactive_go_back_invalid')
   }
 
   if (errorCode === 'V5_OPERATIONAL_REPAIR_ESCALATED' || errorCode === 'V5_OPERATIONAL_INVALID') {

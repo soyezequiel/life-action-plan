@@ -8,6 +8,10 @@ export function goalTypeLabel(goalType: GoalType): string {
   return t(`flowInteractive.goalType.${goalType}`)
 }
 
+export function goalTypeDescription(goalType: GoalType): string {
+  return t(`flowInteractive.goalTypeDescription.${goalType}`)
+}
+
 export function pausePhaseLabel(phase: InteractivePauseFromPhase | 'package'): string {
   return t(`flowInteractive.step.${phase}`)
 }

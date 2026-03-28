@@ -138,6 +138,11 @@ const scheduleEditSchema = z.object({
   events: z.array(TimeEventItemSchema)
 }).strict()
 
+const goBackInputSchema = z.object({
+  action: z.literal('go_back'),
+  targetPhase: interactivePauseFromPhaseSchema
+}).strict()
+
 const packageReviewInputSchema = z.object({
   action: z.enum(['accept', 'regenerate']),
   regenerateFrom: interactivePauseFromPhaseSchema.optional()
@@ -514,6 +519,7 @@ function buildInteractiveSeed(input: {
 
   return {
     goalText: normalizeGoalText(input.goalText),
+    baseGoalText: normalizeGoalText(input.goalText),
     profileId: input.profileId,
     workflowId: input.workflowId,
     goalId,
@@ -737,7 +743,55 @@ function trimPauseHistory(snapshot: PipelineRuntimeData, fromPhase: InteractiveP
   })
 }
 
-function resetSnapshotFromPhase(snapshot: PipelineRuntimeData, phase: InteractivePauseFromPhase): PipelineRuntimeData {
+function getInteractiveStepIndex(phase: InteractivePauseFromPhase | 'package'): number {
+  return ['classify', 'requirements', 'profile', 'schedule', 'package'].indexOf(phase)
+}
+
+function getInteractiveSeedBaseGoalText(seed: InteractiveSessionSeed): string {
+  return normalizeGoalText(seed.baseGoalText ?? seed.goalText)
+}
+
+function resetInteractiveSeedFromPhase(snapshot: PipelineRuntimeData, phase: InteractivePauseFromPhase): void {
+  const interactiveState = snapshot.interactiveState
+
+  if (!interactiveState) {
+    return
+  }
+
+  if (phase === 'classify') {
+    interactiveState.seed.goalText = getInteractiveSeedBaseGoalText(interactiveState.seed)
+    interactiveState.seed.answers = {}
+    snapshot.run.goalText = interactiveState.seed.goalText
+    return
+  }
+
+  if (phase === 'requirements') {
+    interactiveState.seed.answers = {}
+  }
+}
+
+function getGoBackTargets(
+  snapshot: PipelineRuntimeData,
+  pausePoint: PausePointSnapshot
+): InteractivePauseFromPhase[] {
+  const currentPhase: InteractivePauseFromPhase | 'package' = pausePoint.type === 'package_review'
+    ? 'package'
+    : pausePoint.phase === 'classify'
+      ? 'classify'
+      : pausePoint.phase === 'requirements'
+        ? 'requirements'
+        : pausePoint.phase === 'profile'
+          ? 'profile'
+          : 'schedule'
+  const currentIndex = getInteractiveStepIndex(currentPhase)
+  const visitedPhases = new Set(snapshot.pauseHistory.map((pause) => pause.phase))
+
+  return (['classify', 'requirements', 'profile', 'schedule'] as const).filter((phase) => {
+    return getInteractiveStepIndex(phase) < currentIndex && visitedPhases.has(phase)
+  })
+}
+
+export function resetSnapshotFromPhase(snapshot: PipelineRuntimeData, phase: InteractivePauseFromPhase): PipelineRuntimeData {
   const nextSnapshot = cloneJson(snapshot)
   const startIndex = PIPELINE_V5_PHASES.indexOf(phase)
   const phasesToReset = PIPELINE_V5_PHASES.slice(startIndex)
@@ -763,6 +817,8 @@ function resetSnapshotFromPhase(snapshot: PipelineRuntimeData, phase: Interactiv
   if (phase === 'classify') {
     nextSnapshot.domainCardMeta = null
   }
+
+  resetInteractiveSeedFromPhase(nextSnapshot, phase)
 
   return nextSnapshot
 }
@@ -792,7 +848,7 @@ function resolveRequirementsAnswers(
 }
 
 function getContextualGoalText(seed: InteractiveSessionSeed, extraContext?: string): string {
-  const normalizedGoal = normalizeGoalText(seed.goalText)
+  const normalizedGoal = getInteractiveSeedBaseGoalText(seed)
   const context = extraContext?.trim()
 
   if (!context) {
@@ -913,6 +969,34 @@ export class InteractivePipelineCoordinator {
     return { status: 'deleted' }
   }
 
+  private async restartFromPhase(params: {
+    sessionId: string
+    record: InteractiveSessionRecord
+    recorder: PipelineRuntimeRecorder
+    state: InteractiveSessionState
+    startPhase: InteractivePauseFromPhase
+  }): Promise<InteractiveSessionResponse> {
+    const resetSnapshot = resetSnapshotFromPhase(params.recorder.getSnapshot(), params.startPhase)
+    const resetState = resetSnapshot.interactiveState ?? params.state
+    const resetRecorder = createPipelineRuntimeRecorder({
+      source: 'interactive',
+      modelId: resetSnapshot.run.modelId,
+      goalText: resetState.seed.goalText,
+      profileId: resetState.seed.profileId,
+      interactiveState: resetState
+    }, resetSnapshot)
+    const rerunRunner = await this.createRunner(resetSnapshot, resetState.request, resetState.seed)
+
+    return this.runUntilPause({
+      sessionId: params.sessionId,
+      record: params.record,
+      recorder: resetRecorder,
+      runner: rerunRunner,
+      startPhase: params.startPhase,
+      config: resetState.config
+    })
+  }
+
   async applyUserInput(sessionId: string, payload: InteractiveSessionInputRequest): Promise<InteractiveSessionResponse> {
     const loaded = await this.loadSession(sessionId, { requireActive: true })
     const pausePoint = loaded.record.runtimeSnapshot.currentPausePoint
@@ -933,6 +1017,24 @@ export class InteractivePipelineCoordinator {
       interactiveState: loaded.state
     }, loaded.record.runtimeSnapshot)
     const runner = await this.createRunner(recorder.getSnapshot(), loaded.state.request, loaded.state.seed)
+    const goBackInput = goBackInputSchema.safeParse(payload.input)
+
+    if (goBackInput.success) {
+      const allowedTargets = getGoBackTargets(recorder.getSnapshot(), pausePoint)
+
+      if (!allowedTargets.includes(goBackInput.data.targetPhase)) {
+        throw new Error('INTERACTIVE_GO_BACK_TARGET_INVALID')
+      }
+
+      return this.restartFromPhase({
+        sessionId,
+        record: loaded.record,
+        recorder,
+        state: loaded.state,
+        startPhase: goBackInput.data.targetPhase
+      })
+    }
+
     const normalizedInput = await this.validateAndApplyPauseInput({
       pausePoint,
       input: payload.input,
@@ -957,23 +1059,17 @@ export class InteractivePipelineCoordinator {
         throw new Error('INTERACTIVE_PACKAGE_REGENERATE_PHASE_REQUIRED')
       }
 
-      const resetSnapshot = resetSnapshotFromPhase(recorder.getSnapshot(), regenerateFrom)
-      const resetRecorder = createPipelineRuntimeRecorder({
-        source: 'interactive',
-        modelId: resetSnapshot.run.modelId,
-        goalText: loaded.state.seed.goalText,
-        profileId: loaded.state.seed.profileId,
-        interactiveState: resetSnapshot.interactiveState ?? loaded.state
-      }, resetSnapshot)
-      const rerunRunner = await this.createRunner(resetSnapshot, loaded.state.request, loaded.state.seed)
+      const allowedTargets = getGoBackTargets(recorder.getSnapshot(), pausePoint)
+      if (!allowedTargets.includes(regenerateFrom)) {
+        throw new Error('INTERACTIVE_GO_BACK_TARGET_INVALID')
+      }
 
-      return this.runUntilPause({
+      return this.restartFromPhase({
         sessionId,
         record: loaded.record,
-        recorder: resetRecorder,
-        runner: rerunRunner,
-        startPhase: regenerateFrom,
-        config: loaded.state.config
+        recorder,
+        state: loaded.state,
+        startPhase: regenerateFrom
       })
     }
 
@@ -1394,6 +1490,7 @@ export class InteractivePipelineCoordinator {
 
         const nextGoalText = getContextualGoalText(interactiveState.seed, parsed.context)
         interactiveState.seed.goalText = nextGoalText
+        draft.run.goalText = nextGoalText
         params.runner.getContext().config.text = nextGoalText
       })
 

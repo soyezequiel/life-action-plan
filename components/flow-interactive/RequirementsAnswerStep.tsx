@@ -18,6 +18,7 @@ export function RequirementsAnswerStep(props: RequirementsAnswerStepProps) {
         <p className={styles.eyebrow}>{t('flowInteractive.pauseLabel')}</p>
         <h2 className={styles.sectionTitle}>{t('flowInteractive.requirements.title')}</h2>
         <p className={styles.sectionCopy}>{t('flowInteractive.requirements.copy')}</p>
+        <p className={styles.stepCopy}>{t('flowInteractive.requirements.generatedCopy')}</p>
       </div>
 
       <div className={styles.questionList}>

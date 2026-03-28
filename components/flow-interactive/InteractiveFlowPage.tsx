@@ -119,6 +119,23 @@ function getVisitedSteps(session: InteractiveSessionResponsePayload | null): Set
   return new Set((session?.snapshot.pauseHistory ?? []).map((pause) => pause.phase))
 }
 
+function getRewindTargets(session: InteractiveSessionResponsePayload | null): InteractivePauseFromPhase[] {
+  if (!session?.pausePoint) {
+    return []
+  }
+
+  const currentIndex = STEP_ORDER.findIndex((step) => step.phase === session.pausePoint?.phase)
+  if (currentIndex <= 0) {
+    return []
+  }
+
+  const visitedSteps = getVisitedSteps(session)
+
+  return STEP_ORDER
+    .filter((step, index) => step.phase !== 'package' && index < currentIndex && visitedSteps.has(step.phase))
+    .map((step) => step.phase as InteractivePauseFromPhase)
+}
+
 function diffProfile(base: UserProfileV5, draft: UserProfileV5): Partial<UserProfileV5> {
   const next: Partial<UserProfileV5> = {}
 
@@ -344,6 +361,8 @@ export function InteractiveFlowPage({ deploymentMode }: InteractiveFlowPageProps
   const pausePoint = session?.pausePoint ?? null
   const currentStepIndex = getCurrentStepIndex(session)
   const visitedSteps = getVisitedSteps(session)
+  const rewindTargets = getRewindTargets(session)
+  const previousRewindPhase = rewindTargets.at(-1) ?? null
   const sessionGoalText = getSessionGoalText(session, goalText)
 
   if (loading) {
@@ -447,7 +466,7 @@ export function InteractiveFlowPage({ deploymentMode }: InteractiveFlowPageProps
             {STEP_ORDER.map((step, index) => {
               const isCurrent = pausePoint?.type === step.type
               const isDone = session.status === 'completed' || visitedSteps.has(step.phase)
-              const canRegenerate = pausePoint?.type === 'package_review' && step.phase !== 'package' && isDone
+              const canGoBack = step.phase !== 'package' && rewindTargets.includes(step.phase)
 
               return (
                 <button
@@ -457,19 +476,18 @@ export function InteractiveFlowPage({ deploymentMode }: InteractiveFlowPageProps
                     styles.stepButton,
                     isCurrent ? styles.stepButtonCurrent : '',
                     isDone ? styles.stepButtonDone : '',
-                    canRegenerate ? styles.stepButtonClickable : '',
-                    !canRegenerate && !isCurrent ? styles.stepButtonDisabled : ''
+                    canGoBack ? styles.stepButtonClickable : '',
+                    !canGoBack && !isCurrent ? styles.stepButtonDisabled : ''
                   ].filter(Boolean).join(' ')}
                   onClick={() => {
-                    if (canRegenerate && step.phase !== 'package') {
-                      setRegenerateFrom(step.phase)
+                    if (canGoBack && step.phase !== 'package') {
                       void submitPauseInput({
-                        action: 'regenerate',
-                        regenerateFrom: step.phase
+                        action: 'go_back',
+                        targetPhase: step.phase
                       })
                     }
                   }}
-                  disabled={!canRegenerate || busy}
+                  disabled={!canGoBack || busy}
                 >
                   <span className={`${styles.stepNumber} ${isCurrent ? styles.stepNumberCurrent : ''}`}>{index + 1}</span>
                   <span>
@@ -562,6 +580,19 @@ export function InteractiveFlowPage({ deploymentMode }: InteractiveFlowPageProps
         )}
 
         <div className={styles.stepFooter}>
+          {previousRewindPhase && pausePoint && (
+            <button
+              type="button"
+              className="app-button app-button--ghost"
+              onClick={() => void submitPauseInput({
+                action: 'go_back',
+                targetPhase: previousRewindPhase
+              })}
+              disabled={busy}
+            >
+              {t('flow.actions.back_level')}
+            </button>
+          )}
           <button
             type="button"
             className="app-button app-button--secondary"

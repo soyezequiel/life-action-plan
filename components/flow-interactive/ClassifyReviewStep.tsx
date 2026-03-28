@@ -1,8 +1,9 @@
 'use client'
 
+import React from 'react'
 import type { GoalType } from '../../src/lib/domain/goal-taxonomy'
 import { t } from '../../src/i18n'
-import { GOAL_TYPE_OPTIONS, goalTypeLabel, riskLabel, signalLabel } from './labels'
+import { GOAL_TYPE_OPTIONS, goalTypeDescription, goalTypeLabel, riskLabel, signalLabel } from './labels'
 import styles from './InteractiveFlowPage.module.css'
 
 interface ClassifyReviewStepProps {
@@ -71,7 +72,8 @@ export function ClassifyReviewStep(props: ClassifyReviewStepProps) {
               onClick={() => props.onGoalTypeChange(option)}
               disabled={props.busy}
             >
-              {goalTypeLabel(option)}
+              <span className={styles.choiceTitle}>{goalTypeLabel(option)}</span>
+              <span className={styles.choiceDescription}>{goalTypeDescription(option)}</span>
             </button>
           ))}
         </div>

@@ -135,4 +135,91 @@ describe('interactive flow page', () => {
       expect(mocks.getSessionMock).toHaveBeenCalledWith('session-99')
     })
   })
+
+  it('permite volver un nivel desde una pausa intermedia', async () => {
+    const user = userEvent.setup()
+    window.localStorage.setItem(ACTIVE_INTERACTIVE_SESSION_ID_STORAGE_KEY, 'session-42')
+    mocks.getSessionMock.mockResolvedValue({
+      sessionId: 'session-42',
+      status: 'active',
+      pausePoint: {
+        id: '33333333-3333-4333-8333-333333333333',
+        phase: 'profile',
+        type: 'profile_edit',
+        output: {
+          freeHoursWeekday: 3,
+          freeHoursWeekend: 6,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: []
+        },
+        createdAt: '2026-03-27T10:10:00.000Z',
+        updatedAt: '2026-03-27T10:10:00.000Z'
+      },
+      snapshot: {
+        interactiveMode: true,
+        currentPausePoint: {
+          id: '33333333-3333-4333-8333-333333333333',
+          phase: 'profile',
+          type: 'profile_edit',
+          output: {
+            freeHoursWeekday: 3,
+            freeHoursWeekend: 6,
+            energyLevel: 'medium',
+            fixedCommitments: [],
+            scheduleConstraints: []
+          },
+          createdAt: '2026-03-27T10:10:00.000Z',
+          updatedAt: '2026-03-27T10:10:00.000Z'
+        },
+        pauseHistory: [
+          {
+            id: '11111111-1111-4111-8111-111111111111',
+            phase: 'classify',
+            type: 'classify_review',
+            output: {},
+            createdAt: '2026-03-27T10:00:00.000Z',
+            updatedAt: '2026-03-27T10:00:00.000Z'
+          },
+          {
+            id: '22222222-2222-4222-8222-222222222222',
+            phase: 'requirements',
+            type: 'requirements_answer',
+            output: {},
+            createdAt: '2026-03-27T10:05:00.000Z',
+            updatedAt: '2026-03-27T10:05:00.000Z'
+          },
+          {
+            id: '33333333-3333-4333-8333-333333333333',
+            phase: 'profile',
+            type: 'profile_edit',
+            output: {},
+            createdAt: '2026-03-27T10:10:00.000Z',
+            updatedAt: '2026-03-27T10:10:00.000Z'
+          }
+        ],
+        run: {
+          goalText: 'Aprender guitarra'
+        },
+        phases: {}
+      },
+      planId: null
+    })
+    mocks.applyInputMock.mockResolvedValue(baseSessionResponse)
+
+    render(<InteractiveFlowPage deploymentMode="local" />)
+
+    await screen.findByText('profile-step')
+    await user.click(screen.getByRole('button', { name: t('flow.actions.back_level') }))
+
+    await waitFor(() => {
+      expect(mocks.applyInputMock).toHaveBeenCalledWith('session-42', {
+        pauseId: '33333333-3333-4333-8333-333333333333',
+        input: {
+          action: 'go_back',
+          targetPhase: 'requirements'
+        }
+      })
+    })
+  })
 })

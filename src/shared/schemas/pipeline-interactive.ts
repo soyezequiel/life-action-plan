@@ -101,6 +101,7 @@ export const interactiveSessionRuntimeRequestSchema = z.object({
 
 export const interactiveSessionSeedSchema = z.object({
   goalText: z.string().trim().min(1).max(1000),
+  baseGoalText: z.string().trim().min(1).max(1000).optional(),
   profileId: z.string().trim().min(1).nullable().default(null),
   workflowId: z.string().trim().min(1).nullable().default(null),
   goalId: z.string().trim().min(1).nullable().default(null),

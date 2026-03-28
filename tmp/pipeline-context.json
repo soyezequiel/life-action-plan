@@ -1,23 +1,23 @@
 {
   "schemaVersion": 3,
   "pipeline": "v5",
-  "updatedAt": "2026-03-28T01:37:52.473Z",
+  "updatedAt": "2026-03-28T02:15:57.269Z",
   "run": {
-    "runId": "ef85727c-82eb-43f7-a795-37995e26859d",
+    "runId": "255519dc-41f6-47be-bb8e-6123b2b955d0",
     "source": "interactive",
     "status": "running",
-    "startedAt": "2026-03-28T01:37:46.583Z",
+    "startedAt": "2026-03-28T02:15:57.269Z",
     "finishedAt": null,
-    "modelId": "ollama:qwen3:8b",
-    "goalText": "Armar una rutina de dibujo de 6 semanas sin saturarme",
-    "profileId": "ce2cac75-4519-47c2-9df3-0fd8555b5399",
+    "modelId": "openai:gpt-5-mini",
+    "goalText": "Aprender guitarra",
+    "profileId": "profile-local",
     "outputFile": null,
     "tokensUsed": null,
     "resourceUsage": null,
-    "updatedAt": "2026-03-28T01:37:52.473Z"
+    "updatedAt": "2026-03-28T02:15:57.269Z"
   },
   "phaseStatuses": {
-    "classify": "paused",
+    "classify": "pending",
     "requirements": "pending",
     "profile": "pending",
     "strategy": "pending",
@@ -30,180 +30,38 @@
     "package": "pending",
     "adapt": "pending"
   },
-  "phases": {
-    "classify": {
-      "input": {
-        "text": "Armar una rutina de dibujo de 6 semanas sin saturarme"
-      },
-      "output": {
-        "goalType": "FINITE_PROJECT",
-        "confidence": 0.8,
-        "risk": "LOW",
-        "extractedSignals": {
-          "isRecurring": false,
-          "hasDeliverable": true,
-          "hasNumericTarget": false,
-          "requiresSkillProgression": false,
-          "dependsOnThirdParties": false,
-          "isOpenEnded": false,
-          "isRelational": false
-        }
-      },
-      "processing": "Clasifica el objetivo y detecta senales para decidir el tipo de plan.",
-      "startedAt": "2026-03-28T01:37:46.598Z",
-      "finishedAt": "2026-03-28T01:37:52.471Z",
-      "durationMs": 5873
-    }
-  },
-  "phaseTimeline": {
-    "classify": {
-      "startedAt": "2026-03-28T01:37:46.598Z",
-      "finishedAt": "2026-03-28T01:37:52.471Z",
-      "durationMs": 5873
-    }
-  },
+  "phases": {},
+  "phaseTimeline": {},
   "progress": null,
   "repairCycles": 0,
   "repairExhausted": false,
   "repairAttempts": [],
   "repairTimeline": [],
-  "domainCardMeta": {
-    "domainLabel": "armar-rutina-dibujo",
-    "method": "LLM_ONLY",
-    "confidence": 0.6
-  },
+  "domainCardMeta": null,
   "interactiveMode": true,
-  "currentPausePoint": {
-    "id": "3f30eff1-7387-4786-af2f-7a65e0b939e8",
-    "phase": "classify",
-    "type": "classify_review",
-    "output": {
-      "goalType": "FINITE_PROJECT",
-      "confidence": 0.8,
-      "risk": "LOW",
-      "extractedSignals": {
-        "isRecurring": false,
-        "hasDeliverable": true,
-        "hasNumericTarget": false,
-        "requiresSkillProgression": false,
-        "dependsOnThirdParties": false,
-        "isOpenEnded": false,
-        "isRelational": false
-      }
-    },
-    "createdAt": "2026-03-28T01:37:52.473Z",
-    "updatedAt": "2026-03-28T01:37:52.473Z"
-  },
-  "pauseHistory": [
-    {
-      "id": "3f30eff1-7387-4786-af2f-7a65e0b939e8",
-      "phase": "classify",
-      "type": "classify_review",
-      "output": {
-        "goalType": "FINITE_PROJECT",
-        "confidence": 0.8,
-        "risk": "LOW",
-        "extractedSignals": {
-          "isRecurring": false,
-          "hasDeliverable": true,
-          "hasNumericTarget": false,
-          "requiresSkillProgression": false,
-          "dependsOnThirdParties": false,
-          "isOpenEnded": false,
-          "isRelational": false
-        }
-      },
-      "createdAt": "2026-03-28T01:37:52.473Z",
-      "updatedAt": "2026-03-28T01:37:52.473Z"
-    }
-  ],
+  "currentPausePoint": null,
+  "pauseHistory": [],
   "interactiveState": {
     "request": {
-      "modelId": "ollama:qwen3:8b",
-      "requestedMode": "backend-local",
+      "modelId": "openai:gpt-5-mini",
+      "requestedMode": null,
       "backendCredentialId": null,
-      "userId": "dfff8b7a-1de5-45c0-91e7-0532a7ba0263",
+      "userId": null,
       "deploymentMode": "local",
-      "allowUserLocalExecution": true,
+      "allowUserLocalExecution": false,
       "thinkingMode": "disabled"
     },
     "seed": {
-      "goalText": "Armar una rutina de dibujo de 6 semanas sin saturarme",
-      "profileId": "ce2cac75-4519-47c2-9df3-0fd8555b5399",
-      "workflowId": "6475e97d-26c4-4e5b-9c3f-e7c8e567f946",
-      "goalId": "obj1",
+      "goalText": "Aprender guitarra",
+      "baseGoalText": "Aprender guitarra",
+      "profileId": "profile-local",
+      "workflowId": null,
+      "goalId": null,
       "domainHint": null,
-      "timezone": "America/Argentina/Buenos_Aires",
-      "weekStartDate": "2026-03-23T03:00:00.000Z",
-      "availability": [
-        {
-          "day": "monday",
-          "startTime": "07:00",
-          "endTime": "23:00"
-        },
-        {
-          "day": "tuesday",
-          "startTime": "07:00",
-          "endTime": "23:00"
-        },
-        {
-          "day": "wednesday",
-          "startTime": "07:00",
-          "endTime": "23:00"
-        },
-        {
-          "day": "thursday",
-          "startTime": "07:00",
-          "endTime": "23:00"
-        },
-        {
-          "day": "friday",
-          "startTime": "07:00",
-          "endTime": "23:00"
-        },
-        {
-          "day": "saturday",
-          "startTime": "07:00",
-          "endTime": "23:00"
-        },
-        {
-          "day": "sunday",
-          "startTime": "07:00",
-          "endTime": "23:00"
-        }
-      ],
-      "blocked": [
-        {
-          "day": "monday",
-          "startTime": "09:00",
-          "endTime": "18:00",
-          "reason": "Trabajo"
-        },
-        {
-          "day": "tuesday",
-          "startTime": "09:00",
-          "endTime": "18:00",
-          "reason": "Trabajo"
-        },
-        {
-          "day": "wednesday",
-          "startTime": "09:00",
-          "endTime": "18:00",
-          "reason": "Trabajo"
-        },
-        {
-          "day": "thursday",
-          "startTime": "09:00",
-          "endTime": "18:00",
-          "reason": "Trabajo"
-        },
-        {
-          "day": "friday",
-          "startTime": "09:00",
-          "endTime": "18:00",
-          "reason": "Trabajo"
-        }
-      ],
+      "timezone": "America/Buenos_Aires",
+      "weekStartDate": "2026-03-23",
+      "availability": [],
+      "blocked": [],
       "preferences": [],
       "answers": {},
       "previousProgressionKeys": [],

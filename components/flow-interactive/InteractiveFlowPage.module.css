@@ -376,6 +376,10 @@
 }
 
 .choiceButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
   padding: 0.95rem 1rem;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -383,6 +387,18 @@
   color: var(--text-soft);
   text-align: left;
   transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.choiceTitle {
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.choiceDescription {
+  font-size: 0.84rem;
+  line-height: 1.35;
+  color: var(--text-muted);
 }
 
 .choiceButton:hover:not(:disabled),
@@ -395,6 +411,10 @@
 .tagButtonActive {
   border-color: rgba(105, 167, 255, 0.3);
   background: rgba(105, 167, 255, 0.12);
+}
+
+.choiceButtonActive .choiceDescription {
+  color: var(--text-secondary);
 }
 
 .signals {
