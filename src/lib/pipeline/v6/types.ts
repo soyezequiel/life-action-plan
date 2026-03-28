@@ -17,16 +17,16 @@ import { SlackPolicySchema } from '../../domain/slack-policy';
 import {
   SchedulerOutputSchema as SchedulerOutputBaseSchema,
   TradeoffSchema,
-  type SchedulerOutput as SchedulerOutputActual,
+  type SchedulerOutput,
 } from '../../scheduler/types';
 import type { AgentRuntime } from '../../runtime/types';
 import type {
   PlanPackage as V5PlanPackage,
   StrategicRoadmap as V5StrategicRoadmap,
-  UserProfileV5 as V5UserProfileV5,
-} from '../v5/phase-io-v5';
+  UserProfileV5,
+} from '../../pipeline/v5/phase-io-v5';
 
-export type { DomainKnowledgeCard, GoalDomainRisk, GoalType };
+export type { DomainKnowledgeCard, GoalDomainRisk, GoalType, SchedulerOutput, UserProfileV5 };
 export { DomainKnowledgeCardSchema, GoalDomainRiskSchema, GoalTypeSchema };
 
 export const V6AgentNameSchema = z.enum([
@@ -165,8 +165,6 @@ export const OrchestratorStateSchema = z.object({
 }).strict();
 export type OrchestratorState = z.infer<typeof OrchestratorStateSchema>;
 
-// TODO: reconcile with actual v5 type once src/lib/pipeline/v5/profile.ts exports UserProfileV5 directly.
-export type UserProfileV5 = V5UserProfileV5;
 export const UserProfileV5Schema: z.ZodType<UserProfileV5> = z.object({
   freeHoursWeekday: z.number(),
   freeHoursWeekend: z.number(),
@@ -186,8 +184,6 @@ export const StrategicDraftSchema: z.ZodType<StrategicDraft> = z.object({
   milestones: z.array(z.string()),
 }).strict();
 
-// TODO: reconcile with actual type once src/lib/scheduler/solver.ts exports SchedulerOutput directly.
-export type SchedulerOutput = SchedulerOutputActual;
 export const SchedulerOutputSchema: z.ZodType<SchedulerOutput> = SchedulerOutputBaseSchema;
 
 export type PlanPackage = V5PlanPackage;

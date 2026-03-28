@@ -8,6 +8,13 @@
       "when": 1774659062217,
       "tag": "0000_interactive_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774706058555,
+      "tag": "0001_chief_random",
+      "breakpoints": true
     }
   ]
 }
