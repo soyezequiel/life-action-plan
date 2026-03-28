@@ -186,7 +186,9 @@ export const StrategicDraftSchema: z.ZodType<StrategicDraft> = z.object({
 
 export const SchedulerOutputSchema: z.ZodType<SchedulerOutput> = SchedulerOutputBaseSchema;
 
-export type PlanPackage = V5PlanPackage;
+export type PlanPackage = V5PlanPackage & {
+  reasoningTrace?: ReasoningEntry[];
+};
 export const PlanPackageSchema: z.ZodType<PlanPackage> = z.object({
   plan: V5PlanSchema,
   items: z.array(PlanItemSchema),
@@ -198,6 +200,7 @@ export const PlanPackageSchema: z.ZodType<PlanPackage> = z.object({
   implementationIntentions: z.array(z.string()),
   warnings: z.array(z.string()),
   tradeoffs: z.array(TradeoffSchema).optional(),
+  reasoningTrace: z.array(ReasoningEntrySchema).optional(),
 }).strict();
 
 export const RevisionHistoryEntrySchema = z.object({
@@ -219,6 +222,8 @@ export const OrchestratorContextSchema = z.object({
   criticReport: CriticReportSchema.nullable(),
   revisionHistory: z.array(RevisionHistoryEntrySchema),
   finalPackage: PlanPackageSchema.nullable(),
+  availability: z.array(z.object({ day: z.string(), startTime: z.string(), endTime: z.string() })).optional(),
+  blocked: z.array(z.object({ day: z.string(), startTime: z.string(), endTime: z.string(), reason: z.string() })).optional(),
 }).strict();
 export type OrchestratorContext = z.infer<typeof OrchestratorContextSchema>;
 
@@ -258,3 +263,33 @@ export const OrchestratorConfigSchema = z.object({
   enableDomainExpert: z.boolean(),
 }).strict();
 export type OrchestratorConfig = z.infer<typeof OrchestratorConfigSchema>;
+
+export const V6BuildSessionRequestSchema = z.object({
+  goalText: z.string().trim().min(1),
+  profileId: z.string().trim().min(1),
+  provider: z.string().trim().min(1).nullable(),
+  resourceMode: z.enum(['auto', 'backend', 'user', 'codex']).nullable(),
+  apiKey: z.string().trim().min(1).nullable(),
+  backendCredentialId: z.string().trim().min(1).nullable(),
+  thinkingMode: z.enum(['enabled', 'disabled']).nullable(),
+}).strict();
+export type V6BuildSessionRequest = z.infer<typeof V6BuildSessionRequestSchema>;
+
+export const PlanOrchestratorSnapshotSchema = z.object({
+  config: OrchestratorConfigSchema,
+  state: OrchestratorStateSchema,
+  context: OrchestratorContextSchema,
+  scratchpad: z.array(ReasoningEntrySchema),
+  lastAction: z.string(),
+  pendingAnswers: z.record(z.string()).nullable(),
+  progressHistory: z.array(z.number().min(0).max(100)),
+}).strict();
+export type PlanOrchestratorSnapshot = z.infer<typeof PlanOrchestratorSnapshotSchema>;
+
+export const V6RuntimeSnapshotSchema = z.object({
+  schemaVersion: z.literal(1),
+  pipeline: z.literal('v6'),
+  request: V6BuildSessionRequestSchema,
+  orchestrator: PlanOrchestratorSnapshotSchema,
+}).strict();
+export type V6RuntimeSnapshot = z.infer<typeof V6RuntimeSnapshotSchema>;

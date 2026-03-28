@@ -919,7 +919,13 @@ export async function upsertEncryptedKeyVault(input: UpsertEncryptedKeyVaultInpu
   return serializeEncryptedKeyVaultRow(row as typeof encryptedKeyVaults.$inferSelect)
 }
 
-export async function createPlan(profileId: string, nombre: string, slug: string, manifest: string): Promise<string> {
+export async function createPlan(
+  profileId: string,
+  nombre: string,
+  slug: string,
+  manifest: string,
+  reasoningTrace?: unknown
+): Promise<string> {
   const id = generateId()
   const timestamp = now()
 
@@ -929,6 +935,9 @@ export async function createPlan(profileId: string, nombre: string, slug: string
     nombre,
     slug,
     manifest: toStoredJson(manifest),
+    reasoningTrace: toStoredJson(
+      reasoningTrace as string | Record<string, unknown> | Array<unknown> | null | undefined
+    ),
     createdAt: timestamp,
     updatedAt: timestamp
   })

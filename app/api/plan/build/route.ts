@@ -146,6 +146,9 @@ function handleV6Build(
         const { PlanOrchestrator } = await import(
           '../../../../src/lib/pipeline/v6/orchestrator'
         )
+        const { createV6RuntimeSnapshot } = await import(
+          '../../../../src/lib/pipeline/v6/session-snapshot'
+        )
         const { createInteractiveSession } = await import(
           '../../../../src/lib/db/interactive-sessions'
         )
@@ -201,9 +204,13 @@ function handleV6Build(
         })
 
         if (!execution.runtime) {
+          const { toExecutionBlockErrorMessage } = await import('../../_plan')
           send({
             type: 'result',
-            result: { success: false, error: apiErrorMessages.localAssistantUnavailable() }
+            result: {
+              success: false,
+              error: toExecutionBlockErrorMessage(execution.executionContext.blockReasonCode ?? null)
+            }
           })
           return
         }
@@ -215,6 +222,10 @@ function handleV6Build(
         })
 
         send({ type: 'v6:phase', data: { phase: 'interpret', iteration: 0 } })
+
+        const { buildSchedulingContextFromProfile } = await import(
+          '../../../../src/lib/pipeline/v5/scheduling-context'
+        )
 
         const timezone = getProfileTimezone(profile)
         const participant = profile.participantes?.[0]
@@ -228,22 +239,27 @@ function handleV6Build(
           scheduleConstraints: [] as string[],
         }
 
+        const schedulingCtx = buildSchedulingContextFromProfile(profile)
+
         const orchestrator = new PlanOrchestrator({}, runtime)
         const result = await orchestrator.run(goalText, {
           profile: userProfile,
           timezone,
           locale: 'es-AR',
+          availability: schedulingCtx.availability,
+          blocked: schedulingCtx.blocked,
         })
 
         if (result.status === 'needs_input') {
           const sessionId = crypto.randomUUID()
-          const expiresAt = DateTime.utc().plus({ minutes: 30 }).toISO() ?? new Date(Date.now() + 30 * 60_000).toISOString()
+          const expiresAt = DateTime.utc().plus({ minutes: 30 }).toISO()
+            ?? DateTime.utc().plus({ minutes: 30 }).toFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 
           await createInteractiveSession({
             id: sessionId,
             status: 'active',
-            runtimeSnapshot: {
-              v6State: {
+            runtimeSnapshot: createV6RuntimeSnapshot({
+              request: {
                 goalText,
                 profileId,
                 provider: provider ?? null,
@@ -251,11 +267,9 @@ function handleV6Build(
                 apiKey: apiKey || null,
                 backendCredentialId: backendCredentialId ?? null,
                 thinkingMode: thinkingMode ?? null,
-                tokensUsed: result.tokensUsed,
-                iterations: result.iterations,
-                scratchpad: result.scratchpad,
               },
-            } as never,
+              orchestrator: orchestrator.getSnapshot(),
+            }),
             userId: userId ?? null,
             expiresAt,
           })
@@ -268,6 +282,32 @@ function handleV6Build(
             }
           })
         } else if (result.status === 'completed') {
+          if (!result.package) {
+            send({
+              type: 'result',
+              result: {
+                success: false,
+                error: 'No pudimos guardar el plan en este momento.',
+                scratchpad: result.scratchpad,
+              }
+            })
+            return
+          }
+
+          const { persistPlanFromV5Package } = await import(
+            '../../../../src/lib/domain/plan-v5-activation'
+          )
+          const reasoningTrace = result.package.reasoningTrace ?? result.scratchpad
+          const persistedPlan = await persistPlanFromV5Package({
+            profileId,
+            package: result.package,
+            goalId: result.package.plan.goalIds[0] || 'generated-goal',
+            goalText,
+            timezone,
+            modelId: execution.runtime.modelId,
+            reasoningTrace,
+          })
+
           const progress = orchestrator.getProgress()
           send({
             type: 'v6:progress',
@@ -277,10 +317,11 @@ function handleV6Build(
           send({
             type: 'v6:complete',
             data: {
-              planId: null,
-              score: progress.progressScore,
+              planId: persistedPlan.planId,
+              score: result.package.qualityScore,
               iterations: result.iterations,
               package: result.package,
+              reasoningTrace,
               scratchpad: result.scratchpad,
             }
           })

@@ -111,6 +111,10 @@ export class Scratchpad {
     return this.entries.map((entry) => ({ ...entry }));
   }
 
+  restore(entries: ReasoningEntry[]): void {
+    this.entries = entries.map((entry) => ReasoningEntrySchema.parse(entry));
+  }
+
   getByPhase(phase: OrchestratorPhase): ReasoningEntry[] {
     return this.entries
       .filter((entry) => entry.phase === phase)

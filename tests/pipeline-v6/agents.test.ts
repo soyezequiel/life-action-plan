@@ -161,11 +161,6 @@ function createExpectedPackage() {
   }));
 }
 
-function stripReasoningTrace<T extends object>(value: T): Omit<T, 'reasoningTrace'> {
-  const { reasoningTrace: _reasoningTrace, ...rest } = value as T & { reasoningTrace?: unknown };
-  return rest;
-}
-
 describe('agent fallbacks (no LLM)', () => {
   describe('goalInterpreterAgent.fallback', () => {
     it('returns valid GoalInterpretation with empty ambiguities', () => {
@@ -352,8 +347,14 @@ describe('agent fallbacks (no LLM)', () => {
       const fallbackResult = packagerAgent.fallback(input);
       const expectedPackage = createExpectedPackage();
 
-      expect(PlanPackageSchema.parse(stripReasoningTrace(executeResult))).toEqual(expectedPackage);
-      expect(PlanPackageSchema.parse(stripReasoningTrace(fallbackResult))).toEqual(expectedPackage);
+      expect(PlanPackageSchema.parse(executeResult)).toEqual({
+        ...expectedPackage,
+        reasoningTrace: input.scratchpad,
+      });
+      expect(PlanPackageSchema.parse(fallbackResult)).toEqual({
+        ...expectedPackage,
+        reasoningTrace: input.scratchpad,
+      });
       expect(executeResult).toEqual(fallbackResult);
     });
   });

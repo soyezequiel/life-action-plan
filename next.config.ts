@@ -1,7 +1,10 @@
 import type { NextConfig } from 'next'
 
+const nextDistDir = process.env.NEXT_DIST_DIR?.trim()
+
 const nextConfig: NextConfig = {
-  reactStrictMode: true
+  reactStrictMode: true,
+  ...(nextDistDir ? { distDir: nextDistDir } : {})
 }
 
 export default nextConfig

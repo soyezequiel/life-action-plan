@@ -2,7 +2,10 @@ import { z } from 'zod';
 
 import { t } from '../../../i18n';
 import type { DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
+import { extractFirstJsonObject } from '../../flow/agents/llm-json-parser';
 import type { AgentRuntime } from '../../runtime/types';
+import { buildRevisionContext } from '../v6/prompts/critic-reasoning';
+import { buildStrategyPrompt } from '../v6/prompts/strategy-reasoning';
 import type { StrategyInput, StrategyOutput } from './phase-io-v5';
 
 const strategicRoadmapPhaseSchema = z.object({
@@ -14,6 +17,24 @@ const strategicRoadmapPhaseSchema = z.object({
 const strategyOutputSchema = z.object({
   phases: z.array(strategicRoadmapPhaseSchema).min(1),
   milestones: z.array(z.string().trim().min(1)),
+}).strict();
+
+const strategyReasoningPhaseSchema = z.object({
+  id: z.string().trim().min(1),
+  title: z.string().trim().min(1),
+  summary: z.string().trim().min(1),
+  startMonth: z.number(),
+  endMonth: z.number(),
+}).strict();
+
+const strategyReasoningOutputSchema = z.object({
+  phases: z.array(strategyReasoningPhaseSchema).min(1),
+  milestones: z.array(z.object({
+    id: z.string().trim().min(1),
+    label: z.string().trim().min(1),
+    targetMonth: z.number(),
+    phaseId: z.string().trim().min(1),
+  }).strict()).min(1),
 }).strict();
 
 function normalizeStrategyOutput(output: StrategyOutput): StrategyOutput {
@@ -33,12 +54,21 @@ function normalizeStrategyOutput(output: StrategyOutput): StrategyOutput {
   };
 }
 
-export async function generateStrategy(
-  runtime: AgentRuntime,
-  input: StrategyInput,
-  domainCard?: DomainKnowledgeCard,
-): Promise<StrategyOutput> {
-  const habitStateBlock = (input.habitStates?.length ?? 0) > 0
+function normalizeReasoningOutput(raw: unknown): StrategyOutput {
+  const output = strategyReasoningOutputSchema.parse(raw);
+
+  return normalizeStrategyOutput({
+    phases: output.phases.map((phase) => ({
+      name: phase.title,
+      durationWeeks: Math.max(1, Math.round((phase.endMonth - phase.startMonth + 1) * 4)),
+      focus_esAR: phase.summary,
+    })),
+    milestones: output.milestones.map((milestone) => milestone.label),
+  });
+}
+
+function buildHabitStateBlock(input: StrategyInput): string {
+  return (input.habitStates?.length ?? 0) > 0
     ? `
 Estado actual del habito (adapta la estrategia a esto en vez de reiniciar desde cero):
 ${input.habitStates!.map((state) =>
@@ -51,8 +81,10 @@ Reglas adaptativas:
 - Si el nivel ya es alto, propon etapas de consolidacion o siguiente escalon, no repeticion basica.
 `
     : '';
+}
 
-  const prompt = `
+function buildLegacyStrategyPrompt(input: StrategyInput, domainCard?: DomainKnowledgeCard): string {
+  return `
 Eres un planificador estrategico experto.
 Tu objetivo es generar un roadmap estrategico basado en la clasificacion del objetivo y el perfil del usuario.
 
@@ -73,7 +105,7 @@ ${domainCard ? `Conocimiento de dominio (usa esto para las fases, frecuencias y 
 - Tareas tipicas: ${domainCard.tasks.map((task) => task.label).join(', ')}
 - Progresiones: ${domainCard.progression?.levels.map((level) => level.description).join(' -> ') || 'N/A'}
 ` : ''}
-${habitStateBlock}
+${buildHabitStateBlock(input)}
 El roadmap debe tener:
 - listado de fases logicas (ej: "fundamentos", "consolidacion", "avanzado")
 - hitos concretos con su orden o estimacion
@@ -100,21 +132,52 @@ Genera un resultado en formato JSON valido que cumpla con esta interfaz:
 
 Responde SOLO con JSON valido, sin markdown.
 `;
+}
+
+export async function generateStrategy(
+  runtime: AgentRuntime,
+  input: StrategyInput,
+  domainCard?: DomainKnowledgeCard,
+): Promise<StrategyOutput> {
+  const planningContext = input.planningContext;
+  const prompt = planningContext?.interpretation
+    ? buildStrategyPrompt({
+        goalText: input.goalText,
+        goalType: input.classification.goalType,
+        interpretation: planningContext.interpretation,
+        userProfile: {
+          freeHoursWeekday: input.profile.freeHoursWeekday,
+          freeHoursWeekend: input.profile.freeHoursWeekend,
+          energyLevel: input.profile.energyLevel,
+          fixedCommitments: input.profile.fixedCommitments,
+        },
+        domainContext: planningContext.domainContext ?? (domainCard ? { card: domainCard } : null),
+        clarificationAnswers: planningContext.clarificationAnswers ?? {},
+        previousCriticFindings: planningContext.previousCriticFindings,
+        revisionContext: planningContext.previousCriticReports?.length
+          ? buildRevisionContext(planningContext.previousCriticReports)
+          : undefined,
+      })
+    : buildLegacyStrategyPrompt(input, domainCard);
 
   const response = await runtime.chat([{ role: 'user', content: prompt }]);
 
   try {
-    let raw = response.content.trim();
-    if (raw.startsWith('```json')) {
-      raw = raw.slice(7);
-    } else if (raw.startsWith('```')) {
-      raw = raw.slice(3);
-    }
-    if (raw.endsWith('```')) {
-      raw = raw.slice(0, -3);
-    }
-    const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-    return normalizeStrategyOutput(strategyOutputSchema.parse(JSON.parse(cleanRaw)));
+    const cleanRaw = response.content
+      .trim()
+      .replace(/^```json\s*/i, '')
+      .replace(/^```\s*/i, '')
+      .replace(/\s*```$/i, '')
+      .replace(/<think>[\s\S]*?<\/think>/g, '')
+      .trim();
+
+    const parsed = JSON.parse(planningContext?.interpretation
+      ? extractFirstJsonObject(cleanRaw)
+      : cleanRaw);
+
+    return planningContext?.interpretation
+      ? normalizeReasoningOutput(parsed)
+      : normalizeStrategyOutput(strategyOutputSchema.parse(parsed));
   } catch {
     return normalizeStrategyOutput({
       phases: [

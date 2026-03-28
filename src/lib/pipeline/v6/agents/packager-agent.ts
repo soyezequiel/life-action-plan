@@ -16,10 +16,6 @@ export interface PackagerInput {
   scratchpad: ReasoningEntry[]
 }
 
-type PlanPackageWithTrace = PlanPackage & {
-  reasoningTrace: ReasoningEntry[]
-}
-
 function buildClassification(context: OrchestratorContext): GoalClassification | undefined {
   if (!context.interpretation) {
     return undefined;
@@ -86,7 +82,7 @@ function packageWithTrace(input: PackagerInput): PlanPackage {
   const packagedPlan = packagePlan(buildPackageInput(input.context));
   return Object.assign(packagedPlan, {
     reasoningTrace: input.scratchpad,
-  } satisfies Pick<PlanPackageWithTrace, 'reasoningTrace'>);
+  } satisfies Pick<PlanPackage, 'reasoningTrace'>);
 }
 
 export const packagerAgent: V6Agent<PackagerInput, PlanPackage> = {

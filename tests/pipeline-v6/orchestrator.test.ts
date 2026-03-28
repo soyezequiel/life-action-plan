@@ -278,23 +278,29 @@ function buildOrchestrator(config = {}) {
     },
     packager: {
       name: 'packager',
-      async execute() {
+      async execute(input) {
         if (scenario === 'max_iterations') {
           internal.state.maxIterations = 999;
         }
         if (scenario === 'token_budget') {
           internal.state.tokenBudget.limit = 999999;
         }
-        return packageFixture;
+        return {
+          ...packageFixture,
+          reasoningTrace: input.scratchpad,
+        };
       },
-      fallback() {
+      fallback(input) {
         if (scenario === 'max_iterations') {
           internal.state.maxIterations = 999;
         }
         if (scenario === 'token_budget') {
           internal.state.tokenBudget.limit = 999999;
         }
-        return packageFixture;
+        return {
+          ...packageFixture,
+          reasoningTrace: input.scratchpad,
+        };
       },
     },
   };
@@ -436,6 +442,7 @@ describe('PlanOrchestrator', () => {
       'critique',
       'package',
     ]);
+    expect((result.package as { reasoningTrace?: Array<{ phase: string }> }).reasoningTrace).toEqual(result.scratchpad);
     expect(result.tokensUsed).toBeGreaterThan(0);
     expect(result.iterations).toBe(7);
   });

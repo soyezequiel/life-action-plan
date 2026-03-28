@@ -10,19 +10,6 @@ const resumeRequestSchema = z.object({
   answers: z.record(z.string(), z.string()),
 }).strict()
 
-interface V6SessionState {
-  goalText: string
-  profileId: string
-  provider: string | null
-  resourceMode: string | null
-  apiKey: string | null
-  backendCredentialId: string | null
-  thinkingMode: string | null
-  tokensUsed: number
-  iterations: number
-  scratchpad: unknown[]
-}
-
 export async function POST(request: Request): Promise<Response> {
   const parsed = resumeRequestSchema.safeParse(await request.json().catch(() => null))
 
@@ -77,6 +64,10 @@ export async function POST(request: Request): Promise<Response> {
         const { PlanOrchestrator } = await import(
           '../../../../../src/lib/pipeline/v6/orchestrator'
         )
+        const {
+          createV6RuntimeSnapshot,
+          parseV6RuntimeSnapshot,
+        } = await import('../../../../../src/lib/pipeline/v6/session-snapshot')
 
         const session = await getInteractiveSession(sessionId)
         if (!session || session.status !== 'active') {
@@ -87,9 +78,10 @@ export async function POST(request: Request): Promise<Response> {
           return
         }
 
-        const snapshot = session.runtimeSnapshot as unknown as { v6State?: V6SessionState }
-        const v6State = snapshot.v6State
-        if (!v6State) {
+        let v6Snapshot: ReturnType<typeof parseV6RuntimeSnapshot>
+        try {
+          v6Snapshot = parseV6RuntimeSnapshot(session.runtimeSnapshot)
+        } catch {
           send({
             type: 'result',
             result: { success: false, error: 'Session is not a v6 pipeline session' }
@@ -97,7 +89,7 @@ export async function POST(request: Request): Promise<Response> {
           return
         }
 
-        const { goalText, profileId, provider, resourceMode, apiKey, backendCredentialId, thinkingMode } = v6State
+        const { goalText, profileId, provider, resourceMode, apiKey, backendCredentialId, thinkingMode } = v6Snapshot.request
 
         const profileRow = await getProfile(profileId)
         if (!profileRow) {
@@ -139,9 +131,13 @@ export async function POST(request: Request): Promise<Response> {
         })
 
         if (!execution.runtime) {
+          const { toExecutionBlockErrorMessage } = await import('../../../_plan')
           send({
             type: 'result',
-            result: { success: false, error: apiErrorMessages.localAssistantUnavailable() }
+            result: {
+              success: false,
+              error: toExecutionBlockErrorMessage(execution.executionContext.blockReasonCode ?? null)
+            }
           })
           return
         }
@@ -149,48 +145,21 @@ export async function POST(request: Request): Promise<Response> {
         const runtime = getProvider(execution.runtime.modelId, {
           apiKey: execution.runtime.apiKey,
           baseURL: execution.runtime.baseURL,
-          thinkingMode: (thinkingMode as 'enabled' | 'disabled' | undefined) ?? undefined
+          thinkingMode: thinkingMode ?? undefined
         })
 
         send({ type: 'v6:phase', data: { phase: 'clarify-resume', iteration: 0 } })
 
         const timezone = getProfileTimezone(profile)
-        const participant = profile.participantes?.[0]
-        const hours = participant?.calendario?.horasLibresEstimadas
-        const commitments = participant?.calendario?.eventosInamovibles ?? []
-        const userProfile = {
-          freeHoursWeekday: hours?.diasLaborales ?? 2,
-          freeHoursWeekend: hours?.diasDescanso ?? 4,
-          energyLevel: 'medium' as const,
-          fixedCommitments: commitments.map((e: { nombre: string }) => e.nombre),
-          scheduleConstraints: [] as string[],
-        }
-
-        // Create a fresh orchestrator and run the full pipeline with answers pre-loaded
-        const orchestrator = new PlanOrchestrator({}, runtime)
-        const result = await orchestrator.run(goalText, {
-          profile: userProfile,
-          timezone,
-          locale: 'es-AR',
-        })
-
-        // If the orchestrator pauses for clarification again, resume with the provided answers
-        let finalResult = result
-        if (finalResult.status === 'needs_input') {
-          finalResult = await orchestrator.resume(answers)
-        }
+        const orchestrator = PlanOrchestrator.restore(v6Snapshot.orchestrator, runtime)
+        const finalResult = await orchestrator.resume(answers)
 
         if (finalResult.status === 'needs_input') {
-          // Still needs more input — update session and return questions
           await updateInteractiveSession(sessionId, {
-            runtimeSnapshot: {
-              v6State: {
-                ...v6State,
-                tokensUsed: finalResult.tokensUsed,
-                iterations: finalResult.iterations,
-                scratchpad: finalResult.scratchpad,
-              },
-            } as never,
+            runtimeSnapshot: createV6RuntimeSnapshot({
+              request: v6Snapshot.request,
+              orchestrator: orchestrator.getSnapshot(),
+            }),
           })
 
           send({
@@ -201,7 +170,41 @@ export async function POST(request: Request): Promise<Response> {
             }
           })
         } else if (finalResult.status === 'completed') {
-          await updateInteractiveSession(sessionId, { status: 'completed' })
+          if (!finalResult.package) {
+            await updateInteractiveSession(sessionId, { status: 'error' })
+
+            send({
+              type: 'result',
+              result: {
+                success: false,
+                error: 'No pudimos guardar el plan en este momento.',
+                scratchpad: finalResult.scratchpad,
+              }
+            })
+            return
+          }
+
+          const { persistPlanFromV5Package } = await import(
+            '../../../../../src/lib/domain/plan-v5-activation'
+          )
+          const reasoningTrace = finalResult.package.reasoningTrace ?? finalResult.scratchpad
+          const persistedPlan = await persistPlanFromV5Package({
+            profileId,
+            package: finalResult.package,
+            goalId: finalResult.package.plan.goalIds[0] || 'generated-goal',
+            goalText,
+            timezone,
+            modelId: execution.runtime.modelId,
+            reasoningTrace,
+          })
+
+          await updateInteractiveSession(sessionId, {
+            status: 'completed',
+            runtimeSnapshot: createV6RuntimeSnapshot({
+              request: v6Snapshot.request,
+              orchestrator: orchestrator.getSnapshot(),
+            }),
+          })
 
           const progress = orchestrator.getProgress()
           send({
@@ -212,10 +215,11 @@ export async function POST(request: Request): Promise<Response> {
           send({
             type: 'v6:complete',
             data: {
-              planId: null,
-              score: progress.progressScore,
+              planId: persistedPlan.planId,
+              score: finalResult.package.qualityScore,
               iterations: finalResult.iterations,
               package: finalResult.package,
+              reasoningTrace,
               scratchpad: finalResult.scratchpad,
             }
           })

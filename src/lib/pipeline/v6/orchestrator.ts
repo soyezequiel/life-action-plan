@@ -4,8 +4,11 @@ import { getKnowledgeCard } from '../../domain/domain-knowledge/bank';
 import { generateStrategy } from '../v5/strategy';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
 import type { StrategyInput } from '../v5/phase-io-v5';
+import type { AvailabilityWindow, BlockedSlot } from '../../scheduler/types';
 import { Scratchpad } from './scratchpad';
+import { buildRevisionContext } from './prompts/critic-reasoning';
 import { nextPhase, requiresUserInput, phaseProgressScore } from './state-machine';
+import { PlanOrchestratorSnapshotSchema } from './types';
 import type {
   ClarificationRound,
   CriticReport,
@@ -22,6 +25,7 @@ import type {
   UserProfileV5,
   V6Agent,
   V6AgentName,
+  PlanOrchestratorSnapshot,
 } from './types';
 
 // ─── Public interfaces ──────────────────────────────────────────────────────
@@ -30,6 +34,8 @@ export interface UserContext {
   profile: UserProfileV5 | null;
   timezone: string;
   locale: string;
+  availability?: AvailabilityWindow[];
+  blocked?: BlockedSlot[];
 }
 
 export interface OrchestratorResult {
@@ -68,20 +74,15 @@ const MAX_STALLED_ITERATIONS = 2;
 
 interface AgentRegistryLike {
   get<TInput, TOutput>(name: V6AgentName): V6Agent<TInput, TOutput> | undefined;
+  has(name: V6AgentName): boolean;
 }
 
 // ─── Dynamic agent registry loader ──────────────────────────────────────────
 
 async function loadRegistry(): Promise<AgentRegistryLike | null> {
   try {
-    // Dynamic import to handle missing registry during parallel development.
-    // Uses string concatenation to prevent static analysis from failing on missing module.
-    const registryPath = './agent-registry';
-    const mod = await (import(/* webpackIgnore: true */ registryPath) as Promise<Record<string, unknown>>);
-    if (typeof mod.createDefaultRegistry === 'function') {
-      return (mod.createDefaultRegistry as () => AgentRegistryLike)();
-    }
-    return null;
+    const { createDefaultRegistry } = await import('./agent-registry');
+    return createDefaultRegistry();
   } catch {
     return null;
   }
@@ -107,6 +108,18 @@ async function loadAgentDirect(name: V6AgentName): Promise<V6Agent<unknown, unkn
       case 'critic': {
         const mod = await import('./agents/critic-agent');
         return mod.criticAgent as V6Agent<unknown, unknown>;
+      }
+      case 'scheduler': {
+        const mod = await import('./agents/scheduler-agent');
+        return mod.schedulerAgent as V6Agent<unknown, unknown>;
+      }
+      case 'packager': {
+        const mod = await import('./agents/packager-agent');
+        return mod.packagerAgent as V6Agent<unknown, unknown>;
+      }
+      case 'domain-expert': {
+        const mod = await import('./agents/domain-expert');
+        return mod.domainExpertAgent as V6Agent<unknown, unknown>;
       }
       default:
         return null;
@@ -179,7 +192,55 @@ export class PlanOrchestrator {
       criticReport: null,
       revisionHistory: [],
       finalPackage: null,
+      availability: [],
+      blocked: [],
     };
+  }
+
+  static restore(
+    snapshot: PlanOrchestratorSnapshot,
+    runtime: AgentRuntime,
+  ): PlanOrchestrator {
+    const parsed = PlanOrchestratorSnapshotSchema.parse(snapshot);
+    const orchestrator = new PlanOrchestrator(parsed.config, runtime);
+
+    orchestrator.state = {
+      ...parsed.state,
+      tokenBudget: { ...parsed.state.tokenBudget },
+      scratchpad: parsed.state.scratchpad.map((entry) => ({ ...entry })),
+    };
+    orchestrator.context = {
+      ...parsed.context,
+      interpretation: parsed.context.interpretation ? { ...parsed.context.interpretation } : null,
+      clarificationRounds: parsed.context.clarificationRounds.map((round) => ({
+        ...round,
+        questions: round.questions.map((question) => ({ ...question })),
+        informationGaps: [...round.informationGaps],
+      })),
+      userAnswers: { ...parsed.context.userAnswers },
+      userProfile: parsed.context.userProfile
+        ? {
+            ...parsed.context.userProfile,
+            fixedCommitments: [...parsed.context.userProfile.fixedCommitments],
+            scheduleConstraints: [...parsed.context.userProfile.scheduleConstraints],
+          }
+        : null,
+      domainCard: parsed.context.domainCard ? structuredClone(parsed.context.domainCard) : null,
+      strategicDraft: parsed.context.strategicDraft ? structuredClone(parsed.context.strategicDraft) : null,
+      feasibilityReport: parsed.context.feasibilityReport ? structuredClone(parsed.context.feasibilityReport) : null,
+      scheduleResult: parsed.context.scheduleResult ? structuredClone(parsed.context.scheduleResult) : null,
+      criticReport: parsed.context.criticReport ? structuredClone(parsed.context.criticReport) : null,
+      revisionHistory: parsed.context.revisionHistory.map((entry) => structuredClone(entry)),
+      finalPackage: parsed.context.finalPackage ? structuredClone(parsed.context.finalPackage) : null,
+      availability: (parsed.context.availability ?? []).map((entry) => ({ ...entry })),
+      blocked: (parsed.context.blocked ?? []).map((entry) => ({ ...entry })),
+    };
+    orchestrator.scratchpad.restore(parsed.scratchpad);
+    orchestrator.lastAction = parsed.lastAction;
+    orchestrator.pendingAnswers = parsed.pendingAnswers ? { ...parsed.pendingAnswers } : null;
+    orchestrator.progressHistory = [...parsed.progressHistory];
+
+    return orchestrator;
   }
 
   // ─── Main entry point ───────────────────────────────────────────────────
@@ -195,6 +256,7 @@ export class PlanOrchestrator {
   // ─── Resume after user provides clarification answers ───────────────────
 
   async resume(answers: Record<string, string>): Promise<OrchestratorResult> {
+    this.registry = await loadRegistry();
     this.pendingAnswers = answers;
     this.context.userAnswers = { ...this.context.userAnswers, ...answers };
 
@@ -215,6 +277,47 @@ export class PlanOrchestrator {
       maxIterations: this.state.maxIterations,
       progressScore: this.state.progressScore,
       lastAction: this.lastAction,
+    };
+  }
+
+  getSnapshot(): PlanOrchestratorSnapshot {
+    return {
+      config: { ...this.config },
+      state: {
+        ...this.state,
+        tokenBudget: { ...this.state.tokenBudget },
+        scratchpad: this.state.scratchpad.map((entry) => ({ ...entry })),
+      },
+      context: {
+        ...this.context,
+        interpretation: this.context.interpretation ? { ...this.context.interpretation } : null,
+        clarificationRounds: this.context.clarificationRounds.map((round) => ({
+          ...round,
+          questions: round.questions.map((question) => ({ ...question })),
+          informationGaps: [...round.informationGaps],
+        })),
+        userAnswers: { ...this.context.userAnswers },
+        userProfile: this.context.userProfile
+          ? {
+              ...this.context.userProfile,
+              fixedCommitments: [...this.context.userProfile.fixedCommitments],
+              scheduleConstraints: [...this.context.userProfile.scheduleConstraints],
+            }
+          : null,
+        domainCard: this.context.domainCard ? structuredClone(this.context.domainCard) : null,
+        strategicDraft: this.context.strategicDraft ? structuredClone(this.context.strategicDraft) : null,
+        feasibilityReport: this.context.feasibilityReport ? structuredClone(this.context.feasibilityReport) : null,
+        scheduleResult: this.context.scheduleResult ? structuredClone(this.context.scheduleResult) : null,
+        criticReport: this.context.criticReport ? structuredClone(this.context.criticReport) : null,
+        revisionHistory: this.context.revisionHistory.map((entry) => structuredClone(entry)),
+        finalPackage: this.context.finalPackage ? structuredClone(this.context.finalPackage) : null,
+        availability: (this.context.availability ?? []).map((entry) => ({ ...entry })),
+        blocked: (this.context.blocked ?? []).map((entry) => ({ ...entry })),
+      },
+      scratchpad: this.scratchpad.getAll(),
+      lastAction: this.lastAction,
+      pendingAnswers: this.pendingAnswers ? { ...this.pendingAnswers } : null,
+      progressHistory: [...this.progressHistory],
     };
   }
 
@@ -279,11 +382,18 @@ export class PlanOrchestrator {
   private initializeContext(goalText: string, userCtx: UserContext): void {
     this.context.goalText = goalText;
     this.context.userProfile = userCtx.profile;
+    this.context.availability = userCtx.availability ?? this.buildDefaultAvailability();
+    this.context.blocked = userCtx.blocked ?? [];
     this.state.iteration = 0;
     this.state.clarifyRounds = 0;
     this.state.revisionCycles = 0;
     this.state.progressScore = 0;
     this.progressHistory = [];
+  }
+
+  private buildDefaultAvailability(): AvailabilityWindow[] {
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    return days.map((day) => ({ day, startTime: '07:00', endTime: '22:00' }));
   }
 
   // ─── Safety valves ──────────────────────────────────────────────────────
@@ -432,6 +542,7 @@ export class PlanOrchestrator {
 
   private async executePlan(): Promise<StrategicDraft> {
     this.lastAction = 'Generating strategic plan';
+    const domainContext = await this.resolvePlanningDomainContext();
 
     // Resolve domain card if available
     if (!this.context.domainCard && this.context.interpretation?.suggestedDomain) {
@@ -458,6 +569,16 @@ export class PlanOrchestrator {
       goalText: this.context.goalText,
       profile,
       classification: buildClassification(this.context.interpretation),
+      planningContext: {
+        interpretation: this.context.interpretation
+          ? {
+              parsedGoal: this.context.interpretation.parsedGoal,
+              implicitAssumptions: this.context.interpretation.implicitAssumptions,
+            }
+          : undefined,
+        clarificationAnswers: this.context.userAnswers,
+        domainContext,
+      },
     };
 
     try {
@@ -532,19 +653,31 @@ export class PlanOrchestrator {
   private async executeSchedule(): Promise<SchedulerOutput | null> {
     this.lastAction = 'Scheduling activities';
 
-    // The scheduler agent may not exist yet during parallel development
-    const agent = await this.getAgent<unknown, SchedulerOutput>('scheduler');
+    const agent = await this.getAgent<unknown, unknown>('scheduler');
+    const profile = this.context.userProfile ?? {
+      freeHoursWeekday: 2,
+      freeHoursWeekend: 4,
+      energyLevel: 'medium' as const,
+      fixedCommitments: [] as string[],
+      scheduleConstraints: [] as string[],
+    };
+
+    const input = {
+      strategicDraft: this.context.strategicDraft!,
+      userProfile: profile,
+      availability: this.context.availability ?? this.buildDefaultAvailability(),
+      blocked: this.context.blocked ?? [],
+      domainCard: this.context.domainCard,
+    };
 
     if (agent) {
-      const input = {
-        strategicDraft: this.context.strategicDraft,
-        availability: this.context.userProfile,
-        domainCard: this.context.domainCard,
-      };
       try {
-        return await agent.execute(input, this.runtime);
+        const result = await agent.execute(input, this.runtime) as { solverOutput?: SchedulerOutput };
+        // The scheduler agent returns ScheduleResult { solverOutput, tradeoffs, ... }
+        return result?.solverOutput ?? null;
       } catch {
-        return agent.fallback(input);
+        const fallbackResult = agent.fallback(input) as { solverOutput?: SchedulerOutput };
+        return fallbackResult?.solverOutput ?? null;
       }
     }
 
@@ -616,7 +749,8 @@ export class PlanOrchestrator {
       });
     }
 
-    // Reuse v5 generateStrategy with critic findings as additional context
+    const domainContext = await this.resolvePlanningDomainContext();
+
     const profile = this.context.userProfile ?? {
       freeHoursWeekday: 2,
       freeHoursWeekend: 4,
@@ -630,9 +764,21 @@ export class PlanOrchestrator {
       .join('\n') ?? '';
 
     const strategyInput: StrategyInput = {
-      goalText: `${this.context.goalText}\n\n[REVISION REQUIRED]\nCritic findings to address:\n${mustFixSummary}`,
+      goalText: this.context.goalText,
       profile,
       classification: buildClassification(this.context.interpretation),
+      planningContext: {
+        interpretation: this.context.interpretation
+          ? {
+              parsedGoal: this.context.interpretation.parsedGoal,
+              implicitAssumptions: this.context.interpretation.implicitAssumptions,
+            }
+          : undefined,
+        clarificationAnswers: this.context.userAnswers,
+        domainContext,
+        previousCriticFindings: (void mustFixSummary, this.context.criticReport?.mustFix ?? []),
+        previousCriticReports: this.context.criticReport ? [this.context.criticReport] : [],
+      },
     };
 
     try {
@@ -650,15 +796,102 @@ export class PlanOrchestrator {
     }
   }
 
+  private async resolvePlanningDomainContext(): Promise<
+    NonNullable<NonNullable<StrategyInput['planningContext']>['domainContext']>
+    | null
+  > {
+    if (!this.context.interpretation?.suggestedDomain) {
+      return this.context.domainCard ? { card: this.context.domainCard } : null;
+    }
+
+    if (!this.config.enableDomainExpert) {
+      if (!this.context.domainCard) {
+        try {
+          const card = await getKnowledgeCard(this.context.interpretation.suggestedDomain);
+          if (card) {
+            this.context.domainCard = card;
+          }
+        } catch {
+          // Proceed without domain context when lookup fails.
+        }
+      }
+
+      return this.context.domainCard ? { card: this.context.domainCard } : null;
+    }
+
+    const agent = await this.getAgent<{
+      domainLabel: string;
+      goalType: GoalInterpretation['goalType'];
+      specificQuestion: string | null;
+    }, {
+      card: DomainKnowledgeCard | null;
+      specificAdvice: string | null;
+      warnings: string[];
+    }>('domain-expert');
+
+    const specificQuestion = this.context.criticReport
+      ? `El critico marco estos riesgos:\n${buildRevisionContext([this.context.criticReport])}\nQue consideraciones de dominio deberia respetar la nueva estrategia para corregirlos?`
+      : 'Que consideraciones de dominio deberia respetar un roadmap estrategico realista para este objetivo?';
+
+    if (agent) {
+      try {
+        const result = await agent.execute({
+          domainLabel: this.context.interpretation.suggestedDomain,
+          goalType: this.context.interpretation.goalType,
+          specificQuestion,
+        }, this.runtime);
+
+        if (result.card) {
+          this.context.domainCard = result.card;
+        }
+
+        return {
+          card: result.card ?? this.context.domainCard,
+          specificAdvice: result.specificAdvice,
+          warnings: result.warnings,
+        };
+      } catch {
+        const fallback = agent.fallback({
+          domainLabel: this.context.interpretation.suggestedDomain,
+          goalType: this.context.interpretation.goalType,
+          specificQuestion: null,
+        });
+
+        if (fallback.card) {
+          this.context.domainCard = fallback.card;
+        }
+
+        return {
+          card: fallback.card ?? this.context.domainCard,
+          specificAdvice: null,
+          warnings: fallback.warnings,
+        };
+      }
+    }
+
+    if (!this.context.domainCard) {
+      try {
+        const card = await getKnowledgeCard(this.context.interpretation.suggestedDomain);
+        if (card) {
+          this.context.domainCard = card;
+        }
+      } catch {
+        // Proceed without domain context when lookup fails.
+      }
+    }
+
+    return this.context.domainCard ? { card: this.context.domainCard } : null;
+  }
+
   private async executePackage(): Promise<PlanPackage | null> {
     this.lastAction = 'Packaging final plan';
 
-    const agent = await this.getAgent<unknown, PlanPackage>('packager');
+    const agent = await this.getAgent<{ context: OrchestratorContext; scratchpad: ReasoningEntry[] }, PlanPackage>('packager');
 
     if (agent) {
       const input = {
         context: this.context,
-        scratchpadSummary: this.scratchpad.summarize(),
+        scratchpad: this.scratchpad.getAll(),
       };
       try {
         return await agent.execute(input, this.runtime);
@@ -674,11 +907,13 @@ export class PlanOrchestrator {
   // ─── Agent resolution ───────────────────────────────────────────────────
 
   private async getAgent<TInput, TOutput>(name: V6AgentName): Promise<V6Agent<TInput, TOutput> | null> {
-    // Try registry first
-    if (this.registry) {
-      const agent = this.registry.get<TInput, TOutput>(name);
-      if (agent) {
-        return agent;
+    // Try registry first (use .has() to avoid throw from .get())
+    if (this.registry && this.registry.has(name)) {
+      try {
+        const agent = this.registry.get<TInput, TOutput>(name);
+        if (agent) return agent;
+      } catch {
+        // Registry get failed, fall through to direct import
       }
     }
 
@@ -734,10 +969,17 @@ export class PlanOrchestrator {
         break;
       case 'package':
         if (result !== null) {
-          this.context.finalPackage = result as PlanPackage;
+          this.context.finalPackage = this.withLatestReasoningTrace(result as PlanPackage);
         }
         break;
     }
+  }
+
+  private withLatestReasoningTrace(planPackage: PlanPackage): PlanPackage {
+    return {
+      ...planPackage,
+      reasoningTrace: this.scratchpad.getAll(),
+    };
   }
 
   // ─── Progress tracking ──────────────────────────────────────────────────
@@ -848,9 +1090,13 @@ export class PlanOrchestrator {
   // ─── Final result building ──────────────────────────────────────────────
 
   private buildFinalResult(): OrchestratorResult {
+    const finalPackage = this.context.finalPackage
+      ? this.withLatestReasoningTrace(this.context.finalPackage)
+      : null;
+
     return {
       status: this.state.phase === 'done' ? 'completed' : 'failed',
-      package: this.context.finalPackage,
+      package: finalPackage,
       pendingQuestions: null,
       scratchpad: this.scratchpad.getAll(),
       tokensUsed: this.scratchpad.totalTokens(),

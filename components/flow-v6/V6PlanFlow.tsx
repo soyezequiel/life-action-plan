@@ -62,6 +62,7 @@ const COPY = {
   genericError: 'No pudimos continuar en este momento. Probá de nuevo en unos minutos.',
   expiredSession: 'Estas preguntas ya se vencieron. Volvé a empezar y lo retomamos.',
   serviceUnavailable: 'Ahora mismo no pudimos usar el servicio que arma el plan. Probá de nuevo en unos minutos.',
+  providerSetupRequired: 'Necesitás configurar esta conexión antes de usar este asistente.',
   missingAnswers: 'Falta responder algunas preguntas antes de continuar.',
   noPlanLink: 'El resultado ya quedó listo. Si todavía no ves el enlace exacto, podés abrir la vista del plan disponible.',
   answerHint: 'Respondé con el mayor detalle que te resulte cómodo.',
@@ -208,7 +209,8 @@ function isAnswerFilled(question: ClarificationQuestion, value: string | undefin
 }
 
 function getFriendlyErrorMessage(message: string): string {
-  const normalized = message.trim().toLowerCase()
+  const trimmed = message.trim()
+  const normalized = trimmed.toLowerCase()
 
   if (!normalized) {
     return COPY.genericError
@@ -219,11 +221,18 @@ function getFriendlyErrorMessage(message: string): string {
   }
 
   if (
+    normalized.includes('configurar tu conexion')
+    || normalized.includes('configurar tu conexión')
+    || normalized.includes('clave configurada')
+    || normalized.includes('api key')
+  ) {
+    return COPY.providerSetupRequired
+  }
+
+  if (
     normalized.includes('local assistant unavailable')
-    || normalized.includes('provider')
     || normalized.includes('authentication')
     || normalized.includes('unauthorized')
-    || normalized.includes('api key')
   ) {
     return COPY.serviceUnavailable
   }
@@ -234,6 +243,16 @@ function getFriendlyErrorMessage(message: string): string {
 
   if (normalized.includes('profile') && normalized.includes('not found')) {
     return COPY.missingProfile
+  }
+
+  if (
+    trimmed.startsWith('No ')
+    || trimmed.startsWith('Hay ')
+    || trimmed.startsWith('Primero ')
+    || trimmed.startsWith('Estas ')
+    || trimmed.startsWith('Necesit')
+  ) {
+    return trimmed
   }
 
   return COPY.genericError

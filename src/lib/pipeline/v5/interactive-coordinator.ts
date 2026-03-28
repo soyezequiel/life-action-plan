@@ -13,6 +13,7 @@ import {
   createInteractiveSession,
   deleteInteractiveSession,
   getInteractiveSession,
+  isV5InteractiveRuntimeSnapshot,
   updateInteractiveSession,
   type InteractiveSessionRecord
 } from '../../db/interactive-sessions'
@@ -112,8 +113,12 @@ interface InteractiveSessionSetup {
 }
 
 interface LoadedSession {
-  record: InteractiveSessionRecord
+  record: V5InteractiveSessionRecord
   state: InteractiveSessionState
+}
+
+type V5InteractiveSessionRecord = Omit<InteractiveSessionRecord, 'runtimeSnapshot'> & {
+  runtimeSnapshot: PipelineRuntimeData
 }
 
 const classifyReviewInputSchema = z.object({
@@ -868,13 +873,28 @@ export function shouldPauseScheduleReview(schedule: SchedulerOutput | null | und
 }
 
 function buildResponse(record: InteractiveSessionRecord): InteractiveSessionResponse {
-  const snapshot = record.runtimeSnapshot
+  const snapshot = requireV5RuntimeSnapshot(record.runtimeSnapshot)
   return {
     sessionId: record.id,
     status: record.status,
     pausePoint: snapshot.currentPausePoint ?? null,
     snapshot,
     planId: getPlanIdFromSnapshot(snapshot)
+  }
+}
+
+function requireV5RuntimeSnapshot(snapshot: InteractiveSessionRecord['runtimeSnapshot']): PipelineRuntimeData {
+  if (!isV5InteractiveRuntimeSnapshot(snapshot)) {
+    throw new Error('INTERACTIVE_SESSION_SNAPSHOT_VERSION_UNSUPPORTED')
+  }
+
+  return snapshot
+}
+
+function requireV5SessionRecord(record: InteractiveSessionRecord): V5InteractiveSessionRecord {
+  return {
+    ...record,
+    runtimeSnapshot: requireV5RuntimeSnapshot(record.runtimeSnapshot),
   }
 }
 
@@ -937,12 +957,13 @@ export class InteractivePipelineCoordinator {
       userId: this.ownerUserId,
       expiresAt: expiresAtForMinutes(setup.config.sessionTTLMinutes)
     })
+    const createdRecord = requireV5SessionRecord(created)
 
     try {
-      const runner = await this.createRunner(created.runtimeSnapshot, setup.runtimeRequest, setup.seed)
+      const runner = await this.createRunner(createdRecord.runtimeSnapshot, setup.runtimeRequest, setup.seed)
       return await this.runUntilPause({
         sessionId,
-        record: created,
+        record: createdRecord,
         recorder,
         runner,
         startPhase: 'classify',
@@ -1703,9 +1724,10 @@ export class InteractivePipelineCoordinator {
         throw new Error('INTERACTIVE_SESSION_EXPIRED')
       }
 
+      const abandonedRecord = requireV5SessionRecord(abandoned)
       return {
-        record: abandoned,
-        state: abandoned.runtimeSnapshot.interactiveState ?? (() => { throw new Error('INTERACTIVE_STATE_MISSING') })()
+        record: abandonedRecord,
+        state: abandonedRecord.runtimeSnapshot.interactiveState ?? (() => { throw new Error('INTERACTIVE_STATE_MISSING') })()
       }
     }
 
@@ -1713,11 +1735,12 @@ export class InteractivePipelineCoordinator {
       throw new Error('INTERACTIVE_SESSION_NOT_ACTIVE')
     }
 
-    const state = record.runtimeSnapshot.interactiveState
+    const v5Record = requireV5SessionRecord(record)
+    const state = v5Record.runtimeSnapshot.interactiveState
     if (!state) {
       throw new Error('INTERACTIVE_STATE_MISSING')
     }
 
-    return { record, state }
+    return { record: v5Record, state }
   }
 }

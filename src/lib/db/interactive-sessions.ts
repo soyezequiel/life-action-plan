@@ -3,14 +3,29 @@ import { DateTime } from 'luxon'
 
 import type { InteractiveSessionStatus } from '../../shared/schemas/pipeline-interactive'
 import type { PipelineRuntimeData } from '../flow/pipeline-runtime-data'
+import type { V6RuntimeSnapshot } from '../pipeline/v6/types'
 import { getDatabase } from './connection'
 import { interactiveSessions } from './schema'
+
+export type InteractiveRuntimeSnapshot = PipelineRuntimeData | V6RuntimeSnapshot
+
+export function isV5InteractiveRuntimeSnapshot(
+  snapshot: InteractiveRuntimeSnapshot
+): snapshot is PipelineRuntimeData {
+  return snapshot.pipeline === 'v5'
+}
+
+export function isV6InteractiveRuntimeSnapshot(
+  snapshot: InteractiveRuntimeSnapshot
+): snapshot is V6RuntimeSnapshot {
+  return snapshot.pipeline === 'v6'
+}
 
 export interface InteractiveSessionRecord {
   id: string
   status: InteractiveSessionStatus
   currentPauseId: string | null
-  runtimeSnapshot: PipelineRuntimeData
+  runtimeSnapshot: InteractiveRuntimeSnapshot
   userId: string | null
   createdAt: string
   updatedAt: string
@@ -21,7 +36,7 @@ export interface CreateInteractiveSessionInput {
   id?: string
   status?: InteractiveSessionStatus
   currentPauseId?: string | null
-  runtimeSnapshot: PipelineRuntimeData
+  runtimeSnapshot: InteractiveRuntimeSnapshot
   userId?: string | null
   createdAt?: string
   updatedAt?: string
@@ -31,7 +46,7 @@ export interface CreateInteractiveSessionInput {
 export interface UpdateInteractiveSessionInput {
   status?: InteractiveSessionStatus
   currentPauseId?: string | null
-  runtimeSnapshot?: PipelineRuntimeData
+  runtimeSnapshot?: InteractiveRuntimeSnapshot
   userId?: string | null
   expiresAt?: string
 }
@@ -41,7 +56,7 @@ function db() {
 }
 
 function now(): string {
-  return DateTime.utc().toISO() ?? new Date().toISOString()
+  return DateTime.utc().toISO() ?? DateTime.utc().toFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 }
 
 function generateId(): string {
@@ -53,7 +68,7 @@ function serializeInteractiveSessionRow(row: typeof interactiveSessions.$inferSe
     id: row.id,
     status: row.status as InteractiveSessionStatus,
     currentPauseId: row.currentPauseId,
-    runtimeSnapshot: row.runtimeSnapshot as PipelineRuntimeData,
+    runtimeSnapshot: row.runtimeSnapshot as InteractiveRuntimeSnapshot,
     userId: row.userId,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,

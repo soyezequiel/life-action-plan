@@ -1,6 +1,7 @@
 import type { PhaseIO } from '../phase-io';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
 import type { AdherenceScore } from '../../domain/adherence-model';
+import type { DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
 import type { HabitState } from '../../domain/habit-state';
 import type { RiskForecast } from '../../domain/risk-forecast';
 import type { ActivityRequest, SchedulerOutput, SchedulerInput, Tradeoff } from '../../scheduler/types';
@@ -40,11 +41,42 @@ export interface StrategicRoadmap {
   phases: StrategicRoadmapPhase[];
   milestones: string[];
 }
+export interface StrategyInterpretationContext {
+  parsedGoal: string;
+  implicitAssumptions: string[];
+}
+export interface StrategyCriticFindingContext {
+  severity: 'critical' | 'warning' | 'info';
+  category: 'feasibility' | 'specificity' | 'progression' | 'scheduling' | 'motivation' | 'domain';
+  message: string;
+  suggestion: string | null;
+  affectedPhaseIds: string[];
+}
+export interface StrategyCriticReportContext {
+  overallScore: number;
+  mustFix: StrategyCriticFindingContext[];
+  shouldFix: StrategyCriticFindingContext[];
+  verdict: 'approve' | 'revise' | 'rethink';
+  reasoning: string;
+}
+export interface StrategyDomainContext {
+  card: DomainKnowledgeCard | null;
+  specificAdvice?: string | null;
+  warnings?: string[];
+}
+export interface StrategyPlanningContext {
+  interpretation?: StrategyInterpretationContext;
+  clarificationAnswers?: Record<string, string>;
+  domainContext?: StrategyDomainContext | null;
+  previousCriticFindings?: StrategyCriticFindingContext[];
+  previousCriticReports?: StrategyCriticReportContext[];
+}
 export interface StrategyInput {
   goalText: string;
   profile: UserProfileV5;
   classification: GoalClassification;
   habitStates?: HabitState[];
+  planningContext?: StrategyPlanningContext;
 }
 export type StrategyOutput = StrategicRoadmap;
 

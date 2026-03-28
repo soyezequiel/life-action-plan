@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 
 import type { PlanEvent } from '../../shared/types/lap-api'
 import type { PlanPackage, V5PhaseSnapshot } from '../pipeline/v5/phase-io-v5'
+import type { ReasoningEntry } from '../pipeline/v6/types'
 import { createPlan, seedProgressFromEvents } from '../db/db-helpers'
 import {
   buildPendingAdaptiveState,
@@ -78,6 +79,8 @@ export async function persistPlanFromV5Package(input: {
   tokensInput?: number
   tokensOutput?: number
   runSnapshot?: V5PhaseSnapshot | null
+  nombre?: string
+  reasoningTrace?: ReasoningEntry[] | null
 }): Promise<{
   planId: string
   nombre: string
@@ -91,23 +94,24 @@ export async function persistPlanFromV5Package(input: {
     goalText: input.goalText,
     timezone: input.timezone
   })
-  const nombre = `Plan V5 - ${input.goalText}`
+  const nombre = input.nombre?.trim() || `Plan - ${input.goalText}`
   const planSlug = await createUniquePlanSlug(nombre)
+  const reasoningTrace = input.reasoningTrace ?? null
   const manifest = buildPlanManifest({
     nombre,
-      fallbackUsed: false,
-      modelId: input.modelId,
-      tokensInput: input.tokensInput ?? 0,
-      tokensOutput: input.tokensOutput ?? 0,
-      costUsd: 0,
-      costSats: 0,
-      v5: {
-        package: input.package,
-        adaptive: buildPendingAdaptiveState(),
-        run: input.runSnapshot ?? null
-      }
-    })
-  const planId = await createPlan(input.profileId, nombre, planSlug, manifest)
+    fallbackUsed: false,
+    modelId: input.modelId,
+    tokensInput: input.tokensInput ?? 0,
+    tokensOutput: input.tokensOutput ?? 0,
+    costUsd: 0,
+    costSats: 0,
+    v5: {
+      package: input.package,
+      adaptive: buildPendingAdaptiveState(),
+      run: input.runSnapshot ?? null
+    }
+  })
+  const planId = await createPlan(input.profileId, nombre, planSlug, manifest, reasoningTrace)
   await seedProgressFromEvents(planId, eventos, input.timezone)
 
   return {
