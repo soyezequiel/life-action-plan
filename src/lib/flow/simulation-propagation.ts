@@ -192,8 +192,9 @@ export interface ApplyCorrectionsResult {
 export function applyCorrections(
   tree: SimTree,
   corrections: Array<{ findingId: string; action: 'apply' | 'dismiss' }>,
-  _strategy: StrategicPlanDraft
+  strategy: StrategicPlanDraft
 ): ApplyCorrectionsResult {
+  void strategy
   const strategyPatches: SimStrategyPatch[] = []
   let updatedTree = tree
 

@@ -5,7 +5,6 @@ import * as schema from './schema'
 type LapDb = PostgresJsDatabase<typeof schema>
 
 declare global {
-  // eslint-disable-next-line no-var
   var __lapDatabase: LapDb | undefined
 }
 

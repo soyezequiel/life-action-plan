@@ -534,6 +534,7 @@ export const browserLapClient: LapAPI = {
       return fetchJson<DebugSnapshotResult>('/api/debug/snapshot')
     },
     onEvent(_listener: (event: DebugEvent) => void) {
+      void _listener
       return () => {
         // The Next.js backend exposes snapshots instead of an event stream.
       }

@@ -8,7 +8,6 @@ import type {
 import type {
   SimFinding,
   SimNode,
-  SimActionLogEntry,
   SimStrategyPatch,
   SimTree
 } from '../../shared/schemas/simulation-tree'
@@ -16,7 +15,6 @@ import type { SimPersona } from '../../shared/schemas/persona-profile'
 import type { FlowTaskProgress } from '../../shared/types/flow-api'
 import type { AgentRuntime } from '../runtime/types'
 import { createInstrumentedRuntime } from '../../debug/instrumented-runtime'
-import { traceCollector } from '../../debug/trace-collector'
 import { runWorldAgent, worldAgentFallback } from './agents/world-agent'
 import { runUserAgent, userAgentFallback } from './agents/user-agent'
 import { buildPersonaWithAgent, buildPersonaFromRules } from './agents/persona-builder'

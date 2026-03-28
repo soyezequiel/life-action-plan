@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { JSX } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
@@ -203,7 +203,7 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
   const topdown = session?.state.topdown ?? null
   const currentTopLevel = topdown?.levels[topdown.currentLevelIndex] ?? null
 
-  async function reloadSession(workflowId: string): Promise<void> {
+  const reloadSession = useCallback(async (workflowId: string): Promise<void> => {
     const result = await flowClient.createSession(workflowId)
 
     if (!result.success || !result.session) {
@@ -213,9 +213,9 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
     setSession(result.session)
     setCheckpoints((result.checkpoints ?? []).slice().reverse())
     window.localStorage.setItem(ACTIVE_WORKFLOW_ID_STORAGE_KEY, result.session.id)
-  }
+  }, [])
 
-  async function bootstrapSession(): Promise<void> {
+  const bootstrapSession = useCallback(async (): Promise<void> => {
     setLoading(true)
     setError('')
 
@@ -246,7 +246,88 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  const saveIntake = useCallback(async (silent = false): Promise<void> => {
+    const sessionId = session?.id
+    if (!sessionId) return
+
+    if (!silent) {
+      setError('')
+      setNotice('')
+      setProgress(null)
+    }
+
+    setBusy(true)
+
+    try {
+      const result = await flowClient.saveIntake(sessionId, {
+        answers: intakeAnswers,
+        isAutoSave: silent
+      })
+
+      if (!result.success || !result.session) {
+        throw new Error(result.error || 'FLOW_INTAKE_FAILED')
+      }
+
+      if (result.profileId) {
+        window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, result.profileId)
+      }
+
+      await reloadSession(result.session.id)
+      setIntakeDirty(false)
+
+      if (!silent) {
+        setNotice(t('flow.notice.intake'))
+      }
+    } catch (cause) {
+      setError(translateErrorMessage(cause))
+    } finally {
+      setBusy(false)
+    }
+  }, [intakeAnswers, reloadSession, session?.id])
+
+  const submitPresentation = useCallback(async (accept = false, silent = false): Promise<void> => {
+    const sessionId = session?.id
+    if (!sessionId) return
+
+    if (!silent) {
+      setError('')
+      setNotice('')
+      setProgress(null)
+    }
+
+    setBusy(true)
+
+    try {
+      const edits = Object.entries(presentationEdits).map(([id, edit]) => ({
+        id,
+        label: edit.label,
+        detail: edit.detail
+      }))
+      const result = await flowClient.applyPresentationFeedback(sessionId, {
+        accept,
+        feedback: silent ? '' : feedbackText,
+        edits
+      }, setProgress)
+
+      if (!result.success || !result.session) {
+        throw new Error(result.error || 'FLOW_PRESENTATION_FEEDBACK_FAILED')
+      }
+
+      await reloadSession(result.session.id)
+      setPresentationDirty(false)
+
+      if (!silent) {
+        setFeedbackText('')
+        setNotice(accept ? t('flow.notice.accepted') : t('flow.notice.presentation'))
+      }
+    } catch (cause) {
+      setError(translateErrorMessage(cause))
+    } finally {
+      setBusy(false)
+    }
+  }, [feedbackText, presentationEdits, reloadSession, session?.id])
 
   useEffect(() => {
     if (initialized.current) {
@@ -255,7 +336,7 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
 
     initialized.current = true
     void bootstrapSession()
-  }, [])
+  }, [bootstrapSession])
 
   useEffect(() => {
     if (!session) {
@@ -275,7 +356,7 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
     setPresentationEdits(buildPresentationEdits(session.state.presentation))
     setIntakeDirty(false)
     setPresentationDirty(false)
-  }, [codexModeVisible, session?.id, session?.updatedAt])
+  }, [codexModeVisible, session])
 
   useEffect(() => {
     if (!session || currentStep !== 'intake' || !intakeDirty || busy) {
@@ -287,7 +368,7 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
     }, 900)
 
     return () => window.clearTimeout(timer)
-  }, [busy, currentStep, intakeAnswers, intakeDirty, session])
+  }, [busy, currentStep, intakeAnswers, intakeDirty, saveIntake, session])
 
   useEffect(() => {
     if (!session || currentStep !== 'presentation' || !presentationDirty || busy) {
@@ -299,7 +380,7 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
     }, 5000)
 
     return () => window.clearTimeout(timer)
-  }, [busy, currentStep, presentationDirty, presentationEdits, session])
+  }, [busy, currentStep, presentationDirty, presentationEdits, session, submitPresentation])
 
   useEffect(() => {
     const workflowId = session?.id
@@ -442,42 +523,6 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
     }
   }
 
-  async function saveIntake(silent = false): Promise<void> {
-    if (!session) return
-
-    if (!silent) {
-      resetStatus()
-    }
-
-    setBusy(true)
-
-    try {
-      const result = await flowClient.saveIntake(session.id, {
-        answers: intakeAnswers,
-        isAutoSave: silent
-      })
-
-      if (!result.success || !result.session) {
-        throw new Error(result.error || 'FLOW_INTAKE_FAILED')
-      }
-
-      if (result.profileId) {
-        window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, result.profileId)
-      }
-
-      await reloadSession(result.session.id)
-      setIntakeDirty(false)
-
-      if (!silent) {
-        setNotice(t('flow.notice.intake'))
-      }
-    } catch (cause) {
-      setError(translateErrorMessage(cause))
-    } finally {
-      setBusy(false)
-    }
-  }
-
   async function runStrategy(): Promise<void> {
     if (!session) return
     resetStatus()
@@ -566,45 +611,6 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
       }
 
       await reloadSession(result.session.id)
-    } catch (cause) {
-      setError(translateErrorMessage(cause))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function submitPresentation(accept = false, silent = false): Promise<void> {
-    if (!session) return
-
-    if (!silent) {
-      resetStatus()
-    }
-
-    setBusy(true)
-
-    try {
-      const edits = Object.entries(presentationEdits).map(([id, edit]) => ({
-        id,
-        label: edit.label,
-        detail: edit.detail
-      }))
-      const result = await flowClient.applyPresentationFeedback(session.id, {
-        accept,
-        feedback: silent ? '' : feedbackText,
-        edits
-      }, setProgress)
-
-      if (!result.success || !result.session) {
-        throw new Error(result.error || 'FLOW_PRESENTATION_FEEDBACK_FAILED')
-      }
-
-      await reloadSession(result.session.id)
-      setPresentationDirty(false)
-
-      if (!silent) {
-        setFeedbackText('')
-        setNotice(accept ? t('flow.notice.accepted') : t('flow.notice.presentation'))
-      }
     } catch (cause) {
       setError(translateErrorMessage(cause))
     } finally {
@@ -887,10 +893,6 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
           .filter(n => n.granularity === 'month')
           .sort((a, b) => a.period.start.localeCompare(b.period.start))
       : []
-
-    const hasUnsimulated = monthNodes.some(
-      n => n.status !== 'locked' && n.status !== 'simulated'
-    )
 
     async function handleSimulateAll() {
       if (!workflowId || !simTree || busy) return

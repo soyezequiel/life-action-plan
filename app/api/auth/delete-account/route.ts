@@ -7,7 +7,6 @@ import { apiErrorMessages, jsonResponse } from '@app/api/_shared'
 import {
   clearSessionCookie,
   destroyAllSessions,
-  destroySessionFromRequest,
   getAuthenticatedUserId
 } from '@lib/auth/session'
 

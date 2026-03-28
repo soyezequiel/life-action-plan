@@ -499,7 +499,6 @@ class TraceCollector {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var __lapTraceCollector: TraceCollector | undefined
 }
 

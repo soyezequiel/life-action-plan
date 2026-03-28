@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import type { AgentRuntime, LLMMessage } from '../../runtime/types'
 import { strategicPlanDraftSchema, type GoalDraft, type StrategicPlanDraft } from '../../../shared/schemas/flow'
 import type { Perfil } from '../../../shared/schemas/perfil'

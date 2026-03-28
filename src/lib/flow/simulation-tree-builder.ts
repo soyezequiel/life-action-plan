@@ -16,7 +16,7 @@ function nowIso(): string {
   return DateTime.utc().toISO() ?? '2026-01-01T00:00:00.000Z'
 }
 
-function planStartDate(strategy: StrategicPlanDraft): DateTime {
+function planStartDate(): DateTime {
   return DateTime.utc().startOf('month')
 }
 
@@ -99,7 +99,7 @@ export function initializeSimTree(params: {
 }): SimTree {
   const { workflowId, strategy, goals } = params
   const now = nowIso()
-  const planStart = planStartDate(strategy)
+  const planStart = planStartDate()
   const planEnd = planStart.plus({ months: strategy.totalMonths })
   const totalYears = Math.ceil(strategy.totalMonths / 12)
 
@@ -280,8 +280,6 @@ export function expandNodeChildren(
       const weekEnd = weekStart.plus({ weeks: 1 })
       const clampedStart = DateTime.max(weekStart, monthStart)
       const clampedEnd = DateTime.min(weekEnd, monthEnd)
-      const daysInPeriod = clampedEnd.diff(clampedStart, 'days').days
-
       // Prorate hours by actual days
       const weekHours = buildPlannedHours(clampedStart, clampedEnd, strategy, planStart)
       const wId = `week-${weekStart.toISODate()}`

@@ -414,6 +414,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ deploymentMode = 'local' }: DashboardProps): JSX.Element {
+  void deploymentMode
   const client = useLapClient()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -430,8 +431,8 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
     connected: false,
     canUseSecureStorage: true
   })
-  const [buildError, setBuildError] = useState('')
-  const [buildNotice, setBuildNotice] = useState('')
+  const buildError = ''
+  const buildNotice = ''
   const [buildProgress, setBuildProgress] = useState<PlanBuildProgress | null>(null)
   const [isBuilding, setIsBuilding] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
@@ -520,9 +521,8 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
       setLoading(true)
 
       try {
-        const [nextProfileId, debugStatus] = await Promise.all([
-          client.profile.latest().catch(() => null),
-          client.debug.status().catch(() => ({ enabled: false, panelVisible: false }))
+        const [nextProfileId] = await Promise.all([
+          client.profile.latest().catch(() => null)
         ])
 
         if (!active) {

@@ -66,7 +66,7 @@ export function buildMilpModel(params: MilpModelParams): string {
 
   for (const act of activities) {
     const { activityIndex: aIdx, feasibleStarts, frequencyPerWeek,
-             constraintTier, slotPenalties, durationSlots } = act;
+             constraintTier, slotPenalties } = act;
 
     // ── 1a. Binary decision variables with slot penalties in objective ────────
     for (const s of feasibleStarts) {
@@ -111,7 +111,7 @@ export function buildMilpModel(params: MilpModelParams): string {
 
     // ── 1c. Rest-day separation ───────────────────────────────────────────────
     if (act.minRestDaysBetween !== undefined && act.minRestDaysBetween > 0) {
-      addRestDayConstraints(constraints, act, durationSlots);
+      addRestDayConstraints(constraints, act);
     }
   }
 
@@ -155,7 +155,6 @@ export function buildMilpModel(params: MilpModelParams): string {
 function addRestDayConstraints(
   constraints: string[],
   act: ActivityParams,
-  _durationSlots: number,
 ): void {
   const { activityIndex: aIdx, feasibleStarts, minRestDaysBetween } = act;
   const R = minRestDaysBetween!;

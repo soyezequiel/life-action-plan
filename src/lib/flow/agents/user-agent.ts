@@ -2,7 +2,6 @@ import { DateTime } from 'luxon'
 import { z } from 'zod'
 import type { Perfil } from '../../../shared/schemas/perfil'
 import type {
-  GoalDraft,
   StrategicPlanDraft
 } from '../../../shared/schemas/flow'
 import type {

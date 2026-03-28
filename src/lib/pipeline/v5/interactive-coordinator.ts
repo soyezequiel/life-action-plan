@@ -82,9 +82,8 @@ const DEFAULT_TIMEZONE = 'America/Buenos_Aires'
 const DEFAULT_WAKE_TIME = '07:00'
 const DEFAULT_SLEEP_TIME = '22:00'
 const REPAIR_MAX_CYCLES = 3
-const REPAIR_LOOP_PHASES = ['hardValidate', 'softValidate', 'coveVerify', 'repair'] as const
 
-type RepairLoopPhase = (typeof REPAIR_LOOP_PHASES)[number]
+type RepairLoopPhase = 'hardValidate' | 'softValidate' | 'coveVerify' | 'repair'
 type RequestedExecutionMode = 'backend-cloud' | 'backend-local' | 'user-cloud' | 'codex-cloud' | null
 type InteractiveResourceMode = InteractiveSessionCreateRequest['resourceMode'] | null | undefined
 type PersistedPhaseStatus = V5PhaseSnapshot['phaseStatuses'][PipelinePhaseV5]

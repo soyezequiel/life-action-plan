@@ -1,5 +1,4 @@
 import { DateTime } from 'luxon'
-import { z } from 'zod'
 import type { Perfil } from '../../../shared/schemas/perfil'
 import type { GoalDraft } from '../../../shared/schemas/flow'
 import { simPersonaSchema, type SimPersona } from '../../../shared/schemas/persona-profile'

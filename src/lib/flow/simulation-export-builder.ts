@@ -23,7 +23,6 @@ function nowIso(): string {
  * Sanitize profile: strip sensitive fields, keep only what's useful for analysis.
  */
 function sanitizeProfile(session: FlowSession): Record<string, unknown> | null {
-  const profile = session.state as Record<string, unknown>
   // The profile lives in the intake data, not directly.
   // We reconstruct a lightweight version from the session goals and strategy context.
   const goals = session.state.goals

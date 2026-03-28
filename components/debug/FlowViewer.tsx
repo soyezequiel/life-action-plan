@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { DateTime } from 'luxon'
 
@@ -1513,6 +1513,7 @@ export function FlowViewer() {
   const [latestSuccessData, setLatestSuccessData] = useState<PipelineRuntimeData | null>(null)
   const [activeView, setActiveView] = useState<RunView>('latest')
   const [loading, setLoading] = useState(true)
+  const latestDataRef = useRef<PipelineRuntimeData | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -1529,11 +1530,13 @@ export function FlowViewer() {
         if (!cancelled) {
           const latest = (json.data ?? null) as PipelineRuntimeData | null
           const success = (json.latestSuccess ?? null) as PipelineRuntimeData | null
+          const hadPreviousLatest = latestDataRef.current !== null
           setLatestData(latest)
+          latestDataRef.current = latest
           setLatestSuccessData(success)
 
           if (latest?.run.status === 'error' && success) {
-            setActiveView((prev) => prev === 'latest' && latestData === null ? 'latest-success' : prev)
+            setActiveView((prev) => prev === 'latest' && !hadPreviousLatest ? 'latest-success' : prev)
           }
 
           setLoading(false)

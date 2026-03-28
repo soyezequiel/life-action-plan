@@ -265,7 +265,7 @@ export function InteractiveFlowPage({ deploymentMode }: InteractiveFlowPageProps
       const userInput = pausePoint.userInput as { regenerateFrom?: InteractivePauseFromPhase } | undefined
       setRegenerateFrom(userInput?.regenerateFrom ?? 'schedule')
     }
-  }, [session?.pausePoint?.id, session?.pausePoint?.type])
+  }, [session?.pausePoint])
 
   async function handleCreateSession(): Promise<void> {
     const normalizedGoal = goalText.trim()

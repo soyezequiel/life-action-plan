@@ -56,7 +56,7 @@ Devuelve SOLO este formato JSON exacto sin bloques markdown ni comentarios expli
     }
     const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
     return userProfileV5Schema.parse(JSON.parse(cleanRaw));
-  } catch (e) {
+  } catch {
     // Fallback determinístico si falla LLM
     return {
       freeHoursWeekday: 2,
