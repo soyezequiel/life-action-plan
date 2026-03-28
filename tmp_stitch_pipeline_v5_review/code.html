@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pulso Pipeline V5 | Planificación Continua</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+        .flow-line-dashed {
+            background-image: linear-gradient(to right, #c5c6cd 50%, transparent 50%);
+            background-size: 12px 2px;
+            background-repeat: repeat-x;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-container": "#8590a6",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-surface-variant": "#45474c",
+                        "tertiary-fixed-dim": "#d2bfe8",
+                        "secondary": "#1b6b4f",
+                        "surface-container": "#eeeeed",
+                        "on-secondary-container": "#247155",
+                        "on-surface": "#1a1c1c",
+                        "tertiary-container": "#302242",
+                        "secondary-fixed-dim": "#8bd6b4",
+                        "surface-variant": "#e2e2e2",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "on-background": "#1a1c1c",
+                        "primary-fixed": "#d8e3fb",
+                        "on-secondary-fixed": "#002115",
+                        "primary-container": "#1e293b",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e8e8e7",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#221534",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f9f9f8",
+                        "surface-bright": "#f9f9f8",
+                        "inverse-primary": "#bcc7de",
+                        "inverse-surface": "#2f3130",
+                        "primary": "#091426",
+                        "on-secondary-fixed-variant": "#00513a",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#545f73",
+                        "surface-dim": "#dadad9",
+                        "on-tertiary-container": "#9a88af",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#a6f2cf",
+                        "on-tertiary-fixed-variant": "#4f4062",
+                        "outline-variant": "#c5c6cd",
+                        "inverse-on-surface": "#f1f1f0",
+                        "secondary-container": "#a6f2cf",
+                        "outline": "#75777d",
+                        "on-primary-fixed": "#111c2d",
+                        "background": "#f9f9f8",
+                        "surface-container-low": "#f3f4f3",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#1a0d2c",
+                        "tertiary-fixed": "#eddcff",
+                        "primary-fixed-dim": "#bcc7de"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-md shadow-sm flex justify-between items-center px-8 h-16">
+<div class="flex items-center gap-3">
+<img alt="Pulso Brand Logo" class="h-8 w-8" data-alt="modern minimalist tech logo with geometric interlocking shapes in navy and emerald tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJJbOrGhE4yYtes8y1zGOSuvYniqBMngWOIGtxKsBMgiqlNmKGRnciIEwM2ZgKNpuuO8UYJGLE37u4cnYN9WIhv5ooK3WF6TOyS3q_dz9G3dL7VKke3LzrtRpX8K1R-XPztPr83yZKga3VpbU0TmPNPpx07e3dKOFf-dFByDlvkxXroAPxveCmwlr4T5MOko4GMwwSCu4EiIPxPaf7hewxii5P5NyE1l3Y3ykqdMHc9DcEeVZcPrt1vzKBv0dL_Ima1GRkN2HNCFw"/>
+<span class="font-headline tracking-tighter font-bold text-xl text-slate-900">Pulso Pipeline V5</span>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-emerald-500 font-bold font-headline transition-colors" href="#">Pipeline Overview</a>
+<a class="text-slate-500 hover:text-emerald-600 transition-colors font-headline" href="#">Phase Details</a>
+<a class="text-slate-500 hover:text-emerald-600 transition-colors font-headline" href="#">Technical Glossary</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-emerald-500 transition-colors" data-icon="account_tree">account_tree</span>
+<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-emerald-500 transition-colors" data-icon="settings">settings</span>
+<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-emerald-500 transition-colors" data-icon="help_outline">help_outline</span>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden border border-outline-variant/20">
+<img alt="User Avatar" data-alt="minimalist user avatar profile picture with clean lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-szqybPLBF3PPya3NXhJXdX00A6dID6ZtK72fqgcDboPWQcFo8iQRiqGADrqwU9XDoEBzXnWm4UPrOHXucMYIcIf3jNZn5zl-1N75w6QHnRN7BA-oxT-Batk4ExLWjm-pyVq2ZEycCV44bkSWS4E-XQQI_4jGS5wsf2wJGc4kCGJSjv4pJKrspx4R3y7NrrdYCdvDZnXsvnfnO7VXhYIsLRgKCkamICbu9n8FeBiD5b1KphVddkdXJimqjvELuF9X17qBPlqFbuo"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-slate-100 hidden lg:flex flex-col p-4 gap-2 z-40">
+<div class="mb-6 px-2">
+<h3 class="font-headline font-black text-lg text-slate-900">V5 Documentation</h3>
+<p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">The Living Manuscript</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 p-3 bg-white text-slate-900 rounded-xl shadow-sm font-semibold text-sm transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-emerald-500" data-icon="timeline">timeline</span> Pipeline Overview
+            </a>
+<a class="flex items-center gap-3 p-3 text-slate-500 hover:bg-slate-200/50 rounded-xl font-semibold text-sm transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="layers">layers</span> Phase Details
+            </a>
+<a class="flex items-center gap-3 p-3 text-slate-500 hover:bg-slate-200/50 rounded-xl font-semibold text-sm transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="loop">loop</span> Error Protocols
+            </a>
+<a class="flex items-center gap-3 p-3 text-slate-500 hover:bg-slate-200/50 rounded-xl font-semibold text-sm transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span> Technical Glossary
+            </a>
+<a class="flex items-center gap-3 p-3 text-slate-500 hover:bg-slate-200/50 rounded-xl font-semibold text-sm transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="architecture">architecture</span> Multilayer Plan
+            </a>
+</nav>
+<button class="mt-auto bg-primary text-on-primary p-4 rounded-xl font-headline font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span> Export Documentation
+        </button>
+</aside>
+<!-- Main Content Area -->
+<main class="lg:ml-64 pt-24 px-8 pb-20 max-w-7xl mx-auto">
+<!-- Hero Section -->
+<section class="mb-20">
+<div class="max-w-4xl">
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[0.7rem] font-bold uppercase tracking-wider rounded-full">12 fases</span>
+<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed text-[0.7rem] font-bold uppercase tracking-wider rounded-full">LLM + lógica determinística</span>
+<span class="px-3 py-1 bg-slate-200 text-slate-700 text-[0.7rem] font-bold uppercase tracking-wider rounded-full">Plan multicapa ejecutable</span>
+</div>
+<h1 class="font-headline text-6xl md:text-7xl font-bold text-primary leading-none tracking-tight mb-8">
+                    Pipeline V5 de <br/> <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600">Planificación Continua.</span>
+</h1>
+<p class="text-xl text-on-surface-variant max-w-2xl font-light leading-relaxed">
+                    12 fases para transformar un objetivo de vida en un plan ejecutable, validado y adaptable a través de una arquitectura híbrida única.
+                </p>
+</div>
+</section>
+<!-- The Pipeline Sequence -->
+<section class="mb-24">
+<h2 class="font-headline text-2xl font-bold mb-10 flex items-center gap-4">
+<span class="w-8 h-[2px] bg-emerald-500"></span>
+                Arquitectura de Fases
+            </h2>
+<div class="flex overflow-x-auto gap-6 pb-12 hide-scrollbar snap-x relative">
+<!-- Connectors Layer (Simplified visualization) -->
+<div class="absolute top-1/2 left-0 right-0 h-1 bg-slate-100 -z-10 translate-y-[-2rem]"></div>
+<!-- Phase 1: CLASSIFY -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-tertiary-fixed-dim transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">01</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-2 py-1 rounded text-[10px] font-bold">LLM CORTO</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">CLASSIFY</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Clasifica el tipo de objetivo, detecta señales y estima el riesgo inicial.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Phase 2: REQUIREMENTS -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-tertiary-fixed-dim transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">02</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-2 py-1 rounded text-[10px] font-bold">LLM</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">REQUIREMENTS</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Genera preguntas adaptadas al tipo de objetivo detectado en fase 1.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Phase 3: PROFILE -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-tertiary-fixed-dim transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">03</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-2 py-1 rounded text-[10px] font-bold">LLM</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">PROFILE</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Convierte respuestas abiertas en un perfil operativo con anclas numéricas.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Phase 4: STRATEGY -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-tertiary-fixed-dim transition-transform hover:-translate-y-2 relative">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">04</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-2 py-1 rounded text-[10px] font-bold">LLM</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">STRATEGY</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Arma el roadmap con fases, hitos y dirección general estratégica.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Adaptive Return Indicator -->
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-emerald-500 font-bold bg-white px-2 py-1 rounded border border-emerald-500 shadow-sm">RETURN TARGET</div>
+</div>
+<!-- Phase 5: TEMPLATE -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-primary-fixed-dim transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">05</span>
+<span class="bg-primary text-on-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">DETERMINÍSTICO</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">TEMPLATE</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Traduce la estrategia a actividades y reglas semanales estructuradas.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Phase 6: SCHEDULE -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-primary-fixed-dim transition-transform hover:-translate-y-2 relative">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">06</span>
+<span class="bg-primary text-on-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">DETERMINÍSTICO</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">SCHEDULE</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Ubica eventos en calendario mediante un solver matemático (MILP).</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-emerald-500 font-bold bg-white px-2 py-1 rounded border border-emerald-500 shadow-sm">RETURN TARGET</div>
+</div>
+<!-- Phase 7: HARD VALIDATE -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-primary-fixed-dim transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">07</span>
+<span class="bg-primary text-on-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">DETERMINÍSTICO</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">HARD VALIDATE</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Chequea reglas duras: solapamientos, horarios bloqueados y capacidad.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Phase 8: SOFT VALIDATE -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-primary-fixed-dim transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">08</span>
+<span class="bg-primary text-on-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">DETERMINÍSTICO</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">SOFT VALIDATE</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Evalúa señales prácticas: descanso, cambios de foco y carga cognitiva.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Phase 9: CoVe VERIFY -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-secondary-fixed-dim transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">09</span>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-bold">LLM + GROUNDING</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">CoVe VERIFY</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Verifica el plan con preguntas cruzadas sobre hechos ya calculados.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Phase 10: REPAIR -->
+<div class="min-w-[280px] snap-start bg-surface-container-low p-6 rounded-2xl shadow-sm border-2 border-dashed border-outline-variant transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-300">10</span>
+<span class="bg-slate-200 text-slate-600 px-2 py-1 rounded text-[10px] font-bold">HÍBRIDO / OPCIONAL</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">REPAIR</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Aplica parches puntuales si hay problemas reparables sin relanzar todo.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Phase 11: PACKAGE -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-primary-fixed-dim transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">11</span>
+<span class="bg-primary text-on-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">DETERMINÍSTICO</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">PACKAGE</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Genera el plan final multicapa y todos los ítems ejecutables finales.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Phase 12: ADAPT -->
+<div class="min-w-[280px] snap-start bg-surface-container-lowest p-6 rounded-2xl shadow-sm border-t-4 border-primary-fixed-dim transition-transform hover:-translate-y-2">
+<div class="flex justify-between items-start mb-4">
+<span class="text-3xl font-headline font-bold text-slate-200">12</span>
+<span class="bg-primary text-on-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">ASÍNCRONO</span>
+</div>
+<h3 class="font-headline font-bold text-lg mb-2">ADAPT</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-snug">Monitorea adherencia, calcula riesgo y decide desde dónde relanzar.</p>
+<div class="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-tighter cursor-pointer group">
+                        Ver specs <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Detailed Protocols Section (Bento) -->
+<section class="mb-24">
+<h2 class="font-headline text-2xl font-bold mb-10 flex items-center gap-4">
+<span class="w-8 h-[2px] bg-emerald-500"></span>
+                Protocolos de Error y Bucles
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Repair Loop Block -->
+<div class="bg-surface-container-low p-8 rounded-2xl flex flex-col gap-6">
+<div>
+<h4 class="font-headline font-bold text-xl mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-500" data-icon="construction">construction</span>
+                            Repair Loop
+                        </h4>
+<p class="text-sm text-on-surface-variant">Ciclo de corrección atómica para evitar recalculación total.</p>
+</div>
+<div class="flex flex-col gap-4 relative">
+<div class="flex items-center gap-4 group">
+<span class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center font-bold text-xs">1</span>
+<span class="text-sm font-semibold">Detecta Inconsistencia</span>
+</div>
+<div class="flex items-center gap-4 group">
+<span class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center font-bold text-xs">2</span>
+<span class="text-sm font-semibold">Aplica Parche Atómico</span>
+</div>
+<div class="flex items-center gap-4 group">
+<span class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center font-bold text-xs">3</span>
+<span class="text-sm font-semibold">Revalida Hard/Soft Rules</span>
+</div>
+<div class="flex items-center gap-4 group">
+<span class="w-8 h-8 rounded-full bg-emerald-500 text-white shadow-sm flex items-center justify-center font-bold text-xs">4</span>
+<span class="text-sm font-semibold">Continúa a Package</span>
+</div>
+</div>
+</div>
+<!-- Adaptive Loop Block -->
+<div class="bg-surface-container-low p-8 rounded-2xl flex flex-col gap-6">
+<div>
+<h4 class="font-headline font-bold text-xl mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-500" data-icon="psychology_alt">psychology_alt</span>
+                            Adaptive Loop
+                        </h4>
+<p class="text-sm text-on-surface-variant">Relanzamiento estratégico basado en el desvío detectado.</p>
+</div>
+<div class="space-y-4">
+<div class="p-4 bg-white rounded-xl shadow-sm border-l-4 border-emerald-500">
+<p class="text-[10px] font-bold text-emerald-600 uppercase mb-1">Trigger: Cambio de objetivo</p>
+<h5 class="font-bold text-sm">Relanzar desde STRATEGY (F4)</h5>
+<p class="text-xs text-on-surface-variant mt-1">Re-evaluación total del roadmap y hitos.</p>
+</div>
+<div class="p-4 bg-white rounded-xl shadow-sm border-l-4 border-blue-500">
+<p class="text-[10px] font-bold text-blue-600 uppercase mb-1">Trigger: Bloqueo de tiempo</p>
+<h5 class="font-bold text-sm">Relanzar desde SCHEDULE (F6)</h5>
+<p class="text-xs text-on-surface-variant mt-1">Re-optimización del solver sin cambiar estrategia.</p>
+</div>
+</div>
+</div>
+<!-- Multilayer Card -->
+<div class="lg:col-span-1 bg-primary text-on-primary p-8 rounded-2xl relative overflow-hidden flex flex-col justify-between">
+<img alt="Cyberpunk abstract" class="absolute inset-0 opacity-10 object-cover" data-alt="abstract tech circuitry pattern with glowing emerald lines on a dark midnight blue background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcga1kungHLZQzhzG0gjZ18Skw88RMdWjVjBjYFp4LNrkWPqOVc3wMhC6W-gMOBFxY-iTLJEgZf3WU-xviYRX6nBpWH2Q-tseIa8yi3n_m0A7OIaERyuC1Bf3HhcF6kQOOwKVHPB28wne1pgCTUAUUUldm_rd8ZpD5kLBVBzaxDvMXIWdBl-_SmbU348vQsjj0drgvUYbhaRIvxuA4z1zjr0eMqE3P2iu6XTzxwHkA8lT-EPPS7OCQnV48SnfkocFhkpNRR0NGodI"/>
+<div class="relative z-10">
+<h4 class="font-headline font-bold text-xl mb-4">Plan Multicapa Ejecutable</h4>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+<span class="text-xs uppercase tracking-widest font-bold opacity-70 italic">Capas del Plan</span>
+</div>
+<ul class="text-sm space-y-1 ml-5 opacity-90 font-medium">
+<li>• Skeleton (Hitos Maestros)</li>
+<li>• Detail (Actividades Semanales)</li>
+<li>• Operational (Eventos de Calendario)</li>
+</ul>
+</div>
+</div>
+<div class="relative z-10 mt-8 grid grid-cols-3 gap-2">
+<div class="text-[8px] font-black uppercase bg-white/10 p-2 rounded text-center">Hito</div>
+<div class="text-[8px] font-black uppercase bg-white/10 p-2 rounded text-center">Regla</div>
+<div class="text-[8px] font-black uppercase bg-white/10 p-2 rounded text-center">Métrica</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Technical Glossary -->
+<section class="mb-24">
+<h2 class="font-headline text-2xl font-bold mb-10 flex items-center gap-4">
+<span class="w-8 h-[2px] bg-emerald-500"></span>
+                Glosario Técnico
+            </h2>
+<div class="flex flex-wrap gap-4">
+<div class="px-5 py-4 bg-surface-container-low rounded-xl flex-1 min-w-[200px] border border-transparent hover:border-emerald-500/20 transition-all">
+<h5 class="font-headline font-bold text-xs text-emerald-600 mb-1">LLM Grounding</h5>
+<p class="text-xs text-on-surface-variant leading-relaxed">Proceso de anclar las respuestas del modelo de lenguaje en datos reales y hechos calculados previamente.</p>
+</div>
+<div class="px-5 py-4 bg-surface-container-low rounded-xl flex-1 min-w-[200px] border border-transparent hover:border-emerald-500/20 transition-all">
+<h5 class="font-headline font-bold text-xs text-emerald-600 mb-1">Solver MILP</h5>
+<p class="text-xs text-on-surface-variant leading-relaxed">Programación Lineal Entera Mixta utilizada para resolver problemas de optimización de calendario complejos.</p>
+</div>
+<div class="px-5 py-4 bg-surface-container-low rounded-xl flex-1 min-w-[200px] border border-transparent hover:border-emerald-500/20 transition-all">
+<h5 class="font-headline font-bold text-xs text-emerald-600 mb-1">CoVe</h5>
+<p class="text-xs text-on-surface-variant leading-relaxed">Chain-of-Verification: El sistema se auto-pregunta para detectar alucinaciones en los planes generados.</p>
+</div>
+<div class="px-5 py-4 bg-surface-container-low rounded-xl flex-1 min-w-[200px] border border-transparent hover:border-emerald-500/20 transition-all">
+<h5 class="font-headline font-bold text-xs text-emerald-600 mb-1">Dispatch Adaptativo</h5>
+<p class="text-xs text-on-surface-variant leading-relaxed">Motor que decide en tiempo real qué partes del plan deben ser re-ejecutadas ante desviaciones.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Phase Inspector Drawer (Hidden by default, shown as example) -->
+<div class="fixed right-0 top-0 h-full w-[400px] z-[60] glass-panel border-l border-outline-variant/20 shadow-2xl flex flex-col p-8 transition-transform translate-x-full lg:translate-x-0 hidden lg:flex" id="drawer">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="font-headline font-bold text-2xl text-slate-900">Phase Inspector</h3>
+<p class="text-xs font-bold text-emerald-500 uppercase tracking-widest">Technical Specifications</p>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-100">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar space-y-8">
+<section>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center text-white font-bold">06</div>
+<h4 class="font-headline font-bold text-xl uppercase tracking-tighter">SCHEDULE</h4>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-6">Esta fase transforma el template abstracto en un horario real utilizando optimización matemática.</p>
+<div class="space-y-4">
+<div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100">
+<h5 class="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Engine Input</h5>
+<p class="text-xs font-bold">JSON Template + Disponibilidad + Anchors</p>
+</div>
+<div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100">
+<h5 class="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Calculus Mode</h5>
+<p class="text-xs font-bold">Mixed Integer Linear Programming (MILP)</p>
+</div>
+</div>
+</section>
+<section>
+<h5 class="font-headline font-bold text-sm mb-4">Métricas de Rendimiento</h5>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 bg-emerald-50 rounded-lg">
+<span class="text-[10px] block font-bold text-emerald-600 mb-1">Latencia Media</span>
+<span class="text-lg font-bold">1.2s</span>
+</div>
+<div class="p-3 bg-blue-50 rounded-lg">
+<span class="text-[10px] block font-bold text-blue-600 mb-1">Success Rate</span>
+<span class="text-lg font-bold">99.4%</span>
+</div>
+</div>
+</section>
+<section class="mt-8 p-6 bg-primary rounded-2xl text-on-primary">
+<h5 class="font-headline font-bold text-sm mb-2">Grounding Report</h5>
+<p class="text-[10px] opacity-70 mb-4">Validación contra la base de conocimientos operacional.</p>
+<div class="h-2 w-full bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-emerald-400 w-4/5"></div>
+</div>
+</section>
+</div>
+<button class="mt-8 w-full py-4 bg-primary text-on-primary rounded-xl font-headline font-bold text-sm hover:opacity-90 transition-all">
+            Debug Phase Output
+        </button>
+</div>
+<!-- Floating Action Button (Supressed based on rule: Details screen context) -->
+<!-- Suppression logic: On home it could appear, but here we prioritize the canvas and drawer -->
+</body></html>

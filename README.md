@@ -89,6 +89,7 @@ npm run smoke:deploy
 |--------|-------------|
 | `npm run dev` | Start dev server (stable webpack dev server) |
 | `npm run dev:turbo` | Start dev server with Turbopack |
+| `npm run comandos` | Muestra todos los comandos disponibles, categorizados y priorizados, con descripciones en español |
 | `npm run build` | Production build |
 | `npm run start` | Start production server |
 | `npm run typecheck` | Type-check without emitting |

@@ -100,6 +100,17 @@ export const planWorkflowCheckpoints = pgTable('plan_workflow_checkpoints', {
   createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull()
 })
 
+export const interactiveSessions = pgTable('interactive_sessions', {
+  id: text('id').primaryKey(),
+  status: text('status').notNull(),
+  currentPauseId: text('current_pause_id'),
+  runtimeSnapshot: jsonb('runtime_snapshot').notNull(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull(),
+  expiresAt: timestamp('expires_at', { mode: 'string', withTimezone: true }).notNull()
+})
+
 export const planProgress = pgTable('plan_progress', {
   id: text('id').notNull().unique(),
   planId: text('plan_id').notNull().references(() => plans.id, { onDelete: 'cascade' }),

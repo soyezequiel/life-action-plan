@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   buildFlowViewerModel,
+  buildPipelineTopologyModel,
   formatViewerQualityScore,
   getDefaultSelectedPhaseId
 } from '../src/lib/flow/flow-viewer-model'
@@ -179,6 +180,7 @@ describe('flow viewer model', () => {
     ]
 
     const model = buildFlowViewerModel(snapshot, DateTime.fromISO('2026-03-26T00:00:04.000Z'))
+    const topology = buildPipelineTopologyModel(snapshot, DateTime.fromISO('2026-03-26T00:00:04.000Z'))
 
     expect(model.masterStatus).toBe('partial')
     expect(model.hasTimingData).toBe(true)
@@ -202,5 +204,128 @@ describe('flow viewer model', () => {
     expect(model.phases.find((phase) => phase.id === 'requirements')?.timeline?.widthPercent).toBeCloseTo(25, 0)
     expect(formatViewerQualityScore(model.footer.qualityScore)).toBe('0.85')
     expect(getDefaultSelectedPhaseId(model)).toBe('package')
+    expect(topology.mainNodes.map((node) => node.id)).toEqual([
+      'classify',
+      'requirements',
+      'profile',
+      'strategy',
+      'template',
+      'schedule',
+      'package'
+    ])
+    expect(topology.repairNode.phase.id).toBe('repair')
+    expect(topology.adaptNode.phase.id).toBe('adapt')
+    expect(topology.loopState.status).toBe('exhausted')
+  })
+
+  it('marks strategy as rerun target when adapt requests rebase', () => {
+    const snapshot = createEmptyPipelineRuntimeData({
+      source: 'api-build',
+      modelId: 'openai:gpt-4o-mini',
+      goalText: 'Aprender guitarra'
+    })
+
+    snapshot.run.status = 'success'
+    snapshot.phaseStatuses.package = 'success'
+    snapshot.phaseStatuses.adapt = 'success'
+    snapshot.phases.adapt = {
+      input: {},
+      output: {
+        mode: 'REBASE',
+        overallRisk: 'CRITICAL',
+        dispatch: {
+          rerunFromPhase: 'strategy'
+        }
+      },
+      processing: 'Evalua adherencia.',
+      startedAt: '2026-03-26T00:00:04.000Z',
+      finishedAt: '2026-03-26T00:00:05.000Z',
+      durationMs: 1000
+    }
+
+    const topology = buildPipelineTopologyModel(snapshot, DateTime.fromISO('2026-03-26T00:00:05.000Z'))
+
+    expect(topology.rerunTarget).toBe('strategy')
+    expect(topology.mainNodes.find((node) => node.id === 'strategy')?.highlight).toBe(true)
+    expect(topology.mainNodes.find((node) => node.id === 'schedule')?.highlight).toBe(false)
+  })
+
+  it('marks schedule as rerun target when adapt requests partial repair', () => {
+    const snapshot = createEmptyPipelineRuntimeData({
+      source: 'api-build',
+      modelId: 'openai:gpt-4o-mini',
+      goalText: 'Aprender guitarra'
+    })
+
+    snapshot.run.status = 'success'
+    snapshot.phaseStatuses.package = 'success'
+    snapshot.phaseStatuses.adapt = 'success'
+    snapshot.phases.adapt = {
+      input: {},
+      output: {
+        mode: 'PARTIAL_REPAIR',
+        overallRisk: 'AT_RISK',
+        dispatch: {
+          rerunFromPhase: 'schedule'
+        }
+      },
+      processing: 'Evalua adherencia.',
+      startedAt: '2026-03-26T00:00:04.000Z',
+      finishedAt: '2026-03-26T00:00:05.000Z',
+      durationMs: 1000
+    }
+
+    const topology = buildPipelineTopologyModel(snapshot, DateTime.fromISO('2026-03-26T00:00:05.000Z'))
+
+    expect(topology.rerunTarget).toBe('schedule')
+    expect(topology.mainNodes.find((node) => node.id === 'schedule')?.highlight).toBe(true)
+    expect(topology.mainNodes.find((node) => node.id === 'strategy')?.highlight).toBe(false)
+  })
+
+  it('derives repair state from repairTimeline when the aggregate count is stale', () => {
+    const snapshot = createEmptyPipelineRuntimeData({
+      source: 'api-build',
+      modelId: 'openai:gpt-4o-mini',
+      goalText: 'Aprender guitarra'
+    })
+
+    snapshot.run.status = 'success'
+    snapshot.phaseStatuses.repair = 'skipped'
+    snapshot.repairCycles = 0
+    snapshot.repairTimeline = [
+      {
+        cycle: 1,
+        status: 'clean',
+        findings: { fail: 0, warn: 1, info: 0 },
+        scoreBefore: 0.84,
+        scoreAfter: 0.91,
+        phases: [
+          {
+            phase: 'hardValidate',
+            status: 'success',
+            startedAt: '2026-03-26T00:00:02.000Z',
+            finishedAt: '2026-03-26T00:00:02.100Z',
+            durationMs: 100,
+            summaryLabel: '0 FAIL'
+          },
+          {
+            phase: 'repair',
+            status: 'success',
+            startedAt: '2026-03-26T00:00:02.100Z',
+            finishedAt: '2026-03-26T00:00:02.300Z',
+            durationMs: 200,
+            summaryLabel: 'Sin fallas'
+          }
+        ]
+      }
+    ]
+
+    const model = buildFlowViewerModel(snapshot, DateTime.fromISO('2026-03-26T00:00:03.000Z'))
+    const topology = buildPipelineTopologyModel(snapshot, DateTime.fromISO('2026-03-26T00:00:03.000Z'))
+
+    expect(model.phases.find((phase) => phase.id === 'repair')?.status).toBe('success')
+    expect(model.footer.repairCycles).toBe(1)
+    expect(topology.repairNode.highlight).toBe(true)
+    expect(topology.repairNode.highlightLabel).toBeNull()
   })
 })

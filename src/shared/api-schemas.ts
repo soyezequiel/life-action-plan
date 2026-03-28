@@ -4,6 +4,10 @@ import {
   credentialOwnerSchema,
   credentialRecordStatusSchema,
   credentialSecretTypeSchema,
+  interactiveSessionCreateRequestSchema as interactiveSessionCreateRequestSchemaBase,
+  interactiveSessionDeleteResponseSchema as interactiveSessionDeleteResponseSchemaBase,
+  interactiveSessionInputRequestSchema as interactiveSessionInputRequestSchemaBase,
+  interactiveSessionResponseSchema as interactiveSessionResponseSchemaBase,
   flowStepSchema,
   goalDraftSchema,
   realityAdjustmentSchema
@@ -200,6 +204,11 @@ export const flowResumePatchRequestSchema = z.object({
 export const flowStepQuerySchema = z.object({
   step: flowStepSchema.optional()
 }).strict()
+
+export const interactiveSessionCreateRequestSchema = interactiveSessionCreateRequestSchemaBase
+export const interactiveSessionResponseSchema = interactiveSessionResponseSchemaBase
+export const interactiveSessionInputRequestSchema = interactiveSessionInputRequestSchemaBase
+export const interactiveSessionDeleteResponseSchema = interactiveSessionDeleteResponseSchemaBase
 
 export const debugMutationRequestSchema = z.union([
   z.object({

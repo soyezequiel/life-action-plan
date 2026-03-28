@@ -7,22 +7,28 @@ import { DateTime } from 'luxon'
 import { t } from '../../src/i18n'
 import {
   buildFlowViewerModel,
+  buildPipelineTopologyModel,
   formatViewerDuration,
   formatViewerQualityScore,
   getDefaultSelectedPhaseId,
+  type FlowViewerMode,
   type FlowViewerModel,
   type FlowViewerPhaseItem,
   type FlowViewerPhaseStatus,
-  type FlowViewerRepairCycle
+  type FlowViewerRepairCycle,
+  type PipelineTopologyModel,
+  type TopologyExecutionKind,
+  type TopologyNode
 } from '@lib/flow/flow-viewer-model'
 import type { PipelineRuntimeData } from '@lib/flow/pipeline-runtime-data'
 import './flow-viewer.css'
 
 const DEFAULT_DRAWER_RATIO = 0.4
 const MIN_DRAWER_HEIGHT = 280
-const MAX_DRAWER_HEIGHT_RATIO = 0.78
+const MAX_DRAWER_HEIGHT_RATIO = 0.62
 const DRAWER_STORAGE_KEY = 'pipeline-v5-debug-viewer-drawer-height'
 const DRAWER_TAB_STORAGE_KEY = 'pipeline-v5-debug-viewer-drawer-tab'
+const VIEW_MODE_STORAGE_KEY = 'pipeline-v5-debug-viewer-mode'
 const VIEW_SCALE_STORAGE_KEY = 'pipeline-v5-debug-viewer-scale'
 const DEFAULT_VIEW_SCALE = 1
 const MIN_VIEW_SCALE = 0.72
@@ -96,6 +102,19 @@ const FIELD_LABELS: Record<string, string> = {
 
 type DrawerTab = 'summary' | 'input' | 'processing' | 'output'
 const DRAWER_TABS: DrawerTab[] = ['summary', 'input', 'processing', 'output']
+
+function isFlowViewerMode(value: string | null): value is FlowViewerMode {
+  return value === 'inspect' || value === 'topology'
+}
+
+function getInitialViewerMode(): FlowViewerMode {
+  if (typeof window === 'undefined') {
+    return 'topology'
+  }
+
+  const storedValue = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY)
+  return isFlowViewerMode(storedValue) ? storedValue : 'topology'
+}
 
 function isDrawerTab(value: string | null): value is DrawerTab {
   return value !== null && DRAWER_TABS.includes(value as DrawerTab)
@@ -264,6 +283,8 @@ function statusIcon(status: FlowViewerPhaseStatus | FlowViewerModel['masterStatu
       return '✕'
     case 'running':
       return '●'
+    case 'paused':
+      return '⏸'
     case 'skipped':
       return '–'
     case 'exhausted':
@@ -295,6 +316,10 @@ function sourceLabel(source: string | null): string {
     return t('debug.flow.source_cli_v5')
   }
 
+  if (source === 'interactive') {
+    return t('debug.flow.source_interactive')
+  }
+
   return source ?? '--'
 }
 
@@ -317,6 +342,22 @@ function formatCount(value: number | null | undefined): string {
   }
 
   return value.toLocaleString('es-AR')
+}
+
+function formatRunId(runId: string | null | undefined): string {
+  if (!runId) {
+    return '--'
+  }
+
+  return runId.slice(0, 8)
+}
+
+function executionKindLabel(kind: TopologyExecutionKind): string {
+  return t(`debug.flow.execution_${kind}`)
+}
+
+function executionKindCopy(kind: TopologyExecutionKind): string {
+  return t(`debug.flow.execution_copy_${kind}`)
 }
 
 function phaseShortLabel(phase: string): string {
@@ -465,13 +506,402 @@ function RepairCycleDetail({ cycle }: { cycle: FlowViewerRepairCycle }) {
         ))}
       </div>
       <footer className="flow-repair-detail__footer">
-        <span>{t('debug.flow.footer_findings')}: {`FAIL ${cycle.findings.fail} · WARN ${cycle.findings.warn} · INFO ${cycle.findings.info}`}</span>
+        <span>
+          {`${t('debug.flow.footer_findings')}: ${t('debug.flow.finding_fail')} ${cycle.findings.fail} | ${t('debug.flow.finding_warn')} ${cycle.findings.warn} | ${t('debug.flow.finding_info')} ${cycle.findings.info}`}
+        </span>
         <span>{t('debug.flow.repair_score_delta', {
           before: formatViewerQualityScore(cycle.scoreBefore),
           after: formatViewerQualityScore(cycle.scoreAfter)
         })}</span>
       </footer>
     </article>
+  )
+}
+
+function RepairCycleStrip({ cycle }: { cycle: FlowViewerRepairCycle }) {
+  return (
+    <div className={`flow-repair-cycle flow-repair-cycle--${cycle.status} flow-repair-cycle--topology`}>
+      <span className="flow-repair-cycle__meta">{t('debug.flow.repair_cycle_short', { count: cycle.cycle })}</span>
+      <div className="flow-repair-cycle__segments">
+        {cycle.phases.map((phase) => (
+          <span
+            key={`${cycle.cycle}-${phase.phase}`}
+            className={`flow-repair-cycle__segment flow-repair-cycle__segment--${phase.status}`}
+            title={`${phase.label} · ${formatViewerDuration(phase.timeline.durationMs)}${phase.summaryLabel ? ` · ${phase.summaryLabel}` : ''}`}
+          >
+            {phaseShortLabel(phase.phase)}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function getValidationPhaseSummary(phase: FlowViewerPhaseItem): string {
+  if (phase.id !== 'hardValidate' && phase.id !== 'softValidate' && phase.id !== 'coveVerify') {
+    return phase.kpi
+  }
+
+  const findings = Array.isArray(phase.output.findings)
+    ? phase.output.findings as Array<unknown>
+    : []
+
+  if (phase.id === 'hardValidate') {
+    return `${t('debug.flow.finding_fail')} ${findings.length}`
+  }
+
+  const counts = findings.reduce(
+    (acc: { fail: number; warn: number; info: number }, finding) => {
+      const severity = finding && typeof finding === 'object' && typeof (finding as Record<string, unknown>).severity === 'string'
+        ? ((finding as Record<string, unknown>).severity as string).toUpperCase()
+        : 'INFO'
+
+      if (severity === 'FAIL') {
+        acc.fail += 1
+        return acc
+      }
+
+      if (severity === 'WARN') {
+        acc.warn += 1
+        return acc
+      }
+
+      acc.info += 1
+      return acc
+    },
+    { fail: 0, warn: 0, info: 0 }
+  )
+
+  const parts: string[] = []
+  if (counts.fail > 0) {
+    parts.push(`${t('debug.flow.finding_fail')} ${counts.fail}`)
+  }
+  if (counts.warn > 0) {
+    parts.push(`${t('debug.flow.finding_warn')} ${counts.warn}`)
+  }
+  if (counts.info > 0) {
+    parts.push(`${t('debug.flow.finding_info')} ${counts.info}`)
+  }
+
+  return parts.length > 0 ? parts.join(' | ') : t('debug.flow.validation_no_findings')
+}
+
+function TopologyNodeCard({
+  node,
+  selected,
+  onSelect,
+  caption
+}: {
+  node: TopologyNode
+  selected: boolean
+  onSelect: (phaseId: FlowViewerPhaseItem['id']) => void
+  caption?: string
+}) {
+  const isDisabled = node.phaseId === null
+
+  return (
+    <button
+      type="button"
+      className={[
+        'flow-topology-node',
+        `flow-topology-node--${node.executionKind}`,
+        `flow-topology-node--${node.status}`,
+        selected ? 'flow-topology-node--selected' : '',
+        node.highlight ? 'flow-topology-node--highlight' : '',
+        node.isOptional ? 'flow-topology-node--optional' : '',
+        node.isAsync ? 'flow-topology-node--async' : ''
+      ].filter(Boolean).join(' ')}
+      onClick={() => {
+        if (node.phaseId) {
+          onSelect(node.phaseId)
+        }
+      }}
+      aria-pressed={selected}
+      disabled={isDisabled}
+    >
+      <div className="flow-topology-node__eyebrow">
+        <span className="flow-topology-node__step">{node.stepLabel}</span>
+        <span className={`flow-pill flow-pill--${node.status}`}>
+          {statusLabel(node.status)}
+        </span>
+      </div>
+      <strong>{node.label}</strong>
+      <span className="flow-topology-node__kpi">{node.kpi}</span>
+      <div className="flow-topology-node__badges">
+        <span className={`flow-execution-badge flow-execution-badge--${node.executionKind}`}>
+          {executionKindLabel(node.executionKind)}
+        </span>
+        {node.highlightLabel && (
+          <span className="flow-chip flow-chip--mono">{node.highlightLabel}</span>
+        )}
+      </div>
+      {caption && <small className="flow-topology-node__caption">{caption}</small>}
+    </button>
+  )
+}
+
+function ValidationBlock({
+  node,
+  phases,
+  selectedPhaseId,
+  onPhaseSelect
+}: {
+  node: PipelineTopologyModel['validationNode']
+  phases: PipelineTopologyModel['validationPhases']
+  selectedPhaseId: FlowViewerPhaseItem['id'] | null
+  onPhaseSelect: (phaseId: FlowViewerPhaseItem['id']) => void
+}) {
+  return (
+    <section className={`flow-validation-block flow-validation-block--${node.status}`}>
+      <div className="flow-validation-block__header">
+        <div>
+          <span className="flow-validation-block__step">{node.stepLabel}</span>
+          <strong>{node.label}</strong>
+        </div>
+        <span className={`flow-pill flow-pill--${node.status}`}>{statusLabel(node.status)}</span>
+      </div>
+      <p className="flow-validation-block__copy">{t('debug.flow.topology_validation_copy')}</p>
+      <div className="flow-validation-block__badges">
+        <span className="flow-execution-badge flow-execution-badge--hybrid">
+          {executionKindLabel(node.executionKind)}
+        </span>
+        <span className="flow-chip">{node.kpi}</span>
+      </div>
+      <div className="flow-validation-block__phases">
+        {phases.map((phase) => (
+          <button
+            key={phase.id}
+            type="button"
+            className={[
+              'flow-validation-phase',
+              `flow-validation-phase--${phase.status}`,
+              selectedPhaseId === phase.id ? 'flow-validation-phase--selected' : ''
+            ].join(' ')}
+            onClick={() => onPhaseSelect(phase.id)}
+            aria-pressed={selectedPhaseId === phase.id}
+          >
+            <span className="flow-validation-phase__name">{phase.name}</span>
+            <span className="flow-validation-phase__kpi">{getValidationPhaseSummary(phase)}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function TopologyGlossary({
+  glossary
+}: {
+  glossary: PipelineTopologyModel['glossary']
+}) {
+  return (
+    <section className="flow-topology__glossary" aria-label={t('debug.flow.topology_glossary_title')}>
+      {glossary.map((item) => (
+        <article key={item.id} className="flow-topology__glossary-item">
+          <strong>{item.label}</strong>
+          <p>{item.description}</p>
+        </article>
+      ))}
+    </section>
+  )
+}
+
+function TopologyCanvas({
+  topology,
+  selectedPhaseId,
+  onPhaseSelect,
+  glossaryOpen
+}: {
+  topology: PipelineTopologyModel
+  selectedPhaseId: FlowViewerPhaseItem['id'] | null
+  onPhaseSelect: (phaseId: FlowViewerPhaseItem['id']) => void
+  glossaryOpen: boolean
+}) {
+  const packageNode = topology.mainNodes[topology.mainNodes.length - 1]
+  const preValidationNodes = topology.mainNodes.slice(0, -1)
+
+  return (
+    <motion.div
+      className="flow-topology"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <motion.div
+        className="flow-topology__intro"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, delay: 0.04, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <p>{t('debug.flow.topology_intro')}</p>
+        <div className="flow-topology__legend-inline">
+          {topology.glossary.map((item) => (
+            <span key={item.id} className="flow-chip" title={item.description}>
+              {item.label}
+            </span>
+          ))}
+        </div>
+      </motion.div>
+
+      <AnimatePresence initial={false}>
+        {glossaryOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            style={{ overflow: 'hidden' }}
+          >
+            <TopologyGlossary glossary={topology.glossary} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        className="flow-topology__layout"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.24, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="flow-topology__main-stage">
+          <div className="flow-topology__spine">
+            {preValidationNodes.map((node) => (
+              <React.Fragment key={node.id}>
+                <TopologyNodeCard
+                  node={node}
+                  selected={selectedPhaseId === node.phaseId}
+                  onSelect={onPhaseSelect}
+                />
+                <span className="flow-topology__connector" aria-hidden="true" />
+              </React.Fragment>
+            ))}
+
+            <ValidationBlock
+              node={topology.validationNode}
+              phases={topology.validationPhases}
+              selectedPhaseId={selectedPhaseId}
+              onPhaseSelect={onPhaseSelect}
+            />
+            <span className="flow-topology__connector" aria-hidden="true" />
+            <TopologyNodeCard
+              node={packageNode}
+              selected={selectedPhaseId === packageNode.phaseId}
+              onSelect={onPhaseSelect}
+              caption={t('debug.flow.topology_package_anchor')}
+            />
+          </div>
+
+          <div className={`flow-topology__repair-lane ${topology.loopState.active ? 'flow-topology__repair-lane--active' : ''}`}>
+            <div className="flow-topology__repair-connector">
+              <span>{t('debug.flow.topology_repair_branch')}</span>
+            </div>
+            <TopologyNodeCard
+              node={topology.repairNode}
+              selected={selectedPhaseId === topology.repairNode.phaseId}
+              onSelect={onPhaseSelect}
+              caption={topology.loopState.summary}
+            />
+            <div className="flow-topology__repair-cycles">
+              {topology.loopState.cycles.length > 0 ? (
+                topology.loopState.cycles.map((cycle) => (
+                  <RepairCycleStrip key={cycle.cycle} cycle={cycle} />
+                ))
+              ) : (
+                <p className="flow-topology__repair-empty">{t('debug.flow.topology_repair_idle')}</p>
+              )}
+            </div>
+            <div className="flow-topology__repair-return">
+              <span>{t('debug.flow.topology_repair_return')}</span>
+            </div>
+            {topology.loopState.status === 'exhausted' && (
+              <p className="flow-topology__repair-warning">{t('debug.flow.topology_repair_residual')}</p>
+            )}
+          </div>
+        </div>
+
+        <aside className="flow-topology__adapt-stage">
+          <div className="flow-topology__adapt-link">
+            <span>{t('debug.flow.topology_adapt_async')}</span>
+          </div>
+          <TopologyNodeCard
+            node={topology.adaptNode}
+            selected={selectedPhaseId === topology.adaptNode.phaseId}
+            onSelect={onPhaseSelect}
+          />
+          <p className="flow-topology__adapt-copy">{t('debug.flow.topology_adapt_copy')}</p>
+          {topology.rerunTarget && (
+            <div className="flow-topology__adapt-rerun">
+              <span className="flow-topology__adapt-rerun-label">{t('debug.flow.topology_adapt_rerun')}</span>
+              <strong>{t('debug.flow.topology_adapt_rerun_value', { target: t(`debug.flow.phase_name_${topology.rerunTarget}`) })}</strong>
+            </div>
+          )}
+        </aside>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function TopologyDrawerContent({
+  snapshot,
+  phase
+}: {
+  snapshot: PipelineRuntimeData | null
+  phase: FlowViewerPhaseItem
+}) {
+  const findings = snapshot?.lastError?.phase === phase.id
+    ? [snapshot.lastError.message, ...phase.findings]
+    : phase.findings
+
+  return (
+    <div className="flow-drawer-overview">
+      <section className="flow-drawer-overview__section">
+        <span className="flow-drawer-overview__label">{t('debug.flow.drawer_purpose')}</span>
+        <p className="flow-drawer-overview__copy">{phase.purpose}</p>
+      </section>
+
+      <section className="flow-drawer-overview__section">
+        <span className="flow-drawer-overview__label">{t('debug.flow.drawer_input')}</span>
+        <DataRenderer data={phase.input} />
+      </section>
+
+      <section className="flow-drawer-overview__section">
+        <span className="flow-drawer-overview__label">{t('debug.flow.drawer_output')}</span>
+        <DataRenderer data={phase.output} />
+      </section>
+
+      <section className="flow-drawer-overview__section">
+        <span className="flow-drawer-overview__label">{t('debug.flow.drawer_execution')}</span>
+        <div className="flow-drawer-overview__execution">
+          <span className={`flow-execution-badge flow-execution-badge--${phase.executionKind}`}>
+            {executionKindLabel(phase.executionKind)}
+          </span>
+          <p className="flow-drawer-overview__copy">{executionKindCopy(phase.executionKind)}</p>
+        </div>
+      </section>
+
+      <section className="flow-drawer-overview__section">
+        <span className="flow-drawer-overview__label">{t('debug.flow.drawer_findings')}</span>
+        {findings.length > 0 ? (
+          <ul className="flow-drawer-overview__list">
+            {findings.map((finding, index) => (
+              <li key={`${phase.id}-finding-${index}`}>{finding}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="flow-drawer-overview__copy">{t('debug.flow.drawer_no_findings')}</p>
+        )}
+      </section>
+
+      <section className="flow-drawer-overview__section">
+        <span className="flow-drawer-overview__label">{t('debug.flow.drawer_example')}</span>
+        <p className="flow-drawer-overview__copy">{phase.example}</p>
+      </section>
+
+      <section className="flow-drawer-overview__section">
+        <span className="flow-drawer-overview__label">{t('debug.flow.drawer_simple')}</span>
+        <p className="flow-drawer-overview__copy">{phase.simpleSummary}</p>
+      </section>
+    </div>
   )
 }
 
@@ -564,6 +994,7 @@ function ProcessingTab({
 function PhaseDrawer({
   snapshot,
   phase,
+  mode,
   isOpen,
   height,
   activeTab,
@@ -573,6 +1004,7 @@ function PhaseDrawer({
 }: {
   snapshot: PipelineRuntimeData | null
   phase: FlowViewerPhaseItem | null
+  mode: FlowViewerMode
   isOpen: boolean
   height: number
   activeTab: DrawerTab
@@ -640,26 +1072,34 @@ function PhaseDrawer({
             </div>
           </header>
 
-          <div className="flow-drawer__tabs" role="tablist" aria-label={t('debug.flow.drawer_tabs')}>
-            {DRAWER_TABS.map((tab) => (
-              <button
-                key={tab}
-                className={`flow-drawer__tab ${activeTab === tab ? 'flow-drawer__tab--active' : ''}`}
-                role="tab"
-                type="button"
-                aria-selected={activeTab === tab}
-                onClick={() => onTabChange(tab)}
-              >
-                {t(`debug.flow.tab_${tab}`)}
-              </button>
-            ))}
-          </div>
+          {mode === 'inspect' && (
+            <div className="flow-drawer__tabs" role="tablist" aria-label={t('debug.flow.drawer_tabs')}>
+              {DRAWER_TABS.map((tab) => (
+                <button
+                  key={tab}
+                  className={`flow-drawer__tab ${activeTab === tab ? 'flow-drawer__tab--active' : ''}`}
+                  role="tab"
+                  type="button"
+                  aria-selected={activeTab === tab}
+                  onClick={() => onTabChange(tab)}
+                >
+                  {t(`debug.flow.tab_${tab}`)}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="flow-drawer__body">
-            {activeTab === 'summary' && <SummaryTab snapshot={snapshot} phase={phase} />}
-            {activeTab === 'input' && <DataRenderer data={phase.input} />}
-            {activeTab === 'processing' && <ProcessingTab snapshot={snapshot} phase={phase} />}
-            {activeTab === 'output' && <DataRenderer data={phase.output} />}
+            {mode === 'topology' ? (
+              <TopologyDrawerContent snapshot={snapshot} phase={phase} />
+            ) : (
+              <>
+                {activeTab === 'summary' && <SummaryTab snapshot={snapshot} phase={phase} />}
+                {activeTab === 'input' && <DataRenderer data={phase.input} />}
+                {activeTab === 'processing' && <ProcessingTab snapshot={snapshot} phase={phase} />}
+                {activeTab === 'output' && <DataRenderer data={phase.output} />}
+              </>
+            )}
 
             {showRawJson && (
               <pre className="flow-drawer__raw">{JSON.stringify(rawPayload, null, 2)}</pre>
@@ -671,6 +1111,70 @@ function PhaseDrawer({
   )
 }
 
+function InspectorCanvas({
+  model,
+  selectedPhase,
+  onPhaseSelect
+}: {
+  model: FlowViewerModel
+  selectedPhase: FlowViewerPhaseItem | null
+  onPhaseSelect: (phaseId: FlowViewerPhaseItem['id']) => void
+}) {
+  return (
+    <>
+      <div className="flow-viewer__axis">
+        <div className="flow-viewer__axis-rail">{t('debug.flow.phase_rail')}</div>
+        <div className="flow-viewer__axis-timeline">
+          <span>{model.hasTimingData ? '0s' : t('debug.flow.timeline_stepper')}</span>
+          <span>{model.hasTimingData ? formatViewerDuration(model.totalDurationMs) : t('debug.flow.timeline_stepper_hint')}</span>
+        </div>
+      </div>
+
+      <div className="flow-viewer__groups">
+        {model.groups.map((group) => (
+          <section key={group.id} className="flow-group">
+            <div className="flow-group__divider" style={{ ['--group-accent' as string]: group.color }}>
+              <span>{group.label}</span>
+            </div>
+
+            <div className="flow-group__rows">
+              {group.phases.map((phase) => (
+                <button
+                  key={phase.id}
+                  type="button"
+                  className={`flow-phase-row flow-phase-row--${phase.status} ${selectedPhase?.id === phase.id ? 'flow-phase-row--selected' : ''}`}
+                  onClick={() => onPhaseSelect(phase.id)}
+                  aria-pressed={selectedPhase?.id === phase.id}
+                  style={{ ['--phase-accent' as string]: phase.color }}
+                >
+                  <div className="flow-phase-row__rail">
+                    <span className={`flow-status flow-status--${phase.status}`}>
+                      <span>{statusIcon(phase.status)}</span>
+                    </span>
+                    <div className="flow-phase-row__copy">
+                      <strong>{phase.name}</strong>
+                      <span>{phase.kpi}</span>
+                      {phase.progressMessage && <small>{phase.progressMessage}</small>}
+                    </div>
+                  </div>
+
+                  <div className="flow-phase-row__timeline">
+                    {model.hasTimingData
+                      ? phase.id === 'repair'
+                        ? <RepairTimelineLane phase={phase} />
+                        : <TimelineBar phase={phase} />
+                      : <StepperLane phaseIndex={phase.index} status={phase.status} />}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </>
+  )
+}
+
 export function FlowViewerSurface({
   snapshot,
   isLoading = false
@@ -679,13 +1183,16 @@ export function FlowViewerSurface({
   isLoading?: boolean
 }) {
   const [selectedPhaseId, setSelectedPhaseId] = useState<FlowViewerPhaseItem['id'] | null>(null)
+  const [viewerMode, setViewerMode] = useState<FlowViewerMode>(() => getInitialViewerMode())
   const [drawerOpen, setDrawerOpen] = useState(true)
   const [drawerHeight, setDrawerHeight] = useState(() => getInitialDrawerHeight())
   const [activeDrawerTab, setActiveDrawerTab] = useState<DrawerTab>(() => getInitialDrawerTab())
+  const [glossaryOpen, setGlossaryOpen] = useState(false)
   const [viewScale, setViewScale] = useState(() => getInitialViewScale())
   const [nowMs, setNowMs] = useState(() => Date.now())
 
   const model = buildFlowViewerModel(snapshot, nowMs)
+  const topology = buildPipelineTopologyModel(snapshot, nowMs)
   const selectedPhase = model.phases.find((phase) => phase.id === selectedPhaseId) ?? null
 
   useEffect(() => {
@@ -724,6 +1231,14 @@ export function FlowViewerSurface({
 
     window.localStorage.setItem(DRAWER_TAB_STORAGE_KEY, activeDrawerTab)
   }, [activeDrawerTab])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewerMode)
+  }, [viewerMode])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -781,6 +1296,13 @@ export function FlowViewerSurface({
   function handlePhaseSelection(phaseId: FlowViewerPhaseItem['id']): void {
     setSelectedPhaseId(phaseId)
     setDrawerOpen(true)
+  }
+
+  function handleModeChange(nextMode: FlowViewerMode): void {
+    setViewerMode(nextMode)
+    if (nextMode === 'inspect') {
+      setGlossaryOpen(false)
+    }
   }
 
   function handleResizeStart(event: React.MouseEvent<HTMLDivElement>): void {
@@ -844,15 +1366,21 @@ export function FlowViewerSurface({
         <div className="flow-viewer__header-copy">
           <div className="flow-viewer__header-topline">
             <strong>{t('debug.flow.viewer_title')}</strong>
-            <span className="flow-chip flow-chip--mono">{model.runLabel}</span>
+            <span className="flow-chip flow-chip--mono">{`${t('debug.flow.meta_run_id')}: ${formatRunId(model.runId)}`}</span>
+            {model.interactiveMode && (
+              <span className="flow-chip flow-chip--interactive">{t('debug.flow.interactive_mode_badge')}</span>
+            )}
             <span className={`flow-pill flow-pill--${model.masterStatus}`}>
               <span>{statusIcon(model.masterStatus)}</span>
               {statusLabel(model.masterStatus)}
             </span>
+            <span className="flow-chip">{`${t('debug.flow.footer_quality')}: ${formatViewerQualityScore(model.footer.qualityScore)}`}</span>
+            <span className="flow-chip">{`${t('debug.flow.footer_tokens')}: ${formatCount(model.footer.tokensTotal)}`}</span>
           </div>
           <div className="flow-viewer__header-bottomline">
             <span className="flow-viewer__total-time">{formatViewerDuration(model.totalDurationMs)}</span>
             {model.runMetaLabel && <p className="flow-viewer__run-meta">{model.runMetaLabel}</p>}
+            <span className="flow-chip">{model.runLabel}</span>
           </div>
         </div>
 
@@ -860,77 +1388,84 @@ export function FlowViewerSurface({
           <span className="flow-chip">{`${t('debug.flow.meta_source')}: ${sourceLabel(model.source)}`}</span>
           <span className="flow-chip">{`${t('debug.flow.meta_model')}: ${model.modelId ?? '--'}`}</span>
           <span className="flow-chip">{`${t('debug.flow.meta_domain')}: ${model.domainChip ?? '--'}`}</span>
-          <label className="flow-scale-control">
-            <span className="flow-scale-control__label">
-              {`${t('debug.flow.scale_label')}: ${Math.round(viewScale * 100)}%`}
-            </span>
-            <input
-              className="flow-scale-control__slider"
-              type="range"
-              min={Math.round(MIN_VIEW_SCALE * 100)}
-              max={Math.round(MAX_VIEW_SCALE * 100)}
-              step={Math.round(VIEW_SCALE_STEP * 100)}
-              value={Math.round(viewScale * 100)}
-              onChange={handleScaleChange}
-              aria-label={t('debug.flow.scale_label')}
-            />
-            <span className="flow-scale-control__hint">
-              {t('debug.flow.scale_hint')}
-            </span>
-          </label>
+          <div className="flow-mode-toggle" role="tablist" aria-label={t('debug.flow.mode_label')}>
+            <button
+              type="button"
+              role="tab"
+              className={`flow-mode-toggle__button ${viewerMode === 'topology' ? 'flow-mode-toggle__button--active' : ''}`}
+              aria-selected={viewerMode === 'topology'}
+              onClick={() => handleModeChange('topology')}
+            >
+              {t('debug.flow.mode_topology')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              className={`flow-mode-toggle__button ${viewerMode === 'inspect' ? 'flow-mode-toggle__button--active' : ''}`}
+              aria-selected={viewerMode === 'inspect'}
+              onClick={() => handleModeChange('inspect')}
+            >
+              {t('debug.flow.mode_inspect')}
+            </button>
+          </div>
+          {viewerMode === 'inspect' ? (
+            <label className="flow-scale-control">
+              <span className="flow-scale-control__label">
+                {`${t('debug.flow.scale_label')}: ${Math.round(viewScale * 100)}%`}
+              </span>
+              <input
+                className="flow-scale-control__slider"
+                type="range"
+                min={Math.round(MIN_VIEW_SCALE * 100)}
+                max={Math.round(MAX_VIEW_SCALE * 100)}
+                step={Math.round(VIEW_SCALE_STEP * 100)}
+                value={Math.round(viewScale * 100)}
+                onChange={handleScaleChange}
+                aria-label={t('debug.flow.scale_label')}
+              />
+              <span className="flow-scale-control__hint">
+                {t('debug.flow.scale_hint')}
+              </span>
+            </label>
+          ) : (
+            <button
+              className={`flow-toggle ${glossaryOpen ? 'flow-toggle--active' : ''}`}
+              type="button"
+              onClick={() => setGlossaryOpen((current) => !current)}
+            >
+              {t('debug.flow.topology_glossary_toggle')}
+            </button>
+          )}
         </div>
       </header>
 
+      {model.interactiveMode && model.currentPausePoint && (
+        <div className="flow-viewer__interactive-banner">
+          <span className="flow-chip flow-chip--interactive">{t('debug.flow.interactive_waiting_badge')}</span>
+          <strong>{t('debug.flow.interactive_banner_title')}</strong>
+          <span>
+            {t('debug.flow.interactive_banner_copy', {
+              phase: t(`debug.flow.phase_name_${model.currentPausePoint.phase}`)
+            })}
+          </span>
+        </div>
+      )}
+
       <div className="flow-viewer__main">
-        <div className="flow-viewer__axis">
-          <div className="flow-viewer__axis-rail">{t('debug.flow.phase_rail')}</div>
-          <div className="flow-viewer__axis-timeline">
-            <span>{model.hasTimingData ? '0s' : t('debug.flow.timeline_stepper')}</span>
-            <span>{model.hasTimingData ? formatViewerDuration(model.totalDurationMs) : t('debug.flow.timeline_stepper_hint')}</span>
-          </div>
-        </div>
-
-        <div className="flow-viewer__groups">
-          {model.groups.map((group) => (
-            <section key={group.id} className="flow-group">
-              <div className="flow-group__divider" style={{ ['--group-accent' as string]: group.color }}>
-                <span>{group.label}</span>
-              </div>
-
-              <div className="flow-group__rows">
-                {group.phases.map((phase) => (
-                  <button
-                    key={phase.id}
-                    type="button"
-                    className={`flow-phase-row flow-phase-row--${phase.status} ${selectedPhase?.id === phase.id ? 'flow-phase-row--selected' : ''}`}
-                    onClick={() => handlePhaseSelection(phase.id)}
-                    aria-pressed={selectedPhase?.id === phase.id}
-                    style={{ ['--phase-accent' as string]: phase.color }}
-                  >
-                    <div className="flow-phase-row__rail">
-                      <span className={`flow-status flow-status--${phase.status}`}>
-                        <span>{statusIcon(phase.status)}</span>
-                      </span>
-                      <div className="flow-phase-row__copy">
-                        <strong>{phase.name}</strong>
-                        <span>{phase.kpi}</span>
-                        {phase.progressMessage && <small>{phase.progressMessage}</small>}
-                      </div>
-                    </div>
-
-                    <div className="flow-phase-row__timeline">
-                      {model.hasTimingData
-                        ? phase.id === 'repair'
-                          ? <RepairTimelineLane phase={phase} />
-                          : <TimelineBar phase={phase} />
-                        : <StepperLane phaseIndex={phase.index} status={phase.status} />}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
+        {viewerMode === 'topology' ? (
+          <TopologyCanvas
+            topology={topology}
+            selectedPhaseId={selectedPhaseId}
+            onPhaseSelect={handlePhaseSelection}
+            glossaryOpen={glossaryOpen}
+          />
+        ) : (
+          <InspectorCanvas
+            model={model}
+            selectedPhase={selectedPhase}
+            onPhaseSelect={handlePhaseSelection}
+          />
+        )}
       </div>
 
       <AnimatePresence initial={false}>
@@ -950,6 +1485,7 @@ export function FlowViewerSurface({
       <PhaseDrawer
         snapshot={snapshot}
         phase={selectedPhase}
+        mode={viewerMode}
         isOpen={drawerOpen}
         height={drawerHeight}
         activeTab={activeDrawerTab}
@@ -959,11 +1495,12 @@ export function FlowViewerSurface({
       />
 
       <footer className="flow-viewer__footer">
-        <span>{`${t('debug.flow.footer_quality')}: ${formatViewerQualityScore(model.footer.qualityScore)}`}</span>
-        <span>{`${t('debug.flow.footer_findings')}: FAIL ${model.footer.findings.fail} · WARN ${model.footer.findings.warn} · INFO ${model.footer.findings.info}`}</span>
-        <span>{`${t('debug.flow.footer_repair')}: ${model.footer.repairCycles > 0 ? t('debug.flow.kpi_repair_cycles', { count: model.footer.repairCycles }) : '--'}`}</span>
+        <span>
+          {`${t('debug.flow.footer_findings')}: ${t('debug.flow.finding_fail')} ${model.footer.findings.fail} | ${t('debug.flow.finding_warn')} ${model.footer.findings.warn} | ${t('debug.flow.finding_info')} ${model.footer.findings.info}`}
+        </span>
+        <span>{`${t('debug.flow.footer_repair')}: ${model.footer.repairCycles > 0 ? t('debug.flow.kpi_repair_cycles', { count: model.footer.repairCycles }) : t('debug.flow.topology_repair_idle')}`}</span>
         <span>{`${t('debug.flow.footer_domain')}: ${model.footer.domainLabel ?? '--'}`}</span>
-        <span>{`${t('debug.flow.footer_tokens')}: ${formatCount(model.footer.tokensTotal)}`}</span>
+        <span>{`${t('debug.flow.footer_duration')}: ${formatViewerDuration(model.totalDurationMs)}`}</span>
       </footer>
     </section>
   )
@@ -1068,7 +1605,7 @@ export function FlowViewer() {
           </button>
           {latestData?.run.runId && (
             <span style={{ color: '#555', marginLeft: 'auto', fontFamily: 'monospace', fontSize: '11px' }}>
-              runId: {activeSnapshot?.run.runId?.slice(0, 8)}
+              {`${t('debug.flow.meta_run_id')}: ${formatRunId(activeSnapshot?.run.runId)}`}
             </span>
           )}
         </div>

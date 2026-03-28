@@ -57,6 +57,8 @@ const TRACE_SKILL_NAME = 'plan-builder-v5';
 const REPAIR_LOOP_PHASES = ['hardValidate', 'softValidate', 'coveVerify', 'repair'] as const
 
 type RepairLoopPhase = (typeof REPAIR_LOOP_PHASES)[number]
+type PersistedPhaseStatus = V5PhaseSnapshot['phaseStatuses'][PipelinePhaseV5]
+type PersistedRepairPhaseStatus = V5PhaseSnapshot['repairTimeline'][number]['phases'][number]['status']
 
 function normalizeText(value: string | null | undefined): string {
   return value?.trim() || '';
@@ -367,6 +369,29 @@ function resolveActiveExecution(
   return null;
 }
 
+function normalizePersistedPhaseStatus(status: string | null | undefined): PersistedPhaseStatus {
+  if (status === 'pending' || status === 'running' || status === 'success' || status === 'error' || status === 'skipped') {
+    return status
+  }
+
+  return status === 'paused' ? 'success' : 'pending'
+}
+
+function normalizePersistedRepairPhaseStatus(status: string | null | undefined): PersistedRepairPhaseStatus {
+  if (
+    status === 'pending'
+    || status === 'running'
+    || status === 'success'
+    || status === 'error'
+    || status === 'skipped'
+    || status === 'exhausted'
+  ) {
+    return status
+  }
+
+  return status === 'paused' ? 'success' : 'pending'
+}
+
 function toV5PhaseSnapshot(
   snapshot: ReturnType<ReturnType<typeof createPipelineRuntimeRecorder>['getSnapshot']>,
   qualityScore: number,
@@ -378,8 +403,19 @@ function toV5PhaseSnapshot(
     startedAt: snapshot.run.startedAt,
     finishedAt: snapshot.run.finishedAt,
     phaseTimeline: snapshot.phaseTimeline,
-    phaseStatuses: snapshot.phaseStatuses,
-    repairTimeline: snapshot.repairTimeline,
+    phaseStatuses: Object.fromEntries(
+      Object.entries(snapshot.phaseStatuses).map(([phase, status]) => [
+        phase,
+        normalizePersistedPhaseStatus(status)
+      ])
+    ) as V5PhaseSnapshot['phaseStatuses'],
+    repairTimeline: snapshot.repairTimeline.map((cycle) => ({
+      ...cycle,
+      phases: cycle.phases.map((phase) => ({
+        ...phase,
+        status: normalizePersistedRepairPhaseStatus(phase.status)
+      }))
+    })),
   };
 }
 

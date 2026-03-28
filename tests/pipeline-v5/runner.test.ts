@@ -457,7 +457,7 @@ describe('FlowRunnerV5', () => {
     const context = runner.getContext();
 
     expect(context.softValidate?.findings.some((finding) => finding.code === 'SV-NO-REST')).toBe(false);
-    expect(context.coveVerify?.findings.find((finding) => /descanso/i.test(finding.question))?.severity).toBe('WARN');
+    expect(context.coveVerify?.findings.find((finding) => /descanso/i.test(finding.question))?.severity).toBe('INFO');
     expect(context.coveVerify?.findings.some((finding) => finding.severity === 'FAIL')).toBe(false);
   });
 

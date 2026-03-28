@@ -91,6 +91,65 @@ function createViewerSnapshot() {
   return snapshot
 }
 
+function createValidationSnapshot() {
+  const snapshot = createEmptyPipelineRuntimeData({
+    source: 'api-build',
+    modelId: 'openai:gpt-4o-mini',
+    goalText: 'Aprender guitarra'
+  })
+
+  snapshot.run.status = 'success'
+  snapshot.run.startedAt = '2026-03-26T00:00:00.000Z'
+  snapshot.run.finishedAt = '2026-03-26T00:00:04.000Z'
+  snapshot.phaseStatuses.hardValidate = 'success'
+  snapshot.phaseStatuses.softValidate = 'success'
+  snapshot.phaseStatuses.coveVerify = 'success'
+  snapshot.phaseStatuses.package = 'success'
+  snapshot.phases.hardValidate = {
+    input: {},
+    output: { findings: [] },
+    processing: 'Valida reglas duras.',
+    startedAt: '2026-03-26T00:00:02.000Z',
+    finishedAt: '2026-03-26T00:00:02.100Z',
+    durationMs: 100
+  }
+  snapshot.phases.softValidate = {
+    input: {},
+    output: {
+      findings: [
+        { severity: 'WARN', suggestion_esAR: 'Mover un bloque.' },
+        { severity: 'INFO', suggestion_esAR: 'Dejar mas aire.' }
+      ]
+    },
+    processing: 'Valida reglas soft.',
+    startedAt: '2026-03-26T00:00:02.100Z',
+    finishedAt: '2026-03-26T00:00:02.200Z',
+    durationMs: 100
+  }
+  snapshot.phases.coveVerify = {
+    input: {},
+    output: {
+      findings: [
+        { severity: 'INFO', answer: 'Se entiende el tradeoff.' }
+      ]
+    },
+    processing: 'Verifica consistencia.',
+    startedAt: '2026-03-26T00:00:02.200Z',
+    finishedAt: '2026-03-26T00:00:02.300Z',
+    durationMs: 100
+  }
+  snapshot.phases.package = {
+    input: {},
+    output: { qualityScore: 0.92 },
+    processing: 'Empaqueta el resultado.',
+    startedAt: '2026-03-26T00:00:03.000Z',
+    finishedAt: '2026-03-26T00:00:04.000Z',
+    durationMs: 1000
+  }
+
+  return snapshot
+}
+
 describe('debug viewer v5 surface', () => {
   it('opens the drawer, switches phases, supports keyboard nav, and resizes', async () => {
     const user = userEvent.setup()
@@ -99,7 +158,19 @@ describe('debug viewer v5 surface', () => {
     const { container } = render(<FlowViewerSurface snapshot={createViewerSnapshot()} />)
 
     expect((await screen.findAllByText('Requirements')).length).toBeGreaterThan(0)
-    expect(screen.getByRole('tab', { name: t('debug.flow.tab_summary') })).toBeTruthy()
+    expect(screen.getByRole('tab', { name: t('debug.flow.mode_topology') }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.queryByRole('tab', { name: t('debug.flow.tab_summary') })).toBeNull()
+    expect(screen.getByText(t('debug.flow.drawer_purpose'))).toBeTruthy()
+    expect(window.localStorage.getItem('pipeline-v5-debug-viewer-mode')).toBe('topology')
+
+    await user.click(screen.getByRole('tab', { name: t('debug.flow.mode_inspect') }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: t('debug.flow.tab_summary') })).toBeTruthy()
+      expect(window.localStorage.getItem('pipeline-v5-debug-viewer-mode')).toBe('inspect')
+      expect(screen.getByRole('slider', { name: t('debug.flow.scale_label') })).toBeTruthy()
+    })
+
     expect(screen.getAllByText('4 preguntas').length).toBeGreaterThan(0)
 
     fireEvent.change(screen.getByRole('slider', { name: t('debug.flow.scale_label') }), {
@@ -149,5 +220,15 @@ describe('debug viewer v5 surface', () => {
     await waitFor(() => {
       expect(document.querySelector('.flow-drawer')).toBeNull()
     })
+  })
+
+  it('shows the real finding breakdown for each validation phase', async () => {
+    window.localStorage.clear()
+
+    render(<FlowViewerSurface snapshot={createValidationSnapshot()} />)
+
+    expect(await screen.findByText('FAIL 0')).toBeTruthy()
+    expect(screen.getByText('WARN 1 | INFO 1')).toBeTruthy()
+    expect(screen.getByText('INFO 1')).toBeTruthy()
   })
 })

@@ -1,7 +1,9 @@
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 
+import type { PhaseIO } from '../pipeline/phase-io';
 import type { PlanPackage } from '../pipeline/v5/phase-io-v5';
+import type { PipelineRuntimeData } from '../flow/pipeline-runtime-data';
 import { readLatestSuccessfulRuntimeData, readPipelineRuntimeData } from '../flow/pipeline-runtime-data';
 
 const DEFAULT_OUTPUT_FILE = resolve(process.cwd(), 'tmp/pipeline-v5-real.json');
@@ -55,3 +57,69 @@ export function readLatestRunnerPlanResult(): LatestRunnerPlanResult {
     source: 'missing',
   };
 }
+
+function resolveComparablePath(filePath: string | null | undefined): string | null {
+  if (typeof filePath !== 'string' || filePath.trim().length === 0) {
+    return null;
+  }
+
+  return resolve(filePath);
+}
+
+function shouldHydrateSnapshot(
+  snapshot: PipelineRuntimeData | null,
+  result: LatestRunnerPlanResult,
+): snapshot is PipelineRuntimeData {
+  if (!snapshot || !result.package || !result.outputFile) {
+    return false;
+  }
+
+  const snapshotOutputFile = resolveComparablePath(snapshot.run.outputFile);
+  const resultOutputFile = resolveComparablePath(result.outputFile);
+
+  return snapshotOutputFile !== null && snapshotOutputFile === resultOutputFile;
+}
+
+function buildHydratedPackagePhase(
+  snapshot: PipelineRuntimeData,
+  result: LatestRunnerPlanResult,
+): PhaseIO<Record<string, unknown>, PlanPackage> {
+  const existingPhase = snapshot.phases.package;
+  const phaseTiming = snapshot.phaseTimeline.package;
+  const startedAt = existingPhase?.startedAt ?? phaseTiming?.startedAt ?? snapshot.run.startedAt;
+  const finishedAt = existingPhase?.finishedAt ?? phaseTiming?.finishedAt ?? snapshot.run.finishedAt ?? startedAt;
+  const durationMs = existingPhase?.durationMs ?? phaseTiming?.durationMs ?? 0;
+
+  return {
+    input: (existingPhase?.input ?? {}) as Record<string, unknown>,
+    output: result.package as PlanPackage,
+    processing: existingPhase?.processing ?? '',
+    startedAt,
+    finishedAt,
+    durationMs,
+  };
+}
+
+export function hydrateRuntimeSnapshotWithRunnerResult(
+  snapshot: PipelineRuntimeData | null,
+  result: LatestRunnerPlanResult = readLatestRunnerPlanResult(),
+): PipelineRuntimeData | null {
+  if (!shouldHydrateSnapshot(snapshot, result)) {
+    return snapshot;
+  }
+
+  return {
+    ...snapshot,
+    phases: {
+      ...snapshot.phases,
+      package: buildHydratedPackagePhase(snapshot, result),
+    },
+  };
+}
+
+const runnerResults = {
+  readLatestRunnerPlanResult,
+  hydrateRuntimeSnapshotWithRunnerResult,
+};
+
+export default runnerResults;

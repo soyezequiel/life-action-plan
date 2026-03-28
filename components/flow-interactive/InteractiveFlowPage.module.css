@@ -1,0 +1,573 @@
+.layout {
+  width: min(100%, 1240px);
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.surface {
+  background: linear-gradient(180deg, var(--bg-surface-strong) 0%, var(--bg-surface) 100%);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(22px);
+}
+
+.sidebarSurface,
+.contentSurface,
+.entrySurface {
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+.entryLayout {
+  width: min(100%, 880px);
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0 0 0.7rem;
+  color: var(--brand);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+}
+
+.copy {
+  margin: 0.85rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.entryActions,
+.footerActions,
+.stack,
+.stackTight,
+.metaRow,
+.pillRow,
+.stepFooter,
+.scheduleMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.stack {
+  align-items: center;
+}
+
+.stackTight {
+  gap: 0.55rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.fieldLabel {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.fieldHint {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.goalInput,
+.textarea,
+.inlineInput {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(14, 14, 14, 0.9);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.goalInput,
+.textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+.inlineInput {
+  min-height: 3rem;
+}
+
+.goalInput:focus,
+.textarea:focus,
+.inlineInput:focus {
+  outline: none;
+  border-color: rgba(105, 167, 255, 0.5);
+  box-shadow: 0 0 0 4px rgba(105, 167, 255, 0.14);
+}
+
+.infoList,
+.plainList {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.55rem;
+  color: var(--text-secondary);
+}
+
+.infoList {
+  margin-top: 1rem;
+}
+
+.sessionHeader {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.sessionTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  line-height: 1.05;
+}
+
+.sessionGoal {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.sessionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.chip,
+.statusChip,
+.stepBadge,
+.tagButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft);
+  font-size: 0.88rem;
+}
+
+.statusChipActive {
+  border-color: rgba(105, 167, 255, 0.22);
+  background: rgba(105, 167, 255, 0.14);
+}
+
+.statusChipDone {
+  border-color: rgba(110, 215, 165, 0.2);
+  background: rgba(110, 215, 165, 0.12);
+}
+
+.statusChipWarn {
+  border-color: rgba(242, 191, 130, 0.24);
+  background: rgba(242, 191, 130, 0.13);
+}
+
+.stepRail {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.stepButton {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.95rem 1rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  text-align: left;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.stepButtonClickable {
+  cursor: pointer;
+}
+
+.stepButtonClickable:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(105, 167, 255, 0.18);
+  background: rgba(105, 167, 255, 0.08);
+}
+
+.stepButtonCurrent {
+  border-color: rgba(105, 167, 255, 0.24);
+  background: rgba(105, 167, 255, 0.12);
+}
+
+.stepButtonDone {
+  border-color: rgba(110, 215, 165, 0.14);
+}
+
+.stepButtonDisabled {
+  opacity: 0.72;
+}
+
+.stepNumber {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.stepNumberCurrent {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+  color: #081014;
+}
+
+.stepTitle {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.stepCopy {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.banner,
+.warningBox,
+.noticeBox,
+.errorBox,
+.summaryGrid,
+.detailGrid,
+.scheduleColumns,
+.packageColumns,
+.calendarShell {
+  display: grid;
+  gap: 1rem;
+}
+
+.banner {
+  padding: 1rem 1.15rem;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(105, 167, 255, 0.12), rgba(20, 230, 190, 0.08));
+  border: 1px solid rgba(105, 167, 255, 0.14);
+}
+
+.noticeBox,
+.errorBox,
+.warningBox {
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  line-height: 1.55;
+}
+
+.noticeBox {
+  background: rgba(105, 167, 255, 0.1);
+  border: 1px solid rgba(105, 167, 255, 0.16);
+}
+
+.errorBox {
+  background: rgba(255, 120, 120, 0.12);
+  border: 1px solid rgba(255, 120, 120, 0.18);
+}
+
+.warningBox {
+  background: rgba(242, 191, 130, 0.12);
+  border: 1px solid rgba(242, 191, 130, 0.18);
+}
+
+.contentSurface {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.28rem;
+}
+
+.sectionCopy,
+.mutedText,
+.miniText {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.miniText {
+  font-size: 0.9rem;
+}
+
+.summaryGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.summaryCard {
+  padding: 0.95rem 1rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.summaryLabel {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.summaryValue {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.confidenceMeter {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.confidenceTrack {
+  overflow: hidden;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.confidenceFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand) 0%, var(--brand-strong) 100%);
+}
+
+.choiceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.choiceButton {
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-soft);
+  text-align: left;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.choiceButton:hover:not(:disabled),
+.tagButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(105, 167, 255, 0.24);
+}
+
+.choiceButtonActive,
+.tagButtonActive {
+  border-color: rgba(105, 167, 255, 0.3);
+  background: rgba(105, 167, 255, 0.12);
+}
+
+.signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.questionList,
+.detailList,
+.scheduleList {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.questionItem,
+.detailItem,
+.scheduleItem {
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.questionTitle,
+.detailTitle,
+.scheduleTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.sliderRow {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--brand);
+}
+
+.sliderValue {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.scheduleColumns,
+.packageColumns {
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.9fr);
+}
+
+.calendarShell {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(18, 18, 18, 0.98), rgba(10, 10, 10, 0.96));
+}
+
+.calendarShell :global(.fc) {
+  --fc-border-color: rgba(255, 255, 255, 0.08);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgba(255, 255, 255, 0.03);
+  --fc-today-bg-color: rgba(105, 167, 255, 0.14);
+  color: var(--text-primary);
+}
+
+.calendarShell :global(.fc-toolbar-title) {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.calendarShell :global(.fc-button) {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.calendarShell :global(.fc-button-primary:not(:disabled).fc-button-active),
+.calendarShell :global(.fc-button-primary:not(:disabled):active) {
+  background: rgba(105, 167, 255, 0.2);
+  border-color: rgba(105, 167, 255, 0.32);
+}
+
+.calendarShell :global(.fc-daygrid-day-number),
+.calendarShell :global(.fc-col-header-cell-cushion) {
+  color: var(--text-soft);
+}
+
+.calendarEventSoft {
+  background: linear-gradient(180deg, rgba(105, 167, 255, 0.92), rgba(105, 167, 255, 0.72));
+  border: 0;
+}
+
+.calendarEventHard {
+  background: linear-gradient(180deg, rgba(20, 230, 190, 0.9), rgba(20, 230, 190, 0.72));
+  border: 0;
+}
+
+.eventMeta {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.emptyState {
+  padding: 1.25rem;
+  border-radius: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  color: var(--text-secondary);
+}
+
+.stepFooter {
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 1rem;
+}
+
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  background: transparent;
+  color: var(--brand);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.completedSurface {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.completedTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.3rem);
+}
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .scheduleColumns,
+  .packageColumns,
+  .summaryGrid,
+  .choiceGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .stepFooter,
+  .entryActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stepButton {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .calendarShell {
+    padding: 0.75rem;
+  }
+}

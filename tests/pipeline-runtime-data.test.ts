@@ -51,13 +51,17 @@ describe('pipeline runtime data v5', () => {
     })
 
     expect(snapshot.pipeline).toBe('v5')
-    expect(snapshot.schemaVersion).toBe(2)
+    expect(snapshot.schemaVersion).toBe(3)
     expect(snapshot.run.status).toBe('running')
     expect(snapshot.phaseStatuses.classify).toBe('pending')
     expect(snapshot.phaseTimeline).toEqual({})
     expect(snapshot.repairTimeline).toEqual([])
     expect(snapshot.run.tokensUsed).toBeNull()
     expect(snapshot.run.resourceUsage).toBeNull()
+    expect(snapshot.interactiveMode).toBe(false)
+    expect(snapshot.currentPausePoint).toBeNull()
+    expect(snapshot.pauseHistory).toEqual([])
+    expect(snapshot.interactiveState).toBeNull()
   })
 
   it('records timing for running and skipped phases', () => {

@@ -29,4 +29,4 @@ export type FlowStep = {
 
 // ─── Runtime data types (injected from pipeline execution) ───────────────────
 
-export type FlowNodeRuntimeStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped' | 'exhausted'
+export type FlowNodeRuntimeStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped' | 'exhausted' | 'paused'

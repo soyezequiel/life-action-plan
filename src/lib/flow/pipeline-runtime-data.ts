@@ -5,10 +5,14 @@ import { resolve } from 'path'
 import { DateTime } from 'luxon'
 
 import type { ResourceUsageSummary } from '../../shared/types/resource-usage'
+import type {
+  InteractiveSessionState,
+  PausePointSnapshot
+} from '../../shared/schemas/pipeline-interactive'
 import type { PhaseIO } from '../pipeline/phase-io'
 import type { PipelinePhaseV5 } from '../pipeline/v5/runner'
 
-export type PhaseStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped'
+export type PhaseStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped' | 'paused'
 export type RepairTimelinePhase = 'hardValidate' | 'softValidate' | 'coveVerify' | 'repair'
 export type RepairTimelinePhaseStatus = PhaseStatus | 'exhausted'
 export type RepairTimelineStatus = 'repaired' | 'clean' | 'exhausted'
@@ -60,7 +64,7 @@ export interface PipelineRuntimeError {
 
 export interface PipelineRuntimeRunMetadata {
   runId: string
-  source: 'api-build' | 'cli-v5'
+  source: 'api-build' | 'cli-v5' | 'interactive'
   status: 'running' | 'success' | 'error'
   startedAt: string
   finishedAt: string | null
@@ -74,7 +78,7 @@ export interface PipelineRuntimeRunMetadata {
 }
 
 export interface PipelineRuntimeData {
-  schemaVersion: 2
+  schemaVersion: 3
   pipeline: 'v5'
   updatedAt: string
   run: PipelineRuntimeRunMetadata
@@ -91,6 +95,10 @@ export interface PipelineRuntimeData {
     method: string
     confidence: number
   } | null
+  interactiveMode: boolean
+  currentPausePoint: PausePointSnapshot | null
+  pauseHistory: PausePointSnapshot[]
+  interactiveState: InteractiveSessionState | null
   lastError: PipelineRuntimeError | null
 }
 
@@ -100,6 +108,7 @@ export interface PipelineRuntimeInit {
   goalText?: string | null
   profileId?: string | null
   outputFile?: string | null
+  interactiveState?: InteractiveSessionState | null
 }
 
 export interface PipelineRuntimeRecorder {
@@ -144,6 +153,16 @@ export interface PipelineRuntimeRecorder {
   ): PipelineRuntimeData
   markRepairExhausted(): PipelineRuntimeData
   setDomainCardMeta(meta: PipelineRuntimeData['domainCardMeta']): PipelineRuntimeData
+  markPhaseAsPausedForUserInput(
+    phase: PipelinePhaseV5,
+    pauseType: PausePointSnapshot['type'],
+    output: unknown
+  ): PipelineRuntimeData
+  applyUserInputToPause(
+    pauseId: string,
+    userInput: unknown
+  ): PipelineRuntimeData
+  resumeFromPause(pauseId: string): PipelineRuntimeData
   completeRun(status: PipelineRuntimeRunMetadata['status'], extra?: { message?: string }): PipelineRuntimeData
   getSnapshot(): PipelineRuntimeData
 }
@@ -212,6 +231,38 @@ function clonePhaseTimeline(
       entry ? { ...entry } : entry
     ])
   ) as Partial<Record<PipelinePhaseV5, PipelineRuntimePhaseTiming>>
+}
+
+function clonePausePoint(pause: PausePointSnapshot | null | undefined): PausePointSnapshot | null {
+  if (!pause) {
+    return null
+  }
+
+  return {
+    ...pause,
+    output: structuredCloneLike(pause.output),
+    userInput: typeof pause.userInput === 'undefined'
+      ? undefined
+      : structuredCloneLike(pause.userInput)
+  }
+}
+
+function cloneInteractiveState(
+  interactiveState: InteractiveSessionState | null | undefined
+): InteractiveSessionState | null {
+  if (!interactiveState) {
+    return null
+  }
+
+  return structuredCloneLike(interactiveState) as InteractiveSessionState
+}
+
+function structuredCloneLike<T>(value: T): T {
+  if (typeof structuredClone === 'function') {
+    return structuredClone(value)
+  }
+
+  return JSON.parse(JSON.stringify(value)) as T
 }
 
 function toMillis(value: string | null | undefined): number | null {
@@ -318,7 +369,7 @@ export function createEmptyPipelineRuntimeData(input: PipelineRuntimeInit): Pipe
   const startedAt = nowIso()
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     pipeline: 'v5',
     updatedAt: startedAt,
     run: emptyRunMetadata(input, startedAt),
@@ -331,6 +382,10 @@ export function createEmptyPipelineRuntimeData(input: PipelineRuntimeInit): Pipe
     repairAttempts: [],
     repairTimeline: [],
     domainCardMeta: null,
+    interactiveMode: input.source === 'interactive',
+    currentPausePoint: null,
+    pauseHistory: [],
+    interactiveState: input.interactiveState ?? null,
     lastError: null
   }
 }
@@ -396,15 +451,28 @@ function snapshotWithUpdate(
     },
     phaseTimeline: clonePhaseTimeline(snapshot.phaseTimeline),
     repairAttempts: snapshot.repairAttempts.slice(),
-    repairTimeline: cloneRepairTimeline(snapshot.repairTimeline)
+    repairTimeline: cloneRepairTimeline(snapshot.repairTimeline),
+    currentPausePoint: clonePausePoint(snapshot.currentPausePoint),
+    pauseHistory: snapshot.pauseHistory.map((pause) => ({
+      ...pause,
+      output: structuredCloneLike(pause.output),
+      userInput: typeof pause.userInput === 'undefined'
+        ? undefined
+        : structuredCloneLike(pause.userInput)
+    })),
+    interactiveState: cloneInteractiveState(snapshot.interactiveState)
   }
 
   updater(nextSnapshot, updatedAt)
   return persistPipelineRuntimeData(nextSnapshot)
 }
 
-export function createPipelineRuntimeRecorder(initial: PipelineRuntimeInit): PipelineRuntimeRecorder {
-  let snapshot = persistPipelineRuntimeData(createEmptyPipelineRuntimeData(initial))
+export function createPipelineRuntimeRecorder(initial: PipelineRuntimeInit, initialSnapshot?: PipelineRuntimeData | null): PipelineRuntimeRecorder {
+  let snapshot = persistPipelineRuntimeData(
+    initialSnapshot
+      ? structuredCloneLike(initialSnapshot)
+      : createEmptyPipelineRuntimeData(initial)
+  )
 
   return {
     startRun(next) {
@@ -605,12 +673,67 @@ export function createPipelineRuntimeRecorder(initial: PipelineRuntimeInit): Pip
       })
       return snapshot
     },
+    markPhaseAsPausedForUserInput(phase, pauseType, output) {
+      snapshot = snapshotWithUpdate(snapshot, (draft, updatedAt) => {
+        const pausePoint: PausePointSnapshot = {
+          id: randomUUID(),
+          phase,
+          type: pauseType,
+          output: structuredCloneLike(output),
+          createdAt: updatedAt,
+          updatedAt
+        }
+
+        draft.interactiveMode = true
+        draft.phaseStatuses[phase] = 'paused'
+        draft.currentPausePoint = pausePoint
+        draft.pauseHistory = [
+          ...draft.pauseHistory.filter((entry) => entry.id !== pausePoint.id),
+          pausePoint
+        ]
+      })
+      return snapshot
+    },
+    applyUserInputToPause(pauseId, userInput) {
+      snapshot = snapshotWithUpdate(snapshot, (draft, updatedAt) => {
+        const updatePause = (pause: PausePointSnapshot): PausePointSnapshot => ({
+          ...pause,
+          userInput: structuredCloneLike(userInput),
+          updatedAt
+        })
+
+        if (draft.currentPausePoint?.id === pauseId) {
+          draft.currentPausePoint = updatePause(draft.currentPausePoint)
+        }
+
+        draft.pauseHistory = draft.pauseHistory.map((pause) => (
+          pause.id === pauseId ? updatePause(pause) : pause
+        ))
+      })
+      return snapshot
+    },
+    resumeFromPause(pauseId) {
+      snapshot = snapshotWithUpdate(snapshot, (draft) => {
+        const activePause = draft.currentPausePoint
+        if (!activePause || activePause.id !== pauseId) {
+          throw new Error('PAUSE_NOT_ACTIVE')
+        }
+
+        draft.phaseStatuses[activePause.phase] = 'success'
+        draft.currentPausePoint = null
+      })
+      return snapshot
+    },
     completeRun(status, extra) {
       snapshot = snapshotWithUpdate(snapshot, (draft, updatedAt) => {
         draft.run = {
           ...draft.run,
           status,
           finishedAt: updatedAt
+        }
+        if (status !== 'running') {
+          draft.interactiveMode = false
+          draft.currentPausePoint = null
         }
         if (extra?.message) {
           draft.progress = {

@@ -5,6 +5,7 @@
   "description": "LAP - Life Action Plan",
   "author": "LAP Team <lap@lacrypta.ar>",
   "scripts": {
+    "comandos": "node scripts/listar-comandos.mjs",
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
     "build": "next build",

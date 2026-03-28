@@ -1,9 +1,11 @@
 import { jsonResponse } from '../../_shared'
+import runnerResults from '@lib/debug/v5-runner-results'
 import { readPipelineRuntimeData, readLatestSuccessfulRuntimeData } from '@lib/flow/pipeline-runtime-data'
 
 export async function GET(): Promise<Response> {
-  const latest = readPipelineRuntimeData()
-  const latestSuccess = readLatestSuccessfulRuntimeData()
+  const latestRunnerResult = runnerResults.readLatestRunnerPlanResult()
+  const latest = runnerResults.hydrateRuntimeSnapshotWithRunnerResult(readPipelineRuntimeData(), latestRunnerResult)
+  const latestSuccess = runnerResults.hydrateRuntimeSnapshotWithRunnerResult(readLatestSuccessfulRuntimeData(), latestRunnerResult)
 
   return jsonResponse({
     data: latest,

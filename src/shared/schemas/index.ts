@@ -107,3 +107,33 @@ export type {
   StrategicSimulationSnapshot,
   TopDownLevelDraft
 } from './flow'
+
+export {
+  interactiveConfigSchema,
+  interactivePauseFromPhaseSchema,
+  interactiveSessionCreateRequestSchema,
+  interactiveSessionDeleteResponseSchema,
+  interactiveSessionInputRequestSchema,
+  interactiveSessionResponseSchema,
+  interactiveSessionRuntimeRequestSchema,
+  interactiveSessionSeedSchema,
+  interactiveSessionSnapshotPreviewSchema,
+  interactiveSessionStateSchema,
+  interactiveSessionStatusSchema,
+  pausePointSnapshotSchema
+} from './pipeline-interactive'
+export type {
+  InteractiveConfig,
+  InteractivePauseFromPhase,
+  InteractivePauseType,
+  InteractiveSessionCreateRequest,
+  InteractiveSessionDeleteResponse,
+  InteractiveSessionInputRequest,
+  InteractiveSessionResponsePayload,
+  InteractiveSessionRuntimeRequest,
+  InteractiveSessionSeed,
+  InteractiveSessionSnapshotPreview,
+  InteractiveSessionState,
+  InteractiveSessionStatus,
+  PausePointSnapshot
+} from './pipeline-interactive'
