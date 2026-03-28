@@ -2,7 +2,6 @@ import { DateTime } from 'luxon'
 
 import { t } from '../../i18n'
 import type { PausePointSnapshot } from '../../shared/schemas/pipeline-interactive'
-import type { PipelinePhaseV5 } from '../pipeline/v5/runner'
 import { FLOW_PHASE_GROUPS, FLOW_PHASES } from './flow-definition'
 import type {
   FlowNodeRuntimeStatus,
@@ -11,6 +10,7 @@ import type {
 } from './types'
 import type {
   PipelineRuntimeData,
+  PipelinePhaseV5,
   PipelineRuntimePhaseTiming,
   PipelineRuntimeRepairCycle,
   RepairTimelinePhase

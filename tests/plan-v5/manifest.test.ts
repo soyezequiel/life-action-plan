@@ -6,7 +6,7 @@ import {
   readPlanV5Manifest,
   updatePlanManifestV5,
 } from '../../src/lib/domain/plan-helpers';
-import { getPlanPackageMock } from '../../src/lib/pipeline/v5/__mocks__/plan-package.mock';
+import { getPlanPackageMock } from '../helpers/plan-package.mock';
 
 describe('plan v5 manifest helpers', () => {
   it('persiste package, adaptive pending y run snapshot dentro de manifest.v5', () => {

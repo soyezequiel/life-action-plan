@@ -24,7 +24,7 @@ import type {
   PlanPackage as V5PlanPackage,
   StrategicRoadmap as V5StrategicRoadmap,
   UserProfileV5,
-} from '../../pipeline/v5/phase-io-v5';
+} from '../shared/phase-io';
 
 export type { DomainKnowledgeCard, GoalDomainRisk, GoalType, SchedulerOutput, UserProfileV5 };
 export { DomainKnowledgeCardSchema, GoalDomainRiskSchema, GoalTypeSchema };

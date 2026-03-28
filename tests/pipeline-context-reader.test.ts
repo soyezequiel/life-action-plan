@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { readDebugPipelineContextPayload } from '../src/lib/debug/pipeline-context-reader'
 import { createEmptyPipelineRuntimeData } from '../src/lib/flow/pipeline-runtime-data'
-import { getPlanPackageMock } from '../src/lib/pipeline/v5/__mocks__/plan-package.mock'
+import { getPlanPackageMock } from './helpers/plan-package.mock'
 
 const TEST_ROOT = resolve(process.cwd(), 'tmp/test-pipeline-context-reader')
 

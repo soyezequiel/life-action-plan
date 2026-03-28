@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'fs'
 import { resolve } from 'path'
 
 import type { PhaseIO } from '../pipeline/phase-io'
-import type { PlanPackage } from '../pipeline/v5/phase-io-v5'
+import type { PlanPackage } from '../pipeline/shared/phase-io'
 import type { PipelineRuntimeData } from '../flow/pipeline-runtime-data'
 
 const DEFAULT_CONTEXT_FILE = resolve(process.cwd(), 'tmp/pipeline-context.json')

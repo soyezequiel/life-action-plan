@@ -1,28 +1,15 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+
 import { apiErrorMessages, encodeSseData, sseHeaders } from '../../_shared'
 import { planBuildRequestSchema } from '../../_schemas'
 import { resolveUserId } from '../../_user-settings'
-import { processPlanBuild } from '../../../../src/lib/services'
-import type { ChargeReasonCode } from '../../../../src/shared/types/lap-api'
-import type { ExecutionBlockReason } from '../../../../src/shared/schemas/execution-context'
 
 export const maxDuration = 120
 
-type RouteChargePayload = Record<string, unknown> & {
-  reasonCode?: ChargeReasonCode | null
-}
-
-type RouteError = Error & {
-  executionBlockReasonCode?: ExecutionBlockReason | null
-  charge?: RouteChargePayload
-  resourceUsage?: unknown
-}
-
 const v6RequestSchema = planBuildRequestSchema.extend({
-  pipelineVersion: z.enum(['v5', 'v6']).default('v5'),
   goalText: z.string().trim().min(1).max(2000).optional(),
-})
+}).strict()
 
 export async function POST(request: Request): Promise<Response> {
   const parsed = v6RequestSchema.safeParse(await request.json().catch(() => null))
@@ -34,85 +21,18 @@ export async function POST(request: Request): Promise<Response> {
           type: 'result',
           result: {
             success: false,
-            error: apiErrorMessages.invalidRequest()
-          }
+            error: apiErrorMessages.invalidRequest(),
+          },
         }))
         controller.close()
-      }
+      },
     })
 
     return new NextResponse(stream, { headers: sseHeaders() })
   }
 
-  const data = parsed.data
-  const userId = resolveUserId(request)
-
-  if (data.pipelineVersion === 'v6') {
-    return handleV6Build(data, userId)
-  }
-
-  return handleV5Build(data, userId)
+  return handleV6Build(parsed.data, resolveUserId(request))
 }
-
-// ─── v5 pipeline (unchanged) ────────────────────────────────────────────────
-
-function handleV5Build(
-  data: z.infer<typeof v6RequestSchema>,
-  userId: string | null,
-): Response {
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      const send = (payload: unknown) => {
-        controller.enqueue(encodeSseData(payload))
-      }
-
-      try {
-        const result = await processPlanBuild(data, {
-          userId: userId ?? undefined,
-          onProgress: (progress) => {
-            send({ type: 'progress', progress })
-          }
-        })
-
-        send({
-          type: 'result',
-          result: {
-            success: true,
-            ...result
-          }
-        })
-      } catch (cause: unknown) {
-        const { toPlanBuildErrorMessage, toExecutionBlockErrorMessage, toChargeErrorMessage } = await import('../../_plan')
-        const error = (cause instanceof Error ? cause : new Error(String(cause))) as RouteError
-
-        let errorMessage: string
-        if (error.message === 'PLAN_EXECUTION_BLOCKED') {
-          errorMessage = toExecutionBlockErrorMessage(error.executionBlockReasonCode ?? null)
-        } else if (error.message === 'OPERATION_CHARGE_REJECTED' || error.message === 'OPERATION_CHARGE_FAILED') {
-          errorMessage = toChargeErrorMessage(error.charge?.reasonCode ?? null)
-        } else {
-          errorMessage = toPlanBuildErrorMessage(error)
-        }
-
-        send({
-          type: 'result',
-          result: {
-            success: false,
-            error: errorMessage,
-            charge: error.charge,
-            resourceUsage: error.resourceUsage
-          }
-        })
-      } finally {
-        controller.close()
-      }
-    }
-  })
-
-  return new NextResponse(stream, { headers: sseHeaders() })
-}
-
-// ─── v6 pipeline ────────────────────────────────────────────────────────────
 
 function handleV6Build(
   data: z.infer<typeof v6RequestSchema>,
@@ -159,7 +79,7 @@ function handleV6Build(
         if (!goalText) {
           send({
             type: 'result',
-            result: { success: false, error: 'goalText is required for v6 pipeline' }
+            result: { success: false, error: 'goalText is required for v6 pipeline' },
           })
           return
         }
@@ -168,7 +88,7 @@ function handleV6Build(
         if (!profileRow) {
           send({
             type: 'result',
-            result: { success: false, error: apiErrorMessages.profileNotFound() }
+            result: { success: false, error: apiErrorMessages.profileNotFound() },
           })
           return
         }
@@ -177,7 +97,7 @@ function handleV6Build(
         if (!profile) {
           send({
             type: 'result',
-            result: { success: false, error: apiErrorMessages.profileNotFound() }
+            result: { success: false, error: apiErrorMessages.profileNotFound() },
           })
           return
         }
@@ -200,7 +120,7 @@ function handleV6Build(
           userId: userId ?? undefined,
           requestedMode,
           userSuppliedApiKey: apiKey || undefined,
-          backendCredentialId
+          backendCredentialId,
         })
 
         if (!execution.runtime) {
@@ -209,8 +129,8 @@ function handleV6Build(
             type: 'result',
             result: {
               success: false,
-              error: toExecutionBlockErrorMessage(execution.executionContext.blockReasonCode ?? null)
-            }
+              error: toExecutionBlockErrorMessage(execution.executionContext.blockReasonCode ?? null),
+            },
           })
           return
         }
@@ -218,13 +138,13 @@ function handleV6Build(
         const runtime = getProvider(execution.runtime.modelId, {
           apiKey: execution.runtime.apiKey,
           baseURL: execution.runtime.baseURL,
-          thinkingMode
+          thinkingMode,
         })
 
         send({ type: 'v6:phase', data: { phase: 'interpret', iteration: 0 } })
 
         const { buildSchedulingContextFromProfile } = await import(
-          '../../../../src/lib/pipeline/v5/scheduling-context'
+          '../../../../src/lib/pipeline/shared/scheduling-context'
         )
 
         const timezone = getProfileTimezone(profile)
@@ -279,7 +199,7 @@ function handleV6Build(
             data: {
               sessionId,
               questions: result.pendingQuestions,
-            }
+            },
           })
         } else if (result.status === 'completed') {
           if (!result.package) {
@@ -289,7 +209,7 @@ function handleV6Build(
                 success: false,
                 error: 'No pudimos guardar el plan en este momento.',
                 scratchpad: result.scratchpad,
-              }
+              },
             })
             return
           }
@@ -311,7 +231,7 @@ function handleV6Build(
           const progress = orchestrator.getProgress()
           send({
             type: 'v6:progress',
-            data: { score: progress.progressScore, lastAction: progress.lastAction }
+            data: { score: progress.progressScore, lastAction: progress.lastAction },
           })
 
           send({
@@ -323,7 +243,7 @@ function handleV6Build(
               package: result.package,
               reasoningTrace,
               scratchpad: result.scratchpad,
-            }
+            },
           })
         } else {
           send({
@@ -332,7 +252,7 @@ function handleV6Build(
               success: false,
               error: 'V6 pipeline failed',
               scratchpad: result.scratchpad,
-            }
+            },
           })
         }
       } catch (cause: unknown) {
@@ -344,12 +264,12 @@ function handleV6Build(
           result: {
             success: false,
             error: toPlanBuildErrorMessage(error),
-          }
+          },
         })
       } finally {
         controller.close()
       }
-    }
+    },
   })
 
   return new NextResponse(stream, { headers: sseHeaders() })

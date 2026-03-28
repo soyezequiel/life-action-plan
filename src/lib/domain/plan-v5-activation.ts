@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 
 import type { PlanEvent } from '../../shared/types/lap-api'
-import type { PlanPackage, V5PhaseSnapshot } from '../pipeline/v5/phase-io-v5'
+import type { PlanPackage, V5PhaseSnapshot } from '../pipeline/shared/phase-io'
 import type { ReasoningEntry } from '../pipeline/v6/types'
 import { createPlan, seedProgressFromEvents } from '../db/db-helpers'
 import {

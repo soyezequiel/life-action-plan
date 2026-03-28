@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import { hydrateRuntimeSnapshotWithRunnerResult, type LatestRunnerPlanResult } from '../src/lib/debug/v5-runner-results';
 import { createEmptyPipelineRuntimeData } from '../src/lib/flow/pipeline-runtime-data';
-import { getPlanPackageMock } from '../src/lib/pipeline/v5/__mocks__/plan-package.mock';
+import { getPlanPackageMock } from './helpers/plan-package.mock';
 
 describe('v5 runner results', () => {
   it('hidrata el package phase con el paquete final del runner cuando coincide el output file', () => {

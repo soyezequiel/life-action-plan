@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { t } from '../../src/i18n';
 import { usePlanV5 } from '../../src/lib/client/use-plan-v5';
-import { getAdaptiveOutputMock, getPlanPackageMock } from '../../src/lib/pipeline/v5/__mocks__/plan-package.mock';
+import { getAdaptiveOutputMock, getPlanPackageMock } from '../helpers/plan-package.mock';
 
 function jsonResponse(payload: unknown, ok = true): Response {
   return {

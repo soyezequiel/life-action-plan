@@ -17,6 +17,8 @@
     "pulse:input": "tsx scripts/lap-runner-v5-interactive.ts",
     "codex:login": "tsx scripts/codex-login.ts",
     "lap:inspect": "tsx scripts/inspect-results.ts",
+    "plan:run": "node scripts/run-plan.mjs",
+    "plan:run:json": "node scripts/run-plan.mjs --json",
     "lap:flow:viewer": "start http://localhost:3000/debug/flow",
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json --incremental false",
     "test": "vitest run",

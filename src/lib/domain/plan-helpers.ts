@@ -5,7 +5,7 @@ import { toConfigErrorMessage } from '../../shared/config-errors'
 import type { ChargeReasonCode, OperationChargeSummary, PlanSimulationSnapshot } from '../../shared/types/lap-api'
 import type { ExecutionBlockReason } from '../../shared/types/execution-context'
 import { getPlanBySlug } from '../db/db-helpers'
-import type { PlanPackage, StoredAdaptiveState, V5PhaseSnapshot } from '../pipeline/v5/phase-io-v5'
+import type { PlanPackage, StoredAdaptiveState, V5PhaseSnapshot } from '../pipeline/shared/phase-io'
 
 export interface StoredPlanV5Manifest {
   package?: PlanPackage | null

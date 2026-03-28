@@ -10,7 +10,7 @@ import {
 } from '../scripts/diagnostic-findings';
 import { DiagnosticCollector } from '../scripts/diagnostic-collector';
 import { renderDiagnosticReport } from '../scripts/diagnostic-renderer';
-import type { HardFinding, SoftFinding, CoVeFinding, RepairAttemptRecord } from '../src/lib/pipeline/v5/phase-io-v5';
+import type { HardFinding, SoftFinding, CoVeFinding, RepairAttemptRecord } from '../src/lib/pipeline/shared/phase-io';
 
 // ─── Findings normalizer ────────────────────────────────────────────────────
 

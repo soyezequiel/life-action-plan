@@ -3,7 +3,7 @@
 import { startTransition, useEffect, useState } from 'react';
 
 import { t } from '../../i18n';
-import type { AdaptiveOutput, AdaptiveStatus, PlanPackage } from '../pipeline/v5/phase-io-v5';
+import type { AdaptiveOutput, AdaptiveStatus, PlanPackage } from '../pipeline/shared/phase-io';
 
 interface UsePlanV5Result {
   package: PlanPackage | null;
@@ -75,10 +75,10 @@ export function usePlanV5(planId?: string): UsePlanV5Result {
 
       try {
         const [packageResponse, adaptiveResponse] = await Promise.all([
-          readJson<OkResponse<PlanPackage>>(`/api/plan/v5/package${suffix}`, {
+          readJson<OkResponse<PlanPackage>>(`/api/plan/package${suffix}`, {
             signal: controller.signal,
           }),
-          readJson<AdaptiveEnvelope>(`/api/plan/v5/adaptive${suffix}`, {
+          readJson<AdaptiveEnvelope>(`/api/plan/adaptive${suffix}`, {
             signal: controller.signal,
           }),
         ]);

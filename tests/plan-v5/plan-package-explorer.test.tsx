@@ -4,8 +4,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { PlanPackageExplorer } from '../../components/plan-v5/PlanPackageExplorer';
-import { getPlanPackageMock } from '../../src/lib/pipeline/v5/__mocks__/plan-package.mock';
+import { PlanPackageExplorer } from '../../components/plan-viewer/PlanPackageExplorer';
+import { getPlanPackageMock } from '../helpers/plan-package.mock';
 import { t } from '../../src/i18n';
 
 describe('PlanPackageExplorer', () => {

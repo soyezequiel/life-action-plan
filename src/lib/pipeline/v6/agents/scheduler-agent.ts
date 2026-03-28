@@ -10,7 +10,7 @@ import type {
   SchedulerInput as MilpSchedulerInput,
 } from '../../../scheduler/types';
 import type { AgentRuntime } from '../../../runtime/types';
-import { buildTemplate } from '../../v5/template-builder';
+import { buildTemplate } from '../../shared/template-builder';
 import type { V6Agent, StrategicDraft, UserProfileV5, DomainKnowledgeCard, SchedulerOutput } from '../types';
 
 export interface SchedulerInput {

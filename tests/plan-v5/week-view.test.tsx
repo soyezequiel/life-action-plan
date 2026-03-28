@@ -5,8 +5,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
-import { WeekView } from '../../components/plan-v5/WeekView';
-import { getPlanPackageMock } from '../../src/lib/pipeline/v5/__mocks__/plan-package.mock';
+import { WeekView } from '../../components/plan-viewer/WeekView';
+import { getPlanPackageMock } from '../helpers/plan-package.mock';
 import { t } from '../../src/i18n';
 
 describe('WeekView', () => {

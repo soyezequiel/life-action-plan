@@ -2,18 +2,11 @@ import { and, eq, lt } from 'drizzle-orm'
 import { DateTime } from 'luxon'
 
 import type { InteractiveSessionStatus } from '../../shared/schemas/pipeline-interactive'
-import type { PipelineRuntimeData } from '../flow/pipeline-runtime-data'
 import type { V6RuntimeSnapshot } from '../pipeline/v6/types'
 import { getDatabase } from './connection'
 import { interactiveSessions } from './schema'
 
-export type InteractiveRuntimeSnapshot = PipelineRuntimeData | V6RuntimeSnapshot
-
-export function isV5InteractiveRuntimeSnapshot(
-  snapshot: InteractiveRuntimeSnapshot
-): snapshot is PipelineRuntimeData {
-  return snapshot.pipeline === 'v5'
-}
+export type InteractiveRuntimeSnapshot = V6RuntimeSnapshot
 
 export function isV6InteractiveRuntimeSnapshot(
   snapshot: InteractiveRuntimeSnapshot

@@ -5,9 +5,9 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import type { HabitState } from '../../src/lib/domain/habit-state';
-import type { AdaptiveAssessment } from '../../src/lib/pipeline/v5/phase-io-v5';
+import type { AdaptiveAssessment } from '../../src/lib/pipeline/shared/phase-io';
 import { t } from '../../src/i18n';
-import { HabitTracker } from '../../components/plan-v5/HabitTracker';
+import { HabitTracker } from '../../components/plan-viewer/HabitTracker';
 
 function createHabitState(input: Partial<HabitState> & Pick<HabitState, 'progressionKey'>): HabitState {
   return {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
-import { PlanDashboardV5 } from '../../../components/plan-v5/PlanDashboardV5';
+import { PlanDashboardV5 } from '../../../components/plan-viewer/PlanDashboardV5';
 import esAR from '../../../src/i18n/locales/es-AR.json';
 
 export const metadata: Metadata = {

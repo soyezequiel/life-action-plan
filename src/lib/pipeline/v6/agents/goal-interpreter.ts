@@ -1,6 +1,6 @@
 import type { AgentRuntime } from '../../../runtime/types';
 import { extractFirstJsonObject } from '../../../flow/agents/llm-json-parser';
-import { classifyGoal } from '../../v5/classify';
+import { classifyGoal } from '../../shared/classify';
 import type {
   GoalDomainRisk,
   GoalInterpretation,

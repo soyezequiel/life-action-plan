@@ -10,7 +10,20 @@ import type {
   PausePointSnapshot
 } from '../../shared/schemas/pipeline-interactive'
 import type { PhaseIO } from '../pipeline/phase-io'
-import type { PipelinePhaseV5 } from '../pipeline/v5/runner'
+
+export type PipelinePhaseV5 =
+  | 'classify'
+  | 'requirements'
+  | 'profile'
+  | 'strategy'
+  | 'template'
+  | 'schedule'
+  | 'hardValidate'
+  | 'softValidate'
+  | 'coveVerify'
+  | 'repair'
+  | 'package'
+  | 'adapt'
 
 export type PhaseStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped' | 'paused'
 export type RepairTimelinePhase = 'hardValidate' | 'softValidate' | 'coveVerify' | 'repair'

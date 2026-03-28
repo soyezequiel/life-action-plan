@@ -19,10 +19,10 @@ vi.mock('../../app/api/_user-settings', () => ({
   resolveUserId: mocks.resolveUserIdMock,
 }));
 
-import { GET as getPackage } from '../../app/api/plan/v5/package/route';
-import { GET as getAdaptive, POST as postAdaptive } from '../../app/api/plan/v5/adaptive/route';
+import { GET as getPackage } from '../../app/api/plan/package/route';
+import { GET as getAdaptive, POST as postAdaptive } from '../../app/api/plan/adaptive/route';
 import { buildPendingAdaptiveState, buildPlanManifest, readPlanV5Manifest } from '../../src/lib/domain/plan-helpers';
-import { getPlanPackageMock } from '../../src/lib/pipeline/v5/__mocks__/plan-package.mock';
+import { getPlanPackageMock } from '../helpers/plan-package.mock';
 
 function buildPlanRow(manifest: string) {
   return {
@@ -45,7 +45,7 @@ describe('plan v5 routes', () => {
     mocks.updatePlanManifestMock.mockResolvedValue(undefined);
   });
 
-  it('GET /api/plan/v5/package devuelve el package persistido en manifest.v5', async () => {
+  it('GET /api/plan/package devuelve el package persistido en manifest.v5', async () => {
     const pkg = getPlanPackageMock('plan-v5-route-package');
     const manifest = buildPlanManifest({
       nombre: 'Plan V5',
@@ -63,7 +63,7 @@ describe('plan v5 routes', () => {
     });
     mocks.getPlanMock.mockResolvedValue(buildPlanRow(manifest));
 
-    const response = await getPackage(new Request('http://localhost/api/plan/v5/package?planId=11111111-1111-4111-8111-111111111111'));
+    const response = await getPackage(new Request('http://localhost/api/plan/package?planId=11111111-1111-4111-8111-111111111111'));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
@@ -72,10 +72,10 @@ describe('plan v5 routes', () => {
     });
   });
 
-  it('GET /api/plan/v5/package devuelve 404 PLAN_V5_NOT_AVAILABLE si el plan no tiene artefacto V5', async () => {
+  it('GET /api/plan/package devuelve 404 PLAN_V5_NOT_AVAILABLE si el plan no tiene artefacto V5', async () => {
     mocks.getPlanMock.mockResolvedValue(buildPlanRow('{}'));
 
-    const response = await getPackage(new Request('http://localhost/api/plan/v5/package?planId=11111111-1111-4111-8111-111111111111'));
+    const response = await getPackage(new Request('http://localhost/api/plan/package?planId=11111111-1111-4111-8111-111111111111'));
 
     expect(response.status).toBe(404);
     expect(await response.json()).toEqual({
@@ -84,7 +84,7 @@ describe('plan v5 routes', () => {
     });
   });
 
-  it('GET /api/plan/v5/adaptive devuelve pending cuando el build termino pero adapt no corrio', async () => {
+  it('GET /api/plan/adaptive devuelve pending cuando el build termino pero adapt no corrio', async () => {
     const pkg = getPlanPackageMock('plan-v5-route-adaptive');
     const manifest = buildPlanManifest({
       nombre: 'Plan V5',
@@ -102,7 +102,7 @@ describe('plan v5 routes', () => {
     });
     mocks.getPlanMock.mockResolvedValue(buildPlanRow(manifest));
 
-    const response = await getAdaptive(new Request('http://localhost/api/plan/v5/adaptive?planId=11111111-1111-4111-8111-111111111111'));
+    const response = await getAdaptive(new Request('http://localhost/api/plan/adaptive?planId=11111111-1111-4111-8111-111111111111'));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
@@ -112,7 +112,7 @@ describe('plan v5 routes', () => {
     });
   });
 
-  it('POST /api/plan/v5/adaptive calcula adaptive y persiste status ready', async () => {
+  it('POST /api/plan/adaptive calcula adaptive y persiste status ready', async () => {
     const pkg = getPlanPackageMock('plan-v5-route-post');
     const manifest = buildPlanManifest({
       nombre: 'Plan V5',
@@ -131,7 +131,7 @@ describe('plan v5 routes', () => {
     const planRow = buildPlanRow(manifest);
     mocks.getPlanMock.mockResolvedValue(planRow);
 
-    const response = await postAdaptive(new Request('http://localhost/api/plan/v5/adaptive', {
+    const response = await postAdaptive(new Request('http://localhost/api/plan/adaptive', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

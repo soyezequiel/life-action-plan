@@ -1,4 +1,4 @@
-import type { HardFinding, SoftFinding, CoVeFinding, RepairAttemptRecord } from '../src/lib/pipeline/v5/phase-io-v5';
+import type { HardFinding, SoftFinding, CoVeFinding, RepairAttemptRecord } from '../src/lib/pipeline/shared/phase-io';
 
 export interface NormalizedFinding {
   severity: 'FAIL' | 'WARN' | 'INFO';

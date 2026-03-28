@@ -1,9 +1,9 @@
 import type { AgentRuntime } from '../../runtime/types';
 import type { DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
 import { getKnowledgeCard } from '../../domain/domain-knowledge/bank';
-import { generateStrategy } from '../v5/strategy';
+import { generateStrategy } from '../shared/strategy';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
-import type { StrategyInput } from '../v5/phase-io-v5';
+import type { StrategyInput } from '../shared/phase-io';
 import type { AvailabilityWindow, BlockedSlot } from '../../scheduler/types';
 import { Scratchpad } from './scratchpad';
 import { buildRevisionContext } from './prompts/critic-reasoning';

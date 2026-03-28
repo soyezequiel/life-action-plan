@@ -5,8 +5,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import { TradeoffDialog } from '../../components/plan-v5/TradeoffDialog';
-import { getPlanPackageMock } from '../../src/lib/pipeline/v5/__mocks__/plan-package.mock';
+import { TradeoffDialog } from '../../components/plan-viewer/TradeoffDialog';
+import { getPlanPackageMock } from '../helpers/plan-package.mock';
 import { t } from '../../src/i18n';
 
 describe('TradeoffDialog', () => {

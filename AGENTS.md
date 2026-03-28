@@ -62,12 +62,17 @@ app/
   layout.tsx
   page.tsx
   intake/page.tsx
+  plan/page.tsx
+  plan/v5/page.tsx
   settings/page.tsx
   api/
     intake/route.ts
     profile/route.ts
     profile/latest/route.ts
+    plan/adaptive/route.ts
     plan/build/route.ts
+    plan/build/resume/route.ts
+    plan/package/route.ts
     plan/list/route.ts
     plan/simulate/route.ts
     plan/export-ics/route.ts
@@ -87,6 +92,8 @@ components/
   IntakeExpress.tsx
   DebugPanel.tsx
   debug/
+  flow/
+  plan-viewer/
 
 src/lib/
   auth/
@@ -95,6 +102,16 @@ src/lib/
   db/
   domain/
   payments/
+  pipeline/
+    shared/
+      adaptive.ts
+      classify.ts
+      packager.ts
+      phase-io.ts
+      scheduling-context.ts
+      strategy.ts
+      template-builder.ts
+    v6/
   providers/
   runtime/
   skills/
@@ -116,6 +133,9 @@ tests/
 | `/api/profile` | `GET` | activo |
 | `/api/profile/latest` | `GET` | activo |
 | `/api/plan/build` | `POST` | activo, streaming SSE |
+| `/api/plan/build/resume` | `POST` | activo, streaming SSE |
+| `/api/plan/package` | `GET` | activo |
+| `/api/plan/adaptive` | `GET/POST` | activo |
 | `/api/plan/list` | `GET` | activo |
 | `/api/plan/simulate` | `POST` | activo, streaming SSE |
 | `/api/plan/export-ics` | `POST` | activo |
@@ -129,6 +149,14 @@ tests/
 | `/api/cost` | `GET` | activo |
 | `/api/debug` | `GET/POST` | activo |
 | `/api/debug/snapshot` | `GET` | activo |
+
+## Pipeline vigente
+
+- `src/lib/pipeline/v6/` es el unico pipeline de build soportado
+- `src/lib/pipeline/shared/` contiene los modulos reutilizados por V6
+- No existe seleccion por `pipelineVersion` en `/api/plan/build`
+- La UI principal de build vive en `components/flow/`
+- La vista legacy de planes persistidos vive en `components/plan-viewer/`
 
 ## Reglas inquebrantables
 

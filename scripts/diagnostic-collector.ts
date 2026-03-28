@@ -1,5 +1,4 @@
 import type { PhaseIO } from '../src/lib/pipeline/phase-io';
-import type { PipelinePhaseV5 } from '../src/lib/pipeline/v5/runner';
 import type {
   ClassifyOutput,
   ProfileOutput,
@@ -13,7 +12,8 @@ import type {
   PackageOutput,
   AdaptOutput,
   RepairAttemptRecord,
-} from '../src/lib/pipeline/v5/phase-io-v5';
+} from '../src/lib/pipeline/shared/phase-io';
+import type { PipelinePhaseV5 } from '../src/lib/flow/pipeline-runtime-data';
 import { normalizeAllFindings, type NormalizedFinding } from './diagnostic-findings';
 
 // ─── Report interfaces ──────────────────────────────────────────────────────

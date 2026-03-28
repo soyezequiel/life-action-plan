@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon';
 
 import type { GoalClassification } from '../../../domain/goal-taxonomy';
-import { packagePlan } from '../../v5/packager';
-import type { PackageInput } from '../../v5/phase-io-v5';
+import { packagePlan } from '../../shared/packager';
+import type { PackageInput } from '../../shared/phase-io';
 import type {
   OrchestratorContext,
   PlanPackage,
