@@ -65,10 +65,20 @@ function normalizeReasoningOutput(raw: unknown): StrategyOutput {
   const maxEnd = Math.max(...output.phases.map((p) => p.endMonth));
   const totalSpanWeeks = Math.max(1, (maxEnd - minStart + 1) * 4);
 
+  // Compute raw durations and their sum to distribute proportionally within the span.
+  // When multiple phases overlap (e.g. all within month 1), summing their individual
+  // month-based durations inflates the total beyond the actual plan span.
+  const rawDurations = output.phases.map((p) => Math.max(1, p.endMonth - p.startMonth + 1));
+  const rawSum = rawDurations.reduce((a, b) => a + b, 0);
+  const spanMonths = maxEnd - minStart + 1;
+  const needsRescale = rawSum > spanMonths;
+
   return normalizeStrategyOutput({
-    phases: output.phases.map((phase) => ({
+    phases: output.phases.map((phase, i) => ({
       name: phase.title,
-      durationWeeks: Math.max(1, Math.round((phase.endMonth - phase.startMonth + 1) * 4)),
+      durationWeeks: needsRescale
+        ? Math.max(1, Math.round(totalSpanWeeks * rawDurations[i] / rawSum))
+        : Math.max(1, Math.round((phase.endMonth - phase.startMonth + 1) * 4)),
       focus_esAR: phase.summary,
     })),
     milestones: output.milestones.map((milestone) => milestone.label),

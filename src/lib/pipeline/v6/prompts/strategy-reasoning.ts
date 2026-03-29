@@ -91,6 +91,21 @@ function formatCriticFindings(findings: StrategyCriticFinding[]): string {
     .join('\n');
 }
 
+function extractHorizonMonths(answers: Record<string, string>, goalText: string): number | null {
+  const text = `${goalText} ${Object.values(answers).join(' ')}`.toLowerCase();
+
+  const yearMatch = text.match(/(\d+)\s*(año|años|ano|anos|year|years)\b/);
+  if (yearMatch) return Math.min(Number(yearMatch[1]) * 12, 24);
+
+  const monthMatch = text.match(/(\d+)\s*(mes|meses|month|months)\b/);
+  if (monthMatch) return Math.max(1, Number(monthMatch[1]));
+
+  const weekMatch = text.match(/(\d+)\s*(semana|semanas|week|weeks)\b/);
+  if (weekMatch) return Math.max(1, Math.ceil(Number(weekMatch[1]) / 4));
+
+  return null;
+}
+
 export function buildStrategyPrompt(input: StrategyPromptInput): string {
   const {
     goalText,
@@ -104,6 +119,7 @@ export function buildStrategyPrompt(input: StrategyPromptInput): string {
   } = input;
 
   const totalAvailableHours = (userProfile.freeHoursWeekday * 5) + (userProfile.freeHoursWeekend * 2);
+  const horizonMonths = extractHorizonMonths(clarificationAnswers, goalText);
   const revisionBlock = previousCriticFindings && previousCriticFindings.length > 0
     ? `
 ## REVISION OBLIGATORIA - La revision anterior encontro estos problemas:
@@ -112,6 +128,21 @@ DEBES abordar cada problema. Para cada hallazgo, explica que cambiaste y por que
 ${revisionContext ? `\nResumen estructurado del critico:\n${revisionContext}\n` : ''}
 `
     : '';
+
+  const horizonBlock = horizonMonths
+    ? `
+## RESTRICCION DE HORIZONTE
+
+El usuario pidio un plazo de ${horizonMonths} mes(es). Esta restriccion es OBLIGATORIA:
+- totalMonths debe ser <= ${horizonMonths}
+- Todas las fases deben tener endMonth <= ${horizonMonths}
+- Si no cabe todo en ${horizonMonths} mes(es), REDUCE el alcance. NUNCA extiendas el plazo mas alla de ${horizonMonths} mes(es).
+`
+    : '';
+
+  const timeStepOverflow = horizonMonths
+    ? `Si lo excede, reduce el alcance. NUNCA extiendas el cronograma mas alla del horizonte de ${horizonMonths} mes(es).`
+    : 'Si lo excede, extiende el cronograma o reduce el alcance.';
 
   return `Estas creando un plan estrategico para un objetivo personal.
 
@@ -131,7 +162,7 @@ ${formatAnswers(clarificationAnswers)}
 
 ## Conocimiento de dominio
 ${formatDomainContext(domainContext)}
-${revisionBlock}
+${revisionBlock}${horizonBlock}
 ## Reglas de nombres de fase
 
 NUNCA uses nombres de fase genericos como "Fase 1", "Base", "Fundamentos", "Introduccion", "Consolidacion", "Avance", "Nivel 1", "Nivel 2".
@@ -154,7 +185,7 @@ Paso 1 - DESCOMPOSICION: Divide el objetivo en 3-6 fases distintas. Cada fase de
 
 Paso 2 - SECUENCIACION: Ordena las fases considerando dependencias y motivacion. Pon las fases de fundamentos primero. Coloca las fases mas dificiles despues de que el usuario haya ganado impulso.
 
-Paso 3 - ASIGNACION DE TIEMPO: Para cada fase, estima las horas/semana necesarias. El total de fases superpuestas no debe exceder ${totalAvailableHours}h/semana. Si lo excede, extiende el cronograma o reduce el alcance.
+Paso 3 - ASIGNACION DE TIEMPO: Para cada fase, estima las horas/semana necesarias. El total de fases superpuestas no debe exceder ${totalAvailableHours}h/semana. ${timeStepOverflow}
 
 Paso 4 - HITOS: Cada fase recibe exactamente un hito. El hito debe ser observable y binario.
 
@@ -164,15 +195,15 @@ Despues de razonar los 5 pasos, produce el plan como JSON:
 {
   "title": "titulo del plan en espanol",
   "summary": "resumen de 2-3 oraciones en espanol",
-  "totalMonths": number,
+  "totalMonths": number,${horizonMonths ? ` // MAXIMO ${horizonMonths}` : ''}
   "estimatedWeeklyHours": number,
   "phases": [{
     "id": "phase-N",
     "title": "en espanol",
     "summary": "en espanol",
     "goalIds": [],
-    "startMonth": number,
-    "endMonth": number,
+    "startMonth": number,${horizonMonths ? ` // >= 1` : ''}
+    "endMonth": number,${horizonMonths ? ` // <= ${horizonMonths} (OBLIGATORIO)` : ''}
     "hoursPerWeek": number,
     "milestone": "criterio medible en espanol",
     "metrics": ["que rastrear"],
@@ -180,7 +211,7 @@ Despues de razonar los 5 pasos, produce el plan como JSON:
     "failureMode": "forma mas probable en que esta fase falla",
     "mitigation": "como prevenirlo"
   }],
-  "milestones": [{ "id": "m-N", "label": "en espanol", "targetMonth": number, "phaseId": "phase-N" }],
+  "milestones": [{ "id": "m-N", "label": "en espanol", "targetMonth": number,${horizonMonths ? ` // <= ${horizonMonths}` : ''} "phaseId": "phase-N" }],
   "conflicts": [{ "description": "en espanol", "resolution": "en espanol" }]
 }
 
