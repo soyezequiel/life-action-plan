@@ -7,6 +7,8 @@
  *   node scripts/run-plan.mjs "Tu objetivo" --profile=<uuid> --provider=ollama --base=http://localhost:3000
  *   node scripts/run-plan.mjs "Tu objetivo" --json          # salida JSON cruda
  *   node scripts/run-plan.mjs "Tu objetivo" --auto          # no pregunta, avanza solo
+ *   node scripts/run-plan.mjs "Tu objetivo" --pause-on-input # pausa en preguntas, escribe JSON
+ *   node scripts/run-plan.mjs --resume-session=<id> --answers-json='{"q":"a"}' # reanuda con respuestas
  *   node scripts/run-plan.mjs --plan-id=<uuid> --detail-start-week=3 --detail-weeks=2
  *
  * Variables de entorno:
@@ -46,6 +48,52 @@ function parseArgs() {
     const f = raw.find(a => a.startsWith(`--${name}=`))
     return f ? f.slice(`--${name}=`.length) : null
   }
+  const parseProvidedAnswers = () => {
+    const answersJson = flag('answers-json')
+    const answersFile = flag('answers-file')
+    if (answersJson && answersFile) {
+      log(c('red', 'Error: usá solo uno entre --answers-json y --answers-file.'))
+      process.exit(1)
+    }
+
+    const source = answersJson
+      ? answersJson
+      : answersFile
+        ? readFileSync(answersFile, 'utf8').replace(/^\uFEFF/, '')
+        : null
+
+    if (source == null) return null
+
+    let parsed
+    try {
+      parsed = JSON.parse(source)
+    } catch (error) {
+      const details = error instanceof Error ? error.message : String(error)
+      log(c('red', `Error: no pude parsear las respuestas predefinidas (${details}).`))
+      process.exit(1)
+    }
+
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      log(c('red', 'Error: las respuestas predefinidas deben ser un objeto JSON {"pregunta-id":"respuesta"}.'))
+      process.exit(1)
+    }
+
+    const normalized = {}
+    for (const [key, value] of Object.entries(parsed)) {
+      if (typeof value !== 'string') {
+        log(c('red', `Error: la respuesta para "${key}" debe ser string.`))
+        process.exit(1)
+      }
+      const trimmedKey = key.trim()
+      const trimmedValue = value.trim()
+      if (!trimmedKey) continue
+      if (trimmedValue) {
+        normalized[trimmedKey] = trimmedValue
+      }
+    }
+
+    return normalized
+  }
   const intFlag = (name, { min = 1, max = 12 } = {}) => {
     const value = flag(name)
     if (value == null) return null
@@ -58,14 +106,20 @@ function parseArgs() {
   }
   const goal = raw.find(a => !a.startsWith('--'))
   const existingPlanId = flag('plan-id')
-  if (!goal && !existingPlanId) {
-    log(c('red', 'Error: se requiere un objetivo o --plan-id para abrir un plan existente.'))
+  const resumeSession = flag('resume-session')
+  if (!goal && !existingPlanId && !resumeSession) {
+    log(c('red', 'Error: se requiere un objetivo, --plan-id o --resume-session.'))
     log('Uso: node scripts/run-plan.mjs "Tu objetivo" [--profile=uuid] [--provider=ollama] [--base=http://localhost:3000]')
     log('  o:  node scripts/run-plan.mjs --plan-id=<uuid> [--detail-start-week=3] [--detail-weeks=2]')
+    log('  o:  node scripts/run-plan.mjs --resume-session=<id> --answers-json=\'{"id":"respuesta"}\'')
     log('  --provider=codex    Fuerza sesión OpenAI (sin API key)')
     log('  --provider=ollama   Fuerza Ollama local')
     log('  --no-codex          Saltea el intento con sesión OpenAI')
     log('  --auto              No hace preguntas, avanza directo')
+    log('  --pause-on-input    Pausa en preguntas: escribe .lap-pending-input.json y sale con código 42')
+    log('  --resume-session    Reanuda una sesión pausada con --answers-json')
+    log('  --answers-json      Respuestas predefinidas en JSON {"id":"respuesta"}')
+    log('  --answers-file      Archivo JSON con respuestas predefinidas')
     log('  --plan-id           Reabre un plan ya generado sin reconstruirlo')
     log('  --detail-start-week Semana inicial del calendario detallado')
     log('  --detail-weeks      Cantidad de semanas detalladas a mostrar')
@@ -75,12 +129,15 @@ function parseArgs() {
   return {
     goal: goal || '',
     existingPlanId,
+    resumeSession,
     profileId:       flag('profile') || process.env.PROFILE_ID || '',
     explicitProvider,                        // null = auto (codex primero, fallback ollama)
     baseUrl:         flag('base') || process.env.BASE_URL || 'http://localhost:3000',
     outputJson:      raw.includes('--json'),
     noCodex:         raw.includes('--no-codex'),
     autoMode:        raw.includes('--auto'),
+    pauseOnInput:    raw.includes('--pause-on-input'),
+    providedAnswers: parseProvidedAnswers(),
     detailStartWeek: intFlag('detail-start-week', { max: 104 }),
     detailWeeks:     intFlag('detail-weeks', { max: 104 }),
   }
@@ -88,7 +145,10 @@ function parseArgs() {
 
 // ─── Readline helper ────────────────────────────────────────────────────────────
 import { createInterface } from 'node:readline'
-import { createReadStream, createWriteStream, openSync, closeSync } from 'node:fs'
+import { createReadStream, createWriteStream, openSync, closeSync, readFileSync, writeFileSync } from 'node:fs'
+import { resolve as pathResolve } from 'node:path'
+
+const PENDING_INPUT_FILE = pathResolve(process.cwd(), '.lap-pending-input.json')
 
 function createPromptStreams() {
   if (process.stdin.isTTY && process.stderr.isTTY) {
@@ -334,7 +394,65 @@ function formatFailureDetails(details) {
   return lines
 }
 
-async function runPipeline(baseUrl, body, { autoMode = false } = {}) {
+function normalizeAnswerKey(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+function resolveQuestionCategory(question) {
+  const haystack = normalizeAnswerKey(`${question?.id || ''} ${question?.text || ''}`)
+  if (/(nivel|habilidad|experiencia|principiante|intermedio|avanzado)/.test(haystack)) return 'level'
+  if (/(platos|subtema|pizza|pasta|risotto|postre|cocina italiana|tipos)/.test(haystack)) return 'subtopic'
+  if (/(metodo|m[eé]todo|clases|videos|libros|curso|autodidacta)/.test(haystack)) return 'method'
+  if (/(horizonte|plazo|tiempo|fecha|meses|semanas|objetivo temporal)/.test(haystack)) return 'horizon'
+  return null
+}
+
+function resolveAnswerForQuestion(question, normalizedEntries) {
+  const idKey = normalizeAnswerKey(question?.id || '')
+  if (idKey && normalizedEntries.has(idKey)) {
+    return normalizedEntries.get(idKey)
+  }
+
+  const category = resolveQuestionCategory(question)
+  if (!category) return null
+
+  const categoryMatchers = {
+    level: /(nivel|habilidad|experiencia|principiante|intermedio|avanzado)/,
+    subtopic: /(subtema|platos|pizza|pasta|risotto|postre|italian)/,
+    method: /(metodo|metodo aprendizaje|clases|videos|libros|curso|autodidacta)/,
+    horizon: /(horizonte|plazo|tiempo|fecha|mes|semana)/,
+  }
+
+  for (const [key, value] of normalizedEntries.entries()) {
+    if (categoryMatchers[category].test(key)) {
+      return value
+    }
+  }
+
+  return null
+}
+
+function pickProvidedAnswers(questions, providedAnswers) {
+  if (!providedAnswers) return {}
+  const normalizedEntries = new Map(
+    Object.entries(providedAnswers).map(([key, value]) => [normalizeAnswerKey(key), value])
+  )
+  const selected = {}
+  for (const question of questions) {
+    const answer = resolveAnswerForQuestion(question, normalizedEntries)
+    if (typeof answer === 'string' && answer.trim()) {
+      selected[question.id] = answer.trim()
+    }
+  }
+  return selected
+}
+
+async function runPipeline(baseUrl, body, { autoMode = false, pauseOnInput = false, providedAnswers = null } = {}) {
   const res = await fetch(`${baseUrl}/api/plan/build`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
@@ -403,8 +521,35 @@ async function runPipeline(baseUrl, body, { autoMode = false } = {}) {
             const questions = data.questions?.questions ?? []
             log(c('yellow', `  ⏸ El modelo necesita mas informacion (${questions.length} preguntas)`))
 
+            // ── Modo pause-on-input: escribir preguntas a archivo y salir ──
+            if (pauseOnInput) {
+              const pendingData = {
+                sessionId,
+                goal: body.goalText || '',
+                profileId: body.profileId || '',
+                questions: questions.map(q => ({
+                  id: q.id,
+                  text: q.text,
+                  type: q.type || 'text',
+                  options: q.options || null,
+                  min: q.min ?? null,
+                  max: q.max ?? null,
+                })),
+                createdAt: new Date().toISOString(),
+              }
+              writeFileSync(PENDING_INPUT_FILE, JSON.stringify(pendingData, null, 2), 'utf8')
+              log(c('cyan', `  📝 Preguntas escritas en ${PENDING_INPUT_FILE}`))
+              log(c('cyan', '  Para reanudar:'))
+              log(c('cyan', `    node scripts/run-plan.mjs --resume-session=${sessionId} --answers-json='{"id":"respuesta",...}'`))
+              process.exit(42)
+            }
+
             let answers = {}
-            if (autoMode) {
+            const selectedProvidedAnswers = pickProvidedAnswers(questions, providedAnswers)
+            if (Object.keys(selectedProvidedAnswers).length > 0) {
+              answers = selectedProvidedAnswers
+              log(c('blue', `  ↻ Continuando con ${Object.keys(answers).length}/${questions.length} respuestas predefinidas...`))
+            } else if (autoMode) {
               questions.forEach((q, i) => log(c('yellow', `    ${i + 1}. ${q.text}`)))
               log(c('blue', '  ↻ Modo auto: avanzando sin respuestas...'))
             } else {
@@ -478,6 +623,103 @@ async function runPipeline(baseUrl, body, { autoMode = false } = {}) {
   }
 
   if (!planId) throw new Error('No se recibió planId del pipeline. ¿Terminó correctamente?')
+  return { planId, score, iterations, degraded, agentOutcomes }
+}
+
+// ─── Resume session (for --resume-session) ────────────────────────────────────
+async function resumePipeline(baseUrl, sessionId, answers) {
+  log(c('blue', `⟳ Reanudando sesión ${sessionId}...`))
+  log('')
+
+  const res = await fetch(`${baseUrl}/api/plan/build/resume`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionId, answers }),
+  })
+  if (!res.ok) {
+    const txt = await res.text()
+    throw new Error(`Resume API ${res.status}: ${txt}`)
+  }
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let planId = null, score = 0, iterations = 0
+  let degraded = false
+  let agentOutcomes = []
+
+  const t0 = Date.now()
+  const elapsed = () => ((Date.now() - t0) / 1000).toFixed(1)
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (value) {
+      buffer += decoder.decode(value, { stream: !done }).replace(/\r\n/g, '\n')
+      let bi = buffer.indexOf('\n\n')
+      while (bi >= 0) {
+        const block = buffer.slice(0, bi)
+        buffer = buffer.slice(bi + 2)
+        const parsed = parseSseBlock(block)
+        if (parsed) {
+          let payload
+          try { payload = JSON.parse(parsed.data) } catch { payload = null }
+          if (!payload) { bi = buffer.indexOf('\n\n'); continue }
+
+          const type = parsed.eventType || payload.type
+          const data = payload.data ?? payload
+
+          if (type === 'v6:phase') {
+            const label = PHASE_LABEL[data.phase] || data.phase
+            const iter = data.iteration > 0 ? c('gray', ` (vuelta ${data.iteration})`) : ''
+            log(c('cyan', `  [${elapsed()}s]`) + ` ${label}` + iter)
+          } else if (type === 'v6:progress') {
+            const pct = Math.min(100, Math.max(0, Math.round(data.score ?? 0)))
+            const filled = Math.round(pct / 5)
+            const bar = '█'.repeat(filled) + '░'.repeat(20 - filled)
+            const action = data.lastAction ? c('dim', ` ${data.lastAction}`) : ''
+            log(c('gray', `         ${bar} ${pct}%`) + action)
+          } else if (type === 'v6:complete') {
+            planId = data.planId
+            score = data.score
+            iterations = data.iterations
+            degraded = data.degraded === true
+            agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
+            log('')
+            log(c('green', `  ✔ Pipeline completado en ${elapsed()}s`))
+            const completionScoreLabel = degraded ? 'degradado' : `${score}/100`
+            log(c('green', `    Score: ${completionScoreLabel}  |  Iteraciones: ${iterations}  |  Plan ID: ${planId}`))
+          } else if (type === 'v6:degraded') {
+            degraded = true
+            agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
+            log(c('yellow', '  ⚠ Plan degradado: se usaron datos de respaldo.'))
+          } else if (type === 'result' && (data.success === false || data.result?.success === false)) {
+            const failureDetails = extractFailureDetails(data)
+            log('')
+            log(c('red', `  Error estructurado: ${failureDetails.message}`))
+            formatFailureDetails(failureDetails).forEach((line) => log(line))
+            throw new Error(failureDetails.message)
+          }
+        }
+        bi = buffer.indexOf('\n\n')
+      }
+    }
+    if (done) break
+  }
+
+  // tail
+  buffer += decoder.decode().replace(/\r\n/g, '\n')
+  const tail = parseSseBlock(buffer)
+  if (tail) {
+    let payload; try { payload = JSON.parse(tail.data) } catch { payload = null }
+    if (payload?.type === 'v6:complete' && !planId) {
+      const d = payload.data ?? payload
+      planId = d.planId; score = d.score; iterations = d.iterations
+      degraded = d.degraded === true
+      agentOutcomes = Array.isArray(d.agentOutcomes) ? d.agentOutcomes : agentOutcomes
+    }
+  }
+
+  if (!planId) throw new Error('No se recibió planId del resume. ¿Terminó correctamente?')
   return { planId, score, iterations, degraded, agentOutcomes }
 }
 
@@ -674,27 +916,73 @@ async function main() {
   const {
     goal,
     existingPlanId,
+    resumeSession,
     profileId,
     explicitProvider,
     baseUrl,
     outputJson,
     noCodex,
     autoMode,
+    pauseOnInput,
+    providedAnswers,
     detailStartWeek,
     detailWeeks,
   } = parseArgs()
   log('')
   log(c('cyan', c('bold', '▶ LAP Plan Runner')))
-  log(c('gray', `  Objetivo : ${goal || '(usar plan existente)'}`))
+  if (resumeSession) {
+    log(c('gray', `  Modo     : resume-session`))
+    log(c('gray', `  Session  : ${resumeSession}`))
+  } else {
+    log(c('gray', `  Objetivo : ${goal || '(usar plan existente)'}`))
+  }
   log(c('gray', `  Base URL : ${baseUrl}`))
   if (profileId) log(c('gray', `  Profile  : ${profileId}`))
   if (existingPlanId) log(c('gray', `  Plan ID  : ${existingPlanId}`))
+  if (pauseOnInput) log(c('gray', `  Modo     : pause-on-input (sale con código 42 al recibir preguntas)`))
   if (detailStartWeek != null || detailWeeks != null) {
     const startLabel = detailStartWeek ?? 1
     const weeksLabel = detailWeeks ?? 'default'
     log(c('gray', `  Detail   : semana ${startLabel} + ${weeksLabel} semana(s)`))
   }
   log('')
+
+  // ── Resume session ───────────────────────────────────────────────────────────
+  if (resumeSession) {
+    const answers = providedAnswers || {}
+    log(c('blue', `  Respuestas: ${Object.keys(answers).length}`))
+    Object.entries(answers).forEach(([k, v]) => log(c('gray', `    ${k}: ${v}`)))
+    log('')
+
+    const resumeResult = await resumePipeline(baseUrl, resumeSession, answers)
+    const { planId, score, iterations, degraded, agentOutcomes } = resumeResult
+
+    log('')
+    log(c('blue', '⟳ Descargando datos del plan...'))
+
+    const packageResponse = await fetchPackage(baseUrl, planId, { detailStartWeek, detailWeeks })
+    const pkg = packageResponse.package
+    const modelId = typeof packageResponse.meta?.modelId === 'string' && packageResponse.meta.modelId.trim()
+      ? packageResponse.meta.modelId.trim()
+      : null
+    const reportTitle = goal || pkg.plan?.title || `Plan ${planId}`
+    const isDegraded = degraded === true || pkg.degraded === true
+    const effectiveScore = isDegraded ? null : score
+    const effectiveAgentOutcomes = Array.isArray(agentOutcomes) && agentOutcomes.length > 0
+      ? agentOutcomes
+      : (Array.isArray(pkg.agentOutcomes) ? pkg.agentOutcomes : [])
+
+    log(c('green', '  ✔ Datos obtenidos'))
+    log('')
+
+    if (outputJson) {
+      out(JSON.stringify({ meta: { planId, score: effectiveScore, iterations, provider: 'resume', modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes }, package: pkg }, null, 2) + '\n')
+    } else {
+      const report = buildReport(reportTitle, pkg, { planId, score: effectiveScore, iterations, provider: 'resume', modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes })
+      out(report + '\n')
+    }
+    return
+  }
 
   // ── Estrategia de ejecución ──────────────────────────────────────────────────
   // 1. Si el usuario forzó un provider explícito → usarlo directamente, sin fallback
@@ -737,7 +1025,7 @@ async function main() {
     log('')
 
     try {
-      result = await runPipeline(baseUrl, attempt.body, { autoMode })
+      result = await runPipeline(baseUrl, attempt.body, { autoMode, pauseOnInput, providedAnswers })
       result.providerLabel = attempt.providerLabel
       break
     } catch (err) {

@@ -333,7 +333,7 @@ function buildOrchestrator(config = {}) {
   };
 
   internal.getAgent = async (name) => agentMap[name] ?? null;
-  if (scenario === 'needs_input' || scenario === 'progress' || scenario === 'resume' || scenario === 'revise') {
+  if (scenario === 'needs_input' || scenario === 'progress' || scenario === 'resume') {
     internal.shouldForceFinish = () => false;
   }
   internal.executePlan = async () => {
@@ -413,6 +413,28 @@ if (scenario === 'complete' || scenario === 'scratchpad') {
   const orchestrator = buildOrchestrator();
   const result = await orchestrator.run('Test goal', userCtx);
   payload = { result, progress: orchestrator.getProgress() };
+} else if (scenario === 'planner_validation_fallback_publishable') {
+  const orchestrator = buildOrchestrator();
+  const internal = orchestrator;
+  internal.initializeContext('Test goal', userCtx);
+  internal.state.phase = 'done';
+  internal.context.criticReport = criticApprove;
+  internal.context.finalPackage = {
+    ...packageFixture,
+    publicationState: 'publishable',
+    warnings: [],
+    qualityIssues: [],
+  };
+  internal.agentOutcomes.push({
+    agent: 'planner',
+    phase: 'plan',
+    source: 'fallback',
+    errorCode: 'Error',
+    errorMessage: 'Planner output failed validation: check "cooking.horizon" did not pass. Fallback strategy was used.',
+    durationMs: 15,
+  });
+  const result = internal.buildFinalResult();
+  payload = { result };
 } else if (scenario === 'metadata') {
   const orchestrator = buildOrchestrator();
   const result = await orchestrator.run('Test goal', userCtx);
@@ -551,6 +573,7 @@ describe('PlanOrchestrator', () => {
     expect(result.status).toBe('completed');
     expect(payload.strategyCalls).toBe(2);
     expect(result.scratchpad.some((entry) => entry.phase === 'revise')).toBe(true);
+    expect(result.scratchpad.filter((entry) => entry.phase === 'critique')).toHaveLength(2);
     expect(result.iterations).toBe(9);
   });
 
@@ -681,6 +704,28 @@ describe('PlanOrchestrator', () => {
         errorCode: 'UNAUTHORIZED',
       }),
     ]));
+  });
+
+  it('allows a validated planner fallback to publish when critic and package approve it', () => {
+    const payload = runScenario('planner_validation_fallback_publishable');
+    const result = payload.result as {
+      status: string;
+      degraded: boolean;
+      publicationState: string;
+      package: { publicationState: string; warnings: string[]; qualityScore: number } | null;
+    };
+
+    expect(result.status).toBe('completed');
+    expect(result.degraded).toBe(true);
+    expect(result.publicationState).toBe('ready');
+    expect(result.package?.publicationState).toBe('publishable');
+    expect(result.package?.warnings).toContain(
+      'Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido.',
+    );
+    expect(result.package?.warnings).not.toContain(
+      'No se puede publicar este plan: la revision critica fallo y hace falta regenerarlo con un proveedor que responda bien.',
+    );
+    expect(result.package?.qualityScore).toBe(60);
   });
 
   it('getProgress returns current phase and iteration', () => {

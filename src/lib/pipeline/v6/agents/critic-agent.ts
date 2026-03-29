@@ -10,6 +10,7 @@ import type {
 // ─── Constants ─────────────────────────────────────────────────────────────
 
 const DEFAULT_APPROVAL_THRESHOLD = 75;
+const BUDGET_CONTEXT_PATTERN = /\b(presupuesto|budget|costo|coste|gasto|gastos|ingrediente|ingredientes|ahorro|dinero)\b/i;
 
 type CriticCategory = CriticFinding['category'];
 
@@ -105,16 +106,22 @@ Domain knowledge:
 ${summarizeDomainCard(input.domainCard)}
 ${previousContext}
 
+## Important context about the pipeline
+
+The strategy above is a HIGH-LEVEL roadmap of phases and milestones. A separate scheduler component (already executed) converts these phases into concrete weekly sessions with specific activities, durations, and frequencies. Do NOT penalize the strategy for lacking session-level detail (e.g. "how many times per week" or "what to do each day") — that is handled downstream and is already reflected in the schedule quality score above. Focus your evaluation on whether the strategic direction, progression, and domain alignment are sound.
+
+Treat the provided goal, profile, tradeoffs, and domain knowledge as the full context. Do NOT invent hidden constraints. If budget, ingredient cost, equipment, allergies, family support, or deadlines are not explicitly present in that context, do not penalize the plan for ignoring them.
+
 ## Your evaluation
 
 Analyze this plan against these 6 dimensions. For each dimension, think carefully about whether the plan would actually work for a real person with these constraints.
 
 Dimensions:
-1. SPECIFICITY — Are goals and milestones measurable and concrete?
+1. SPECIFICITY — Are phase goals and milestones measurable and concrete at a strategic level?
 2. PROGRESSION — Is the difficulty curve realistic for this person?
-3. SCHEDULING — Are activities well-placed given energy patterns and commitments?
+3. SCHEDULING — Given the schedule quality score and tradeoffs above, are there red flags?
 4. MOTIVATION — Will this person stay motivated? Are there early wins?
-5. FEASIBILITY — Is anything critical missing or unrealistic?
+5. FEASIBILITY — Is anything critical missing or unrealistic at the strategic level?
 6. DOMAIN — Does the plan follow domain best practices?
 
 Score the overall plan 0-100 using weighted average:
@@ -192,6 +199,56 @@ function enforceVerdictConsistency(report: CriticReport): CriticReport {
   return report;
 }
 
+function buildEvidenceContext(input: CriticInput): string {
+  return [
+    input.goalText,
+    input.profileSummary,
+    JSON.stringify(input.strategicDraft),
+    input.scheduleTradeoffs.join('\n'),
+    summarizeDomainCard(input.domainCard),
+  ].join('\n');
+}
+
+function mentionsBudgetConstraint(finding: CriticFinding): boolean {
+  return BUDGET_CONTEXT_PATTERN.test(`${finding.message} ${finding.suggestion ?? ''}`);
+}
+
+function reconcileUnsupportedFindings(report: CriticReport, input: CriticInput): CriticReport {
+  const evidenceContext = buildEvidenceContext(input);
+  const hasBudgetContext = BUDGET_CONTEXT_PATTERN.test(evidenceContext);
+  let removedUnsupportedCritical = false;
+
+  const findings = report.findings.filter((finding) => {
+    if (mentionsBudgetConstraint(finding) && !hasBudgetContext) {
+      if (finding.severity === 'critical') {
+        removedUnsupportedCritical = true;
+      }
+      return false;
+    }
+
+    return true;
+  });
+
+  if (findings.length === report.findings.length) {
+    return report;
+  }
+
+  const mustFix = findings.filter((finding) => finding.severity === 'critical');
+  const shouldFix = findings.filter((finding) => finding.severity === 'warning');
+  const overallScore = removedUnsupportedCritical && mustFix.length === 0
+    ? Math.max(report.overallScore, DEFAULT_APPROVAL_THRESHOLD)
+    : report.overallScore;
+
+  return enforceVerdictConsistency({
+    ...report,
+    findings,
+    mustFix,
+    shouldFix,
+    overallScore,
+    reasoning: `${report.reasoning} Se descartaron hallazgos sin respaldo explicito en el contexto del usuario.`.trim(),
+  });
+}
+
 function parseAndNormalize(raw: string): CriticReport {
   const parsed = JSON.parse(raw) as Record<string, unknown>;
 
@@ -253,7 +310,7 @@ export const criticAgent: V6Agent<CriticInput, CriticReport> = {
     const prompt = buildCriticPrompt(input);
     const response = await runtime.chat([{ role: 'user', content: prompt }]);
     const raw = extractFirstJsonObject(response.content);
-    return parseAndNormalize(raw);
+    return reconcileUnsupportedFindings(parseAndNormalize(raw), input);
   },
 
   fallback(input: CriticInput): CriticReport {

@@ -298,10 +298,18 @@ function isNearDuplicateText(left: string, right: string): boolean {
     return true;
   }
 
-  return ratioOfOverlap(
-    new Set(tokenizeMeaningfulText(normalizedLeft)),
-    new Set(tokenizeMeaningfulText(normalizedRight)),
-  ) >= 0.8;
+  const leftTokens = new Set(tokenizeMeaningfulText(normalizedLeft));
+  const rightTokens = new Set(tokenizeMeaningfulText(normalizedRight));
+  const smallerSize = Math.min(leftTokens.size, rightTokens.size);
+
+  // Short labels (≤ 3 meaningful tokens) share domain vocabulary too easily
+  // to be flagged by ratio alone. Exact match and substring checks above
+  // still catch true duplicates.
+  if (smallerSize <= 3) {
+    return false;
+  }
+
+  return ratioOfOverlap(leftTokens, rightTokens) >= 0.8;
 }
 
 function isStructuralPhaseLabel(value: string): boolean {
@@ -776,10 +784,36 @@ function extractCookingSignals(answers: Record<string, string> | undefined) {
 
   const level = values.find((_, index) => /\b(principiante|intermedio|avanzado)\b/.test(normalizedValues[index] ?? '')) ?? null;
   const subtopic = values.find((_, index) => /\b(pasta|pastas|salsa|salsas|risotto|pizza|gnocchi)\b/.test(normalizedValues[index] ?? '')) ?? null;
-  const method = values.find((_, index) => /\b(libro|libros|curso|cursos|video|videos|clase|clases|mentor|mentoria)\b/.test(normalizedValues[index] ?? '')) ?? null;
+  const method = values.find((_, index) => /\b(libro|libros|recetario|recetarios|curso|cursos|video|videos|tutorial|tutoriales|youtube|clase|clases|mentor|mentoria|autodidacta|autoestudio|por mi cuenta)\b/.test(normalizedValues[index] ?? '')) ?? null;
   const horizon = values.find((_, index) => /\b(\d+)\s*(ano|anos|año|años|mes|meses|semana|semanas)\b/.test(normalizedValues[index] ?? '')) ?? null;
 
   return { level, subtopic, method, horizon };
+}
+
+function buildCookingMethodFragments(method: string): string[] {
+  const normalized = normalizeComparableText(method);
+
+  if (/\b(video|videos|tutorial|tutoriales|youtube)\b/.test(normalized)) {
+    return ['video', 'videos', 'tutorial', 'tutoriales', 'youtube'];
+  }
+
+  if (/\b(libro|libros|recetario|recetarios|manual|manuales)\b/.test(normalized)) {
+    return ['libro', 'libros', 'receta', 'recetas', 'lectura'];
+  }
+
+  if (/\b(clase|clases|curso|cursos)\b/.test(normalized)) {
+    return ['clase', 'clases', 'curso', 'cursos'];
+  }
+
+  if (/\b(mentor|mentoria|tutor|tutora)\b/.test(normalized)) {
+    return ['mentor', 'mentoria', 'tutor', 'tutora'];
+  }
+
+  if (/\b(autodidact|por mi cuenta|autoestudio)\b/.test(normalized)) {
+    return ['autodidacta', 'autodidact', 'por mi cuenta', 'autoestudio'];
+  }
+
+  return uniqueNonEmpty(normalized.split(/\s+/).filter((fragment) => fragment.length >= 4));
 }
 
 function extractHealthSignals(goalText: string | undefined, answers: Record<string, string> | undefined) {
@@ -1113,16 +1147,15 @@ function buildSignalUsage(
     }
 
     if (signals.method) {
+      const methodEvidence = uniqueNonEmpty(
+        buildCookingMethodFragments(signals.method).filter((fragment) => normalizedPackageText.includes(fragment)),
+      );
       requiredSignals.push('cooking_method');
       signalUsage.push({
         signal: 'cooking_method',
         expectedValue: signals.method,
-        used: /\blibro|libros|receta|recetas|lectura\b/.test(normalizedPackageText),
-        evidence: uniqueNonEmpty([
-          normalizedPackageText.includes('libro') || normalizedPackageText.includes('libros') ? 'libros' : '',
-          normalizedPackageText.includes('receta') || normalizedPackageText.includes('recetas') ? 'recetas' : '',
-          normalizedPackageText.includes('lectura') ? 'lectura' : '',
-        ]),
+        used: methodEvidence.length > 0,
+        evidence: methodEvidence,
       });
     }
 
@@ -1146,7 +1179,7 @@ function buildSignalUsage(
       signalUsage.push({
         signal: 'cooking_horizon',
         expectedValue: signals.horizon,
-        used: horizonWeeks === null || planHorizonWeeks >= Math.max(12, Math.floor(horizonWeeks * 0.7)),
+        used: horizonWeeks === null || planHorizonWeeks >= Math.max(1, Math.floor(horizonWeeks * 0.7)),
         evidence: planHorizonWeeks > 0 ? [`${planHorizonWeeks} semanas`] : [],
       });
     }
@@ -1284,7 +1317,7 @@ function resolveRoadmapHorizonWeeks(roadmap: StrategicRoadmap | undefined): numb
     0,
   );
 
-  return Math.max(SKELETON_HORIZON_WEEKS, roadmapWeeks);
+  return Math.max(1, roadmapWeeks);
 }
 
 function buildSkeleton(

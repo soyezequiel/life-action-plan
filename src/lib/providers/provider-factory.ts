@@ -51,6 +51,11 @@ const OPENAI_TIMEOUTS: ProviderTimeouts = {
   streamMs: 20_000
 }
 
+const OPENAI_REASONING_TIMEOUTS: ProviderTimeouts = {
+  chatMs: 60_000,
+  streamMs: 60_000
+}
+
 const OLLAMA_TIMEOUTS: ProviderTimeouts = {
   chatMs: 180_000,
   streamMs: 180_000
@@ -66,10 +71,30 @@ const CODEX_BETA_RESPONSES = 'responses=experimental'
 const CODEX_ORIGINATOR = 'codex_cli_rs'
 const DEFAULT_CODEX_INSTRUCTIONS = 'You are a helpful assistant. Follow the requested output format exactly.'
 
-export function getProviderTimeouts(modelId: string): ProviderTimeouts {
+function shouldUseExtendedCloudTimeout(modelId: string, authMode?: ProviderAuthMode): boolean {
+  if (authMode === 'codex-oauth') {
+    return true
+  }
+
+  const normalized = modelId.trim().toLowerCase()
+  const modelName = normalized.includes(':')
+    ? normalized.slice(normalized.indexOf(':') + 1)
+    : normalized
+
+  return modelName.includes('gpt-5')
+    || /(^|[/-])o\d/.test(modelName)
+}
+
+export function getProviderTimeouts(modelId: string, authMode?: ProviderAuthMode): ProviderTimeouts {
   const providerName = getModelProviderName(modelId)
 
-  return providerName === 'ollama' ? OLLAMA_TIMEOUTS : OPENAI_TIMEOUTS
+  if (providerName === 'ollama') {
+    return OLLAMA_TIMEOUTS
+  }
+
+  return shouldUseExtendedCloudTimeout(modelId, authMode)
+    ? OPENAI_REASONING_TIMEOUTS
+    : OPENAI_TIMEOUTS
 }
 
 export function getProvider(modelId: string, config: ProviderConfig): AgentRuntime {
@@ -77,17 +102,18 @@ export function getProvider(modelId: string, config: ProviderConfig): AgentRunti
   const [providerName, modelName] = colonIdx >= 0
     ? [modelId.slice(0, colonIdx), modelId.slice(colonIdx + 1)]
     : ['openai', modelId]
+  const timeouts = getProviderTimeouts(modelId, config.authMode)
 
   if (providerName === 'openai') {
-    return createOpenAIRuntime(modelName || 'gpt-4o-mini', config, OPENAI_TIMEOUTS)
+    return createOpenAIRuntime(modelName || 'gpt-4o-mini', config, timeouts)
   }
 
   if (providerName === 'openrouter') {
-    return createOpenRouterRuntime(modelName || DEFAULT_OPENROUTER_BUILD_MODEL.slice('openrouter:'.length), config, OPENAI_TIMEOUTS)
+    return createOpenRouterRuntime(modelName || DEFAULT_OPENROUTER_BUILD_MODEL.slice('openrouter:'.length), config, timeouts)
   }
 
   if (providerName === 'ollama') {
-    return createOllamaRuntime(modelName || 'qwen3:8b', config, OLLAMA_TIMEOUTS)
+    return createOllamaRuntime(modelName || 'qwen3:8b', config, timeouts)
   }
 
   throw new Error(`Unknown provider: ${providerName}`)

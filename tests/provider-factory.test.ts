@@ -134,6 +134,13 @@ describe('getProvider', () => {
     })
   })
 
+  it('usa timeouts más largos para modelos de razonamiento como Codex', () => {
+    expect(getProviderTimeouts('openai:gpt-5-codex')).toEqual({
+      chatMs: 60_000,
+      streamMs: 60_000
+    })
+  })
+
   it('chat de OpenAI combina reasoning summary y respuesta visible', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       expect(String(input)).toBe('https://api.openai.com/v1/responses')

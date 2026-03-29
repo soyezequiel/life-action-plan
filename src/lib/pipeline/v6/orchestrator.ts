@@ -435,14 +435,19 @@ export class PlanOrchestrator {
       return true;
     }
 
-    // Stalled progress: no increase in 3+ consecutive iterations
-    // Exempt 'clarify' phase — staying in clarify is expected when waiting for user input
+    // Stalled progress: no increase in 3+ consecutive iterations.
+    // Exempt phases that legitimately loop without increasing the public
+    // progress score: clarify waits for user input, and critique/revise can
+    // bounce while the critic verifies whether the latest revision fixed the
+    // issues. Those loops are already bounded elsewhere.
     const STALL_WINDOW = Math.max(MAX_STALLED_ITERATIONS, 3);
     if (
       this.progressHistory.length >= STALL_WINDOW
       && this.state.phase !== 'package'
       && this.state.phase !== 'done'
       && this.state.phase !== 'clarify'
+      && this.state.phase !== 'critique'
+      && this.state.phase !== 'revise'
     ) {
       const recent = this.progressHistory.slice(-STALL_WINDOW);
       const allSame = recent.every((score) => score <= recent[0]);
@@ -1152,10 +1157,28 @@ export class PlanOrchestrator {
     return this.agentOutcomes.filter((outcome) => outcome.source === 'fallback');
   }
 
+  private isPublishablePlannerFallback(outcome: AgentExecutionOutcome): boolean {
+    if (outcome.agent !== 'planner' || outcome.source !== 'fallback') {
+      return false;
+    }
+
+    if (!outcome.errorMessage?.includes('Fallback strategy was used.')) {
+      return false;
+    }
+
+    if (this.context.criticReport?.verdict !== 'approve') {
+      return false;
+    }
+
+    return this.context.finalPackage?.publicationState === 'publishable';
+  }
+
   private getBlockingOutcomes(): AgentExecutionOutcome[] {
     const criticalAgents = new Set<V6AgentName>(['clarifier', 'planner', 'critic']);
     return this.agentOutcomes.filter(
-      (outcome) => outcome.source === 'fallback' && criticalAgents.has(outcome.agent),
+      (outcome) => outcome.source === 'fallback'
+        && criticalAgents.has(outcome.agent)
+        && !this.isPublishablePlannerFallback(outcome),
     );
   }
 
@@ -1474,11 +1497,24 @@ export class PlanOrchestrator {
             message: 'Hace falta una referencia clara a supervision profesional antes de tratar este plan de salud como aceptable.',
           }]
         : publicationGate.failureCode === 'failed_for_quality_review'
-          ? [{
-              code: 'FAILED_QUALITY_REVIEW',
-              severity: 'blocking' as const,
-              message: 'El plan no paso la revision final de calidad y no puede publicarse como resultado normal.',
-            }]
+          ? [
+              // Surface the critic's actual findings so the failure is diagnosable
+              ...(this.context.criticReport?.mustFix ?? []).map((f) => ({
+                code: `critic_${f.category}` as string,
+                severity: 'blocking' as const,
+                message: `[${f.severity}/${f.category}] ${f.message}${f.suggestion ? ` → ${f.suggestion}` : ''}`,
+              })),
+              ...(this.context.criticReport?.shouldFix ?? []).slice(0, 3).map((f) => ({
+                code: `critic_${f.category}` as string,
+                severity: 'warning' as const,
+                message: `[${f.severity}/${f.category}] ${f.message}`,
+              })),
+              {
+                code: 'FAILED_QUALITY_REVIEW',
+                severity: 'blocking' as const,
+                message: `El plan no paso la revision final de calidad (score: ${this.context.criticReport?.overallScore ?? '?'}/100, verdict: ${this.context.criticReport?.verdict ?? '?'}). ${this.context.criticReport?.reasoning ?? ''}`.trim(),
+              },
+            ]
           : [];
     const finalPackage = this.context.finalPackage
       ? {

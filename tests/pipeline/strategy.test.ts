@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DomainKnowledgeCard } from '../../src/lib/domain/domain-knowledge/bank';
+import { cocinaItalianaCard } from '../../src/lib/domain/domain-knowledge/cards/cocina-italiana';
 import type { StrategyInput } from '../../src/lib/pipeline/shared/phase-io';
 import { generateStrategy, generateStrategyWithSource, buildFallbackStrategy } from '../../src/lib/pipeline/shared/strategy';
 import type { AgentRuntime } from '../../src/lib/runtime/types';
@@ -209,6 +210,26 @@ function createReasoningInput(clarificationAnswers: Record<string, string> = {})
   };
 }
 
+function createBroadItalianCookingInput(clarificationAnswers: Record<string, string> = {}): StrategyInput {
+  return {
+    ...strategyInput,
+    goalText: 'Quiero aprender a cocinar platos italianos',
+    planningContext: {
+      interpretation: {
+        parsedGoal: 'Aprender a cocinar platos italianos',
+        implicitAssumptions: [],
+      },
+      clarificationAnswers: {
+        nivel: 'principiante',
+        platos: 'pizzas',
+        metodo: 'videos',
+        plazo: '2 meses',
+        ...clarificationAnswers,
+      },
+    },
+  };
+}
+
 function createReasoningPayload(phases: Array<{
   id: string;
   title: string;
@@ -264,6 +285,50 @@ describe('buildFallbackStrategy', () => {
     expect(summary).not.toContain('Practica guiada en principiante');
     expect(result.phases.map((phase) => phase.name).join(' ')).not.toMatch(/\b(base tecnica|practica guiada|consolidacion)\b/i);
     expect(result.phases.map((phase) => phase.name).join(' ')).not.toMatch(/\b(fase|phase)\s*\d\b/i);
+  });
+
+  it('comprime el fallback de skill cuando el horizonte pedido es corto', () => {
+    const result = buildFallbackStrategy({
+      ...strategyInput,
+      planningContext: {
+        clarificationAnswers: {
+          subtema: 'pastas',
+          metodo: 'libros',
+          nivel: 'principiante',
+          horizonte: '2 meses',
+        },
+      },
+    }, pastaCookingCard);
+
+    expect(result.phases.map((phase) => phase.durationWeeks)).toEqual([3, 3, 2]);
+    expect(result.phases.reduce((total, phase) => total + (phase.durationWeeks ?? 0), 0)).toBe(8);
+  });
+
+  it('alinea la cocina corta con videos y referencias concretas sin forzar libros', () => {
+    const result = buildFallbackStrategy({
+      ...strategyInput,
+      planningContext: {
+        clarificationAnswers: {
+          subtema: 'pasta',
+          metodo: 'videos',
+          nivel: 'principiante',
+          horizonte: '1 mes',
+        },
+      },
+    }, cocinaItalianaCard);
+
+    const summary = [
+      ...result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`),
+      ...result.milestones,
+    ].join(' ');
+
+    expect(result.phases.map((phase) => phase.durationWeeks)).toEqual([2, 1, 1]);
+    expect(summary).toContain('videos');
+    expect(summary).toContain('pastas italianas');
+    expect(summary).not.toContain('pasta italianas');
+    expect(summary).not.toContain('lectura de recetas italianas en libros');
+    expect(summary).not.toContain('base de libros');
+    expect(summary).toMatch(/pomodoro|aglio e olio|cacio e pepe|tecnica base/i);
   });
 
   it('preserva el fallback cuando el modelo responde contenido invalido', async () => {
@@ -346,14 +411,14 @@ describe('generateStrategyWithSource validation', () => {
           title: `Pizza principiante para ${horizonLabel}`,
           summary: 'Practica pizza italiana con metas visibles desde el inicio.',
           startMonth: 1,
-          endMonth: 1,
+          endMonth: 3,
         },
         {
           id: 'phase-2',
           title: 'Pizza principiante: ejecucion final',
           summary: `Cierra un plan de ${horizonLabel} con pizza italiana consistente y servicio reproducible.`,
-          startMonth: 2,
-          endMonth: 2,
+          startMonth: 4,
+          endMonth: 6,
         },
       ])),
       createReasoningInput(),
@@ -415,5 +480,166 @@ describe('generateStrategyWithSource validation', () => {
 
     expect(result.source).toBe('llm');
     expect(result.output.phases).toHaveLength(2);
+  });
+
+  it('acepta aclaraciones en plural aunque el plan use el subtema en singular', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Pizza principiante: masa y fermentacion',
+          summary: 'Practica pizza italiana con videos y foco en tecnica base.',
+          startMonth: 1,
+          endMonth: 1,
+        },
+        {
+          id: 'phase-2',
+          title: 'Pizza principiante: repeticion y servicio',
+          summary: 'Consolida pizza italiana en 2 meses con criterios visibles de calidad.',
+          startMonth: 2,
+          endMonth: 2,
+        },
+      ])),
+      createBroadItalianCookingInput(),
+      cookingCard,
+    );
+
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+  });
+
+  it('acepta fases superpuestas cuyo rango de meses coincide con el horizonte', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Pastas principiante: semanas 1-3',
+          summary: 'Semanas 1-3 de un plan de 2 meses para pastas italianas con videos.',
+          startMonth: 1,
+          endMonth: 1,
+        },
+        {
+          id: 'phase-2',
+          title: 'Pastas principiante: semanas 4-6',
+          summary: 'Semanas 4-6 de un plan de 2 meses para pastas italianas con videos.',
+          startMonth: 1,
+          endMonth: 2,
+        },
+        {
+          id: 'phase-3',
+          title: 'Pastas principiante: semanas 7-8',
+          summary: 'Semanas 7-8 de un plan de 2 meses para pastas italianas con videos.',
+          startMonth: 2,
+          endMonth: 2,
+        },
+      ])),
+      createBroadItalianCookingInput({ platos: 'pastas' }),
+      cookingCard,
+    );
+
+    // Phases span months 1-2 (8 weeks), matching the "2 meses" target.
+    // totalSpanWeeks is computed from the month range, not the sum of individual durations.
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+  });
+
+  it('rechaza plan cuyo rango de meses excede el horizonte solicitado', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Pastas principiante: mes 1',
+          summary: 'Mes 1 de un plan de 2 meses para pastas italianas con videos.',
+          startMonth: 1,
+          endMonth: 2,
+        },
+        {
+          id: 'phase-2',
+          title: 'Pastas principiante: mes 2-3',
+          summary: 'Meses 2-3 de un plan de 2 meses para pastas italianas con videos.',
+          startMonth: 2,
+          endMonth: 4,
+        },
+        {
+          id: 'phase-3',
+          title: 'Pastas principiante: mes 4-5',
+          summary: 'Meses 4-5 de un plan de 2 meses para pastas italianas con videos.',
+          startMonth: 4,
+          endMonth: 5,
+        },
+      ])),
+      createBroadItalianCookingInput({ platos: 'pastas' }),
+      cookingCard,
+    );
+
+    // Phases span months 1-5 (20 weeks), far exceeding the "2 meses" (8 weeks) target.
+    expect(result.source).toBe('fallback');
+    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
+    expect(result.fallbackMessage).toContain('cooking.horizon');
+  });
+});
+
+describe('isStructuralPhaseTitle - specificity gate', () => {
+  function createStructuralGateInput(): StrategyInput {
+    return createReasoningInput({
+      subtema: 'pizza',
+      nivel: 'principiante',
+      horizonte: '6 meses',
+    });
+  }
+
+  async function evaluateTitle(title: string): Promise<{ source: string; fallbackCode?: string; fallbackMessage?: string }> {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title,
+          summary: 'Practica pizza italiana para principiante durante seis meses con foco en tecnica, repeticion y ejecucion consistente.',
+          startMonth: 1,
+          endMonth: 6,
+        },
+      ])),
+      createStructuralGateInput(),
+      cookingCard,
+    );
+
+    return {
+      source: result.source,
+      fallbackCode: result.fallbackCode,
+      fallbackMessage: result.fallbackMessage,
+    };
+  }
+
+  it.each([
+    'Fase 1',
+    'Base',
+    'fundamentos',
+    'Introduccion',
+    'Nivel 2',
+    'Consolidacion',
+    'Practica guiada en principiante',
+    'Base: intro',
+  ])('bloquea titulos genericos: %s', async (title) => {
+    const result = await evaluateTitle(title);
+
+    expect(result.source).toBe('fallback');
+    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
+    expect(result.fallbackMessage).toContain('output.structural_phase_title');
+  });
+
+  it.each([
+    'Base segura y chequeo inicial de cocina italiana',
+    'Fundamentos de pasta fresca con tecnica de amasado',
+    'Consolidacion de repertorio de cocina italiana',
+    'Introduccion a las pastas italianas clasicas con salsa',
+    'Primer repertorio de pastas italianas con videos',
+    'Recetas repetibles de pizza napolitana',
+    'Menu corto y ejecucion consistente de cocina italiana',
+  ])('permite titulos especificos: %s', async (title) => {
+    const result = await evaluateTitle(title);
+
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+    expect(result.fallbackMessage).toBeUndefined();
   });
 });

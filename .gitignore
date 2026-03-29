@@ -1,4 +1,5 @@
 node_modules
+.lap-pending-input.json
 dist
 out
 .next

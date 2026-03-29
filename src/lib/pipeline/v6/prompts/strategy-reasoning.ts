@@ -132,6 +132,16 @@ ${formatAnswers(clarificationAnswers)}
 ## Conocimiento de dominio
 ${formatDomainContext(domainContext)}
 ${revisionBlock}
+## Reglas de nombres de fase
+
+NUNCA uses nombres de fase genericos como "Fase 1", "Base", "Fundamentos", "Introduccion", "Consolidacion", "Avance", "Nivel 1", "Nivel 2".
+Cada titulo de fase DEBE incluir el tema especifico del usuario. Ejemplos correctos:
+- "Primer repertorio de pastas italianas con videos de referencia"
+- "Repeticion guiada de salsas clasicas hasta dominar la consistencia"
+- "Menu completo italiano con ejecucion autonoma"
+Ejemplos INCORRECTOS que seran rechazados:
+- "Base" / "Fundamentos" / "Fase 1" / "Introduccion" / "Consolidacion"
+
 ## Tu tarea
 
 ## Requisitos de vocabulario en las fases

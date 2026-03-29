@@ -16,6 +16,7 @@ const strategicRoadmapPhaseSchema = z.object({
 const strategyOutputSchema = z.object({
   phases: z.array(strategicRoadmapPhaseSchema).min(1),
   milestones: z.array(z.string().trim().min(1)),
+  totalSpanWeeks: z.number().optional(),
 }).strict();
 
 // LLM responses often include extra keys beyond what we need.
@@ -53,11 +54,16 @@ function normalizeStrategyOutput(output: StrategyOutput): StrategyOutput {
   return {
     phases,
     milestones: phases.map((phase, index) => uniqueMilestones[index] ?? phase.focus_esAR),
+    ...(output.totalSpanWeeks != null ? { totalSpanWeeks: output.totalSpanWeeks } : {}),
   };
 }
 
 function normalizeReasoningOutput(raw: unknown): StrategyOutput {
   const output = strategyReasoningOutputSchema.parse(raw);
+
+  const minStart = Math.min(...output.phases.map((p) => p.startMonth));
+  const maxEnd = Math.max(...output.phases.map((p) => p.endMonth));
+  const totalSpanWeeks = Math.max(1, (maxEnd - minStart + 1) * 4);
 
   return normalizeStrategyOutput({
     phases: output.phases.map((phase) => ({
@@ -66,6 +72,7 @@ function normalizeReasoningOutput(raw: unknown): StrategyOutput {
       focus_esAR: phase.summary,
     })),
     milestones: output.milestones.map((milestone) => milestone.label),
+    totalSpanWeeks,
   });
 }
 
@@ -103,6 +110,8 @@ const VALID_STRATEGY_OUTPUT: StrategyValidationResult = {
   failedCheck: null,
 };
 
+const COOKING_SUBTOPIC_PATTERN = /\b(pasta|pastas|salsa|salsas|risotto|pizza|pizzas|gnocchi|lasagna|lasa[Ã±n]a|focaccia|pesto|ravioli)\b/i;
+
 function normalizeSignalText(value: string): string {
   return value.toLowerCase().trim().replace(/\s+/g, ' ');
 }
@@ -110,6 +119,62 @@ function normalizeSignalText(value: string): string {
 function includesAny(text: string, fragments: string[]): boolean {
   const normalized = normalizeSignalText(text);
   return fragments.some((fragment) => normalized.includes(normalizeSignalText(fragment)));
+}
+
+function canonicalizeCookingSubtopicToken(value: string): string {
+  const normalized = normalizeSignalText(value);
+
+  switch (normalized) {
+    case 'pastas':
+      return 'pasta';
+    case 'salsas':
+      return 'salsa';
+    case 'pizzas':
+      return 'pizza';
+    case 'lasaÃ±a':
+    case 'lasana':
+      return 'lasagna';
+    default:
+      return normalized;
+  }
+}
+
+function buildCookingSubtopicVariants(value: string): string[] {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return [];
+  }
+
+  const variants = new Set<string>([trimmed]);
+  const matchedToken = trimmed.match(COOKING_SUBTOPIC_PATTERN)?.[0];
+
+  if (!matchedToken) {
+    return [...variants];
+  }
+
+  const canonical = canonicalizeCookingSubtopicToken(matchedToken);
+  variants.add(matchedToken);
+  variants.add(canonical);
+
+  switch (canonical) {
+    case 'pasta':
+      variants.add('pastas');
+      break;
+    case 'salsa':
+      variants.add('salsas');
+      break;
+    case 'pizza':
+      variants.add('pizzas');
+      break;
+    case 'lasagna':
+      variants.add('lasaÃ±a');
+      variants.add('lasana');
+      break;
+    default:
+      break;
+  }
+
+  return uniqueNonEmpty([...variants]);
 }
 
 function collectSignalValue(values: string[], patterns: RegExp[]): string | null {
@@ -122,32 +187,51 @@ function collectSignalValue(values: string[], patterns: RegExp[]): string | null
   return null;
 }
 
+/**
+ * Like collectSignalValue but returns the matched fragment instead of the full
+ * value. Useful when `values` may contain long sentences (e.g. the goal text)
+ * where returning the whole string would produce an unmatchable signal.
+ */
+function extractMatchedFragment(values: string[], pattern: RegExp): string | null {
+  for (const value of values) {
+    const match = value.match(pattern);
+    if (match) {
+      return match[0];
+    }
+  }
+  return null;
+}
+
 function extractCookingSignals(goalText: string, answers: Record<string, string>): CookingSignals {
-  const values = uniqueNonEmpty([
-    ...Object.values(answers),
-    goalText,
-  ]);
+  const answerValues = uniqueNonEmpty(Object.values(answers));
+  const allValues = uniqueNonEmpty([...answerValues, goalText]);
   const lowerGoal = goalText.toLowerCase();
 
-  const level = collectSignalValue(values, [
+  // For short answer values, collectSignalValue works fine.
+  // For goalText (a full sentence), extractMatchedFragment avoids returning the
+  // entire sentence as the "signal".
+  const subtopicPattern = /\b(pasta|pastas|salsa|salsas|risotto|pizza|gnocchi|lasagna|lasa[ñn]a|focaccia|pesto|ravioli)\b/i;
+  const subtopic = collectSignalValue(answerValues, [subtopicPattern, COOKING_SUBTOPIC_PATTERN])
+    ?? extractMatchedFragment([goalText], subtopicPattern)
+    ?? (/\b(pasta|pastas)\b/i.test(lowerGoal)
+      ? 'pastas'
+      : /\b(salsa|salsas)\b/i.test(lowerGoal)
+        ? 'salsas'
+        : /\b(pizzas?)\b/i.test(lowerGoal)
+          ? 'pizza'
+          : /\bitalian[oa]s?\b/i.test(lowerGoal)
+            ? 'cocina italiana'
+            : null);
+  const level = collectSignalValue(answerValues, [
     /\b(principiante|basico|b[aá]sico|intermedio|avanzado|experto|novato)\b/i,
-  ]);
-  const subtopic = collectSignalValue(values, [
-    /\b(pasta|pastas|salsa|salsas|risotto|pizza|gnocchi|lasagna|lasa[ñn]a|focaccia|pesto|ravioli|italian[oa]s?)\b/i,
-  ]) ?? (/\b(pasta|pastas)\b/i.test(lowerGoal)
-    ? 'pastas'
-    : /\b(salsa|salsas)\b/i.test(lowerGoal)
-      ? 'salsas'
-      : /\b(pizza)\b/i.test(lowerGoal)
-        ? 'pizza'
-        : null);
-  const learningMethod = collectSignalValue(values, [
+  ]) ?? extractMatchedFragment([goalText], /\b(principiante|basico|b[aá]sico|intermedio|avanzado|experto|novato)\b/i);
+  const learningMethod = collectSignalValue(answerValues, [
     /\b(libro|libros|recetario|recetarios|curso|clase|tutor|tutora|autodidacta|youtube|video|videos|canal|apunte|apuntes|manual)\b/i,
-  ]);
-  const horizon = collectSignalValue(values, [
+  ]) ?? extractMatchedFragment([goalText], /\b(libro|libros|recetario|recetarios|curso|clase|tutor|tutora|autodidacta|youtube|video|videos|canal|apunte|apuntes|manual)\b/i);
+  const horizon = collectSignalValue(answerValues, [
     /\b\d+\s*(a[ñn]o|a[ñn]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i,
-  ]);
-  const references = uniqueNonEmpty(values.filter((value) => /\b(libro|libros|recetario|recetarios)\b/i.test(value)));
+  ]) ?? extractMatchedFragment([goalText], /\b\d+\s*(a[ñn]o|a[ñn]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i);
+  const references = uniqueNonEmpty(allValues.filter((value) => /\b(libro|libros|recetario|recetarios)\b/i.test(value)));
 
   return {
     level,
@@ -188,7 +272,7 @@ function extractClarificationSignals(answers: Record<string, string>) {
   }) ?? null;
 
   const subtopic = values.find((_, index) =>
-    /\b(pasta|pastas|salsa|salsas|cocina|cocinar|receta|recetas|italian[oa]s?)\b/.test(lower[index]),
+    /\b(pasta|pastas|salsa|salsas|pizza|pizzas|cocina|cocinar|receta|recetas|italian[oa]s?)\b/.test(lower[index]),
   ) ?? null;
 
   return { mastery, deadline, learningMode, constraints, priority, subtopic, level: mastery };
@@ -310,10 +394,25 @@ function collectTextFields(output: StrategyOutput): string[] {
   ];
 }
 
-function isStructuralPhaseTitle(value: string): boolean {
+const STRUCTURAL_PHASE_TITLE_PATTERN = /^(fase\s*\d+|base|fundamentos?|intro|introduccion|practica guiada|consolidacion|avance|nivel\s*\d+)(?:\s*[-:.]?\s*(?:fase\s*\d+|base|fundamentos?|intro|introduccion|practica guiada|consolidacion|avance|nivel\s*\d+|\S{1,15})\s*)?$/;
+const STRUCTURAL_GUIDED_PRACTICE_PATTERN = /^practica guiada en (principiante|basico|intermedio|avanzado|profesional|experto)\s*$/;
+
+/**
+ * @internal
+ */
+export function isStructuralPhaseTitle(value: string): boolean {
   const normalized = normalizeSignalText(value);
-  return /^(fase\s*\d+|base|fundamentos?|intro|introduccion|practica guiada|consolidacion|avance|nivel\s*\d+)\b/.test(normalized)
-    || /practica guiada en (principiante|basico|intermedio|avanzado|profesional|experto)\b/.test(normalized);
+  const words = normalized.split(/\s+/).filter(Boolean);
+
+  if (STRUCTURAL_GUIDED_PRACTICE_PATTERN.test(normalized)) {
+    return true;
+  }
+
+  if (words.length >= 4) {
+    return false;
+  }
+
+  return STRUCTURAL_PHASE_TITLE_PATTERN.test(normalized);
 }
 
 function buildHorizonVariants(horizon: string): string[] {
@@ -426,9 +525,10 @@ function validateStrategyOutput(
   }
 
   const textFields = collectTextFields(output).join(' ');
-  const totalPlanWeeks = output.phases.reduce((sum, phase) => sum + Math.max(1, phase.durationWeeks ?? 4), 0);
+  const totalPlanWeeks = output.totalSpanWeeks
+    ?? output.phases.reduce((sum, phase) => sum + Math.max(1, phase.durationWeeks ?? 4), 0);
 
-  if (typedSignals.cooking.subtopic && !includesAny(textFields, [typedSignals.cooking.subtopic])) {
+  if (typedSignals.cooking.subtopic && !includesAny(textFields, buildCookingSubtopicVariants(typedSignals.cooking.subtopic))) {
     return { valid: false, failedCheck: 'cooking.subtopic' };
   }
 
@@ -439,7 +539,13 @@ function validateStrategyOutput(
   if (typedSignals.cooking.horizon) {
     const textMentionsHorizon = includesAny(textFields, buildHorizonVariants(typedSignals.cooking.horizon));
     const targetHorizonWeeks = extractTargetHorizonWeeks(input.goalText, typedSignals.cooking.horizon);
-    if (!textMentionsHorizon && !isDurationCloseToTarget(totalPlanWeeks, targetHorizonWeeks)) {
+    const durationMatchesHorizon = isDurationCloseToTarget(totalPlanWeeks, targetHorizonWeeks);
+
+    if (targetHorizonWeeks && !durationMatchesHorizon) {
+      return { valid: false, failedCheck: 'cooking.horizon' };
+    }
+
+    if (!textMentionsHorizon && targetHorizonWeeks === null) {
       return { valid: false, failedCheck: 'cooking.horizon' };
     }
   }
@@ -531,24 +637,74 @@ function extractTargetHorizonWeeks(goalText: string, deadline: string | null): n
 
 function stretchDurationsToTarget(baseDurations: number[], targetWeeks: number | null): number[] {
   const minimumDuration = 1;
-  const currentTotal = baseDurations.reduce((total, duration) => total + duration, 0);
+  const sanitizedDurations = baseDurations.map((duration) => Math.max(minimumDuration, Math.round(duration)));
+  const currentTotal = sanitizedDurations.reduce((total, duration) => total + duration, 0);
 
-  if (!targetWeeks || targetWeeks <= currentTotal) {
-    return baseDurations;
+  if (!targetWeeks) {
+    return sanitizedDurations;
   }
 
-  const weights = baseDurations.map((duration) => duration / currentTotal);
-  const stretched = baseDurations.map((duration, index) =>
-    Math.max(minimumDuration, Math.floor(targetWeeks * weights[index]!)),
+  if (sanitizedDurations.length === 0) {
+    return [];
+  }
+
+  const desiredTotal = Math.max(sanitizedDurations.length, targetWeeks);
+  if (desiredTotal === currentTotal) {
+    return sanitizedDurations;
+  }
+
+  const weightedDurations = sanitizedDurations.map((duration, index) => {
+    const raw = desiredTotal * (duration / currentTotal);
+    return {
+      index,
+      baseDuration: duration,
+      raw,
+      remainder: raw - Math.floor(raw),
+    };
+  });
+
+  const stretched = weightedDurations.map(({ raw }) =>
+    Math.max(minimumDuration, Math.floor(raw)),
   );
 
   let assignedWeeks = stretched.reduce((total, duration) => total + duration, 0);
-  let cursor = stretched.length - 1;
+  const byLargestRemainder = [...weightedDurations].sort((left, right) =>
+    right.remainder - left.remainder
+    || right.baseDuration - left.baseDuration
+    || left.index - right.index,
+  );
+  const byLargestAllocation = [...weightedDurations].sort((left, right) =>
+    (stretched[right.index] ?? minimumDuration) - (stretched[left.index] ?? minimumDuration)
+    || left.remainder - right.remainder
+    || right.baseDuration - left.baseDuration
+    || right.index - left.index,
+  );
 
-  while (assignedWeeks < targetWeeks) {
-    stretched[cursor] = (stretched[cursor] ?? minimumDuration) + 1;
+  let cursor = 0;
+  while (assignedWeeks < desiredTotal) {
+    const current = byLargestRemainder[cursor % byLargestRemainder.length];
+    if (!current) {
+      break;
+    }
+    stretched[current.index] = (stretched[current.index] ?? minimumDuration) + 1;
     assignedWeeks += 1;
-    cursor = cursor === 0 ? stretched.length - 1 : cursor - 1;
+    cursor += 1;
+  }
+
+  cursor = 0;
+  while (assignedWeeks > desiredTotal) {
+    const current = byLargestAllocation[cursor % byLargestAllocation.length];
+    if (!current) {
+      break;
+    }
+
+    const currentDuration = stretched[current.index] ?? minimumDuration;
+    if (currentDuration > minimumDuration) {
+      stretched[current.index] = currentDuration - 1;
+      assignedWeeks -= 1;
+    }
+
+    cursor += 1;
   }
 
   return stretched;
@@ -563,6 +719,123 @@ function inferFocusLabel(goalText: string, domainLabel: string): string {
   }
 
   return domainLabel;
+}
+
+function normalizeCookingMethodPreference(value: string | null): 'videos' | 'libros' | 'clases' | 'mentor' | 'autodidacta' | null {
+  const normalized = normalizeSignalText(value ?? '');
+  if (!normalized) {
+    return null;
+  }
+
+  if (/\b(video|videos|youtube|tutorial|tutoriales)\b/.test(normalized)) {
+    return 'videos';
+  }
+
+  if (/\b(libro|libros|recetario|recetarios|manual|manuales)\b/.test(normalized)) {
+    return 'libros';
+  }
+
+  if (/\b(clase|clases|curso|cursos)\b/.test(normalized)) {
+    return 'clases';
+  }
+
+  if (/\b(mentor|mentoria|tutor|tutora)\b/.test(normalized)) {
+    return 'mentor';
+  }
+
+  if (/\b(autodidact|por mi cuenta|autoestudio)\b/.test(normalized)) {
+    return 'autodidacta';
+  }
+
+  return null;
+}
+
+function joinHumanList(values: string[]): string {
+  const filtered = uniqueNonEmpty(values);
+  if (filtered.length === 0) {
+    return '';
+  }
+
+  if (filtered.length === 1) {
+    return filtered[0] ?? '';
+  }
+
+  if (filtered.length === 2) {
+    return `${filtered[0]} y ${filtered[1]}`;
+  }
+
+  return `${filtered.slice(0, -1).join(', ')} y ${filtered[filtered.length - 1]}`;
+}
+
+function formatCookingFocusTopic(rawTopic: string | null, isItalianCooking: boolean, fallbackLabel: string): string {
+  const normalized = rawTopic ? canonicalizeCookingSubtopicToken(rawTopic) : '';
+  if (!normalized) {
+    return fallbackLabel;
+  }
+
+  switch (normalized) {
+    case 'pasta':
+      return isItalianCooking ? 'pastas italianas' : 'pastas';
+    case 'pizza':
+      return isItalianCooking ? 'pizza italiana' : 'pizza';
+    case 'salsa':
+      return isItalianCooking ? 'salsas italianas' : 'salsas';
+    case 'risotto':
+      return isItalianCooking ? 'risotto italiano' : 'risotto';
+    case 'gnocchi':
+      return isItalianCooking ? 'gnocchi italianos' : 'gnocchi';
+    case 'lasagna':
+      return isItalianCooking ? 'lasagna italiana' : 'lasagna';
+    case 'ravioli':
+      return isItalianCooking ? 'ravioli italianos' : 'ravioli';
+    default:
+      return normalized.includes('cocina italiana') ? 'cocina italiana' : rawTopic?.trim() || fallbackLabel;
+  }
+}
+
+function buildCookingReferenceAnchors(rawTopic: string | null): [string, string, string] {
+  const normalized = rawTopic ? canonicalizeCookingSubtopicToken(rawTopic) : '';
+
+  switch (normalized) {
+    case 'pasta':
+      return ['pasta al pomodoro', 'cacio e pepe', 'aglio e olio'];
+    case 'pizza':
+      return ['masa napolitana', 'pizza marinara', 'pizza margherita'];
+    case 'salsa':
+      return ['salsa pomodoro', 'pesto alla genovese', 'emulsion cacio e pepe'];
+    case 'risotto':
+      return ['risotto alla milanese', 'risotto ai funghi', 'mantecatura final'];
+    case 'gnocchi':
+      return ['gnocchi de papa', 'gnocchi al pesto', 'gnocchi con pomodoro'];
+    case 'lasagna':
+      return ['lasagna clasica', 'bechamel', 'ragu sencillo'];
+    case 'ravioli':
+      return ['ravioli de ricota', 'masa fresca', 'manteca y salvia'];
+    default:
+      return ['mise en place italiana', 'una receta eje del repertorio', 'un menu corto italiano'];
+  }
+}
+
+function buildCookingReferenceLead(
+  methodPreference: ReturnType<typeof normalizeCookingMethodPreference>,
+  anchors: string[],
+): string {
+  const anchorLabel = joinHumanList(anchors);
+
+  switch (methodPreference) {
+    case 'videos':
+      return `Tomar videos paso a paso de ${anchorLabel} como referencia concreta.`;
+    case 'libros':
+      return `Tomar recetas escritas de ${anchorLabel} como referencia concreta.`;
+    case 'clases':
+      return `Usar clases o cursos sobre ${anchorLabel} como referencia concreta.`;
+    case 'mentor':
+      return `Alinear la practica con guia directa sobre ${anchorLabel}.`;
+    case 'autodidacta':
+      return `Elegir ${anchorLabel} como referencia concreta y repetirlo sin improvisar de entrada.`;
+    default:
+      return `Tomar ${anchorLabel} como referencia concreta del repertorio.`;
+  }
 }
 
 function buildHealthFallbackStrategy(input: StrategyInput, domainCard?: DomainKnowledgeCard): StrategyOutput {
@@ -663,6 +936,7 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
     ?? primaryTasks[0]
     ?? inferredFocusLabel;
   const methodLabel = cookingSignals.learningMethod ?? signals.learningMode ?? null;
+  const methodPreference = normalizeCookingMethodPreference(methodLabel);
   const horizonLabel = cookingSignals.horizon ?? signals.deadline ?? null;
   const isCookingGoal = /\b(cocina|cocinar|receta|plato|gastronom)\b/i.test(`${input.goalText} ${domainLabel}`);
   const isItalianCooking = /\bitalian[oa]s?|\bpastas?|\bsalsas?\b/i.test(`${input.goalText} ${subtopicLabel} ${domainLabel}`);
@@ -670,10 +944,8 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
     resolveDurations(levelLabel),
     extractTargetHorizonWeeks(input.goalText, horizonLabel),
   );
-  const focusTopic = isCookingGoal && subtopicLabel
-    ? (isItalianCooking && !/italian/.test(subtopicLabel.toLowerCase())
-      ? `${subtopicLabel} italianas`
-      : subtopicLabel)
+  const focusTopic = isCookingGoal
+    ? formatCookingFocusTopic(subtopicLabel, isItalianCooking, domainLabel)
     : subtopicLabel;
   const learningLead = methodLabel
     ? `El aprendizaje debe apoyarse en ${methodLabel.toLowerCase()}.`
@@ -681,6 +953,62 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
   const horizonLead = horizonLabel
     ? `El horizonte de trabajo queda en ${horizonLabel.toLowerCase()} y no en una improvisacion corta.`
     : null;
+
+  if (isCookingGoal) {
+    const anchors = buildCookingReferenceAnchors(cookingSignals.subtopic ?? subtopicLabel);
+    const explicitReferenceLead = cookingSignals.references.length > 0
+      ? `Usar ${cookingSignals.references.join(', ').toLowerCase()} como referencia concreta.`
+      : null;
+    const stepByStepLabel = methodPreference === 'videos'
+      ? 'video paso a paso'
+      : methodPreference === 'libros'
+        ? 'receta escrita'
+        : 'paso a paso';
+
+    return normalizeStrategyOutput({
+      phases: [
+        {
+          name: methodLabel
+            ? `Primer repertorio de ${focusTopic} con ${methodLabel.toLowerCase()}`
+            : `Primer repertorio de ${focusTopic}`,
+          durationWeeks: durations[0],
+          focus_esAR: [
+            `Construir una base repetible de ${focusTopic}.`,
+            explicitReferenceLead ?? buildCookingReferenceLead(methodPreference, [anchors[0]]),
+            `Fijar mise en place, punto de coccion y tecnica base alrededor de ${anchors[0]}.`,
+            learningLead,
+          ].filter(Boolean).join(' '),
+        },
+        {
+          name: `Recetas repetibles de ${focusTopic}`,
+          durationWeeks: durations[1],
+          focus_esAR: [
+            buildCookingReferenceLead(methodPreference, [anchors[1], anchors[2]]),
+            `Repetir ${joinHumanList([anchors[1], anchors[2]])} hasta que deje de depender del ${stepByStepLabel}.`,
+            signals.priority ? `Priorizar ${signals.priority.toLowerCase()} dentro del repertorio principal.` : null,
+            signals.level ? `Respetar el nivel actual ${signals.level.toLowerCase()} sin saltar etapas.` : null,
+          ].filter(Boolean).join(' '),
+        },
+        {
+          name: horizonLabel
+            ? `Menu corto de ${focusTopic} para ${horizonLabel.toLowerCase()}`
+            : `Menu corto y ejecucion consistente de ${focusTopic}`,
+          durationWeeks: durations[2],
+          focus_esAR: [
+            `Cerrar el horizonte con un menu corto que combine ${joinHumanList([anchors[0], anchors[1]])}.`,
+            horizonLead,
+            signals.constraints ? `Respetar ${signals.constraints.toLowerCase()} al elegir el repertorio.` : null,
+            cookingSignals.subtopic ? `Mantener ${cookingSignals.subtopic.toLowerCase()} como eje y no como detalle secundario.` : null,
+          ].filter(Boolean).join(' '),
+        },
+      ],
+      milestones: [
+        `Completar una rutina base estable de ${focusTopic} con ${anchors[0]}`,
+        `Resolver ${joinHumanList([anchors[1], anchors[2]])} sin depender del ${stepByStepLabel}`,
+        `Preparar un menu corto de ${focusTopic} con calidad consistente y referencias concretas`,
+      ],
+    });
+  }
 
   const phases = [
     {

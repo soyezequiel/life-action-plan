@@ -40,6 +40,7 @@ export interface StrategicRoadmapPhase {
 export interface StrategicRoadmap {
   phases: StrategicRoadmapPhase[];
   milestones: string[];
+  totalSpanWeeks?: number;
 }
 export interface StrategyInterpretationContext {
   parsedGoal: string;

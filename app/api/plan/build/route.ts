@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { apiErrorMessages, encodeSseData, sseHeaders } from '../../_shared'
 import { planBuildRequestSchema } from '../../_schemas'
 import { resolveUserId } from '../../_user-settings'
+import { buildModelConnectionErrorMessage } from './_model-connection-error'
 import * as terminalFailure from './_terminal-failure'
 
 export const maxDuration = 120
@@ -162,9 +163,11 @@ function handleV6Build(
             type: 'result',
             result: {
               success: false,
-              error: `No se pudo conectar con el modelo (${execution.runtime.modelId}). Error: ${message}. ${execution.runtime.authMode === 'codex-oauth'
-                ? 'Verifica que tu sesion de Codex este activa: ejecuta "codex" en la terminal para re-autenticar.'
-                : 'Verifica tu API key o que Ollama este corriendo.'}`,
+              error: buildModelConnectionErrorMessage(
+                execution.runtime.modelId,
+                execution.runtime.authMode,
+                message,
+              ),
             },
           })
           return

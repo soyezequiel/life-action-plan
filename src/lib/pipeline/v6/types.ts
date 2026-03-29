@@ -214,6 +214,7 @@ export const StrategicDraftPhaseSchema = z.object({
 export const StrategicDraftSchema: z.ZodType<StrategicDraft> = z.object({
   phases: z.array(StrategicDraftPhaseSchema),
   milestones: z.array(z.string()),
+  totalSpanWeeks: z.number().optional(),
 }).strict();
 
 export const SchedulerOutputSchema: z.ZodType<SchedulerOutput> = SchedulerOutputBaseSchema;

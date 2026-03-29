@@ -25,6 +25,32 @@ function createCodexStreamResponse(): Response {
   })
 }
 
+function createDelayedCodexStreamResponse(events: Array<{ delayMs: number; body: unknown }>): Response {
+  const encoder = new TextEncoder()
+  const totalDelay = events.length > 0
+    ? Math.max(...events.map((event) => event.delayMs)) + 1
+    : 0
+
+  return new Response(new ReadableStream({
+    start(controller) {
+      for (const event of events) {
+        setTimeout(() => {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(event.body)}\n\n`))
+        }, event.delayMs)
+      }
+
+      setTimeout(() => {
+        controller.close()
+      }, totalDelay)
+    }
+  }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/event-stream'
+    }
+  })
+}
+
 describe('provider-factory codex oauth', () => {
   beforeEach(() => {
     mocks.getCodexAuthSessionMock.mockReset()
@@ -133,5 +159,91 @@ describe('provider-factory codex oauth', () => {
     ])
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('tolera respuestas lentas de Codex si siguen llegando dentro de una ventana razonable', async () => {
+    vi.useFakeTimers()
+
+    const fetchMock = vi.fn(async () => createDelayedCodexStreamResponse([
+      {
+        delayMs: 30_000,
+        body: {
+          type: 'response.created',
+          response: {
+            id: 'resp_codex_delayed',
+            created_at: 1742400000,
+            model: 'gpt-5-codex'
+          }
+        }
+      },
+      {
+        delayMs: 30_010,
+        body: {
+          type: 'response.output_item.added',
+          output_index: 0,
+          item: {
+            type: 'message',
+            id: 'msg_1',
+            phase: 'final_answer'
+          }
+        }
+      },
+      {
+        delayMs: 30_020,
+        body: {
+          type: 'response.output_text.delta',
+          item_id: 'msg_1',
+          delta: '{"ok":true}',
+          logprobs: null
+        }
+      },
+      {
+        delayMs: 30_030,
+        body: {
+          type: 'response.output_item.done',
+          output_index: 0,
+          item: {
+            type: 'message',
+            id: 'msg_1',
+            phase: 'final_answer'
+          }
+        }
+      },
+      {
+        delayMs: 30_040,
+        body: {
+          type: 'response.completed',
+          response: {
+            usage: {
+              input_tokens: 3,
+              output_tokens: 5
+            }
+          }
+        }
+      }
+    ]))
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runtime = getProvider('openai:gpt-5-codex', {
+      apiKey: 'chatgpt-oauth',
+      baseURL: 'https://chatgpt.com/backend-api/codex',
+      authMode: 'codex-oauth'
+    })
+
+    const resultPromise = runtime.chat([
+      { role: 'system', content: 'solo json' },
+      { role: 'user', content: 'hola' }
+    ])
+
+    await vi.advanceTimersByTimeAsync(30_100)
+
+    await expect(resultPromise).resolves.toMatchObject({
+      content: '{"ok":true}',
+      usage: {
+        promptTokens: 3,
+        completionTokens: 5
+      }
+    })
   })
 })

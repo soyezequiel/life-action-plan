@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { AgentRuntime } from '../../src/lib/runtime/types';
+import { cocinaItalianaCard } from '../../src/lib/domain/domain-knowledge/cards/cocina-italiana';
 import { runningCard } from '../../src/lib/domain/domain-knowledge/cards/running';
 import { packagePlan } from '../../src/lib/pipeline/shared/packager';
 import { clarifierAgent } from '../../src/lib/pipeline/v6/agents/clarifier-agent';
@@ -48,6 +49,28 @@ function createUnauthorizedRuntime(): AgentRuntime {
   const runtime: AgentRuntime = {
     async chat() {
       throw new Error('Unauthorized');
+    },
+    async *stream() {
+    },
+    newContext() {
+      return runtime;
+    },
+  };
+
+  return runtime;
+}
+
+function createJsonRuntime(payload: Record<string, unknown>): AgentRuntime {
+  const content = JSON.stringify(payload);
+  const runtime: AgentRuntime = {
+    async chat() {
+      return {
+        content,
+        usage: {
+          promptTokens: 0,
+          completionTokens: 0,
+        },
+      };
     },
     async *stream() {
     },
@@ -332,6 +355,81 @@ describe('agent fallbacks (no LLM)', () => {
       };
 
       await expect(criticAgent.execute(input, createUnauthorizedRuntime())).rejects.toThrow('Unauthorized');
+    });
+
+    it('drops hallucinated budget findings when the context never mentions budget constraints', async () => {
+      const input: CriticInput = {
+        goalText: 'Quiero aprender a cocinar platos italianos',
+        goalType: 'SKILL_ACQUISITION',
+        profileSummary: '2h libres entre semana, 4h libres el fin de semana, energia media',
+        strategicDraft: {
+          phases: [
+            { id: 'phase-1', name: 'Primer repertorio de pastas italianas con libros', durationWeeks: 3 },
+            { id: 'phase-2', name: 'Recetas repetibles de pastas italianas', durationWeeks: 3 },
+            { id: 'phase-3', name: 'Menu corto de pastas italianas para 2 meses', durationWeeks: 2 },
+          ],
+        },
+        scheduleQualityScore: 90,
+        unscheduledCount: 0,
+        scheduleTradeoffs: [],
+        domainCard: cocinaItalianaCard,
+        previousCriticReports: [],
+      };
+
+      const result = await criticAgent.execute(input, createJsonRuntime({
+        overallScore: 68,
+        findings: [{
+          id: 'f-budget',
+          severity: 'critical',
+          category: 'feasibility',
+          message: 'El plan ignora una restriccion presupuestaria clave para comprar ingredientes.',
+          suggestion: 'Agregar controles de gasto en cada fase.',
+          affectedPhaseIds: ['phase-1', 'phase-2', 'phase-3'],
+        }],
+        verdict: 'revise',
+        reasoning: 'Sin presupuesto el plan no seria viable.',
+      }));
+
+      expect(result.findings).toEqual([]);
+      expect(result.mustFix).toEqual([]);
+      expect(result.verdict).toBe('approve');
+      expect(result.overallScore).toBe(75);
+    });
+
+    it('keeps budget findings when the context explicitly mentions a tight budget', async () => {
+      const input: CriticInput = {
+        goalText: 'Quiero aprender a cocinar platos italianos con presupuesto acotado',
+        goalType: 'SKILL_ACQUISITION',
+        profileSummary: '2h libres entre semana, 4h libres el fin de semana, presupuesto limitado para ingredientes',
+        strategicDraft: {
+          phases: [
+            { id: 'phase-1', name: 'Primer repertorio de pastas italianas con libros', durationWeeks: 3 },
+          ],
+        },
+        scheduleQualityScore: 90,
+        unscheduledCount: 0,
+        scheduleTradeoffs: [],
+        domainCard: cocinaItalianaCard,
+        previousCriticReports: [],
+      };
+
+      const result = await criticAgent.execute(input, createJsonRuntime({
+        overallScore: 68,
+        findings: [{
+          id: 'f-budget',
+          severity: 'critical',
+          category: 'feasibility',
+          message: 'El plan ignora una restriccion presupuestaria clave para comprar ingredientes.',
+          suggestion: 'Agregar controles de gasto en cada fase.',
+          affectedPhaseIds: ['phase-1'],
+        }],
+        verdict: 'revise',
+        reasoning: 'Sin presupuesto el plan no seria viable.',
+      }));
+
+      expect(result.findings).toHaveLength(1);
+      expect(result.mustFix).toHaveLength(1);
+      expect(result.verdict).toBe('revise');
     });
   });
 
@@ -618,6 +716,227 @@ describe('agent fallbacks (no LLM)', () => {
         'health_height',
         'health_supervision',
       ]));
+    });
+
+    it('accepts short cooking horizons when the roadmap matches the requested weeks', () => {
+      const result = packagePlan({
+        goalText: 'Quiero aprender a cocinar platos italianos',
+        goalId: 'goal-cocina-corta',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        requestedDomain: 'cocina-italiana',
+        clarificationAnswers: {
+          subtema: 'pastas',
+          metodo: 'libros',
+          nivel: 'principiante',
+          horizonte: '2 meses',
+        },
+        classification: {
+          goalType: 'SKILL_ACQUISITION',
+          confidence: 0.9,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: false,
+            hasNumericTarget: false,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: false,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            { name: 'Primer repertorio de pastas italianas con libros', durationWeeks: 3, focus_esAR: 'Practicar pastas italianas con apoyo de libros y recetas base.' },
+            { name: 'Recetas repetibles de pastas italianas', durationWeeks: 3, focus_esAR: 'Convertir la lectura en platos repetibles de pasta.' },
+            { name: 'Menu corto de pastas italianas para 2 meses', durationWeeks: 2, focus_esAR: 'Cerrar el horizonte de 2 meses con un menu corto de pastas italianas.' },
+          ],
+          milestones: [
+            'Completar una rutina base estable de pastas italianas',
+            'Resolver pastas italianas sin depender paso a paso de la receta',
+            'Preparar un menu corto de pastas italianas con calidad consistente',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'cook-short-1',
+              kind: 'time_event',
+              title: 'Practicar pasta seca con salsa de tomate',
+              status: 'active',
+              goalIds: ['goal-cocina-corta'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 60,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'cook-short-2',
+              kind: 'time_event',
+              title: 'Leer libro de cocina y preparar mise en place para pasta',
+              status: 'active',
+              goalIds: ['goal-cocina-corta'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 45,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 8,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.publicationState).toBe('publishable');
+      expect(result.intakeCoverage?.requiredSignals).toEqual(expect.arrayContaining([
+        'cooking_subtopic',
+        'cooking_method',
+        'cooking_level',
+        'cooking_horizon',
+      ]));
+      expect(result.intakeCoverage?.missingSignals).toEqual([]);
+      expect(result.plan.skeleton.horizonWeeks).toBe(8);
+      expect(result.plan.skeleton.phases.map((phase) => ({
+        title: phase.title,
+        startWeek: phase.startWeek,
+        endWeek: phase.endWeek,
+      }))).toEqual([
+        {
+          title: 'Primer repertorio de pastas italianas con libros',
+          startWeek: 1,
+          endWeek: 3,
+        },
+        {
+          title: 'Recetas repetibles de pastas italianas',
+          startWeek: 4,
+          endWeek: 6,
+        },
+        {
+          title: 'Menu corto de pastas italianas para 2 meses',
+          startWeek: 7,
+          endWeek: 8,
+        },
+      ]);
+    });
+
+    it('detects video-based cooking methods without relying on book language', () => {
+      const result = packagePlan({
+        goalText: 'Quiero aprender a cocinar platos italianos',
+        goalId: 'goal-cocina-videos',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        requestedDomain: 'cocina-italiana',
+        clarificationAnswers: {
+          subtema: 'pasta',
+          metodo: 'videos',
+          nivel: 'principiante',
+          horizonte: '1 mes',
+        },
+        classification: {
+          goalType: 'SKILL_ACQUISITION',
+          confidence: 0.9,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: false,
+            hasNumericTarget: false,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: false,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Primer repertorio de pastas italianas con videos',
+              durationWeeks: 2,
+              focus_esAR: 'Tomar videos paso a paso de pasta al pomodoro como referencia concreta y fijar la tecnica base.',
+            },
+            {
+              name: 'Recetas repetibles de pastas italianas',
+              durationWeeks: 1,
+              focus_esAR: 'Repetir cacio e pepe y aglio e olio hasta estabilizar textura, sal y punto.',
+            },
+            {
+              name: 'Menu corto de pastas italianas para 1 mes',
+              durationWeeks: 1,
+              focus_esAR: 'Cerrar 1 mes con dos platos de pasta resueltos a partir de videos y practica repetida.',
+            },
+          ],
+          milestones: [
+            'Completar una rutina base estable de pastas italianas',
+            'Resolver pastas italianas sin depender paso a paso del video',
+            'Preparar un menu corto de pastas italianas con calidad consistente',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'cook-video-1',
+              kind: 'time_event',
+              title: 'Ver video paso a paso de pasta al pomodoro',
+              status: 'active',
+              goalIds: ['goal-cocina-videos'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 35,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'cook-video-2',
+              kind: 'time_event',
+              title: 'Practicar pasta al pomodoro y ajustar coccion',
+              status: 'active',
+              goalIds: ['goal-cocina-videos'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 60,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 8,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      const methodUsage = result.intakeCoverage?.signalUsage.find((usage) => usage.signal === 'cooking_method');
+
+      expect(methodUsage).toMatchObject({
+        signal: 'cooking_method',
+        expectedValue: 'videos',
+        used: true,
+      });
+      expect(methodUsage?.evidence).toEqual(expect.arrayContaining(['videos']));
+      expect(result.intakeCoverage?.missingSignals).not.toContain('cooking_method');
     });
   });
 });

@@ -18,9 +18,9 @@ export const cocinaItalianaCard: DomainKnowledgeCard = {
   tasks: [
     {
       id: 'italian_reading',
-      label: 'Lectura de recetas italianas en libros',
+      label: 'Estudiar una referencia concreta de cocina italiana',
       typicalDurationMin: 25,
-      tags: ['reading', 'recipes', 'books', 'planning'],
+      tags: ['reference', 'recipes', 'books', 'video', 'planning'],
       equivalenceGroupId: 'italian-reading-and-planning',
     },
     {
@@ -68,7 +68,7 @@ export const cocinaItalianaCard: DomainKnowledgeCard = {
     },
     {
       id: 'book_sessions_week',
-      label: 'Sesiones de lectura de libros de cocina por semana',
+      label: 'Sesiones de estudio de referencias concretas por semana',
       unit: 'sesiones',
       direction: 'increase',
     },
@@ -91,7 +91,7 @@ export const cocinaItalianaCard: DomainKnowledgeCard = {
         exitCriteria: [
           'Preparar una salsa de tomate y una emulsion simple',
           'Ajustar sal, textura y punto de coccion con criterio',
-          'Elegir recetas desde libros y adaptarlas sin romper la tecnica',
+          'Elegir recetas desde referencias concretas y adaptarlas sin romper la tecnica',
         ],
       },
       {
@@ -110,7 +110,7 @@ export const cocinaItalianaCard: DomainKnowledgeCard = {
     {
       id: 'books_before_improvisation',
       description:
-        'Al comenzar, los libros y recetas escritas deben guiar la practica. Improvisar demasiado pronto suele degradar tecnica y sabor.',
+        'Al comenzar, una referencia confiable y paso a paso debe guiar la practica. Puede ser receta escrita, libro o video tecnico; improvisar demasiado pronto suele degradar tecnica y sabor.',
       severity: 'BLOCKER',
     },
     {
