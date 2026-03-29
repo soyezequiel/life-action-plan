@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { DomainKnowledgeCard } from '../../src/lib/domain/domain-knowledge/bank';
 import type { StrategyInput } from '../../src/lib/pipeline/shared/phase-io';
-import { generateStrategy, buildFallbackStrategy } from '../../src/lib/pipeline/shared/strategy';
+import { generateStrategy, generateStrategyWithSource, buildFallbackStrategy } from '../../src/lib/pipeline/shared/strategy';
 import type { AgentRuntime } from '../../src/lib/runtime/types';
 
 const cookingCard: DomainKnowledgeCard = {
@@ -166,6 +166,72 @@ function createInvalidContentRuntime(): AgentRuntime {
   return runtime;
 }
 
+function createReasoningRuntime(payload: unknown): AgentRuntime {
+  const content = typeof payload === 'string'
+    ? payload
+    : `<think>planifico primero</think>${JSON.stringify(payload)}`;
+  const runtime: AgentRuntime = {
+    async chat() {
+      return {
+        content,
+        usage: {
+          promptTokens: 1,
+          completionTokens: 1,
+        },
+      };
+    },
+    async *stream() {
+    },
+    newContext() {
+      return runtime;
+    },
+  };
+
+  return runtime;
+}
+
+function createReasoningInput(clarificationAnswers: Record<string, string> = {}): StrategyInput {
+  return {
+    ...strategyInput,
+    goalText: 'Quiero aprender a hacer pizza italiana',
+    planningContext: {
+      interpretation: {
+        parsedGoal: 'Aprender pizza italiana',
+        implicitAssumptions: [],
+      },
+      clarificationAnswers: {
+        subtema: 'pizza',
+        nivel: 'principiante',
+        horizonte: '6 meses',
+        ...clarificationAnswers,
+      },
+    },
+  };
+}
+
+function createReasoningPayload(phases: Array<{
+  id: string;
+  title: string;
+  summary: string;
+  startMonth: number;
+  endMonth: number;
+}>): unknown {
+  return {
+    title: 'Plan de pizza italiana',
+    summary: 'Roadmap para practicar pizza italiana con progreso observable.',
+    totalMonths: Math.max(...phases.map((phase) => phase.endMonth)),
+    estimatedWeeklyHours: 4,
+    phases,
+    milestones: phases.map((phase, index) => ({
+      id: `m-${index + 1}`,
+      label: `Hito ${index + 1}: ${phase.title}`,
+      targetMonth: phase.endMonth,
+      phaseId: phase.id,
+    })),
+    conflicts: [],
+  };
+}
+
 describe('buildFallbackStrategy', () => {
   it('evita fases genericas cuando hay contexto de skill y domain card', () => {
     const result = buildFallbackStrategy(strategyInput, cookingCard);
@@ -242,5 +308,112 @@ describe('buildFallbackStrategy', () => {
       'Natacion o aquagym',
       'Fuerza basica y movilidad',
     ]));
+  });
+});
+
+describe('generateStrategyWithSource validation', () => {
+  it('acepta un horizonte semantico por duracion aunque no repita 6 meses literal', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Pizza principiante: masa y fermentacion',
+          summary: 'Practica pizza italiana con foco en amasado, hidratacion y control del horno.',
+          startMonth: 1,
+          endMonth: 3,
+        },
+        {
+          id: 'phase-2',
+          title: 'Pizza principiante: servicio y repeticion',
+          summary: 'Consolida pizza italiana con rutinas repetibles y criterios de calidad observables.',
+          startMonth: 4,
+          endMonth: 6,
+        },
+      ])),
+      createReasoningInput(),
+      cookingCard,
+    );
+
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+  });
+
+  it.each(['seis meses', 'medio año'])('acepta variantes textuales del horizonte: %s', async (horizonLabel) => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: `Pizza principiante para ${horizonLabel}`,
+          summary: 'Practica pizza italiana con metas visibles desde el inicio.',
+          startMonth: 1,
+          endMonth: 1,
+        },
+        {
+          id: 'phase-2',
+          title: 'Pizza principiante: ejecucion final',
+          summary: `Cierra un plan de ${horizonLabel} con pizza italiana consistente y servicio reproducible.`,
+          startMonth: 2,
+          endMonth: 2,
+        },
+      ])),
+      createReasoningInput(),
+      cookingCard,
+    );
+
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+  });
+
+  it('informa el failedCheck cuando la salida omite el nivel', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Pizza italiana: masa y fermentacion',
+          summary: 'Practica pizza italiana durante seis meses con foco en tecnica base.',
+          startMonth: 1,
+          endMonth: 3,
+        },
+        {
+          id: 'phase-2',
+          title: 'Pizza italiana: hornos y servicio',
+          summary: 'Consolida pizza italiana con sesiones estables hasta completar el horizonte.',
+          startMonth: 4,
+          endMonth: 6,
+        },
+      ])),
+      createReasoningInput(),
+      cookingCard,
+    );
+
+    expect(result.source).toBe('fallback');
+    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
+    expect(result.fallbackMessage).toContain('cooking.level');
+  });
+
+  it('acepta la salida reasoning cuando titulo y resumen incluyen pizza y principiante', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Pizza principiante: base tecnica',
+          summary: 'Plan de seis meses para pizza italiana principiante con practica y feedback semanal.',
+          startMonth: 1,
+          endMonth: 2,
+        },
+        {
+          id: 'phase-2',
+          title: 'Pizza principiante: repeticion y servicio',
+          summary: 'Pizza italiana para principiante con estandares observables y cierre de medio año.',
+          startMonth: 3,
+          endMonth: 6,
+        },
+      ])),
+      createReasoningInput(),
+      cookingCard,
+    );
+
+    expect(result.source).toBe('llm');
+    expect(result.output.phases).toHaveLength(2);
   });
 });

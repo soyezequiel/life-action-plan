@@ -37,3 +37,4 @@ tests_*output*.txt
 typecheck*.txt
 typecheck*.log
 vitest_output.txt
+CONOUT$
