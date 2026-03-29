@@ -276,6 +276,197 @@ describe('agent fallbacks (no LLM)', () => {
 
       await expect(clarifierAgent.execute(input, createUnauthorizedRuntime())).rejects.toThrow('Unauthorized');
     });
+
+    it('does not advance when there are still valid clarification questions even if the model reports high confidence', async () => {
+      const input: ClarifierInput = {
+        interpretation: createInterpretation(),
+        previousAnswers: {},
+        profileSummary: null,
+      };
+
+      const result = await clarifierAgent.execute(input, createJsonRuntime({
+        questions: [{
+          id: 'availability-hours',
+          text: '¿Cuántas horas reales por semana podés dedicarle?',
+          purpose: 'Para ajustar la carga semanal del plan.',
+          type: 'number',
+          min: 1,
+          max: 20,
+        }],
+        reasoning: 'Falta disponibilidad horaria.',
+        informationGaps: ['Horas reales por semana'],
+        confidence: 0.97,
+        readyToAdvance: true,
+      }));
+
+      expect(result.readyToAdvance).toBe(false);
+      expect(result.questions).toHaveLength(1);
+      expect(result.questions[0]).toMatchObject({
+        id: 'q1',
+        type: 'number',
+        min: 1,
+        max: 20,
+      });
+      expect(result.informationGaps).toEqual(['horas_reales_por_semana']);
+    });
+
+    it('normalizes ids sequentially and keeps stable snake_case gap keys', async () => {
+      const input: ClarifierInput = {
+        interpretation: createInterpretation(),
+        previousAnswers: {},
+        profileSummary: null,
+      };
+
+      const result = await clarifierAgent.execute(input, createJsonRuntime({
+        questions: [
+          {
+            id: 'availability-hours',
+            text: '¿Cuántas horas semanales reales podés dedicarle?',
+            purpose: 'Para dimensionar un ritmo sostenible.',
+            type: 'number',
+          },
+          {
+            id: 'deadline??',
+            text: '¿Tenés una fecha límite concreta?',
+            purpose: 'Para definir el horizonte del plan.',
+            type: 'text',
+          },
+        ],
+        reasoning: 'Faltan dos anclas operativas.',
+        informationGaps: ['Disponibilidad semanal real', 'Fecha límite concreta'],
+        confidence: 0.61,
+        readyToAdvance: false,
+      }));
+
+      expect(result.readyToAdvance).toBe(false);
+      expect(result.questions.map((question) => question.id)).toEqual(['q1', 'q2']);
+      expect(result.informationGaps).toEqual([
+        'disponibilidad_semanal_real',
+        'fecha_limite_concreta',
+      ]);
+    });
+
+    it('drops questions that exactly repeat data already answered in previous rounds', async () => {
+      const input: ClarifierInput = {
+        interpretation: createInterpretation(),
+        previousAnswers: {
+          '¿Cuántas horas reales por semana podés dedicarle?': '6',
+        },
+        profileSummary: null,
+      };
+
+      const result = await clarifierAgent.execute(input, createJsonRuntime({
+        questions: [{
+          id: 'availability',
+          text: '¿Cuántas horas reales por semana podés dedicarle?',
+          purpose: 'Para ajustar la carga semanal del plan.',
+          type: 'number',
+        }],
+        reasoning: 'La salida del modelo repite una pregunta ya respondida.',
+        informationGaps: ['horas_reales_por_semana'],
+        confidence: 0.4,
+        readyToAdvance: false,
+      }));
+
+      expect(result.readyToAdvance).toBe(true);
+      expect(result.questions).toEqual([]);
+      expect(result.informationGaps).toEqual([]);
+    });
+
+    it('filters English questions, renumbers survivors, and downgrades invalid select fields', async () => {
+      const input: ClarifierInput = {
+        interpretation: createInterpretation(),
+        previousAnswers: {},
+        profileSummary: null,
+      };
+
+      const result = await clarifierAgent.execute(input, createJsonRuntime({
+        questions: [
+          {
+            id: 'budget',
+            text: 'What is your budget?',
+            purpose: 'Need budget for the plan.',
+            type: 'number',
+          },
+          {
+            id: 'format',
+            text: '¿Preferís clases o videos?',
+            purpose: 'Para elegir el formato principal.',
+            type: 'select',
+            options: ['Clases', 'Videos'],
+          },
+          {
+            id: 'deadline',
+            text: '¿Qué plazo estimado tenés en meses?',
+            purpose: 'Para definir el ritmo del plan.',
+            type: 'select',
+          },
+        ],
+        reasoning: 'Hay dos faltantes útiles.',
+        informationGaps: ['learning_format', 'target_months'],
+        confidence: 0.5,
+        readyToAdvance: false,
+      }));
+
+      expect(result.readyToAdvance).toBe(false);
+      expect(result.questions).toHaveLength(2);
+      expect(result.questions[0]).toMatchObject({
+        id: 'q1',
+        type: 'select',
+        options: ['Clases', 'Videos'],
+      });
+      expect(result.questions[1]).toMatchObject({
+        id: 'q2',
+        type: 'text',
+      });
+      expect(result.informationGaps).toEqual(['learning_format', 'target_months']);
+    });
+
+    it('deduplicates repeated questions and derives fallback gap keys when the model omits them', async () => {
+      const input: ClarifierInput = {
+        interpretation: createInterpretation(),
+        previousAnswers: {},
+        profileSummary: null,
+      };
+
+      const result = await clarifierAgent.execute(input, createJsonRuntime({
+        questions: [
+          {
+            id: 'deadline-a',
+            text: '¿Tenés una fecha límite concreta?',
+            purpose: 'Para fijar el horizonte del plan.',
+            type: 'text',
+          },
+          {
+            id: 'deadline-b',
+            text: '¿Tenés una fecha límite concreta?',
+            purpose: 'Para fijar el horizonte del plan.',
+            type: 'text',
+          },
+          {
+            id: 'availability',
+            text: '¿Cuántas horas semanales reales podés dedicarle?',
+            purpose: 'Para ajustar el volumen semanal.',
+            type: 'number',
+          },
+        ],
+        reasoning: 'Faltan plazo y disponibilidad.',
+        informationGaps: [],
+        confidence: 0.42,
+        readyToAdvance: false,
+      }));
+
+      expect(result.readyToAdvance).toBe(false);
+      expect(result.questions.map((question) => question.id)).toEqual(['q1', 'q2']);
+      expect(result.questions.map((question) => question.text)).toEqual([
+        '¿Tenés una fecha límite concreta?',
+        '¿Cuántas horas semanales reales podés dedicarle?',
+      ]);
+      expect(result.informationGaps).toEqual([
+        'fecha_limite_concreta',
+        'horas_semanales_reales_dedicarle',
+      ]);
+    });
   });
 
   describe('feasibilityCheckerAgent.fallback', () => {

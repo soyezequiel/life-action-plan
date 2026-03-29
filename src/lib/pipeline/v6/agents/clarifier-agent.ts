@@ -14,20 +14,56 @@ export interface ClarifierInput {
   profileSummary: string | null
 }
 
+const MAX_CLARIFICATION_QUESTIONS = 3;
+
+const CLARIFIER_SYSTEM_PROMPT = [
+  'You are the LAP v6 clarifier.',
+  'Your job is to decide whether planning can start now and, if not, ask the minimum number of critical questions.',
+  'Return JSON only. Do not add markdown, explanations, or any text outside the JSON object.',
+].join(' ');
+
+const CLARIFIER_INVARIANTS = [
+  'Treat previous answers as an immutable answer ledger. Never paraphrase, merge, reinterpret, or contradict them.',
+  'Never ask again for a field that already has an explicit answer in the answer ledger or in the profile context.',
+  'Ask only CRITICAL missing data that changes safety, feasibility, scope, schedule, or success criteria.',
+  'Each question must ask for exactly one missing variable.',
+  'Prefer closed questions: select, number, or range. Use text only when a closed format would distort the answer.',
+  'Avoid broad prompts such as "contame mas", "describi", "explica", or multi-part questions.',
+  'Minimize rounds: ask the smallest complete batch that unlocks planning, usually 1 to 3 questions.',
+  'If you ask at least one question, set readyToAdvance=false.',
+  'If no critical gaps remain, return questions=[], informationGaps=[], readyToAdvance=true.',
+  'Questions and purpose must be in Spanish.',
+  'informationGaps must use short stable snake_case keys, one per question, in the same order.',
+  'Keep reasoning short and limited to unresolved critical gaps only.',
+];
+
 function normalizeText(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function normalizeStringList(value: unknown): string[] {
+function normalizeStringList(value: unknown, maxItems = Number.POSITIVE_INFINITY): string[] {
   if (!Array.isArray(value)) {
     return [];
   }
 
-  return Array.from(new Set(
-    value
-      .map((item) => normalizeText(item))
-      .filter((item) => item.length > 0),
-  ));
+  const uniqueValues: string[] = [];
+  const seen = new Set<string>();
+
+  for (const item of value) {
+    const normalized = normalizeText(item);
+    if (normalized.length === 0 || seen.has(normalized)) {
+      continue;
+    }
+
+    seen.add(normalized);
+    uniqueValues.push(normalized);
+
+    if (uniqueValues.length >= maxItems) {
+      break;
+    }
+  }
+
+  return uniqueValues;
 }
 
 function normalizeWhitespace(value: string): string {
@@ -50,6 +86,9 @@ function tokenize(value: string): string[] {
     'cual',
     'cuando',
     'cuanto',
+    'cuanta',
+    'cuantas',
+    'cuantos',
     'de',
     'del',
     'donde',
@@ -65,11 +104,14 @@ function tokenize(value: string): string[] {
     'para',
     'por',
     'que',
+    'queres',
     'ser',
     'sin',
     'sobre',
+    'tenes',
     'una',
     'uno',
+    'podes',
     'user',
   ]);
 
@@ -78,61 +120,33 @@ function tokenize(value: string): string[] {
     .filter((token) => token.length >= 4 && !stopWords.has(token));
 }
 
-function detectResolvedAmbiguities(
-  ambiguities: string[],
-  previousAnswers: Record<string, string>,
-): string[] {
-  const answerEntries = Object.entries(previousAnswers)
-    .map(([key, value]) => `${key} ${value}`.trim())
-    .filter((entry) => normalizeText(entry).length > 0);
-
-  if (answerEntries.length === 0) {
-    return [];
-  }
-
-  return ambiguities.filter((ambiguity) => {
-    const ambiguityTokens = tokenize(ambiguity);
-
-    if (ambiguityTokens.length === 0) {
-      return false;
-    }
-
-    return answerEntries.some((answer) => {
-      const answerTokens = new Set(tokenize(answer));
-      let overlap = 0;
-
-      for (const token of ambiguityTokens) {
-        if (answerTokens.has(token)) {
-          overlap += 1;
-        }
-      }
-
-      return overlap >= Math.min(2, ambiguityTokens.length);
-    });
-  });
-}
-
 function formatPreviousAnswers(previousAnswers: Record<string, string>): string {
   const entries = Object.entries(previousAnswers)
     .map(([key, value]) => [key.trim(), value.trim()] as const)
     .filter(([, value]) => value.length > 0);
 
   if (entries.length === 0) {
-    return 'None';
+    return '[]';
   }
 
-  return entries
-    .map(([key, value]) => `- ${key}: ${value}`)
-    .join('\n');
+  return JSON.stringify(
+    entries.map(([question, answer]) => ({ question, answer })),
+    null,
+    2,
+  );
 }
 
-function formatResolvedAmbiguities(resolvedAmbiguities: string[]): string {
-  if (resolvedAmbiguities.length === 0) {
-    return 'None identified yet';
+function formatAmbiguities(ambiguities: string[]): string {
+  if (ambiguities.length === 0) {
+    return '[]';
   }
 
-  return resolvedAmbiguities
-    .map((ambiguity) => `- ${ambiguity}`)
+  return JSON.stringify(ambiguities, null, 2);
+}
+
+function formatInvariants(): string {
+  return CLARIFIER_INVARIANTS
+    .map((invariant, index) => `${index + 1}. ${invariant}`)
     .join('\n');
 }
 
@@ -141,75 +155,81 @@ function buildDomainClarificationGuidance(input: ClarifierInput): string {
 
   if (/\b(bajar de peso|perder peso|adelgaz|peso|kg\b|kilos?|obesidad|sobrepeso|salud|cintura|medidas|imc|bmi)\b/.test(goalText)) {
     return [
-      'Priority domain questions for a health goal:',
-      '- Ask for current weight and height if missing.',
-      '- Ask if there is any medical context, medication, pain, or condition that changes the plan.',
-      '- Ask which activities are viable in real life, not idealized ones.',
-      '- Ask whether the user wants professional supervision or already has it.',
+      'Health-domain priorities:',
+      '- Ask only for missing baseline metrics that materially affect the plan, preferably as number or range.',
+      '- Ask about medical context, pain, medication, or contraindications only if missing and plan-critical.',
+      '- Ask which activities are realistically viable only if the goal depends on exercise selection.',
+      '- Ask whether the user already has or wants professional supervision when it changes safety or scope.',
     ].join('\n');
   }
 
   if (/\bcocin|receta|plato|gastronom|pasta|pastas\b/.test(goalText)) {
     return [
-      'Priority domain questions for a cooking goal:',
-      '- Ask for the current level or starting point.',
-      '- Ask for the concrete subtopic, such as pastas or another dish family.',
-      '- Ask for the preferred learning method, such as books, classes, or video.',
-      '- Ask for the horizon or target time frame.',
+      'Cooking-domain priorities:',
+      '- Ask for current level only if it changes the starting difficulty.',
+      '- Ask for the concrete dish family or subtopic only if the scope is still broad.',
+      '- Ask for time horizon only if it changes pacing or sequencing.',
+      '- Ask for the learning format only if it changes the plan structure in a material way.',
     ].join('\n');
   }
 
-  return 'Priority domain questions: ask only for the missing details that materially change the plan.';
+  return [
+    'Generic priorities:',
+    '- Consider deadline, current baseline, real availability, hard constraints, and success criteria.',
+    '- Ask only for the missing details that materially change the plan.',
+  ].join('\n');
 }
 
 function buildClarifierPrompt(input: ClarifierInput): string {
-  const resolvedAmbiguities = detectResolvedAmbiguities(
-    input.interpretation.ambiguities,
-    input.previousAnswers,
-  );
-
   return `
-You are a planning assistant gathering information to create a personal action plan.
+Decide whether the planner still needs clarification before building the action plan.
 
-Goal: "${input.interpretation.parsedGoal}"
-Goal type: ${input.interpretation.goalType}
-Known ambiguities: ${JSON.stringify(input.interpretation.ambiguities)}
+Goal context:
+- Goal: "${input.interpretation.parsedGoal}"
+- Goal type: ${input.interpretation.goalType}
+- Suggested domain: ${input.interpretation.suggestedDomain ?? 'null'}
+- Candidate ambiguities from interpretation. They are only candidates, not proof of missing data:
+${formatAmbiguities(input.interpretation.ambiguities)}
 
-Ambiguities already resolved by previous answers:
-${formatResolvedAmbiguities(resolvedAmbiguities)}
-
-Information already collected:
+Authoritative answer ledger from previous rounds:
 ${formatPreviousAnswers(input.previousAnswers)}
 
-Existing profile data available:
-${input.profileSummary || 'None'}
+Known profile context:
+${input.profileSummary || 'null'}
 
 ${buildDomainClarificationGuidance(input)}
 
-Analyze what information is still missing to create a realistic, executable plan.
-For each remaining gap, decide if it is CRITICAL (plan quality depends on it) or NICE-TO-HAVE.
+Critical-gap rubric:
+- A gap is CRITICAL only if it changes safety, feasibility, scope, schedule, or success criteria.
+- A gap is NOT critical if the planner can make a reasonable best-effort assumption without asking.
+- Minimize rounds by asking the smallest complete batch that unlocks planning.
 
-Then generate 2-4 questions that address the CRITICAL gaps first.
-Each question must have a clear purpose explaining why you need this information.
-Ask ONLY about remaining gaps.
-Questions MUST be in Spanish.
-If confidence >= 0.8 or there are no more critical gaps, return an empty questions array and set readyToAdvance to true.
+Output invariants:
+${formatInvariants()}
 
-Output ONLY this JSON:
+Silent checklist:
+1. Review each candidate ambiguity against the answer ledger and profile context.
+2. Mark a gap as CLOSED when there is already an explicit answer.
+3. Never reopen a CLOSED gap.
+4. Ask 0 questions if the current information is enough for a realistic best-effort plan.
+5. If you ask questions, ask 1 to 3 questions total.
+6. Keep each question concrete, answerable in one shot, and as closed as possible.
+
+Return ONLY this JSON shape:
 {
   "questions": [
     {
-      "id": "unique-id",
-      "text": "question in Spanish",
-      "purpose": "why this matters for the plan",
+      "id": "q1",
+      "text": "pregunta concreta en espanol",
+      "purpose": "motivo concreto en espanol",
       "type": "text|number|select|range",
       "options": ["only for select type"],
       "min": null,
       "max": null
     }
   ],
-  "reasoning": "what information gaps remain and why",
-  "informationGaps": ["remaining unknowns"],
+  "reasoning": "explicacion breve solo sobre faltantes criticos",
+  "informationGaps": ["snake_case_gap_key"],
   "confidence": 0.0-1.0,
   "readyToAdvance": true/false
 }
@@ -231,7 +251,7 @@ function normalizeNumericBound(value: unknown): number | undefined {
   return undefined;
 }
 
-function looksEnglishQuestion(value: string): boolean {
+function looksEnglishText(value: string): boolean {
   const normalized = normalizeWhitespace(value);
 
   return /\b(what|why|how|when|which|where|should|would|could|can|are|is|do|does|your)\b/.test(normalized);
@@ -239,7 +259,6 @@ function looksEnglishQuestion(value: string): boolean {
 
 function normalizeQuestion(
   value: unknown,
-  index: number,
 ): ClarificationQuestion | null {
   if (!value || typeof value !== 'object') {
     return null;
@@ -250,19 +269,19 @@ function normalizeQuestion(
   const text = normalizeText(record.text);
   const purpose = normalizeText(record.purpose);
 
-  if (text.length === 0 || purpose.length === 0 || looksEnglishQuestion(text)) {
+  if (text.length === 0 || purpose.length === 0 || looksEnglishText(text) || looksEnglishText(purpose)) {
     return null;
   }
 
   const options = type === 'select'
-    ? normalizeStringList(record.options)
+    ? normalizeStringList(record.options, 6)
     : undefined;
   const normalizedType = type === 'select' && (!options || options.length === 0)
     ? 'text'
     : type;
 
   const question: ClarificationQuestion = {
-    id: normalizeText(record.id) || `clarify-${index + 1}`,
+    id: 'q',
     text,
     purpose,
     type: normalizedType,
@@ -286,6 +305,23 @@ function normalizeQuestion(
   return question;
 }
 
+function normalizeGapKey(value: string): string {
+  return normalizeWhitespace(value)
+    .split(' ')
+    .filter((token) => token.length > 0)
+    .slice(0, 6)
+    .join('_');
+}
+
+function deriveGapKeyFromQuestion(question: ClarificationQuestion, index: number): string {
+  const derivedTokens = tokenize(question.text).slice(0, 6);
+  if (derivedTokens.length === 0) {
+    return `gap_${index + 1}`;
+  }
+
+  return derivedTokens.join('_');
+}
+
 function normalizeConfidence(value: unknown, fallback = 0.6): number {
   const numericValue = typeof value === 'number' ? value : Number(value);
 
@@ -296,19 +332,43 @@ function normalizeConfidence(value: unknown, fallback = 0.6): number {
   return Math.max(0, Math.min(1, numericValue));
 }
 
-function normalizeClarificationRound(payload: Record<string, unknown>): ClarificationRound {
-  const questions = Array.isArray(payload.questions)
-    ? payload.questions
-        .map((question, index) => normalizeQuestion(question, index))
-        .filter((question): question is ClarificationQuestion => question !== null)
-        .slice(0, 4)
-    : [];
+function normalizeClarificationRound(
+  payload: Record<string, unknown>,
+  previousAnswers: Record<string, string>,
+): ClarificationRound {
+  const answeredQuestions = new Set(
+    Object.keys(previousAnswers)
+      .map((question) => normalizeWhitespace(question))
+      .filter((question) => question.length > 0),
+  );
+  const seenQuestions = new Set<string>();
 
-  const informationGaps = normalizeStringList(payload.informationGaps);
+  const normalizedQuestions = Array.isArray(payload.questions)
+    ? payload.questions
+        .map((question) => normalizeQuestion(question))
+        .filter((question): question is ClarificationQuestion => question !== null)
+        .filter((question) => {
+          const normalizedText = normalizeWhitespace(question.text);
+          if (normalizedText.length === 0 || answeredQuestions.has(normalizedText) || seenQuestions.has(normalizedText)) {
+            return false;
+          }
+
+          seenQuestions.add(normalizedText);
+          return true;
+        })
+        .slice(0, MAX_CLARIFICATION_QUESTIONS)
+    : [];
+  const questions = normalizedQuestions.map((question, index) => ({
+    ...question,
+    id: `q${index + 1}`,
+  }));
+
+  const rawInformationGaps = normalizeStringList(payload.informationGaps, MAX_CLARIFICATION_QUESTIONS)
+    .map((gap) => normalizeGapKey(gap))
+    .filter((gap) => gap.length > 0);
+  const informationGaps = questions.map((question, index) => rawInformationGaps[index] || deriveGapKeyFromQuestion(question, index));
   const confidence = normalizeConfidence(payload.confidence);
-  const readyToAdvance = payload.readyToAdvance === true
-    || confidence >= 0.8
-    || informationGaps.length === 0;
+  const readyToAdvance = questions.length === 0;
 
   return ClarificationRoundSchema.parse({
     questions: readyToAdvance ? [] : questions,
@@ -323,13 +383,19 @@ export const clarifierAgent: V6Agent<ClarifierInput, ClarificationRound> = {
   name: 'clarifier',
 
   async execute(input: ClarifierInput, runtime: AgentRuntime): Promise<ClarificationRound> {
-    const response = await runtime.chat([{
-      role: 'user',
-      content: buildClarifierPrompt(input),
-    }]);
+    const response = await runtime.chat([
+      {
+        role: 'system',
+        content: CLARIFIER_SYSTEM_PROMPT,
+      },
+      {
+        role: 'user',
+        content: buildClarifierPrompt(input),
+      },
+    ]);
     const raw = extractFirstJsonObject(response.content);
     const parsed = JSON.parse(raw) as Record<string, unknown>;
-    return normalizeClarificationRound(parsed);
+    return normalizeClarificationRound(parsed, input.previousAnswers);
   },
 
   fallback(): ClarificationRound {

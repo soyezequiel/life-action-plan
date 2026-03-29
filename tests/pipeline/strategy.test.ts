@@ -1015,4 +1015,97 @@ describe('buildStrategyPrompt domain alignment', () => {
     expect(prompt).toContain('El usuario pidio un plazo de 12 mes(es)');
     expect(prompt).not.toContain('El usuario pidio un plazo de 2 mes(es)');
   });
+
+  it('ancla meta, metrica, horizonte y via en el checklist de invariantes', () => {
+    const prompt = buildStrategyPrompt({
+      goalText: 'Quiero lograr obtener un flujo de 3k dolares por mes en argentina',
+      goalType: 'QUANT_TARGET_TRACKING',
+      interpretation: {
+        parsedGoal: 'Generar 3k USD por mes desde Argentina',
+        implicitAssumptions: [],
+      },
+      userProfile: {
+        freeHoursWeekday: 1,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+      },
+      domainContext: null,
+      clarificationAnswers: {
+        'senal tipada - general: plazo': '12 meses',
+        via: 'empleo remoto',
+        stack: 'react y python',
+      },
+    });
+
+    expect(prompt).toContain('CHECKLIST DE INVARIANTES');
+    expect(prompt).toContain('Meta literal: "Quiero lograr obtener un flujo de 3k dolares por mes en argentina"');
+    expect(prompt).toContain('3k dolares por mes');
+    expect(prompt).toContain('Horizonte literal a preservar: "12 meses"');
+    expect(prompt).toContain('Via o palanca explicitada: "empleo remoto"');
+    expect(prompt).toContain('No inventes profesiones, industrias, mercados ni disciplinas.');
+  });
+
+  it('exige self-check y bloqueo claro antes del JSON final', () => {
+    const prompt = buildStrategyPrompt({
+      goalText: 'Quiero aprender a cocinar platos italianos',
+      goalType: 'SKILL_ACQUISITION',
+      interpretation: {
+        parsedGoal: 'Aprender a cocinar platos italianos',
+        implicitAssumptions: [],
+      },
+      userProfile: {
+        freeHoursWeekday: 1,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+      },
+      domainContext: {
+        card: cocinaItalianaCard,
+      },
+      clarificationAnswers: {
+        platos: 'pizzas',
+        metodo: 'videos',
+        nivel: 'principiante',
+        plazo: '1 mes',
+      },
+    });
+
+    expect(prompt).toContain('SELF-CHECK OBLIGATORIO');
+    expect(prompt).toContain('datos_criticos: ok|missing');
+    expect(prompt).toContain('BLOQUEO CLARO:');
+    expect(prompt).toContain('No inventes datos para completar el plan.');
+  });
+
+  it('incluye ejemplos buenos y malos para preservar alcance y ejecutabilidad', () => {
+    const prompt = buildStrategyPrompt({
+      goalText: 'Quiero aprender a cocinar platos italianos',
+      goalType: 'SKILL_ACQUISITION',
+      interpretation: {
+        parsedGoal: 'Aprender a cocinar platos italianos',
+        implicitAssumptions: [],
+      },
+      userProfile: {
+        freeHoursWeekday: 1,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+      },
+      domainContext: {
+        card: cocinaItalianaCard,
+      },
+      clarificationAnswers: {
+        platos: 'pizzas',
+        metodo: 'videos',
+        nivel: 'principiante',
+        plazo: '1 mes',
+      },
+    });
+
+    expect(prompt).toContain('EJEMPLOS BUENOS / MALOS');
+    expect(prompt).toContain('Portfolio y postulaciones React/Python para empleo remoto rumbo a 3k USD/mes');
+    expect(prompt).toContain('Construir presencia online y explorar ingresos digitales');
+    expect(prompt).toContain('Base de masas, salsas y pasta corta para cocina italiana con entrada por pizza');
+    expect(prompt).toContain('Lanzar un microemprendimiento de pizzas por Instagram');
+  });
 });
