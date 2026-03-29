@@ -4,6 +4,7 @@ import type { DomainKnowledgeCard } from '../../src/lib/domain/domain-knowledge/
 import { cocinaItalianaCard } from '../../src/lib/domain/domain-knowledge/cards/cocina-italiana';
 import type { StrategyInput } from '../../src/lib/pipeline/shared/phase-io';
 import { generateStrategy, generateStrategyWithSource, buildFallbackStrategy } from '../../src/lib/pipeline/shared/strategy';
+import { buildStrategyPrompt } from '../../src/lib/pipeline/v6/prompts/strategy-reasoning';
 import type { AgentRuntime } from '../../src/lib/runtime/types';
 
 const cookingCard: DomainKnowledgeCard = {
@@ -331,6 +332,32 @@ describe('buildFallbackStrategy', () => {
     expect(summary).toMatch(/pomodoro|aglio e olio|cacio e pepe|tecnica base/i);
   });
 
+  it('mantiene un foco inicial en pizza sin perder la base de pastas cuando el objetivo sigue siendo cocina italiana amplia', () => {
+    const result = buildFallbackStrategy({
+      ...strategyInput,
+      goalText: 'Quiero aprender a cocinar platos italianos',
+      planningContext: {
+        clarificationAnswers: {
+          platos: 'pizzas',
+          metodo: 'videos',
+          nivel: 'principiante',
+          plazo: '1 mes',
+        },
+      },
+    }, cocinaItalianaCard);
+
+    const summary = [
+      ...result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`),
+      ...result.milestones,
+    ].join(' ');
+
+    expect(result.phases.map((phase) => phase.durationWeeks)).toEqual([2, 1, 1]);
+    expect(summary).toContain('pizza');
+    expect(summary).toContain('pasta');
+    expect(summary).toContain('videos');
+    expect(summary).toContain('platos italianos clasicos');
+  });
+
   it('preserva el fallback cuando el modelo responde contenido invalido', async () => {
     await expect(generateStrategy(createInvalidContentRuntime(), strategyInput, cookingCard)).resolves.toEqual(
       buildFallbackStrategy(strategyInput, cookingCard),
@@ -482,7 +509,7 @@ describe('generateStrategyWithSource validation', () => {
     expect(result.output.phases).toHaveLength(2);
   });
 
-  it('acepta aclaraciones en plural aunque el plan use el subtema en singular', async () => {
+  it('rechaza cocina italiana amplia si el plan se reduce solo al subtema y pierde la base de pastas', async () => {
     const result = await generateStrategyWithSource(
       createReasoningRuntime(createReasoningPayload([
         {
@@ -496,6 +523,33 @@ describe('generateStrategyWithSource validation', () => {
           id: 'phase-2',
           title: 'Pizza principiante: repeticion y servicio',
           summary: 'Consolida pizza italiana en 2 meses con criterios visibles de calidad.',
+          startMonth: 2,
+          endMonth: 2,
+        },
+      ])),
+      createBroadItalianCookingInput(),
+      cookingCard,
+    );
+
+    expect(result.source).toBe('fallback');
+    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
+    expect(result.fallbackMessage).toContain('cooking.domain_scope');
+  });
+
+  it('acepta cocina italiana amplia cuando el plan mantiene pizza como foco e incluye base de pastas', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Pizza principiante y base italiana',
+          summary: 'Practica pizza italiana con videos mientras arma una base de pasta al pomodoro para cocina italiana principiante en 2 meses.',
+          startMonth: 1,
+          endMonth: 1,
+        },
+        {
+          id: 'phase-2',
+          title: 'Pastas italianas repetibles con foco en pizza',
+          summary: 'Consolida pasta al pomodoro y cacio e pepe sin perder pizza como foco inicial dentro de un plan de 2 meses.',
           startMonth: 2,
           endMonth: 2,
         },
@@ -641,5 +695,66 @@ describe('isStructuralPhaseTitle - specificity gate', () => {
     expect(result.source).toBe('llm');
     expect(result.fallbackCode).toBeUndefined();
     expect(result.fallbackMessage).toBeUndefined();
+  });
+});
+
+describe('buildStrategyPrompt domain alignment', () => {
+  it('expone los exit criteria del dominio para alinear planner y critic', () => {
+    const prompt = buildStrategyPrompt({
+      goalText: 'Quiero aprender a cocinar platos italianos',
+      goalType: 'SKILL_ACQUISITION',
+      interpretation: {
+        parsedGoal: 'Aprender a cocinar platos italianos',
+        implicitAssumptions: [],
+      },
+      userProfile: {
+        freeHoursWeekday: 1,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+      },
+      domainContext: {
+        card: cocinaItalianaCard,
+      },
+      clarificationAnswers: {
+        platos: 'pizzas',
+        metodo: 'videos',
+        nivel: 'principiante',
+        plazo: '1 mes',
+      },
+    });
+
+    expect(prompt).toContain('Criterios de salida por nivel');
+    expect(prompt).toContain('Preparar 3 recetas de pasta con resultados repetibles');
+    expect(prompt).toContain('Entender la logica de una receta escrita sin ayuda paso a paso');
+  });
+
+  it('aclara que el subtema inicial no reemplaza el objetivo amplio de cocina italiana', () => {
+    const prompt = buildStrategyPrompt({
+      goalText: 'Quiero aprender a cocinar platos italianos',
+      goalType: 'SKILL_ACQUISITION',
+      interpretation: {
+        parsedGoal: 'Aprender a cocinar platos italianos',
+        implicitAssumptions: [],
+      },
+      userProfile: {
+        freeHoursWeekday: 1,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+      },
+      domainContext: {
+        card: cocinaItalianaCard,
+      },
+      clarificationAnswers: {
+        platos: 'pizzas',
+        metodo: 'videos',
+        nivel: 'principiante',
+        plazo: '1 mes',
+      },
+    });
+
+    expect(prompt).toContain('El subtema elegido por el usuario es una puerta de entrada');
+    expect(prompt).toContain('no debes convertir todo el plan en pizza');
   });
 });

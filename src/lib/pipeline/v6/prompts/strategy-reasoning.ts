@@ -58,6 +58,7 @@ function formatDomainContext(domainContext: StrategyDomainContext | null): strin
 
   if (card.progression?.levels && card.progression.levels.length > 0) {
     parts.push(`Progresion: ${card.progression.levels.map((level) => level.description).join(' -> ')}`);
+    parts.push(`Criterios de salida por nivel: ${card.progression.levels.map((level) => `${level.levelId}: ${level.exitCriteria.join('; ')}`).join(' | ')}`);
   }
 
   if (card.tasks.length > 0) {
@@ -74,6 +75,27 @@ function formatDomainContext(domainContext: StrategyDomainContext | null): strin
   }
 
   return parts.join('\n');
+}
+
+function buildScopeAlignmentGuidance(goalText: string, clarificationAnswers: Record<string, string>): string {
+  const normalizedGoal = goalText.toLowerCase();
+  const normalizedAnswers = Object.values(clarificationAnswers).join(' ').toLowerCase();
+  const isBroadItalianCookingGoal = /\bitalian[oa]s?\b/.test(normalizedGoal)
+    && /\b(cocina|cocinar|plato|platos|receta|recetas|gastronom)\b/.test(normalizedGoal)
+    && !/\b(pasta|pastas|pizza|pizzas|risotto|gnocchi|lasagna|ravioli|postre|postres)\b/.test(normalizedGoal);
+  const hasSpecificSubtopic = /\b(pizza|pizzas|risotto|gnocchi|lasagna|ravioli|salsa|salsas)\b/.test(normalizedAnswers);
+
+  if (!isBroadItalianCookingGoal || !hasSpecificSubtopic) {
+    return '';
+  }
+
+  return `
+## ALCANCE DEL OBJETIVO
+
+El subtema elegido por el usuario es una puerta de entrada, NO un reemplazo del objetivo principal.
+Si el objetivo sigue siendo "cocina italiana" amplia, el plan debe conservar la base exigida por la progresion del dominio aunque arranque por un subtema especifico.
+Ejemplo: si el usuario dice "pizzas" primero, puedes usar pizza como motivacion inicial, pero no debes convertir todo el plan en pizza si la progresion del dominio exige tambien base de pastas o salsas.
+`;
 }
 
 function formatCriticFindings(findings: StrategyCriticFinding[]): string {
@@ -120,6 +142,7 @@ export function buildStrategyPrompt(input: StrategyPromptInput): string {
 
   const totalAvailableHours = (userProfile.freeHoursWeekday * 5) + (userProfile.freeHoursWeekend * 2);
   const horizonMonths = extractHorizonMonths(clarificationAnswers, goalText);
+  const scopeAlignmentBlock = buildScopeAlignmentGuidance(goalText, clarificationAnswers);
   const revisionBlock = previousCriticFindings && previousCriticFindings.length > 0
     ? `
 ## REVISION OBLIGATORIA - La revision anterior encontro estos problemas:
@@ -162,7 +185,7 @@ ${formatAnswers(clarificationAnswers)}
 
 ## Conocimiento de dominio
 ${formatDomainContext(domainContext)}
-${revisionBlock}${horizonBlock}
+${scopeAlignmentBlock}${revisionBlock}${horizonBlock}
 ## Reglas de nombres de fase
 
 NUNCA uses nombres de fase genericos como "Fase 1", "Base", "Fundamentos", "Introduccion", "Consolidacion", "Avance", "Nivel 1", "Nivel 2".

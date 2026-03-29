@@ -542,6 +542,13 @@ function validateStrategyOutput(
     return { valid: false, failedCheck: 'cooking.subtopic' };
   }
 
+  if (
+    shouldPreserveItalianCookingBreadth(input.goalText, typedSignals.cooking.subtopic)
+    && !includesAny(textFields, buildCookingSubtopicVariants('pasta'))
+  ) {
+    return { valid: false, failedCheck: 'cooking.domain_scope' };
+  }
+
   if (typedSignals.cooking.learningMethod && !includesAny(textFields, [typedSignals.cooking.learningMethod])) {
     return { valid: false, failedCheck: 'cooking.learning_method' };
   }
@@ -731,6 +738,23 @@ function inferFocusLabel(goalText: string, domainLabel: string): string {
   return domainLabel;
 }
 
+function isBroadItalianCookingGoal(goalText: string): boolean {
+  const lowerGoal = normalizeSignalText(goalText);
+  return (
+    /\bitalian[oa]s?\b/.test(lowerGoal)
+    && /\b(cocina|cocinar|plato|platos|receta|recetas|gastronom)\b/.test(lowerGoal)
+    && !/\b(pasta|pastas|pizza|pizzas|risotto|gnocchi|lasagna|lasa[ñn]a|ravioli|postre|postres|tiramisu|cannoli)\b/.test(lowerGoal)
+  );
+}
+
+function shouldPreserveItalianCookingBreadth(goalText: string, rawTopic: string | null): boolean {
+  const normalizedTopic = rawTopic ? canonicalizeCookingSubtopicToken(rawTopic) : '';
+  return isBroadItalianCookingGoal(goalText)
+    && normalizedTopic.length > 0
+    && normalizedTopic !== 'pasta'
+    && !normalizedTopic.includes('cocina italiana');
+}
+
 function normalizeCookingMethodPreference(value: string | null): 'videos' | 'libros' | 'clases' | 'mentor' | 'autodidacta' | null {
   const normalized = normalizeSignalText(value ?? '');
   if (!normalized) {
@@ -823,6 +847,27 @@ function buildCookingReferenceAnchors(rawTopic: string | null): [string, string,
       return ['ravioli de ricota', 'masa fresca', 'manteca y salvia'];
     default:
       return ['mise en place italiana', 'una receta eje del repertorio', 'un menu corto italiano'];
+  }
+}
+
+function buildItalianCookingFoundationAnchors(rawTopic: string | null): [string, string, string] {
+  const normalized = rawTopic ? canonicalizeCookingSubtopicToken(rawTopic) : '';
+
+  switch (normalized) {
+    case 'pizza':
+      return ['pizza napolitana', 'pasta al pomodoro', 'carbonara tradicional'];
+    case 'salsa':
+      return ['salsa pomodoro', 'pasta al pomodoro', 'cacio e pepe'];
+    case 'risotto':
+      return ['risotto alla milanese', 'pasta al pomodoro', 'cacio e pepe'];
+    case 'gnocchi':
+      return ['gnocchi de papa', 'pasta al pomodoro', 'cacio e pepe'];
+    case 'lasagna':
+      return ['lasagna clasica', 'pasta al pomodoro', 'cacio e pepe'];
+    case 'ravioli':
+      return ['ravioli de ricota', 'pasta al pomodoro', 'cacio e pepe'];
+    default:
+      return ['pasta al pomodoro', 'cacio e pepe', 'aglio e olio'];
   }
 }
 
@@ -950,12 +995,18 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
   const horizonLabel = cookingSignals.horizon ?? signals.deadline ?? null;
   const isCookingGoal = /\b(cocina|cocinar|receta|plato|gastronom)\b/i.test(`${input.goalText} ${domainLabel}`);
   const isItalianCooking = /\bitalian[oa]s?|\bpastas?|\bsalsas?\b/i.test(`${input.goalText} ${subtopicLabel} ${domainLabel}`);
+  const preserveItalianBreadth = isCookingGoal && shouldPreserveItalianCookingBreadth(input.goalText, cookingSignals.subtopic ?? subtopicLabel);
   const durations = stretchDurationsToTarget(
     resolveDurations(levelLabel),
     extractTargetHorizonWeeks(input.goalText, horizonLabel),
   );
   const focusTopic = isCookingGoal
-    ? formatCookingFocusTopic(subtopicLabel, isItalianCooking, domainLabel)
+    ? preserveItalianBreadth
+      ? inferredFocusLabel
+      : formatCookingFocusTopic(subtopicLabel, isItalianCooking, domainLabel)
+    : subtopicLabel;
+  const preferredTopicLabel = isCookingGoal
+    ? formatCookingFocusTopic(cookingSignals.subtopic ?? subtopicLabel, isItalianCooking, focusTopic)
     : subtopicLabel;
   const learningLead = methodLabel
     ? `El aprendizaje debe apoyarse en ${methodLabel.toLowerCase()}.`
@@ -965,9 +1016,14 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
     : null;
 
   if (isCookingGoal) {
-    const anchors = buildCookingReferenceAnchors(cookingSignals.subtopic ?? subtopicLabel);
+    const anchors = preserveItalianBreadth
+      ? buildItalianCookingFoundationAnchors(cookingSignals.subtopic ?? subtopicLabel)
+      : buildCookingReferenceAnchors(cookingSignals.subtopic ?? subtopicLabel);
     const explicitReferenceLead = cookingSignals.references.length > 0
       ? `Usar ${cookingSignals.references.join(', ').toLowerCase()} como referencia concreta.`
+      : null;
+    const breadthLead = preserveItalianBreadth && cookingSignals.subtopic
+      ? `Usar ${preferredTopicLabel?.toLowerCase()} como puerta de entrada sin reducir el objetivo completo de cocina italiana.`
       : null;
     const stepByStepLabel = methodPreference === 'videos'
       ? 'video paso a paso'
@@ -984,6 +1040,7 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
           durationWeeks: durations[0],
           focus_esAR: [
             `Construir una base repetible de ${focusTopic}.`,
+            breadthLead,
             explicitReferenceLead ?? buildCookingReferenceLead(methodPreference, [anchors[0]]),
             `Fijar mise en place, punto de coccion y tecnica base alrededor de ${anchors[0]}.`,
             learningLead,
@@ -995,6 +1052,7 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
           focus_esAR: [
             buildCookingReferenceLead(methodPreference, [anchors[1], anchors[2]]),
             `Repetir ${joinHumanList([anchors[1], anchors[2]])} hasta que deje de depender del ${stepByStepLabel}.`,
+            preserveItalianBreadth ? 'Mantener al menos dos recetas de pasta dentro del repertorio base antes de dar por cumplido el objetivo.' : null,
             signals.priority ? `Priorizar ${signals.priority.toLowerCase()} dentro del repertorio principal.` : null,
             signals.level ? `Respetar el nivel actual ${signals.level.toLowerCase()} sin saltar etapas.` : null,
           ].filter(Boolean).join(' '),
@@ -1009,6 +1067,7 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
             horizonLead,
             signals.constraints ? `Respetar ${signals.constraints.toLowerCase()} al elegir el repertorio.` : null,
             cookingSignals.subtopic ? `Mantener ${cookingSignals.subtopic.toLowerCase()} como eje y no como detalle secundario.` : null,
+            preserveItalianBreadth ? 'El cierre debe demostrar que pizza y pastas conviven dentro de una misma base italiana, no como aprendizajes aislados.' : null,
           ].filter(Boolean).join(' '),
         },
       ],
