@@ -15,7 +15,7 @@
 Estamos en el Sprint 3 del pipeline v5: conectar las 12 fases.
 
 1. Leé la spec: `docs/architecture/PIPELINE_V5_SPEC.md` (secciones 3 y 6)
-2. Leé el plan: `docs/plans/pipeline-v5-sprint3/PLAN.md`
+2. Leé el plan: `docs/plans/pipeline-v5-sprint-3-v1/PLAN.md`
 3. Leé los tipos existentes:
    - `src/lib/domain/goal-taxonomy.ts` (GoalType, GoalClassification)
    - `src/lib/domain/plan-item.ts` (PlanItem, TimeEventItem)
@@ -69,7 +69,7 @@ Recordá: NO modificar archivos de la pipeline v1. Todo es nuevo en `src/lib/pip
 Continuamos el Sprint 3. Las fases 1-3 están implementadas.
 
 Leé estos archivos para contexto:
-- `docs/plans/pipeline-v5-sprint3/PLAN.md`
+- `docs/plans/pipeline-v5-sprint-3-v1/PLAN.md`
 - `src/lib/pipeline/v5/phase-io-v5.ts` (contratos I/O)
 - `src/lib/domain/goal-taxonomy.ts`
 - `src/lib/domain/domain-knowledge/bank.ts` (DomainKnowledgeCard)
@@ -116,7 +116,7 @@ Recordá: NO modificar archivos existentes. Todo nuevo en v5/.
 Continuamos el Sprint 3. Fases 1-6 están listas (clasificación, perfil, estrategia, template, scheduler).
 
 Leé estos archivos:
-- `docs/plans/pipeline-v5-sprint3/PLAN.md`
+- `docs/plans/pipeline-v5-sprint-3-v1/PLAN.md`
 - `src/lib/pipeline/v5/phase-io-v5.ts` (contratos I/O)
 - `src/lib/scheduler/types.ts` (SchedulerOutput — lo que producen las fases anteriores)
 - `src/lib/domain/plan-item.ts` (TimeEventItem)
@@ -171,7 +171,7 @@ Recordá que las descripciones y sugerencias van en español argentino, abuela-p
 Sprint 3, fases 9 y 10: verificación y reparación.
 
 Leé estos archivos:
-- `docs/plans/pipeline-v5-sprint3/PLAN.md`
+- `docs/plans/pipeline-v5-sprint-3-v1/PLAN.md`
 - `docs/architecture/PIPELINE_V5_SPEC.md` (secciones 3 y 4)
 - `src/lib/pipeline/v5/phase-io-v5.ts`
 - `src/lib/pipeline/v5/hard-validator.ts` (HardFinding[])
@@ -230,7 +230,7 @@ Recordá: el repair manager debe ser capaz de REVERTIR un patch si no mejora las
 Sprint 3, tareas finales: packager + runner v5.
 
 Leé TODOS estos archivos (son las 12 fases):
-- `docs/plans/pipeline-v5-sprint3/PLAN.md`
+- `docs/plans/pipeline-v5-sprint-3-v1/PLAN.md`
 - `src/lib/pipeline/v5/phase-io-v5.ts` (contratos)
 - `src/lib/pipeline/v5/classify.ts` (Fase 1 - Sprint 1)
 - `src/lib/pipeline/v5/requirements.ts` (Fase 2)

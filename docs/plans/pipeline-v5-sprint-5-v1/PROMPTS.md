@@ -14,7 +14,7 @@
 Codex, iniciamos el Sprint 5 del pipeline V5: Adaptación Proactiva.
 
 1. Leé la spec MAESTRA en `docs/architecture/PIPELINE_V5_SPEC.md` (sección 5 y Adaptive loops).
-2. Leé `docs/plans/pipeline-v5-sprint5/PLAN.md` (tareas 1 y 2).
+2. Leé `docs/plans/pipeline-v5-sprint-5-v1/PLAN.md` (tareas 1 y 2).
 3. Hacé uso de los objetos `HabitState` que implementaste previemente del sprint 4.
 
 Tus objetivos (Todo en Zod y TypeScript estricto):

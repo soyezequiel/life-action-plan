@@ -1,5 +1,7 @@
 # Pipeline v5 — Sprint 1: Fundamentos
 
+> OBSOLETE: no usar este plan como base de trabajo del repo actual.
+> Resolver planes vigentes desde `docs/plans/REGISTRY.json`.
 > **Status**: `pending`
 > **Spec**: `docs/architecture/PIPELINE_V5_SPEC.md`
 > **Scope**: Clasificador de objetivos + Domain Knowledge Cards + PlanItem types
@@ -120,3 +122,6 @@ Lookup simple por `domainLabel`. Si no encuentra → `null` (Sprint futuro: gene
 - `src/lib/pipeline/runner.ts` (v1, sigue igual)
 - `app/api/*` (ninguna ruta cambia)
 - `components/*` (ningún componente cambia)
+> **Obsoleto**
+> Este plan quedo fuera de la ruta vigente. No usarlo como backlog actual.
+> Resolver el runtime actual desde `docs/architecture/PIPELINE_V6_SPEC.md` y el estado de planes desde `docs/plans/REGISTRY.json`.

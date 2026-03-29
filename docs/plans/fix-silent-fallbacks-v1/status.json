@@ -1,0 +1,27 @@
+{
+  "plan_id": "fix-silent-fallbacks-v1",
+  "series_id": "fix-silent-fallbacks",
+  "version": 1,
+  "status": "implemented",
+  "lifecycle": "historical",
+  "latest_in_series": true,
+  "supersedes": [],
+  "superseded_by": null,
+  "canonical_plan_file": "docs/plans/fix-silent-fallbacks-v1/PLAN.md",
+  "created_by": "unknown",
+  "created_at": "2026-03-28T16:17:47-03:00",
+  "updated_at": "2026-03-29T16:44:18-03:00",
+  "updated_by": "codex",
+  "metadata_normalized_at": "2026-03-29T16:44:18-03:00",
+  "metadata_normalized_by": "codex",
+  "assigned_to": null,
+  "priority": "high",
+  "tags": [
+    "pipeline",
+    "v6",
+    "fallbacks",
+    "observability"
+  ],
+  "blockers": [],
+  "notes": "Plan legacy de un solo archivo migrado a la estructura canonica. El repo ya contiene degradacion visible, blocked events y tracking de agent outcomes."
+}

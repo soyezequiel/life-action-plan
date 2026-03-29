@@ -6,7 +6,8 @@
 
 ```text
 docs/
-  architecture/          Source of truth, specs de arquitectura
+  architecture/          Registro y specs de arquitectura
+  plans/                 Sistema canonico de planes de implementacion
   progress/              Tracking de progreso y planes de continuacion
   prompts/               Prompts de tarea para agentes especificos
     antigravity/          Tareas delegadas a Antigravity
@@ -17,9 +18,22 @@ docs/
 
 | Archivo | Descripcion |
 |---------|-------------|
-| `PLAN_LAP_FINAL.md` | Source of truth arquitectonica del proyecto |
+| `REGISTRY.json` | Registro canonico para resolver documentos vigentes por serie y lifecycle |
+| `PLAN_LAP_FINAL.md` | Resumen consolidado temprano. Obsoleto; no usar como source of truth |
 | `FLUJO_HIBRIDO_DRAFT.md` | Spec detallada del flujo E2E del producto |
 | `PLAN_SETTINGS_AUTH.md` | Plan de settings y autenticacion |
+| `PIPELINE_V5_SPEC.md` | Spec del contrato y modelo historico del pipeline v5 |
+| `FRONTEND_V5_SPEC.md` | Spec de la interfaz del visor y experiencia v5 |
+| `PIPELINE_V6_SPEC.md` | Spec operativa del runtime de build v6 vigente |
+
+## plans/
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `README.md` | Convenciones del sistema de planes y regla para resolver el ultimo plan |
+| `REGISTRY.json` | Registro canonico de planes de implementacion |
+| `{series-id}-v{N}/PLAN.md` | Documento principal del plan |
+| `{series-id}-v{N}/status.json` | Estado y lifecycle maquina-legibles del plan |
 
 ## progress/
 

@@ -14,7 +14,7 @@
 Estamos en el Sprint 4 del pipeline v5: Robustez. Queremos implementar las tareas 1, 2 y 3 del plan.
 
 1. Leé la spec: `docs/architecture/PIPELINE_V5_SPEC.md` (sección 5: Sistema Adaptativo)
-2. Leé el plan del sprint: `docs/plans/pipeline-v5-sprint4/PLAN.md`
+2. Leé el plan del sprint: `docs/plans/pipeline-v5-sprint-4-v1/PLAN.md`
 3. Leé los tipos del Sprint 1 y 3 (`src/lib/domain/plan-item.ts` y `src/lib/pipeline/v5/phase-io-v5.ts`).
 
 Tus objetivos:

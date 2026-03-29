@@ -1,13 +1,27 @@
 {
   "plan_id": "debug-viewer-v5-gaps-v1",
+  "series_id": "debug-viewer-v5-gaps",
+  "version": 1,
   "status": "implemented",
+  "lifecycle": "historical",
+  "latest_in_series": true,
+  "supersedes": [],
+  "superseded_by": null,
+  "canonical_plan_file": "docs/plans/debug-viewer-v5-gaps-v1/PLAN.md",
   "created_by": "codex",
   "created_at": "2026-03-26T04:20:54-03:00",
   "updated_at": "2026-03-26T04:32:01-03:00",
   "updated_by": "codex",
+  "metadata_normalized_at": "2026-03-29T16:44:18-03:00",
+  "metadata_normalized_by": "codex",
   "assigned_to": null,
   "priority": "high",
-  "tags": ["debug", "flow-viewer", "v5", "observability"],
+  "tags": [
+    "debug",
+    "flow-viewer",
+    "v5",
+    "observability"
+  ],
   "blockers": [],
   "notes": "Implementacion completada. npm run test y npm run build en verde. Verificacion visual aislada en localhost:3100/debug/flow confirmo domainCard en classify y warning repairExhausted."
 }

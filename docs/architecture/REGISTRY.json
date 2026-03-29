@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "root": "docs/architecture",
+  "latest_rule": "Para una series_id dada, tomar el version numericamente mas alto cuyo lifecycle no sea superseded ni obsolete. latest_in_series es la cache materializada de esa regla y debe coincidir.",
+  "ignore_lifecycle": [
+    "superseded",
+    "obsolete"
+  ],
+  "documents": [
+    {
+      "doc_id": "product-flow-hybrid-v1",
+      "series_id": "product-flow-hybrid",
+      "version": 1,
+      "title": "Flujo Hibrido LAP v1",
+      "path": "docs/architecture/FLUJO_HIBRIDO_DRAFT.md",
+      "domain": "product-flow",
+      "lifecycle": "active",
+      "latest_in_series": true
+    },
+    {
+      "doc_id": "frontend-v5-v1",
+      "series_id": "frontend-v5",
+      "version": 1,
+      "title": "Frontend Pipeline v5 - Especificacion",
+      "path": "docs/architecture/FRONTEND_V5_SPEC.md",
+      "domain": "plan-viewer",
+      "lifecycle": "reference",
+      "latest_in_series": true
+    },
+    {
+      "doc_id": "pipeline-v5-v1",
+      "series_id": "pipeline-v5",
+      "version": 1,
+      "title": "LAP Pipeline v5 - Especificacion Definitiva",
+      "path": "docs/architecture/PIPELINE_V5_SPEC.md",
+      "domain": "plan-package",
+      "lifecycle": "reference",
+      "latest_in_series": true
+    },
+    {
+      "doc_id": "pipeline-v6-v1",
+      "series_id": "pipeline-v6",
+      "version": 1,
+      "title": "LAP Pipeline v6 - Especificacion Operativa",
+      "path": "docs/architecture/PIPELINE_V6_SPEC.md",
+      "domain": "build-runtime",
+      "lifecycle": "active",
+      "latest_in_series": true
+    },
+    {
+      "doc_id": "lap-final-summary-v10",
+      "series_id": "lap-final-summary",
+      "version": 10,
+      "title": "Plan Final LAP",
+      "path": "docs/architecture/PLAN_LAP_FINAL.md",
+      "domain": "legacy-summary",
+      "lifecycle": "obsolete",
+      "latest_in_series": false,
+      "superseded_by": [
+        "product-flow-hybrid-v1",
+        "pipeline-v6-v1"
+      ]
+    },
+    {
+      "doc_id": "settings-auth-v1",
+      "series_id": "settings-auth",
+      "version": 1,
+      "title": "Plan Settings Auth",
+      "path": "docs/architecture/PLAN_SETTINGS_AUTH.md",
+      "domain": "settings-auth",
+      "lifecycle": "reference",
+      "latest_in_series": true
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # Pipeline v5 — Sprint 2: Scheduler MILP
 
+> OBSOLETE: no usar este plan como base de trabajo del repo actual.
+> Resolver planes vigentes desde `docs/plans/REGISTRY.json`.
 > **Status**: `pending`
 > **Spec**: `docs/architecture/PIPELINE_V5_SPEC.md` (sección 4)
 > **Depends on**: Sprint 1 completado (tipos en `src/lib/domain/`)
@@ -143,3 +145,6 @@ Escenarios de test:
 - [ ] Solver resuelve 7 actividades en <3 segundos
 - [ ] No hay overlaps en ningún output
 - [ ] Pipeline v1 sigue funcionando (0 archivos v1 modificados)
+> **Obsoleto**
+> Este plan quedo fuera de la ruta vigente. No usarlo como backlog actual.
+> Resolver el runtime actual desde `docs/architecture/PIPELINE_V6_SPEC.md` y el estado de planes desde `docs/plans/REGISTRY.json`.

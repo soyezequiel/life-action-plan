@@ -1,7 +1,7 @@
 # Contexto para Agentes IA
 
 > Lee este archivo completo antes de modificar codigo.
-> Source of truth arquitectonica: `docs/architecture/PLAN_LAP_FINAL.md`
+> Source of truth arquitectonica: `docs/architecture/REGISTRY.json` (resolver documentos vigentes por `latest_in_series` y `lifecycle`)
 
 ## Que es LAP
 
@@ -196,6 +196,17 @@ Cada unidad debe cerrar con:
 
 Toda la documentacion esta organizada en `docs/` (ver `docs/README.md` para indice completo):
 
+- **Resolucion canonica de arquitectura**: `docs/architecture/REGISTRY.json`
+- **Resolucion canonica de planes de implementacion**: `docs/plans/REGISTRY.json`
+- **Convencion de planes**: `{series-id}-v{N}/PLAN.md` + `status.json`
+- **Nota**: la lista historica que sigue no define vigencia; la vigencia real la determinan los `REGISTRY.json`
+
 - **Arquitectura**: `docs/architecture/` — `PLAN_LAP_FINAL.md`, `FLUJO_HIBRIDO_DRAFT.md`, `PLAN_SETTINGS_AUTH.md`
 - **Progreso**: `docs/progress/` — `PROGRESS.md`, `continuacion-web-nextjs-divs.md`
 - **Prompts por agente**: `docs/prompts/antigravity/`, `docs/prompts/codex/`
+
+## Regla de resolucion para agentes
+
+- Arquitectura: leer `docs/architecture/REGISTRY.json`, ignorar `lifecycle` en `["superseded", "obsolete"]`, elegir el `version` mas alto por `series_id` y verificar `latest_in_series = true`
+- Planes de implementacion: leer `docs/plans/REGISTRY.json`, ignorar `lifecycle` en `["superseded", "obsolete"]`, elegir el `version` mas alto por `series_id` y verificar `latest_in_series = true`
+- Si un documento o plan esta marcado como `obsolete`, no usarlo como base de trabajo aunque exista fisicamente en el repo

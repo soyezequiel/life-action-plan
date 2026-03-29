@@ -14,7 +14,7 @@
 Estamos en el Sprint 2 del pipeline v5: implementar un scheduler MILP.
 
 1. Leé la spec: `docs/architecture/PIPELINE_V5_SPEC.md` (sección 4: Scheduler MILP)
-2. Leé el plan del sprint: `docs/plans/pipeline-v5-sprint2/PLAN.md`
+2. Leé el plan del sprint: `docs/plans/pipeline-v5-sprint-2-v1/PLAN.md`
 3. Leé los tipos existentes del Sprint 1: `src/lib/domain/plan-item.ts` (necesitás el `TimeEventItem`)
 
 Tus objetivos:
@@ -61,7 +61,7 @@ Recordá:
 Estamos implementando el scheduler MILP del Sprint 2 del pipeline v5.
 
 1. Leé la spec: `docs/architecture/PIPELINE_V5_SPEC.md` (sección 4)
-2. Leé el plan: `docs/plans/pipeline-v5-sprint2/PLAN.md`
+2. Leé el plan: `docs/plans/pipeline-v5-sprint-2-v1/PLAN.md`
 3. Leé los tipos del scheduler: `src/lib/scheduler/types.ts`
 4. Leé los tipos de PlanItem: `src/lib/domain/plan-item.ts`
 

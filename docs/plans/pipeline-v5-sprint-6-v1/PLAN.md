@@ -1,6 +1,6 @@
 # Pipeline V5 — Sprint 6: UX Final
 
-> **Plan ID**: `pipeline-v5-sprint6`
+> **Plan ID**: `pipeline-v5-sprint-6-v1`
 > **Autor**: Claude Code
 > **Fecha**: 2026-03-25
 > **Spec de referencia**: `docs/architecture/PIPELINE_V5_SPEC.md` §7 Sprint 6

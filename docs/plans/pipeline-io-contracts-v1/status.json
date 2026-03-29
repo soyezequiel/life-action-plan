@@ -1,13 +1,27 @@
 {
   "plan_id": "pipeline-io-contracts-v1",
+  "series_id": "pipeline-io-contracts",
+  "version": 1,
   "status": "done",
+  "lifecycle": "historical",
+  "latest_in_series": true,
+  "supersedes": [],
+  "superseded_by": null,
+  "canonical_plan_file": "docs/plans/pipeline-io-contracts-v1/PLAN.md",
   "created_by": "antigravity",
   "created_at": "2026-03-24T23:57:00-03:00",
   "updated_at": "2026-03-25T00:25:00-03:00",
   "updated_by": "antigravity",
+  "metadata_normalized_at": "2026-03-29T16:44:18-03:00",
+  "metadata_normalized_by": "codex",
   "assigned_to": null,
   "priority": "high",
-  "tags": ["pipeline", "contracts", "observability", "refactor"],
+  "tags": [
+    "pipeline",
+    "contracts",
+    "observability",
+    "refactor"
+  ],
   "blockers": [],
   "notes": "Aprobado. DataRenderer y conteo I/O en nodo quedan como mejoras opcionales."
 }

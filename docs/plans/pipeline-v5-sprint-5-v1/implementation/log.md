@@ -10,8 +10,8 @@
 - `src/lib/domain/adherence-model.ts` — cálculo Beta-Bernoulli con alpha, beta, meanProbability, tendencia y señales derivadas.
 - `src/lib/domain/risk-forecast.ts` — forecast determinístico SAFE / AT_RISK / CRITICAL apoyado en `HabitState`.
 - `tests/pipeline-v5/adherence-risk.test.ts` — cobertura unitaria de adherencia, caída reciente y racha crítica de fallos.
-- `docs/plans/pipeline-v5-sprint5/status.json` — status operativo actualizado para reflejar avance parcial.
-- `docs/plans/pipeline-v5-sprint5/history/20260325-220030-codex.md` — toma formal del plan.
+- `docs/plans/pipeline-v5-sprint-5-v1/status.json` — status operativo actualizado para reflejar avance parcial.
+- `docs/plans/pipeline-v5-sprint-5-v1/history/20260325-220030-codex.md` — toma formal del plan.
 
 ### Decisiones tomadas
 - La tendencia `DECAYING` solo se activa si existe suficiente base previa para comparar contra la ventana reciente y evitar falsos positivos en historiales cortos.
@@ -55,9 +55,9 @@
 
 ### Archivos tocados
 - `tests/pipeline-v5/adaptive.test.ts` — suite empírica con los escenarios Healthy Streak, Burnout Riesgoso y Ghosting Completo aislando `forecastRisk` y `generateAdaptiveResponse`.
-- `docs/plans/pipeline-v5-sprint5/PLAN.md` — gates del sprint marcados como verificados.
-- `docs/plans/pipeline-v5-sprint5/status.json` — cierre operativo en `implemented`.
-- `docs/plans/pipeline-v5-sprint5/history/20260325-222333-codex.md` — historial del cierre de implementación.
+- `docs/plans/pipeline-v5-sprint-5-v1/PLAN.md` — gates del sprint marcados como verificados.
+- `docs/plans/pipeline-v5-sprint-5-v1/status.json` — cierre operativo en `implemented`.
+- `docs/plans/pipeline-v5-sprint-5-v1/history/20260325-222333-codex.md` — historial del cierre de implementación.
 
 ### Decisiones tomadas
 - El fixture del plan se construyó como paquete sintético y estable para mockear las fases previas sin depender del runner completo.

@@ -1,7 +1,10 @@
 # Plan Final LAP
 
+> OBSOLETE: documento historico. No usar como source of truth.
+> Resolver arquitectura vigente desde `docs/architecture/REGISTRY.json`.
+> Reemplazado operativamente por `FLUJO_HIBRIDO_DRAFT.md` y `PIPELINE_V6_SPEC.md`.
 > Version consolidada v10.0
-> Source of truth para la arquitectura y el roadmap real del repo
+> Documento consolidado temprano conservado solo como referencia historica
 
 ## Resumen ejecutivo
 
@@ -405,3 +408,6 @@ HMR por si solo no cuenta como evidencia suficiente cuando se toca transporte, D
 - `AGENTS.md`
 - `../progress/continuacion-web-nextjs-divs.md`
 - `../progress/PROGRESS.md`
+> **Obsoleto**
+> Este documento ya no es source of truth. Resolver arquitectura vigente desde `docs/architecture/REGISTRY.json`.
+> Para runtime de build usar `PIPELINE_V6_SPEC.md`. Para journey E2E usar `FLUJO_HIBRIDO_DRAFT.md`.

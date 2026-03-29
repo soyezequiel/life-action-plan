@@ -13,7 +13,7 @@
 Quiero implementar las TAREAS 1, 2, 3 y 4 del Sprint 1 del pipeline v5.
 
 1. Leé la spec en `docs/architecture/PIPELINE_V5_SPEC.md`
-2. Leé el plan del sprint en `docs/plans/pipeline-v5-sprint1/PLAN.md`
+2. Leé el plan del sprint en `docs/plans/pipeline-v5-sprint-1-v1/PLAN.md`
 
 Tus objetivos (escribí el código completo en Zod + TypeScript):
 - Crear `src/lib/domain/goal-taxonomy.ts` (GoalType, GoalSignals, GoalClassification)

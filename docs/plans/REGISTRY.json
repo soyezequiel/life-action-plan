@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "root": "docs/plans",
+  "plan_file_name": "PLAN.md",
+  "status_file_name": "status.json",
+  "naming_rule": "{series-id}-v{N}",
+  "latest_rule": "Para una series_id dada, tomar el version numericamente mas alto cuyo lifecycle no sea superseded ni obsolete. latest_in_series es la cache materializada de esa regla y debe coincidir.",
+  "ignore_lifecycle": [
+    "superseded",
+    "obsolete"
+  ],
+  "plans": [
+    {
+      "plan_id": "debug-viewer-v5-gaps-v1",
+      "series_id": "debug-viewer-v5-gaps",
+      "version": 1,
+      "title": "Debug Viewer V5 - Cierre de Gaps de Observabilidad",
+      "status": "implemented",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/debug-viewer-v5-gaps-v1/PLAN.md"
+    },
+    {
+      "plan_id": "fix-silent-fallbacks-v1",
+      "series_id": "fix-silent-fallbacks",
+      "version": 1,
+      "title": "Fix: Eliminar Fallbacks Silenciosos del Pipeline V6",
+      "status": "implemented",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/fix-silent-fallbacks-v1/PLAN.md"
+    },
+    {
+      "plan_id": "fix-typecheck-stale-tests-v1",
+      "series_id": "fix-typecheck-stale-tests",
+      "version": 1,
+      "title": "Fix Typecheck: Tests y Tmp Stale",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/fix-typecheck-stale-tests-v1/PLAN.md"
+    },
+    {
+      "plan_id": "flow-viewer-data-v1",
+      "series_id": "flow-viewer-data",
+      "version": 1,
+      "title": "Plan: Completitud de Datos en el Visualizador de Flujo",
+      "status": "implemented",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/flow-viewer-data-v1/PLAN.md"
+    },
+    {
+      "plan_id": "lap-flow-runner-v1",
+      "series_id": "lap-flow-runner",
+      "version": 1,
+      "title": "Plan: LAP Flow Runner v1",
+      "status": "done",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/lap-flow-runner-v1/PLAN.md"
+    },
+    {
+      "plan_id": "mirofish-patterns-v1",
+      "series_id": "mirofish-patterns",
+      "version": 1,
+      "title": "Plan: Patrones MiroFish para LAP",
+      "status": "implemented",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/mirofish-patterns-v1/PLAN.md"
+    },
+    {
+      "plan_id": "pipeline-io-contracts-v1",
+      "series_id": "pipeline-io-contracts",
+      "version": 1,
+      "title": "Plan: Contratos de Entrada/Salida por Fase del Pipeline",
+      "status": "done",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/pipeline-io-contracts-v1/PLAN.md"
+    },
+    {
+      "plan_id": "pipeline-v5-sprint-1-v1",
+      "series_id": "pipeline-v5-sprint-1",
+      "version": 1,
+      "title": "Pipeline v5 - Sprint 1: Fundamentos",
+      "status": "ready",
+      "lifecycle": "obsolete",
+      "latest_in_series": false,
+      "canonical_plan_file": "docs/plans/pipeline-v5-sprint-1-v1/PLAN.md"
+    },
+    {
+      "plan_id": "pipeline-v5-sprint-2-v1",
+      "series_id": "pipeline-v5-sprint-2",
+      "version": 1,
+      "title": "Pipeline v5 - Sprint 2: Scheduler MILP",
+      "status": "ready",
+      "lifecycle": "obsolete",
+      "latest_in_series": false,
+      "canonical_plan_file": "docs/plans/pipeline-v5-sprint-2-v1/PLAN.md"
+    },
+    {
+      "plan_id": "pipeline-v5-sprint-3-v1",
+      "series_id": "pipeline-v5-sprint-3",
+      "version": 1,
+      "title": "Pipeline v5 - Sprint 3: Pipeline 12 Fases",
+      "status": "done",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/pipeline-v5-sprint-3-v1/PLAN.md"
+    },
+    {
+      "plan_id": "pipeline-v5-sprint-4-v1",
+      "series_id": "pipeline-v5-sprint-4",
+      "version": 1,
+      "title": "Pipeline v5 - Sprint 4: Robustez",
+      "status": "done",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/pipeline-v5-sprint-4-v1/PLAN.md"
+    },
+    {
+      "plan_id": "pipeline-v5-sprint-5-v1",
+      "series_id": "pipeline-v5-sprint-5",
+      "version": 1,
+      "title": "Pipeline v5 - Sprint 5: Adaptacion Proactiva",
+      "status": "done",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/pipeline-v5-sprint-5-v1/PLAN.md"
+    },
+    {
+      "plan_id": "pipeline-v5-sprint-6-v1",
+      "series_id": "pipeline-v5-sprint-6",
+      "version": 1,
+      "title": "Pipeline V5 - Sprint 6: UX Final",
+      "status": "done",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/pipeline-v5-sprint-6-v1/PLAN.md"
+    },
+    {
+      "plan_id": "sim-export-v1",
+      "series_id": "sim-export",
+      "version": 1,
+      "title": "Plan: Exportacion completa del flujo de simulacion",
+      "status": "implemented",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/sim-export-v1/PLAN.md"
+    },
+    {
+      "plan_id": "ui-fixes-dashboard-v1",
+      "series_id": "ui-fixes-dashboard",
+      "version": 1,
+      "title": "UI Fixes Dashboard - Plan de Implementacion",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/ui-fixes-dashboard-v1/PLAN.md"
+    }
+  ]
+}
