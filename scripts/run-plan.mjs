@@ -6,6 +6,7 @@
  *   node scripts/run-plan.mjs "Tu objetivo"
  *   node scripts/run-plan.mjs "Tu objetivo" --profile=<uuid> --provider=ollama --base=http://localhost:3000
  *   node scripts/run-plan.mjs "Tu objetivo" --json          # salida JSON cruda
+ *   node scripts/run-plan.mjs "Tu objetivo" --debug         # modo debug con artefacto JSON
  *   node scripts/run-plan.mjs "Tu objetivo" --auto          # no pregunta, avanza solo
  *   node scripts/run-plan.mjs "Tu objetivo" --pause-on-input # pausa en preguntas, escribe JSON
  *   node scripts/run-plan.mjs --resume-session=<id> --answers-json='{"q":"a"}' # reanuda con respuestas
@@ -121,6 +122,7 @@ function parseArgs() {
     log('  --answers-json      Respuestas predefinidas en JSON {"id":"respuesta"}')
     log('  --answers-file      Archivo JSON con respuestas predefinidas')
     log('  --plan-id           Reabre un plan ya generado sin reconstruirlo')
+    log('  --debug             Activa trazas detalladas, heartbeat y artefacto JSON por corrida')
     log('  --detail-start-week Semana inicial del calendario detallado')
     log('  --detail-weeks      Cantidad de semanas detalladas a mostrar')
     process.exit(1)
@@ -137,6 +139,7 @@ function parseArgs() {
     noCodex:         raw.includes('--no-codex'),
     autoMode:        raw.includes('--auto'),
     pauseOnInput:    raw.includes('--pause-on-input'),
+    debugMode:       raw.includes('--debug'),
     providedAnswers: parseProvidedAnswers(),
     detailStartWeek: intFlag('detail-start-week', { max: 104 }),
     detailWeeks:     intFlag('detail-weeks', { max: 104 }),
@@ -145,10 +148,188 @@ function parseArgs() {
 
 // ─── Readline helper ────────────────────────────────────────────────────────────
 import { createInterface } from 'node:readline'
-import { createReadStream, createWriteStream, openSync, closeSync, readFileSync, writeFileSync } from 'node:fs'
+import { createReadStream, createWriteStream, openSync, closeSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve as pathResolve } from 'node:path'
 
 const PENDING_INPUT_FILE = pathResolve(process.cwd(), '.lap-pending-input.json')
+const DEBUG_ARTIFACT_DIR = pathResolve(process.cwd(), '.lap-debug')
+
+class ControlledExit extends Error {
+  constructor(message, exitCode, details = null) {
+    super(message)
+    this.name = 'ControlledExit'
+    this.exitCode = exitCode
+    this.details = details
+  }
+}
+
+function nowIso() {
+  return DateTime.utc().toISO()
+    ?? DateTime.utc().toFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+}
+
+function slugifyForFilename(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48)
+}
+
+function ensureDebugArtifactPath({ goal, resumeSession }) {
+  mkdirSync(DEBUG_ARTIFACT_DIR, { recursive: true })
+  const stamp = DateTime.local().toFormat('yyyyLLdd-HHmmss')
+  const base = resumeSession
+    ? `resume-${slugifyForFilename(resumeSession)}`
+    : slugifyForFilename(goal) || 'plan-run'
+  return pathResolve(DEBUG_ARTIFACT_DIR, `${stamp}-${base}.json`)
+}
+
+function createDebugSession(options) {
+  if (!options.enabled) {
+    return {
+      enabled: false,
+      artifactPath: null,
+      recordLocal() {},
+      recordSse() {},
+      attachPendingInput() {},
+      attachPackage() {},
+      setSummary() {},
+      finalize() {},
+      getLatestDebugEvent() { return null },
+      getLatestDebugStatus() { return null },
+    }
+  }
+
+  const artifactPath = ensureDebugArtifactPath(options)
+  const state = {
+    schemaVersion: 1,
+    mode: 'lap-cli-debug',
+    startedAt: nowIso(),
+    updatedAt: nowIso(),
+    invocation: {
+      goal: options.goal || '',
+      resumeSession: options.resumeSession || null,
+      profileId: options.profileId || null,
+      baseUrl: options.baseUrl,
+      detailStartWeek: options.detailStartWeek ?? null,
+      detailWeeks: options.detailWeeks ?? null,
+      debug: true,
+    },
+    summary: {
+      planId: null,
+      score: null,
+      iterations: null,
+      degraded: false,
+      publicationState: null,
+      failureCode: null,
+      sessionId: options.resumeSession || null,
+      provider: null,
+      modelId: null,
+      status: 'running',
+    },
+    pendingInput: null,
+    finalPackage: null,
+    finalResult: null,
+    latestDebugEvent: null,
+    latestDebugStatus: null,
+    localEvents: [],
+    sseEvents: [],
+  }
+
+  const persist = () => {
+    state.updatedAt = nowIso()
+    writeFileSync(artifactPath, JSON.stringify({
+      ...state,
+      artifactPath,
+    }, null, 2), 'utf8')
+  }
+
+  const pushEvent = (bucket, type, data) => {
+    bucket.push({
+      timestamp: nowIso(),
+      type,
+      data,
+    })
+  }
+
+  persist()
+
+  return {
+    enabled: true,
+    artifactPath,
+    recordLocal(type, data = {}) {
+      pushEvent(state.localEvents, type, data)
+      if (data && typeof data === 'object') {
+        if (typeof data.provider === 'string') state.summary.provider = data.provider
+        if (typeof data.modelId === 'string') state.summary.modelId = data.modelId
+      }
+      persist()
+    },
+    recordSse(type, data) {
+      pushEvent(state.sseEvents, type, data)
+      if (type === 'v6:heartbeat' && data?.status) {
+        state.latestDebugStatus = data.status
+      }
+      if (type === 'v6:debug' && data && typeof data === 'object') {
+        state.latestDebugEvent = data
+        if (data.publicationState) state.summary.publicationState = data.publicationState
+        if (data.failureCode) state.summary.failureCode = data.failureCode
+      }
+      if (type === 'v6:needs_input' && data?.sessionId) {
+        state.summary.sessionId = data.sessionId
+      }
+      if (type === 'v6:complete') {
+        if (typeof data?.planId === 'string') state.summary.planId = data.planId
+        if (typeof data?.score === 'number') state.summary.score = data.score
+        if (typeof data?.iterations === 'number') state.summary.iterations = data.iterations
+        state.summary.degraded = data?.degraded === true
+      }
+      if (type === 'result' && data && typeof data === 'object') {
+        const result = data.result ?? data
+        if (result && typeof result === 'object') {
+          if (typeof result.publicationState === 'string') state.summary.publicationState = result.publicationState
+          if (typeof result.failureCode === 'string') state.summary.failureCode = result.failureCode
+          if (result.degraded === true) state.summary.degraded = true
+          state.finalResult = result
+        }
+      }
+      persist()
+    },
+    attachPendingInput(data) {
+      state.pendingInput = data
+      if (data?.sessionId) state.summary.sessionId = data.sessionId
+      persist()
+    },
+    attachPackage(data) {
+      state.finalPackage = data
+      if (typeof data?.meta?.modelId === 'string' && data.meta.modelId.trim()) {
+        state.summary.modelId = data.meta.modelId.trim()
+      }
+      if (data?.package?.publicationState) state.summary.publicationState = data.package.publicationState
+      persist()
+    },
+    setSummary(partial) {
+      Object.assign(state.summary, partial)
+      persist()
+    },
+    finalize(status, extra = {}) {
+      state.summary.status = status
+      if (extra && typeof extra === 'object') {
+        Object.assign(state.summary, extra)
+      }
+      persist()
+    },
+    getLatestDebugEvent() {
+      return state.latestDebugEvent
+    },
+    getLatestDebugStatus() {
+      return state.latestDebugStatus
+    },
+  }
+}
 
 function createPromptStreams() {
   if (process.stdin.isTTY && process.stderr.isTTY) {
@@ -313,10 +494,246 @@ const PHASE_LABEL = {
 
 // ─── Build API caller (SSE) ────────────────────────────────────────────────────
 // Errores recuperables → se puede reintentar con otro provider
+const DEBUG_AGENT_LABEL = {
+  'goal-interpreter': 'interprete',
+  clarifier: 'clarificador',
+  planner: 'planificador',
+  'feasibility-checker': 'verificador',
+  scheduler: 'scheduler',
+  critic: 'critico',
+  'domain-expert': 'experto de dominio',
+  packager: 'empaquetador',
+}
+
+function formatLoopLabel(event) {
+  const parts = [`iter ${event?.iteration ?? 0}`]
+  if ((event?.revisionCycle ?? 0) > 0) parts.push(`rev ${event.revisionCycle}`)
+  if ((event?.clarifyRound ?? 0) > 0) parts.push(`acl ${event.clarifyRound}`)
+  return parts.join(' | ')
+}
+
+function formatDebugMeta(event) {
+  const parts = []
+  if (event?.phase) parts.push(`fase: ${PHASE_LABEL[event.phase] || event.phase}`)
+  if (event?.agent) parts.push(`agente: ${DEBUG_AGENT_LABEL[event.agent] || event.agent}`)
+  if (event?.errorCode) parts.push(`codigo: ${event.errorCode}`)
+  if (event?.failureCode) parts.push(`falla: ${event.failureCode}`)
+  if (event?.publicationState) parts.push(`publicacion: ${event.publicationState}`)
+  if (typeof event?.fallbackCount === 'number') parts.push(`fallbacks: ${event.fallbackCount}`)
+  parts.push(formatLoopLabel(event))
+  return parts.join(' | ')
+}
+
+function formatDebugEvidence(details) {
+  if (!details || typeof details !== 'object') return []
+
+  const lines = []
+  const partialKind = typeof details.partialKind === 'string' ? details.partialKind : null
+
+  if (partialKind === 'interpretation') {
+    if (details.normalizedGoal) lines.push(`objetivo normalizado: ${details.normalizedGoal}`)
+    if (details.goalType) lines.push(`tipo detectado: ${details.goalType}`)
+    if (details.suggestedDomain) lines.push(`dominio sugerido: ${details.suggestedDomain}`)
+    if (Array.isArray(details.ambiguities) && details.ambiguities.length > 0) {
+      lines.push(`ambiguedades: ${details.ambiguities.slice(0, 3).join(' | ')}`)
+    }
+    if (Array.isArray(details.assumptions) && details.assumptions.length > 0) {
+      lines.push(`supuestos: ${details.assumptions.slice(0, 3).join(' | ')}`)
+    }
+  }
+
+  if (partialKind === 'clarification') {
+    if (Array.isArray(details.knownAnswers) && details.knownAnswers.length > 0) {
+      details.knownAnswers.slice(0, 4).forEach((item, index) => {
+        lines.push(`sabemos ${index + 1}: ${item.question} -> ${item.answer}`)
+      })
+    }
+    if (Array.isArray(details.informationGaps) && details.informationGaps.length > 0) {
+      lines.push(`faltantes: ${details.informationGaps.slice(0, 4).join(' | ')}`)
+    }
+    if (Array.isArray(details.duplicateQuestions) && details.duplicateQuestions.length > 0) {
+      details.duplicateQuestions.slice(0, 2).forEach((item, index) => {
+        lines.push(`pregunta repetida ${index + 1}: ${item.text}`)
+      })
+    }
+  }
+
+  if (partialKind === 'roadmap') {
+    if (details.horizonWeeks != null) lines.push(`horizonte: ${details.horizonWeeks} semana(s)`)
+    if (details.phaseCount != null) lines.push(`fases: ${details.phaseCount}`)
+    if (Array.isArray(details.phases) && details.phases.length > 0) {
+      details.phases.slice(0, 4).forEach((phase) => {
+        const duration = phase.durationWeeks != null ? ` (${phase.durationWeeks} sem)` : ''
+        lines.push(`fase ${phase.index}: ${phase.title}${duration} -> ${phase.focus}`)
+      })
+    }
+    if (Array.isArray(details.milestones) && details.milestones.length > 0) {
+      lines.push(`hitos: ${details.milestones.slice(0, 4).join(' | ')}`)
+    }
+    if (details.fallbackUsed) {
+      lines.push(`fallback planner: ${details.fallbackPublishability || 'activo'}`)
+    }
+  }
+
+  if (partialKind === 'feasibility') {
+    if (details.availableHours != null || details.requiredHours != null || details.gap != null) {
+      lines.push(`horas: ${details.availableHours ?? '?'} disponibles vs ${details.requiredHours ?? '?'} requeridas | gap: ${details.gap ?? '?'}`)
+    }
+    if (Array.isArray(details.conflicts) && details.conflicts.length > 0) {
+      details.conflicts.slice(0, 3).forEach((item, index) => {
+        lines.push(`conflicto ${index + 1}: ${item.description}`)
+      })
+    }
+    if (Array.isArray(details.adjustments) && details.adjustments.length > 0) {
+      details.adjustments.slice(0, 3).forEach((item, index) => {
+        lines.push(`ajuste ${index + 1}: ${item.description}`)
+      })
+    }
+  }
+
+  if (partialKind === 'schedule') {
+    if (details.fillRate != null) lines.push(`fill rate: ${Math.round(Number(details.fillRate) * 100)}%`)
+    if (details.unscheduledCount != null) lines.push(`sin calendarizar: ${details.unscheduledCount}`)
+    if (details.solverStatus || details.solverTimeMs != null) {
+      lines.push(`solver: ${details.solverStatus || 'n/d'}${details.solverTimeMs != null ? ` en ${details.solverTimeMs}ms` : ''}`)
+    }
+    if (Array.isArray(details.tradeoffs) && details.tradeoffs.length > 0) {
+      details.tradeoffs.slice(0, 2).forEach((item, index) => {
+        const text = item?.question_esAR || item?.planA?.description_esAR || JSON.stringify(item)
+        lines.push(`tradeoff ${index + 1}: ${text}`)
+      })
+    }
+  }
+
+  if (partialKind === 'critic_round') {
+    if (details.comparison && details.comparison !== 'sin_base') {
+      lines.push(`comparacion vs vuelta anterior: ${details.comparison}${details.scoreDelta != null ? ` (${details.scoreDelta > 0 ? '+' : ''}${details.scoreDelta})` : ''}`)
+    }
+  }
+
+  if (partialKind === 'package') {
+    if (details.summary) lines.push(`resumen paquete: ${details.summary}`)
+    if (details.requestDomain || details.packageDomain) {
+      lines.push(`dominio pedido/paquete: ${details.requestDomain || 'n/d'} -> ${details.packageDomain || 'n/d'}`)
+    }
+  }
+
+  if (partialKind === 'publication') {
+    lines.push(`listo para publicar: ${details.canPublish ? 'si' : 'no'}`)
+    if (details.misalignedGoal === true) lines.push('senal de desalineacion: el paquete parece responder a otro objetivo')
+    if (Array.isArray(details.exactBlockers) && details.exactBlockers.length > 0) {
+      details.exactBlockers.slice(0, 3).forEach((item, index) => {
+        const code = item.errorCode ? ` [${item.errorCode}]` : ''
+        lines.push(`bloqueante ${index + 1}: ${item.agent}${code}${item.errorMessage ? ` -> ${item.errorMessage}` : ''}`)
+      })
+    }
+    if (Array.isArray(details.fallbackLedger) && details.fallbackLedger.length > 0) {
+      const compact = details.fallbackLedger
+        .slice(0, 4)
+        .map((item) => `${item.agent}/${item.phase} x${item.count}${item.latestErrorCode ? ` [${item.latestErrorCode}]` : ''}`)
+        .join(' | ')
+      lines.push(`ledger fallbacks: ${compact}`)
+    }
+  }
+
+  if (details.failedCheck) lines.push(`check fallido: ${details.failedCheck}`)
+  if (details.validationSummaryEs) lines.push(`motivo: ${details.validationSummaryEs}`)
+
+  if (details.validationEvidence && typeof details.validationEvidence === 'object') {
+    for (const [key, value] of Object.entries(details.validationEvidence).slice(0, 4)) {
+      const printable = Array.isArray(value)
+        ? value.join(' | ')
+        : typeof value === 'object' && value !== null
+          ? JSON.stringify(value)
+          : String(value)
+      lines.push(`${key}: ${printable}`)
+    }
+  }
+
+  if (Array.isArray(details.mustFix) && details.mustFix.length > 0) {
+    details.mustFix.slice(0, 3).forEach((finding, index) => {
+      lines.push(`must-fix ${index + 1}: ${finding.message}`)
+    })
+  }
+
+  if (Array.isArray(details.qualityIssues) && details.qualityIssues.length > 0) {
+    details.qualityIssues.slice(0, 3).forEach((issue, index) => {
+      lines.push(`issue ${index + 1}: ${issue.message}${issue.code ? ` [${issue.code}]` : ''}`)
+    })
+  }
+
+  if (Array.isArray(details.questions) && details.questions.length > 0) {
+    details.questions.slice(0, 3).forEach((question, index) => {
+      lines.push(`pregunta ${index + 1}: ${question.text}`)
+    })
+  }
+
+  return lines
+}
+
+function shouldRenderDebugEvent(event) {
+  if (!event || typeof event !== 'object') return false
+  if (event.action === 'phase.enter' || event.action === 'phase.transition' || event.action === 'agent.start') {
+    return false
+  }
+  if (event.category === 'agent' && event.action === 'agent.completed') {
+    return false
+  }
+  return true
+}
+
+function renderDebugEventLine(event, elapsedSeconds) {
+  if (!shouldRenderDebugEvent(event)) return
+  log(c('magenta', `  [${elapsedSeconds}s][debug]`) + ` ${event.summary_es}`)
+  log(c('gray', `         ${formatDebugMeta(event)}`))
+  formatDebugEvidence(event.details).forEach((line) => {
+    log(c('gray', `         ${line}`))
+  })
+}
+
+function renderDebugHeartbeat(heartbeat, elapsedSeconds, renderState = null) {
+  const status = heartbeat?.status ?? {}
+  const signature = [
+    status.lifecycle || 'running',
+    status.currentPhase || '',
+    status.currentAgent || '',
+    status.iteration ?? 0,
+    status.revisionCycles ?? 0,
+    status.clarifyRounds ?? 0,
+    status.fallbackCount ?? 0,
+    status.publicationState || '',
+    status.lastEventSequence ?? 0,
+  ].join('|')
+  if (renderState && renderState.lastHeartbeatSignature === signature) {
+    return
+  }
+  if (renderState) {
+    renderState.lastHeartbeatSignature = signature
+  }
+  const phaseLabel = status.currentPhase ? (PHASE_LABEL[status.currentPhase] || status.currentPhase) : 'sin fase'
+  const agentLabel = status.currentAgent ? (DEBUG_AGENT_LABEL[status.currentAgent] || status.currentAgent) : 'sin agente'
+  const publication = status.publicationState ? ` | publicacion: ${status.publicationState}` : ''
+  log(c('magenta', `  [${elapsedSeconds}s][latido]`) + ` ${status.currentSummary_es || 'El pipeline sigue activo.'}`)
+  log(c('gray', `         estado: ${status.lifecycle || 'running'} | fase: ${phaseLabel} | agente: ${agentLabel} | iter: ${status.iteration ?? 0} | rev: ${status.revisionCycles ?? 0} | acl: ${status.clarifyRounds ?? 0} | fallbacks: ${status.fallbackCount ?? 0}${publication}`))
+}
+
+function renderDebugFailureDiagnosis(details, debugSession, elapsedSeconds) {
+  const latestDebug = debugSession?.getLatestDebugEvent?.() || null
+  log(c('red', `  [${elapsedSeconds}s][diagnostico] ${details.message}`))
+  if (latestDebug) {
+    log(c('gray', `         ${formatDebugMeta(latestDebug)}`))
+    formatDebugEvidence(latestDebug.details).forEach((line) => {
+      log(c('gray', `         ${line}`))
+    })
+  }
+  formatFailureDetails(details).forEach((line) => log(line))
+}
+
 const RECOVERABLE_ERRORS = [
   'codex_auth_missing', 'codex_mode_unavailable', 'cloud_credential_missing',
   'user_credential_missing', 'backend_credential_missing', 'authentication',
   'unauthorized', 'api key', 'no se encontró una clave', 'local assistant',
+  'usage limit', 'quota', 'rate limit', 'too many requests', '429',
 ]
 function isRecoverableError(msg) {
   const low = (msg || '').toLowerCase()
@@ -366,6 +783,19 @@ function extractFailureDetails(payload) {
     warnings: normalizeStringList(source?.warnings ?? planPackage?.warnings),
     package: planPackage,
   }
+}
+
+function isRecoverableFailureDetails(details) {
+  const fragments = [
+    details?.message,
+    details?.failureCode,
+    ...(details?.warnings ?? []),
+    ...(details?.blockingAgents ?? []).flatMap((agent) => [agent.errorCode, agent.errorMessage]),
+    ...(details?.agentOutcomes ?? []).flatMap((agent) => [agent.errorCode, agent.errorMessage]),
+    ...(details?.qualityIssues ?? []).flatMap((issue) => [issue.code, issue.message]),
+  ]
+
+  return isRecoverableError(fragments.filter(Boolean).join(' | '))
 }
 
 function formatFailureDetails(details) {
@@ -452,14 +882,32 @@ function pickProvidedAnswers(questions, providedAnswers) {
   return selected
 }
 
-async function runPipeline(baseUrl, body, { autoMode = false, pauseOnInput = false, providedAnswers = null } = {}) {
+async function runPipeline(baseUrl, body, {
+  autoMode = false,
+  pauseOnInput = false,
+  providedAnswers = null,
+  debugMode = false,
+  debugSession = null,
+} = {}) {
+  const requestBody = debugMode ? { ...body, debug: true } : body
+  debugSession?.recordLocal?.('build.requested', {
+    endpoint: '/api/plan/build',
+    provider: body.provider ?? body.resourceMode ?? 'auto',
+    goalText: body.goalText ?? '',
+    profileId: body.profileId ?? null,
+  })
   const res = await fetch(`${baseUrl}/api/plan/build`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
-    body: JSON.stringify(body),
+    body: JSON.stringify(requestBody),
   })
   if (!res.ok) {
     const txt = await res.text()
+    debugSession?.recordLocal?.('build.http_error', {
+      endpoint: '/api/plan/build',
+      status: res.status,
+      body: txt,
+    })
     throw new Error(`API ${res.status}: ${txt}`)
   }
 
@@ -473,6 +921,8 @@ async function runPipeline(baseUrl, body, { autoMode = false, pauseOnInput = fal
 
   const t0 = Date.now()
   const elapsed = () => ((Date.now() - t0) / 1000).toFixed(1)
+  const noteSse = (type, data) => debugSession?.recordSse?.(type, data)
+  const debugRenderState = { lastHeartbeatSignature: null }
 
   while (true) {
     const { done, value } = await reader.read()
@@ -490,10 +940,25 @@ async function runPipeline(baseUrl, body, { autoMode = false, pauseOnInput = fal
 
           const type = parsed.eventType || payload.type
           const data = payload.data ?? payload
-          if (type === 'v6:phase') {
+          noteSse(type, data)
+          if (type === 'v6:debug') {
+            if (debugMode) {
+              renderDebugEventLine(data, elapsed())
+            }
+          }
+
+          else if (type === 'v6:heartbeat') {
+            if (debugMode) {
+              renderDebugHeartbeat(data, elapsed(), debugRenderState)
+            }
+          }
+
+          else if (type === 'v6:phase') {
             const label = PHASE_LABEL[data.phase] || data.phase
             const iter  = data.iteration > 0 ? c('gray', ` (vuelta ${data.iteration})`) : ''
-            log(c('cyan', `  [${elapsed()}s]`) + ` ${label}` + iter)
+            if (!debugMode) {
+              log(c('cyan', `  [${elapsed()}s]`) + ` ${label}` + iter)
+            }
           }
 
           else if (type === 'v6:progress') {
@@ -501,7 +966,9 @@ async function runPipeline(baseUrl, body, { autoMode = false, pauseOnInput = fal
             const filled = Math.round(pct / 5)
             const bar    = '█'.repeat(filled) + '░'.repeat(20 - filled)
             const action = data.lastAction ? c('dim', ` ${data.lastAction}`) : ''
-            log(c('gray', `         ${bar} ${pct}%`) + action)
+            if (!debugMode) {
+              log(c('gray', `         ${bar} ${pct}%`) + action)
+            }
           }
 
           else if (type === 'v6:complete') {
@@ -510,6 +977,12 @@ async function runPipeline(baseUrl, body, { autoMode = false, pauseOnInput = fal
             iterations = data.iterations
             degraded   = data.degraded === true
             agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
+            debugSession?.setSummary?.({
+              planId,
+              score,
+              iterations,
+              degraded,
+            })
             log('')
             log(c('green', `  ✔ Pipeline completado en ${elapsed()}s`))
             const completionScoreLabel = degraded ? 'degradado' : `${score}/100`
@@ -519,73 +992,115 @@ async function runPipeline(baseUrl, body, { autoMode = false, pauseOnInput = fal
           else if (type === 'v6:needs_input') {
             const sessionId = data.sessionId
             const questions = data.questions?.questions ?? []
+            const resumeCommand = `node scripts/run-plan.mjs --resume-session=${sessionId} --answers-json='{"id":"respuesta",...}'${debugMode ? ' --debug' : ''}`
+            const pendingData = {
+              sessionId,
+              goal: body.goalText || '',
+              profileId: body.profileId || '',
+              questions: questions.map(q => ({
+                id: q.id,
+                text: q.text,
+                type: q.type || 'text',
+                options: q.options || null,
+                min: q.min ?? null,
+                max: q.max ?? null,
+              })),
+              createdAt: nowIso(),
+              pendingFilePath: PENDING_INPUT_FILE,
+              resumeCommand,
+            }
+            debugSession?.attachPendingInput?.(pendingData)
+            if (debugMode) {
+              log(c('gray', `         session: ${sessionId || 'sin sessionId'} | archivo: ${PENDING_INPUT_FILE}`))
+              questions.forEach((question, index) => {
+                log(c('gray', `         pregunta ${index + 1}: ${question.text}`))
+              })
+              log(c('gray', `         reanudar: ${resumeCommand}`))
+            }
             log(c('yellow', `  ⏸ El modelo necesita mas informacion (${questions.length} preguntas)`))
 
             // ── Modo pause-on-input: escribir preguntas a archivo y salir ──
             if (pauseOnInput) {
-              const pendingData = {
-                sessionId,
-                goal: body.goalText || '',
-                profileId: body.profileId || '',
-                questions: questions.map(q => ({
-                  id: q.id,
-                  text: q.text,
-                  type: q.type || 'text',
-                  options: q.options || null,
-                  min: q.min ?? null,
-                  max: q.max ?? null,
-                })),
-                createdAt: new Date().toISOString(),
-              }
               writeFileSync(PENDING_INPUT_FILE, JSON.stringify(pendingData, null, 2), 'utf8')
-              log(c('cyan', `  📝 Preguntas escritas en ${PENDING_INPUT_FILE}`))
+              log(c('cyan', `  Preguntas escritas en ${PENDING_INPUT_FILE}`))
               log(c('cyan', '  Para reanudar:'))
-              log(c('cyan', `    node scripts/run-plan.mjs --resume-session=${sessionId} --answers-json='{"id":"respuesta",...}'`))
-              process.exit(42)
+              log(c('cyan', `    ${resumeCommand}`))
+              throw new ControlledExit('Pipeline pausado esperando respuestas.', 42, pendingData)
             }
 
             let answers = {}
             const selectedProvidedAnswers = pickProvidedAnswers(questions, providedAnswers)
             if (Object.keys(selectedProvidedAnswers).length > 0) {
               answers = selectedProvidedAnswers
+              debugSession?.recordLocal?.('input.answers_preloaded', {
+                sessionId,
+                answersCount: Object.keys(answers).length,
+              })
               log(c('blue', `  ↻ Continuando con ${Object.keys(answers).length}/${questions.length} respuestas predefinidas...`))
             } else if (autoMode) {
+              debugSession?.recordLocal?.('input.answers_skipped_auto', {
+                sessionId,
+                questionsCount: questions.length,
+              })
               questions.forEach((q, i) => log(c('yellow', `    ${i + 1}. ${q.text}`)))
               log(c('blue', '  ↻ Modo auto: avanzando sin respuestas...'))
             } else {
               const promptedAnswers = await askClarificationQuestions(questions)
               if (promptedAnswers == null) {
+                debugSession?.recordLocal?.('input.answers_missing_console', {
+                  sessionId,
+                  questionsCount: questions.length,
+                })
                 questions.forEach((q, i) => log(c('yellow', `    ${i + 1}. ${q.text}`)))
                 log(c('blue', '  ↻ No se detectó una consola interactiva. Usá `--auto` o ejecutalo desde una terminal local para responder.'))
               } else {
                 answers = promptedAnswers
                 const answered = Object.keys(answers).length
+                debugSession?.recordLocal?.('input.answers_collected', {
+                  sessionId,
+                  answersCount: answered,
+                })
                 log(c('blue', `  ↻ Continuando con ${answered}/${questions.length} respuestas...`))
               }
             }
 
             if (sessionId) {
               try {
+                const resumePayload = debugMode ? { sessionId, answers, debug: true } : { sessionId, answers }
                 const resumeRes = await fetch(`${baseUrl}/api/plan/build/resume`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ sessionId, answers }),
+                  body: JSON.stringify(resumePayload),
                 })
                 if (resumeRes.ok && resumeRes.body) {
+                  debugSession?.recordLocal?.('resume.requested', {
+                    sessionId,
+                    answersCount: Object.keys(answers).length,
+                  })
                   reader = resumeRes.body.getReader()
                   buffer = ''
                   readerSwitched = true
+                } else {
+                  debugSession?.recordLocal?.('resume.rejected', {
+                    sessionId,
+                    status: resumeRes.status,
+                  })
                 }
               } catch (resumeErr) {
-                log(c('yellow', `  ⚠ No se pudo continuar la sesion: ${resumeErr.message}`))
+                debugSession?.recordLocal?.('resume.failed', {
+                  sessionId,
+                  error: resumeErr instanceof Error ? resumeErr.message : String(resumeErr),
+                })
+                log(c('yellow', `  Aviso: no se pudo continuar la sesion: ${resumeErr.message}`))
               }
             }
           }
 
           else if (type === 'v6:degraded') {
             degraded = true
+            debugSession?.setSummary?.({ degraded: true })
             agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
-            log(c('yellow', '  âš  Plan degradado: se usaron datos de respaldo.'))
+            log(c('yellow', '  Plan degradado: se usaron datos de respaldo.'))
             if (data.failedAgents) {
               log(c('yellow', `    ${data.failedAgents}`))
             }
@@ -594,11 +1109,20 @@ async function runPipeline(baseUrl, body, { autoMode = false, pauseOnInput = fal
           else if (type === 'result' && (data.success === false || data.result?.success === false)) {
             const failureDetails = extractFailureDetails(data)
             log('')
-            log(c('red', `  Error estructurado: ${failureDetails.message}`))
-            formatFailureDetails(failureDetails).forEach((line) => log(line))
+            if (debugMode) {
+              renderDebugFailureDiagnosis(failureDetails, debugSession, elapsed())
+            } else {
+              log(c('red', `  Error estructurado: ${failureDetails.message}`))
+              formatFailureDetails(failureDetails).forEach((line) => log(line))
+            }
             const err = new Error(failureDetails.message)
-            err.recoverable = isRecoverableError(failureDetails.message)
+            err.recoverable = isRecoverableFailureDetails(failureDetails)
             err.failureDetails = failureDetails
+            debugSession?.setSummary?.({
+              failureCode: failureDetails.failureCode,
+              publicationState: failureDetails.publicationState,
+              degraded: failureDetails.agentOutcomes.some((outcome) => outcome.source === 'fallback'),
+            })
             throw err
           }
         }
@@ -622,34 +1146,65 @@ async function runPipeline(baseUrl, body, { autoMode = false, pauseOnInput = fal
     }
   }
 
-  if (!planId) throw new Error('No se recibió planId del pipeline. ¿Terminó correctamente?')
+  if (!planId) {
+    debugSession?.recordLocal?.('build.missing_plan_id', {
+      degraded,
+      iterations,
+    })
+    throw new Error('No se recibió planId del pipeline. ¿Terminó correctamente?')
+  }
+  debugSession?.setSummary?.({
+    planId,
+    score,
+    iterations,
+    degraded,
+  })
   return { planId, score, iterations, degraded, agentOutcomes }
 }
 
 // ─── Resume session (for --resume-session) ────────────────────────────────────
-async function resumePipeline(baseUrl, sessionId, answers) {
-  log(c('blue', `⟳ Reanudando sesión ${sessionId}...`))
+async function resumePipeline(baseUrl, sessionId, answers, {
+  debugMode = false,
+  debugSession = null,
+} = {}) {
+  log(c('blue', `Reanudando sesion ${sessionId}...`))
   log('')
+
+  debugSession?.recordLocal?.('resume.explicit_request', {
+    endpoint: '/api/plan/build/resume',
+    sessionId,
+    answersCount: Object.keys(answers || {}).length,
+  })
 
   const res = await fetch(`${baseUrl}/api/plan/build/resume`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionId, answers }),
+    body: JSON.stringify(debugMode ? { sessionId, answers, debug: true } : { sessionId, answers }),
   })
   if (!res.ok) {
     const txt = await res.text()
+    debugSession?.recordLocal?.('resume.http_error', {
+      endpoint: '/api/plan/build/resume',
+      sessionId,
+      status: res.status,
+      body: txt,
+    })
     throw new Error(`Resume API ${res.status}: ${txt}`)
   }
 
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
-  let planId = null, score = 0, iterations = 0
+  let planId = null
+  let score = 0
+  let iterations = 0
   let degraded = false
   let agentOutcomes = []
 
   const t0 = Date.now()
   const elapsed = () => ((Date.now() - t0) / 1000).toFixed(1)
+  const noteSse = (type, data) => debugSession?.recordSse?.(type, data)
+  const debugRenderState = { lastHeartbeatSignature: null }
 
   while (true) {
     const { done, value } = await reader.read()
@@ -660,70 +1215,171 @@ async function resumePipeline(baseUrl, sessionId, answers) {
         const block = buffer.slice(0, bi)
         buffer = buffer.slice(bi + 2)
         const parsed = parseSseBlock(block)
-        if (parsed) {
-          let payload
-          try { payload = JSON.parse(parsed.data) } catch { payload = null }
-          if (!payload) { bi = buffer.indexOf('\n\n'); continue }
+        if (!parsed) {
+          bi = buffer.indexOf('\n\n')
+          continue
+        }
 
-          const type = parsed.eventType || payload.type
-          const data = payload.data ?? payload
+        let payload
+        try {
+          payload = JSON.parse(parsed.data)
+        } catch {
+          payload = null
+        }
+        if (!payload) {
+          bi = buffer.indexOf('\n\n')
+          continue
+        }
 
-          if (type === 'v6:phase') {
-            const label = PHASE_LABEL[data.phase] || data.phase
-            const iter = data.iteration > 0 ? c('gray', ` (vuelta ${data.iteration})`) : ''
+        const type = parsed.eventType || payload.type
+        const data = payload.data ?? payload
+        noteSse(type, data)
+
+        if (type === 'v6:debug') {
+          if (debugMode) {
+            renderDebugEventLine(data, elapsed())
+          }
+        } else if (type === 'v6:heartbeat') {
+          if (debugMode) {
+            renderDebugHeartbeat(data, elapsed(), debugRenderState)
+          }
+        } else if (type === 'v6:phase') {
+          const label = PHASE_LABEL[data.phase] || data.phase
+          const iter = data.iteration > 0 ? c('gray', ` (vuelta ${data.iteration})`) : ''
+          if (!debugMode) {
             log(c('cyan', `  [${elapsed()}s]`) + ` ${label}` + iter)
-          } else if (type === 'v6:progress') {
-            const pct = Math.min(100, Math.max(0, Math.round(data.score ?? 0)))
-            const filled = Math.round(pct / 5)
-            const bar = '█'.repeat(filled) + '░'.repeat(20 - filled)
-            const action = data.lastAction ? c('dim', ` ${data.lastAction}`) : ''
+          }
+        } else if (type === 'v6:progress') {
+          const pct = Math.min(100, Math.max(0, Math.round(data.score ?? 0)))
+          const filled = Math.round(pct / 5)
+          const bar = '#'.repeat(filled) + '-'.repeat(20 - filled)
+          const action = data.lastAction ? c('dim', ` ${data.lastAction}`) : ''
+          if (!debugMode) {
             log(c('gray', `         ${bar} ${pct}%`) + action)
-          } else if (type === 'v6:complete') {
-            planId = data.planId
-            score = data.score
-            iterations = data.iterations
-            degraded = data.degraded === true
-            agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
-            log('')
-            log(c('green', `  ✔ Pipeline completado en ${elapsed()}s`))
-            const completionScoreLabel = degraded ? 'degradado' : `${score}/100`
-            log(c('green', `    Score: ${completionScoreLabel}  |  Iteraciones: ${iterations}  |  Plan ID: ${planId}`))
-          } else if (type === 'v6:degraded') {
-            degraded = true
-            agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
-            log(c('yellow', '  ⚠ Plan degradado: se usaron datos de respaldo.'))
-          } else if (type === 'result' && (data.success === false || data.result?.success === false)) {
-            const failureDetails = extractFailureDetails(data)
-            log('')
+          }
+        } else if (type === 'v6:needs_input') {
+          const questions = data.questions?.questions ?? []
+          const resumeCommand = `node scripts/run-plan.mjs --resume-session=${sessionId} --answers-json='{"id":"respuesta",...}'${debugMode ? ' --debug' : ''}`
+          const pendingData = {
+            sessionId,
+            answers,
+            questions: questions.map((q) => ({
+              id: q.id,
+              text: q.text,
+              type: q.type || 'text',
+              options: q.options || null,
+              min: q.min ?? null,
+              max: q.max ?? null,
+            })),
+            createdAt: nowIso(),
+            pendingFilePath: PENDING_INPUT_FILE,
+            resumeCommand,
+          }
+
+          debugSession?.attachPendingInput?.(pendingData)
+          if (debugMode) {
+            log(c('gray', `         session: ${sessionId} | archivo: ${PENDING_INPUT_FILE}`))
+            questions.forEach((question, index) => {
+              log(c('gray', `         pregunta ${index + 1}: ${question.text}`))
+            })
+            log(c('gray', `         reanudar: ${resumeCommand}`))
+          }
+
+          writeFileSync(PENDING_INPUT_FILE, JSON.stringify(pendingData, null, 2), 'utf8')
+          log(c('yellow', `  Pausa: la sesion sigue necesitando mas informacion (${questions.length} preguntas)`))
+          log(c('cyan', `  Preguntas escritas en ${PENDING_INPUT_FILE}`))
+          log(c('cyan', '  Para reanudar:'))
+          log(c('cyan', `    ${resumeCommand}`))
+          throw new ControlledExit('La sesion sigue necesitando respuestas.', 42, pendingData)
+        } else if (type === 'v6:complete') {
+          planId = data.planId
+          score = data.score
+          iterations = data.iterations
+          degraded = data.degraded === true
+          agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
+          debugSession?.setSummary?.({
+            sessionId,
+            planId,
+            score,
+            iterations,
+            degraded,
+          })
+          log('')
+          log(c('green', `  Pipeline completado en ${elapsed()}s`))
+          const completionScoreLabel = degraded ? 'degradado' : `${score}/100`
+          log(c('green', `    Score: ${completionScoreLabel}  |  Iteraciones: ${iterations}  |  Plan ID: ${planId}`))
+        } else if (type === 'v6:degraded') {
+          degraded = true
+          agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
+          debugSession?.setSummary?.({ degraded: true })
+          log(c('yellow', '  Plan degradado: se usaron datos de respaldo.'))
+          if (data.failedAgents) {
+            log(c('yellow', `    ${data.failedAgents}`))
+          }
+        } else if (type === 'result' && (data.success === false || data.result?.success === false)) {
+          const failureDetails = extractFailureDetails(data)
+          log('')
+          if (debugMode) {
+            renderDebugFailureDiagnosis(failureDetails, debugSession, elapsed())
+          } else {
             log(c('red', `  Error estructurado: ${failureDetails.message}`))
             formatFailureDetails(failureDetails).forEach((line) => log(line))
-            throw new Error(failureDetails.message)
           }
+          const err = new Error(failureDetails.message)
+          err.failureDetails = failureDetails
+          debugSession?.setSummary?.({
+            failureCode: failureDetails.failureCode,
+            publicationState: failureDetails.publicationState,
+            degraded: failureDetails.agentOutcomes.some((outcome) => outcome.source === 'fallback'),
+          })
+          throw err
         }
+
         bi = buffer.indexOf('\n\n')
       }
     }
+
     if (done) break
   }
 
-  // tail
   buffer += decoder.decode().replace(/\r\n/g, '\n')
   const tail = parseSseBlock(buffer)
   if (tail) {
-    let payload; try { payload = JSON.parse(tail.data) } catch { payload = null }
+    let payload
+    try {
+      payload = JSON.parse(tail.data)
+    } catch {
+      payload = null
+    }
     if (payload?.type === 'v6:complete' && !planId) {
       const d = payload.data ?? payload
-      planId = d.planId; score = d.score; iterations = d.iterations
+      planId = d.planId
+      score = d.score
+      iterations = d.iterations
       degraded = d.degraded === true
       agentOutcomes = Array.isArray(d.agentOutcomes) ? d.agentOutcomes : agentOutcomes
     }
   }
 
-  if (!planId) throw new Error('No se recibió planId del resume. ¿Terminó correctamente?')
+  if (!planId) {
+    debugSession?.recordLocal?.('resume.missing_plan_id', {
+      sessionId,
+      degraded,
+      iterations,
+    })
+    throw new Error('No se recibio planId del resume. Termino correctamente?')
+  }
+
+  debugSession?.setSummary?.({
+    sessionId,
+    planId,
+    score,
+    iterations,
+    degraded,
+  })
   return { planId, score, iterations, degraded, agentOutcomes }
 }
 
-// ─── Package fetcher ───────────────────────────────────────────────────────────
 async function fetchPackage(baseUrl, planId, { detailStartWeek = null, detailWeeks = null } = {}) {
   const search = new URLSearchParams({ planId })
   if (detailStartWeek != null) search.set('detailStartWeek', String(detailStartWeek))
@@ -854,7 +1510,7 @@ function buildReport(goal, pkg, meta) {
   L.push(`## Calendario de actividades`)
   L.push('')
   if (calendarEvents.length === 0) {
-    L.push(`> ⚠️ El scheduler no generó eventos de calendario. El plan tiene ${phases.length} fases definidas en el skeleton.`)
+    L.push(`> El scheduler no genero eventos de calendario. El plan tiene ${phases.length} fases definidas en el skeleton.`)
     L.push(`> Esto puede ocurrir si el modelo LLM no produjo suficiente información para el solver MILP.`)
   } else {
     L.push(`> Total: **${calendarEvents.length} eventos** | **${formatMin(totalMin)}** programadas`)
@@ -924,12 +1580,33 @@ async function main() {
     noCodex,
     autoMode,
     pauseOnInput,
+    debugMode,
     providedAnswers,
     detailStartWeek,
     detailWeeks,
   } = parseArgs()
+
+  const debugSession = createDebugSession({
+    enabled: debugMode,
+    goal,
+    resumeSession,
+    profileId,
+    baseUrl,
+    detailStartWeek,
+    detailWeeks,
+  })
+
+  debugSession.recordLocal('cli.started', {
+    goal,
+    resumeSession,
+    explicitProvider: explicitProvider ?? null,
+    autoMode,
+    pauseOnInput,
+    noCodex,
+  })
+
   log('')
-  log(c('cyan', c('bold', '▶ LAP Plan Runner')))
+  log(c('cyan', c('bold', 'LAP Plan Runner')))
   if (resumeSession) {
     log(c('gray', `  Modo     : resume-session`))
     log(c('gray', `  Session  : ${resumeSession}`))
@@ -939,28 +1616,190 @@ async function main() {
   log(c('gray', `  Base URL : ${baseUrl}`))
   if (profileId) log(c('gray', `  Profile  : ${profileId}`))
   if (existingPlanId) log(c('gray', `  Plan ID  : ${existingPlanId}`))
-  if (pauseOnInput) log(c('gray', `  Modo     : pause-on-input (sale con código 42 al recibir preguntas)`))
+  if (pauseOnInput) log(c('gray', '  Modo     : pause-on-input (sale con codigo 42 al recibir preguntas)'))
   if (detailStartWeek != null || detailWeeks != null) {
     const startLabel = detailStartWeek ?? 1
     const weeksLabel = detailWeeks ?? 'default'
     log(c('gray', `  Detail   : semana ${startLabel} + ${weeksLabel} semana(s)`))
   }
+  if (debugMode) {
+    log(c('gray', '  Debug    : activado'))
+    if (debugSession.artifactPath) {
+      log(c('gray', `  Artefacto: ${debugSession.artifactPath}`))
+    }
+  }
   log('')
 
-  // ── Resume session ───────────────────────────────────────────────────────────
-  if (resumeSession) {
-    const answers = providedAnswers || {}
-    log(c('blue', `  Respuestas: ${Object.keys(answers).length}`))
-    Object.entries(answers).forEach(([k, v]) => log(c('gray', `    ${k}: ${v}`)))
-    log('')
+  try {
+    if (resumeSession) {
+      const answers = providedAnswers || {}
+      log(c('blue', `  Respuestas: ${Object.keys(answers).length}`))
+      Object.entries(answers).forEach(([k, v]) => log(c('gray', `    ${k}: ${v}`)))
+      log('')
 
-    const resumeResult = await resumePipeline(baseUrl, resumeSession, answers)
-    const { planId, score, iterations, degraded, agentOutcomes } = resumeResult
+      const resumeResult = await resumePipeline(baseUrl, resumeSession, answers, { debugMode, debugSession })
+      const { planId, score, iterations, degraded, agentOutcomes } = resumeResult
+
+      log('')
+      log(c('blue', 'Descargando datos del plan...'))
+      debugSession.recordLocal('package.fetch_requested', { planId, provider: 'resume' })
+
+      const packageResponse = await fetchPackage(baseUrl, planId, { detailStartWeek, detailWeeks })
+      debugSession.attachPackage(packageResponse)
+      const pkg = packageResponse.package
+      const modelId = typeof packageResponse.meta?.modelId === 'string' && packageResponse.meta.modelId.trim()
+        ? packageResponse.meta.modelId.trim()
+        : null
+      const reportTitle = goal || pkg.plan?.title || `Plan ${planId}`
+      const isDegraded = degraded === true || pkg.degraded === true
+      const effectiveScore = isDegraded ? null : score
+      const effectiveAgentOutcomes = Array.isArray(agentOutcomes) && agentOutcomes.length > 0
+        ? agentOutcomes
+        : (Array.isArray(pkg.agentOutcomes) ? pkg.agentOutcomes : [])
+
+      debugSession.recordLocal('package.fetched', {
+        planId,
+        provider: 'resume',
+        modelId,
+        publicationState: pkg.publicationState ?? null,
+        degraded: isDegraded,
+      })
+      debugSession.setSummary({
+        sessionId: resumeSession,
+        planId,
+        score: effectiveScore,
+        iterations,
+        provider: 'resume',
+        modelId,
+        degraded: isDegraded,
+        publicationState: pkg.publicationState ?? null,
+      })
+
+      log(c('green', '  Datos obtenidos'))
+      log('')
+
+      if (outputJson) {
+        out(JSON.stringify({ meta: { planId, score: effectiveScore, iterations, provider: 'resume', modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes }, package: pkg }, null, 2) + '\n')
+      } else {
+        const report = buildReport(reportTitle, pkg, { planId, score: effectiveScore, iterations, provider: 'resume', modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes })
+        out(report + '\n')
+      }
+
+      debugSession.finalize('completed', {
+        sessionId: resumeSession,
+        planId,
+        score: effectiveScore,
+        iterations,
+        provider: 'resume',
+        modelId,
+        degraded: isDegraded,
+        publicationState: pkg.publicationState ?? null,
+      })
+      return
+    }
+
+    let attempts = []
+    let result = existingPlanId
+      ? { planId: existingPlanId, score: null, iterations: null, providerLabel: 'existing-plan', degraded: false, agentOutcomes: [] }
+      : null
+
+    if (existingPlanId) {
+      debugSession.recordLocal('plan.existing_selected', {
+        planId: existingPlanId,
+        provider: 'existing-plan',
+      })
+    }
+
+    if (!existingPlanId && explicitProvider) {
+      const isCodex = explicitProvider === 'codex'
+      attempts = [
+        {
+          label: isCodex ? 'OpenAI (sesion)' : explicitProvider,
+          body: isCodex
+            ? { goalText: goal, profileId, resourceMode: 'codex' }
+            : { goalText: goal, profileId, provider: explicitProvider },
+          providerLabel: isCodex ? 'codex-oauth' : explicitProvider,
+        },
+        ...(isCodex ? [{
+          label: 'Ollama (local)',
+          body: { goalText: goal, profileId, provider: 'ollama' },
+          providerLabel: 'ollama',
+        }] : []),
+      ]
+    } else if (!existingPlanId) {
+      attempts = [
+        ...(!noCodex ? [{
+          label: 'OpenAI (sesion iniciada)',
+          body: { goalText: goal, profileId, resourceMode: 'codex' },
+          providerLabel: 'codex-oauth',
+        }] : []),
+        {
+          label: 'Ollama (local)',
+          body: { goalText: goal, profileId, provider: 'ollama' },
+          providerLabel: 'ollama',
+        },
+      ]
+    }
+
+    for (let i = 0; i < attempts.length; i++) {
+      const attempt = attempts[i]
+      const isLast = i === attempts.length - 1
+
+      debugSession.recordLocal('attempt.started', {
+        provider: attempt.providerLabel,
+        label: attempt.label,
+        attemptIndex: i + 1,
+        totalAttempts: attempts.length,
+      })
+
+      log(c('blue', `Intentando con ${attempt.label}...`))
+      log('')
+
+      try {
+        result = await runPipeline(baseUrl, attempt.body, {
+          autoMode,
+          pauseOnInput,
+          providedAnswers,
+          debugMode,
+          debugSession,
+        })
+        result.providerLabel = attempt.providerLabel
+        debugSession.recordLocal('attempt.succeeded', {
+          provider: attempt.providerLabel,
+          planId: result.planId,
+          degraded: result.degraded === true,
+        })
+        break
+      } catch (err) {
+        debugSession.recordLocal('attempt.failed', {
+          provider: attempt.providerLabel,
+          recoverable: err?.recoverable !== false,
+          message: err instanceof Error ? err.message : String(err),
+          failureCode: err?.failureDetails?.failureCode ?? null,
+        })
+        if (!isLast && err.recoverable !== false) {
+          log(c('yellow', `  ${attempt.label} no disponible: ${err.message}`))
+          log(c('gray', `  Reintentando con ${attempts[i + 1].label}...`))
+          log('')
+        } else {
+          throw err
+        }
+      }
+    }
+
+    if (!result) throw new Error('No se pudo ejecutar el pipeline con ningun proveedor.')
+
+    const { planId, score, iterations, providerLabel, degraded, agentOutcomes } = result
 
     log('')
-    log(c('blue', '⟳ Descargando datos del plan...'))
+    log(c('blue', 'Descargando datos del plan...'))
+    debugSession.recordLocal('package.fetch_requested', {
+      planId,
+      provider: providerLabel,
+    })
 
     const packageResponse = await fetchPackage(baseUrl, planId, { detailStartWeek, detailWeeks })
+    debugSession.attachPackage(packageResponse)
     const pkg = packageResponse.package
     const modelId = typeof packageResponse.meta?.modelId === 'string' && packageResponse.meta.modelId.trim()
       ? packageResponse.meta.modelId.trim()
@@ -972,117 +1811,82 @@ async function main() {
       ? agentOutcomes
       : (Array.isArray(pkg.agentOutcomes) ? pkg.agentOutcomes : [])
 
-    log(c('green', '  ✔ Datos obtenidos'))
+    debugSession.recordLocal('package.fetched', {
+      planId,
+      provider: providerLabel,
+      modelId,
+      publicationState: pkg.publicationState ?? null,
+      degraded: isDegraded,
+    })
+    debugSession.setSummary({
+      planId,
+      score: effectiveScore,
+      iterations,
+      provider: providerLabel,
+      modelId,
+      degraded: isDegraded,
+      publicationState: pkg.publicationState ?? null,
+    })
+
+    if (isDegraded) {
+      const fallbackRows = effectiveAgentOutcomes.filter((outcome) => outcome?.source === 'fallback')
+      log(c('yellow', `  Advertencia: ${fallbackRows.length} agente(s) usaron datos de respaldo.`))
+    }
+
+    log(c('green', '  Datos obtenidos'))
+    if (modelId) {
+      log(c('gray', `  Modelo  : ${modelId}`))
+    }
+    log('')
+    log(c('gray', '-'.repeat(60)))
+    log(c('green', '  Reporte en stdout. Redirigi con > report.md para guardar.'))
+    log(c('gray', '-'.repeat(60)))
     log('')
 
     if (outputJson) {
-      out(JSON.stringify({ meta: { planId, score: effectiveScore, iterations, provider: 'resume', modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes }, package: pkg }, null, 2) + '\n')
+      out(JSON.stringify({ meta: { planId, score: effectiveScore, iterations, provider: providerLabel, modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes }, package: pkg }, null, 2) + '\n')
     } else {
-      const report = buildReport(reportTitle, pkg, { planId, score: effectiveScore, iterations, provider: 'resume', modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes })
+      const report = buildReport(reportTitle, pkg, { planId, score: effectiveScore, iterations, provider: providerLabel, modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes })
       out(report + '\n')
     }
-    return
-  }
 
-  // ── Estrategia de ejecución ──────────────────────────────────────────────────
-  // 1. Si el usuario forzó un provider explícito → usarlo directamente, sin fallback
-  // 2. Si no → intentar primero Codex OAuth (sesión iniciada) → fallback a Ollama
-  let attempts = []
-  let result = existingPlanId
-    ? { planId: existingPlanId, score: null, iterations: null, providerLabel: 'existing-plan', degraded: false, agentOutcomes: [] }
-    : null
-
-  if (!existingPlanId && explicitProvider) {
-    const isCodex = explicitProvider === 'codex'
-    attempts = [
-      {
-        label: isCodex ? 'OpenAI (sesión)' : explicitProvider,
-        body: isCodex
-          ? { goalText: goal, profileId, resourceMode: 'codex' }
-          : { goalText: goal, profileId, provider: explicitProvider },
-        providerLabel: isCodex ? 'codex-oauth' : explicitProvider,
-      }
-    ]
-  } else if (!existingPlanId) {
-    attempts = [
-      ...(!noCodex ? [{
-        label: 'OpenAI (sesión iniciada)',
-        body: { goalText: goal, profileId, resourceMode: 'codex' },
-        providerLabel: 'codex-oauth',
-      }] : []),
-      {
-        label: 'Ollama (local)',
-        body: { goalText: goal, profileId, provider: 'ollama' },
-        providerLabel: 'ollama',
-      },
-    ]
-  }
-  for (let i = 0; i < attempts.length; i++) {
-    const attempt = attempts[i]
-    const isLast  = i === attempts.length - 1
-
-    log(c('blue', `⟳ Intentando con ${attempt.label}...`))
-    log('')
-
-    try {
-      result = await runPipeline(baseUrl, attempt.body, { autoMode, pauseOnInput, providedAnswers })
-      result.providerLabel = attempt.providerLabel
-      break
-    } catch (err) {
-      if (!isLast && err.recoverable !== false) {
-        // Puede ser recuperable → intentar siguiente
-        log(c('yellow', `  ⚠ ${attempt.label} no disponible: ${err.message}`))
-        log(c('gray',   `  → Reintentando con ${attempts[i+1].label}...`))
-        log('')
-      } else {
-        throw err
-      }
+    debugSession.finalize('completed', {
+      planId,
+      score: effectiveScore,
+      iterations,
+      provider: providerLabel,
+      modelId,
+      degraded: isDegraded,
+      publicationState: pkg.publicationState ?? null,
+    })
+  } catch (err) {
+    if (err instanceof ControlledExit) {
+      debugSession.finalize('paused_for_input', {
+        sessionId: err.details?.sessionId ?? resumeSession ?? null,
+      })
+      throw err
     }
-  }
 
-  if (!result) throw new Error('No se pudo ejecutar el pipeline con ningún proveedor.')
-
-  const { planId, score, iterations, providerLabel, degraded, agentOutcomes } = result
-
-  log('')
-  log(c('blue', '⟳ Descargando datos del plan...'))
-
-  const packageResponse = await fetchPackage(baseUrl, planId, { detailStartWeek, detailWeeks })
-  const pkg = packageResponse.package
-  const modelId = typeof packageResponse.meta?.modelId === 'string' && packageResponse.meta.modelId.trim()
-    ? packageResponse.meta.modelId.trim()
-    : null
-  const reportTitle = goal || pkg.plan?.title || `Plan ${planId}`
-  const isDegraded = degraded === true || pkg.degraded === true
-  const effectiveScore = isDegraded ? null : score
-  const effectiveAgentOutcomes = Array.isArray(agentOutcomes) && agentOutcomes.length > 0
-    ? agentOutcomes
-    : (Array.isArray(pkg.agentOutcomes) ? pkg.agentOutcomes : [])
-  if (isDegraded) {
-    const fallbackRows = effectiveAgentOutcomes.filter((outcome) => outcome?.source === 'fallback')
-    log(c('yellow', `  âš  Advertencia: ${fallbackRows.length} agente(s) usaron datos de respaldo.`))
-  }
-
-  log(c('green', '  ✔ Datos obtenidos'))
-  if (modelId) {
-    log(c('gray', `  Modelo  : ${modelId}`))
-  }
-  log('')
-  log(c('gray', '─'.repeat(60)))
-  log(c('green', '  Reporte en stdout. Redirigí con > report.md para guardar.'))
-  log(c('gray', '─'.repeat(60)))
-  log('')
-
-  if (outputJson) {
-    out(JSON.stringify({ meta: { planId, score: effectiveScore, iterations, provider: providerLabel, modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes }, package: pkg }, null, 2) + '\n')
-  } else {
-    const report = buildReport(reportTitle, pkg, { planId, score: effectiveScore, iterations, provider: providerLabel, modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes })
-    out(report + '\n')
+    const failureDetails = err?.failureDetails ?? null
+    debugSession.recordLocal('cli.failed', {
+      message: err instanceof Error ? err.message : String(err),
+      failureCode: failureDetails?.failureCode ?? null,
+      publicationState: failureDetails?.publicationState ?? null,
+    })
+    debugSession.finalize('failed', {
+      failureCode: failureDetails?.failureCode ?? null,
+      publicationState: failureDetails?.publicationState ?? null,
+    })
+    throw err
   }
 }
 
 main().catch(err => {
+  if (err instanceof ControlledExit) {
+    process.exitCode = err.exitCode
+    return
+  }
   log('')
   log(c('red', `✖ Error: ${err.message}`))
-  process.exit(1)
+  process.exitCode = 1
 })

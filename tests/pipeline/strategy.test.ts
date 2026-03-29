@@ -231,6 +231,41 @@ function createBroadItalianCookingInput(clarificationAnswers: Record<string, str
   };
 }
 
+function createAnchoredIncomeInput(clarificationAnswers: Record<string, string> = {}): StrategyInput {
+  return {
+    ...strategyInput,
+    goalText: 'Quiero lograr obtener un flujo de 3k dolares por mes en argentina',
+    classification: {
+      goalType: 'QUANT_TARGET_TRACKING',
+      confidence: 0.85,
+      risk: 'MEDIUM',
+      extractedSignals: {
+        isRecurring: true,
+        hasDeliverable: false,
+        hasNumericTarget: true,
+        requiresSkillProgression: false,
+        dependsOnThirdParties: true,
+        isOpenEnded: false,
+        isRelational: false,
+      },
+    },
+    planningContext: {
+      interpretation: {
+        parsedGoal: 'Generar 3k USD por mes desde Argentina',
+        implicitAssumptions: [],
+      },
+      clarificationAnswers: {
+        plazo: '12 meses',
+        via: 'empleo remoto',
+        experiencia: 'junior sin experiencia',
+        stack: 'java, python, php, react',
+        presupuesto: '50 usd',
+        ...clarificationAnswers,
+      },
+    },
+  };
+}
+
 function createReasoningPayload(phases: Array<{
   id: string;
   title: string;
@@ -400,6 +435,46 @@ describe('buildFallbackStrategy', () => {
       'Natacion o aquagym',
       'Fuerza basica y movilidad',
     ]));
+  });
+
+  it('reutiliza anclas del intake en el fallback generico sin depender de reglas por dominio', () => {
+    const result = buildFallbackStrategy(createAnchoredIncomeInput());
+    const summary = [
+      ...result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`),
+      ...result.milestones,
+    ].join(' ').toLowerCase();
+
+    expect(summary).toMatch(/3k|3000/);
+    expect(summary).toContain('12 meses');
+    expect(summary).toContain('remoto');
+    expect(summary).toContain('react');
+  });
+
+  it('no contamina el fallback generico con señales culinarias cuando el objetivo no tiene card de dominio', () => {
+    const result = buildFallbackStrategy(createAnchoredIncomeInput({
+      experiencia: 'trabaje en la crypta un tiempo como cm y como editor de videos usando ia para clips de instagram',
+      via: 'empleo remoto',
+    }));
+    const summary = result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`).join(' ').toLowerCase();
+
+    expect(summary).not.toContain('con apoyo de trabaje en la crypta');
+    expect(summary).not.toContain('cocina');
+  });
+
+  it('prioriza el plazo explicito y evita usar numeros sueltos como anclas tematicas', () => {
+    const result = buildFallbackStrategy(createAnchoredIncomeInput({
+      experiencia: 'trabaje de desarrollador junior full stack por 2 meses',
+      presupuesto: '50 usd',
+      plazo: '12 meses',
+      via: 'empleo remoto',
+      stack: 'react y java',
+    }));
+    const phaseNames = result.phases.map((phase) => phase.name.toLowerCase()).join(' ');
+    const summary = result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`).join(' ').toLowerCase();
+
+    expect(phaseNames).not.toContain('12 y 50');
+    expect(summary).toContain('12 meses');
+    expect(summary).not.toMatch(/\b2 meses\b/);
   });
 });
 
@@ -631,6 +706,136 @@ describe('generateStrategyWithSource validation', () => {
     expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
     expect(result.fallbackMessage).toContain('cooking.horizon');
   });
+
+  it('rechaza salidas intercambiables si ignoran las anclas concretas del intake', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Presupuesto mensual hacia 3000 usd',
+          summary: 'Plan de 12 meses para ahorrar mas, controlar gastos y acumular un colchon financiero.',
+          startMonth: 1,
+          endMonth: 6,
+        },
+        {
+          id: 'phase-2',
+          title: 'Ahorro acumulado y disciplina financiera',
+          summary: 'Continua 12 meses con control de consumo, presupuesto y recortes para sostener el ahorro.',
+          startMonth: 7,
+          endMonth: 12,
+        },
+      ])),
+      createAnchoredIncomeInput(),
+    );
+
+    expect(result.source).toBe('fallback');
+    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
+    expect(result.fallbackMessage).toContain('intake.anchor_coverage');
+  });
+
+  it('acepta salidas cuando preservan metrica, plazo y anclas del intake', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Empleo remoto con React y Python: base visible',
+          summary: 'Primeros 4 meses para ordenar portfolio, GitHub y pruebas visibles con React y Python desde Argentina.',
+          startMonth: 1,
+          endMonth: 4,
+        },
+        {
+          id: 'phase-2',
+          title: 'Entrevistas remotas y pipeline a 3000 usd por mes',
+          summary: 'Sostiene 12 meses de empleo remoto con entrevistas, feedback del mercado y foco en llegar a 3000 usd por mes.',
+          startMonth: 5,
+          endMonth: 12,
+        },
+      ])),
+      createAnchoredIncomeInput(),
+    );
+
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+  });
+
+  it('acepta variantes numericas equivalentes para la metrica del intake', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Empleo remoto con React y Java: base visible',
+          summary: 'Primeros 4 meses para ordenar portfolio, GitHub y pruebas visibles con React y Java desde Argentina.',
+          startMonth: 1,
+          endMonth: 4,
+        },
+        {
+          id: 'phase-2',
+          title: 'Entrevistas remotas y pipeline a 3.000 dolares por mes',
+          summary: 'Sostiene 12 meses de empleo remoto con React, Java y feedback del mercado para llegar a 3.000 dolares por mes.',
+          startMonth: 5,
+          endMonth: 12,
+        },
+      ])),
+      createAnchoredIncomeInput({ stack: 'react y java' }),
+    );
+
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+  });
+
+  it('acepta una metrica escrita como 3 k usd con espacio intermedio', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Empleo remoto con React y Java: base visible para 3 k usd',
+          summary: 'Primeros 4 meses para ordenar portfolio, GitHub y pruebas visibles con React y Java desde Argentina.',
+          startMonth: 1,
+          endMonth: 4,
+        },
+        {
+          id: 'phase-2',
+          title: 'Entrevistas remotas y pipeline a 3 k usd por mes',
+          summary: 'Sostiene 12 meses de empleo remoto con React, Java y feedback del mercado para llegar a 3 k usd por mes.',
+          startMonth: 5,
+          endMonth: 12,
+        },
+      ])),
+      createAnchoredIncomeInput({ stack: 'react y java' }),
+    );
+
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+  });
+
+  it('no aplica validaciones de cocina a un objetivo financiero aunque una respuesta mencione videos', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createReasoningPayload([
+        {
+          id: 'phase-1',
+          title: 'Base remota con React y Java hacia 3000 usd',
+          summary: 'Primeros 4 meses para ordenar portfolio, GitHub y entrevistas remotas desde Argentina.',
+          startMonth: 1,
+          endMonth: 4,
+        },
+        {
+          id: 'phase-2',
+          title: 'Pipeline remoto y ofertas hacia 3000 usd netos',
+          summary: 'Meses 5-12 con foco en empleo remoto, feedback del mercado y cierres graduales hasta 3000 usd netos.',
+          startMonth: 5,
+          endMonth: 12,
+        },
+      ])),
+      createAnchoredIncomeInput({
+        experiencia: 'trabaje en la crypta un tiempo como cm y como editor de videos usando ia para clips de instagram',
+        via: 'empleo remoto',
+        stack: 'react y java',
+      }),
+    );
+
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+  });
 });
 
 describe('isStructuralPhaseTitle - specificity gate', () => {
@@ -756,5 +961,58 @@ describe('buildStrategyPrompt domain alignment', () => {
 
     expect(prompt).toContain('El subtema elegido por el usuario es una puerta de entrada');
     expect(prompt).toContain('no debes convertir todo el plan en pizza');
+  });
+
+  it('expone una regla general para preservar las anclas del intake', () => {
+    const prompt = buildStrategyPrompt({
+      goalText: 'Quiero lograr obtener un flujo de 3k dolares por mes en argentina',
+      goalType: 'QUANT_TARGET_TRACKING',
+      interpretation: {
+        parsedGoal: 'Generar 3k USD por mes desde Argentina',
+        implicitAssumptions: [],
+      },
+      userProfile: {
+        freeHoursWeekday: 1,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+      },
+      domainContext: null,
+      clarificationAnswers: {
+        plazo: '12 meses',
+        via: 'empleo remoto',
+        stack: 'react y python',
+      },
+    });
+
+    expect(prompt).toContain('ANCLAJES DEL INTAKE');
+    expect(prompt).toContain('via preferida');
+    expect(prompt).toContain('mecanismo causal');
+  });
+
+  it('prioriza el plazo tipado frente a una duracion incidental en otra respuesta', () => {
+    const prompt = buildStrategyPrompt({
+      goalText: 'Quiero lograr obtener un flujo de 3k dolares por mes en argentina',
+      goalType: 'QUANT_TARGET_TRACKING',
+      interpretation: {
+        parsedGoal: 'Generar 3k USD por mes desde Argentina',
+        implicitAssumptions: [],
+      },
+      userProfile: {
+        freeHoursWeekday: 1,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+      },
+      domainContext: null,
+      clarificationAnswers: {
+        '¿Cuál es tu experiencia laboral previa o las habilidades principales que podrías ofrecer en un trabajo o proyecto remoto?': 'trabaje de desarrollador junior full stack por 2 meses',
+        '¿En qué plazo objetivo te gustaría empezar a generar de forma estable los 3.000 USD mensuales?': '12 meses',
+        'senal tipada - general: plazo': '12 meses',
+      },
+    });
+
+    expect(prompt).toContain('El usuario pidio un plazo de 12 mes(es)');
+    expect(prompt).not.toContain('El usuario pidio un plazo de 2 mes(es)');
   });
 });

@@ -1,0 +1,556 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T15:46:28.236Z",
+  "updatedAt": "2026-03-29T15:46:40.795Z",
+  "invocation": {
+    "goal": "Quiero aprender a cocinar platos italianos",
+    "resumeSession": null,
+    "profileId": "c2567794-35f8-45b0-8eea-f0b1b7a86f60",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": 6,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": "e1b40fd4-7a01-4b18-a460-4836e8547b0b",
+    "provider": "codex",
+    "modelId": null,
+    "status": "running"
+  },
+  "pendingInput": {
+    "sessionId": "e1b40fd4-7a01-4b18-a460-4836e8547b0b",
+    "goal": "Quiero aprender a cocinar platos italianos",
+    "profileId": "c2567794-35f8-45b0-8eea-f0b1b7a86f60",
+    "questions": [
+      {
+        "id": "q1",
+        "text": "¿Cuál es tu nivel actual en cocina italiana (principiante, intermedio, avanzado)?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "id": "q2",
+        "text": "¿Qué tipo de platos italianos te interesa dominar primero (por ejemplo, pastas, risottos, postres, platos al horno)?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "id": "q3",
+        "text": "¿Cuál es tu método preferido para aprender (clases presenciales, cursos en línea, libros, videos, práctica guiada, otro)?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "id": "q4",
+        "text": "¿En qué plazo te gustaría lograr avances significativos en la cocina italiana (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      }
+    ],
+    "createdAt": "2026-03-29T15:46:40.795Z",
+    "pendingFilePath": "F:\\proyectos\\planificador-vida\\.lap-pending-input.json",
+    "resumeCommand": "node scripts/run-plan.mjs --resume-session=e1b40fd4-7a01-4b18-a460-4836e8547b0b --answers-json='{\"id\":\"respuesta\",...}' --debug"
+  },
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 11,
+    "timestamp": "2026-03-29T15:46:40.724Z",
+    "category": "lifecycle",
+    "action": "session.paused",
+    "summary_es": "El pipeline quedó pausado esperando 4 respuesta(s) de aclaración.",
+    "phase": "clarify",
+    "agent": "clarifier",
+    "iteration": 2,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 25,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "questionCount": 4,
+      "questions": [
+        {
+          "id": "q1",
+          "text": "¿Cuál es tu nivel actual en cocina italiana (principiante, intermedio, avanzado)?",
+          "purpose": "Definir el punto de partida para ajustar la dificultad y secuencia de las recetas.",
+          "type": "text"
+        },
+        {
+          "id": "q2",
+          "text": "¿Qué tipo de platos italianos te interesa dominar primero (por ejemplo, pastas, risottos, postres, platos al horno)?",
+          "purpose": "Priorizar subtemas concretos y orientar el plan hacia los platos que más te interesan.",
+          "type": "text"
+        },
+        {
+          "id": "q3",
+          "text": "¿Cuál es tu método preferido para aprender (clases presenciales, cursos en línea, libros, videos, práctica guiada, otro)?",
+          "purpose": "Seleccionar recursos y actividades coherentes con la forma en que prefieres aprender.",
+          "type": "text"
+        },
+        {
+          "id": "q4",
+          "text": "¿En qué plazo te gustaría lograr avances significativos en la cocina italiana (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+          "purpose": "Establecer un horizonte temporal para planificar hitos realistas.",
+          "type": "text"
+        }
+      ],
+      "informationGaps": [
+        "Nivel actual en cocina italiana",
+        "Platos o subtemas italianos prioritarios",
+        "Método de aprendizaje preferido",
+        "Plazo u horizonte temporal para lograr la habilidad"
+      ]
+    }
+  },
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T15:46:28.237Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero aprender a cocinar platos italianos",
+        "resumeSession": null,
+        "explicitProvider": "codex",
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:28.239Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "codex-oauth",
+        "label": "OpenAI (sesion)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:28.240Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "codex",
+        "goalText": "Quiero aprender a cocinar platos italianos",
+        "profileId": "c2567794-35f8-45b0-8eea-f0b1b7a86f60"
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-29T15:46:32.497Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:32.498Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-29T15:46:32.491Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero aprender a cocinar platos italianos\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "openai:gpt-5-codex",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:32.499Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-29T15:46:32.492Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:32.499Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-29T15:46:32.492Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:37.173Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-29T15:46:37.155Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El interprete completo interpretacion con respuesta del modelo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 4662,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:37.174Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-29T15:46:37.155Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:37.174Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-29T15:46:37.156Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:37.175Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-29T15:46:37.156Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:40.757Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-29T15:46:40.723Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 3567,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:40.758Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-29T15:46:40.723Z",
+        "category": "phase",
+        "action": "clarify.questions_ready",
+        "summary_es": "La aclaracion genero 4 pregunta(s) nuevas.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "readyToAdvance": false,
+          "confidence": 0.39,
+          "questions": [
+            {
+              "id": "q1",
+              "text": "¿Cuál es tu nivel actual en cocina italiana (principiante, intermedio, avanzado)?",
+              "purpose": "Definir el punto de partida para ajustar la dificultad y secuencia de las recetas.",
+              "type": "text"
+            },
+            {
+              "id": "q2",
+              "text": "¿Qué tipo de platos italianos te interesa dominar primero (por ejemplo, pastas, risottos, postres, platos al horno)?",
+              "purpose": "Priorizar subtemas concretos y orientar el plan hacia los platos que más te interesan.",
+              "type": "text"
+            },
+            {
+              "id": "q3",
+              "text": "¿Cuál es tu método preferido para aprender (clases presenciales, cursos en línea, libros, videos, práctica guiada, otro)?",
+              "purpose": "Seleccionar recursos y actividades coherentes con la forma en que prefieres aprender.",
+              "type": "text"
+            },
+            {
+              "id": "q4",
+              "text": "¿En qué plazo te gustaría lograr avances significativos en la cocina italiana (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+              "purpose": "Establecer un horizonte temporal para planificar hitos realistas.",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "Nivel actual en cocina italiana",
+            "Platos o subtemas italianos prioritarios",
+            "Método de aprendizaje preferido",
+            "Plazo u horizonte temporal para lograr la habilidad"
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:40.758Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-29T15:46:40.723Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "Todavia faltan respuestas; se mantiene la aclaracion con 4 pregunta(s) pendientes.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:40.759Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-29T15:46:40.724Z",
+        "category": "lifecycle",
+        "action": "session.paused",
+        "summary_es": "El pipeline quedó pausado esperando 4 respuesta(s) de aclaración.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "questionCount": 4,
+          "questions": [
+            {
+              "id": "q1",
+              "text": "¿Cuál es tu nivel actual en cocina italiana (principiante, intermedio, avanzado)?",
+              "purpose": "Definir el punto de partida para ajustar la dificultad y secuencia de las recetas.",
+              "type": "text"
+            },
+            {
+              "id": "q2",
+              "text": "¿Qué tipo de platos italianos te interesa dominar primero (por ejemplo, pastas, risottos, postres, platos al horno)?",
+              "purpose": "Priorizar subtemas concretos y orientar el plan hacia los platos que más te interesan.",
+              "type": "text"
+            },
+            {
+              "id": "q3",
+              "text": "¿Cuál es tu método preferido para aprender (clases presenciales, cursos en línea, libros, videos, práctica guiada, otro)?",
+              "purpose": "Seleccionar recursos y actividades coherentes con la forma en que prefieres aprender.",
+              "type": "text"
+            },
+            {
+              "id": "q4",
+              "text": "¿En qué plazo te gustaría lograr avances significativos en la cocina italiana (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+              "purpose": "Establecer un horizonte temporal para planificar hitos realistas.",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "Nivel actual en cocina italiana",
+            "Platos o subtemas italianos prioritarios",
+            "Método de aprendizaje preferido",
+            "Plazo u horizonte temporal para lograr la habilidad"
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:46:40.795Z",
+      "type": "v6:needs_input",
+      "data": {
+        "sessionId": "e1b40fd4-7a01-4b18-a460-4836e8547b0b",
+        "questions": {
+          "questions": [
+            {
+              "id": "q1",
+              "text": "¿Cuál es tu nivel actual en cocina italiana (principiante, intermedio, avanzado)?",
+              "purpose": "Definir el punto de partida para ajustar la dificultad y secuencia de las recetas.",
+              "type": "text"
+            },
+            {
+              "id": "q2",
+              "text": "¿Qué tipo de platos italianos te interesa dominar primero (por ejemplo, pastas, risottos, postres, platos al horno)?",
+              "purpose": "Priorizar subtemas concretos y orientar el plan hacia los platos que más te interesan.",
+              "type": "text"
+            },
+            {
+              "id": "q3",
+              "text": "¿Cuál es tu método preferido para aprender (clases presenciales, cursos en línea, libros, videos, práctica guiada, otro)?",
+              "purpose": "Seleccionar recursos y actividades coherentes con la forma en que prefieres aprender.",
+              "type": "text"
+            },
+            {
+              "id": "q4",
+              "text": "¿En qué plazo te gustaría lograr avances significativos en la cocina italiana (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+              "purpose": "Establecer un horizonte temporal para planificar hitos realistas.",
+              "type": "text"
+            }
+          ],
+          "reasoning": "Aún faltan datos clave: nivel actual para ajustar la progresión, subtipos de platos para enfocar el plan, método de aprendizaje preferido para elegir actividades adecuadas y un horizonte temporal para definir hitos. Sin esta información es difícil diseñar un plan personalizado y realista.",
+          "informationGaps": [
+            "Nivel actual en cocina italiana",
+            "Platos o subtemas italianos prioritarios",
+            "Método de aprendizaje preferido",
+            "Plazo u horizonte temporal para lograr la habilidad"
+          ],
+          "confidence": 0.39,
+          "readyToAdvance": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-124628-quiero-aprender-a-cocinar-platos-italianos.json"
+}

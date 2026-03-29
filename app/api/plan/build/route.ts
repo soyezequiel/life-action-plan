@@ -11,6 +11,7 @@ export const maxDuration = 120
 
 const v6RequestSchema = planBuildRequestSchema.extend({
   goalText: z.string().trim().min(1).max(2000).optional(),
+  debug: z.boolean().optional(),
 }).strict()
 
 export async function POST(request: Request): Promise<Response> {
@@ -45,6 +46,13 @@ function handleV6Build(
       const send = (payload: unknown) => {
         controller.enqueue(encodeSseData(payload))
       }
+      let heartbeatTimer: ReturnType<typeof setInterval> | null = null
+      const stopHeartbeat = () => {
+        if (heartbeatTimer) {
+          clearInterval(heartbeatTimer)
+          heartbeatTimer = null
+        }
+      }
 
       try {
         const { resolvePlanBuildExecution } = await import(
@@ -76,7 +84,8 @@ function handleV6Build(
         )
         const { DateTime } = await import('luxon')
 
-        const { profileId, apiKey, provider, backendCredentialId, resourceMode, thinkingMode, goalText } = data
+        const { profileId, apiKey, provider, backendCredentialId, resourceMode, thinkingMode, goalText, debug } = data
+        const debugEnabled = debug === true
 
         if (!goalText) {
           send({
@@ -193,7 +202,35 @@ function handleV6Build(
 
         const schedulingCtx = buildSchedulingContextFromProfile(profile)
 
-        const orchestrator = new PlanOrchestrator({}, runtime, execution.runtime.modelId)
+        const orchestrator = new PlanOrchestrator(
+          {},
+          runtime,
+          execution.runtime.modelId,
+          debugEnabled
+            ? (event) => {
+                send({
+                  type: 'v6:debug',
+                  data: event,
+                })
+              }
+            : undefined,
+        )
+
+        if (debugEnabled && typeof orchestrator.getDebugStatus === 'function') {
+          heartbeatTimer = setInterval(() => {
+            const timestamp = DateTime.utc().toISO()
+              ?? DateTime.utc().toFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            send({
+              type: 'v6:heartbeat',
+              data: {
+                timestamp,
+                status: orchestrator.getDebugStatus(),
+              },
+            })
+          }, 10_000)
+          heartbeatTimer.unref?.()
+        }
+
         const result = await orchestrator.run(goalText, {
           profile: userProfile,
           timezone,
@@ -333,6 +370,7 @@ function handleV6Build(
           },
         })
       } finally {
+        stopHeartbeat()
         controller.close()
       }
     },

@@ -178,6 +178,7 @@ function createExpectedPackage() {
     goalId: 'goal-v6',
     timezone: 'UTC',
     weekStartDate: '2026-03-30T00:00:00.000Z',
+    requestedDomain: 'guitarra',
     classification: {
       goalType: 'SKILL_ACQUISITION',
       confidence: 0.8,
@@ -218,6 +219,24 @@ describe('agent fallbacks (no LLM)', () => {
 
       expect(result.goalType).toBe('SKILL_ACQUISITION');
       expect(result.parsedGoal).toBe('Aprender guitarra');
+    });
+
+    it('does not invent a domain when the agent leaves suggestedDomain empty', async () => {
+      const runtime = createJsonRuntime({
+        parsedGoal: 'Generar ingresos remotos',
+        goalType: 'QUANT_TARGET_TRACKING',
+        confidence: 0.8,
+        implicitAssumptions: [],
+        ambiguities: ['plazo'],
+        riskFlags: ['MEDIUM'],
+        suggestedDomain: null,
+      });
+
+      const result = await goalInterpreterAgent.execute({
+        goalText: 'Quiero lograr obtener un flujo de 3k dolares por mes en argentina',
+      }, runtime);
+
+      expect(result.suggestedDomain).toBeNull();
     });
   });
 
@@ -509,10 +528,7 @@ describe('agent fallbacks (no LLM)', () => {
 
   describe('packagePlan validation', () => {
     it('canonicalizes cooking aliases before checking package coherence', async () => {
-      const packagerModule = await import('../../src/lib/pipeline/shared/packager');
-      const packagePlanImpl = 'packagePlan' in packagerModule
-        ? packagerModule.packagePlan
-        : packagerModule.default.packagePlan;
+      const { packagePlan: packagePlanImpl } = await import('../../src/lib/pipeline/shared/packager');
       const result = packagePlanImpl({
         goalText: 'Quiero aprender a cocinar platos italianos',
         goalId: 'goal-cocina',
@@ -594,7 +610,7 @@ describe('agent fallbacks (no LLM)', () => {
 
       expect(result.requestDomain).toBe('cocina-italiana');
       expect(result.packageDomain).toBe('cocina-italiana');
-      expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('domain_mismatch');
+      expect(result.qualityIssues?.map((issue: { code: string }) => issue.code)).not.toContain('domain_mismatch');
       expect(result.intakeCoverage?.requiredSignals).toEqual(expect.arrayContaining([
         'cooking_subtopic',
         'cooking_method',
@@ -831,6 +847,109 @@ describe('agent fallbacks (no LLM)', () => {
           endWeek: 8,
         },
       ]);
+    });
+
+    it('does not infer health domain from monetary pesos in finance goals', () => {
+      const result = packagePlan({
+        goalText: 'Quiero lograr obtener un flujo de 3k dolares por mes en argentina',
+        goalId: 'goal-ingresos',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        clarificationAnswers: {
+          plazo: '12 meses',
+          via: 'empleo remoto',
+          stack: 'react y java',
+          moneda: 'equivalente en pesos argentinos despues de impuestos',
+        },
+        classification: {
+          goalType: 'QUANT_TARGET_TRACKING',
+          confidence: 0.92,
+          risk: 'MEDIUM',
+          extractedSignals: {
+            isRecurring: true,
+            hasDeliverable: false,
+            hasNumericTarget: true,
+            requiresSkillProgression: false,
+            dependsOnThirdParties: true,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Base remota con React y Java hacia 3.000 dolares',
+              durationWeeks: 16,
+              focus_esAR: 'Ordenar portfolio, GitHub y entrevistas remotas desde Argentina para sostener una meta de 3.000 dolares por mes.',
+            },
+            {
+              name: 'Pipeline comercial remoto y primeras ofertas en dolares',
+              durationWeeks: 16,
+              focus_esAR: 'Enviar postulaciones y propuestas con foco en empleo remoto, validacion de tarifas y brecha hacia 3.000 dolares.',
+            },
+            {
+              name: 'Cierre de ingresos remotos hacia 3.000 dolares por mes',
+              durationWeeks: 16,
+              focus_esAR: 'Negociar oferta o cartera estable para acercarse a 3.000 dolares por mes sin perder el foco en remoto, React y Java.',
+            },
+          ],
+          milestones: [
+            'Portfolio remoto con React y Java publicado',
+            'Primeras entrevistas o propuestas pagas en dolares',
+            'Brecha hacia 3.000 dolares documentada con ofertas reales',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'income-1',
+              kind: 'time_event',
+              title: 'Actualizar portfolio remoto con React y Java',
+              status: 'active',
+              goalIds: ['goal-ingresos'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 90,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'income-2',
+              kind: 'time_event',
+              title: 'Aplicar a empleo remoto y registrar feedback',
+              status: 'active',
+              goalIds: ['goal-ingresos'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 60,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 11,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.requestDomain).toBeNull();
+      expect(result.packageDomain).toBeNull();
+      expect(result.intakeCoverage?.requiredSignals).not.toEqual(expect.arrayContaining([
+        'health_weight',
+        'health_height',
+        'health_supervision',
+      ]));
     });
 
     it('detects video-based cooking methods without relying on book language', () => {

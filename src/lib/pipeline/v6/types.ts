@@ -158,6 +158,53 @@ export const AgentExecutionOutcomeSchema = z.object({
 }).strict();
 export type AgentExecutionOutcome = z.infer<typeof AgentExecutionOutcomeSchema>;
 
+export const OrchestratorDebugEventSchema = z.object({
+  sequence: z.number().int().min(1),
+  timestamp: z.string(),
+  category: z.enum(['lifecycle', 'phase', 'agent', 'critic', 'publication']),
+  action: z.string().trim().min(1),
+  summary_es: z.string().trim().min(1),
+  phase: OrchestratorPhaseSchema.nullable(),
+  agent: V6AgentNameSchema.nullable(),
+  iteration: z.number().int().min(0),
+  revisionCycle: z.number().int().min(0),
+  clarifyRound: z.number().int().min(0),
+  progressScore: z.number().min(0).max(100),
+  degraded: z.boolean(),
+  fallbackCount: z.number().int().min(0),
+  publicationState: z.enum(['ready', 'blocked', 'failed']).nullable(),
+  failureCode: z.string().nullable(),
+  errorCode: z.string().nullable(),
+  details: z.record(z.string(), z.unknown()).nullable(),
+}).strict();
+export type OrchestratorDebugEvent = z.infer<typeof OrchestratorDebugEventSchema>;
+
+export const OrchestratorDebugStatusSchema = z.object({
+  lifecycle: z.enum(['idle', 'running', 'paused_for_input', 'completed', 'failed']),
+  currentPhase: OrchestratorPhaseSchema.nullable(),
+  currentAgent: V6AgentNameSchema.nullable(),
+  currentAction: z.string().trim().min(1),
+  currentSummary_es: z.string().trim().min(1),
+  iteration: z.number().int().min(0),
+  revisionCycles: z.number().int().min(0),
+  clarifyRounds: z.number().int().min(0),
+  progressScore: z.number().min(0).max(100),
+  degraded: z.boolean(),
+  fallbackCount: z.number().int().min(0),
+  publicationState: z.enum(['ready', 'blocked', 'failed']).nullable(),
+  failureCode: z.string().nullable(),
+  lastEventSequence: z.number().int().min(0),
+  lastEventTimestamp: z.string().nullable(),
+  lastEventSummary_es: z.string().nullable(),
+}).strict();
+export type OrchestratorDebugStatus = z.infer<typeof OrchestratorDebugStatusSchema>;
+
+export const OrchestratorHeartbeatSchema = z.object({
+  timestamp: z.string(),
+  status: OrchestratorDebugStatusSchema,
+}).strict();
+export type OrchestratorHeartbeat = z.infer<typeof OrchestratorHeartbeatSchema>;
+
 export const PlanQualityIssueSchema = z.object({
   code: z.string(),
   severity: z.enum(['warning', 'blocking']),
@@ -333,6 +380,8 @@ export const PlanOrchestratorSnapshotSchema = z.object({
   lastAction: z.string(),
   pendingAnswers: z.record(z.string()).nullable(),
   progressHistory: z.array(z.number().min(0).max(100)),
+  agentOutcomes: z.array(AgentExecutionOutcomeSchema).optional(),
+  debugTrace: z.array(OrchestratorDebugEventSchema).optional(),
 }).strict();
 export type PlanOrchestratorSnapshot = z.infer<typeof PlanOrchestratorSnapshotSchema>;
 

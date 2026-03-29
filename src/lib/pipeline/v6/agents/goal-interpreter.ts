@@ -144,7 +144,7 @@ function normalizeInterpretation(
     implicitAssumptions: normalizeStringList(payload.implicitAssumptions, 4),
     ambiguities: normalizeStringList(payload.ambiguities, 5),
     riskFlags: normalizeRiskFlags(payload.riskFlags, heuristic.risk),
-    suggestedDomain: normalizeOptionalText(payload.suggestedDomain) ?? deriveSuggestedDomain(goalText, heuristic),
+    suggestedDomain: normalizeOptionalText(payload.suggestedDomain),
   });
 }
 

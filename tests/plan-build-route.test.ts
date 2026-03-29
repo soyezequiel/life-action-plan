@@ -13,6 +13,9 @@ const mocks = vi.hoisted(() => ({
     availability: [],
     blocked: [],
   })),
+  persistPlanFromV5PackageMock: vi.fn(() => ({
+    planId: 'persisted-debug-plan',
+  })),
   createInteractiveSessionMock: vi.fn(),
   updateInteractiveSessionMock: vi.fn(),
   createV6RuntimeSnapshotMock: vi.fn(() => ({ snapshot: true })),
@@ -23,6 +26,25 @@ const mocks = vi.hoisted(() => ({
     lastAction: 'Packaging final plan',
   })),
   getSnapshotMock: vi.fn(() => ({ snapshot: true })),
+  getDebugStatusMock: vi.fn(() => ({
+    lifecycle: 'running',
+    currentPhase: 'plan',
+    currentAgent: 'planner',
+    currentAction: 'agent.start',
+    currentSummary_es: 'Planificando.',
+    iteration: 3,
+    revisionCycles: 1,
+    clarifyRounds: 0,
+    progressScore: 55,
+    degraded: false,
+    fallbackCount: 0,
+    publicationState: null,
+    failureCode: null,
+    lastEventSequence: 1,
+    lastEventTimestamp: '2026-03-30T00:00:00.000Z',
+    lastEventSummary_es: 'Planificando.',
+  })),
+  setDebugListenerMock: vi.fn(),
 }))
 
 vi.mock('../app/api/_user-settings', () => ({
@@ -59,6 +81,10 @@ vi.mock('../src/lib/pipeline/shared/scheduling-context', () => ({
   buildSchedulingContextFromProfile: mocks.buildSchedulingContextFromProfileMock,
 }))
 
+vi.mock('../src/lib/domain/plan-v5-activation', () => ({
+  persistPlanFromV5Package: mocks.persistPlanFromV5PackageMock,
+}))
+
 vi.mock('../src/lib/db/interactive-sessions', () => ({
   createInteractiveSession: mocks.createInteractiveSessionMock,
   updateInteractiveSession: mocks.updateInteractiveSessionMock,
@@ -70,9 +96,13 @@ vi.mock('../src/lib/pipeline/v6/session-snapshot', () => ({
 
 vi.mock('../src/lib/pipeline/v6/orchestrator', () => ({
   PlanOrchestrator: class {
+    constructor(_config: unknown, _runtime: unknown, _runtimeLabel?: string, debugListener?: (event: unknown) => void) {
+      mocks.setDebugListenerMock(debugListener ?? null)
+    }
     run = mocks.runMock
     getProgress = mocks.getProgressMock
     getSnapshot = mocks.getSnapshotMock
+    getDebugStatus = mocks.getDebugStatusMock
   },
 }))
 
@@ -117,11 +147,32 @@ describe('plan build route failure surfacing', () => {
       availability: [],
       blocked: [],
     })
+    mocks.persistPlanFromV5PackageMock.mockReturnValue({
+      planId: 'persisted-debug-plan',
+    })
     mocks.getProgressMock.mockReturnValue({
       progressScore: 95,
       lastAction: 'Packaging final plan',
     })
     mocks.getSnapshotMock.mockReturnValue({ snapshot: true })
+    mocks.getDebugStatusMock.mockReturnValue({
+      lifecycle: 'running',
+      currentPhase: 'plan',
+      currentAgent: 'planner',
+      currentAction: 'agent.start',
+      currentSummary_es: 'Planificando.',
+      iteration: 3,
+      revisionCycles: 1,
+      clarifyRounds: 0,
+      progressScore: 55,
+      degraded: false,
+      fallbackCount: 0,
+      publicationState: null,
+      failureCode: null,
+      lastEventSequence: 1,
+      lastEventTimestamp: '2026-03-30T00:00:00.000Z',
+      lastEventSummary_es: 'Planificando.',
+    })
     mocks.createBuildAgentRuntimeMock.mockReturnValue({
       chat: vi.fn().mockResolvedValue({
         content: 'OK',
@@ -315,5 +366,118 @@ describe('plan build route failure surfacing', () => {
         failureCode: 'failed_for_quality_review',
       }))
     }
+  })
+
+  it('emits structured debug events when the request enables debug mode', async () => {
+    mocks.runMock.mockImplementationOnce(async () => {
+      const debugListener = mocks.setDebugListenerMock.mock.calls.at(-1)?.[0]
+      debugListener?.({
+        sequence: 1,
+        timestamp: '2026-03-30T00:00:00.000Z',
+        category: 'agent',
+        action: 'agent.start',
+        summary_es: 'Planificando estrategia.',
+        phase: 'plan',
+        agent: 'planner',
+        iteration: 3,
+        revisionCycle: 1,
+        clarifyRound: 0,
+        progressScore: 55,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: null,
+        failureCode: null,
+        errorCode: null,
+        details: {
+          runtimeLabel: 'openai:gpt-5-codex',
+        },
+      })
+
+      return {
+        status: 'completed',
+        package: {
+          plan: {
+            goalIds: ['goal-cocina'],
+            timezone: 'UTC',
+            createdAt: '2026-03-30T00:00:00.000Z',
+            updatedAt: '2026-03-30T00:00:00.000Z',
+            skeleton: {
+              horizonWeeks: 12,
+              goalIds: ['goal-cocina'],
+              phases: [],
+              milestones: [],
+            },
+            detail: {
+              horizonWeeks: 2,
+              startDate: '2026-03-30',
+              endDate: '2026-04-12',
+              scheduledEvents: [],
+              weeks: [],
+            },
+            operational: {
+              horizonDays: 7,
+              startDate: '2026-03-30',
+              endDate: '2026-04-05',
+              frozen: true,
+              scheduledEvents: [],
+              buffers: [],
+              days: [],
+              totalBufferMin: 0,
+            },
+          },
+          items: [],
+          habitStates: [],
+          slackPolicy: {
+            weeklyTimeBufferMin: 120,
+            maxChurnMovesPerWeek: 3,
+            frozenHorizonDays: 2,
+          },
+          timezone: 'UTC',
+          summary_esAR: 'Plan listo.',
+          qualityScore: 88,
+          implementationIntentions: [],
+          warnings: [],
+          tradeoffs: [],
+          agentOutcomes: [],
+          degraded: false,
+          publicationState: 'publishable',
+          qualityIssues: [],
+        },
+        pendingQuestions: null,
+        scratchpad: [],
+        tokensUsed: 10,
+        iterations: 3,
+        agentOutcomes: [],
+        degraded: false,
+        publicationState: 'ready',
+      }
+    })
+
+    const response = await POST(new Request('http://localhost/api/plan/build', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        goalText: 'Quiero aprender a cocinar platos italianos',
+        profileId: 'c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        provider: 'openai:gpt-5-codex',
+        resourceMode: 'codex',
+        debug: true,
+      }),
+    }))
+
+    const payloads = extractSsePayloads(await response.text())
+    const debugPayload = payloads.find((payload) => payload.type === 'v6:debug')
+
+    expect(debugPayload).toEqual(expect.objectContaining({
+      type: 'v6:debug',
+      data: expect.objectContaining({
+        action: 'agent.start',
+        summary_es: 'Planificando estrategia.',
+        phase: 'plan',
+        agent: 'planner',
+      }),
+    }))
   })
 })

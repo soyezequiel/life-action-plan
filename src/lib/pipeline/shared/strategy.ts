@@ -105,9 +105,16 @@ interface HealthSignals {
   highRisk: boolean;
 }
 
+interface GenericPlanAnchors {
+  metric: string | null;
+  timeframe: string | null;
+  anchorTokens: string[];
+}
+
 interface TypedClarificationSignals {
   cooking: CookingSignals;
   health: HealthSignals;
+  general: GenericPlanAnchors;
 }
 
 interface StrategyValidationResult {
@@ -123,7 +130,12 @@ const VALID_STRATEGY_OUTPUT: StrategyValidationResult = {
 const COOKING_SUBTOPIC_PATTERN = /\b(pasta|pastas|salsa|salsas|risotto|pizza|pizzas|gnocchi|lasagna|lasa[Ã±n]a|focaccia|pesto|ravioli)\b/i;
 
 function normalizeSignalText(value: string): string {
-  return value.toLowerCase().trim().replace(/\s+/g, ' ');
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
 }
 
 function includesAny(text: string, fragments: string[]): boolean {
@@ -197,6 +209,58 @@ function collectSignalValue(values: string[], patterns: RegExp[]): string | null
   return null;
 }
 
+function collectMatchedSignalValue(values: string[], patterns: RegExp[]): string | null {
+  for (const value of values) {
+    for (const pattern of patterns) {
+      const match = value.match(pattern);
+      if (match) {
+        return match[0];
+      }
+    }
+  }
+
+  return null;
+}
+
+function collectBestMatchedSignalValue(values: string[], patterns: RegExp[]): string | null {
+  let bestMatch: { fragment: string; surroundingNoise: number; valueLength: number; index: number } | null = null;
+
+  for (const [index, value] of values.entries()) {
+    for (const pattern of patterns) {
+      const match = value.match(pattern);
+      if (!match) {
+        continue;
+      }
+
+      const fragment = match[0];
+      const candidate = {
+        fragment,
+        surroundingNoise: Math.max(0, value.length - fragment.length),
+        valueLength: value.length,
+        index,
+      };
+
+      if (
+        !bestMatch
+        || candidate.surroundingNoise < bestMatch.surroundingNoise
+        || (
+          candidate.surroundingNoise === bestMatch.surroundingNoise
+          && candidate.valueLength < bestMatch.valueLength
+        )
+        || (
+          candidate.surroundingNoise === bestMatch.surroundingNoise
+          && candidate.valueLength === bestMatch.valueLength
+          && candidate.index < bestMatch.index
+        )
+      ) {
+        bestMatch = candidate;
+      }
+    }
+  }
+
+  return bestMatch?.fragment ?? null;
+}
+
 /**
  * Like collectSignalValue but returns the matched fragment instead of the full
  * value. Useful when `values` may contain long sentences (e.g. the goal text)
@@ -212,7 +276,26 @@ function extractMatchedFragment(values: string[], pattern: RegExp): string | nul
   return null;
 }
 
-function extractCookingSignals(goalText: string, answers: Record<string, string>): CookingSignals {
+function usesCookingDomainSignals(domainCard?: DomainKnowledgeCard | null): boolean {
+  const normalized = normalizeSignalText(domainCard?.domainLabel ?? '');
+  return normalized === 'cocina-italiana' || normalized.startsWith('cocina ');
+}
+
+function extractCookingSignals(
+  goalText: string,
+  answers: Record<string, string>,
+  domainCard?: DomainKnowledgeCard | null,
+): CookingSignals {
+  if (!usesCookingDomainSignals(domainCard)) {
+    return {
+      level: null,
+      subtopic: null,
+      learningMethod: null,
+      horizon: null,
+      references: [],
+    };
+  }
+
   const answerValues = uniqueNonEmpty(Object.values(answers));
   const allValues = uniqueNonEmpty([...answerValues, goalText]);
   const lowerGoal = goalText.toLowerCase();
@@ -221,7 +304,7 @@ function extractCookingSignals(goalText: string, answers: Record<string, string>
   // For goalText (a full sentence), extractMatchedFragment avoids returning the
   // entire sentence as the "signal".
   const subtopicPattern = /\b(pasta|pastas|salsa|salsas|risotto|pizza|gnocchi|lasagna|lasa[ñn]a|focaccia|pesto|ravioli)\b/i;
-  const subtopic = collectSignalValue(answerValues, [subtopicPattern, COOKING_SUBTOPIC_PATTERN])
+  const subtopic = collectMatchedSignalValue(answerValues, [subtopicPattern, COOKING_SUBTOPIC_PATTERN])
     ?? extractMatchedFragment([goalText], subtopicPattern)
     ?? (/\b(pasta|pastas)\b/i.test(lowerGoal)
       ? 'pastas'
@@ -232,13 +315,13 @@ function extractCookingSignals(goalText: string, answers: Record<string, string>
           : /\bitalian[oa]s?\b/i.test(lowerGoal)
             ? 'cocina italiana'
             : null);
-  const level = collectSignalValue(answerValues, [
+  const level = collectMatchedSignalValue(answerValues, [
     /\b(principiante|basico|b[aá]sico|intermedio|avanzado|experto|novato)\b/i,
   ]) ?? extractMatchedFragment([goalText], /\b(principiante|basico|b[aá]sico|intermedio|avanzado|experto|novato)\b/i);
-  const learningMethod = collectSignalValue(answerValues, [
+  const learningMethod = collectMatchedSignalValue(answerValues, [
     /\b(libro|libros|recetario|recetarios|curso|clase|tutor|tutora|autodidacta|youtube|video|videos|canal|apunte|apuntes|manual)\b/i,
   ]) ?? extractMatchedFragment([goalText], /\b(libro|libros|recetario|recetarios|curso|clase|tutor|tutora|autodidacta|youtube|video|videos|canal|apunte|apuntes|manual)\b/i);
-  const horizon = collectSignalValue(answerValues, [
+  const horizon = collectMatchedSignalValue(answerValues, [
     /\b\d+\s*(a[ñn]o|a[ñn]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i,
   ]) ?? extractMatchedFragment([goalText], /\b\d+\s*(a[ñn]o|a[ñn]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i);
   const references = uniqueNonEmpty(allValues.filter((value) => /\b(libro|libros|recetario|recetarios)\b/i.test(value)));
@@ -261,6 +344,261 @@ function humanizeLabel(value: string): string {
 
 function uniqueNonEmpty(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+const GENERIC_ANCHOR_STOPWORDS = new Set([
+  'actual',
+  'actuales',
+  'actualmente',
+  'alguna',
+  'alguno',
+  'algun',
+  'ano',
+  'anos',
+  'aprovechar',
+  'aproximadamente',
+  'cada',
+  'como',
+  'con',
+  'cuenta',
+  'de',
+  'del',
+  'digamos',
+  'el',
+  'en',
+  'es',
+  'esta',
+  'este',
+  'flujo',
+  'fuente',
+  'fuentes',
+  'generar',
+  'habilidad',
+  'habilidades',
+  'hacer',
+  'ingreso',
+  'ingresos',
+  'la',
+  'las',
+  'lograr',
+  'los',
+  'me',
+  'mes',
+  'meses',
+  'meta',
+  'mi',
+  'mis',
+  'no',
+  'obtener',
+  'objetivo',
+  'para',
+  'pero',
+  'plata',
+  'por',
+  'prefiere',
+  'prefieres',
+  'preferir',
+  'priorizar',
+  'puede',
+  'puedes',
+  'que',
+  'quiero',
+  'recurso',
+  'recursos',
+  'se',
+  'semana',
+  'semanas',
+  'ser',
+  'soy',
+  'su',
+  'tengo',
+  'tener',
+  'tipo',
+  'tu',
+  'un',
+  'una',
+  'usd',
+  'y',
+  'ya',
+]);
+
+const GENERIC_TECH_TOKENS = new Set([
+  'aws',
+  'backend',
+  'css',
+  'frontend',
+  'gcp',
+  'github',
+  'html',
+  'java',
+  'javascript',
+  'linkedin',
+  'nextjs',
+  'node',
+  'nodejs',
+  'php',
+  'portfolio',
+  'portafolio',
+  'python',
+  'react',
+  'remote',
+  'remoto',
+  'sql',
+  'typescript',
+]);
+
+function canonicalizeAnchorToken(token: string): string {
+  const normalized = normalizeSignalText(token);
+
+  switch (normalized) {
+    case '3k':
+      return '3000';
+    case 'dolar':
+    case 'dolares':
+    case 'us':
+    case 'us$':
+      return 'usd';
+    case 'pizzas':
+      return 'pizza';
+    case 'pastas':
+      return 'pasta';
+    case 'clientes':
+      return 'cliente';
+    case 'entrevistas':
+      return 'entrevista';
+    case 'nodejs':
+      return 'node';
+    case 'reactjs':
+      return 'react';
+    default:
+      return normalized;
+  }
+}
+
+function tokenizeAnchorText(value: string): string[] {
+  return uniqueNonEmpty(
+    normalizeSignalText(value)
+      .match(/[a-z0-9.+#-]+/g) ?? [],
+  )
+    .map((token) => canonicalizeAnchorToken(token))
+    .filter((token) => token.length >= 2)
+    .filter((token) => !GENERIC_ANCHOR_STOPWORDS.has(token));
+}
+
+function extractGenericPlanAnchors(goalText: string, answers: Record<string, string>): GenericPlanAnchors {
+  const answerValues = uniqueNonEmpty(Object.values(answers));
+  const metric = extractMatchedFragment([goalText], /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i)
+    ?? collectBestMatchedSignalValue(answerValues, [
+    /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i,
+  ]);
+  const timeframe = extractMatchedFragment([goalText], /\b\d+\s*(?:a[ñn]o|a[ñn]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i)
+    ?? collectBestMatchedSignalValue(answerValues, [
+    /\b\d+\s*(?:a[ñn]o|a[ñn]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i,
+  ]);
+  const metricTokens = new Set(metric ? tokenizeAnchorText(metric) : []);
+  const timeframeTokens = new Set(timeframe ? tokenizeAnchorText(timeframe) : []);
+  const goalTokens = new Set(tokenizeAnchorText(goalText));
+  const tokenScores = new Map<string, number>();
+
+  for (const answerValue of answerValues) {
+    const tokens = tokenizeAnchorText(answerValue);
+    const isShortAnswer = tokens.length > 0 && tokens.length <= 4;
+
+    for (const token of tokens) {
+      if (metricTokens.has(token) || timeframeTokens.has(token) || /^\d+(?:\.\d+)?$/.test(token)) {
+        continue;
+      }
+
+      let score = isShortAnswer ? 3 : 1;
+      if (goalTokens.has(token)) score += 2;
+      if (GENERIC_TECH_TOKENS.has(token)) score += 3;
+      if (token.length >= 6) score += 2;
+      else if (token.length >= 4) score += 1;
+
+      tokenScores.set(token, (tokenScores.get(token) ?? 0) + score);
+    }
+  }
+
+  const rankedTokens = [...tokenScores.entries()]
+    .sort((left, right) => right[1] - left[1] || right[0].length - left[0].length || left[0].localeCompare(right[0]))
+    .map(([token]) => token);
+  const fallbackGoalTokens = [...goalTokens].filter((token) =>
+    !metricTokens.has(token)
+    && !timeframeTokens.has(token)
+    && !/^\d+(?:\.\d+)?$/.test(token),
+  );
+  const baseTokens = rankedTokens.length > 0 ? rankedTokens : fallbackGoalTokens;
+
+  return {
+    metric,
+    timeframe,
+    anchorTokens: uniqueNonEmpty(baseTokens).slice(0, 6),
+  };
+}
+
+function canonicalizeNumericMetricToken(token: string): string | null {
+  const normalized = normalizeSignalText(token).replace(/\s+/g, '');
+  if (!normalized) {
+    return null;
+  }
+
+  if (/^\d+(?:[.,]\d+)?k$/.test(normalized)) {
+    const scaled = Number(normalized.slice(0, -1).replace(',', '.'));
+    return Number.isFinite(scaled) ? String(Math.round(scaled * 1000)) : null;
+  }
+
+  if (/^\d{1,3}(?:[.,]\d{3})+$/.test(normalized)) {
+    return normalized.replace(/[.,]/g, '');
+  }
+
+  if (/^\d+$/.test(normalized)) {
+    return normalized;
+  }
+
+  if (/^\d+[.,]\d+$/.test(normalized)) {
+    const decimal = normalized.replace(',', '.');
+    const parsed = Number(decimal);
+    if (!Number.isFinite(parsed)) {
+      return null;
+    }
+
+    return decimal
+      .replace(/(\.\d*?[1-9])0+$/, '$1')
+      .replace(/\.0+$/, '');
+  }
+
+  return null;
+}
+
+function collectCanonicalNumericMetricTokens(text: string): Set<string> {
+  const matches = normalizeSignalText(text).match(/\b\d{1,3}(?:[.,\s]\d{3})+\b|\b\d+(?:[.,]\d+)?\s*k\b|\b\d+(?:[.,]\d+)?\b/gi) ?? [];
+  return new Set(
+    matches
+      .map((match) => canonicalizeNumericMetricToken(match))
+      .filter((value): value is string => Boolean(value)),
+  );
+}
+
+function hasGenericMetricAlignment(text: string, metric: string | null): boolean {
+  if (!metric) {
+    return true;
+  }
+
+  const metricTokens = tokenizeAnchorText(metric);
+  if (metricTokens.length === 0) {
+    return true;
+  }
+
+  const normalizedText = normalizeSignalText(text);
+  const numericTokens = metricTokens.filter((token) => /\d/.test(token));
+  const descriptorTokens = metricTokens.filter((token) => !/\d/.test(token));
+  const normalizedNumericTokens = collectCanonicalNumericMetricTokens(text);
+
+  const hasNumbers = numericTokens.length === 0 || numericTokens.some((token) =>
+    normalizedNumericTokens.has(token) || normalizedText.includes(token));
+  const hasDescriptors = descriptorTokens.length === 0 || descriptorTokens.some((token) => normalizedText.includes(token));
+
+  return hasNumbers && hasDescriptors;
 }
 
 function extractClarificationSignals(answers: Record<string, string>) {
@@ -356,8 +694,9 @@ function buildTypedClarificationAnswers(
   clarificationAnswers: Record<string, string>,
   domainCard?: DomainKnowledgeCard,
 ): Record<string, string> {
-  const cooking = extractCookingSignals(goalText, clarificationAnswers);
+  const cooking = extractCookingSignals(goalText, clarificationAnswers, domainCard);
   const health = extractHealthSignals(goalText, clarificationAnswers);
+  const general = extractGenericPlanAnchors(goalText, clarificationAnswers);
   const typedAnswers: Record<string, string> = {};
 
   if (cooking.level) typedAnswers['senal tipada - cocina: nivel'] = cooking.level;
@@ -375,6 +714,10 @@ function buildTypedClarificationAnswers(
     typedAnswers['senal tipada - salud: actividades viables'] = health.preferredActivities.join(', ');
   }
 
+  if (general.metric) typedAnswers['senal tipada - general: metrica'] = general.metric;
+  if (general.timeframe) typedAnswers['senal tipada - general: plazo'] = general.timeframe;
+  if (general.anchorTokens.length > 0) typedAnswers['senal tipada - general: anclas'] = general.anchorTokens.join(', ');
+
   if (domainCard?.domainLabel) {
     typedAnswers['senal tipada - dominio'] = domainCard.domainLabel;
   }
@@ -388,6 +731,9 @@ function buildTypedClarificationAnswers(
     health.height ? `salud.altura=${health.height}` : null,
     health.highRisk ? 'salud.alto_riesgo=true' : null,
     health.supervision ? `salud.supervision=${health.supervision}` : null,
+    general.metric ? `general.metrica=${general.metric}` : null,
+    general.timeframe ? `general.plazo=${general.timeframe}` : null,
+    general.anchorTokens.length > 0 ? `general.anclas=${general.anchorTokens.join(',')}` : null,
   ].filter((part): part is string => Boolean(part));
 
   if (summaryParts.length > 0) {
@@ -577,6 +923,33 @@ function validateStrategyOutput(
     const hasActivity = typedSignals.health.preferredActivities.some((activity) => includesAny(textFields, [activity]));
     if (!hasActivity) {
       return { valid: false, failedCheck: 'health.preferred_activities' };
+    }
+  }
+
+  if (typedSignals.general.metric && !hasGenericMetricAlignment(textFields, typedSignals.general.metric)) {
+    return { valid: false, failedCheck: 'intake.metric' };
+  }
+
+  if (typedSignals.general.timeframe) {
+    const textMentionsHorizon = includesAny(textFields, buildHorizonVariants(typedSignals.general.timeframe));
+    const targetHorizonWeeks = extractTargetHorizonWeeks(input.goalText, typedSignals.general.timeframe);
+    const durationMatchesHorizon = isDurationCloseToTarget(totalPlanWeeks, targetHorizonWeeks);
+
+    if (targetHorizonWeeks && !durationMatchesHorizon) {
+      return { valid: false, failedCheck: 'intake.timeframe' };
+    }
+
+    if (!textMentionsHorizon && targetHorizonWeeks === null) {
+      return { valid: false, failedCheck: 'intake.timeframe' };
+    }
+  }
+
+  if (typedSignals.general.anchorTokens.length >= 3) {
+    const coveredAnchors = typedSignals.general.anchorTokens.filter((token) => includesAny(textFields, [token]));
+    const minimumCoverage = Math.min(3, Math.max(2, Math.ceil(typedSignals.general.anchorTokens.length * 0.4)));
+
+    if (coveredAnchors.length < minimumCoverage) {
+      return { valid: false, failedCheck: 'intake.anchor_coverage' };
     }
   }
 
@@ -976,7 +1349,7 @@ function buildHealthFallbackStrategy(input: StrategyInput, domainCard?: DomainKn
 
 function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKnowledgeCard): StrategyOutput {
   const signals = extractClarificationSignals(input.planningContext?.clarificationAnswers ?? {});
-  const cookingSignals = extractCookingSignals(input.goalText, input.planningContext?.clarificationAnswers ?? {});
+  const cookingSignals = extractCookingSignals(input.goalText, input.planningContext?.clarificationAnswers ?? {}, domainCard);
   const domainLabel = buildDomainLabel(input, domainCard);
   const taskLabels = buildTaskLabels(domainCard);
   const primaryTasks = taskLabels.slice(0, 3);
@@ -1143,44 +1516,78 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
 
 function buildGenericFallbackStrategy(input: StrategyInput, domainCard?: DomainKnowledgeCard): StrategyOutput {
   const signals = extractClarificationSignals(input.planningContext?.clarificationAnswers ?? {});
-  const cookingSignals = extractCookingSignals(input.goalText, input.planningContext?.clarificationAnswers ?? {});
+  const cookingSignals = extractCookingSignals(input.goalText, input.planningContext?.clarificationAnswers ?? {}, domainCard);
+  const anchors = extractGenericPlanAnchors(input.goalText, input.planningContext?.clarificationAnswers ?? {});
   const domainLabel = buildDomainLabel(input, domainCard);
-  const topicLabel = cookingSignals.subtopic ?? signals.subtopic ?? domainLabel;
+  const anchorLabel = joinHumanList(anchors.anchorTokens.slice(0, 3));
+  const topicLabel = cookingSignals.subtopic
+    ?? signals.subtopic
+    ?? (anchorLabel.length > 0 ? anchorLabel : domainLabel);
+  const timeframeLabel = anchors.timeframe ?? cookingSignals.horizon ?? signals.deadline;
+  const metricLabel = anchors.metric;
   const durations = stretchDurationsToTarget(
     resolveDurations(cookingSignals.level ?? signals.mastery),
-    extractTargetHorizonWeeks(input.goalText, cookingSignals.horizon ?? signals.deadline),
+    extractTargetHorizonWeeks(input.goalText, timeframeLabel),
   );
+  const needsExternalValidation = input.classification.extractedSignals.dependsOnThirdParties
+    || input.classification.goalType === 'HIGH_UNCERTAINTY_TRANSFORM'
+    || input.classification.goalType === 'QUANT_TARGET_TRACKING';
+  const needsSkillProgression = input.classification.extractedSignals.requiresSkillProgression;
 
   return normalizeStrategyOutput({
     phases: [
       {
-        name: `Bloques concretos de ${topicLabel}`,
+        name: `Punto de partida y activos utiles de ${topicLabel}`,
         durationWeeks: durations[0],
-        focus_esAR: `Traducir el objetivo a bloques concretos y medibles en ${topicLabel}.`,
+        focus_esAR: [
+          `Traducir el objetivo a bloques concretos y medibles en ${topicLabel}.`,
+          metricLabel ? `La metrica que ordena el plan es ${metricLabel.toLowerCase()}.` : null,
+          timeframeLabel ? `El horizonte de trabajo queda en ${timeframeLabel.toLowerCase()}.` : null,
+          anchorLabel ? `Reutilizar las senales mas concretas del intake: ${anchorLabel.toLowerCase()}.` : null,
+          needsSkillProgression
+            ? 'Primero convertir conocimientos sueltos en una base repetible y usable.'
+            : 'Primero ordenar el punto de partida real antes de ampliar el alcance.',
+        ].filter(Boolean).join(' '),
       },
       {
-        name: `Repeticiones con feedback de ${topicLabel}`,
+        name: `Pruebas visibles y feedback externo para ${topicLabel}`,
         durationWeeks: durations[1],
-        focus_esAR: cookingSignals.learningMethod
-          ? `Acumular repeticiones deliberadas con apoyo de ${cookingSignals.learningMethod.toLowerCase()} y feedback visible.`
-          : `Acumular repeticiones deliberadas y feedback visible sin caer en tareas intercambiables.`,
+        focus_esAR: [
+          cookingSignals.learningMethod
+            ? `Acumular repeticiones deliberadas con apoyo de ${cookingSignals.learningMethod.toLowerCase()} y feedback visible.`
+            : 'Acumular repeticiones deliberadas y feedback visible sin caer en tareas intercambiables.',
+          needsExternalValidation
+            ? 'Bajar el objetivo a validaciones externas, respuesta de mercado o pruebas del mundo real.'
+            : 'Bajar el objetivo a pruebas visibles y criterios de calidad observables.',
+          anchorLabel ? `Mantener ${anchorLabel.toLowerCase()} como eje para no responder a otro objetivo.` : null,
+        ].filter(Boolean).join(' '),
       },
       {
-        name: `Entrega demostrable de ${topicLabel}`,
+        name: metricLabel
+          ? `Iteracion medible hacia ${metricLabel}`
+          : `Cierre verificable de ${topicLabel}`,
         durationWeeks: durations[2],
-        focus_esAR: cookingSignals.horizon
-          ? `Cerrar una version demostrable ${cookingSignals.horizon.toLowerCase()} y dejar una rutina repetible.`
-          : signals.deadline
-            ? `Cerrar una version demostrable ${signals.deadline.toLowerCase()}.`
-            : `Cerrar una version demostrable del objetivo.`,
+        focus_esAR: [
+          metricLabel
+            ? `Cerrar una iteracion que ya muestre avance visible hacia ${metricLabel.toLowerCase()}.`
+            : 'Cerrar una version demostrable del objetivo.',
+          timeframeLabel ? `No extender el cierre mas alla de ${timeframeLabel.toLowerCase()}.` : null,
+          needsExternalValidation
+            ? 'Usar feedback real para ajustar sin perder las senales originales del intake.'
+            : 'Dejar una rutina repetible y verificable despues del cierre.',
+        ].filter(Boolean).join(' '),
       },
     ],
     milestones: [
       `Definir una base operativa clara de ${topicLabel}`,
-      cookingSignals.subtopic
-        ? `Completar una practica intermedia verificable de ${cookingSignals.subtopic.toLowerCase()}`
-        : `Completar una practica intermedia verificable`,
-      `Cerrar una demostracion final del objetivo`,
+      needsExternalValidation
+        ? `Conseguir una prueba visible o feedback real relacionado con ${topicLabel}`
+        : cookingSignals.subtopic
+          ? `Completar una practica intermedia verificable de ${cookingSignals.subtopic.toLowerCase()}`
+          : 'Completar una practica intermedia verificable',
+      metricLabel
+        ? `Cerrar una iteracion que muestre avance concreto hacia ${metricLabel}`
+        : 'Cerrar una demostracion final del objetivo',
     ],
   });
 }
@@ -1278,6 +1685,146 @@ export interface StrategyGenerationResult {
   source: 'llm' | 'fallback';
   fallbackCode?: string;
   fallbackMessage?: string;
+  failedCheck?: string | null;
+  validationSummaryEs?: string | null;
+  validationEvidence?: Record<string, unknown> | null;
+}
+
+function buildStrategyValidationDiagnosis(
+  failedCheck: string,
+  output: StrategyOutput,
+  input: StrategyInput,
+  typedSignals: TypedClarificationSignals,
+): {
+  summaryEs: string;
+  evidence: Record<string, unknown>;
+} {
+  const textFields = collectTextFields(output);
+  const totalPlanWeeks = output.totalSpanWeeks
+    ?? output.phases.reduce((sum, phase) => sum + Math.max(1, phase.durationWeeks ?? 4), 0);
+  const truncatedTexts = textFields.slice(0, 6);
+
+  switch (failedCheck) {
+    case 'output.required_content':
+      return {
+        summaryEs: 'El borrador del planificador no trajo el contenido mínimo requerido.',
+        evidence: {
+          phasesCount: output.phases.length,
+          milestonesCount: output.milestones.length,
+        },
+      };
+    case 'output.structural_phase_title':
+      return {
+        summaryEs: 'El borrador del planificador usó nombres de fase demasiado genéricos.',
+        evidence: {
+          invalidPhaseTitles: output.phases
+            .filter((phase) => isStructuralPhaseTitle(phase.name))
+            .map((phase) => phase.name),
+        },
+      };
+    case 'cooking.subtopic':
+      return {
+        summaryEs: `El borrador no preservó el subtema clave "${typedSignals.cooking.subtopic ?? 'sin dato'}".`,
+        evidence: {
+          expectedSubtopic: typedSignals.cooking.subtopic,
+          observedTexts: truncatedTexts,
+        },
+      };
+    case 'cooking.domain_scope':
+      return {
+        summaryEs: 'El borrador redujo demasiado el alcance de cocina italiana y perdió amplitud de dominio.',
+        evidence: {
+          goalText: input.goalText,
+          expectedAnchor: 'pasta',
+          observedTexts: truncatedTexts,
+        },
+      };
+    case 'cooking.learning_method':
+      return {
+        summaryEs: `El borrador ignoró el método de aprendizaje pedido: "${typedSignals.cooking.learningMethod ?? 'sin dato'}".`,
+        evidence: {
+          expectedLearningMethod: typedSignals.cooking.learningMethod,
+          observedTexts: truncatedTexts,
+        },
+      };
+    case 'cooking.horizon': {
+      const targetHorizonWeeks = typedSignals.cooking.horizon
+        ? extractTargetHorizonWeeks(input.goalText, typedSignals.cooking.horizon)
+        : null;
+      return {
+        summaryEs: 'El borrador no respetó el horizonte temporal detectado para este objetivo.',
+        evidence: {
+          expectedHorizon: typedSignals.cooking.horizon,
+          targetHorizonWeeks,
+          observedTotalPlanWeeks: totalPlanWeeks,
+          observedTexts: truncatedTexts,
+        },
+      };
+    }
+    case 'health.supervision':
+      return {
+        summaryEs: 'El borrador omitió la referencia de supervisión profesional necesaria para un objetivo de salud de alto riesgo.',
+        evidence: {
+          highRisk: typedSignals.health.highRisk,
+          expectedTerms: ['supervision', 'seguimiento', 'medico', 'nutricionista'],
+          observedTexts: truncatedTexts,
+        },
+      };
+    case 'health.preferred_activities':
+      return {
+        summaryEs: 'El borrador no incorporó las actividades viables detectadas para este objetivo de salud.',
+        evidence: {
+          expectedActivities: typedSignals.health.preferredActivities,
+          observedTexts: truncatedTexts,
+        },
+      };
+    case 'intake.metric':
+      return {
+        summaryEs: 'El borrador perdiÃ³ la metrica o el resultado medible que el intake dejaba explÃ­cito.',
+        evidence: {
+          expectedMetric: typedSignals.general.metric,
+          observedTexts: truncatedTexts,
+        },
+      };
+    case 'intake.timeframe': {
+      const targetHorizonWeeks = typedSignals.general.timeframe
+        ? extractTargetHorizonWeeks(input.goalText, typedSignals.general.timeframe)
+        : null;
+      return {
+        summaryEs: 'El borrador no respetÃ³ el plazo detectado en el intake.',
+        evidence: {
+          expectedTimeframe: typedSignals.general.timeframe,
+          targetHorizonWeeks,
+          observedTotalPlanWeeks: totalPlanWeeks,
+          observedTexts: truncatedTexts,
+        },
+      };
+    }
+    case 'intake.anchor_coverage':
+      return {
+        summaryEs: 'El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.',
+        evidence: {
+          expectedAnchors: typedSignals.general.anchorTokens,
+          observedTexts: truncatedTexts,
+        },
+      };
+    case 'cooking.level':
+      return {
+        summaryEs: `El borrador no respetó el nivel declarado por la persona usuaria: "${typedSignals.cooking.level ?? 'sin dato'}".`,
+        evidence: {
+          expectedLevel: typedSignals.cooking.level,
+          observedTexts: truncatedTexts,
+        },
+      };
+    default:
+      return {
+        summaryEs: `El borrador no pasó la validación "${failedCheck}".`,
+        evidence: {
+          failedCheck,
+          observedTexts: truncatedTexts,
+        },
+      };
+  }
 }
 
 export async function generateStrategyWithSource(
@@ -1289,8 +1836,9 @@ export async function generateStrategyWithSource(
   const clarificationAnswers = planningContext?.clarificationAnswers ?? {};
   const typedClarificationAnswers = buildTypedClarificationAnswers(input.goalText, clarificationAnswers, domainCard);
   const typedSignals: TypedClarificationSignals = {
-    cooking: extractCookingSignals(input.goalText, clarificationAnswers),
+    cooking: extractCookingSignals(input.goalText, clarificationAnswers, domainCard),
     health: extractHealthSignals(input.goalText, clarificationAnswers),
+    general: extractGenericPlanAnchors(input.goalText, clarificationAnswers),
   };
   const prompt = planningContext?.interpretation
     ? buildStrategyPrompt({
@@ -1336,11 +1884,20 @@ export async function generateStrategyWithSource(
 
     const validation = validateStrategyOutput(output, input, typedSignals);
     if (!validation.valid) {
+      const diagnosis = buildStrategyValidationDiagnosis(
+        validation.failedCheck ?? 'unknown',
+        output,
+        input,
+        typedSignals,
+      );
       return {
         output: buildFallbackStrategy(input, domainCard),
         source: 'fallback',
         fallbackCode: 'STRATEGY_VALIDATION_FAILED',
         fallbackMessage: `Planner output failed validation: check "${validation.failedCheck}" did not pass. Fallback strategy was used.`,
+        failedCheck: validation.failedCheck,
+        validationSummaryEs: diagnosis.summaryEs,
+        validationEvidence: diagnosis.evidence,
       };
     }
 
@@ -1357,6 +1914,11 @@ export async function generateStrategyWithSource(
       source: 'fallback',
       fallbackCode: 'STRATEGY_PARSE_FAILED',
       fallbackMessage,
+      failedCheck: null,
+      validationSummaryEs: 'El borrador del planificador no se pudo parsear como JSON válido.',
+      validationEvidence: {
+        parseError: error instanceof Error ? error.message : String(error),
+      },
     };
   }
 }

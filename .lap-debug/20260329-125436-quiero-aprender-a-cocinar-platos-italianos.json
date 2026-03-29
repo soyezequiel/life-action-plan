@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T15:54:36.911Z",
+  "updatedAt": "2026-03-29T15:54:36.954Z",
+  "invocation": {
+    "goal": "Quiero aprender a cocinar platos italianos",
+    "resumeSession": null,
+    "profileId": "c2567794-35f8-45b0-8eea-f0b1b7a86f60",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": 6,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": null,
+    "provider": "codex-oauth",
+    "modelId": null,
+    "status": "failed"
+  },
+  "pendingInput": null,
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": null,
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T15:54:36.912Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero aprender a cocinar platos italianos",
+        "resumeSession": null,
+        "explicitProvider": "codex",
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:54:36.915Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "codex-oauth",
+        "label": "OpenAI (sesion)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:54:36.916Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "codex",
+        "goalText": "Quiero aprender a cocinar platos italianos",
+        "profileId": "c2567794-35f8-45b0-8eea-f0b1b7a86f60"
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:54:36.953Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "codex-oauth",
+        "recoverable": true,
+        "message": "fetch failed",
+        "failureCode": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T15:54:36.953Z",
+      "type": "cli.failed",
+      "data": {
+        "message": "fetch failed",
+        "failureCode": null,
+        "publicationState": null
+      }
+    }
+  ],
+  "sseEvents": [],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-125436-quiero-aprender-a-cocinar-platos-italianos.json"
+}

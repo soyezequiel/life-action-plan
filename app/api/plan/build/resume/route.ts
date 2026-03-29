@@ -9,6 +9,7 @@ export const maxDuration = 120
 const resumeRequestSchema = z.object({
   sessionId: z.string().trim().min(1),
   answers: z.record(z.string(), z.string()),
+  debug: z.boolean().optional(),
 }).strict()
 
 export async function POST(request: Request): Promise<Response> {
@@ -38,6 +39,13 @@ export async function POST(request: Request): Promise<Response> {
     async start(controller) {
       const send = (payload: unknown) => {
         controller.enqueue(encodeSseData(payload))
+      }
+      let heartbeatTimer: ReturnType<typeof setInterval> | null = null
+      const stopHeartbeat = () => {
+        if (heartbeatTimer) {
+          clearInterval(heartbeatTimer)
+          heartbeatTimer = null
+        }
       }
 
       try {
@@ -69,6 +77,7 @@ export async function POST(request: Request): Promise<Response> {
           createV6RuntimeSnapshot,
           parseV6RuntimeSnapshot,
         } = await import('../../../../../src/lib/pipeline/v6/session-snapshot')
+        const { DateTime } = await import('luxon')
 
         const session = await getInteractiveSession(sessionId)
         if (!session || session.status !== 'active') {
@@ -91,6 +100,7 @@ export async function POST(request: Request): Promise<Response> {
         }
 
         const { goalText, profileId, provider, resourceMode, apiKey, backendCredentialId, thinkingMode } = v6Snapshot.request
+        const debugEnabled = parsed.data.debug === true
 
         const profileRow = await getProfile(profileId)
         if (!profileRow) {
@@ -150,7 +160,35 @@ export async function POST(request: Request): Promise<Response> {
         send({ type: 'v6:phase', data: { phase: 'clarify-resume', iteration: 0 } })
 
         const timezone = getProfileTimezone(profile)
-        const orchestrator = PlanOrchestrator.restore(v6Snapshot.orchestrator, runtime)
+        const orchestrator = PlanOrchestrator.restore(
+          v6Snapshot.orchestrator,
+          runtime,
+          execution.runtime.modelId,
+          debugEnabled
+            ? (event) => {
+                send({
+                  type: 'v6:debug',
+                  data: event,
+                })
+              }
+            : undefined,
+        )
+
+        if (debugEnabled && typeof orchestrator.getDebugStatus === 'function') {
+          heartbeatTimer = setInterval(() => {
+            const timestamp = DateTime.utc().toISO()
+              ?? DateTime.utc().toFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            send({
+              type: 'v6:heartbeat',
+              data: {
+                timestamp,
+                status: orchestrator.getDebugStatus(),
+              },
+            })
+          }, 10_000)
+          heartbeatTimer.unref?.()
+        }
+
         const finalResult = await orchestrator.resume(answers)
 
         if (finalResult.status === 'needs_input') {
@@ -279,6 +317,7 @@ export async function POST(request: Request): Promise<Response> {
           }
         })
       } finally {
+        stopHeartbeat()
         controller.close()
       }
     }

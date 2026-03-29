@@ -157,9 +157,27 @@ describe('plan build resume route', () => {
         progressScore: 65,
         lastAction: 'Packaging final plan',
       })),
+      getDebugStatus: vi.fn(() => ({
+        lifecycle: 'paused_for_input',
+        currentPhase: 'clarify',
+        currentAgent: 'clarifier',
+        currentAction: 'session.paused',
+        currentSummary_es: 'Esperando respuestas.',
+        iteration: 2,
+        revisionCycles: 0,
+        clarifyRounds: 1,
+        progressScore: 65,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: null,
+        failureCode: null,
+        lastEventSequence: 1,
+        lastEventTimestamp: '2026-03-30T00:00:00.000Z',
+        lastEventSummary_es: 'Esperando respuestas.',
+      })),
     })
     mocks.updateInteractiveSessionMock.mockResolvedValue(undefined)
-    mocks.createV6RuntimeSnapshotMock.mockReturnValue({ persisted: true })
+    mocks.createV6RuntimeSnapshotMock.mockReturnValue({ snapshot: true })
   })
 
   it('reconstruye el runtime usando authMode de Codex durante el resume', async () => {
@@ -332,6 +350,104 @@ describe('plan build resume route', () => {
         warnings: expect.arrayContaining([
           'Faltan hitos concretos para cerrar el plan.',
         ]),
+      }),
+    }))
+  })
+
+  it('emits structured debug events when resume runs in debug mode', async () => {
+    mocks.restoreMock.mockImplementationOnce((_snapshot, _runtime, _runtimeLabel, debugListener) => ({
+      resume: vi.fn().mockImplementation(async () => {
+        debugListener?.({
+          sequence: 3,
+          timestamp: '2026-03-30T00:00:00.000Z',
+          category: 'lifecycle',
+          action: 'session.resumed',
+          summary_es: 'Se retomo la sesion con 1 respuesta nueva.',
+          phase: 'clarify',
+          agent: 'clarifier',
+          iteration: 2,
+          revisionCycle: 0,
+          clarifyRound: 1,
+          progressScore: 65,
+          degraded: false,
+          fallbackCount: 0,
+          publicationState: null,
+          failureCode: null,
+          errorCode: null,
+          details: {
+            answersCount: 1,
+          },
+        })
+        return {
+          status: 'needs_input',
+          package: null,
+          pendingQuestions: {
+            questions: [{
+              id: 'q-1',
+              text: 'Cuantas horas?',
+              purpose: 'Dimensionar',
+              type: 'number',
+            }],
+            reasoning: 'Falta disponibilidad',
+            informationGaps: ['horas'],
+            confidence: 0.5,
+            readyToAdvance: false,
+          },
+          scratchpad: [],
+          tokensUsed: 0,
+          iterations: 2,
+          agentOutcomes: [],
+          degraded: false,
+        }
+      }),
+      getSnapshot: vi.fn(() => ({ restored: true })),
+      getProgress: vi.fn(() => ({
+        progressScore: 65,
+        lastAction: 'Packaging final plan',
+      })),
+      getDebugStatus: vi.fn(() => ({
+        lifecycle: 'paused_for_input',
+        currentPhase: 'clarify',
+        currentAgent: 'clarifier',
+        currentAction: 'session.resumed',
+        currentSummary_es: 'Se retomo la sesion con 1 respuesta nueva.',
+        iteration: 2,
+        revisionCycles: 0,
+        clarifyRounds: 1,
+        progressScore: 65,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: null,
+        failureCode: null,
+        lastEventSequence: 3,
+        lastEventTimestamp: '2026-03-30T00:00:00.000Z',
+        lastEventSummary_es: 'Se retomo la sesion con 1 respuesta nueva.',
+      })),
+    }))
+
+    const response = await POST(new Request('http://localhost/api/plan/build/resume', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sessionId: 'session-1',
+        answers: {
+          nivel: 'principiante',
+        },
+        debug: true,
+      }),
+    }))
+
+    const payloads = extractSsePayloads(await response.text())
+    const debugPayload = payloads.find((payload) => payload.type === 'v6:debug')
+
+    expect(debugPayload).toEqual(expect.objectContaining({
+      type: 'v6:debug',
+      data: expect.objectContaining({
+        action: 'session.resumed',
+        phase: 'clarify',
+        agent: 'clarifier',
       }),
     }))
   })

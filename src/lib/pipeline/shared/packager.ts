@@ -399,9 +399,10 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
   const packageTexts = collectPackageTexts(input);
   const packageTokens = uniqueTokens(packageTexts);
   const issues: PackageValidationIssue[] = [];
-  const requestDomain = canonicalizeKnownDomain(input.requestedDomain)
-    ?? inferKnownDomain(`${input.goalText} ${extractAnswerValues(input.clarificationAnswers).join(' ')}`);
-  const packageDomain = canonicalizeKnownDomain(inferKnownDomain(packageTexts.join(' ')));
+  const requestDomain = canonicalizeKnownDomain(input.requestedDomain);
+  const packageDomain = requestDomain
+    ? inferKnownDomain(packageTexts.join(' '))
+    : null;
   const intakeCoverage = buildSignalUsage({
     goalText: input.goalText,
     classification: input.classification,
@@ -723,8 +724,8 @@ function uniqueNonEmpty(values: string[]): string[] {
 type KnownDomain = 'cocina-italiana' | 'salud' | 'running' | 'guitarra' | 'idiomas';
 
 const DOMAIN_KEYWORDS: Record<KnownDomain, string[]> = {
-  'cocina-italiana': ['cocina', 'cocinar', 'italiana', 'italiano', 'pasta', 'pastas', 'salsa', 'salsas', 'receta', 'recetas', 'libro', 'libros'],
-  salud: ['salud', 'peso', 'kg', 'kilos', 'bajar', 'adelgazar', 'cintura', 'imc', 'bmi', 'caminar', 'natacion', 'ciclismo', 'bici', 'movilidad'],
+  'cocina-italiana': ['cocina', 'cocinar', 'italiana', 'italiano', 'italianas', 'italianos', 'pasta', 'pastas', 'salsa', 'salsas', 'receta', 'recetas', 'libro', 'libros'],
+  salud: ['salud', 'peso', 'kg', 'kilo', 'kilos', 'bajar', 'adelgazar', 'cintura', 'imc', 'bmi', 'caminar', 'caminata', 'natacion', 'ciclismo', 'bici', 'movilidad'],
   running: ['running', 'correr', 'trote', 'ritmo'],
   guitarra: ['guitarra', 'acordes', 'repertorio'],
   idiomas: ['idioma', 'idiomas', 'ingles', 'frances', 'italiano', 'vocabulario', 'conversacion'],
@@ -750,7 +751,7 @@ function canonicalizeKnownDomain(domain: string | null | undefined): KnownDomain
     }
   }
 
-  return inferKnownDomain(normalized);
+  return null;
 }
 
 function inferKnownDomain(text: string): KnownDomain | null {
@@ -760,7 +761,7 @@ function inferKnownDomain(text: string): KnownDomain | null {
 
   for (const [domain, keywords] of Object.entries(DOMAIN_KEYWORDS) as Array<[KnownDomain, string[]]>) {
     const score = keywords.reduce((total, keyword) =>
-      total + (normalized.includes(keyword) ? 1 : 0), 0);
+      total + (new RegExp(`(?:^|\\s)${keyword}(?:$|\\s)`, 'u').test(normalized) ? 1 : 0), 0);
     if (score > bestScore) {
       bestDomain = domain;
       bestScore = score;
@@ -1122,8 +1123,7 @@ function buildSignalUsage(
   input: PackageInput,
   packageText: string,
 ): NonNullable<PlanPackage['intakeCoverage']> {
-  const requestedDomain = canonicalizeKnownDomain(input.requestedDomain)
-    ?? inferKnownDomain(`${input.goalText ?? ''} ${extractAnswerValues(input.clarificationAnswers).join(' ')}`);
+  const requestedDomain = canonicalizeKnownDomain(input.requestedDomain);
   const normalizedPackageText = normalizeComparableText(packageText);
   const signalUsage: NonNullable<PlanPackage['intakeCoverage']>['signalUsage'] = [];
   const requiredSignals: string[] = [];

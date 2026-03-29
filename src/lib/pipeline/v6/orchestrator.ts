@@ -1,8 +1,11 @@
+import { DateTime } from 'luxon';
+
 import type { AgentRuntime } from '../../runtime/types';
 import type { DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
 import { getKnowledgeCard } from '../../domain/domain-knowledge/bank';
 import { buildFallbackStrategy, generateStrategyWithSource } from '../shared/strategy';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
+import { classifyGoal } from '../shared/classify';
 import type { StrategyInput } from '../shared/phase-io';
 import type { AvailabilityWindow, BlockedSlot } from '../../scheduler/types';
 import { Scratchpad } from './scratchpad';
@@ -17,6 +20,8 @@ import type {
   GoalInterpretation,
   OrchestratorConfig,
   OrchestratorContext,
+  OrchestratorDebugEvent,
+  OrchestratorDebugStatus,
   OrchestratorPhase,
   OrchestratorState,
   PlanPackage,
@@ -83,6 +88,38 @@ interface AgentRegistryLike {
   has(name: V6AgentName): boolean;
 }
 
+type ForceFinishReason = 'max_iterations' | 'token_budget' | 'stalled_progress';
+
+interface AgentOutcomeDebugDetails {
+  summaryEs?: string;
+  action?: string;
+  details?: Record<string, unknown> | null;
+}
+
+const PHASE_LABELS_ES: Record<OrchestratorPhase, string> = {
+  interpret: 'interpretacion',
+  clarify: 'aclaracion',
+  plan: 'planificacion',
+  check: 'factibilidad',
+  schedule: 'calendarizacion',
+  critique: 'critica',
+  revise: 'revision',
+  package: 'empaquetado',
+  done: 'cierre',
+  failed: 'falla',
+};
+
+const AGENT_LABELS_ES: Record<V6AgentName, string> = {
+  'goal-interpreter': 'interprete',
+  clarifier: 'clarificador',
+  planner: 'planificador',
+  'feasibility-checker': 'verificador de factibilidad',
+  scheduler: 'scheduler',
+  critic: 'critico',
+  'domain-expert': 'experto de dominio',
+  packager: 'empaquetador',
+};
+
 // ─── Dynamic agent registry loader ──────────────────────────────────────────
 
 async function loadRegistry(): Promise<AgentRegistryLike | null> {
@@ -137,20 +174,13 @@ async function loadAgentDirect(name: V6AgentName): Promise<V6Agent<unknown, unkn
 
 // ─── Classification builder ─────────────────────────────────────────────────
 
-function buildClassification(interpretation: GoalInterpretation | null): GoalClassification {
+function buildClassification(interpretation: GoalInterpretation | null, goalText: string): GoalClassification {
+  const heuristic = classifyGoal(goalText);
   return {
-    goalType: interpretation?.goalType ?? 'FINITE_PROJECT',
-    confidence: interpretation?.confidence ?? 0.5,
-    risk: interpretation?.riskFlags[0] ?? 'LOW',
-    extractedSignals: {
-      isRecurring: false,
-      hasDeliverable: false,
-      hasNumericTarget: false,
-      requiresSkillProgression: false,
-      dependsOnThirdParties: false,
-      isOpenEnded: false,
-      isRelational: false,
-    },
+    goalType: interpretation?.goalType ?? heuristic.goalType,
+    confidence: interpretation?.confidence ?? heuristic.confidence,
+    risk: interpretation?.riskFlags[0] ?? heuristic.risk,
+    extractedSignals: heuristic.extractedSignals,
   };
 }
 
@@ -167,12 +197,25 @@ export class PlanOrchestrator {
   private pendingAnswers: Record<string, string> | null = null;
   private progressHistory: number[] = [];
   private agentOutcomes: AgentExecutionOutcome[] = [];
+  private debugTrace: OrchestratorDebugEvent[] = [];
+  private debugSequence = 0;
   private runtimeLabel: string;
+  private debugListener?: (event: OrchestratorDebugEvent) => void;
 
-  constructor(config: Partial<OrchestratorConfig>, runtime: AgentRuntime, runtimeLabel = 'unknown') {
+  private getPlanningDomainLabel(): string | null {
+    return this.context.interpretation?.suggestedDomain ?? null;
+  }
+
+  constructor(
+    config: Partial<OrchestratorConfig>,
+    runtime: AgentRuntime,
+    runtimeLabel = 'unknown',
+    debugListener?: (event: OrchestratorDebugEvent) => void,
+  ) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.runtime = runtime;
     this.runtimeLabel = runtimeLabel;
+    this.debugListener = debugListener;
     this.scratchpad = new Scratchpad();
 
     this.state = {
@@ -209,9 +252,11 @@ export class PlanOrchestrator {
   static restore(
     snapshot: PlanOrchestratorSnapshot,
     runtime: AgentRuntime,
+    runtimeLabel = 'unknown',
+    debugListener?: (event: OrchestratorDebugEvent) => void,
   ): PlanOrchestrator {
     const parsed = PlanOrchestratorSnapshotSchema.parse(snapshot);
-    const orchestrator = new PlanOrchestrator(parsed.config, runtime);
+    const orchestrator = new PlanOrchestrator(parsed.config, runtime, runtimeLabel, debugListener);
 
     orchestrator.state = {
       ...parsed.state,
@@ -248,6 +293,12 @@ export class PlanOrchestrator {
     orchestrator.lastAction = parsed.lastAction;
     orchestrator.pendingAnswers = parsed.pendingAnswers ? { ...parsed.pendingAnswers } : null;
     orchestrator.progressHistory = [...parsed.progressHistory];
+    orchestrator.agentOutcomes = (parsed.agentOutcomes ?? []).map((outcome) => ({ ...outcome }));
+    orchestrator.debugTrace = (parsed.debugTrace ?? []).map((event) => structuredClone(event));
+    orchestrator.debugSequence = orchestrator.debugTrace.reduce(
+      (max, event) => Math.max(max, event.sequence),
+      0,
+    );
 
     return orchestrator;
   }
@@ -258,6 +309,18 @@ export class PlanOrchestrator {
     this.initializeContext(goalText, userCtx);
     this.state.phase = 'interpret';
     this.registry = await loadRegistry();
+    this.recordDebugEvent({
+      category: 'lifecycle',
+      action: 'run.started',
+      summary_es: `Inicio de corrida para el objetivo "${goalText}".`,
+      phase: 'interpret',
+      agent: this.phaseToAgent('interpret'),
+      details: {
+        runtimeLabel: this.runtimeLabel,
+        timezone: userCtx.timezone,
+        locale: userCtx.locale,
+      },
+    });
 
     return this.executeLoop();
   }
@@ -267,20 +330,35 @@ export class PlanOrchestrator {
   async resume(answers: Record<string, string>): Promise<OrchestratorResult> {
     this.registry = await loadRegistry();
     this.pendingAnswers = answers;
-    this.context.userAnswers = { ...this.context.userAnswers, ...answers };
+    const storedAnswers = this.mapAnswersToStoredAnswers(answers);
+    this.context.userAnswers = { ...this.context.userAnswers, ...storedAnswers };
 
     const hasActualAnswers = Object.keys(answers).length > 0;
 
     if (hasActualAnswers) {
-      // Re-enter the loop at clarify phase to process the new answers
-      if (this.state.phase !== 'clarify') {
-        this.state.phase = 'clarify';
-      }
+      const shouldSkipClarify = this.state.phase === 'clarify'
+        && this.state.clarifyRounds >= this.state.maxClarifyRounds;
+      this.state.phase = shouldSkipClarify ? 'plan' : 'clarify';
     } else {
       // Empty answers = user chose to skip clarification. Advance to plan phase.
       this.state.phase = 'plan';
       this.pendingAnswers = null;
     }
+
+    this.recordDebugEvent({
+      category: 'lifecycle',
+      action: 'session.resumed',
+      summary_es: hasActualAnswers
+        ? `Se retomó la sesión con ${Object.keys(answers).length} respuesta(s) nuevas.`
+        : 'Se retomó la sesión sin respuestas nuevas; el pipeline sigue con el contexto actual.',
+      phase: this.state.phase,
+      agent: this.phaseToAgent(this.state.phase),
+      details: {
+        answersCount: Object.keys(answers).length,
+        answeredQuestionIds: Object.keys(answers),
+        storedAnswerKeys: Object.keys(storedAnswers),
+      },
+    });
 
     return this.executeLoop();
   }
@@ -294,6 +372,47 @@ export class PlanOrchestrator {
       maxIterations: this.state.maxIterations,
       progressScore: this.state.progressScore,
       lastAction: this.lastAction,
+    };
+  }
+
+  getDebugTrace(): OrchestratorDebugEvent[] {
+    return this.debugTrace.map((event) => structuredClone(event));
+  }
+
+  getDebugStatus(): OrchestratorDebugStatus {
+    const fallbackCount = this.getFallbackOutcomes().length;
+    const lastEvent = this.debugTrace.at(-1) ?? null;
+    const currentPhase = this.state.phase ?? null;
+    const currentAgent = lastEvent?.agent ?? (currentPhase ? this.phaseToAgent(currentPhase) : null);
+    const lifecycle = this.state.phase === 'done'
+      ? 'completed'
+      : this.state.phase === 'failed'
+        ? 'failed'
+        : requiresUserInput(this.state.phase) && !this.hasPendingAnswers() && this.context.clarificationRounds.length > 0
+          ? 'paused_for_input'
+          : 'running';
+    const canEvaluatePublication = this.state.phase === 'done'
+      || this.state.phase === 'failed'
+      || this.context.finalPackage !== null;
+    const publicationGate = canEvaluatePublication ? this.getPublicationGate() : null;
+
+    return {
+      lifecycle,
+      currentPhase,
+      currentAgent,
+      currentAction: lastEvent?.action ?? `phase.${currentPhase ?? 'idle'}`,
+      currentSummary_es: lastEvent?.summary_es ?? (currentPhase ? `Pipeline en ${PHASE_LABELS_ES[currentPhase]}.` : 'Pipeline inactivo.'),
+      iteration: this.state.iteration,
+      revisionCycles: this.state.revisionCycles,
+      clarifyRounds: this.state.clarifyRounds,
+      progressScore: this.state.progressScore,
+      degraded: fallbackCount > 0,
+      fallbackCount,
+      publicationState: publicationGate?.publicationState ?? null,
+      failureCode: publicationGate?.failureCode ?? null,
+      lastEventSequence: lastEvent?.sequence ?? 0,
+      lastEventTimestamp: lastEvent?.timestamp ?? null,
+      lastEventSummary_es: lastEvent?.summary_es ?? null,
     };
   }
 
@@ -335,6 +454,8 @@ export class PlanOrchestrator {
       lastAction: this.lastAction,
       pendingAnswers: this.pendingAnswers ? { ...this.pendingAnswers } : null,
       progressHistory: [...this.progressHistory],
+      agentOutcomes: this.agentOutcomes.map((outcome) => ({ ...outcome })),
+      debugTrace: this.debugTrace.map((event) => structuredClone(event)),
     };
   }
 
@@ -343,7 +464,22 @@ export class PlanOrchestrator {
   private async executeLoop(): Promise<OrchestratorResult> {
     while (this.state.phase !== 'done' && this.state.phase !== 'failed') {
       // Safety valve: force finish
-      if (this.shouldForceFinish()) {
+      const forceFinishReason = this.getForceFinishReason();
+      if (forceFinishReason) {
+        this.recordDebugEvent({
+          category: 'lifecycle',
+          action: 'safety.force_finish',
+          summary_es: this.buildForceFinishSummaryEs(forceFinishReason),
+          phase: this.state.phase,
+          agent: this.phaseToAgent(this.state.phase),
+          details: {
+            reason: forceFinishReason,
+            iteration: this.state.iteration,
+            progressHistory: [...this.progressHistory],
+            tokenBudgetUsed: this.state.tokenBudget.used,
+            tokenBudgetLimit: this.state.tokenBudget.limit,
+          },
+        });
         this.state.phase = 'package';
       }
 
@@ -352,6 +488,14 @@ export class PlanOrchestrator {
         return this.pauseForInput();
       }
 
+      this.recordDebugEvent({
+        category: 'phase',
+        action: 'phase.enter',
+        summary_es: this.buildPhaseEnterSummaryEs(this.state.phase),
+        phase: this.state.phase,
+        agent: this.phaseToAgent(this.state.phase),
+      });
+
       // Execute the current phase
       let result: unknown;
       const phaseStart = Date.now();
@@ -359,14 +503,20 @@ export class PlanOrchestrator {
         result = await this.executePhase(this.state.phase);
       } catch (error) {
         const errorMessage = this.getErrorMessage(error);
-        this.agentOutcomes.push({
-          agent: this.phaseToAgent(this.state.phase),
-          phase: this.state.phase,
-          source: 'fallback',
-          errorCode: this.getErrorCode(error),
-          errorMessage,
-          durationMs: Date.now() - phaseStart,
-        });
+        this.recordAgentOutcome(
+          this.phaseToAgent(this.state.phase),
+          this.state.phase,
+          'fallback',
+          Date.now() - phaseStart,
+          error,
+          {
+            summaryEs: `La fase ${PHASE_LABELS_ES[this.state.phase]} falló con ${this.getErrorCode(error)} y el pipeline fuerza un fallback.`,
+            action: 'phase.exception',
+            details: {
+              errorMessage,
+            },
+          },
+        );
         this.recordEntry(this.state.phase, this.phaseToAgent(this.state.phase), {
           action: `FALLBACK in ${this.state.phase}`,
           reasoning: this.formatDiagnosticReasoning(error),
@@ -375,6 +525,9 @@ export class PlanOrchestrator {
         this.state.phase = 'package';
         continue;
       }
+
+      const previousClarificationRounds = this.context.clarificationRounds.map((round) => structuredClone(round));
+      const previousCriticReport = this.context.criticReport ? structuredClone(this.context.criticReport) : null;
 
       // Record in scratchpad
       this.recordEntry(this.state.phase, this.phaseToAgent(this.state.phase), {
@@ -385,6 +538,10 @@ export class PlanOrchestrator {
 
       // Update context with result
       this.mergeResult(this.state.phase, result);
+      this.recordPhaseSpecificDebug(this.state.phase, result, {
+        previousClarificationRounds,
+        previousCriticReport,
+      });
 
       // Determine next phase
       const previousPhase = this.state.phase;
@@ -397,6 +554,7 @@ export class PlanOrchestrator {
       // Sync scratchpad entries into state
       this.state.tokenBudget.used = this.scratchpad.totalTokens();
       this.state.scratchpad = this.scratchpad.getAll();
+      this.recordPhaseTransition(previousPhase, this.state.phase, result);
     }
 
     return this.buildFinalResult();
@@ -415,6 +573,11 @@ export class PlanOrchestrator {
     this.state.progressScore = 0;
     this.progressHistory = [];
     this.agentOutcomes = [];
+    this.debugTrace = [];
+    this.debugSequence = 0;
+    this.lastAction = '';
+    this.pendingAnswers = null;
+    this.scratchpad.restore([]);
   }
 
   private buildDefaultAvailability(): AvailabilityWindow[] {
@@ -424,15 +587,15 @@ export class PlanOrchestrator {
 
   // ─── Safety valves ──────────────────────────────────────────────────────
 
-  private shouldForceFinish(): boolean {
+  private getForceFinishReason(): ForceFinishReason | null {
     // Max iterations
     if (this.state.iteration >= this.state.maxIterations) {
-      return true;
+      return 'max_iterations';
     }
 
     // Token budget
     if (this.state.tokenBudget.used >= this.state.tokenBudget.limit) {
-      return true;
+      return 'token_budget';
     }
 
     // Stalled progress: no increase in 3+ consecutive iterations.
@@ -452,11 +615,11 @@ export class PlanOrchestrator {
       const recent = this.progressHistory.slice(-STALL_WINDOW);
       const allSame = recent.every((score) => score <= recent[0]);
       if (allSame) {
-        return true;
+        return 'stalled_progress';
       }
     }
 
-    return false;
+    return null;
   }
 
   // ─── User input management ──────────────────────────────────────────────
@@ -474,11 +637,63 @@ export class PlanOrchestrator {
     return false;
   }
 
+  private mapAnswersToStoredAnswers(answers: Record<string, string>): Record<string, string> {
+    const storedAnswers: Record<string, string> = {};
+    const latestRound = this.context.clarificationRounds.at(-1) ?? null;
+    const questionLabels = new Map(
+      (latestRound?.questions ?? []).map((question) => [question.id, question.text.trim()] as const),
+    );
+
+    for (const [questionId, answer] of Object.entries(answers)) {
+      const trimmedAnswer = answer.trim();
+      if (!trimmedAnswer) {
+        continue;
+      }
+
+      const questionLabel = questionLabels.get(questionId) ?? questionId;
+      storedAnswers[questionLabel] = trimmedAnswer;
+    }
+
+    return storedAnswers;
+  }
+
+  private namespaceClarificationRound(round: ClarificationRound): ClarificationRound {
+    if (round.questions.length === 0) {
+      return round;
+    }
+
+    const roundPrefix = `clarify-r${this.state.clarifyRounds}-`;
+    return {
+      ...round,
+      questions: round.questions.map((question, index) => ({
+        ...question,
+        id: question.id.startsWith(roundPrefix)
+          ? question.id
+          : `${roundPrefix}${question.id || `q${index + 1}`}`,
+      })),
+    };
+  }
+
   private pauseForInput(): OrchestratorResult {
     const lastClarification = this.context.clarificationRounds.length > 0
       ? this.context.clarificationRounds[this.context.clarificationRounds.length - 1]
       : null;
     const hasFallbacks = this.agentOutcomes.some((outcome) => outcome.source === 'fallback');
+
+    this.recordDebugEvent({
+      category: 'lifecycle',
+      action: 'session.paused',
+      summary_es: lastClarification
+        ? `El pipeline quedó pausado esperando ${lastClarification.questions.length} respuesta(s) de aclaración.`
+        : 'El pipeline quedó pausado esperando información adicional.',
+      phase: 'clarify',
+      agent: 'clarifier',
+      details: {
+        questionCount: lastClarification?.questions.length ?? 0,
+        questions: lastClarification?.questions ?? [],
+        informationGaps: lastClarification?.informationGaps ?? [],
+      },
+    });
 
     return {
       status: 'needs_input',
@@ -493,6 +708,422 @@ export class PlanOrchestrator {
   }
 
   // ─── Phase execution ────────────────────────────────────────────────────
+
+  private buildPhaseEnterSummaryEs(phase: OrchestratorPhase): string {
+    switch (phase) {
+      case 'interpret':
+        return 'Arranca la interpretacion del objetivo.';
+      case 'clarify':
+        return this.pendingAnswers && Object.keys(this.pendingAnswers).length > 0
+          ? 'Se estan procesando las respuestas de aclaracion.'
+          : 'Se estan preparando preguntas de aclaracion.';
+      case 'plan':
+        return 'Se esta armando el plan estrategico.';
+      case 'check':
+        return 'Se esta chequeando la factibilidad del plan.';
+      case 'schedule':
+        return 'Se esta resolviendo el calendario de actividades.';
+      case 'critique':
+        return 'Se esta ejecutando la revision critica del plan.';
+      case 'revise':
+        return 'Se esta corrigiendo el plan a partir de la critica.';
+      case 'package':
+        return 'Se esta empaquetando el resultado final.';
+      case 'done':
+        return 'El pipeline llego al cierre.';
+      case 'failed':
+        return 'El pipeline entro en estado de falla.';
+      default:
+        return 'El pipeline cambio de fase.';
+    }
+  }
+
+  private buildForceFinishSummaryEs(reason: ForceFinishReason): string {
+    switch (reason) {
+      case 'max_iterations':
+        return 'Se alcanzo el limite de iteraciones y se fuerza el empaquetado.';
+      case 'token_budget':
+        return 'Se alcanzo el presupuesto de tokens y se fuerza el empaquetado.';
+      case 'stalled_progress':
+        return 'El progreso quedo estancado y se fuerza el empaquetado.';
+      default:
+        return 'Se activo un corte de seguridad y se fuerza el empaquetado.';
+    }
+  }
+
+  private buildTransitionSummaryEs(
+    previousPhase: OrchestratorPhase,
+    next: OrchestratorPhase,
+    result: unknown,
+  ): string {
+    if (previousPhase === 'clarify' && next === 'plan') {
+      return 'La aclaracion alcanzo contexto suficiente y el pipeline avanza a planificacion.';
+    }
+
+    if (previousPhase === 'clarify' && next === 'clarify') {
+      const questionCount = (result as ClarificationRound | null)?.questions?.length ?? 0;
+      return `Todavia faltan respuestas; se mantiene la aclaracion con ${questionCount} pregunta(s) pendientes.`;
+    }
+
+    if (previousPhase === 'critique' && next === 'revise') {
+      const report = result as CriticReport | null;
+      return `El critico pidio otra vuelta (score ${report?.overallScore ?? '?'}/100, must-fix ${report?.mustFix.length ?? 0}).`;
+    }
+
+    if (previousPhase === 'revise' && next === 'critique') {
+      return 'La revision volvio a critica para validar la nueva version del plan.';
+    }
+
+    if (previousPhase === 'package' && next === 'done') {
+      return 'El paquete final quedo listo para resolver la publicacion.';
+    }
+
+    return `El pipeline avanzo de ${PHASE_LABELS_ES[previousPhase]} a ${PHASE_LABELS_ES[next]}.`;
+  }
+
+  private recordPhaseSpecificDebug(
+    phase: OrchestratorPhase,
+    result: unknown,
+    previous: {
+      previousClarificationRounds: ClarificationRound[];
+      previousCriticReport: CriticReport | null;
+    },
+  ): void {
+    if (phase === 'interpret') {
+      const interpretation = result as GoalInterpretation;
+      this.recordDebugEvent({
+        category: 'phase',
+        action: 'interpret.summary',
+        summary_es: `Objetivo interpretado como ${interpretation.goalType} con confianza ${Math.round(interpretation.confidence * 100)}%.`,
+        phase,
+        agent: 'goal-interpreter',
+        details: {
+          partialKind: 'interpretation',
+          normalizedGoal: interpretation.parsedGoal,
+          goalType: interpretation.goalType,
+          suggestedDomain: interpretation.suggestedDomain,
+          confidence: interpretation.confidence,
+          ambiguities: interpretation.ambiguities.slice(0, 4),
+          assumptions: interpretation.implicitAssumptions.slice(0, 4),
+          riskFlags: interpretation.riskFlags.slice(0, 4),
+        },
+      });
+      return;
+    }
+
+    if (phase === 'clarify') {
+      const clarification = result as ClarificationRound;
+      const knownAnswers = this.buildKnownAnswersSummary();
+      const duplicateQuestions = this.findDuplicateQuestions(
+        previous.previousClarificationRounds,
+        clarification,
+      );
+      this.recordDebugEvent({
+        category: 'phase',
+        action: 'clarify.summary',
+        summary_es: clarification.readyToAdvance
+          ? 'La aclaracion ya tiene contexto suficiente para avanzar.'
+          : `La aclaracion deja ${clarification.questions.length} pregunta(s) pendiente(s).`,
+        phase,
+        agent: 'clarifier',
+        details: {
+          partialKind: 'clarification',
+          readyToAdvance: clarification.readyToAdvance,
+          confidence: clarification.confidence,
+          questions: clarification.questions,
+          informationGaps: clarification.informationGaps,
+          knownAnswers,
+          duplicateQuestions,
+          reasoning: clarification.reasoning,
+        },
+      });
+      return;
+    }
+
+    if (phase === 'plan' || phase === 'revise') {
+      const draft = result as StrategicDraft;
+      const latestPlannerEvent = this.findLatestAgentDebugEvent('planner', phase);
+      const plannerFallback = this.findLatestOutcomeForAgent('planner', phase)?.source === 'fallback';
+      this.recordDebugEvent({
+        category: 'phase',
+        action: phase === 'plan' ? 'plan.summary' : 'revise.summary',
+        summary_es: phase === 'plan'
+          ? `Roadmap generado con ${draft.phases.length} fase(s) y ${draft.milestones.length} hito(s).`
+          : `Revision lista con ${draft.phases.length} fase(s) y ${draft.milestones.length} hito(s).`,
+        phase,
+        agent: 'planner',
+        details: {
+          partialKind: 'roadmap',
+          horizonWeeks: draft.totalSpanWeeks ?? draft.phases.reduce((sum, item) => sum + Math.max(1, item.durationWeeks ?? 0), 0),
+          phaseCount: draft.phases.length,
+          phases: draft.phases.slice(0, 6).map((item, index) => ({
+            index: index + 1,
+            title: item.name,
+            focus: item.focus_esAR,
+            durationWeeks: item.durationWeeks ?? null,
+          })),
+          milestones: draft.milestones.slice(0, 6),
+          fallbackUsed: plannerFallback,
+          failedCheck: latestPlannerEvent?.details?.failedCheck ?? null,
+          validationSummaryEs: latestPlannerEvent?.details?.validationSummaryEs ?? null,
+          validationEvidence: latestPlannerEvent?.details?.validationEvidence ?? null,
+          fallbackPublishability: plannerFallback ? 'pendiente_de_critica' : 'sin_fallback',
+        },
+      });
+      return;
+    }
+
+    if (phase === 'check') {
+      const report = result as FeasibilityReport;
+      this.recordDebugEvent({
+        category: 'phase',
+        action: 'check.summary',
+        summary_es: `Factibilidad ${report.status}: ${report.hoursBudget.available}h disponibles vs ${report.hoursBudget.required}h requeridas.`,
+        phase,
+        agent: 'feasibility-checker',
+        details: {
+          partialKind: 'feasibility',
+          status: report.status,
+          availableHours: report.hoursBudget.available,
+          requiredHours: report.hoursBudget.required,
+          gap: report.hoursBudget.gap,
+          conflicts: report.conflicts.slice(0, 4).map((item) => ({
+            severity: item.severity,
+            description: item.description,
+          })),
+          adjustments: report.suggestions.slice(0, 4).map((item) => ({
+            type: item.type,
+            description: item.description,
+            impact: item.impact,
+          })),
+        },
+      });
+      return;
+    }
+
+    if (phase === 'schedule') {
+      const schedule = result as ScheduleExecutionResult | null;
+      if (schedule === null) {
+        this.recordDebugEvent({
+          category: 'phase',
+          action: 'schedule.summary',
+          summary_es: 'La calendarizacion no devolvio un resultado util.',
+          phase,
+          agent: 'scheduler',
+          details: {
+            partialKind: 'schedule',
+            solverStatus: null,
+            fillRate: null,
+            solverTimeMs: null,
+            unscheduledCount: null,
+            tradeoffs: [],
+          },
+        });
+        return;
+      }
+
+      this.recordDebugEvent({
+        category: 'phase',
+        action: 'schedule.summary',
+        summary_es: `Calendarizacion ${schedule.solverOutput.metrics?.solverStatus ?? 'sin solver'} con fill rate ${Math.round((schedule.solverOutput.metrics?.fillRate ?? 0) * 100)}%.`,
+        phase,
+        agent: 'scheduler',
+        details: {
+          partialKind: 'schedule',
+          fillRate: schedule.solverOutput.metrics?.fillRate ?? null,
+          solverStatus: schedule.solverOutput.metrics?.solverStatus ?? null,
+          solverTimeMs: schedule.solverOutput.metrics?.solverTimeMs ?? null,
+          unscheduledCount: schedule.unscheduledCount,
+          tradeoffs: schedule.tradeoffs.slice(0, 4),
+        },
+      });
+      return;
+    }
+
+    if (phase === 'critique') {
+      const report = result as CriticReport;
+      const scoreDelta = previous.previousCriticReport
+        ? report.overallScore - previous.previousCriticReport.overallScore
+        : null;
+      const comparison = scoreDelta === null
+        ? 'sin_base'
+        : scoreDelta >= 10
+          ? 'mejor'
+          : scoreDelta <= -10
+            ? 'peor'
+            : 'similar';
+      this.recordDebugEvent({
+        category: 'critic',
+        action: 'critic.report',
+        summary_es: `El critico cerro la vuelta con verdict ${report.verdict} y score ${report.overallScore}/100.`,
+        phase,
+        agent: 'critic',
+        details: {
+          partialKind: 'critic_round',
+          verdict: report.verdict,
+          overallScore: report.overallScore,
+          mustFix: report.mustFix,
+          shouldFix: report.shouldFix.slice(0, 5),
+          reasoning: report.reasoning,
+          scoreDelta,
+          comparison,
+        },
+      });
+      return;
+    }
+
+    if (phase === 'package') {
+      const pkg = result as PlanPackage | null;
+      this.recordDebugEvent({
+        category: 'phase',
+        action: 'package.summary',
+        summary_es: pkg
+          ? `Empaquetado listo con score base ${pkg.qualityScore}/100 y ${pkg.warnings.length} advertencia(s).`
+          : 'El empaquetado termino sin paquete final.',
+        phase,
+        agent: 'packager',
+        details: {
+          partialKind: 'package',
+          packageReady: pkg !== null,
+          qualityScore: pkg?.qualityScore ?? null,
+          summary: pkg?.summary_esAR ?? null,
+          warnings: pkg?.warnings.slice(0, 4) ?? [],
+          qualityIssues: pkg?.qualityIssues?.slice(0, 4) ?? [],
+          requestDomain: pkg?.requestDomain ?? null,
+          packageDomain: pkg?.packageDomain ?? null,
+        },
+      });
+    }
+  }
+
+  private buildKnownAnswersSummary(): Array<{ id: string; question: string; answer: string }> {
+    const answers = Object.entries(this.context.userAnswers)
+      .filter(([, answer]) => typeof answer === 'string' && answer.trim().length > 0);
+
+    if (answers.length === 0) {
+      return [];
+    }
+
+    const questionLabels = new Map<string, string>();
+    for (const round of this.context.clarificationRounds) {
+      for (const question of round.questions) {
+        questionLabels.set(question.id, question.text.trim());
+      }
+    }
+
+    return answers.slice(0, 6).map(([id, answer]) => ({
+      id,
+      question: questionLabels.get(id) ?? id,
+      answer: answer.trim(),
+    }));
+  }
+
+  private findDuplicateQuestions(
+    previousRounds: ClarificationRound[],
+    currentRound: ClarificationRound,
+  ): Array<{ text: string; previousText: string }> {
+    const priorQuestions = previousRounds.flatMap((round) => round.questions.map((question) => question.text));
+    const normalizedPrior = priorQuestions.map((text) => ({
+      original: text,
+      normalized: this.normalizeDebugText(text),
+    }));
+
+    return currentRound.questions
+      .map((question) => {
+        const normalized = this.normalizeDebugText(question.text);
+        const duplicate = normalizedPrior.find((item) => item.normalized === normalized);
+        if (!duplicate) {
+          return null;
+        }
+
+        return {
+          text: question.text,
+          previousText: duplicate.original,
+        };
+      })
+      .filter((item): item is { text: string; previousText: string } => item !== null);
+  }
+
+  private normalizeDebugText(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[¿?¡!.,:;()"]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private findLatestAgentDebugEvent(
+    agent: V6AgentName,
+    phase: OrchestratorPhase,
+  ): OrchestratorDebugEvent | null {
+    for (let index = this.debugTrace.length - 1; index >= 0; index -= 1) {
+      const event = this.debugTrace[index];
+      if (event.agent === agent && event.phase === phase) {
+        return event;
+      }
+    }
+
+    return null;
+  }
+
+  private findLatestOutcomeForAgent(
+    agent: V6AgentName,
+    phase: OrchestratorPhase,
+  ): AgentExecutionOutcome | null {
+    for (let index = this.agentOutcomes.length - 1; index >= 0; index -= 1) {
+      const outcome = this.agentOutcomes[index];
+      if (outcome.agent === agent && outcome.phase === phase) {
+        return outcome;
+      }
+    }
+
+    return null;
+  }
+
+  private getFallbackLedger(): Array<{ agent: V6AgentName; phase: OrchestratorPhase; count: number; latestErrorCode: string | null; latestErrorMessage: string | null }> {
+    const ledger = new Map<string, { agent: V6AgentName; phase: OrchestratorPhase; count: number; latestErrorCode: string | null; latestErrorMessage: string | null }>();
+
+    for (const outcome of this.agentOutcomes) {
+      if (outcome.source !== 'fallback') {
+        continue;
+      }
+
+      const key = `${outcome.agent}:${outcome.phase}`;
+      const current = ledger.get(key) ?? {
+        agent: outcome.agent,
+        phase: outcome.phase,
+        count: 0,
+        latestErrorCode: null,
+        latestErrorMessage: null,
+      };
+      current.count += 1;
+      current.latestErrorCode = outcome.errorCode;
+      current.latestErrorMessage = outcome.errorMessage;
+      ledger.set(key, current);
+    }
+
+    return Array.from(ledger.values()).sort((left, right) => right.count - left.count);
+  }
+
+  private recordPhaseTransition(
+    previousPhase: OrchestratorPhase,
+    next: OrchestratorPhase,
+    result: unknown,
+  ): void {
+    this.recordDebugEvent({
+      category: 'phase',
+      action: 'phase.transition',
+      summary_es: this.buildTransitionSummaryEs(previousPhase, next, result),
+      phase: next,
+      agent: next === 'done' || next === 'failed' ? null : this.phaseToAgent(next),
+      details: {
+        fromPhase: previousPhase,
+        toPhase: next,
+      },
+    });
+  }
 
   private async executePhase(phase: OrchestratorPhase): Promise<unknown> {
     switch (phase) {
@@ -519,6 +1150,13 @@ export class PlanOrchestrator {
 
   private async executeInterpret(): Promise<GoalInterpretation> {
     this.lastAction = 'Interpreting goal';
+    this.recordDebugEvent({
+      category: 'agent',
+      action: 'agent.start',
+      summary_es: 'El interprete empezo a desambiguar el objetivo.',
+      phase: 'interpret',
+      agent: 'goal-interpreter',
+    });
     const agent = await this.getAgent<{ goalText: string }, GoalInterpretation>('goal-interpreter');
     const input = { goalText: this.context.goalText };
     const start = Date.now();
@@ -555,6 +1193,13 @@ export class PlanOrchestrator {
   private async executeClarify(): Promise<ClarificationRound> {
     this.lastAction = 'Clarifying goal';
     this.state.clarifyRounds++;
+    this.recordDebugEvent({
+      category: 'agent',
+      action: 'agent.start',
+      summary_es: 'El clarificador esta evaluando si faltan datos antes de avanzar.',
+      phase: 'clarify',
+      agent: 'clarifier',
+    });
 
     const agent = await this.getAgent<{
       interpretation: GoalInterpretation;
@@ -576,7 +1221,7 @@ export class PlanOrchestrator {
 
     if (agent) {
       try {
-        const result = await agent.execute(input, this.runtime);
+        const result = this.namespaceClarificationRound(await agent.execute(input, this.runtime));
         this.recordAgentOutcome('clarifier', 'clarify', 'llm', Date.now() - start);
         return result;
       } catch (error) {
@@ -605,11 +1250,20 @@ export class PlanOrchestrator {
     this.lastAction = 'Generating strategic plan';
     const domainContext = await this.resolvePlanningDomainContext();
     const start = Date.now();
+    this.recordDebugEvent({
+      category: 'agent',
+      action: 'agent.start',
+      summary_es: 'El planificador empezo a generar el roadmap estrategico.',
+      phase: 'plan',
+      agent: 'planner',
+    });
+
+    const planningDomainLabel = this.getPlanningDomainLabel();
 
     // Resolve domain card if available
-    if (!this.context.domainCard && this.context.interpretation?.suggestedDomain) {
+    if (!this.context.domainCard && planningDomainLabel) {
       try {
-        const card = await getKnowledgeCard(this.context.interpretation.suggestedDomain);
+        const card = await getKnowledgeCard(planningDomainLabel);
         if (card) {
           this.context.domainCard = card;
         }
@@ -631,7 +1285,7 @@ export class PlanOrchestrator {
     const strategyInput: StrategyInput = {
       goalText: this.context.goalText,
       profile,
-      classification: buildClassification(this.context.interpretation),
+      classification: buildClassification(this.context.interpretation, this.context.goalText),
       planningContext: {
         interpretation: this.context.interpretation
           ? {
@@ -655,7 +1309,16 @@ export class PlanOrchestrator {
           strategyResult.fallbackCode ?? 'PLANNER_FALLBACK',
           strategyResult.fallbackMessage ?? 'Planner fallback was used because the strategy generator did not return a publishable result.',
         );
-        this.recordAgentOutcome('planner', 'plan', 'fallback', Date.now() - start, fallbackError);
+        this.recordAgentOutcome('planner', 'plan', 'fallback', Date.now() - start, fallbackError, {
+          summaryEs: strategyResult.validationSummaryEs
+            ? `${strategyResult.validationSummaryEs} Se uso un fallback del planificador.`
+            : 'El planificador no devolvio un borrador publicable y se uso un fallback.',
+          details: {
+            failedCheck: strategyResult.failedCheck ?? null,
+            validationSummaryEs: strategyResult.validationSummaryEs ?? null,
+            validationEvidence: strategyResult.validationEvidence ?? null,
+          },
+        });
         this.recordEntry('plan', 'planner', {
           action: 'FALLBACK: planner',
           reasoning: this.formatDiagnosticReasoning(fallbackError),
@@ -666,7 +1329,9 @@ export class PlanOrchestrator {
       }
       return strategyResult.output;
     } catch (error) {
-      this.recordAgentOutcome('planner', 'plan', 'fallback', Date.now() - start, error);
+      this.recordAgentOutcome('planner', 'plan', 'fallback', Date.now() - start, error, {
+        summaryEs: 'El planificador fallo de forma inesperada y se uso un fallback estrategico.',
+      });
       this.recordEntry('plan', 'planner', {
         action: 'FALLBACK: planner',
         reasoning: this.formatDiagnosticReasoning(error),
@@ -681,6 +1346,13 @@ export class PlanOrchestrator {
 
   private async executeCheck(): Promise<FeasibilityReport> {
     this.lastAction = 'Checking feasibility';
+    this.recordDebugEvent({
+      category: 'agent',
+      action: 'agent.start',
+      summary_es: 'El verificador de factibilidad esta chequeando horas, energia y restricciones.',
+      phase: 'check',
+      agent: 'feasibility-checker',
+    });
 
     const agent = await this.getAgent<{
       strategicDraft: StrategicDraft;
@@ -743,6 +1415,13 @@ export class PlanOrchestrator {
 
   private async executeSchedule(): Promise<ScheduleExecutionResult | null> {
     this.lastAction = 'Scheduling activities';
+    this.recordDebugEvent({
+      category: 'agent',
+      action: 'agent.start',
+      summary_es: 'El scheduler esta distribuyendo actividades en el calendario.',
+      phase: 'schedule',
+      agent: 'scheduler',
+    });
 
     const agent = await this.getAgent<unknown, unknown>('scheduler');
     const profile = this.context.userProfile ?? {
@@ -786,6 +1465,13 @@ export class PlanOrchestrator {
 
   private async executeCritique(): Promise<CriticReport> {
     this.lastAction = 'Critiquing plan';
+    this.recordDebugEvent({
+      category: 'agent',
+      action: 'agent.start',
+      summary_es: 'El critico esta revisando calidad, factibilidad y especificidad del plan.',
+      phase: 'critique',
+      agent: 'critic',
+    });
 
     const agent = await this.getAgent<{
       goalText: string;
@@ -844,6 +1530,13 @@ export class PlanOrchestrator {
     this.lastAction = 'Revising plan based on critic feedback';
     this.state.revisionCycles++;
     const start = Date.now();
+    this.recordDebugEvent({
+      category: 'agent',
+      action: 'agent.start',
+      summary_es: 'El planificador empezo una nueva vuelta de revision.',
+      phase: 'revise',
+      agent: 'planner',
+    });
 
     // Record critic findings in revision history
     if (this.context.criticReport) {
@@ -870,7 +1563,7 @@ export class PlanOrchestrator {
     const strategyInput: StrategyInput = {
       goalText: this.context.goalText,
       profile,
-      classification: buildClassification(this.context.interpretation),
+      classification: buildClassification(this.context.interpretation, this.context.goalText),
       planningContext: {
         interpretation: this.context.interpretation
           ? {
@@ -896,7 +1589,16 @@ export class PlanOrchestrator {
           strategyResult.fallbackCode ?? 'PLANNER_FALLBACK',
           strategyResult.fallbackMessage ?? 'Planner fallback was used during revision because the strategy generator did not return a publishable result.',
         );
-        this.recordAgentOutcome('planner', 'revise', 'fallback', Date.now() - start, fallbackError);
+        this.recordAgentOutcome('planner', 'revise', 'fallback', Date.now() - start, fallbackError, {
+          summaryEs: strategyResult.validationSummaryEs
+            ? `${strategyResult.validationSummaryEs} La revision siguio con fallback del planificador.`
+            : 'La revision del planificador no devolvio un borrador publicable y se uso un fallback.',
+          details: {
+            failedCheck: strategyResult.failedCheck ?? null,
+            validationSummaryEs: strategyResult.validationSummaryEs ?? null,
+            validationEvidence: strategyResult.validationEvidence ?? null,
+          },
+        });
         this.recordEntry('revise', 'planner', {
           action: 'FALLBACK: planner',
           reasoning: this.formatDiagnosticReasoning(fallbackError),
@@ -907,7 +1609,9 @@ export class PlanOrchestrator {
       }
       return strategyResult.output;
     } catch (error) {
-      this.recordAgentOutcome('planner', 'revise', 'fallback', Date.now() - start, error);
+      this.recordAgentOutcome('planner', 'revise', 'fallback', Date.now() - start, error, {
+        summaryEs: 'La revision del planificador fallo y se reutilizo el borrador existente.',
+      });
       this.recordEntry('revise', 'planner', {
         action: 'FALLBACK: planner',
         reasoning: this.formatDiagnosticReasoning(error),
@@ -925,14 +1629,16 @@ export class PlanOrchestrator {
     NonNullable<NonNullable<StrategyInput['planningContext']>['domainContext']>
     | null
   > {
-    if (!this.context.interpretation?.suggestedDomain) {
+    const planningDomainLabel = this.getPlanningDomainLabel();
+
+    if (!planningDomainLabel) {
       return this.context.domainCard ? { card: this.context.domainCard } : null;
     }
 
     if (!this.config.enableDomainExpert) {
       if (!this.context.domainCard) {
         try {
-          const card = await getKnowledgeCard(this.context.interpretation.suggestedDomain);
+          const card = await getKnowledgeCard(planningDomainLabel);
           if (card) {
             this.context.domainCard = card;
           }
@@ -960,16 +1666,25 @@ export class PlanOrchestrator {
     const start = Date.now();
     const phase = this.state.phase === 'revise' ? 'revise' : 'plan';
     const fallbackInput = {
-      domainLabel: this.context.interpretation.suggestedDomain,
-      goalType: this.context.interpretation.goalType,
+      domainLabel: planningDomainLabel,
+      goalType: this.context.interpretation?.goalType ?? 'FINITE_PROJECT',
       specificQuestion: null,
     };
 
     if (agent) {
+      this.recordDebugEvent({
+        category: 'agent',
+        action: 'agent.start',
+        summary_es: this.state.phase === 'revise'
+          ? 'El experto de dominio esta buscando criterios para corregir la nueva vuelta.'
+          : 'El experto de dominio esta aportando contexto antes de planificar.',
+        phase,
+        agent: 'domain-expert',
+      });
       try {
         const result = await agent.execute({
-          domainLabel: this.context.interpretation.suggestedDomain,
-          goalType: this.context.interpretation.goalType,
+          domainLabel: planningDomainLabel,
+          goalType: this.context.interpretation?.goalType ?? 'FINITE_PROJECT',
           specificQuestion,
         }, this.runtime);
         this.recordAgentOutcome('domain-expert', phase, 'llm', Date.now() - start);
@@ -1008,7 +1723,7 @@ export class PlanOrchestrator {
 
     if (!this.context.domainCard) {
       try {
-        const card = await getKnowledgeCard(this.context.interpretation.suggestedDomain);
+        const card = await getKnowledgeCard(planningDomainLabel);
         if (card) {
           this.context.domainCard = card;
         }
@@ -1022,6 +1737,13 @@ export class PlanOrchestrator {
 
   private async executePackage(): Promise<PlanPackage | null> {
     this.lastAction = 'Packaging final plan';
+    this.recordDebugEvent({
+      category: 'agent',
+      action: 'agent.start',
+      summary_es: 'El empaquetador esta armando el resultado final publicable.',
+      phase: 'package',
+      agent: 'packager',
+    });
 
     const agent = await this.getAgent<{ context: OrchestratorContext; scratchpad: ReasoningEntry[] }, PlanPackage>('packager');
     const start = Date.now();
@@ -1098,20 +1820,102 @@ export class PlanOrchestrator {
     return error;
   }
 
+  private createTimestamp(): string {
+    const timestamp = DateTime.utc().toISO();
+
+    if (!timestamp) {
+      throw new Error('No se pudo generar un timestamp de debug.');
+    }
+
+    return timestamp;
+  }
+
+  private recordDebugEvent(input: {
+    category: OrchestratorDebugEvent['category'];
+    action: string;
+    summary_es: string;
+    phase?: OrchestratorPhase | null;
+    agent?: V6AgentName | null;
+    publicationState?: 'ready' | 'blocked' | 'failed' | null;
+    failureCode?: string | null;
+    errorCode?: string | null;
+    details?: Record<string, unknown> | null;
+  }): void {
+    const event: OrchestratorDebugEvent = {
+      sequence: this.debugSequence + 1,
+      timestamp: this.createTimestamp(),
+      category: input.category,
+      action: input.action,
+      summary_es: input.summary_es,
+      phase: input.phase ?? this.state.phase ?? null,
+      agent: input.agent ?? null,
+      iteration: this.state.iteration,
+      revisionCycle: this.state.revisionCycles,
+      clarifyRound: this.state.clarifyRounds,
+      progressScore: this.state.progressScore,
+      degraded: this.getFallbackOutcomes().length > 0,
+      fallbackCount: this.getFallbackOutcomes().length,
+      publicationState: input.publicationState ?? null,
+      failureCode: input.failureCode ?? null,
+      errorCode: input.errorCode ?? null,
+      details: input.details ?? null,
+    };
+
+    this.debugSequence = event.sequence;
+    this.debugTrace.push(event);
+    this.debugListener?.(structuredClone(event));
+  }
+
+  private buildAgentOutcomeSummaryEs(
+    agent: V6AgentName,
+    phase: OrchestratorPhase,
+    source: AgentExecutionOutcome['source'],
+    errorCode: string | null,
+  ): string {
+    if (source === 'fallback') {
+      return `El ${AGENT_LABELS_ES[agent]} uso fallback en ${PHASE_LABELS_ES[phase]}${errorCode ? ` (${errorCode})` : ''}.`;
+    }
+
+    if (source === 'deterministic') {
+      return `El ${AGENT_LABELS_ES[agent]} cerro ${PHASE_LABELS_ES[phase]} por via deterministica.`;
+    }
+
+    return `El ${AGENT_LABELS_ES[agent]} completo ${PHASE_LABELS_ES[phase]} con respuesta del modelo.`;
+  }
+
   private recordAgentOutcome(
     agent: V6AgentName,
     phase: OrchestratorPhase,
     source: AgentExecutionOutcome['source'],
     durationMs: number,
     error: unknown = null,
+    debugDetails?: AgentOutcomeDebugDetails,
   ): void {
+    const errorCode = error ? this.getErrorCode(error) : null;
+    const errorMessage = error ? this.getErrorMessage(error) : null;
     this.agentOutcomes.push({
       agent,
       phase,
       source,
-      errorCode: error ? this.getErrorCode(error) : null,
-      errorMessage: error ? this.getErrorMessage(error) : null,
+      errorCode,
+      errorMessage,
       durationMs,
+    });
+
+    this.recordDebugEvent({
+      category: 'agent',
+      action: debugDetails?.action ?? (source === 'fallback' ? 'agent.fallback' : 'agent.completed'),
+      summary_es: debugDetails?.summaryEs ?? this.buildAgentOutcomeSummaryEs(agent, phase, source, errorCode),
+      phase,
+      agent,
+      errorCode,
+      details: {
+        source,
+        durationMs,
+        errorCode,
+        errorMessage,
+        ...(debugDetails?.details ?? {}),
+      },
     });
   }
 
@@ -1542,6 +2346,40 @@ export class PlanOrchestrator {
     const canPublish = publicationGate.publicationState === 'ready'
       && this.state.phase === 'done'
       && finalPackage !== null;
+
+    this.recordDebugEvent({
+      category: 'publication',
+      action: 'publication.evaluated',
+      summary_es: publicationGate.publicationState === 'ready'
+        ? hasFallbacks
+          ? 'La publicacion quedo permitida, aunque el run termino degradado por fallbacks.'
+          : 'La publicacion quedo habilitada.'
+        : publicationGate.publicationState === 'blocked'
+          ? 'La publicacion quedo bloqueada y el plan no puede salir tal como esta.'
+          : 'La publicacion fallo en la revision final.',
+      phase: this.state.phase,
+      agent: publicationGate.blockingAgents[0]?.agent ?? (this.context.criticReport ? 'critic' : 'packager'),
+      publicationState: publicationGate.publicationState,
+      failureCode: publicationGate.failureCode,
+      details: {
+        partialKind: 'publication',
+        canPublish,
+        degraded: hasFallbacks,
+        blockingAgents: publicationGate.blockingAgents,
+        fallbackLedger: this.getFallbackLedger(),
+        qualityIssues: finalPackage?.qualityIssues ?? [],
+        criticVerdict: this.context.criticReport?.verdict ?? null,
+        criticScore: this.context.criticReport?.overallScore ?? null,
+        warnings: finalPackage?.warnings ?? [],
+        exactBlockers: publicationGate.blockingAgents.map((item) => ({
+          agent: item.agent,
+          phase: item.phase,
+          errorCode: item.errorCode,
+          errorMessage: item.errorMessage,
+        })),
+        misalignedGoal: (finalPackage?.qualityIssues ?? []).some((issue) => issue.code === 'goal_mismatch'),
+      },
+    });
 
     return {
       status: canPublish ? 'completed' : 'failed',

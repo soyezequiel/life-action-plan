@@ -98,6 +98,26 @@ Ejemplo: si el usuario dice "pizzas" primero, puedes usar pizza como motivacion 
 `;
 }
 
+function buildClarificationAlignmentGuidance(clarificationAnswers: Record<string, string>): string {
+  if (Object.keys(clarificationAnswers).length === 0) {
+    return '';
+  }
+
+  return `
+## ANCLAJES DEL INTAKE
+
+Antes de escribir el plan, identifica y preserva los datos mas concretos del intake:
+- metricas, numeros o resultados medibles;
+- plazo u horizonte;
+- via preferida para lograr el objetivo;
+- recursos, experiencia o activos ya disponibles;
+- restricciones reales.
+
+El plan debe seguir respondiendo al mismo problema original despues de incorporar esas aclaraciones.
+Si las fases podrian servir para otro objetivo distinto, o cambian el mecanismo causal sin explicarlo, el plan esta mal alineado.
+`;
+}
+
 function formatCriticFindings(findings: StrategyCriticFinding[]): string {
   return findings
     .map((finding, index) => {
@@ -113,19 +133,34 @@ function formatCriticFindings(findings: StrategyCriticFinding[]): string {
     .join('\n');
 }
 
-function extractHorizonMonths(answers: Record<string, string>, goalText: string): number | null {
-  const text = `${goalText} ${Object.values(answers).join(' ')}`.toLowerCase();
+function parseHorizonMonths(text: string): number | null {
+  const normalizedText = text.toLowerCase();
 
-  const yearMatch = text.match(/(\d+)\s*(año|años|ano|anos|year|years)\b/);
+  const yearMatch = normalizedText.match(/(\d+)\s*(año|años|ano|anos|year|years)\b/);
   if (yearMatch) return Math.min(Number(yearMatch[1]) * 12, 24);
 
-  const monthMatch = text.match(/(\d+)\s*(mes|meses|month|months)\b/);
+  const monthMatch = normalizedText.match(/(\d+)\s*(mes|meses|month|months)\b/);
   if (monthMatch) return Math.max(1, Number(monthMatch[1]));
 
-  const weekMatch = text.match(/(\d+)\s*(semana|semanas|week|weeks)\b/);
+  const weekMatch = normalizedText.match(/(\d+)\s*(semana|semanas|week|weeks)\b/);
   if (weekMatch) return Math.max(1, Math.ceil(Number(weekMatch[1]) / 4));
 
   return null;
+}
+
+function extractHorizonMonths(answers: Record<string, string>, goalText: string): number | null {
+  const explicitHorizon = answers['senal tipada - general: plazo']
+    ?? answers['senal tipada - cocina: horizonte']
+    ?? null;
+
+  if (explicitHorizon) {
+    const explicitMonths = parseHorizonMonths(explicitHorizon);
+    if (explicitMonths) {
+      return explicitMonths;
+    }
+  }
+
+  return parseHorizonMonths(`${goalText} ${Object.values(answers).join(' ')}`);
 }
 
 export function buildStrategyPrompt(input: StrategyPromptInput): string {
@@ -143,6 +178,7 @@ export function buildStrategyPrompt(input: StrategyPromptInput): string {
   const totalAvailableHours = (userProfile.freeHoursWeekday * 5) + (userProfile.freeHoursWeekend * 2);
   const horizonMonths = extractHorizonMonths(clarificationAnswers, goalText);
   const scopeAlignmentBlock = buildScopeAlignmentGuidance(goalText, clarificationAnswers);
+  const clarificationAlignmentBlock = buildClarificationAlignmentGuidance(clarificationAnswers);
   const revisionBlock = previousCriticFindings && previousCriticFindings.length > 0
     ? `
 ## REVISION OBLIGATORIA - La revision anterior encontro estos problemas:
@@ -186,6 +222,7 @@ ${formatAnswers(clarificationAnswers)}
 ## Conocimiento de dominio
 ${formatDomainContext(domainContext)}
 ${scopeAlignmentBlock}${revisionBlock}${horizonBlock}
+${clarificationAlignmentBlock}
 ## Reglas de nombres de fase
 
 NUNCA uses nombres de fase genericos como "Fase 1", "Base", "Fundamentos", "Introduccion", "Consolidacion", "Avance", "Nivel 1", "Nivel 2".

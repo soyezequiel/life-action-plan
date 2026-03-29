@@ -62,6 +62,60 @@ const clarificationNeedsInput = {
   readyToAdvance: false,
 };
 
+const clarificationRoundOne = {
+  questions: [
+    {
+      id: 'q1',
+      text: 'Que tipo de trabajo remoto queres priorizar?',
+      purpose: 'Entender la via de ingresos',
+      type: 'text',
+    },
+    {
+      id: 'q2',
+      text: 'Cual es tu situacion financiera actual?',
+      purpose: 'Entender el punto de partida',
+      type: 'text',
+    },
+    {
+      id: 'q3',
+      text: 'Que plazo objetivo tenes para llegar a la meta?',
+      purpose: 'Calibrar el horizonte',
+      type: 'text',
+    },
+  ],
+  reasoning: 'Faltan via, situacion financiera y plazo.',
+  informationGaps: ['via', 'finanzas', 'plazo'],
+  confidence: 0.35,
+  readyToAdvance: false,
+};
+
+const clarificationRoundTwoWithReusedIds = {
+  questions: [
+    {
+      id: 'q1',
+      text: 'Que stack tecnico manejas hoy?',
+      purpose: 'Orientar el mercado objetivo',
+      type: 'text',
+    },
+    {
+      id: 'q2',
+      text: 'Preferis empleo remoto o freelancing?',
+      purpose: 'Definir la modalidad',
+      type: 'text',
+    },
+    {
+      id: 'q3',
+      text: 'Estas dispuesto a capacitarte mas?',
+      purpose: 'Evaluar upskilling',
+      type: 'text',
+    },
+  ],
+  reasoning: 'Faltan stack, modalidad y disposicion de capacitacion.',
+  informationGaps: ['stack', 'modalidad', 'capacitacion'],
+  confidence: 0.45,
+  readyToAdvance: false,
+};
+
 const strategicDraft = {
   phases: [
     { name: 'Phase 1', durationWeeks: 4, focus_esAR: 'Construir base' },
@@ -333,8 +387,15 @@ function buildOrchestrator(config = {}) {
   };
 
   internal.getAgent = async (name) => agentMap[name] ?? null;
-  if (scenario === 'needs_input' || scenario === 'progress' || scenario === 'resume') {
-    internal.shouldForceFinish = () => false;
+  if (
+    scenario === 'needs_input'
+    || scenario === 'progress'
+    || scenario === 'resume'
+    || scenario === 'clarify_limit_pause'
+    || scenario === 'clarify_limit_resume'
+    || scenario === 'reused_question_ids'
+  ) {
+    internal.getForceFinishReason = () => null;
   }
   internal.executePlan = async () => {
     if (scenario === 'planner_unauthorized') {
@@ -386,8 +447,50 @@ if (scenario === 'complete' || scenario === 'scratchpad') {
   clarifierQueue.push(clarificationNeedsInput, clarificationAdvance);
   const orchestrator = buildOrchestrator();
   const firstResult = await orchestrator.run('Test goal', { ...userCtx, profile: null });
-  const resumed = await orchestrator.resume({ 'q-1': '6 horas' });
-  payload = { firstResult, resumed, progress: orchestrator.getProgress(), strategyCalls: agentState.strategyCalls };
+  const firstQuestionId = firstResult.pendingQuestions?.questions?.[0]?.id ?? 'q-1';
+  const resumed = await orchestrator.resume({ [firstQuestionId]: '6 horas' });
+  payload = {
+    firstResult,
+    resumed,
+    progress: orchestrator.getProgress(),
+    strategyCalls: agentState.strategyCalls,
+    debugTrace: orchestrator.getDebugTrace(),
+    snapshot: orchestrator.getSnapshot(),
+  };
+} else if (scenario === 'clarify_limit_pause') {
+  clarifierQueue.push(clarificationNeedsInput);
+  const orchestrator = buildOrchestrator({ maxClarifyRounds: 1 });
+  const result = await orchestrator.run('Test goal', { ...userCtx, profile: null });
+  payload = { result, progress: orchestrator.getProgress() };
+} else if (scenario === 'clarify_limit_resume') {
+  clarifierQueue.push(clarificationNeedsInput);
+  const orchestrator = buildOrchestrator({ maxClarifyRounds: 1 });
+  const firstResult = await orchestrator.run('Test goal', { ...userCtx, profile: null });
+  const firstQuestionId = firstResult.pendingQuestions?.questions?.[0]?.id ?? 'q-1';
+  const resumed = await orchestrator.resume({ [firstQuestionId]: '6 horas' });
+  payload = {
+    firstResult,
+    resumed,
+    progress: orchestrator.getProgress(),
+    strategyCalls: agentState.strategyCalls,
+    snapshot: orchestrator.getSnapshot(),
+  };
+} else if (scenario === 'reused_question_ids') {
+  clarifierQueue.push(clarificationRoundOne, clarificationRoundTwoWithReusedIds);
+  const orchestrator = buildOrchestrator();
+  const firstResult = await orchestrator.run('Test goal', { ...userCtx, profile: null });
+  const firstRoundQuestions = firstResult.pendingQuestions?.questions ?? [];
+  const answers = Object.fromEntries(firstRoundQuestions.map((question, index) => [
+    question.id,
+    ['remoto', 'sin ingresos', '12 meses'][index] ?? ('respuesta-' + (index + 1)),
+  ]));
+  const secondPause = await orchestrator.resume(answers);
+  payload = {
+    firstResult,
+    secondPause,
+    snapshot: orchestrator.getSnapshot(),
+    debugTrace: orchestrator.getDebugTrace(),
+  };
 } else if (scenario === 'revise') {
   criticQueue.push(criticRevise, criticApprove);
   const orchestrator = buildOrchestrator();
@@ -443,6 +546,7 @@ if (scenario === 'complete' || scenario === 'scratchpad') {
     progress: orchestrator.getProgress(),
     criticInput: criticInputs[0] ?? null,
     packagerInput: packagerInputs[0] ?? null,
+    debugTrace: orchestrator.getDebugTrace(),
   };
 } else {
   throw new Error('Unknown scenario: ' + scenario);
@@ -562,6 +666,74 @@ describe('PlanOrchestrator', () => {
     expect(resumed.scratchpad.some((entry) => entry.phase === 'plan')).toBe(true);
   });
 
+  it('still pauses for input when the last allowed clarify round returns questions', () => {
+    const payload = runScenario('clarify_limit_pause');
+    const result = payload.result as {
+      status: string;
+      pendingQuestions: { questions: unknown[]; readyToAdvance: boolean } | null;
+    };
+
+    expect(result.status).toBe('needs_input');
+    expect(result.pendingQuestions?.readyToAdvance).toBe(false);
+    expect(result.pendingQuestions?.questions).toHaveLength(1);
+  });
+
+  it('uses the final clarification answers to continue directly into planning after the clarify limit', () => {
+    const payload = runScenario('clarify_limit_resume');
+    const firstResult = payload.firstResult as { status: string };
+    const resumed = payload.resumed as {
+      status: string;
+      package: Record<string, unknown> | null;
+      scratchpad: Array<{ phase: string }>;
+    };
+
+    expect(firstResult.status).toBe('needs_input');
+    expect(resumed.status).toBe('completed');
+    expect(resumed.package).not.toBeNull();
+    expect(resumed.scratchpad.filter((entry) => entry.phase === 'clarify')).toHaveLength(1);
+    expect(resumed.scratchpad.some((entry) => entry.phase === 'plan')).toBe(true);
+  });
+
+  it('preserves answers from different clarification rounds even if the model reuses q1/q2/q3 ids', () => {
+    const payload = runScenario('reused_question_ids');
+    const secondPause = payload.secondPause as {
+      status: string;
+      pendingQuestions: { questions: Array<{ id: string }> } | null;
+    };
+    const snapshot = payload.snapshot as {
+      context: {
+        userAnswers: Record<string, string>;
+        clarificationRounds: Array<{ questions: Array<{ id: string }> }>;
+      };
+    };
+
+    expect(secondPause.status).toBe('needs_input');
+    expect(secondPause.pendingQuestions?.questions.every((question) => question.id.startsWith('clarify-r2-'))).toBe(true);
+    expect(snapshot.context.clarificationRounds[0]?.questions[0]?.id).toBe('clarify-r1-q1');
+    expect(snapshot.context.clarificationRounds[1]?.questions[0]?.id).toBe('clarify-r2-q1');
+    expect(snapshot.context.userAnswers).toMatchObject({
+      'Que tipo de trabajo remoto queres priorizar?': 'remoto',
+      'Cual es tu situacion financiera actual?': 'sin ingresos',
+      'Que plazo objetivo tenes para llegar a la meta?': '12 meses',
+    });
+  });
+
+  it('persists debug trace and agent outcomes in snapshots used for resume', () => {
+    const payload = runScenario('resume');
+    const debugTrace = payload.debugTrace as Array<{ action: string }>;
+    const snapshot = payload.snapshot as {
+      debugTrace: Array<{ action: string }>;
+      agentOutcomes: Array<{ agent: string; phase: string }>;
+    };
+
+    expect(debugTrace.some((event) => event.action === 'session.paused')).toBe(true);
+    expect(debugTrace.some((event) => event.action === 'session.resumed')).toBe(true);
+    expect(snapshot.debugTrace.some((event) => event.action === 'session.paused')).toBe(true);
+    expect(snapshot.agentOutcomes).toEqual(expect.arrayContaining([
+      expect.objectContaining({ agent: 'goal-interpreter', phase: 'interpret' }),
+    ]));
+  });
+
   it('handles critic revise verdict by looping back to planner', () => {
     const payload = runScenario('revise');
     const result = payload.result as {
@@ -612,6 +784,60 @@ describe('PlanOrchestrator', () => {
         }),
       ],
     });
+  });
+
+  it('emits high-value phase summaries in the debug trace', () => {
+    const payload = runScenario('metadata');
+    const debugTrace = payload.debugTrace as Array<{
+      action: string;
+      details?: Record<string, unknown> | null;
+    }>;
+
+    expect(debugTrace).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        action: 'interpret.summary',
+        details: expect.objectContaining({
+          partialKind: 'interpretation',
+          normalizedGoal: 'Test goal',
+        }),
+      }),
+      expect.objectContaining({
+        action: 'plan.summary',
+        details: expect.objectContaining({
+          partialKind: 'roadmap',
+          phaseCount: 2,
+        }),
+      }),
+      expect.objectContaining({
+        action: 'check.summary',
+        details: expect.objectContaining({
+          partialKind: 'feasibility',
+          availableHours: 18,
+          requiredHours: 8,
+        }),
+      }),
+      expect.objectContaining({
+        action: 'schedule.summary',
+        details: expect.objectContaining({
+          partialKind: 'schedule',
+          unscheduledCount: 2,
+          solverStatus: 'optimal',
+        }),
+      }),
+      expect.objectContaining({
+        action: 'critic.report',
+        details: expect.objectContaining({
+          partialKind: 'critic_round',
+        }),
+      }),
+      expect.objectContaining({
+        action: 'publication.evaluated',
+        details: expect.objectContaining({
+          partialKind: 'publication',
+          fallbackLedger: [],
+        }),
+      }),
+    ]));
   });
 
   it('respects maxIterations safety valve', () => {

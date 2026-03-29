@@ -50,8 +50,15 @@ export function nextPhase(
       const clarifyResult = lastResult as ClarificationRound | null;
       const confidence = clarifyResult?.confidence ?? context.interpretation?.confidence ?? 0;
       const readyToAdvance = clarifyResult?.readyToAdvance ?? false;
+      const hasPendingQuestions = (clarifyResult?.questions?.length ?? 0) > 0;
 
-      if (confidence >= 0.8 || readyToAdvance || state.clarifyRounds >= state.maxClarifyRounds) {
+      if (readyToAdvance || (confidence >= 0.8 && !hasPendingQuestions)) {
+        return 'plan';
+      }
+      if (state.clarifyRounds >= state.maxClarifyRounds && hasPendingQuestions) {
+        return 'clarify';
+      }
+      if (state.clarifyRounds >= state.maxClarifyRounds) {
         return 'plan';
       }
       // Stay in clarify for another round (after user input)

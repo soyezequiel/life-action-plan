@@ -100,15 +100,344 @@ function createNeedsInputResponseBody() {
   ].join('\n') + '\n'
 }
 
-function createCompleteResponseBody() {
+function createCompleteResponseBody({
+  planId = 'plan-complete-123',
+  score = 95,
+  iterations = 2,
+  degraded = false,
+  agentOutcomes = [],
+} = {}) {
   return [
     'event: v6:complete',
     `data: ${JSON.stringify({
       type: 'v6:complete',
       data: {
-        planId: 'plan-complete-123',
-        score: 95,
-        iterations: 2,
+        planId,
+        score,
+        iterations,
+        degraded,
+        agentOutcomes,
+      },
+    })}`,
+    '',
+  ].join('\n') + '\n'
+}
+
+function createUsageLimitBlockedResponseBody() {
+  const payload = {
+    type: 'result',
+    result: {
+      success: false,
+      error: 'No publicamos este plan porque la revision critica fallo y requiere regeneracion.',
+      failureCode: 'requires_regeneration',
+      publicationState: 'blocked',
+      degraded: true,
+      agentOutcomes: [
+        {
+          agent: 'critic',
+          phase: 'critique',
+          source: 'fallback',
+          errorCode: 'RetryError',
+          errorMessage: 'Failed after 3 attempts. Last error: The usage limit has been reached',
+          durationMs: 12,
+        },
+      ],
+      blockingAgents: [
+        {
+          agent: 'critic',
+          phase: 'critique',
+          source: 'fallback',
+          errorCode: 'RetryError',
+          errorMessage: 'Failed after 3 attempts. Last error: The usage limit has been reached',
+          durationMs: 12,
+        },
+      ],
+      package: {
+        qualityIssues: [
+          {
+            code: 'CRITICAL_AGENT_FAILURE',
+            severity: 'blocking',
+            message: 'La ruta critica del pipeline fallo y hace falta regenerarlo con un proveedor que responda bien.',
+          },
+        ],
+        warnings: [
+          'No se puede publicar este plan: la revision critica fallo y hace falta regenerarlo con un proveedor que responda bien.',
+        ],
+      },
+    },
+  }
+
+  return [
+    'event: v6:blocked',
+    `data: ${JSON.stringify({
+      type: 'v6:blocked',
+      data: payload.result,
+    })}`,
+    '',
+    'event: result',
+    `data: ${JSON.stringify(payload)}`,
+    '',
+  ].join('\n') + '\n'
+}
+
+function createDebugCompleteResponseBody() {
+  return [
+    'event: v6:debug',
+    `data: ${JSON.stringify({
+      type: 'v6:debug',
+      data: {
+        sequence: 1,
+        timestamp: '2026-03-30T00:00:00.000Z',
+        category: 'lifecycle',
+        action: 'run.started',
+        summary_es: 'Inicio de corrida para el objetivo.',
+        phase: 'interpret',
+        agent: 'goal-interpreter',
+        iteration: 0,
+        revisionCycle: 0,
+        clarifyRound: 0,
+        progressScore: 0,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: null,
+        failureCode: null,
+        errorCode: null,
+        details: {
+          runtimeLabel: 'openai:gpt-5-codex',
+        },
+      },
+    })}`,
+    '',
+    'event: v6:debug',
+    `data: ${JSON.stringify({
+      type: 'v6:debug',
+      data: {
+        sequence: 2,
+        timestamp: '2026-03-30T00:00:03.000Z',
+        category: 'phase',
+        action: 'interpret.summary',
+        summary_es: 'Objetivo interpretado como INCOME_GOAL con confianza 82%.',
+        phase: 'interpret',
+        agent: 'goal-interpreter',
+        iteration: 0,
+        revisionCycle: 0,
+        clarifyRound: 0,
+        progressScore: 10,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: null,
+        failureCode: null,
+        errorCode: null,
+        details: {
+          partialKind: 'interpretation',
+          normalizedGoal: 'Lograr un flujo mensual de 3k USD desde Argentina en 12 meses via empleo remoto.',
+          goalType: 'INCOME_GOAL',
+          suggestedDomain: 'career',
+          ambiguities: ['seniority real para salir al mercado'],
+          assumptions: ['se prioriza empleo remoto'],
+        },
+      },
+    })}`,
+    '',
+    'event: v6:debug',
+    `data: ${JSON.stringify({
+      type: 'v6:debug',
+      data: {
+        sequence: 3,
+        timestamp: '2026-03-30T00:00:12.000Z',
+        category: 'phase',
+        action: 'plan.summary',
+        summary_es: 'Roadmap generado con 3 fase(s) y 3 hito(s).',
+        phase: 'plan',
+        agent: 'planner',
+        iteration: 4,
+        revisionCycle: 0,
+        clarifyRound: 2,
+        progressScore: 48,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: null,
+        failureCode: null,
+        errorCode: null,
+        details: {
+          partialKind: 'roadmap',
+          horizonWeeks: 52,
+          phaseCount: 3,
+          phases: [
+            { index: 1, title: 'Base tecnica', focus: 'Cerrar huecos de portfolio y entrevistas', durationWeeks: 12 },
+            { index: 2, title: 'Insercion remota', focus: 'Aplicar con ritmo sostenido y feedback', durationWeeks: 20 },
+            { index: 3, title: 'Escalada a meta', focus: 'Negociar rango y consolidar ingresos', durationWeeks: 20 },
+          ],
+          milestones: ['Portfolio visible', 'Primeras entrevistas', 'Oferta remota'],
+          fallbackUsed: false,
+        },
+      },
+    })}`,
+    '',
+    'event: v6:heartbeat',
+    `data: ${JSON.stringify({
+      type: 'v6:heartbeat',
+      data: {
+        timestamp: '2026-03-30T00:00:10.000Z',
+        status: {
+          lifecycle: 'running',
+          currentPhase: 'plan',
+          currentAgent: 'planner',
+          currentAction: 'agent.start',
+          currentSummary_es: 'Planificando estrategia.',
+          iteration: 3,
+          revisionCycles: 1,
+          clarifyRounds: 0,
+          progressScore: 55,
+          degraded: false,
+          fallbackCount: 0,
+          publicationState: null,
+          failureCode: null,
+          lastEventSequence: 1,
+          lastEventTimestamp: '2026-03-30T00:00:00.000Z',
+          lastEventSummary_es: 'Inicio de corrida para el objetivo.',
+        },
+      },
+    })}`,
+    '',
+    'event: v6:debug',
+    `data: ${JSON.stringify({
+      type: 'v6:debug',
+      data: {
+        sequence: 4,
+        timestamp: '2026-03-30T00:00:18.000Z',
+        category: 'phase',
+        action: 'check.summary',
+        summary_es: 'Factibilidad tight: 14h disponibles vs 16h requeridas.',
+        phase: 'check',
+        agent: 'feasibility-checker',
+        iteration: 5,
+        revisionCycle: 0,
+        clarifyRound: 2,
+        progressScore: 60,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: null,
+        failureCode: null,
+        errorCode: null,
+        details: {
+          partialKind: 'feasibility',
+          status: 'tight',
+          availableHours: 14,
+          requiredHours: 16,
+          gap: -2,
+          adjustments: [
+            { description: 'Reducir aplicaciones manuales y automatizar shortlist' },
+          ],
+        },
+      },
+    })}`,
+    '',
+    'event: v6:debug',
+    `data: ${JSON.stringify({
+      type: 'v6:debug',
+      data: {
+        sequence: 5,
+        timestamp: '2026-03-30T00:00:24.000Z',
+        category: 'phase',
+        action: 'schedule.summary',
+        summary_es: 'Calendarizacion optimal con fill rate 84%.',
+        phase: 'schedule',
+        agent: 'scheduler',
+        iteration: 6,
+        revisionCycle: 0,
+        clarifyRound: 2,
+        progressScore: 72,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: null,
+        failureCode: null,
+        errorCode: null,
+        details: {
+          partialKind: 'schedule',
+          fillRate: 0.84,
+          solverStatus: 'optimal',
+          solverTimeMs: 21,
+          unscheduledCount: 2,
+          tradeoffs: [
+            { question_esAR: 'Mover practica avanzada al fin de semana para liberar dias habiles?' },
+          ],
+        },
+      },
+    })}`,
+    '',
+    'event: v6:debug',
+    `data: ${JSON.stringify({
+      type: 'v6:debug',
+      data: {
+        sequence: 6,
+        timestamp: '2026-03-30T00:00:31.000Z',
+        category: 'critic',
+        action: 'critic.report',
+        summary_es: 'El critico cerro la vuelta con verdict revise y score 78/100.',
+        phase: 'critique',
+        agent: 'critic',
+        iteration: 7,
+        revisionCycle: 1,
+        clarifyRound: 2,
+        progressScore: 84,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: null,
+        failureCode: null,
+        errorCode: null,
+        details: {
+          partialKind: 'critic_round',
+          verdict: 'revise',
+          overallScore: 78,
+          comparison: 'mejor',
+          scoreDelta: 12,
+          mustFix: [
+            { message: 'Falta explicitar la transicion de junior a primer empleo remoto.' },
+          ],
+        },
+      },
+    })}`,
+    '',
+    'event: v6:debug',
+    `data: ${JSON.stringify({
+      type: 'v6:debug',
+      data: {
+        sequence: 7,
+        timestamp: '2026-03-30T00:00:40.000Z',
+        category: 'publication',
+        action: 'publication.evaluated',
+        summary_es: 'La publicacion quedo habilitada.',
+        phase: 'done',
+        agent: 'packager',
+        iteration: 8,
+        revisionCycle: 1,
+        clarifyRound: 2,
+        progressScore: 100,
+        degraded: false,
+        fallbackCount: 0,
+        publicationState: 'ready',
+        failureCode: null,
+        errorCode: null,
+        details: {
+          partialKind: 'publication',
+          canPublish: true,
+          fallbackLedger: [],
+          exactBlockers: [],
+          misalignedGoal: false,
+          qualityIssues: [],
+          warnings: [],
+        },
+      },
+    })}`,
+    '',
+    'event: v6:complete',
+    `data: ${JSON.stringify({
+      type: 'v6:complete',
+      data: {
+        planId: 'plan-debug-123',
+        score: 92,
+        iterations: 4,
         degraded: false,
         agentOutcomes: [],
       },
@@ -143,6 +472,25 @@ async function startServer() {
           Connection: 'keep-alive',
         })
         const payload = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}')
+        if (payload.goalText === 'Objetivo con usage limit') {
+          if (payload.resourceMode === 'codex') {
+            res.end(createUsageLimitBlockedResponseBody())
+            return
+          }
+          if (payload.provider === 'ollama') {
+            res.end(createCompleteResponseBody({
+              planId: 'plan-ollama-123',
+              score: 88,
+              iterations: 1,
+              degraded: false,
+            }))
+            return
+          }
+        }
+        if (payload.goalText === 'Objetivo debug completo') {
+          res.end(createDebugCompleteResponseBody())
+          return
+        }
         if (payload.goalText === 'Objetivo con respuestas predefinidas') {
           res.end(createNeedsInputResponseBody())
           return
@@ -162,6 +510,27 @@ async function startServer() {
       }
 
       if (parsedUrl.pathname === '/api/plan/package') {
+        if (parsedUrl.searchParams.get('planId') === 'plan-debug-123') {
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({
+            ok: true,
+            data: {
+              items: [],
+              plan: {
+                title: 'Plan debug',
+                description: 'Plan generado en modo debug',
+                publicationState: 'publishable',
+                skeleton: { phases: [], milestones: [] },
+                detail: { weeks: [], scheduledEvents: [] },
+              },
+              degraded: false,
+              publicationState: 'publishable',
+              agentOutcomes: [],
+            },
+            meta: { modelId: 'openai:gpt-5-codex' },
+          }))
+          return
+        }
         if (parsedUrl.searchParams.get('planId') === 'plan-complete-123') {
           res.writeHead(200, { 'Content-Type': 'application/json' })
           res.end(JSON.stringify({
@@ -178,6 +547,25 @@ async function startServer() {
               agentOutcomes: [],
             },
             meta: { modelId: 'openai:gpt-5-codex' },
+          }))
+          return
+        }
+        if (parsedUrl.searchParams.get('planId') === 'plan-ollama-123') {
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({
+            ok: true,
+            data: {
+              items: [],
+              plan: {
+                title: 'Plan con fallback a ollama',
+                description: 'Plan generado tras usage limit en codex',
+                skeleton: { phases: [], milestones: [] },
+                detail: { weeks: [], scheduledEvents: [] },
+              },
+              degraded: false,
+              agentOutcomes: [],
+            },
+            meta: { modelId: 'ollama:llama3' },
           }))
           return
         }
@@ -264,6 +652,57 @@ describe('run-plan CLI failure surfacing', () => {
       'POST /api/plan/build',
     ])
     expect(requests.some((request) => new URL(`http://127.0.0.1${request.url}`).pathname === '/api/plan/package')).toBe(false)
+  })
+
+  it('falls back to ollama when codex hits a recoverable usage-limit failure', async () => {
+    const result = await new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+      const child = spawn(process.execPath, [
+        runPlanScript,
+        'Objetivo con usage limit',
+        '--profile=c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        '--provider=codex',
+        `--base=${baseUrl}`,
+        '--detail-weeks=6',
+      ], {
+        cwd: repoRoot,
+        env: {
+          ...process.env,
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+      })
+
+      let stdout = ''
+      let stderr = ''
+
+      child.stdout?.setEncoding('utf8')
+      child.stderr?.setEncoding('utf8')
+      child.stdout?.on('data', (chunk) => {
+        stdout += chunk
+      })
+      child.stderr?.on('data', (chunk) => {
+        stderr += chunk
+      })
+      child.on('error', reject)
+      child.on('close', (status) => {
+        resolve({ status, stdout, stderr })
+      })
+    })
+
+    expect(result.status).toBe(0)
+    expect(result.stderr).toContain('Reintentando con Ollama (local)')
+    expect(result.stderr).toContain('Plan ID: plan-ollama-123')
+
+    const buildRequests = requests.filter((request) => new URL(`http://127.0.0.1${request.url}`).pathname === '/api/plan/build')
+    expect(buildRequests).toHaveLength(2)
+    expect(JSON.parse(buildRequests[0]?.body ?? '{}')).toMatchObject({
+      goalText: 'Objetivo con usage limit',
+      resourceMode: 'codex',
+    })
+    expect(JSON.parse(buildRequests[1]?.body ?? '{}')).toMatchObject({
+      goalText: 'Objetivo con usage limit',
+      provider: 'ollama',
+    })
   })
 
   it('resumes an interactive session with preloaded answers from --answers-json', async () => {
@@ -398,7 +837,7 @@ describe('run-plan CLI failure surfacing', () => {
     })
 
     expect(result.status).toBe(0)
-    expect(result.stderr).toContain('Reanudando sesión session-test-123')
+    expect(result.stderr).toContain('Reanudando sesion session-test-123')
     expect(result.stderr).toContain('Respuestas: 2')
     expect(result.stdout).toContain('# Plan:')
 
@@ -410,5 +849,97 @@ describe('run-plan CLI failure surfacing', () => {
       'nivel-culinario': 'principiante',
       'subtema-italiano': 'pastas',
     })
+  })
+
+  it('writes a structured debug artifact and renders heartbeat output when --debug is enabled', async () => {
+    const debugDir = path.join(repoRoot, '.lap-debug')
+    const beforeFiles = fs.existsSync(debugDir) ? new Set(fs.readdirSync(debugDir)) : new Set<string>()
+
+    const result = await new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+      const child = spawn(process.execPath, [
+        runPlanScript,
+        'Objetivo debug completo',
+        '--profile=c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        '--provider=codex',
+        `--base=${baseUrl}`,
+        '--detail-weeks=6',
+        '--debug',
+      ], {
+        cwd: repoRoot,
+        env: {
+          ...process.env,
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+      })
+
+      let stdout = ''
+      let stderr = ''
+
+      child.stdout?.setEncoding('utf8')
+      child.stderr?.setEncoding('utf8')
+      child.stdout?.on('data', (chunk) => { stdout += chunk })
+      child.stderr?.on('data', (chunk) => { stderr += chunk })
+      child.on('error', reject)
+      child.on('close', (status) => {
+        resolve({ status, stdout, stderr })
+      })
+    })
+
+    expect(result.status).toBe(0)
+    expect(result.stderr).toContain('[debug]')
+    expect(result.stderr).toContain('[latido]')
+    expect(result.stderr).toContain('Artefacto:')
+    expect(result.stderr).toContain('objetivo normalizado:')
+    expect(result.stderr).toContain('horizonte: 52 semana(s)')
+    expect(result.stderr).toContain('horas: 14 disponibles vs 16 requeridas | gap: -2')
+    expect(result.stderr).toContain('fill rate: 84%')
+    expect(result.stderr).toContain('comparacion vs vuelta anterior: mejor (+12)')
+    expect(result.stderr).toContain('listo para publicar: si')
+    expect(result.stdout).toContain('# Plan: Objetivo debug completo')
+
+    const stderrPlain = result.stderr.replace(/\u001b\[[0-9;]*m/g, '')
+    const artifactMatch = stderrPlain.match(/Artefacto:\s+(.+\.json)/)
+    const artifactPath = artifactMatch?.[1]?.trim()
+    expect(artifactPath).toBeTruthy()
+    expect(artifactPath ? fs.existsSync(artifactPath) : false).toBe(true)
+
+    const artifact = JSON.parse(fs.readFileSync(artifactPath as string, 'utf8'))
+    expect(artifact.summary).toEqual(expect.objectContaining({
+      status: 'completed',
+      planId: 'plan-debug-123',
+      provider: 'codex-oauth',
+      modelId: 'openai:gpt-5-codex',
+    }))
+    expect(artifact.sseEvents).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'v6:debug' }),
+      expect.objectContaining({ type: 'v6:heartbeat' }),
+      expect.objectContaining({ type: 'v6:complete' }),
+    ]))
+    expect(artifact.finalPackage).toEqual(expect.objectContaining({
+      package: expect.objectContaining({
+        publicationState: 'publishable',
+      }),
+      meta: expect.objectContaining({
+        modelId: 'openai:gpt-5-codex',
+      }),
+    }))
+    expect(artifact.latestDebugEvent).toEqual(expect.objectContaining({
+      action: 'publication.evaluated',
+      details: expect.objectContaining({
+        partialKind: 'publication',
+        canPublish: true,
+      }),
+    }))
+
+    const buildRequest = requests.find((request) => new URL(`http://127.0.0.1${request.url}`).pathname === '/api/plan/build')
+    expect(buildRequest).toBeTruthy()
+    expect(JSON.parse(buildRequest?.body ?? '{}').debug).toBe(true)
+
+    const afterFiles = fs.existsSync(debugDir) ? fs.readdirSync(debugDir) : []
+    const createdFiles = afterFiles.filter((file) => !beforeFiles.has(file))
+    expect(createdFiles.length).toBeGreaterThanOrEqual(1)
+
+    try { fs.unlinkSync(artifactPath as string) } catch {}
   })
 })
