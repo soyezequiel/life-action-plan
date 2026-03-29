@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRef, useState } from 'react'
 
 import { resumePlanBuild, startPlanBuild, type PlanStreamCallbacks } from '../../src/lib/client/plan-client'
+import { t } from '../../src/i18n'
 import type { ClarificationQuestion, ClarificationRound } from '../../src/lib/pipeline/v6/types'
 import styles from './PlanFlow.module.css'
 
@@ -40,6 +41,11 @@ interface CompletedSectionProps {
   completedPlanId: string | null
   completedScore: number
   completedIterations: number
+}
+
+interface DegradedState {
+  message: string
+  failedAgents: string
 }
 
 const COPY = {
@@ -535,6 +541,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
   const [busy, setBusy] = useState(false)
   const [completedScore, setCompletedScore] = useState(0)
   const [completedIterations, setCompletedIterations] = useState(0)
+  const [degraded, setDegraded] = useState<DegradedState | null>(null)
   const runIdRef = useRef(0)
 
   const profileReady = profileId.trim().length > 0
@@ -573,6 +580,16 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
         setError('')
         setBusy(false)
         setStep('clarifying')
+      },
+      onDegraded(data) {
+        if (!isCurrent()) {
+          return
+        }
+
+        setDegraded({
+          message: data.message,
+          failedAgents: data.failedAgents
+        })
       },
       onComplete(planId, score, iterations) {
         if (!isCurrent()) {
@@ -629,6 +646,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
     setCompletedPlanId(null)
     setCompletedScore(0)
     setCompletedIterations(0)
+    setDegraded(null)
 
     await startPlanBuild(normalizedGoal, profileId, provider, createCallbacks('start', runId))
 
@@ -655,6 +673,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
     setStep('processing')
     setCurrentPhase('clarify-resume')
     setProgressScore((current) => Math.max(current, PHASE_PROGRESS_FLOORS['clarify-resume']))
+    setDegraded(null)
 
     await resumePlanBuild(sessionId, answers, createCallbacks('resume', runId))
 
@@ -703,6 +722,17 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
 
       <div className={`${styles.surface} ${styles.contentSurface}`}>
         {error && <div className={styles.errorBox}>{error}</div>}
+        {degraded && (
+          <div className={styles.warningBox}>
+            <strong>{t('planFlow.degraded.title')}</strong>
+            <p className={styles.warningText}>{t('planFlow.degraded.body')}</p>
+            {degraded.failedAgents && (
+              <p className={styles.miniText}>
+                {t('planFlow.degraded.agents', { agents: degraded.failedAgents })}
+              </p>
+            )}
+          </div>
+        )}
 
         {step === 'input' && (
           <GoalInputSection

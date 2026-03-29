@@ -299,6 +299,16 @@
   border: 1px solid rgba(255, 120, 120, 0.18);
 }
 
+.warningBox {
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  line-height: 1.55;
+  background: rgba(242, 191, 130, 0.14);
+  border: 1px solid rgba(242, 191, 130, 0.24);
+  display: grid;
+  gap: 0.45rem;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

@@ -95,16 +95,20 @@ async function getRegistry(): Promise<Map<string, DomainKnowledgeCard>> {
   if (_registry !== null) return _registry;
 
   // Dynamic imports keep the registry tree-shakeable and avoid circular deps
-  const [{ runningCard }, { guitarraCard }, { idiomasCard }] = await Promise.all([
+  const [{ runningCard }, { guitarraCard }, { idiomasCard }, { healthCard }, { cocinaItalianaCard }] = await Promise.all([
     import('./cards/running'),
     import('./cards/guitarra'),
     import('./cards/idiomas'),
+    import('./cards/health'),
+    import('./cards/cocina-italiana'),
   ]);
 
   _registry = new Map<string, DomainKnowledgeCard>([
-    [runningCard.domainLabel,  runningCard],
+    [runningCard.domainLabel, runningCard],
     [guitarraCard.domainLabel, guitarraCard],
-    [idiomasCard.domainLabel,  idiomasCard],
+    [idiomasCard.domainLabel, idiomasCard],
+    [healthCard.domainLabel, healthCard],
+    [cocinaItalianaCard.domainLabel, cocinaItalianaCard],
   ]);
 
   return _registry;
@@ -121,9 +125,44 @@ async function getRegistry(): Promise<Map<string, DomainKnowledgeCard>> {
  * @example
  *   const card = await getKnowledgeCard('running');
  */
+function canonicalizeDomainLabel(domain: string): string {
+  const normalized = domain.toLowerCase().trim();
+
+  if ([
+    'cocina',
+    'cocina italiana',
+    'cocina-italiana',
+    'cocina de platos italianos',
+    'recetas italianas',
+    'platos italianos',
+    'italian cooking',
+    'italian cuisine',
+  ].includes(normalized)) {
+    return 'cocina-italiana';
+  }
+
+  if ([
+    'health',
+    'health-weight',
+    'health-weight-loss',
+    'weight-loss',
+    'weight loss',
+    'weight_management',
+    'weight-management',
+    'fitness',
+    'wellness',
+    'salud y peso',
+    'salud',
+  ].includes(normalized)) {
+    return 'salud';
+  }
+
+  return normalized;
+}
+
 export async function getKnowledgeCard(domain: string): Promise<DomainKnowledgeCard | undefined> {
   const registry = await getRegistry();
-  return registry.get(domain.toLowerCase().trim());
+  return registry.get(canonicalizeDomainLabel(domain));
 }
 
 /**

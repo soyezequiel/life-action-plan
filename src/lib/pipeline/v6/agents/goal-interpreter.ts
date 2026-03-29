@@ -79,6 +79,24 @@ function normalizeConfidence(value: unknown, fallback: number): number {
   return Math.max(0, Math.min(1, numericValue));
 }
 
+function deriveSuggestedDomain(goalText: string, heuristic: ReturnType<typeof classifyGoal>): string | null {
+  const normalized = goalText.toLowerCase();
+
+  if (heuristic.risk === 'HIGH_HEALTH' || /\b(bajar de peso|perder peso|adelgaz|peso|kilos?|kg\b|imc|bmi|cintura|medidas|salud)\b/.test(normalized)) {
+    return 'salud';
+  }
+
+  if (/\bcocin|receta|plato|gastronom|pasta|pastas\b/.test(normalized)) {
+    return 'cocina-italiana';
+  }
+
+  if (/\bidiom|ingles|italian|frances|portugues|alem[aá]n|japones|chino\b/.test(normalized)) {
+    return 'idiomas';
+  }
+
+  return null;
+}
+
 function buildGoalInterpreterPrompt(goalText: string, heuristicSummary: string): string {
   return `
 Analyze this personal goal step by step:
@@ -97,6 +115,9 @@ Step 3 — Implicit assumptions: What is the user probably assuming without stat
 Step 4 — Ambiguities: What critical information is missing that would change the plan? List 2-5 ambiguities ordered by importance.
 
 Step 5 — Domain: What knowledge domain does this fall into? (e.g., "running", "guitar", "programming", "weight-loss")
+
+If the goal is about Italian cooking, use a domain label that clearly maps to cooking and recipes.
+If the goal is about weight loss or another health change, use a domain label that clearly maps to safe health planning.
 
 After reasoning, output ONLY this JSON:
 {
@@ -123,7 +144,7 @@ function normalizeInterpretation(
     implicitAssumptions: normalizeStringList(payload.implicitAssumptions, 4),
     ambiguities: normalizeStringList(payload.ambiguities, 5),
     riskFlags: normalizeRiskFlags(payload.riskFlags, heuristic.risk),
-    suggestedDomain: normalizeOptionalText(payload.suggestedDomain),
+    suggestedDomain: normalizeOptionalText(payload.suggestedDomain) ?? deriveSuggestedDomain(goalText, heuristic),
   });
 }
 
@@ -142,17 +163,13 @@ export const goalInterpreterAgent: V6Agent<{ goalText: string }, GoalInterpretat
       extractedSignals: heuristic.extractedSignals,
     }, null, 2);
 
-    try {
-      const response = await runtime.chat([{
-        role: 'user',
-        content: buildGoalInterpreterPrompt(input.goalText, heuristicSummary),
-      }]);
-      const raw = extractFirstJsonObject(response.content);
-      const parsed = JSON.parse(raw) as Record<string, unknown>;
-      return normalizeInterpretation(parsed, input.goalText, heuristic);
-    } catch {
-      return goalInterpreterAgent.fallback(input);
-    }
+    const response = await runtime.chat([{
+      role: 'user',
+      content: buildGoalInterpreterPrompt(input.goalText, heuristicSummary),
+    }]);
+    const raw = extractFirstJsonObject(response.content);
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    return normalizeInterpretation(parsed, input.goalText, heuristic);
   },
 
   fallback(input: { goalText: string }): GoalInterpretation {

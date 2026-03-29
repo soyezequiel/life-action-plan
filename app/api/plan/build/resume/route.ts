@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { apiErrorMessages, encodeSseData, sseHeaders } from '../../../_shared'
 import { resolveUserId } from '../../../_user-settings'
+import * as terminalFailure from '../_terminal-failure'
 
 export const maxDuration = 120
 
@@ -52,8 +53,8 @@ export async function POST(request: Request): Promise<Response> {
         const { resolveBuildModel } = await import(
           '../../../../../src/lib/providers/provider-metadata'
         )
-        const { getProvider } = await import(
-          '../../../../../src/lib/providers/provider-factory'
+        const { createBuildAgentRuntime } = await import(
+          '../../../../../src/lib/runtime/build-agent-runtime'
         )
         const { getProfile } = await import(
           '../../../../../src/lib/db/db-helpers'
@@ -142,9 +143,7 @@ export async function POST(request: Request): Promise<Response> {
           return
         }
 
-        const runtime = getProvider(execution.runtime.modelId, {
-          apiKey: execution.runtime.apiKey,
-          baseURL: execution.runtime.baseURL,
+        const runtime = createBuildAgentRuntime(execution.runtime, {
           thinkingMode: thinkingMode ?? undefined
         })
 
@@ -169,17 +168,25 @@ export async function POST(request: Request): Promise<Response> {
               questions: finalResult.pendingQuestions,
             }
           })
-        } else if (finalResult.status === 'completed') {
+        } else if (finalResult.status === 'completed' && finalResult.publicationState === 'ready') {
           if (!finalResult.package) {
-            await updateInteractiveSession(sessionId, { status: 'error' })
+            await updateInteractiveSession(sessionId, {
+              status: 'error',
+              runtimeSnapshot: createV6RuntimeSnapshot({
+                request: v6Snapshot.request,
+                orchestrator: orchestrator.getSnapshot(),
+              }),
+            })
 
+            const progress = orchestrator.getProgress()
             send({
-              type: 'result',
-              result: {
-                success: false,
-                error: 'No pudimos guardar el plan en este momento.',
-                scratchpad: finalResult.scratchpad,
-              }
+              type: 'v6:progress',
+              data: { score: progress.progressScore, lastAction: progress.lastAction }
+            })
+            terminalFailure.sendTerminalFailure(send, {
+              ...finalResult,
+              publicationState: finalResult.publicationState ?? 'failed',
+              failureCode: finalResult.failureCode ?? 'failed_for_quality_review',
             })
             return
           }
@@ -212,6 +219,22 @@ export async function POST(request: Request): Promise<Response> {
             data: { score: progress.progressScore, lastAction: progress.lastAction }
           })
 
+          if (finalResult.degraded) {
+            const fallbackAgents = finalResult.agentOutcomes
+              .filter((outcome) => outcome.source === 'fallback')
+              .map((outcome) => `${outcome.agent}: ${outcome.errorMessage ?? 'unknown'}`)
+              .join('; ')
+
+            send({
+              type: 'v6:degraded',
+              data: {
+                message: `El plan se genero con datos parcialmente sinteticos porque ${finalResult.agentOutcomes.filter((outcome) => outcome.source === 'fallback').length} agente(s) no pudieron conectarse al LLM.`,
+                failedAgents: fallbackAgents,
+                agentOutcomes: finalResult.agentOutcomes,
+              }
+            })
+          }
+
           send({
             type: 'v6:complete',
             data: {
@@ -221,18 +244,28 @@ export async function POST(request: Request): Promise<Response> {
               package: finalResult.package,
               reasoningTrace,
               scratchpad: finalResult.scratchpad,
+              degraded: finalResult.degraded,
+              agentOutcomes: finalResult.agentOutcomes,
             }
           })
         } else {
-          await updateInteractiveSession(sessionId, { status: 'error' })
+          await updateInteractiveSession(sessionId, {
+            status: 'error',
+            runtimeSnapshot: createV6RuntimeSnapshot({
+              request: v6Snapshot.request,
+              orchestrator: orchestrator.getSnapshot(),
+            }),
+          })
 
+          const progress = orchestrator.getProgress()
           send({
-            type: 'result',
-            result: {
-              success: false,
-              error: 'V6 pipeline failed during resume',
-              scratchpad: finalResult.scratchpad,
-            }
+            type: 'v6:progress',
+            data: { score: progress.progressScore, lastAction: progress.lastAction }
+          })
+          terminalFailure.sendTerminalFailure(send, {
+            ...finalResult,
+            publicationState: finalResult.publicationState ?? 'failed',
+            failureCode: finalResult.failureCode ?? (finalResult.publicationState === 'blocked' ? 'requires_regeneration' : 'failed_for_quality_review'),
           })
         }
       } catch (cause: unknown) {

@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { apiErrorMessages, encodeSseData, sseHeaders } from '../../_shared'
 import { planBuildRequestSchema } from '../../_schemas'
 import { resolveUserId } from '../../_user-settings'
+import * as terminalFailure from './_terminal-failure'
 
 export const maxDuration = 120
 
@@ -54,8 +55,8 @@ function handleV6Build(
         const { resolveBuildModel } = await import(
           '../../../../src/lib/providers/provider-metadata'
         )
-        const { getProvider } = await import(
-          '../../../../src/lib/providers/provider-factory'
+        const { createBuildAgentRuntime } = await import(
+          '../../../../src/lib/runtime/build-agent-runtime'
         )
         const { getProfile } = await import(
           '../../../../src/lib/db/db-helpers'
@@ -135,11 +136,39 @@ function handleV6Build(
           return
         }
 
-        const runtime = getProvider(execution.runtime.modelId, {
-          apiKey: execution.runtime.apiKey,
-          baseURL: execution.runtime.baseURL,
+        const runtime = createBuildAgentRuntime(execution.runtime, {
           thinkingMode,
         })
+
+        try {
+          const preflight = await runtime.chat([{
+            role: 'user',
+            content: 'Respond with exactly: OK',
+          }])
+
+          if (!preflight.content.includes('OK')) {
+            send({
+              type: 'result',
+              result: {
+                success: false,
+                error: `El modelo respondio de forma inesperada. Respuesta: "${preflight.content.slice(0, 100)}". Verifica que ${execution.runtime.modelId} este disponible.`,
+              },
+            })
+            return
+          }
+        } catch (preflightError) {
+          const message = preflightError instanceof Error ? preflightError.message : String(preflightError)
+          send({
+            type: 'result',
+            result: {
+              success: false,
+              error: `No se pudo conectar con el modelo (${execution.runtime.modelId}). Error: ${message}. ${execution.runtime.authMode === 'codex-oauth'
+                ? 'Verifica que tu sesion de Codex este activa: ejecuta "codex" en la terminal para re-autenticar.'
+                : 'Verifica tu API key o que Ollama este corriendo.'}`,
+            },
+          })
+          return
+        }
 
         send({ type: 'v6:phase', data: { phase: 'interpret', iteration: 0 } })
 
@@ -161,7 +190,7 @@ function handleV6Build(
 
         const schedulingCtx = buildSchedulingContextFromProfile(profile)
 
-        const orchestrator = new PlanOrchestrator({}, runtime)
+        const orchestrator = new PlanOrchestrator({}, runtime, execution.runtime.modelId)
         const result = await orchestrator.run(goalText, {
           profile: userProfile,
           timezone,
@@ -174,6 +203,19 @@ function handleV6Build(
           const sessionId = crypto.randomUUID()
           const expiresAt = DateTime.utc().plus({ minutes: 30 }).toISO()
             ?? DateTime.utc().plus({ minutes: 30 }).toFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+
+          // userId from resolveUserId may not exist in the users table (e.g. CLI requests).
+          // Pass null to avoid FK violation on interactive_sessions.user_id.
+          let sessionUserId: string | null = null
+          if (userId) {
+            try {
+              const { getUserById } = await import('../../../../src/lib/db/db-helpers')
+              const userRow = await getUserById(userId)
+              sessionUserId = userRow ? userId : null
+            } catch {
+              sessionUserId = null
+            }
+          }
 
           await createInteractiveSession({
             id: sessionId,
@@ -190,7 +232,7 @@ function handleV6Build(
               },
               orchestrator: orchestrator.getSnapshot(),
             }),
-            userId: userId ?? null,
+            userId: sessionUserId,
             expiresAt,
           })
 
@@ -201,15 +243,17 @@ function handleV6Build(
               questions: result.pendingQuestions,
             },
           })
-        } else if (result.status === 'completed') {
+        } else if (result.status === 'completed' && result.publicationState === 'ready') {
           if (!result.package) {
+            const progress = orchestrator.getProgress()
             send({
-              type: 'result',
-              result: {
-                success: false,
-                error: 'No pudimos guardar el plan en este momento.',
-                scratchpad: result.scratchpad,
-              },
+              type: 'v6:progress',
+              data: { score: progress.progressScore, lastAction: progress.lastAction },
+            })
+            terminalFailure.sendTerminalFailure(send, {
+              ...result,
+              publicationState: result.publicationState ?? 'failed',
+              failureCode: result.failureCode ?? 'failed_for_quality_review',
             })
             return
           }
@@ -234,6 +278,22 @@ function handleV6Build(
             data: { score: progress.progressScore, lastAction: progress.lastAction },
           })
 
+          if (result.degraded) {
+            const fallbackAgents = result.agentOutcomes
+              .filter((outcome) => outcome.source === 'fallback')
+              .map((outcome) => `${outcome.agent}: ${outcome.errorMessage ?? 'unknown'}`)
+              .join('; ')
+
+            send({
+              type: 'v6:degraded',
+              data: {
+                message: `El plan se genero con datos parcialmente sinteticos porque ${result.agentOutcomes.filter((outcome) => outcome.source === 'fallback').length} agente(s) no pudieron conectarse al LLM.`,
+                failedAgents: fallbackAgents,
+                agentOutcomes: result.agentOutcomes,
+              },
+            })
+          }
+
           send({
             type: 'v6:complete',
             data: {
@@ -243,22 +303,25 @@ function handleV6Build(
               package: result.package,
               reasoningTrace,
               scratchpad: result.scratchpad,
+              degraded: result.degraded,
+              agentOutcomes: result.agentOutcomes,
             },
           })
         } else {
+          const progress = orchestrator.getProgress()
           send({
-            type: 'result',
-            result: {
-              success: false,
-              error: 'V6 pipeline failed',
-              scratchpad: result.scratchpad,
-            },
+            type: 'v6:progress',
+            data: { score: progress.progressScore, lastAction: progress.lastAction },
+          })
+          terminalFailure.sendTerminalFailure(send, {
+            ...result,
+            publicationState: result.publicationState ?? 'failed',
+            failureCode: result.failureCode ?? (result.publicationState === 'blocked' ? 'requires_regeneration' : 'failed_for_quality_review'),
           })
         }
       } catch (cause: unknown) {
         const { toPlanBuildErrorMessage } = await import('../../_plan')
         const error = cause instanceof Error ? cause : new Error(String(cause))
-
         send({
           type: 'result',
           result: {

@@ -164,6 +164,31 @@ describe('simulation-export-builder', () => {
     } finally { vi.useRealTimers() }
   })
 
+  it('summary totals stay consistent with the simulated node data', () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
+    try {
+      let tree = initializeSimTree({ workflowId: 'wf-test', strategy, realityCheck: rc, profile, goals })
+      const monthIds = Object.values(tree.nodes).filter((n) => n.granularity === 'month').map((n) => n.id)
+
+      for (const monthId of monthIds.slice(0, 2)) {
+        tree = { ...tree, nodes: { ...tree.nodes, [monthId]: simulateNode(tree.nodes[monthId]!) } }
+      }
+
+      const session = makeSession(tree)
+      const bundle = buildSimulationExportBundle({ session, tree })
+      const simulatedNodes = Object.values(tree.nodes).filter((n) => n.status === 'simulated' || n.status === 'locked')
+      const totalPlanned = Object.values(tree.nodes).reduce((sum, node) => sum + node.plannedHours, 0)
+      const totalActual = simulatedNodes.reduce((sum, node) => sum + (node.actualHours ?? 0), 0)
+      const expectedAverage = Math.round((simulatedNodes.reduce((sum, node) => sum + (node.quality ?? 0), 0) / simulatedNodes.length) * 10) / 10
+
+      expect(bundle.summary.simulatedNodes).toBe(simulatedNodes.length)
+      expect(bundle.summary.totalPlannedHours).toBe(Math.round(totalPlanned * 10) / 10)
+      expect(bundle.summary.totalActualHours).toBe(Math.round(totalActual * 10) / 10)
+      expect(bundle.summary.completionRatio).toBe(Math.round((totalActual / totalPlanned) * 1000) / 1000)
+      expect(bundle.summary.averageQuality).toBe(expectedAverage)
+    } finally { vi.useRealTimers() }
+  })
+
   it('sanitized profile does NOT include sensitive data', () => {
     vi.useFakeTimers(); vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
     try {

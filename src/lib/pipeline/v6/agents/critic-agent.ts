@@ -226,6 +226,26 @@ function parseAndNormalize(raw: string): CriticReport {
 
 // ─── Agent export ──────────────────────────────────────────────────────────
 
+function buildFallbackReport(goalText: string): CriticReport {
+  const finding = {
+    id: 'f-fallback',
+    severity: 'critical' as const,
+    category: 'feasibility' as const,
+    message: `Critic unavailable while reviewing "${goalText}". The plan cannot be approved without a real quality review.`,
+    suggestion: 'Re-run the critic with a working provider before treating the plan as ready.',
+    affectedPhaseIds: [],
+  };
+
+  return {
+    overallScore: 35,
+    findings: [finding],
+    mustFix: [finding],
+    shouldFix: [],
+    verdict: 'revise',
+    reasoning: `Critic unavailable while reviewing "${goalText}". Returning a degraded report, so the plan is not approved.`,
+  };
+}
+
 export const criticAgent: V6Agent<CriticInput, CriticReport> = {
   name: 'critic',
 
@@ -237,20 +257,6 @@ export const criticAgent: V6Agent<CriticInput, CriticReport> = {
   },
 
   fallback(input: CriticInput): CriticReport {
-    return {
-      overallScore: 60,
-      findings: [{
-        id: 'f-fallback',
-        severity: 'info',
-        category: 'feasibility',
-        message: `Critic unavailable while reviewing "${input.goalText}".`,
-        suggestion: null,
-        affectedPhaseIds: [],
-      }],
-      mustFix: [],
-      shouldFix: [],
-      verdict: 'approve',
-      reasoning: `Critic unavailable while reviewing "${input.goalText}", plan approved with reduced confidence.`,
-    };
+    return buildFallbackReport(input.goalText);
   },
 };

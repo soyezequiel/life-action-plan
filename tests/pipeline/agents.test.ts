@@ -44,6 +44,21 @@ const mockRuntime: AgentRuntime = {
 
 (mockRuntime.newContext as ReturnType<typeof vi.fn>).mockReturnValue(mockRuntime);
 
+function createUnauthorizedRuntime(): AgentRuntime {
+  const runtime: AgentRuntime = {
+    async chat() {
+      throw new Error('Unauthorized');
+    },
+    async *stream() {
+    },
+    newContext() {
+      return runtime;
+    },
+  };
+
+  return runtime;
+}
+
 function createInterpretation() {
   return GoalInterpretationSchema.parse({
     parsedGoal: 'Aprender guitarra',
@@ -115,7 +130,12 @@ function createPackagerContext() {
       conflicts: [],
       suggestions: [],
     }),
-    scheduleResult: createScheduleOutput(),
+    scheduleResult: {
+      solverOutput: createScheduleOutput(),
+      tradeoffs: [],
+      qualityScore: 88,
+      unscheduledCount: 0,
+    },
     criticReport: CriticReportSchema.parse({
       overallScore: 88,
       findings: [],
@@ -204,6 +224,18 @@ describe('agent fallbacks (no LLM)', () => {
     });
   });
 
+  describe('clarifierAgent.execute', () => {
+    it('propagates Unauthorized from the runtime', async () => {
+      const input: ClarifierInput = {
+        interpretation: createInterpretation(),
+        previousAnswers: {},
+        profileSummary: null,
+      };
+
+      await expect(clarifierAgent.execute(input, createUnauthorizedRuntime())).rejects.toThrow('Unauthorized');
+    });
+  });
+
   describe('feasibilityCheckerAgent.fallback', () => {
     it('returns feasible status with calculated hours budget', () => {
       const input: FeasibilityInput = {
@@ -241,7 +273,7 @@ describe('agent fallbacks (no LLM)', () => {
   });
 
   describe('criticAgent.fallback', () => {
-    it('returns approve verdict with score 60', () => {
+    it('returns revise verdict with degraded score 35', () => {
       const input: CriticInput = {
         goalText: 'Aprender guitarra',
         goalType: 'SKILL_ACQUISITION',
@@ -257,11 +289,11 @@ describe('agent fallbacks (no LLM)', () => {
       const result = criticAgent.fallback(input);
 
       expect(CriticReportSchema.parse(result)).toEqual(result);
-      expect(result.verdict).toBe('approve');
-      expect(result.overallScore).toBe(60);
+      expect(result.verdict).toBe('revise');
+      expect(result.overallScore).toBe(35);
     });
 
-    it('returns single info finding about unavailability', () => {
+    it('returns single critical finding about unavailability', () => {
       const input: CriticInput = {
         goalText: 'Aprender guitarra',
         goalType: 'SKILL_ACQUISITION',
@@ -278,10 +310,28 @@ describe('agent fallbacks (no LLM)', () => {
 
       expect(result.findings).toHaveLength(1);
       expect(result.findings[0]).toMatchObject({
-        severity: 'info',
+        severity: 'critical',
         category: 'feasibility',
       });
       expect(result.findings[0]?.message).toContain('Critic unavailable');
+    });
+  });
+
+  describe('criticAgent.execute', () => {
+    it('propagates Unauthorized from the runtime', async () => {
+      const input: CriticInput = {
+        goalText: 'Aprender guitarra',
+        goalType: 'SKILL_ACQUISITION',
+        profileSummary: '2h libres',
+        strategicDraft: createStrategicDraft() as unknown as Record<string, unknown>,
+        scheduleQualityScore: 80,
+        unscheduledCount: 0,
+        scheduleTradeoffs: [],
+        domainCard: null,
+        previousCriticReports: [],
+      };
+
+      await expect(criticAgent.execute(input, createUnauthorizedRuntime())).rejects.toThrow('Unauthorized');
     });
   });
 
@@ -356,6 +406,218 @@ describe('agent fallbacks (no LLM)', () => {
         reasoningTrace: input.scratchpad,
       });
       expect(executeResult).toEqual(fallbackResult);
+    });
+  });
+
+  describe('packagePlan validation', () => {
+    it('canonicalizes cooking aliases before checking package coherence', async () => {
+      const packagerModule = await import('../../src/lib/pipeline/shared/packager');
+      const packagePlanImpl = 'packagePlan' in packagerModule
+        ? packagerModule.packagePlan
+        : packagerModule.default.packagePlan;
+      const result = packagePlanImpl({
+        goalText: 'Quiero aprender a cocinar platos italianos',
+        goalId: 'goal-cocina',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        requestedDomain: 'cooking',
+        clarificationAnswers: {
+          level: 'principiante',
+          subtopic: 'pastas',
+          method: 'libros',
+          horizon: '1 año',
+        },
+        classification: {
+          goalType: 'SKILL_ACQUISITION',
+          confidence: 0.9,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: false,
+            hasNumericTarget: false,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: false,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            { name: 'Dominar pasta seca y salsas base', durationWeeks: 12, focus_esAR: 'Practicar pastas italianas con apoyo de libros y recetas base.' },
+            { name: 'Cocinar un menu corto de pastas', durationWeeks: 12, focus_esAR: 'Convertir las lecturas de libros en platos repetibles de pasta.' },
+          ],
+          milestones: [
+            'Completar dos platos de pasta tomados de libros de cocina',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'cook-1',
+              kind: 'time_event',
+              title: 'Practicar pasta seca con salsa de tomate',
+              status: 'active',
+              goalIds: ['goal-cocina'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 60,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'cook-2',
+              kind: 'time_event',
+              title: 'Leer libro de cocina y preparar mise en place para pasta',
+              status: 'active',
+              goalIds: ['goal-cocina'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 45,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 8,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.requestDomain).toBe('cocina-italiana');
+      expect(result.packageDomain).toBe('cocina-italiana');
+      expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('domain_mismatch');
+      expect(result.intakeCoverage?.requiredSignals).toEqual(expect.arrayContaining([
+        'cooking_subtopic',
+        'cooking_method',
+        'cooking_level',
+      ]));
+    });
+
+    it('does not flag goal mismatch for health plans that reuse critical intake signals', () => {
+      const result = packagePlan({
+        goalText: 'Quiero bajar 50kg en 12 meses',
+        goalId: 'goal-salud',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        requestedDomain: 'salud',
+        clarificationAnswers: {
+          metrics: '117 kg y 179 cm',
+          medical: 'ninguna',
+          activities: 'ciclismo y natacion',
+          support: 'sin apoyo todavia',
+        },
+        classification: {
+          goalType: 'QUANT_TARGET_TRACKING',
+          confidence: 0.95,
+          risk: 'HIGH_HEALTH',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: false,
+            hasNumericTarget: true,
+            requiresSkillProgression: false,
+            dependsOnThirdParties: false,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Base segura y chequeo inicial de salud',
+              durationWeeks: 16,
+              focus_esAR: 'Tomar 117 kg y 179 cm como referencia. Antes de tratar esto como aceptable, dejar claro que necesita supervision profesional.',
+            },
+            {
+              name: 'Constancia con actividad viable y bajo impacto',
+              durationWeeks: 18,
+              focus_esAR: 'Sostener ciclismo y natacion como actividades viables sin castigar el cuerpo.',
+            },
+            {
+              name: 'Seguimiento sostenible y ajustes de salud',
+              durationWeeks: 18,
+              focus_esAR: 'Buscar una tendencia estable con supervision profesional y chequeos de seguridad.',
+            },
+          ],
+          milestones: [
+            'Tener una referencia inicial clara de peso y medidas',
+            'Sostener ciclismo y natacion durante varias semanas',
+            'Evitar atajos agresivos y mantener una progresion segura',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'health-1',
+              kind: 'time_event',
+              title: 'Ciclismo suave o bici fija',
+              status: 'active',
+              goalIds: ['goal-salud'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 45,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'health-2',
+              kind: 'time_event',
+              title: 'Natacion o aquagym',
+              status: 'active',
+              goalIds: ['goal-salud'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 40,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'health-3',
+              kind: 'time_event',
+              title: 'Supervision profesional y chequeo de seguridad',
+              status: 'active',
+              goalIds: ['goal-salud'],
+              startAt: '2026-04-03T18:00:00.000Z',
+              durationMin: 20,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 9,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('goal_mismatch');
+      expect(result.intakeCoverage?.missingSignals).toEqual([]);
+      expect(result.intakeCoverage?.requiredSignals).toEqual(expect.arrayContaining([
+        'health_weight',
+        'health_height',
+        'health_supervision',
+      ]));
     });
   });
 });

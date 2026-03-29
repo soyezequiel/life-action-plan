@@ -102,21 +102,23 @@ function chooseMostConservativeRisk(left: GoalDomainRisk, right: GoalDomainRisk)
 export function classifyGoal(rawText: string): GoalClassification {
   const text = rawText.toLowerCase();
   const cadenceHabitPattern =
-    /(\d+\s+veces por semana|todos los d[ií]as|diario|cada (lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo))/i;
+    /(\d+\s+veces por semana|todos los dias|diario|cada (lunes|martes|miercoles|jueves|viernes|sabado|domingo))/i;
+  const healthPattern = /\b(salud|medic|enfermedad|operacion|lesion|dolor|hueso|hipertens|diabet|colesterol|corazon|cardio|obesidad|sobrepeso|peso|kilos?|kg\b|imc|bmi|cintura|medidas|adelgaz)\b/i;
+  const aggressiveWeightLossPattern = /\b(rapido|urgente|drastic|extrem|en un mes|en 30 dias|sin comer|ayuno extremo)\b/i;
 
   const signals: GoalSignals = {
-    isRecurring: /todos los d[ií]as|diario|veces por semana|cada (lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo)|cada mes/i.test(text),
+    isRecurring: /todos los dias|diario|veces por semana|cada (lunes|martes|miercoles|jueves|viernes|sabado|domingo)|cada mes/i.test(text),
     hasDeliverable: /terminar|entregar|publicar|completar|lanzar|armar/i.test(text),
-    hasNumericTarget: /\$|ahorrar|kg|kilos|libros|p[aá]ginas|veces/i.test(text),
+    hasNumericTarget: /\$|ahorrar|kg|kilos|peso|cintura|altura|estatura|imc|bmi|medidas|libros|paginas|veces/i.test(text),
     requiresSkillProgression: /aprender|mejorar en|estudiar|practicar|entrenar/i.test(text),
-    dependsOnThirdParties: /junto a|con mi|esperar a|delegar|contratar|equipo|cliente|socios?|jurado|votaci[oó]n|votos?|elecci[oó]n(?:es)?|candidatura|postulaci[oó]n|postular|entrevista|selecci[oó]n|admisi[oó]n|aprobaci[oó]n|permiso|visa|licencia|habilitaci[oó]n|beca|concurso|casting|audici[oó]n|nombramiento|electo|elegid[oa]/i.test(text),
+    dependsOnThirdParties: /junto a|con mi|esperar a|delegar|contratar|equipo|cliente|socios?|jurado|votacion|votos?|eleccion(?:es)?|candidatura|postulacion|postular|entrevista|seleccion|admision|aprobacion|permiso|visa|licencia|habilitacion|beca|concurso|casting|audicion|nombramiento|electo|elegid[oa]/i.test(text),
     isOpenEnded: /explorar|descubrir|encontrar|buscar/i.test(text),
-    isRelational: /relaci[oó]n|pareja|hijo|padre|madre|hermano|amigo|conocer gente/i.test(text),
+    isRelational: /relacion|pareja|hijo|padre|madre|hermano|amigo|conocer gente/i.test(text),
   };
 
   let risk: GoalDomainRisk = 'LOW';
-  if (/salud|m[eé]dico|enfermedad|operaci[oó]n|lesi[oó]n|dolor|hueso/i.test(text)) risk = 'HIGH_HEALTH';
-  else if (/inversi[oó]n|invertir|pr[eé]stamo|deuda|acciones/i.test(text)) risk = 'HIGH_FINANCE';
+  if (healthPattern.test(text) || aggressiveWeightLossPattern.test(text)) risk = 'HIGH_HEALTH';
+  else if (/inversion|invertir|prestamo|deuda|acciones/i.test(text)) risk = 'HIGH_FINANCE';
   else if (/juicio|abogado|divorcio|demanda/i.test(text)) risk = 'HIGH_LEGAL';
   else if (signals.hasNumericTarget || signals.dependsOnThirdParties) risk = 'MEDIUM';
 

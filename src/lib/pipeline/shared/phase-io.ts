@@ -181,6 +181,51 @@ export interface PlanPackage {
   implementationIntentions: string[];
   warnings: string[];
   tradeoffs?: Tradeoff[];
+  publicationState?: 'publishable' | 'requires_regeneration' | 'failed_for_quality_review';
+  qualityIssues?: Array<{
+    code: string;
+    severity: 'warning' | 'blocking';
+    message: string;
+  }>;
+  requestDomain?: string | null;
+  packageDomain?: string | null;
+  intakeCoverage?: {
+    requiredSignals: string[];
+    missingSignals: string[];
+    signalUsage: Array<{
+      signal: string;
+      expectedValue: string;
+      used: boolean;
+      evidence: string[];
+    }>;
+  } | null;
+  agentOutcomes?: Array<{
+    agent:
+      | 'goal-interpreter'
+      | 'clarifier'
+      | 'planner'
+      | 'feasibility-checker'
+      | 'scheduler'
+      | 'critic'
+      | 'domain-expert'
+      | 'packager';
+    phase:
+      | 'interpret'
+      | 'clarify'
+      | 'plan'
+      | 'check'
+      | 'schedule'
+      | 'critique'
+      | 'revise'
+      | 'package'
+      | 'done'
+      | 'failed';
+    source: 'llm' | 'fallback' | 'deterministic';
+    errorCode: string | null;
+    errorMessage: string | null;
+    durationMs: number;
+  }>;
+  degraded?: boolean;
 }
 export interface PackageInput {
   finalSchedule: SchedulerOutput;
@@ -189,6 +234,8 @@ export interface PackageInput {
   roadmap?: StrategicRoadmap;
   goalText?: string;
   goalId?: string;
+  requestedDomain?: string | null;
+  clarificationAnswers?: Record<string, string>;
   weekStartDate?: string;
   hardFindings?: HardFinding[];
   softFindings?: SoftFinding[];

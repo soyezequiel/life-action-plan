@@ -136,6 +136,32 @@ function formatResolvedAmbiguities(resolvedAmbiguities: string[]): string {
     .join('\n');
 }
 
+function buildDomainClarificationGuidance(input: ClarifierInput): string {
+  const goalText = `${input.interpretation.parsedGoal} ${input.interpretation.suggestedDomain ?? ''}`.toLowerCase();
+
+  if (/\b(bajar de peso|perder peso|adelgaz|peso|kg\b|kilos?|obesidad|sobrepeso|salud|cintura|medidas|imc|bmi)\b/.test(goalText)) {
+    return [
+      'Priority domain questions for a health goal:',
+      '- Ask for current weight and height if missing.',
+      '- Ask if there is any medical context, medication, pain, or condition that changes the plan.',
+      '- Ask which activities are viable in real life, not idealized ones.',
+      '- Ask whether the user wants professional supervision or already has it.',
+    ].join('\n');
+  }
+
+  if (/\bcocin|receta|plato|gastronom|pasta|pastas\b/.test(goalText)) {
+    return [
+      'Priority domain questions for a cooking goal:',
+      '- Ask for the current level or starting point.',
+      '- Ask for the concrete subtopic, such as pastas or another dish family.',
+      '- Ask for the preferred learning method, such as books, classes, or video.',
+      '- Ask for the horizon or target time frame.',
+    ].join('\n');
+  }
+
+  return 'Priority domain questions: ask only for the missing details that materially change the plan.';
+}
+
 function buildClarifierPrompt(input: ClarifierInput): string {
   const resolvedAmbiguities = detectResolvedAmbiguities(
     input.interpretation.ambiguities,
@@ -157,6 +183,8 @@ ${formatPreviousAnswers(input.previousAnswers)}
 
 Existing profile data available:
 ${input.profileSummary || 'None'}
+
+${buildDomainClarificationGuidance(input)}
 
 Analyze what information is still missing to create a realistic, executable plan.
 For each remaining gap, decide if it is CRITICAL (plan quality depends on it) or NICE-TO-HAVE.
@@ -280,8 +308,7 @@ function normalizeClarificationRound(payload: Record<string, unknown>): Clarific
   const confidence = normalizeConfidence(payload.confidence);
   const readyToAdvance = payload.readyToAdvance === true
     || confidence >= 0.8
-    || informationGaps.length === 0
-    || questions.length === 0;
+    || informationGaps.length === 0;
 
   return ClarificationRoundSchema.parse({
     questions: readyToAdvance ? [] : questions,
@@ -296,17 +323,13 @@ export const clarifierAgent: V6Agent<ClarifierInput, ClarificationRound> = {
   name: 'clarifier',
 
   async execute(input: ClarifierInput, runtime: AgentRuntime): Promise<ClarificationRound> {
-    try {
-      const response = await runtime.chat([{
-        role: 'user',
-        content: buildClarifierPrompt(input),
-      }]);
-      const raw = extractFirstJsonObject(response.content);
-      const parsed = JSON.parse(raw) as Record<string, unknown>;
-      return normalizeClarificationRound(parsed);
-    } catch {
-      return clarifierAgent.fallback(input);
-    }
+    const response = await runtime.chat([{
+      role: 'user',
+      content: buildClarifierPrompt(input),
+    }]);
+    const raw = extractFirstJsonObject(response.content);
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    return normalizeClarificationRound(parsed);
   },
 
   fallback(): ClarificationRound {

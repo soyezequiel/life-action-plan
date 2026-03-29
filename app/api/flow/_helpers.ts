@@ -16,8 +16,8 @@ import {
 import { apiErrorMessages, jsonResponse } from '../_shared'
 import { resolveAuthenticatedUserId } from '../_user-settings'
 import { getDeploymentMode } from '../../../src/lib/env/deployment'
+import { createBuildAgentRuntime } from '../../../src/lib/runtime/build-agent-runtime'
 import { resolvePlanBuildExecution } from '../../../src/lib/runtime/build-execution'
-import { getProvider } from '../../../src/lib/providers/provider-factory'
 import { createInstrumentedRuntime } from '../../../src/debug/instrumented-runtime'
 import { traceCollector } from '../../../src/debug/trace-collector'
 
@@ -327,10 +327,7 @@ export async function resolveRuntimeForWorkflow(session: FlowSession): Promise<A
     resourceOwner: execution.executionContext.resourceOwner
   })
 
-  const baseRuntime = getProvider(execution.runtime.modelId, {
-    apiKey: execution.runtime.apiKey,
-    baseURL: execution.runtime.baseURL
-  })
+  const baseRuntime = createBuildAgentRuntime(execution.runtime)
 
   return createInstrumentedRuntime(
     baseRuntime,

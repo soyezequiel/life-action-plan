@@ -1,9 +1,16 @@
 import type { ClarificationRound } from '../pipeline/v6/types'
 
+export interface PlanDegradedEvent {
+  message: string
+  failedAgents: string
+  agentOutcomes: unknown[]
+}
+
 export interface PlanStreamCallbacks {
   onPhase: (phase: string, iteration: number) => void
   onProgress: (score: number, lastAction: string) => void
   onNeedsInput: (sessionId: string, questions: ClarificationRound) => void
+  onDegraded?: (data: PlanDegradedEvent) => void
   onComplete: (planId: string, score: number, iterations: number) => void
   onError: (message: string) => void
 }
@@ -151,6 +158,16 @@ function dispatchSsePayload(payloadText: string, explicitEventType: string | nul
         toStringValue(value.sessionId),
         (value.questions ?? null) as ClarificationRound
       )
+      return
+    }
+
+    if (eventType === 'v6:degraded' && data && typeof data === 'object') {
+      const value = data as { message?: unknown; failedAgents?: unknown; agentOutcomes?: unknown }
+      callbacks.onDegraded?.({
+        message: toStringValue(value.message),
+        failedAgents: toStringValue(value.failedAgents),
+        agentOutcomes: Array.isArray(value.agentOutcomes) ? value.agentOutcomes : []
+      })
       return
     }
 

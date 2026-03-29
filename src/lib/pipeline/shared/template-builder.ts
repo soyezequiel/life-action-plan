@@ -40,6 +40,163 @@ function clipLabel(value: string, maxLength = 52): string {
   return `${normalized.slice(0, maxLength - 3).trim()}...`;
 }
 
+function isHealthWeightGoal(goalText: string, classification: GoalClassification): boolean {
+  const lowerGoal = goalText.toLowerCase();
+  return classification.risk === 'HIGH_HEALTH'
+    || /\b(bajar de peso|perder peso|adelgaz|peso|kg\b|kilos?|obesidad|sobrepeso|cintura|medidas|imc|bmi|fitness|condicion fisica|salud)\b/.test(lowerGoal);
+}
+
+function isCookingGoal(goalText: string): boolean {
+  return /\b(cocina|cocinar|receta|recetas|plato|platos|gastronom|pasta|pastas|italian[oa]s?)\b/i.test(goalText);
+}
+
+function buildHealthActivityLabels(goalText: string, phases: string[]): string[] {
+  const lowerGoal = goalText.toLowerCase();
+  const lowerPhases = phases.join(' ').toLowerCase();
+  const labels: string[] = [];
+
+  if (/(cicl|bici|bike|cycling)/.test(lowerPhases) || /(cicl|bici|bike|cycling)/.test(lowerGoal)) {
+    labels.push('Ciclismo suave o bici fija');
+  }
+
+  if (/(natac|natacion|swim|pileta|agua)/.test(lowerPhases) || /(natac|natacion|swim|pileta|agua)/.test(lowerGoal)) {
+    labels.push('Natacion o aquagym');
+  }
+
+  if (/(camin|walk|pasos?)/.test(lowerPhases) || /(camin|walk|pasos?)/.test(lowerGoal)) {
+    labels.push('Caminata constante');
+  }
+
+  if (/(fuerza|pesas|gym|muscul)/.test(lowerPhases) || /(fuerza|pesas|gym|muscul)/.test(lowerGoal)) {
+    labels.push('Fuerza basica y movilidad');
+  }
+
+  if (/(peso|medidas|cintura|imc|bmi|altura|estatura)/.test(lowerPhases) || /(peso|medidas|cintura|imc|bmi|altura|estatura)/.test(lowerGoal)) {
+    labels.push('Chequeo de peso y medidas');
+  }
+
+  if (/(medic|doctor|nutri|supervision|acompa[ñn]amiento|apoyo)/.test(lowerPhases) || /(medic|doctor|nutri|supervision|acompa[ñn]amiento|apoyo)/.test(lowerGoal)) {
+    labels.push('Supervision profesional y chequeo de seguridad');
+  }
+
+  if (labels.length === 0) {
+    labels.push(
+      'Caminata constante',
+      'Ciclismo suave o bici fija',
+      'Natacion o aquagym',
+      'Fuerza basica y movilidad',
+    );
+  }
+
+  return Array.from(new Set(labels));
+}
+
+function buildCookingActivityLabels(goalText: string, phases: string[]): string[] {
+  const lowerGoal = goalText.toLowerCase();
+  const lowerPhases = phases.join(' ').toLowerCase();
+  const labels: string[] = [];
+
+  const subtopic = /(pastas?|pasta)/.test(lowerGoal) || /(pastas?|pasta)/.test(lowerPhases)
+    ? 'pastas italianas'
+    : /(salsas?|salsa)/.test(lowerGoal) || /(salsas?|salsa)/.test(lowerPhases)
+      ? 'salsas italianas'
+      : /(pizza)/.test(lowerGoal) || /(pizza)/.test(lowerPhases)
+        ? 'pizza italiana'
+        : 'cocina italiana';
+
+  const methodUsesBooks = /(libros?|recetarios?|manuales?)/.test(lowerGoal) || /(libros?|recetarios?|manuales?)/.test(lowerPhases);
+
+  labels.push(
+    methodUsesBooks
+      ? `Leer libros de cocina sobre ${subtopic}`
+      : `Leer sobre ${subtopic}`,
+    `Practicar ${subtopic}`,
+    `Cocinar una receta completa de ${subtopic}`,
+    `Cata y ajuste de ${subtopic}`,
+  );
+
+  if (/(principiante|basico|b[aá]sico)/.test(lowerGoal) || /(principiante|basico|b[aá]sico)/.test(lowerPhases)) {
+    labels.unshift(`Fundamentos de ${subtopic}`);
+  }
+
+  return Array.from(new Set(labels));
+}
+
+function buildHealthTemplateActivities(
+  input: TemplateInput,
+  classification: GoalClassification,
+  profile: UserProfileV5,
+  goalId: string,
+): ActivityRequest[] {
+  const labels = buildHealthActivityLabels(
+    input.goalText,
+    input.roadmap.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`),
+  );
+  let frequency = 2;
+  if (classification.goalType === 'RECURRENT_HABIT') {
+    frequency = 3;
+  } else if (profile.freeHoursWeekday >= 10) {
+    frequency = 4;
+  } else if (profile.freeHoursWeekday >= 5) {
+    frequency = 3;
+  }
+
+  return labels.map((label, index) => {
+    const isCheckin = /peso y medidas/.test(label.toLowerCase());
+    const isStrength = /fuerza/.test(label.toLowerCase());
+    const isCycling = /ciclismo/.test(label.toLowerCase());
+    const isSwimming = /natacion/.test(label.toLowerCase());
+    const isSupervision = /supervision/.test(label.toLowerCase());
+
+    return {
+      id: generateId(`act-health-${index + 1}`),
+      label,
+      equivalenceGroupId: createStandaloneEquivalenceGroupId(label),
+      durationMin: isCheckin ? 15 : isSupervision ? 20 : isStrength ? 30 : isSwimming ? 40 : isCycling ? 45 : 45,
+      frequencyPerWeek: isCheckin || isSupervision ? 1 : isStrength ? Math.min(2, frequency) : frequency,
+      goalId,
+      constraintTier: isCheckin || isSupervision ? 'soft_weak' : 'soft_strong',
+      minRestDaysBetween: 1,
+    };
+  });
+}
+
+function buildCookingTemplateActivities(
+  input: TemplateInput,
+  classification: GoalClassification,
+  profile: UserProfileV5,
+  goalId: string,
+): ActivityRequest[] {
+  const labels = buildCookingActivityLabels(
+    input.goalText,
+    input.roadmap.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`),
+  );
+  const baseFrequency = classification.goalType === 'RECURRENT_HABIT'
+    ? 3
+    : profile.freeHoursWeekday >= 5
+      ? 3
+      : 2;
+
+  return labels.map((label, index) => {
+    const normalized = label.toLowerCase();
+    const isReading = /leer libros/.test(normalized) || /leer sobre/.test(normalized);
+    const isPractice = /practicar/.test(normalized);
+    const isCompleteRecipe = /cocinar una receta completa/.test(normalized);
+    const isFeedback = /cata y ajuste/.test(normalized);
+
+    return {
+      id: generateId(`act-cooking-${index + 1}`),
+      label,
+      equivalenceGroupId: createStandaloneEquivalenceGroupId(label),
+      durationMin: isReading ? 25 : isCompleteRecipe ? 45 : isPractice ? 35 : isFeedback ? 20 : 30,
+      frequencyPerWeek: isFeedback ? 1 : isReading ? 2 : baseFrequency,
+      goalId,
+      constraintTier: isReading || isFeedback ? 'soft_weak' : 'soft_strong',
+      minRestDaysBetween: isCompleteRecipe ? 1 : undefined,
+    };
+  });
+}
+
 function buildUncertaintyReductionActivities(
   input: TemplateInput,
   classification: GoalClassification,
@@ -107,11 +264,28 @@ export function buildTemplate(
       ? domainCard.tasks.slice(0, 1)
       : domainCard.tasks
     : [];
+  const augmentedDomainTasks = [...domainTasks];
+  if (isHealthWeightGoal(input.goalText, classification)) {
+    const hasSafetyTask = augmentedDomainTasks.some((task) =>
+      /supervision|seguridad|seguimiento profesional|medico|nutri|acompanamiento|apoyo/i.test(task.label),
+    );
+    if (!hasSafetyTask) {
+      augmentedDomainTasks.unshift({
+        id: 'health_supervision',
+        label: 'Supervision profesional y chequeo de seguridad',
+        typicalDurationMin: 20,
+        tags: ['safety', 'health', 'review'],
+        equivalenceGroupId: 'health-safety-review',
+      });
+    }
+  }
+  const useCookingTemplate = domainTasks.length === 0 && isCookingGoal(input.goalText);
+  const useHealthTemplate = domainTasks.length === 0 && isHealthWeightGoal(input.goalText, classification);
   const useUncertaintyReductionTemplate = shouldUseUncertaintyReductionTemplate(classification, domainTasks.length > 0);
   const goalId = 'generated-goal';
 
-  if (domainTasks.length > 0) {
-    for (const task of domainTasks) {
+  if (augmentedDomainTasks.length > 0) {
+    for (const task of augmentedDomainTasks) {
       activities.push({
         id: generateId(`act-${task.id}`),
         label: task.label,
@@ -123,14 +297,18 @@ export function buildTemplate(
         minRestDaysBetween,
       });
     }
+  } else if (useCookingTemplate) {
+    activities.push(...buildCookingTemplateActivities(input, classification, profile, goalId));
+  } else if (useHealthTemplate) {
+    activities.push(...buildHealthTemplateActivities(input, classification, profile, goalId));
   } else if (useUncertaintyReductionTemplate) {
     activities.push(...buildUncertaintyReductionActivities(input, classification, goalId));
   } else {
     for (const phase of phases) {
       activities.push({
         id: generateId('act-phase'),
-        label: phase.name,
-        equivalenceGroupId: createStandaloneEquivalenceGroupId(phase.name),
+        label: phase.focus_esAR || phase.name,
+        equivalenceGroupId: createStandaloneEquivalenceGroupId(phase.focus_esAR || phase.name),
         durationMin: 60,
         frequencyPerWeek: baseFreq,
         goalId,

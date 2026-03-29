@@ -6,6 +6,8 @@
  *   node scripts/run-plan.mjs "Tu objetivo"
  *   node scripts/run-plan.mjs "Tu objetivo" --profile=<uuid> --provider=ollama --base=http://localhost:3000
  *   node scripts/run-plan.mjs "Tu objetivo" --json          # salida JSON cruda
+ *   node scripts/run-plan.mjs "Tu objetivo" --auto          # no pregunta, avanza solo
+ *   node scripts/run-plan.mjs --plan-id=<uuid> --detail-start-week=3 --detail-weeks=2
  *
  * Variables de entorno:
  *   PROFILE_ID, PROVIDER, BASE_URL
@@ -17,6 +19,8 @@
  *   - Progreso  → stderr (con colores)
  *   - Reporte   → stdout (markdown o JSON)
  */
+
+import { DateTime } from 'luxon'
 
 // ─── ANSI Colors ───────────────────────────────────────────────────────────────
 const C = {
@@ -38,28 +42,124 @@ const out = (text) => process.stdout.write(text)
 // ─── Args ──────────────────────────────────────────────────────────────────────
 function parseArgs() {
   const raw = process.argv.slice(2)
-  const goal = raw.find(a => !a.startsWith('--'))
-  if (!goal) {
-    log(c('red', 'Error: se requiere el texto del objetivo como primer argumento.'))
-    log('Uso: node scripts/run-plan.mjs "Tu objetivo" [--profile=uuid] [--provider=ollama] [--base=http://localhost:3000]')
-    log('  --provider=codex    Fuerza sesión OpenAI (sin API key)')
-    log('  --provider=ollama   Fuerza Ollama local')
-    log('  --no-codex          Saltea el intento con sesión OpenAI')
-    process.exit(1)
-  }
   const flag = (name) => {
     const f = raw.find(a => a.startsWith(`--${name}=`))
     return f ? f.slice(`--${name}=`.length) : null
   }
+  const intFlag = (name, { min = 1, max = 12 } = {}) => {
+    const value = flag(name)
+    if (value == null) return null
+    const parsed = Number.parseInt(value, 10)
+    if (!Number.isFinite(parsed) || parsed < min || parsed > max) {
+      log(c('red', `Error: --${name} debe ser un entero entre ${min} y ${max}.`))
+      process.exit(1)
+    }
+    return parsed
+  }
+  const goal = raw.find(a => !a.startsWith('--'))
+  const existingPlanId = flag('plan-id')
+  if (!goal && !existingPlanId) {
+    log(c('red', 'Error: se requiere un objetivo o --plan-id para abrir un plan existente.'))
+    log('Uso: node scripts/run-plan.mjs "Tu objetivo" [--profile=uuid] [--provider=ollama] [--base=http://localhost:3000]')
+    log('  o:  node scripts/run-plan.mjs --plan-id=<uuid> [--detail-start-week=3] [--detail-weeks=2]')
+    log('  --provider=codex    Fuerza sesión OpenAI (sin API key)')
+    log('  --provider=ollama   Fuerza Ollama local')
+    log('  --no-codex          Saltea el intento con sesión OpenAI')
+    log('  --auto              No hace preguntas, avanza directo')
+    log('  --plan-id           Reabre un plan ya generado sin reconstruirlo')
+    log('  --detail-start-week Semana inicial del calendario detallado')
+    log('  --detail-weeks      Cantidad de semanas detalladas a mostrar')
+    process.exit(1)
+  }
   const explicitProvider = flag('provider') || process.env.PROVIDER || null
   return {
-    goal,
+    goal: goal || '',
+    existingPlanId,
     profileId:       flag('profile') || process.env.PROFILE_ID || '',
     explicitProvider,                        // null = auto (codex primero, fallback ollama)
     baseUrl:         flag('base') || process.env.BASE_URL || 'http://localhost:3000',
     outputJson:      raw.includes('--json'),
     noCodex:         raw.includes('--no-codex'),
+    autoMode:        raw.includes('--auto'),
+    detailStartWeek: intFlag('detail-start-week', { max: 104 }),
+    detailWeeks:     intFlag('detail-weeks', { max: 104 }),
   }
+}
+
+// ─── Readline helper ────────────────────────────────────────────────────────────
+import { createInterface } from 'node:readline'
+import { createReadStream, createWriteStream, openSync, closeSync } from 'node:fs'
+
+function createPromptStreams() {
+  if (process.stdin.isTTY && process.stderr.isTTY) {
+    return {
+      input: process.stdin,
+      output: process.stderr,
+      close() {},
+    }
+  }
+
+  if (process.platform === 'win32') {
+    let inputFd
+    let outputFd
+    try {
+      inputFd = openSync('\\\\.\\CONIN$', 'r')
+      outputFd = openSync('\\\\.\\CONOUT$', 'w')
+      const input = createReadStream(null, { fd: inputFd, autoClose: true })
+      const output = createWriteStream(null, { fd: outputFd, autoClose: true })
+      return {
+        input,
+        output,
+        close() {
+          input.destroy()
+          output.end()
+        },
+      }
+    } catch {
+      try { closeSync(inputFd) } catch {}
+      try { closeSync(outputFd) } catch {}
+      return null
+    }
+  }
+
+  return null
+}
+
+function askUser(prompt) {
+  const streams = createPromptStreams()
+  if (!streams) return Promise.resolve(null)
+
+  return new Promise((resolve) => {
+    const rl = createInterface({ input: streams.input, output: streams.output })
+    rl.question(prompt, (answer) => {
+      rl.close()
+      streams.close()
+      resolve(answer.trim())
+    })
+  })
+}
+
+async function askClarificationQuestions(questions) {
+  const answers = {}
+  log('')
+  log(c('cyan', '  Respondé las preguntas (Enter vacío = saltar):'))
+  log('')
+  for (const q of questions) {
+    const hint = q.options?.length
+      ? ` ${c('gray', `[${q.options.join(' / ')}]`)}`
+      : q.type === 'number'
+        ? ` ${c('gray', `[número${q.min != null ? ` min:${q.min}` : ''}${q.max != null ? ` max:${q.max}` : ''}]`)}`
+        : ''
+    const answer = await askUser(`  ${c('yellow', q.text)}${hint}\n  ${c('green', '→ ')}`)
+    if (answer == null) {
+      return null
+    }
+    if (answer) {
+      answers[q.id] = answer
+    }
+  }
+  log('')
+  return answers
 }
 
 // ─── SSE Parser ────────────────────────────────────────────────────────────────
@@ -105,6 +205,30 @@ function fmtTime(iso) {
   return `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}`
 }
 
+function deriveSkeletonHorizonWeeks(skeleton, detail) {
+  const phases = Array.isArray(skeleton?.phases) ? skeleton.phases : []
+  const startDate = phases[0]?.startDate || detail?.startDate
+  const endDate = phases.at(-1)?.endDate || detail?.endDate
+
+  if (startDate && endDate) {
+    const start = DateTime.fromISO(startDate, { zone: 'UTC' }).startOf('day')
+    const end = DateTime.fromISO(endDate, { zone: 'UTC' }).startOf('day')
+    if (start.isValid && end.isValid && end >= start) {
+      return Math.max(1, Math.ceil((end.diff(start, 'days').days + 1) / 7))
+    }
+  }
+
+  if (typeof skeleton?.horizonWeeks === 'number') {
+    return skeleton.horizonWeeks
+  }
+
+  if (typeof detail?.horizonWeeks === 'number') {
+    return detail.horizonWeeks
+  }
+
+  return null
+}
+
 function mondayOf(isoDate) {
   const d = new Date(isoDate)
   const day = d.getUTCDay()
@@ -139,7 +263,78 @@ function isRecoverableError(msg) {
   return RECOVERABLE_ERRORS.some(k => low.includes(k))
 }
 
-async function runPipeline(baseUrl, body) {
+function normalizeStringList(values) {
+  if (!Array.isArray(values)) return []
+  return Array.from(new Set(values.map((value) => typeof value === 'string' ? value.trim() : '').filter(Boolean)))
+}
+
+function normalizeFailureOutcomeList(values) {
+  if (!Array.isArray(values)) return []
+  return values
+    .filter((value) => value && typeof value === 'object')
+    .map((value) => ({
+      agent: typeof value.agent === 'string' ? value.agent : 'unknown',
+      source: typeof value.source === 'string' ? value.source : 'unknown',
+      errorCode: typeof value.errorCode === 'string' ? value.errorCode : null,
+      errorMessage: typeof value.errorMessage === 'string' ? value.errorMessage : null,
+    }))
+}
+
+function normalizeFailureIssues(values) {
+  if (!Array.isArray(values)) return []
+  return values
+    .filter((value) => value && typeof value === 'object')
+    .map((value) => ({
+      code: typeof value.code === 'string' ? value.code : '',
+      severity: typeof value.severity === 'string' ? value.severity : 'warning',
+      message: typeof value.message === 'string' ? value.message : '',
+    }))
+    .filter((issue) => issue.message.length > 0)
+}
+
+function extractFailureDetails(payload) {
+  const source = payload?.result?.success === false ? payload.result : payload
+  const planPackage = source?.package && typeof source.package === 'object' ? source.package : null
+
+  return {
+    message: source?.error || source?.message || 'Error del pipeline',
+    failureCode: source?.failureCode ?? null,
+    publicationState: source?.publicationState ?? 'failed',
+    agentOutcomes: normalizeFailureOutcomeList(source?.agentOutcomes),
+    blockingAgents: normalizeFailureOutcomeList(source?.blockingAgents),
+    qualityIssues: normalizeFailureIssues(source?.qualityIssues ?? planPackage?.qualityIssues),
+    warnings: normalizeStringList(source?.warnings ?? planPackage?.warnings),
+    package: planPackage,
+  }
+}
+
+function formatFailureDetails(details) {
+  const lines = []
+  if (details.failureCode) {
+    lines.push(c('red', `  failureCode: ${details.failureCode}`))
+  }
+  if (details.publicationState) {
+    lines.push(c('red', `  publicationState: ${details.publicationState}`))
+  }
+  if (details.blockingAgents.length > 0) {
+    lines.push(c('red', `  blockingAgents: ${details.blockingAgents.map((agent) => `${agent.agent}${agent.errorCode ? ` [${agent.errorCode}]` : ''}: ${agent.errorMessage ?? 'unknown'}`).join('; ')}`))
+  }
+  if (details.agentOutcomes.length > 0) {
+    lines.push(c('red', `  agentOutcomes: ${details.agentOutcomes.map((agent) => `${agent.agent}${agent.errorCode ? ` [${agent.errorCode}]` : ''}: ${agent.errorMessage ?? 'unknown'}`).join('; ')}`))
+  }
+  if (details.qualityIssues.length > 0) {
+    lines.push(c('red', '  qualityIssues:'))
+    details.qualityIssues.forEach((issue) => {
+      lines.push(c('red', `    - [${issue.severity}${issue.code ? `/${issue.code}` : ''}] ${issue.message}`))
+    })
+  }
+  if (details.warnings.length > 0) {
+    lines.push(c('red', `  warnings: ${details.warnings.join(' | ')}`))
+  }
+  return lines
+}
+
+async function runPipeline(baseUrl, body, { autoMode = false } = {}) {
   const res = await fetch(`${baseUrl}/api/plan/build`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
@@ -150,10 +345,13 @@ async function runPipeline(baseUrl, body) {
     throw new Error(`API ${res.status}: ${txt}`)
   }
 
-  const reader  = res.body.getReader()
+  let reader  = res.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
   let planId = null, score = 0, iterations = 0
+  let degraded = false
+  let agentOutcomes = []
+  let readerSwitched = false
 
   const t0 = Date.now()
   const elapsed = () => ((Date.now() - t0) / 1000).toFixed(1)
@@ -174,7 +372,6 @@ async function runPipeline(baseUrl, body) {
 
           const type = parsed.eventType || payload.type
           const data = payload.data ?? payload
-
           if (type === 'v6:phase') {
             const label = PHASE_LABEL[data.phase] || data.phase
             const iter  = data.iteration > 0 ? c('gray', ` (vuelta ${data.iteration})`) : ''
@@ -193,21 +390,78 @@ async function runPipeline(baseUrl, body) {
             planId     = data.planId
             score      = data.score
             iterations = data.iterations
+            degraded   = data.degraded === true
+            agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
             log('')
             log(c('green', `  ✔ Pipeline completado en ${elapsed()}s`))
-            log(c('green', `    Score: ${score}/100  |  Iteraciones: ${iterations}  |  Plan ID: ${planId}`))
+            const completionScoreLabel = degraded ? 'degradado' : `${score}/100`
+            log(c('green', `    Score: ${completionScoreLabel}  |  Iteraciones: ${iterations}  |  Plan ID: ${planId}`))
           }
 
-          else if (type === 'result' && data.success === false) {
-            const err = new Error(data.error || 'Error del pipeline')
-            err.recoverable = isRecoverableError(data.error)
+          else if (type === 'v6:needs_input') {
+            const sessionId = data.sessionId
+            const questions = data.questions?.questions ?? []
+            log(c('yellow', `  ⏸ El modelo necesita mas informacion (${questions.length} preguntas)`))
+
+            let answers = {}
+            if (autoMode) {
+              questions.forEach((q, i) => log(c('yellow', `    ${i + 1}. ${q.text}`)))
+              log(c('blue', '  ↻ Modo auto: avanzando sin respuestas...'))
+            } else {
+              const promptedAnswers = await askClarificationQuestions(questions)
+              if (promptedAnswers == null) {
+                questions.forEach((q, i) => log(c('yellow', `    ${i + 1}. ${q.text}`)))
+                log(c('blue', '  ↻ No se detectó una consola interactiva. Usá `--auto` o ejecutalo desde una terminal local para responder.'))
+              } else {
+                answers = promptedAnswers
+                const answered = Object.keys(answers).length
+                log(c('blue', `  ↻ Continuando con ${answered}/${questions.length} respuestas...`))
+              }
+            }
+
+            if (sessionId) {
+              try {
+                const resumeRes = await fetch(`${baseUrl}/api/plan/build/resume`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ sessionId, answers }),
+                })
+                if (resumeRes.ok && resumeRes.body) {
+                  reader = resumeRes.body.getReader()
+                  buffer = ''
+                  readerSwitched = true
+                }
+              } catch (resumeErr) {
+                log(c('yellow', `  ⚠ No se pudo continuar la sesion: ${resumeErr.message}`))
+              }
+            }
+          }
+
+          else if (type === 'v6:degraded') {
+            degraded = true
+            agentOutcomes = Array.isArray(data.agentOutcomes) ? data.agentOutcomes : agentOutcomes
+            log(c('yellow', '  âš  Plan degradado: se usaron datos de respaldo.'))
+            if (data.failedAgents) {
+              log(c('yellow', `    ${data.failedAgents}`))
+            }
+          }
+
+          else if (type === 'result' && (data.success === false || data.result?.success === false)) {
+            const failureDetails = extractFailureDetails(data)
+            log('')
+            log(c('red', `  Error estructurado: ${failureDetails.message}`))
+            formatFailureDetails(failureDetails).forEach((line) => log(line))
+            const err = new Error(failureDetails.message)
+            err.recoverable = isRecoverableError(failureDetails.message)
+            err.failureDetails = failureDetails
             throw err
           }
         }
         bi = buffer.indexOf('\n\n')
       }
     }
-    if (done) break
+    if (done && !readerSwitched) break
+    if (readerSwitched) { readerSwitched = false }
   }
 
   // tail
@@ -218,25 +472,33 @@ async function runPipeline(baseUrl, body) {
     if (payload?.type === 'v6:complete' && !planId) {
       const d = payload.data ?? payload
       planId = d.planId; score = d.score; iterations = d.iterations
+      degraded = d.degraded === true
+      agentOutcomes = Array.isArray(d.agentOutcomes) ? d.agentOutcomes : agentOutcomes
     }
   }
 
   if (!planId) throw new Error('No se recibió planId del pipeline. ¿Terminó correctamente?')
-  return { planId, score, iterations }
+  return { planId, score, iterations, degraded, agentOutcomes }
 }
 
 // ─── Package fetcher ───────────────────────────────────────────────────────────
-async function fetchPackage(baseUrl, planId) {
-  const res = await fetch(`${baseUrl}/api/plan/package?planId=${encodeURIComponent(planId)}`)
+async function fetchPackage(baseUrl, planId, { detailStartWeek = null, detailWeeks = null } = {}) {
+  const search = new URLSearchParams({ planId })
+  if (detailStartWeek != null) search.set('detailStartWeek', String(detailStartWeek))
+  if (detailWeeks != null) search.set('detailWeeks', String(detailWeeks))
+  const res = await fetch(`${baseUrl}/api/plan/package?${search.toString()}`)
   if (!res.ok) throw new Error(`Package API ${res.status}`)
   const json = await res.json()
   if (!json.ok) throw new Error(`Package error: ${json.error}`)
-  return json.data
+  return {
+    package: json.data,
+    meta: json.meta ?? { modelId: null },
+  }
 }
 
 // ─── Markdown report ───────────────────────────────────────────────────────────
 function buildReport(goal, pkg, meta) {
-  const { planId, score, iterations, provider } = meta
+  const { planId, score, iterations, provider, modelId, degraded, agentOutcomes } = meta
   const items     = pkg.items    || []
   const plan      = pkg.plan     || {}
   const skeleton  = plan.skeleton || {}
@@ -249,11 +511,17 @@ function buildReport(goal, pkg, meta) {
   const flexTasks  = items.filter(i => i.kind === 'flex_task')
 
   // Eventos desde rolling-wave detail si items está vacío
-  const detailEvents = (detail.scheduledEvents || [])
-    .concat((detail.weeks || []).flatMap(w => w.scheduledEvents || []))
+  const detailEvents = Array.from(
+    new Map(
+      (detail.scheduledEvents || [])
+        .concat((detail.weeks || []).flatMap(w => w.scheduledEvents || []))
+        .map((event) => [event.id || `${event.startAt}-${event.title}`, event])
+    ).values()
+  ).sort((a, b) => (a.startAt || '').localeCompare(b.startAt || ''))
 
   // Agrupar eventos por semana (preferir items, fallback a detail)
-  const calendarEvents = events.length ? events : detailEvents
+  const calendarEvents = detailEvents.length > events.length ? detailEvents : events
+  const calendarFlexibleEvents = calendarEvents.filter((ev) => ev.rigidity === 'soft')
   const weekMap = new Map()
   for (const ev of calendarEvents) {
     const startKey = ev.startAt || ev.date || ev.startDate
@@ -265,6 +533,10 @@ function buildReport(goal, pkg, meta) {
   }
 
   const totalMin = calendarEvents.reduce((s, ev) => s + (ev.durationMin || ev.durationMinutes || 0), 0)
+  const scoreLabel = degraded ? 'degradado' : Number.isFinite(score) ? `${score}/100` : 'persistido'
+  const iterationsLabel = Number.isFinite(iterations) ? String(iterations) : '–'
+  const horizonWeeks = deriveSkeletonHorizonWeeks(skeleton, detail)
+  const horizonLabel = horizonWeeks ?? skeleton.horizonWeeks ?? detail.horizonWeeks ?? '?'
 
   const L = []
 
@@ -273,11 +545,29 @@ function buildReport(goal, pkg, meta) {
   L.push(`| Campo | Valor |`)
   L.push(`|-------|-------|`)
   L.push(`| Plan ID | \`${planId}\` |`)
-  L.push(`| Puntaje | ${score}/100 |`)
-  L.push(`| Iteraciones critic | ${iterations} |`)
+  L.push(`| Puntaje | ${scoreLabel} |`)
+  L.push(`| Iteraciones critic | ${iterationsLabel} |`)
   L.push(`| Proveedor | ${provider} |`)
+  L.push(`| Modelo LLM | ${modelId ? `\`${modelId}\`` : 'no disponible'} |`)
   L.push(`| Generado | ${new Date().toLocaleString('es-AR')} |`)
   L.push('')
+
+  if (degraded) {
+    const fallbackOutcomes = (Array.isArray(agentOutcomes) ? agentOutcomes : [])
+      .filter((outcome) => outcome?.source === 'fallback')
+
+    L.push('## Advertencia: Plan degradado')
+    L.push('')
+    L.push('Este plan fue generado parcialmente con datos de respaldo.')
+    L.push('Los siguientes agentes no pudieron conectarse al LLM:')
+    L.push('')
+    L.push('| Agente | Error | Duracion |')
+    L.push('|--------|-------|----------|')
+    for (const outcome of fallbackOutcomes) {
+      L.push(`| ${outcome.agent || 'desconocido'} | ${outcome.errorMessage || outcome.errorCode || 'unknown'} | ${outcome.durationMs || 0}ms |`)
+    }
+    L.push('')
+  }
 
   if (plan.title) {
     L.push(`## ${plan.title}`)
@@ -291,7 +581,7 @@ function buildReport(goal, pkg, meta) {
   // Fases del skeleton (siempre presentes aunque el scheduler haya fallado)
   const phases = skeleton.phases || []
   if (phases.length) {
-    L.push(`## Fases del plan (horizonte: ${skeleton.horizonWeeks || '?'} semanas)`)
+    L.push(`## Fases del plan (horizonte: ${horizonLabel} semanas)`)
     L.push('')
     L.push(`| # | Fase | Inicio | Fin | Objetivo |`)
     L.push(`|---|------|--------|-----|----------|`)
@@ -364,8 +654,9 @@ function buildReport(goal, pkg, meta) {
   L.push(`|---------|-------|`)
   L.push(`| Fases del plan | ${phases.length} |`)
   L.push(`| Eventos en calendario | ${calendarEvents.length} |`)
+  L.push(`| Eventos flexibles en calendario | ${calendarFlexibleEvents.length} |`)
   L.push(`| Hitos | ${milestones.length || skeletonMilestones.length} |`)
-  L.push(`| Tareas flexibles | ${flexTasks.length} |`)
+  L.push(`| Tareas flexibles pendientes | ${flexTasks.length} |`)
   L.push(`| Tiempo total programado | ${formatMin(totalMin)} |`)
   L.push(`| Semanas cubiertas | ${weekMap.size} |`)
 
@@ -380,21 +671,40 @@ function buildReport(goal, pkg, meta) {
 
 // ─── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  const { goal, profileId, explicitProvider, baseUrl, outputJson, noCodex } = parseArgs()
-
+  const {
+    goal,
+    existingPlanId,
+    profileId,
+    explicitProvider,
+    baseUrl,
+    outputJson,
+    noCodex,
+    autoMode,
+    detailStartWeek,
+    detailWeeks,
+  } = parseArgs()
   log('')
   log(c('cyan', c('bold', '▶ LAP Plan Runner')))
-  log(c('gray', `  Objetivo : ${goal}`))
+  log(c('gray', `  Objetivo : ${goal || '(usar plan existente)'}`))
   log(c('gray', `  Base URL : ${baseUrl}`))
   if (profileId) log(c('gray', `  Profile  : ${profileId}`))
+  if (existingPlanId) log(c('gray', `  Plan ID  : ${existingPlanId}`))
+  if (detailStartWeek != null || detailWeeks != null) {
+    const startLabel = detailStartWeek ?? 1
+    const weeksLabel = detailWeeks ?? 'default'
+    log(c('gray', `  Detail   : semana ${startLabel} + ${weeksLabel} semana(s)`))
+  }
   log('')
 
   // ── Estrategia de ejecución ──────────────────────────────────────────────────
   // 1. Si el usuario forzó un provider explícito → usarlo directamente, sin fallback
   // 2. Si no → intentar primero Codex OAuth (sesión iniciada) → fallback a Ollama
-  let attempts
+  let attempts = []
+  let result = existingPlanId
+    ? { planId: existingPlanId, score: null, iterations: null, providerLabel: 'existing-plan', degraded: false, agentOutcomes: [] }
+    : null
 
-  if (explicitProvider) {
+  if (!existingPlanId && explicitProvider) {
     const isCodex = explicitProvider === 'codex'
     attempts = [
       {
@@ -405,7 +715,7 @@ async function main() {
         providerLabel: isCodex ? 'codex-oauth' : explicitProvider,
       }
     ]
-  } else {
+  } else if (!existingPlanId) {
     attempts = [
       ...(!noCodex ? [{
         label: 'OpenAI (sesión iniciada)',
@@ -419,9 +729,6 @@ async function main() {
       },
     ]
   }
-
-  let result = null
-
   for (let i = 0; i < attempts.length; i++) {
     const attempt = attempts[i]
     const isLast  = i === attempts.length - 1
@@ -430,7 +737,7 @@ async function main() {
     log('')
 
     try {
-      result = await runPipeline(baseUrl, attempt.body)
+      result = await runPipeline(baseUrl, attempt.body, { autoMode })
       result.providerLabel = attempt.providerLabel
       break
     } catch (err) {
@@ -447,14 +754,31 @@ async function main() {
 
   if (!result) throw new Error('No se pudo ejecutar el pipeline con ningún proveedor.')
 
-  const { planId, score, iterations, providerLabel } = result
+  const { planId, score, iterations, providerLabel, degraded, agentOutcomes } = result
 
   log('')
   log(c('blue', '⟳ Descargando datos del plan...'))
 
-  const pkg = await fetchPackage(baseUrl, planId)
+  const packageResponse = await fetchPackage(baseUrl, planId, { detailStartWeek, detailWeeks })
+  const pkg = packageResponse.package
+  const modelId = typeof packageResponse.meta?.modelId === 'string' && packageResponse.meta.modelId.trim()
+    ? packageResponse.meta.modelId.trim()
+    : null
+  const reportTitle = goal || pkg.plan?.title || `Plan ${planId}`
+  const isDegraded = degraded === true || pkg.degraded === true
+  const effectiveScore = isDegraded ? null : score
+  const effectiveAgentOutcomes = Array.isArray(agentOutcomes) && agentOutcomes.length > 0
+    ? agentOutcomes
+    : (Array.isArray(pkg.agentOutcomes) ? pkg.agentOutcomes : [])
+  if (isDegraded) {
+    const fallbackRows = effectiveAgentOutcomes.filter((outcome) => outcome?.source === 'fallback')
+    log(c('yellow', `  âš  Advertencia: ${fallbackRows.length} agente(s) usaron datos de respaldo.`))
+  }
 
   log(c('green', '  ✔ Datos obtenidos'))
+  if (modelId) {
+    log(c('gray', `  Modelo  : ${modelId}`))
+  }
   log('')
   log(c('gray', '─'.repeat(60)))
   log(c('green', '  Reporte en stdout. Redirigí con > report.md para guardar.'))
@@ -462,9 +786,9 @@ async function main() {
   log('')
 
   if (outputJson) {
-    out(JSON.stringify({ meta: { planId, score, iterations, provider: providerLabel }, package: pkg }, null, 2) + '\n')
+    out(JSON.stringify({ meta: { planId, score: effectiveScore, iterations, provider: providerLabel, modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes }, package: pkg }, null, 2) + '\n')
   } else {
-    const report = buildReport(goal, pkg, { planId, score, iterations, provider: providerLabel })
+    const report = buildReport(reportTitle, pkg, { planId, score: effectiveScore, iterations, provider: providerLabel, modelId, degraded: isDegraded, agentOutcomes: effectiveAgentOutcomes })
     out(report + '\n')
   }
 }

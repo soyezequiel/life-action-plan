@@ -97,6 +97,17 @@ describe('buildWithOllamaFallback', () => {
     expect(buildPlan).toHaveBeenCalledTimes(1)
   })
 
+  it('no usa fallback cuando el error es Unauthorized', async () => {
+    const onFallback = vi.fn()
+    const buildPlan = vi.fn(async () => {
+      throw new Error('Unauthorized')
+    })
+
+    await expect(buildWithOllamaFallback('openai:gpt-4o-mini', buildPlan, { onFallback })).rejects.toThrow('Unauthorized')
+    expect(onFallback).not.toHaveBeenCalled()
+    expect(buildPlan).toHaveBeenCalledTimes(1)
+  })
+
   it('no usa fallback cuando se excedio el presupuesto', async () => {
     const buildPlan = vi.fn(async () => {
       throw new Error('Budget exceeded for this workspace')

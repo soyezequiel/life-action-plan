@@ -69,7 +69,73 @@ describe('plan v5 routes', () => {
     expect(await response.json()).toEqual({
       ok: true,
       data: pkg,
+      meta: {
+        modelId: 'openrouter:openai/gpt-4o-mini',
+      },
     });
+  });
+
+  it('GET /api/plan/package permite proyectar otra ventana de semanas en detail', async () => {
+    const pkg = getPlanPackageMock('plan-v5-route-window');
+    const manifest = buildPlanManifest({
+      nombre: 'Plan V5',
+      fallbackUsed: false,
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      tokensInput: 10,
+      tokensOutput: 20,
+      costUsd: 0.01,
+      costSats: 10,
+      v5: {
+        package: pkg,
+        adaptive: buildPendingAdaptiveState('2026-03-30T00:00:00.000Z'),
+        run: null,
+      },
+    });
+    mocks.getPlanMock.mockResolvedValue(buildPlanRow(manifest));
+
+    const response = await getPackage(new Request('http://localhost/api/plan/package?planId=11111111-1111-4111-8111-111111111111&detailStartWeek=3&detailWeeks=4'));
+    const body = await response.json();
+    const baseEventsPerWeek = pkg.items.filter((item) => item.kind === 'time_event').length;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.meta).toEqual({
+      modelId: 'openrouter:openai/gpt-4o-mini',
+    });
+    expect(body.data.plan.detail.horizonWeeks).toBe(4);
+    expect(body.data.plan.detail.weeks.map((week: { weekIndex: number }) => week.weekIndex)).toEqual([3, 4, 5, 6]);
+    expect(body.data.plan.detail.scheduledEvents).toHaveLength(baseEventsPerWeek * 4);
+    expect(body.data.plan.detail.startDate).not.toBe(pkg.plan.detail.startDate);
+    expect(body.data.plan.detail.endDate).not.toBe(pkg.plan.detail.endDate);
+  });
+
+  it('GET /api/plan/package proyecta una ventana de una sola semana sin perder alineacion', async () => {
+    const pkg = getPlanPackageMock('plan-v5-route-single-week');
+    const manifest = buildPlanManifest({
+      nombre: 'Plan V5',
+      fallbackUsed: false,
+      modelId: 'openrouter:openai/gpt-4o-mini',
+      tokensInput: 10,
+      tokensOutput: 20,
+      costUsd: 0.01,
+      costSats: 10,
+      v5: {
+        package: pkg,
+        adaptive: buildPendingAdaptiveState('2026-03-30T00:00:00.000Z'),
+        run: null,
+      },
+    });
+    mocks.getPlanMock.mockResolvedValue(buildPlanRow(manifest));
+
+    const response = await getPackage(new Request('http://localhost/api/plan/package?planId=11111111-1111-4111-8111-111111111111&detailStartWeek=11&detailWeeks=1'));
+    const body = await response.json();
+    const baseEventsPerWeek = pkg.items.filter((item) => item.kind === 'time_event').length;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.data.plan.detail.horizonWeeks).toBe(1);
+    expect(body.data.plan.detail.weeks.map((week: { weekIndex: number }) => week.weekIndex)).toEqual([11]);
+    expect(body.data.plan.detail.scheduledEvents).toHaveLength(baseEventsPerWeek);
   });
 
   it('GET /api/plan/package devuelve 404 PLAN_V5_NOT_AVAILABLE si el plan no tiene artefacto V5', async () => {

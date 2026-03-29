@@ -4,16 +4,26 @@ import { getLatestProfileIdForUser, getPlan, getPlansByProfile } from '../../_db
 import { jsonResponse } from '../../_shared';
 import { resolveUserId } from '../../_user-settings';
 import { t } from '../../../../src/i18n';
-import { readPlanV5Manifest } from '../../../../src/lib/domain/plan-helpers';
+import { readPlanV5Manifest, safeParseJsonRecord } from '../../../../src/lib/domain/plan-helpers';
+import {
+  evaluatePackageValidation,
+  projectPackageDetailWindow,
+  projectValidatedPackage,
+} from '../../../../src/lib/pipeline/shared/packager';
 import type { PlanPackage } from '../../../../src/lib/pipeline/shared/phase-io';
 
 const packageQuerySchema = z.object({
   planId: z.string().trim().min(1).optional(),
+  detailStartWeek: z.coerce.number().int().min(1).max(104).optional(),
+  detailWeeks: z.coerce.number().int().min(1).max(104).optional(),
 }).strict();
 
 const packageSuccessSchema = z.object({
   ok: z.literal(true),
   data: z.custom<PlanPackage>((value) => typeof value === 'object' && value !== null),
+  meta: z.object({
+    modelId: z.string().trim().min(1).nullable(),
+  }).strict(),
 }).strict();
 
 const packageErrorSchema = z.object({
@@ -43,6 +53,8 @@ export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const parsedQuery = packageQuerySchema.safeParse({
     planId: url.searchParams.get('planId') ?? undefined,
+    detailStartWeek: url.searchParams.get('detailStartWeek') ?? undefined,
+    detailWeeks: url.searchParams.get('detailWeeks') ?? undefined,
   });
 
   if (!parsedQuery.success) {
@@ -77,9 +89,39 @@ export async function GET(request: Request): Promise<Response> {
       }), { status: 404 });
     }
 
+    const validation = evaluatePackageValidation({
+      goalText: plan.nombre,
+      package: v5.package,
+      requestedDomain: v5.package.requestDomain ?? null,
+    });
+    if (validation.status === 'blocked') {
+      const blockingIssue = validation.issues.find((issue) => issue.severity === 'block');
+      return jsonResponse(packageErrorSchema.parse({
+        ok: false,
+        error: blockingIssue?.message ?? validation.issues[0]?.message ?? t('planV5.error'),
+      }), { status: 422 });
+    }
+
+    const validatedPackage = projectValidatedPackage(v5.package, validation, plan.nombre);
+    const detailStartWeek = parsedQuery.data.detailStartWeek ?? v5.package.plan.detail.weeks[0]?.weekIndex ?? 1;
+    const detailWeeks = parsedQuery.data.detailWeeks ?? v5.package.plan.detail.horizonWeeks;
+    const packageView = parsedQuery.data.detailStartWeek || parsedQuery.data.detailWeeks
+      ? projectPackageDetailWindow(validatedPackage, detailStartWeek, detailWeeks)
+      : validatedPackage;
+    const manifest = safeParseJsonRecord(plan.manifest);
+    const manifestModelId = typeof manifest.ultimoModeloUsado === 'string' && manifest.ultimoModeloUsado.trim().length > 0
+      ? manifest.ultimoModeloUsado
+      : null;
+    const runModelId = typeof v5.run?.modelId === 'string' && v5.run.modelId.trim().length > 0
+      ? v5.run.modelId
+      : null;
+
     return jsonResponse(packageSuccessSchema.parse({
       ok: true,
-      data: v5.package,
+      data: packageView,
+      meta: {
+        modelId: manifestModelId ?? runModelId,
+      },
     }));
   } catch {
     return jsonResponse(packageErrorSchema.parse({

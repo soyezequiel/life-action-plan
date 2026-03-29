@@ -209,6 +209,8 @@ const agentState = {
   strategyCalls: 0,
 };
 
+const criticInputs: unknown[] = [];
+const packagerInputs: unknown[] = [];
 const clarifierQueue = [];
 const criticQueue = [];
 
@@ -251,6 +253,26 @@ function buildOrchestrator(config = {}) {
     scheduler: {
       name: 'scheduler',
       async execute() {
+        if (scenario === 'metadata') {
+          return {
+            solverOutput: {
+              ...scheduleBase,
+              unscheduled: [],
+              metrics: {
+                fillRate: 0.42,
+                solverTimeMs: 5,
+                solverStatus: 'optimal',
+              },
+            },
+            tradeoffs: [{
+              planA: { description_esAR: 'Compactar la semana y sacar una practica.' },
+              planB: { description_esAR: 'Mantener el ritmo actual y dejar mas aire.' },
+              question_esAR: 'Preferis compactar la semana o dejar aire?',
+            }],
+            qualityScore: 87,
+            unscheduledCount: 2,
+          };
+        }
         return {
           solverOutput: scheduleBase,
           tradeoffs: [],
@@ -269,7 +291,11 @@ function buildOrchestrator(config = {}) {
     },
     critic: {
       name: 'critic',
-      async execute() {
+      async execute(input) {
+        criticInputs.push(input);
+        if (scenario === 'critic_unauthorized') {
+          throw new Error('Unauthorized');
+        }
         return criticQueue.shift() ?? criticApprove;
       },
       fallback() {
@@ -279,6 +305,7 @@ function buildOrchestrator(config = {}) {
     packager: {
       name: 'packager',
       async execute(input) {
+        packagerInputs.push(input);
         if (scenario === 'max_iterations') {
           internal.state.maxIterations = 999;
         }
@@ -310,6 +337,9 @@ function buildOrchestrator(config = {}) {
     internal.shouldForceFinish = () => false;
   }
   internal.executePlan = async () => {
+    if (scenario === 'planner_unauthorized') {
+      throw new Error('Unauthorized');
+    }
     agentState.strategyCalls += 1;
     return strategicDraft;
   };
@@ -375,6 +405,23 @@ if (scenario === 'complete' || scenario === 'scratchpad') {
   const orchestrator = buildOrchestrator();
   const result = await orchestrator.run('Test goal', { ...userCtx, profile: null });
   payload = { result, progress: orchestrator.getProgress(), fallbackCalled: agentState.fallbackCalled };
+} else if (scenario === 'planner_unauthorized') {
+  const orchestrator = buildOrchestrator();
+  const result = await orchestrator.run('Test goal', { ...userCtx, profile: null });
+  payload = { result, progress: orchestrator.getProgress() };
+} else if (scenario === 'critic_unauthorized') {
+  const orchestrator = buildOrchestrator();
+  const result = await orchestrator.run('Test goal', userCtx);
+  payload = { result, progress: orchestrator.getProgress() };
+} else if (scenario === 'metadata') {
+  const orchestrator = buildOrchestrator();
+  const result = await orchestrator.run('Test goal', userCtx);
+  payload = {
+    result,
+    progress: orchestrator.getProgress(),
+    criticInput: criticInputs[0] ?? null,
+    packagerInput: packagerInputs[0] ?? null,
+  };
 } else {
   throw new Error('Unknown scenario: ' + scenario);
 }
@@ -429,6 +476,8 @@ describe('PlanOrchestrator', () => {
       scratchpad: Array<{ phase: string }>;
       tokensUsed: number;
       iterations: number;
+      degraded: boolean;
+      agentOutcomes: Array<{ agent: string; source: string; phase: string }>;
     };
 
     expect(result.status).toBe('completed');
@@ -445,6 +494,15 @@ describe('PlanOrchestrator', () => {
     expect((result.package as { reasoningTrace?: Array<{ phase: string }> }).reasoningTrace).toEqual(result.scratchpad);
     expect(result.tokensUsed).toBeGreaterThan(0);
     expect(result.iterations).toBe(7);
+    expect(result.degraded).toBe(false);
+    expect(result.agentOutcomes).toEqual([
+      expect.objectContaining({ agent: 'goal-interpreter', phase: 'interpret', source: 'llm' }),
+      expect.objectContaining({ agent: 'clarifier', phase: 'clarify', source: 'llm' }),
+      expect.objectContaining({ agent: 'feasibility-checker', phase: 'check', source: 'llm' }),
+      expect.objectContaining({ agent: 'scheduler', phase: 'schedule', source: 'deterministic' }),
+      expect.objectContaining({ agent: 'critic', phase: 'critique', source: 'llm' }),
+      expect.objectContaining({ agent: 'packager', phase: 'package', source: 'deterministic' }),
+    ]);
   });
 
   it('pauses at clarify phase and returns needs_input status', () => {
@@ -453,6 +511,8 @@ describe('PlanOrchestrator', () => {
       status: string;
       package: null;
       pendingQuestions: { questions: unknown[]; confidence: number; readyToAdvance: boolean } | null;
+      degraded: boolean;
+      agentOutcomes: Array<{ source: string }>;
     };
 
     expect(result.status).toBe('needs_input');
@@ -460,6 +520,8 @@ describe('PlanOrchestrator', () => {
     expect(result.pendingQuestions?.readyToAdvance).toBe(false);
     expect(result.pendingQuestions?.confidence).toBe(0.4);
     expect(result.pendingQuestions?.questions).toHaveLength(1);
+    expect(result.degraded).toBe(false);
+    expect(result.agentOutcomes.every((entry) => entry.source !== 'fallback')).toBe(true);
   });
 
   it('resumes after receiving answers and continues to plan', () => {
@@ -492,6 +554,43 @@ describe('PlanOrchestrator', () => {
     expect(result.iterations).toBe(9);
   });
 
+  it('preserves scheduler metadata when handing off to critic and packager', () => {
+    const payload = runScenario('metadata');
+    const criticInput = payload.criticInput as {
+      scheduleQualityScore: number;
+      unscheduledCount: number;
+      scheduleTradeoffs: string[];
+    };
+    const packagerInput = payload.packagerInput as {
+      context: {
+        scheduleResult?: {
+          qualityScore?: number;
+          unscheduledCount?: number;
+          tradeoffs?: Array<{ question_esAR: string }>;
+        } | null;
+      };
+    };
+
+    expect(criticInput).toMatchObject({
+      scheduleQualityScore: 87,
+      unscheduledCount: 2,
+      scheduleTradeoffs: [
+        expect.objectContaining({
+          question_esAR: 'Preferis compactar la semana o dejar aire?',
+        }),
+      ],
+    });
+    expect(packagerInput.context.scheduleResult).toMatchObject({
+      qualityScore: 87,
+      unscheduledCount: 2,
+      tradeoffs: [
+        expect.objectContaining({
+          question_esAR: 'Preferis compactar la semana o dejar aire?',
+        }),
+      ],
+    });
+  });
+
   it('respects maxIterations safety valve', () => {
     const payload = runScenario('max_iterations');
     const result = payload.result as {
@@ -520,10 +619,68 @@ describe('PlanOrchestrator', () => {
 
   it('uses agent fallback when execute() throws', () => {
     const payload = runScenario('fallback');
-    const result = payload.result as { status: string };
+    const result = payload.result as {
+      status: string;
+      package: { qualityScore: number; warnings: string[] } | null;
+      degraded: boolean;
+      agentOutcomes: Array<{ agent: string; source: string; errorMessage: string | null }>;
+    };
 
     expect(result.status).toBe('completed');
     expect(payload.fallbackCalled).toBe(true);
+    expect(result.degraded).toBe(true);
+    expect(result.package).not.toBeNull();
+    expect(result.package?.qualityScore).toBeLessThanOrEqual(60);
+    expect(result.package?.warnings).toContain(
+      'Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido.',
+    );
+    expect(result.agentOutcomes).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        agent: 'goal-interpreter',
+        source: 'fallback',
+        errorMessage: 'boom',
+      }),
+    ]));
+  });
+
+  it('surfaces planner Unauthorized in agentOutcomes and keeps the degraded signal explicit', () => {
+    const payload = runScenario('planner_unauthorized');
+    const result = payload.result as {
+      status: string;
+      package: { qualityScore: number; warnings: string[] } | null;
+      degraded: boolean;
+      agentOutcomes: Array<{ agent: string; source: string; errorCode: string | null }>;
+    };
+
+    expect(result.status).toBe('failed');
+    expect(result.degraded).toBe(true);
+    expect(result.agentOutcomes).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        agent: 'planner',
+        source: 'fallback',
+        errorCode: 'UNAUTHORIZED',
+      }),
+    ]));
+  });
+
+  it('surfaces critic Unauthorized in agentOutcomes and keeps the degraded signal explicit', () => {
+    const payload = runScenario('critic_unauthorized');
+    const result = payload.result as {
+      status: string;
+      package: { qualityScore: number; warnings: string[] } | null;
+      degraded: boolean;
+      agentOutcomes: Array<{ agent: string; source: string; errorCode: string | null }>;
+    };
+
+    expect(result.status).toBe('failed');
+    expect(result.degraded).toBe(true);
+    expect(result.agentOutcomes).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        agent: 'critic',
+        source: 'fallback',
+        errorCode: 'UNAUTHORIZED',
+      }),
+    ]));
   });
 
   it('getProgress returns current phase and iteration', () => {

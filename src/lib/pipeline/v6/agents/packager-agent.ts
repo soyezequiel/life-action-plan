@@ -63,7 +63,7 @@ function buildEmptySchedule(): SchedulerOutput {
 }
 
 function buildPackageInput(context: OrchestratorContext): PackageInput {
-  const scheduleResult = context.scheduleResult ?? buildEmptySchedule();
+  const scheduleResult = context.scheduleResult?.solverOutput ?? buildEmptySchedule();
   const weekStartDate = scheduleResult.events[0]?.startAt ?? nextWeekStartDate();
 
   return {
@@ -72,6 +72,8 @@ function buildPackageInput(context: OrchestratorContext): PackageInput {
     roadmap: context.strategicDraft ?? undefined,
     goalText: context.goalText,
     goalId: scheduleResult.events[0]?.goalIds[0] ?? 'goal-v6',
+    requestedDomain: context.interpretation?.suggestedDomain ?? null,
+    clarificationAnswers: context.userAnswers,
     weekStartDate,
     profile: context.userProfile ?? undefined,
     timezone: inferTimezone(context),

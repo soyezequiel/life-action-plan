@@ -6,6 +6,7 @@ import {
   readPlanV5Manifest,
   updatePlanManifestV5,
 } from '../../src/lib/domain/plan-helpers';
+import { SkeletonPhaseSchema, V5DetailSchema, V5SkeletonSchema } from '../../src/lib/domain/rolling-wave-plan';
 import { getPlanPackageMock } from '../helpers/plan-package.mock';
 
 describe('plan v5 manifest helpers', () => {
@@ -115,5 +116,43 @@ describe('plan v5 manifest helpers', () => {
     expect(stored?.run?.runId).toBe('run-v5-2');
     expect(stored?.adaptive?.status).toBe('ready');
     expect(stored?.adaptive?.output?.mode).toBe('ABSORB');
+  });
+
+  it('acepta horizontes largos y ventanas de detalle de una semana', () => {
+    const skeleton = V5SkeletonSchema.safeParse({
+      horizonWeeks: 16,
+      goalIds: ['goal-long'],
+      phases: [
+        SkeletonPhaseSchema.parse({
+          phaseId: 'phase-long-1',
+          title: 'Etapa larga',
+          startWeek: 1,
+          endWeek: 16,
+          startDate: '2026-01-05',
+          endDate: '2026-04-26',
+          goalIds: ['goal-long'],
+          objectives: ['Sostener el objetivo durante todo el horizonte'],
+          frequencies: [],
+        }),
+      ],
+      milestones: [],
+    });
+    const detail = V5DetailSchema.safeParse({
+      horizonWeeks: 1,
+      startDate: '2026-01-05',
+      endDate: '2026-01-11',
+      scheduledEvents: [],
+      weeks: [
+        {
+          weekIndex: 9,
+          startDate: '2026-03-02',
+          endDate: '2026-03-08',
+          scheduledEvents: [],
+        },
+      ],
+    });
+
+    expect(skeleton.success).toBe(true);
+    expect(detail.success).toBe(true);
   });
 });

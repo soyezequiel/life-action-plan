@@ -134,6 +134,10 @@ ${formatDomainContext(domainContext)}
 ${revisionBlock}
 ## Tu tarea
 
+## Requisitos de vocabulario en las fases
+
+IMPORTANTE: Si el contexto del usuario incluye un subtema especifico, un nivel actual o un horizonte temporal, cada fase debe mencionar esos datos explicitamente en su titulo o en su resumen. Ejemplos validos: "pizza", "principiante", "6 meses", "seis meses", "medio ano".
+
 Piensa en esto sistematicamente:
 
 Paso 1 - DESCOMPOSICION: Divide el objetivo en 3-6 fases distintas. Cada fase debe tener un enfoque claro y un criterio de salida medible.

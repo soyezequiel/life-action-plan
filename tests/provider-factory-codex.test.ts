@@ -87,6 +87,19 @@ describe('provider-factory codex oauth', () => {
     })
   })
 
+  it('falla antes de la red si el backend Codex llega sin authMode', () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    expect(() => getProvider('openai:gpt-5-codex', {
+      apiKey: 'chatgpt-oauth',
+      baseURL: 'https://chatgpt.com/backend-api/codex',
+    })).toThrow('CODEX_OAUTH_AUTH_MODE_REQUIRED')
+
+    expect(mocks.getCodexAuthSessionMock).not.toHaveBeenCalled()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
   it('usa instructions por defecto si no llega system prompt', async () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body)) as Record<string, unknown>

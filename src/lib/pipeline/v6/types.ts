@@ -148,6 +148,38 @@ export const ReasoningEntrySchema = z.object({
 }).strict();
 export type ReasoningEntry = z.infer<typeof ReasoningEntrySchema>;
 
+export const AgentExecutionOutcomeSchema = z.object({
+  agent: V6AgentNameSchema,
+  phase: OrchestratorPhaseSchema,
+  source: z.enum(['llm', 'fallback', 'deterministic']),
+  errorCode: z.string().nullable(),
+  errorMessage: z.string().nullable(),
+  durationMs: z.number().int().min(0),
+}).strict();
+export type AgentExecutionOutcome = z.infer<typeof AgentExecutionOutcomeSchema>;
+
+export const PlanQualityIssueSchema = z.object({
+  code: z.string(),
+  severity: z.enum(['warning', 'blocking']),
+  message: z.string(),
+}).strict();
+export type PlanQualityIssue = z.infer<typeof PlanQualityIssueSchema>;
+
+export const PlanSignalUsageSchema = z.object({
+  signal: z.string(),
+  expectedValue: z.string(),
+  used: z.boolean(),
+  evidence: z.array(z.string()),
+}).strict();
+export type PlanSignalUsage = z.infer<typeof PlanSignalUsageSchema>;
+
+export const PlanIntakeCoverageSchema = z.object({
+  requiredSignals: z.array(z.string()),
+  missingSignals: z.array(z.string()),
+  signalUsage: z.array(PlanSignalUsageSchema),
+}).strict();
+export type PlanIntakeCoverage = z.infer<typeof PlanIntakeCoverageSchema>;
+
 export const OrchestratorStateSchema = z.object({
   phase: OrchestratorPhaseSchema,
   iteration: z.number().int().min(0),
@@ -186,8 +218,18 @@ export const StrategicDraftSchema: z.ZodType<StrategicDraft> = z.object({
 
 export const SchedulerOutputSchema: z.ZodType<SchedulerOutput> = SchedulerOutputBaseSchema;
 
-export type PlanPackage = V5PlanPackage & {
+export const ScheduleExecutionResultSchema = z.object({
+  solverOutput: SchedulerOutputSchema,
+  tradeoffs: z.array(z.string()),
+  qualityScore: z.number().min(0).max(100),
+  unscheduledCount: z.number().int().min(0),
+}).strict();
+export type ScheduleExecutionResult = z.infer<typeof ScheduleExecutionResultSchema>;
+
+export type PlanPackage = Omit<V5PlanPackage, 'agentOutcomes' | 'degraded'> & {
   reasoningTrace?: ReasoningEntry[];
+  agentOutcomes?: AgentExecutionOutcome[];
+  degraded?: boolean;
 };
 export const PlanPackageSchema: z.ZodType<PlanPackage> = z.object({
   plan: V5PlanSchema,
@@ -200,7 +242,14 @@ export const PlanPackageSchema: z.ZodType<PlanPackage> = z.object({
   implementationIntentions: z.array(z.string()),
   warnings: z.array(z.string()),
   tradeoffs: z.array(TradeoffSchema).optional(),
+  publicationState: z.enum(['publishable', 'requires_regeneration', 'failed_for_quality_review']).optional(),
+  qualityIssues: z.array(PlanQualityIssueSchema).optional(),
+  requestDomain: z.string().nullable().optional(),
+  packageDomain: z.string().nullable().optional(),
+  intakeCoverage: PlanIntakeCoverageSchema.nullable().optional(),
   reasoningTrace: z.array(ReasoningEntrySchema).optional(),
+  agentOutcomes: z.array(AgentExecutionOutcomeSchema).optional(),
+  degraded: z.boolean().optional(),
 }).strict();
 
 export const RevisionHistoryEntrySchema = z.object({
@@ -218,7 +267,7 @@ export const OrchestratorContextSchema = z.object({
   domainCard: DomainKnowledgeCardSchema.nullable(),
   strategicDraft: StrategicDraftSchema.nullable(),
   feasibilityReport: FeasibilityReportSchema.nullable(),
-  scheduleResult: SchedulerOutputSchema.nullable(),
+  scheduleResult: ScheduleExecutionResultSchema.nullable(),
   criticReport: CriticReportSchema.nullable(),
   revisionHistory: z.array(RevisionHistoryEntrySchema),
   finalPackage: PlanPackageSchema.nullable(),

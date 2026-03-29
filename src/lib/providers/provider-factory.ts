@@ -60,6 +60,8 @@ const OLLAMA_MAX_OUTPUT_TOKENS = 4096
 const OPENAI_REASONING_SUMMARY_MODE = 'auto'
 const MODEL_TIMEOUT_MESSAGE = 'El asistente tardo demasiado en responder. Intentalo de nuevo.'
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
+const CODEX_BACKEND_BASE_URL = 'https://chatgpt.com/backend-api/codex'
+const CODEX_OAUTH_PLACEHOLDER_KEY = 'chatgpt-oauth'
 const CODEX_BETA_RESPONSES = 'responses=experimental'
 const CODEX_ORIGINATOR = 'codex_cli_rs'
 const DEFAULT_CODEX_INSTRUCTIONS = 'You are a helpful assistant. Follow the requested output format exactly.'
@@ -109,6 +111,26 @@ function getOpenRouterHeaders(): Record<string, string> {
 
 function isCodexAuthMode(config: ProviderConfig): boolean {
   return config.authMode === 'codex-oauth'
+}
+
+function normalizeBaseUrl(value?: string): string {
+  return value?.trim().replace(/\/+$/g, '') ?? ''
+}
+
+function requiresCodexOAuth(config: ProviderConfig): boolean {
+  const normalizedBaseUrl = normalizeBaseUrl(config.baseURL)
+  const hasCodexBaseUrl = normalizedBaseUrl === CODEX_BACKEND_BASE_URL
+  const hasCodexPlaceholderKey = config.apiKey.trim() === CODEX_OAUTH_PLACEHOLDER_KEY
+
+  return hasCodexBaseUrl || hasCodexPlaceholderKey
+}
+
+function assertCodexAuthMode(config: ProviderConfig): void {
+  if (requiresCodexOAuth(config) && !isCodexAuthMode(config)) {
+    throw new Error(
+      'CODEX_OAUTH_AUTH_MODE_REQUIRED: Codex backend requires authMode="codex-oauth".',
+    )
+  }
 }
 
 function extractCodexTextContent(content: unknown): string {
@@ -351,6 +373,8 @@ function createOpenAIRuntime(
   maxOutputTokens = 4096,
   options?: { providerName?: string; headers?: Record<string, string> }
 ): AgentRuntime {
+  assertCodexAuthMode(config)
+
   const openai = createOpenAI({
     apiKey: config.apiKey,
     baseURL: config.baseURL,

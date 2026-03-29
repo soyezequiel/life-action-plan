@@ -1,7 +1,7 @@
 import type { AgentRuntime } from '../../runtime/types';
 import type { DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
 import { getKnowledgeCard } from '../../domain/domain-knowledge/bank';
-import { generateStrategy } from '../shared/strategy';
+import { buildFallbackStrategy, generateStrategyWithSource } from '../shared/strategy';
 import type { GoalClassification } from '../../domain/goal-taxonomy';
 import type { StrategyInput } from '../shared/phase-io';
 import type { AvailabilityWindow, BlockedSlot } from '../../scheduler/types';
@@ -10,6 +10,7 @@ import { buildRevisionContext } from './prompts/critic-reasoning';
 import { nextPhase, requiresUserInput, phaseProgressScore } from './state-machine';
 import { PlanOrchestratorSnapshotSchema } from './types';
 import type {
+  AgentExecutionOutcome,
   ClarificationRound,
   CriticReport,
   FeasibilityReport,
@@ -20,7 +21,7 @@ import type {
   OrchestratorState,
   PlanPackage,
   ReasoningEntry,
-  SchedulerOutput,
+  ScheduleExecutionResult,
   StrategicDraft,
   UserProfileV5,
   V6Agent,
@@ -45,6 +46,11 @@ export interface OrchestratorResult {
   scratchpad: ReasoningEntry[];
   tokensUsed: number;
   iterations: number;
+  agentOutcomes: AgentExecutionOutcome[];
+  degraded: boolean;
+  publicationState?: 'ready' | 'blocked' | 'failed';
+  failureCode?: 'requires_regeneration' | 'requires_supervision' | 'failed_for_quality_review' | null;
+  blockingAgents?: AgentExecutionOutcome[];
 }
 
 export interface OrchestratorProgress {
@@ -160,10 +166,13 @@ export class PlanOrchestrator {
   private lastAction = '';
   private pendingAnswers: Record<string, string> | null = null;
   private progressHistory: number[] = [];
+  private agentOutcomes: AgentExecutionOutcome[] = [];
+  private runtimeLabel: string;
 
-  constructor(config: Partial<OrchestratorConfig>, runtime: AgentRuntime) {
+  constructor(config: Partial<OrchestratorConfig>, runtime: AgentRuntime, runtimeLabel = 'unknown') {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.runtime = runtime;
+    this.runtimeLabel = runtimeLabel;
     this.scratchpad = new Scratchpad();
 
     this.state = {
@@ -260,9 +269,17 @@ export class PlanOrchestrator {
     this.pendingAnswers = answers;
     this.context.userAnswers = { ...this.context.userAnswers, ...answers };
 
-    // Re-enter the loop at clarify phase
-    if (this.state.phase !== 'clarify') {
-      this.state.phase = 'clarify';
+    const hasActualAnswers = Object.keys(answers).length > 0;
+
+    if (hasActualAnswers) {
+      // Re-enter the loop at clarify phase to process the new answers
+      if (this.state.phase !== 'clarify') {
+        this.state.phase = 'clarify';
+      }
+    } else {
+      // Empty answers = user chose to skip clarification. Advance to plan phase.
+      this.state.phase = 'plan';
+      this.pendingAnswers = null;
     }
 
     return this.executeLoop();
@@ -337,15 +354,23 @@ export class PlanOrchestrator {
 
       // Execute the current phase
       let result: unknown;
+      const phaseStart = Date.now();
       try {
         result = await this.executePhase(this.state.phase);
       } catch (error) {
-        // Agent-level errors are caught inside executePhase via fallback.
-        // If we still get here, record and force to package.
+        const errorMessage = this.getErrorMessage(error);
+        this.agentOutcomes.push({
+          agent: this.phaseToAgent(this.state.phase),
+          phase: this.state.phase,
+          source: 'fallback',
+          errorCode: this.getErrorCode(error),
+          errorMessage,
+          durationMs: Date.now() - phaseStart,
+        });
         this.recordEntry(this.state.phase, this.phaseToAgent(this.state.phase), {
-          action: `Error in ${this.state.phase}`,
-          reasoning: error instanceof Error ? error.message : 'Unknown error',
-          result: 'Phase failed, moving to package',
+          action: `FALLBACK in ${this.state.phase}`,
+          reasoning: this.formatDiagnosticReasoning(error),
+          result: 'Used fallback data - result is NOT from LLM',
         });
         this.state.phase = 'package';
         continue;
@@ -389,6 +414,7 @@ export class PlanOrchestrator {
     this.state.revisionCycles = 0;
     this.state.progressScore = 0;
     this.progressHistory = [];
+    this.agentOutcomes = [];
   }
 
   private buildDefaultAvailability(): AvailabilityWindow[] {
@@ -409,11 +435,18 @@ export class PlanOrchestrator {
       return true;
     }
 
-    // Stalled progress: no increase in 2 consecutive iterations
-    if (this.progressHistory.length >= MAX_STALLED_ITERATIONS) {
-      const recent = this.progressHistory.slice(-MAX_STALLED_ITERATIONS);
+    // Stalled progress: no increase in 3+ consecutive iterations
+    // Exempt 'clarify' phase — staying in clarify is expected when waiting for user input
+    const STALL_WINDOW = Math.max(MAX_STALLED_ITERATIONS, 3);
+    if (
+      this.progressHistory.length >= STALL_WINDOW
+      && this.state.phase !== 'package'
+      && this.state.phase !== 'done'
+      && this.state.phase !== 'clarify'
+    ) {
+      const recent = this.progressHistory.slice(-STALL_WINDOW);
       const allSame = recent.every((score) => score <= recent[0]);
-      if (allSame && this.state.phase !== 'package' && this.state.phase !== 'done') {
+      if (allSame) {
         return true;
       }
     }
@@ -440,6 +473,7 @@ export class PlanOrchestrator {
     const lastClarification = this.context.clarificationRounds.length > 0
       ? this.context.clarificationRounds[this.context.clarificationRounds.length - 1]
       : null;
+    const hasFallbacks = this.agentOutcomes.some((outcome) => outcome.source === 'fallback');
 
     return {
       status: 'needs_input',
@@ -448,6 +482,8 @@ export class PlanOrchestrator {
       scratchpad: this.scratchpad.getAll(),
       tokensUsed: this.scratchpad.totalTokens(),
       iterations: this.state.iteration,
+      agentOutcomes: [...this.agentOutcomes],
+      degraded: hasFallbacks,
     };
   }
 
@@ -480,16 +516,26 @@ export class PlanOrchestrator {
     this.lastAction = 'Interpreting goal';
     const agent = await this.getAgent<{ goalText: string }, GoalInterpretation>('goal-interpreter');
     const input = { goalText: this.context.goalText };
+    const start = Date.now();
 
     if (agent) {
       try {
-        return await agent.execute(input, this.runtime);
-      } catch {
-        return agent.fallback(input);
+        const result = await agent.execute(input, this.runtime);
+        this.recordAgentOutcome('goal-interpreter', 'interpret', 'llm', Date.now() - start);
+        return result;
+      } catch (error) {
+        return this.handleFallback('interpret', 'goal-interpreter', input, agent, start, error);
       }
     }
 
     // Minimal fallback if agent not available
+    const missingAgentError = new Error('Agent not registered');
+    this.recordAgentOutcome('goal-interpreter', 'interpret', 'fallback', Date.now() - start, missingAgentError);
+    this.recordEntry('interpret', 'goal-interpreter', {
+      action: 'FALLBACK: goal-interpreter',
+      reasoning: this.formatDiagnosticReasoning(missingAgentError),
+      result: 'Using inline fallback data - NOT from LLM',
+    });
     return {
       parsedGoal: this.context.goalText,
       goalType: 'FINITE_PROJECT',
@@ -521,16 +567,26 @@ export class PlanOrchestrator {
 
     // Consume pending answers
     this.pendingAnswers = null;
+    const start = Date.now();
 
     if (agent) {
       try {
-        return await agent.execute(input, this.runtime);
-      } catch {
-        return agent.fallback(input);
+        const result = await agent.execute(input, this.runtime);
+        this.recordAgentOutcome('clarifier', 'clarify', 'llm', Date.now() - start);
+        return result;
+      } catch (error) {
+        return this.handleFallback('clarify', 'clarifier', input, agent, start, error);
       }
     }
 
     // Fallback: ready to advance
+    const missingAgentError = new Error('Agent not registered');
+    this.recordAgentOutcome('clarifier', 'clarify', 'fallback', Date.now() - start, missingAgentError);
+    this.recordEntry('clarify', 'clarifier', {
+      action: 'FALLBACK: clarifier',
+      reasoning: this.formatDiagnosticReasoning(missingAgentError),
+      result: 'Using inline fallback data - NOT from LLM',
+    });
     return {
       questions: [],
       reasoning: 'Clarifier unavailable, proceeding with available information.',
@@ -543,6 +599,7 @@ export class PlanOrchestrator {
   private async executePlan(): Promise<StrategicDraft> {
     this.lastAction = 'Generating strategic plan';
     const domainContext = await this.resolvePlanningDomainContext();
+    const start = Date.now();
 
     // Resolve domain card if available
     if (!this.context.domainCard && this.context.interpretation?.suggestedDomain) {
@@ -551,7 +608,8 @@ export class PlanOrchestrator {
         if (card) {
           this.context.domainCard = card;
         }
-      } catch {
+      } catch (error) {
+        void error;
         // Domain card lookup failed — proceed without it
       }
     }
@@ -582,20 +640,37 @@ export class PlanOrchestrator {
     };
 
     try {
-      return await generateStrategy(
+      const strategyResult = await generateStrategyWithSource(
         this.runtime,
         strategyInput,
         this.context.domainCard ?? undefined,
       );
-    } catch {
-      // Deterministic fallback
-      return {
-        phases: [
-          { name: 'Fundamentos', durationWeeks: 4, focus_esAR: 'Construir las bases del objetivo' },
-          { name: 'Desarrollo', durationWeeks: 4, focus_esAR: 'Avanzar hacia el objetivo principal' },
-        ],
-        milestones: ['Completar fase de fundamentos'],
-      };
+      if (strategyResult.source === 'fallback') {
+        const fallbackError = this.buildSyntheticAgentError(
+          strategyResult.fallbackCode ?? 'PLANNER_FALLBACK',
+          strategyResult.fallbackMessage ?? 'Planner fallback was used because the strategy generator did not return a publishable result.',
+        );
+        this.recordAgentOutcome('planner', 'plan', 'fallback', Date.now() - start, fallbackError);
+        this.recordEntry('plan', 'planner', {
+          action: 'FALLBACK: planner',
+          reasoning: this.formatDiagnosticReasoning(fallbackError),
+          result: 'Using fallback strategic draft - NOT from LLM',
+        });
+      } else {
+        this.recordAgentOutcome('planner', 'plan', 'llm', Date.now() - start);
+      }
+      return strategyResult.output;
+    } catch (error) {
+      this.recordAgentOutcome('planner', 'plan', 'fallback', Date.now() - start, error);
+      this.recordEntry('plan', 'planner', {
+        action: 'FALLBACK: planner',
+        reasoning: this.formatDiagnosticReasoning(error),
+        result: 'Using fallback strategic draft - NOT from LLM',
+      });
+      return buildFallbackStrategy(
+        strategyInput,
+        this.context.domainCard ?? undefined,
+      );
     }
   }
 
@@ -628,15 +703,26 @@ export class PlanOrchestrator {
       scheduleConstraints: profile.scheduleConstraints,
     };
 
+    const start = Date.now();
+
     if (agent) {
       try {
-        return await agent.execute(input, this.runtime);
-      } catch {
-        return agent.fallback(input);
+        const result = await agent.execute(input, this.runtime);
+        this.recordAgentOutcome('feasibility-checker', 'check', 'llm', Date.now() - start);
+        return result;
+      } catch (error) {
+        return this.handleFallback('check', 'feasibility-checker', input, agent, start, error);
       }
     }
 
     // Fallback — optimistic
+    const missingAgentError = new Error('Agent not registered');
+    this.recordAgentOutcome('feasibility-checker', 'check', 'fallback', Date.now() - start, missingAgentError);
+    this.recordEntry('check', 'feasibility-checker', {
+      action: 'FALLBACK: feasibility-checker',
+      reasoning: this.formatDiagnosticReasoning(missingAgentError),
+      result: 'Using inline fallback data - NOT from LLM',
+    });
     return {
       status: 'feasible',
       hoursBudget: {
@@ -650,7 +736,7 @@ export class PlanOrchestrator {
     };
   }
 
-  private async executeSchedule(): Promise<SchedulerOutput | null> {
+  private async executeSchedule(): Promise<ScheduleExecutionResult | null> {
     this.lastAction = 'Scheduling activities';
 
     const agent = await this.getAgent<unknown, unknown>('scheduler');
@@ -669,19 +755,27 @@ export class PlanOrchestrator {
       blocked: this.context.blocked ?? [],
       domainCard: this.context.domainCard,
     };
+    const start = Date.now();
 
     if (agent) {
       try {
-        const result = await agent.execute(input, this.runtime) as { solverOutput?: SchedulerOutput };
-        // The scheduler agent returns ScheduleResult { solverOutput, tradeoffs, ... }
-        return result?.solverOutput ?? null;
-      } catch {
-        const fallbackResult = agent.fallback(input) as { solverOutput?: SchedulerOutput };
-        return fallbackResult?.solverOutput ?? null;
+        const result = await agent.execute(input, this.runtime) as ScheduleExecutionResult;
+        this.recordAgentOutcome('scheduler', 'schedule', 'deterministic', Date.now() - start);
+        return result;
+      } catch (error) {
+        const fallbackResult = this.handleFallback('schedule', 'scheduler', input, agent, start, error) as ScheduleExecutionResult;
+        return fallbackResult;
       }
     }
 
     // Scheduler not available — return null, downstream handles gracefully
+    const missingAgentError = new Error('Agent not registered');
+    this.recordAgentOutcome('scheduler', 'schedule', 'fallback', Date.now() - start, missingAgentError);
+    this.recordEntry('schedule', 'scheduler', {
+      action: 'FALLBACK: scheduler',
+      reasoning: this.formatDiagnosticReasoning(missingAgentError),
+      result: 'Using inline fallback data - NOT from LLM',
+    });
     return null;
   }
 
@@ -711,35 +805,40 @@ export class PlanOrchestrator {
       goalType: this.context.interpretation?.goalType ?? 'FINITE_PROJECT',
       profileSummary,
       strategicDraft: (this.context.strategicDraft ?? {}) as Record<string, unknown>,
-      scheduleQualityScore: schedule?.metrics?.fillRate ?? 0,
-      unscheduledCount: schedule?.unscheduled?.length ?? 0,
-      scheduleTradeoffs: schedule?.tradeoffs?.map((t) => t.question_esAR) ?? [],
+      scheduleQualityScore: schedule?.qualityScore ?? 0,
+      unscheduledCount: schedule?.unscheduledCount ?? schedule?.solverOutput.unscheduled?.length ?? 0,
+      scheduleTradeoffs: schedule?.tradeoffs ?? [],
       domainCard: this.context.domainCard,
       previousCriticReports: this.context.criticReport ? [this.context.criticReport] : [],
     };
 
+    const start = Date.now();
+
     if (agent) {
       try {
-        return await agent.execute(input, this.runtime);
-      } catch {
-        return agent.fallback(input);
+        const result = await agent.execute(input, this.runtime);
+        this.recordAgentOutcome('critic', 'critique', 'llm', Date.now() - start);
+        return result;
+      } catch (error) {
+        return this.handleFallback('critique', 'critic', input, agent, start, error);
       }
     }
 
-    // Fallback — approve with reduced confidence
-    return {
-      overallScore: 60,
-      findings: [],
-      mustFix: [],
-      shouldFix: [],
-      verdict: 'approve',
-      reasoning: 'Critic unavailable, proceeding with reduced confidence.',
-    };
+    // Fallback — never approve; degrade explicitly.
+    const missingAgentError = new Error('Agent not registered');
+    this.recordAgentOutcome('critic', 'critique', 'fallback', Date.now() - start, missingAgentError);
+    this.recordEntry('critique', 'critic', {
+      action: 'FALLBACK: critic',
+      reasoning: this.formatDiagnosticReasoning(missingAgentError),
+      result: 'Using inline fallback data - NOT from LLM',
+    });
+    return this.buildCriticFallbackReport(this.context.goalText);
   }
 
   private async executeRevise(): Promise<StrategicDraft> {
     this.lastAction = 'Revising plan based on critic feedback';
     this.state.revisionCycles++;
+    const start = Date.now();
 
     // Record critic findings in revision history
     if (this.context.criticReport) {
@@ -782,17 +881,38 @@ export class PlanOrchestrator {
     };
 
     try {
-      return await generateStrategy(
+      const strategyResult = await generateStrategyWithSource(
         this.runtime,
         strategyInput,
         this.context.domainCard ?? undefined,
       );
-    } catch {
-      // Return existing draft as-is if revision fails
-      return this.context.strategicDraft ?? {
-        phases: [{ name: 'Plan general', durationWeeks: 8, focus_esAR: 'Objetivo principal' }],
-        milestones: ['Completar plan'],
-      };
+      if (strategyResult.source === 'fallback') {
+        const fallbackError = this.buildSyntheticAgentError(
+          strategyResult.fallbackCode ?? 'PLANNER_FALLBACK',
+          strategyResult.fallbackMessage ?? 'Planner fallback was used during revision because the strategy generator did not return a publishable result.',
+        );
+        this.recordAgentOutcome('planner', 'revise', 'fallback', Date.now() - start, fallbackError);
+        this.recordEntry('revise', 'planner', {
+          action: 'FALLBACK: planner',
+          reasoning: this.formatDiagnosticReasoning(fallbackError),
+          result: 'Using existing draft as fallback - NOT from LLM',
+        });
+      } else {
+        this.recordAgentOutcome('planner', 'revise', 'llm', Date.now() - start);
+      }
+      return strategyResult.output;
+    } catch (error) {
+      this.recordAgentOutcome('planner', 'revise', 'fallback', Date.now() - start, error);
+      this.recordEntry('revise', 'planner', {
+        action: 'FALLBACK: planner',
+        reasoning: this.formatDiagnosticReasoning(error),
+        result: 'Using existing draft as fallback - NOT from LLM',
+      });
+      // Return existing draft as-is if revision fails.
+      return this.context.strategicDraft ?? buildFallbackStrategy(
+        strategyInput,
+        this.context.domainCard ?? undefined,
+      );
     }
   }
 
@@ -832,6 +952,13 @@ export class PlanOrchestrator {
     const specificQuestion = this.context.criticReport
       ? `El critico marco estos riesgos:\n${buildRevisionContext([this.context.criticReport])}\nQue consideraciones de dominio deberia respetar la nueva estrategia para corregirlos?`
       : 'Que consideraciones de dominio deberia respetar un roadmap estrategico realista para este objetivo?';
+    const start = Date.now();
+    const phase = this.state.phase === 'revise' ? 'revise' : 'plan';
+    const fallbackInput = {
+      domainLabel: this.context.interpretation.suggestedDomain,
+      goalType: this.context.interpretation.goalType,
+      specificQuestion: null,
+    };
 
     if (agent) {
       try {
@@ -840,6 +967,7 @@ export class PlanOrchestrator {
           goalType: this.context.interpretation.goalType,
           specificQuestion,
         }, this.runtime);
+        this.recordAgentOutcome('domain-expert', phase, 'llm', Date.now() - start);
 
         if (result.card) {
           this.context.domainCard = result.card;
@@ -850,12 +978,8 @@ export class PlanOrchestrator {
           specificAdvice: result.specificAdvice,
           warnings: result.warnings,
         };
-      } catch {
-        const fallback = agent.fallback({
-          domainLabel: this.context.interpretation.suggestedDomain,
-          goalType: this.context.interpretation.goalType,
-          specificQuestion: null,
-        });
+      } catch (error) {
+        const fallback = this.handleFallback(phase, 'domain-expert', fallbackInput, agent, start, error, 'domain-expert');
 
         if (fallback.card) {
           this.context.domainCard = fallback.card;
@@ -868,6 +992,14 @@ export class PlanOrchestrator {
         };
       }
     }
+
+    const missingAgentError = new Error('Agent not registered');
+    this.recordAgentOutcome('domain-expert', phase, 'fallback', Date.now() - start, missingAgentError);
+    this.recordEntry(phase, 'domain-expert', {
+      action: 'FALLBACK: domain-expert',
+      reasoning: this.formatDiagnosticReasoning(missingAgentError),
+      result: 'Using inline domain fallback - NOT from LLM',
+    });
 
     if (!this.context.domainCard) {
       try {
@@ -887,6 +1019,7 @@ export class PlanOrchestrator {
     this.lastAction = 'Packaging final plan';
 
     const agent = await this.getAgent<{ context: OrchestratorContext; scratchpad: ReasoningEntry[] }, PlanPackage>('packager');
+    const start = Date.now();
 
     if (agent) {
       const input = {
@@ -894,9 +1027,11 @@ export class PlanOrchestrator {
         scratchpad: this.scratchpad.getAll(),
       };
       try {
-        return await agent.execute(input, this.runtime);
-      } catch {
-        return agent.fallback(input);
+        const result = await agent.execute(input, this.runtime);
+        this.recordAgentOutcome('packager', 'package', 'deterministic', Date.now() - start);
+        return result;
+      } catch (error) {
+        return this.handleFallback('package', 'packager', input, agent, start, error);
       }
     }
 
@@ -920,6 +1055,234 @@ export class PlanOrchestrator {
     // Fall back to direct import
     const directAgent = await loadAgentDirect(name);
     return directAgent as V6Agent<TInput, TOutput> | null;
+  }
+
+  private getErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Unknown error';
+  }
+
+  private getErrorCode(error: unknown): string {
+    const message = this.getErrorMessage(error).toLowerCase();
+
+    if (
+      message.includes('unauthorized')
+      || message.includes('forbidden')
+      || message.includes('access denied')
+      || message.includes('authentication')
+      || message.includes('api key')
+      || message.includes('401')
+      || message.includes('403')
+    ) {
+      return 'UNAUTHORIZED';
+    }
+
+    if (message.includes('not registered')) {
+      return 'AGENT_NOT_REGISTERED';
+    }
+
+    return error instanceof Error ? error.constructor.name : 'UNKNOWN';
+  }
+
+  private formatDiagnosticReasoning(error: unknown): string {
+    return `[provider=${this.runtimeLabel}] Agent failed [${this.getErrorCode(error)}]: ${this.getErrorMessage(error)}`;
+  }
+
+  private buildSyntheticAgentError(code: string, message: string): Error {
+    const error = new Error(message);
+    error.name = code;
+    return error;
+  }
+
+  private recordAgentOutcome(
+    agent: V6AgentName,
+    phase: OrchestratorPhase,
+    source: AgentExecutionOutcome['source'],
+    durationMs: number,
+    error: unknown = null,
+  ): void {
+    this.agentOutcomes.push({
+      agent,
+      phase,
+      source,
+      errorCode: error ? this.getErrorCode(error) : null,
+      errorMessage: error ? this.getErrorMessage(error) : null,
+      durationMs,
+    });
+  }
+
+  private handleFallback<TInput, TOutput>(
+    phase: OrchestratorPhase,
+    agentName: V6AgentName,
+    input: TInput,
+    agent: Pick<V6Agent<TInput, TOutput>, 'fallback'>,
+    start: number,
+    error: unknown,
+    fallbackLabel?: string,
+  ): TOutput {
+    this.recordAgentOutcome(agentName, phase, 'fallback', Date.now() - start, error);
+    this.recordEntry(phase, agentName, {
+      action: `FALLBACK: ${fallbackLabel ?? agentName}`,
+      reasoning: this.formatDiagnosticReasoning(error),
+      result: 'Using fallback data - NOT from LLM',
+    });
+    return agent.fallback(input);
+  }
+
+  private buildCriticFallbackReport(goalText: string): CriticReport {
+    const finding = {
+      id: 'f-fallback',
+      severity: 'critical' as const,
+      category: 'feasibility' as const,
+      message: `Critic unavailable while reviewing "${goalText}". The plan cannot be approved without a real quality review.`,
+      suggestion: 'Re-run the critic with a working provider before treating the plan as ready.',
+      affectedPhaseIds: [],
+    };
+
+    return {
+      overallScore: 35,
+      findings: [finding],
+      mustFix: [finding],
+      shouldFix: [],
+      verdict: 'revise',
+      reasoning: `Critic unavailable while reviewing "${goalText}". Returning a degraded report, so the plan is not approved.`,
+    };
+  }
+
+  private getFallbackOutcomes(): AgentExecutionOutcome[] {
+    return this.agentOutcomes.filter((outcome) => outcome.source === 'fallback');
+  }
+
+  private getBlockingOutcomes(): AgentExecutionOutcome[] {
+    const criticalAgents = new Set<V6AgentName>(['clarifier', 'planner', 'critic']);
+    return this.agentOutcomes.filter(
+      (outcome) => outcome.source === 'fallback' && criticalAgents.has(outcome.agent),
+    );
+  }
+
+  private isHighRiskHealthGoal(): boolean {
+    const goalText = `${this.context.goalText} ${this.context.interpretation?.parsedGoal ?? ''}`.toLowerCase();
+    return (
+      this.context.interpretation?.riskFlags.includes('HIGH_HEALTH')
+      || /\b(bajar de peso|perder peso|adelgaz|obesidad|sobrepeso|kg\b|kilos?|imc|bmi|cintura|medidas|salud)\b/.test(goalText)
+    );
+  }
+
+  private hasHealthSafetyFraming(): boolean {
+    const packageText = [
+      this.context.finalPackage?.summary_esAR,
+      ...(this.context.finalPackage?.warnings ?? []),
+      ...(this.context.finalPackage?.implementationIntentions ?? []),
+      this.context.criticReport?.reasoning,
+      this.context.strategicDraft?.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`) ?? [],
+    ]
+      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      .join(' ')
+      .toLowerCase();
+
+    return /\b(medico|médico|profesional|supervision|supervisión|seguimiento clinico|seguimiento clínico|consulta)\b/.test(packageText);
+  }
+
+  private getPublicationGate(): {
+    publicationState: 'ready' | 'blocked' | 'failed';
+    failureCode: 'requires_regeneration' | 'requires_supervision' | 'failed_for_quality_review' | null;
+    blockingAgents: AgentExecutionOutcome[];
+  } {
+    const blockingAgents = this.getBlockingOutcomes();
+
+    if (blockingAgents.length > 0) {
+      return {
+        publicationState: 'blocked',
+        failureCode: 'requires_regeneration',
+        blockingAgents,
+      };
+    }
+
+    if (this.context.criticReport && this.context.criticReport.verdict !== 'approve') {
+      return {
+        publicationState: 'failed',
+        failureCode: 'failed_for_quality_review',
+        blockingAgents: [],
+      };
+    }
+
+    if (this.isHighRiskHealthGoal() && !this.hasHealthSafetyFraming()) {
+      return {
+        publicationState: 'blocked',
+        failureCode: 'requires_supervision',
+        blockingAgents: [],
+      };
+    }
+
+    if (!this.context.finalPackage) {
+      return {
+        publicationState: 'failed',
+        failureCode: 'failed_for_quality_review',
+        blockingAgents: [],
+      };
+    }
+
+    if (this.context.finalPackage?.publicationState === 'requires_regeneration') {
+      return {
+        publicationState: 'blocked',
+        failureCode: 'requires_regeneration',
+        blockingAgents: [],
+      };
+    }
+
+    if (this.context.finalPackage?.publicationState === 'failed_for_quality_review') {
+      return {
+        publicationState: 'failed',
+        failureCode: 'failed_for_quality_review',
+        blockingAgents: [],
+      };
+    }
+
+    return {
+      publicationState: 'ready',
+      failureCode: null,
+      blockingAgents: [],
+    };
+  }
+
+  private finalizePackageQualityScore(baseScore: number, publicationState: 'ready' | 'blocked' | 'failed'): number {
+    const fallbackAgents = new Set(this.getFallbackOutcomes().map((outcome) => outcome.agent));
+    if (fallbackAgents.size === 0) {
+      return baseScore;
+    }
+
+    if (publicationState === 'blocked') {
+      return Math.min(baseScore, 20);
+    }
+
+    return Math.min(baseScore, 60);
+  }
+
+  private buildDegradedWarnings(
+    existingWarnings: string[],
+    publicationState: 'ready' | 'blocked' | 'failed',
+  ): string[] {
+    const warnings = new Set(existingWarnings);
+    if (publicationState === 'blocked') {
+      if (this.getBlockingOutcomes().length > 0) {
+        warnings.add(
+          'No se puede publicar este plan: la revision critica fallo y hace falta regenerarlo con un proveedor que responda bien.',
+        );
+      } else if (this.isHighRiskHealthGoal()) {
+        warnings.add(
+          'No se puede publicar este plan de salud sin una referencia clara a seguimiento profesional o supervision clinica.',
+        );
+      } else {
+        warnings.add(
+          'No se puede publicar este plan hasta que pase la revision final.',
+        );
+      }
+    } else if (this.getFallbackOutcomes().length > 0) {
+      warnings.add(
+        'Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido.',
+      );
+    }
+
+    return Array.from(warnings);
   }
 
   // ─── Phase-to-agent mapping ─────────────────────────────────────────────
@@ -961,7 +1324,7 @@ export class PlanOrchestrator {
         break;
       case 'schedule':
         if (result !== null) {
-          this.context.scheduleResult = result as SchedulerOutput;
+          this.context.scheduleResult = result as ScheduleExecutionResult;
         }
         break;
       case 'critique':
@@ -1090,17 +1453,72 @@ export class PlanOrchestrator {
   // ─── Final result building ──────────────────────────────────────────────
 
   private buildFinalResult(): OrchestratorResult {
+    const fallbackOutcomes = this.getFallbackOutcomes();
+    const hasFallbacks = fallbackOutcomes.length > 0;
+    const publicationGate = this.getPublicationGate();
+    const packagePublicationState: NonNullable<PlanPackage['publicationState']> = publicationGate.publicationState === 'ready'
+      ? 'publishable'
+      : publicationGate.failureCode === 'requires_regeneration'
+        ? 'requires_regeneration'
+        : 'failed_for_quality_review';
+    const gateQualityIssues = publicationGate.failureCode === 'requires_regeneration'
+      ? [{
+          code: 'CRITICAL_AGENT_FAILURE',
+          severity: 'blocking' as const,
+          message: 'La ruta critica del pipeline fallo y hace falta regenerar el plan con agentes que respondan correctamente.',
+        }]
+      : publicationGate.failureCode === 'requires_supervision'
+        ? [{
+            code: 'HEALTH_SAFETY_SUPERVISION_MISSING',
+            severity: 'blocking' as const,
+            message: 'Hace falta una referencia clara a supervision profesional antes de tratar este plan de salud como aceptable.',
+          }]
+        : publicationGate.failureCode === 'failed_for_quality_review'
+          ? [{
+              code: 'FAILED_QUALITY_REVIEW',
+              severity: 'blocking' as const,
+              message: 'El plan no paso la revision final de calidad y no puede publicarse como resultado normal.',
+            }]
+          : [];
     const finalPackage = this.context.finalPackage
-      ? this.withLatestReasoningTrace(this.context.finalPackage)
+      ? {
+          ...this.withLatestReasoningTrace(this.context.finalPackage),
+          qualityScore: this.finalizePackageQualityScore(
+            this.context.finalPackage.qualityScore,
+            publicationGate.publicationState,
+          ),
+          warnings: this.buildDegradedWarnings(
+            this.context.finalPackage.warnings,
+            publicationGate.publicationState,
+          ),
+          publicationState: packagePublicationState,
+          qualityIssues: [
+            ...(this.context.finalPackage.qualityIssues ?? []),
+            ...gateQualityIssues.filter((issue) =>
+              !(this.context.finalPackage?.qualityIssues ?? []).some((existing) => existing.code === issue.code),
+            ),
+          ],
+          agentOutcomes: [...this.agentOutcomes],
+          degraded: hasFallbacks,
+        }
       : null;
 
+    const canPublish = publicationGate.publicationState === 'ready'
+      && this.state.phase === 'done'
+      && finalPackage !== null;
+
     return {
-      status: this.state.phase === 'done' ? 'completed' : 'failed',
+      status: canPublish ? 'completed' : 'failed',
       package: finalPackage,
       pendingQuestions: null,
       scratchpad: this.scratchpad.getAll(),
       tokensUsed: this.scratchpad.totalTokens(),
       iterations: this.state.iteration,
+      agentOutcomes: [...this.agentOutcomes],
+      degraded: hasFallbacks,
+      publicationState: publicationGate.publicationState,
+      failureCode: publicationGate.failureCode,
+      blockingAgents: publicationGate.blockingAgents,
     };
   }
 }

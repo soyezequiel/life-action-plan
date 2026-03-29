@@ -57,4 +57,23 @@ describe('PlanFlow', () => {
       await screen.findByText('Necesitás configurar esta conexión antes de usar este asistente.')
     ).toBeTruthy()
   })
+  it('muestra la advertencia cuando la corrida llega degradada', async () => {
+    const user = userEvent.setup()
+    mocks.startMock.mockImplementation(async (_goalText, _profileId, _provider, callbacks) => {
+      callbacks.onDegraded?.({
+        message: 'Plan degradado',
+        failedAgents: 'goal-interpreter: unauthorized',
+        agentOutcomes: [],
+      })
+      callbacks.onComplete('plan-v6-999', 65, 2)
+    })
+
+    render(<PlanFlow profileId="profile-1" provider="openai" />)
+
+    await user.type(screen.getByRole('textbox', { name: /gustar[ií]a lograr/i }), 'Aprender guitarra')
+    await user.click(screen.getByRole('button', { name: 'Crear mi plan' }))
+
+    expect(await screen.findByText('Atencion: el plan uso datos de respaldo')).toBeTruthy()
+    expect(screen.getByText(/goal-interpreter: unauthorized/i)).toBeTruthy()
+  })
 })
