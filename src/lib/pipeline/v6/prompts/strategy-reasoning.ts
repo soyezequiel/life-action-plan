@@ -1,4 +1,5 @@
 import type { DomainKnowledgeCard } from '../../../domain/domain-knowledge/bank';
+import type { GoalSignalKey, GoalSignalsSnapshot } from '../types';
 
 export interface StrategyGoalInterpretation {
   parsedGoal: string;
@@ -30,6 +31,7 @@ export interface StrategyPromptInput {
     fixedCommitments: string[];
   };
   domainContext: StrategyDomainContext | null;
+  goalSignalsSnapshot?: GoalSignalsSnapshot;
   clarificationAnswers: Record<string, string>;
   previousCriticFindings?: StrategyCriticFinding[];
   revisionContext?: string;
@@ -45,6 +47,89 @@ function formatAnswers(answers: Record<string, string>): string {
   const entries = Object.entries(answers);
   if (entries.length === 0) return 'Ninguna respuesta adicional.';
   return entries.map(([key, value]) => `- ${key}: ${value}`).join('\n');
+}
+
+function getSnapshotSignalValue(
+  snapshot: GoalSignalsSnapshot | undefined,
+  signalKey: GoalSignalKey,
+): string | null {
+  if (!snapshot) {
+    return null;
+  }
+
+  for (let index = snapshot.normalizedUserAnswers.length - 1; index >= 0; index -= 1) {
+    const answer = snapshot.normalizedUserAnswers[index];
+    if (answer?.signalKey === signalKey && answer.answer.trim().length > 0) {
+      return answer.answer.trim();
+    }
+  }
+
+  return null;
+}
+
+function formatSignalState(value: string | null | undefined, fallback = 'sin confirmar'): string {
+  return value && value.trim().length > 0 ? value.trim() : fallback;
+}
+
+function formatGoalSignalsSnapshot(snapshot: GoalSignalsSnapshot | undefined): string {
+  if (!snapshot) {
+    return 'No hay snapshot consolidado de senales. Usa el intake disponible sin inventar datos faltantes.';
+  }
+
+  const baseline = getSnapshotSignalValue(snapshot, 'current_baseline');
+  const modality = getSnapshotSignalValue(snapshot, 'modality');
+  const constraints = getSnapshotSignalValue(snapshot, 'constraints');
+  const resources = getSnapshotSignalValue(snapshot, 'resources');
+  const successCriteria = getSnapshotSignalValue(snapshot, 'success_criteria');
+  const safetyContext = getSnapshotSignalValue(snapshot, 'safety_context');
+
+  return [
+    `- parsed_goal: ${formatSignalState(snapshot.parsedGoal)}`,
+    `- goal_type: ${formatSignalState(snapshot.goalType)}`,
+    `- metric: ${formatSignalState(snapshot.metric)}`,
+    `- timeframe: ${formatSignalState(snapshot.timeframe)}`,
+    `- current_baseline: ${formatSignalState(baseline)}`,
+    `- modality: ${formatSignalState(modality)}`,
+    `- constraints: ${formatSignalState(constraints)}`,
+    `- resources: ${formatSignalState(resources)}`,
+    `- success_criteria: ${formatSignalState(successCriteria)}`,
+    `- safety_context: ${formatSignalState(safetyContext, snapshot.riskFlags.length > 0 ? 'sin confirmar' : 'n/a')}`,
+    `- anchor_tokens: ${snapshot.anchorTokens.length > 0 ? snapshot.anchorTokens.join(', ') : 'ninguno'}`,
+    `- risk_flags: ${snapshot.riskFlags.length > 0 ? snapshot.riskFlags.join(', ') : 'ninguno'}`,
+    `- clarification_mode: ${snapshot.clarificationMode}`,
+    `- has_sufficient_signals_for_planning: ${snapshot.hasSufficientSignalsForPlanning ? 'true' : 'false'}`,
+    `- missing_critical_signals: ${snapshot.missingCriticalSignals.length > 0 ? snapshot.missingCriticalSignals.join(', ') : 'ninguno'}`,
+    `- normalized_user_answers: ${snapshot.normalizedUserAnswers.length > 0
+      ? snapshot.normalizedUserAnswers
+        .map((entry) => `[${entry.signalKey ?? 'sin-clave'}] ${entry.question}: ${entry.answer}`)
+        .join(' | ')
+      : 'ninguna'
+    }`,
+  ].join('\n');
+}
+
+function buildSignalFirstPlanningGuidance(snapshot: GoalSignalsSnapshot | undefined): string {
+  if (!snapshot) {
+    return `
+## SENALES UNIVERSALES PRIORITARIAS
+
+No hay snapshot consolidado. Trabaja con el intake disponible, pero no inventes metricas, plazos, baseline, restricciones ni dominio.
+`;
+  }
+
+  return `
+## SENALES UNIVERSALES PRIORITARIAS
+
+Estas senales consolidadas son la fuente prioritaria del plan. Tienen prioridad sobre reinterpretaciones desde answers sueltas o desde el dominio.
+${formatGoalSignalsSnapshot(snapshot)}
+
+Reglas de uso obligatorias:
+- conserva metrica, plazo, modalidad, baseline, restricciones, riesgos y anclas del snapshot salvo que el propio snapshot las marque como faltantes;
+- usa las respuestas normalizadas del snapshot para mantener mecanismo causal y contexto real del usuario;
+- si el snapshot marca \`clarificationMode = degraded_skip\` o \`missingCriticalSignals\` no esta vacio, hace best-effort explicito con lo confirmado;
+- en ese caso NO inventes dominio, metrica, plazo, baseline ni mecanismo solo para cerrar el plan;
+- si un faltante critico bloquea detalle fino, dejalo visible en el SELF_CHECK y en \`conflicts\`, pero segui alineado con la meta real.
+`;
 }
 
 function formatDomainContext(domainContext: StrategyDomainContext | null): string {
@@ -234,13 +319,17 @@ function extractPreferredPath(answers: Record<string, string>): string | null {
 function buildInvariantChecklist(
   goalText: string,
   interpretation: StrategyGoalInterpretation,
+  goalSignalsSnapshot: GoalSignalsSnapshot | undefined,
   clarificationAnswers: Record<string, string>,
   domainContext: StrategyDomainContext | null,
   totalAvailableHours: number,
 ): string {
-  const metricReference = extractMetricReference(goalText, clarificationAnswers);
-  const explicitHorizonText = extractExplicitHorizonText(goalText, clarificationAnswers);
-  const preferredPath = extractPreferredPath(clarificationAnswers);
+  const metricReference = goalSignalsSnapshot?.metric?.trim()
+    || extractMetricReference(goalText, clarificationAnswers);
+  const explicitHorizonText = goalSignalsSnapshot?.timeframe?.trim()
+    || extractExplicitHorizonText(goalText, clarificationAnswers);
+  const preferredPath = getSnapshotSignalValue(goalSignalsSnapshot, 'modality')
+    || extractPreferredPath(clarificationAnswers);
   const domainLine = domainContext?.card
     ? `- Dominio confirmado: "${domainContext.card.domainLabel}". No lo reemplaces por otro dominio ni por otro mecanismo causal.`
     : '- Dominio confirmado: no hay dominio especializado confirmado. No inventes profesiones, industrias, mercados ni disciplinas.';
@@ -275,6 +364,7 @@ export function buildStrategyPrompt(input: StrategyPromptInput): string {
     interpretation,
     userProfile,
     domainContext,
+    goalSignalsSnapshot,
     clarificationAnswers,
     previousCriticFindings,
     revisionContext,
@@ -287,10 +377,12 @@ export function buildStrategyPrompt(input: StrategyPromptInput): string {
   const invariantChecklistBlock = buildInvariantChecklist(
     goalText,
     interpretation,
+    goalSignalsSnapshot,
     clarificationAnswers,
     domainContext,
     totalAvailableHours,
   );
+  const signalFirstBlock = buildSignalFirstPlanningGuidance(goalSignalsSnapshot);
   const revisionBlock = previousCriticFindings && previousCriticFindings.length > 0
     ? `
 ## REVISION OBLIGATORIA - La revision anterior encontro estos problemas:
@@ -331,7 +423,9 @@ Supuestos implicitos confirmados: ${interpretation.implicitAssumptions.join(', '
 - Contexto adicional del usuario:
 ${formatAnswers(clarificationAnswers)}
 
-## Conocimiento de dominio
+${signalFirstBlock}
+## OVERLAY DE DOMINIO OPCIONAL
+El dominio es un overlay: suma contexto util cuando existe, pero NO puede desplazar las senales universales prioritarias.
 ${formatDomainContext(domainContext)}
 ${scopeAlignmentBlock}${revisionBlock}${horizonBlock}
 ${clarificationAlignmentBlock}

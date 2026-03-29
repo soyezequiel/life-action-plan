@@ -5,6 +5,7 @@ import type {
   CriticReport,
   CriticFinding,
   DomainKnowledgeCard,
+  GoalSignalsSnapshot,
 } from '../types';
 
 // ─── Constants ─────────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ export interface CriticInput {
   scheduleQualityScore: number;
   unscheduledCount: number;
   scheduleTradeoffs: string[];
+  goalSignalsSnapshot: GoalSignalsSnapshot;
   domainCard: DomainKnowledgeCard | null;
   previousCriticReports: CriticReport[];
 }
@@ -79,6 +81,28 @@ function summarizePreviousReports(reports: CriticReport[]): string {
   ].join('\n');
 }
 
+function summarizeGoalSignalsSnapshot(snapshot: GoalSignalsSnapshot): string {
+  const normalizedAnswers = snapshot.normalizedUserAnswers.length > 0
+    ? snapshot.normalizedUserAnswers
+      .map((entry) => `- [${entry.signalKey ?? 'sin-clave'}] ${entry.question}: ${entry.answer}`)
+      .join('\n')
+    : '- Ninguna respuesta normalizada';
+
+  return [
+    `Parsed goal: ${snapshot.parsedGoal ?? 'sin confirmar'}`,
+    `Goal type: ${snapshot.goalType ?? 'sin confirmar'}`,
+    `Metric: ${snapshot.metric ?? 'sin confirmar'}`,
+    `Timeframe: ${snapshot.timeframe ?? 'sin confirmar'}`,
+    `Anchor tokens: ${snapshot.anchorTokens.length > 0 ? snapshot.anchorTokens.join(', ') : 'ninguno'}`,
+    `Risk flags: ${snapshot.riskFlags.length > 0 ? snapshot.riskFlags.join(', ') : 'ninguno'}`,
+    `Clarification mode: ${snapshot.clarificationMode}`,
+    `Has sufficient signals for planning: ${snapshot.hasSufficientSignalsForPlanning ? 'true' : 'false'}`,
+    `Missing critical signals: ${snapshot.missingCriticalSignals.length > 0 ? snapshot.missingCriticalSignals.join(', ') : 'ninguno'}`,
+    'Normalized user answers:',
+    normalizedAnswers,
+  ].join('\n');
+}
+
 // ─── LLM prompt ────────────────────────────────────────────────────────────
 
 function buildCriticPrompt(input: CriticInput): string {
@@ -102,19 +126,32 @@ Unscheduled items: ${input.unscheduledCount}
 Schedule tradeoffs:
 ${tradeoffs}
 
-Domain knowledge:
+Universal goal signals (PRIMARY source of truth):
+${summarizeGoalSignalsSnapshot(input.goalSignalsSnapshot)}
+
+Domain overlay:
 ${summarizeDomainCard(input.domainCard)}
 ${previousContext}
 
 ## Important context about the pipeline
 
-The strategy above is a HIGH-LEVEL roadmap of phases and milestones. A separate scheduler component (already executed) converts these phases into concrete weekly sessions with specific activities, durations, and frequencies. Do NOT penalize the strategy for lacking session-level detail (e.g. "how many times per week" or "what to do each day") — that is handled downstream and is already reflected in the schedule quality score above. Focus your evaluation on whether the strategic direction, progression, and domain alignment are sound.
+The strategy above is a HIGH-LEVEL roadmap of phases and milestones. A separate scheduler component (already executed) converts these phases into concrete weekly sessions with specific activities, durations, and frequencies. Do NOT penalize the strategy for lacking session-level detail (e.g. "how many times per week" or "what to do each day") — that is handled downstream and is already reflected in the schedule quality score above. Focus your evaluation on whether the strategic direction, progression, and signal alignment are sound.
 
-Treat the provided goal, profile, tradeoffs, and domain knowledge as the full context. Do NOT invent hidden constraints. If budget, ingredient cost, equipment, allergies, family support, or deadlines are not explicitly present in that context, do not penalize the plan for ignoring them.
+Treat the provided goal, profile, signals snapshot, tradeoffs, and optional domain overlay as the full context. Do NOT invent hidden constraints. If budget, ingredient cost, equipment, allergies, family support, or deadlines are not explicitly present in that context, do not penalize the plan for ignoring them.
+If clarificationMode is "degraded_skip" or missingCriticalSignals is non-empty, treat that as a quality/specificity risk in the available context. It is NOT permission to invent a different domain, a new mechanism, a new metric, or a new timeframe.
 
 ## Your evaluation
 
-Analyze this plan against these 6 dimensions. For each dimension, think carefully about whether the plan would actually work for a real person with these constraints.
+Analyze this plan in this order:
+0. SIGNAL ALIGNMENT FIRST — before scoring anything else, verify whether the draft preserves the consolidated signals snapshot: metric, timeframe, anchor tokens, confirmed baseline, modality, constraints, risk flags, and normalized user answers. If the plan drifts from these signals, raise findings under specificity or feasibility.
+1. SPECIFICITY
+2. PROGRESSION
+3. SCHEDULING
+4. MOTIVATION
+5. FEASIBILITY
+6. DOMAIN OVERLAY
+
+For each dimension, think carefully about whether the plan would actually work for a real person with these constraints.
 
 Dimensions:
 1. SPECIFICITY — Are phase goals and milestones measurable and concrete at a strategic level?
@@ -122,7 +159,7 @@ Dimensions:
 3. SCHEDULING — Given the schedule quality score and tradeoffs above, are there red flags?
 4. MOTIVATION — Will this person stay motivated? Are there early wins?
 5. FEASIBILITY — Is anything critical missing or unrealistic at the strategic level?
-6. DOMAIN — Does the plan follow domain best practices?
+6. DOMAIN — Only evaluate domain best practices if a domain card is explicitly available. If domainCard is null, do not penalize the plan for lacking domain-specific best practices. Without a domain card, only mention domain if the plan invents a new domain or mechanism that is unsupported by the goal/signals.
 
 Score the overall plan 0-100 using weighted average:
 - Specificity: 20%
@@ -219,6 +256,13 @@ function reconcileUnsupportedFindings(report: CriticReport, input: CriticInput):
   let removedUnsupportedCritical = false;
 
   const findings = report.findings.filter((finding) => {
+    if (!input.domainCard && finding.category === 'domain') {
+      if (finding.severity === 'critical') {
+        removedUnsupportedCritical = true;
+      }
+      return false;
+    }
+
     if (mentionsBudgetConstraint(finding) && !hasBudgetContext) {
       if (finding.severity === 'critical') {
         removedUnsupportedCritical = true;

@@ -8,6 +8,7 @@ import type { ActivityRequest, SchedulerOutput, SchedulerInput, Tradeoff } from 
 import type { V5Plan } from '../../domain/rolling-wave-plan';
 import type { SlackPolicy } from '../../domain/slack-policy';
 import type { PlanItem } from '../../domain/plan-item';
+import type { GoalSignalsSnapshot } from '../v6/types';
 
 // ─── 1. Classify ──────────────────────────────────────────────────────────────
 export interface ClassifyInput { text: string; }
@@ -68,6 +69,7 @@ export interface StrategyDomainContext {
 export interface StrategyPlanningContext {
   interpretation?: StrategyInterpretationContext;
   clarificationAnswers?: Record<string, string>;
+  goalSignalsSnapshot?: GoalSignalsSnapshot;
   domainContext?: StrategyDomainContext | null;
   previousCriticFindings?: StrategyCriticFindingContext[];
   previousCriticReports?: StrategyCriticReportContext[];

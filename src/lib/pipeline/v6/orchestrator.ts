@@ -11,13 +11,20 @@ import type { AvailabilityWindow, BlockedSlot } from '../../scheduler/types';
 import { Scratchpad } from './scratchpad';
 import { buildRevisionContext } from './prompts/critic-reasoning';
 import { nextPhase, requiresUserInput, phaseProgressScore } from './state-machine';
-import { PlanOrchestratorSnapshotSchema } from './types';
+import {
+  GoalSignalsSnapshotSchema,
+  PlanOrchestratorSnapshotSchema,
+  normalizeGoalSignalKey,
+} from './types';
 import type {
   AgentExecutionOutcome,
+  GoalSignalKey,
+  ClarificationQuestion,
   ClarificationRound,
   CriticReport,
   FeasibilityReport,
   GoalInterpretation,
+  GoalSignalsSnapshot,
   OrchestratorConfig,
   OrchestratorContext,
   OrchestratorDebugEvent,
@@ -184,6 +191,284 @@ function buildClassification(interpretation: GoalInterpretation | null, goalText
   };
 }
 
+interface GenericGoalSignalAnchors {
+  metric: string | null;
+  timeframe: string | null;
+  anchorTokens: string[];
+}
+
+const UNIVERSAL_CRITICAL_SIGNAL_ORDER: GoalSignalKey[] = [
+  'metric',
+  'success_criteria',
+  'timeframe',
+  'current_baseline',
+  'constraints',
+  'safety_context',
+];
+
+function hasMeaningfulText(value: string | null | undefined): boolean {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+const GOAL_SIGNAL_STOPWORDS = new Set([
+  'actual',
+  'actuales',
+  'actualmente',
+  'alguna',
+  'alguno',
+  'algun',
+  'ano',
+  'anos',
+  'aprovechar',
+  'aproximadamente',
+  'cada',
+  'como',
+  'con',
+  'cuenta',
+  'de',
+  'del',
+  'digamos',
+  'el',
+  'en',
+  'es',
+  'esta',
+  'este',
+  'flujo',
+  'fuente',
+  'fuentes',
+  'generar',
+  'habilidad',
+  'habilidades',
+  'hacer',
+  'ingreso',
+  'ingresos',
+  'la',
+  'las',
+  'lograr',
+  'los',
+  'me',
+  'mes',
+  'meses',
+  'meta',
+  'mi',
+  'mis',
+  'no',
+  'obtener',
+  'objetivo',
+  'para',
+  'pero',
+  'plata',
+  'por',
+  'prefiere',
+  'prefieres',
+  'preferir',
+  'priorizar',
+  'puede',
+  'puedes',
+  'que',
+  'quiero',
+  'recurso',
+  'recursos',
+  'se',
+  'semana',
+  'semanas',
+  'ser',
+  'soy',
+  'su',
+  'tengo',
+  'tener',
+  'tipo',
+  'tu',
+  'un',
+  'una',
+  'usd',
+  'y',
+  'ya',
+]);
+
+const GOAL_SIGNAL_TECH_TOKENS = new Set([
+  'aws',
+  'backend',
+  'css',
+  'frontend',
+  'gcp',
+  'github',
+  'html',
+  'java',
+  'javascript',
+  'linkedin',
+  'nextjs',
+  'node',
+  'nodejs',
+  'php',
+  'portfolio',
+  'portafolio',
+  'python',
+  'react',
+  'remote',
+  'remoto',
+  'sql',
+  'typescript',
+]);
+
+function normalizeGoalSignalText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function uniqueNonEmpty(values: string[]): string[] {
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+function canonicalizeGoalSignalToken(token: string): string {
+  const normalized = normalizeGoalSignalText(token);
+
+  switch (normalized) {
+    case '3k':
+      return '3000';
+    case 'dolar':
+    case 'dolares':
+    case 'us':
+    case 'us$':
+      return 'usd';
+    case 'pizzas':
+      return 'pizza';
+    case 'pastas':
+      return 'pasta';
+    case 'clientes':
+      return 'cliente';
+    case 'entrevistas':
+      return 'entrevista';
+    case 'nodejs':
+      return 'node';
+    case 'reactjs':
+      return 'react';
+    default:
+      return normalized;
+  }
+}
+
+function tokenizeGoalSignalText(value: string): string[] {
+  return uniqueNonEmpty(
+    normalizeGoalSignalText(value).match(/[a-z0-9.+#-]+/g) ?? [],
+  )
+    .map((token) => canonicalizeGoalSignalToken(token))
+    .filter((token) => token.length >= 2)
+    .filter((token) => !GOAL_SIGNAL_STOPWORDS.has(token));
+}
+
+function extractMatchedFragment(values: string[], pattern: RegExp): string | null {
+  for (const value of values) {
+    const match = value.match(pattern);
+    if (match) {
+      return match[0];
+    }
+  }
+
+  return null;
+}
+
+function collectBestMatchedGoalSignalValue(values: string[], patterns: RegExp[]): string | null {
+  let bestMatch: { fragment: string; surroundingNoise: number; valueLength: number; index: number } | null = null;
+
+  for (const [index, value] of values.entries()) {
+    for (const pattern of patterns) {
+      const match = value.match(pattern);
+      if (!match) {
+        continue;
+      }
+
+      const fragment = match[0];
+      const candidate = {
+        fragment,
+        surroundingNoise: Math.max(0, value.length - fragment.length),
+        valueLength: value.length,
+        index,
+      };
+
+      if (
+        !bestMatch
+        || candidate.surroundingNoise < bestMatch.surroundingNoise
+        || (
+          candidate.surroundingNoise === bestMatch.surroundingNoise
+          && candidate.valueLength < bestMatch.valueLength
+        )
+        || (
+          candidate.surroundingNoise === bestMatch.surroundingNoise
+          && candidate.valueLength === bestMatch.valueLength
+          && candidate.index < bestMatch.index
+        )
+      ) {
+        bestMatch = candidate;
+      }
+    }
+  }
+
+  return bestMatch?.fragment ?? null;
+}
+
+function extractGoalSignalAnchors(goalText: string, answers: Record<string, string>): GenericGoalSignalAnchors {
+  const answerValues = uniqueNonEmpty(Object.values(answers));
+  const metric = extractMatchedFragment(
+    [goalText],
+    /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i,
+  ) ?? collectBestMatchedGoalSignalValue(answerValues, [
+    /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i,
+  ]);
+  const timeframe = extractMatchedFragment(
+    [goalText],
+    /\b\d+\s*(?:a[ñn]o|a[ñn]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i,
+  ) ?? collectBestMatchedGoalSignalValue(answerValues, [
+    /\b\d+\s*(?:a[ñn]o|a[ñn]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i,
+  ]);
+  const metricTokens = new Set(metric ? tokenizeGoalSignalText(metric) : []);
+  const timeframeTokens = new Set(timeframe ? tokenizeGoalSignalText(timeframe) : []);
+  const goalTokens = new Set(tokenizeGoalSignalText(goalText));
+  const tokenScores = new Map<string, number>();
+
+  for (const answerValue of answerValues) {
+    const tokens = tokenizeGoalSignalText(answerValue);
+    const isShortAnswer = tokens.length > 0 && tokens.length <= 4;
+
+    for (const token of tokens) {
+      if (metricTokens.has(token) || timeframeTokens.has(token) || /^\d+(?:\.\d+)?$/.test(token)) {
+        continue;
+      }
+
+      let score = isShortAnswer ? 3 : 1;
+      if (goalTokens.has(token)) score += 2;
+      if (GOAL_SIGNAL_TECH_TOKENS.has(token)) score += 3;
+      if (token.length >= 6) score += 2;
+      else if (token.length >= 4) score += 1;
+
+      tokenScores.set(token, (tokenScores.get(token) ?? 0) + score);
+    }
+  }
+
+  const rankedTokens = [...tokenScores.entries()]
+    .sort((left, right) => right[1] - left[1] || right[0].length - left[0].length || left[0].localeCompare(right[0]))
+    .map(([token]) => token);
+  const fallbackGoalTokens = [...goalTokens].filter((token) =>
+    !metricTokens.has(token)
+    && !timeframeTokens.has(token)
+    && !/^\d+(?:\.\d+)?$/.test(token),
+  );
+
+  return {
+    metric,
+    timeframe,
+    anchorTokens: uniqueNonEmpty(rankedTokens.length > 0 ? rankedTokens : fallbackGoalTokens).slice(0, 6),
+  };
+}
+
+function includesAnyPattern(values: string[], pattern: RegExp): boolean {
+  return values.some((value) => pattern.test(value));
+}
+
 // ─── PlanOrchestrator ───────────────────────────────────────────────────────
 
 export class PlanOrchestrator {
@@ -195,6 +480,7 @@ export class PlanOrchestrator {
   private runtime: AgentRuntime;
   private lastAction = '';
   private pendingAnswers: Record<string, string> | null = null;
+  private clarificationSkipRequested = false;
   private progressHistory: number[] = [];
   private agentOutcomes: AgentExecutionOutcome[] = [];
   private debugTrace: OrchestratorDebugEvent[] = [];
@@ -236,6 +522,26 @@ export class PlanOrchestrator {
       interpretation: null,
       clarificationRounds: [],
       userAnswers: {},
+      goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+        parsedGoal: null,
+        goalType: null,
+        riskFlags: [],
+        suggestedDomain: null,
+        metric: null,
+        timeframe: null,
+        anchorTokens: [],
+        informationGaps: [],
+        clarifyConfidence: null,
+        readyToAdvance: null,
+        normalizedUserAnswers: [],
+        missingCriticalSignals: [],
+        hasSufficientSignalsForPlanning: false,
+        clarificationMode: 'needs_input',
+        degraded: false,
+        fallbackCount: 0,
+        phase: this.state.phase,
+        clarifyRounds: this.state.clarifyRounds,
+      }),
       userProfile: null,
       domainCard: null,
       strategicDraft: null,
@@ -272,6 +578,9 @@ export class PlanOrchestrator {
         informationGaps: [...round.informationGaps],
       })),
       userAnswers: { ...parsed.context.userAnswers },
+      goalSignalsSnapshot: parsed.context.goalSignalsSnapshot
+        ? structuredClone(parsed.context.goalSignalsSnapshot)
+        : undefined,
       userProfile: parsed.context.userProfile
         ? {
             ...parsed.context.userProfile,
@@ -292,6 +601,7 @@ export class PlanOrchestrator {
     orchestrator.scratchpad.restore(parsed.scratchpad);
     orchestrator.lastAction = parsed.lastAction;
     orchestrator.pendingAnswers = parsed.pendingAnswers ? { ...parsed.pendingAnswers } : null;
+    orchestrator.clarificationSkipRequested = parsed.context.goalSignalsSnapshot?.clarificationMode === 'degraded_skip';
     orchestrator.progressHistory = [...parsed.progressHistory];
     orchestrator.agentOutcomes = (parsed.agentOutcomes ?? []).map((outcome) => ({ ...outcome }));
     orchestrator.debugTrace = (parsed.debugTrace ?? []).map((event) => structuredClone(event));
@@ -299,6 +609,7 @@ export class PlanOrchestrator {
       (max, event) => Math.max(max, event.sequence),
       0,
     );
+    orchestrator.syncGoalSignalsSnapshot();
 
     return orchestrator;
   }
@@ -334,16 +645,10 @@ export class PlanOrchestrator {
     this.context.userAnswers = { ...this.context.userAnswers, ...storedAnswers };
 
     const hasActualAnswers = Object.keys(answers).length > 0;
+    this.clarificationSkipRequested = !hasActualAnswers;
+    this.state.phase = 'clarify';
 
-    if (hasActualAnswers) {
-      const shouldSkipClarify = this.state.phase === 'clarify'
-        && this.state.clarifyRounds >= this.state.maxClarifyRounds;
-      this.state.phase = shouldSkipClarify ? 'plan' : 'clarify';
-    } else {
-      // Empty answers = user chose to skip clarification. Advance to plan phase.
-      this.state.phase = 'plan';
-      this.pendingAnswers = null;
-    }
+    const goalSignalsSnapshot = this.syncGoalSignalsSnapshot();
 
     this.recordDebugEvent({
       category: 'lifecycle',
@@ -357,6 +662,7 @@ export class PlanOrchestrator {
         answersCount: Object.keys(answers).length,
         answeredQuestionIds: Object.keys(answers),
         storedAnswerKeys: Object.keys(storedAnswers),
+        goalSignalsSnapshot,
       },
     });
 
@@ -417,6 +723,8 @@ export class PlanOrchestrator {
   }
 
   getSnapshot(): PlanOrchestratorSnapshot {
+    const goalSignalsSnapshot = this.syncGoalSignalsSnapshot();
+
     return {
       config: { ...this.config },
       state: {
@@ -433,6 +741,7 @@ export class PlanOrchestrator {
           informationGaps: [...round.informationGaps],
         })),
         userAnswers: { ...this.context.userAnswers },
+        goalSignalsSnapshot: structuredClone(goalSignalsSnapshot),
         userProfile: this.context.userProfile
           ? {
               ...this.context.userProfile,
@@ -538,6 +847,7 @@ export class PlanOrchestrator {
 
       // Update context with result
       this.mergeResult(this.state.phase, result);
+      this.syncGoalSignalsSnapshot();
       this.recordPhaseSpecificDebug(this.state.phase, result, {
         previousClarificationRounds,
         previousCriticReport,
@@ -554,6 +864,7 @@ export class PlanOrchestrator {
       // Sync scratchpad entries into state
       this.state.tokenBudget.used = this.scratchpad.totalTokens();
       this.state.scratchpad = this.scratchpad.getAll();
+      this.syncGoalSignalsSnapshot();
       this.recordPhaseTransition(previousPhase, this.state.phase, result);
     }
 
@@ -564,7 +875,18 @@ export class PlanOrchestrator {
 
   private initializeContext(goalText: string, userCtx: UserContext): void {
     this.context.goalText = goalText;
+    this.context.interpretation = null;
+    this.context.clarificationRounds = [];
+    this.context.userAnswers = {};
+    this.context.goalSignalsSnapshot = undefined;
     this.context.userProfile = userCtx.profile;
+    this.context.domainCard = null;
+    this.context.strategicDraft = null;
+    this.context.feasibilityReport = null;
+    this.context.scheduleResult = null;
+    this.context.criticReport = null;
+    this.context.revisionHistory = [];
+    this.context.finalPackage = null;
     this.context.availability = userCtx.availability ?? this.buildDefaultAvailability();
     this.context.blocked = userCtx.blocked ?? [];
     this.state.iteration = 0;
@@ -577,7 +899,9 @@ export class PlanOrchestrator {
     this.debugSequence = 0;
     this.lastAction = '';
     this.pendingAnswers = null;
+    this.clarificationSkipRequested = false;
     this.scratchpad.restore([]);
+    this.syncGoalSignalsSnapshot();
   }
 
   private buildDefaultAvailability(): AvailabilityWindow[] {
@@ -625,7 +949,7 @@ export class PlanOrchestrator {
   // ─── User input management ──────────────────────────────────────────────
 
   private hasPendingAnswers(): boolean {
-    if (this.pendingAnswers !== null && Object.keys(this.pendingAnswers).length > 0) {
+    if (this.pendingAnswers !== null) {
       return true;
     }
 
@@ -674,6 +998,179 @@ export class PlanOrchestrator {
     };
   }
 
+  private syncGoalSignalsSnapshot(): GoalSignalsSnapshot {
+    const fallbackCount = this.getFallbackOutcomes().length;
+    const snapshot = GoalSignalsSnapshotSchema.parse({
+      ...this.buildGoalSignalsSnapshot(),
+      degraded: fallbackCount > 0,
+      fallbackCount,
+      phase: this.state.phase,
+      clarifyRounds: this.state.clarifyRounds,
+    });
+
+    this.context.goalSignalsSnapshot = snapshot;
+    return snapshot;
+  }
+
+  private buildGoalSignalsSnapshot(): Omit<
+    GoalSignalsSnapshot,
+    'degraded' | 'fallbackCount' | 'phase' | 'clarifyRounds'
+  > {
+    const latestClarification = this.context.clarificationRounds.at(-1) ?? null;
+    const normalizedUserAnswers = this.buildNormalizedUserAnswers();
+    const anchors = extractGoalSignalAnchors(this.context.goalText, this.context.userAnswers);
+    const missingCriticalSignals = this.buildMissingCriticalSignals(anchors, normalizedUserAnswers);
+    const hasSufficientSignalsForPlanning = missingCriticalSignals.length === 0;
+    const clarificationMode = hasSufficientSignalsForPlanning
+      ? 'sufficient'
+      : this.clarificationSkipRequested
+        ? 'degraded_skip'
+        : 'needs_input';
+
+    return {
+      parsedGoal: this.context.interpretation?.parsedGoal ?? null,
+      goalType: this.context.interpretation?.goalType ?? null,
+      riskFlags: this.context.interpretation?.riskFlags ?? [],
+      suggestedDomain: this.context.interpretation?.suggestedDomain ?? null,
+      metric: anchors.metric,
+      timeframe: anchors.timeframe,
+      anchorTokens: anchors.anchorTokens,
+      informationGaps: missingCriticalSignals.length > 0
+        ? missingCriticalSignals
+        : latestClarification?.informationGaps
+          ?? this.context.interpretation?.ambiguities
+          ?? [],
+      clarifyConfidence: latestClarification?.confidence ?? null,
+      readyToAdvance: latestClarification?.readyToAdvance ?? null,
+      normalizedUserAnswers,
+      missingCriticalSignals,
+      hasSufficientSignalsForPlanning,
+      clarificationMode,
+    };
+  }
+
+  private buildMissingCriticalSignals(
+    anchors: GenericGoalSignalAnchors,
+    normalizedUserAnswers: GoalSignalsSnapshot['normalizedUserAnswers'],
+  ): GoalSignalKey[] {
+    const normalizedGoalText = normalizeGoalSignalText(this.context.goalText);
+    const normalizedParsedGoal = normalizeGoalSignalText(this.context.interpretation?.parsedGoal ?? '');
+    const normalizedAnswerTexts = normalizedUserAnswers
+      .map((entry) => normalizeGoalSignalText(entry.answer))
+      .filter((value) => value.length > 0);
+    const requiredSignals = new Set(this.getRequiredCriticalSignals(anchors));
+    const answeredSignals = new Set(
+      normalizedUserAnswers
+        .map((entry) => entry.signalKey)
+        .filter((signalKey): signalKey is GoalSignalKey => signalKey !== null),
+    );
+    const hasBaselineEvidence = answeredSignals.has('current_baseline')
+      || includesAnyPattern(normalizedAnswerTexts, /\b(actual|actualmente|hoy|ahora|partida|punto de partida|nivel|experiencia|principiante|intermedio|avanzado|sin ingresos|ninguno|ninguna|cero|0)\b/)
+      || /\b(actual|actualmente|hoy|ahora|principiante|intermedio|avanzado)\b/.test(normalizedGoalText);
+    const hasConstraintEvidence = answeredSignals.has('constraints')
+      || this.context.userProfile !== null
+      || (this.context.blocked?.length ?? 0) > 0
+      || includesAnyPattern(normalizedAnswerTexts, /\b(hora|horas|tiempo|agenda|disponibilidad|limite|limitado|restriccion|restricciones|energia|presupuesto|trabajo|familia|fin de semana|finde)\b/);
+    const hasSuccessCriteriaEvidence = answeredSignals.has('success_criteria')
+      || hasMeaningfulText(anchors.metric)
+      || normalizedParsedGoal.length >= 8;
+    const hasSafetyEvidence = !this.requiresSafetyContext()
+      || answeredSignals.has('safety_context')
+      || includesAnyPattern(
+        [normalizedGoalText, normalizedParsedGoal, ...normalizedAnswerTexts],
+        /\b(supervision|supervision profesional|medico|medica|profesional|contraindic|lesion|riesgo|abogado|legal|deuda|medicacion|terapia|diagnostico)\b/,
+      );
+    const hasSignal: Record<GoalSignalKey, boolean> = {
+      metric: answeredSignals.has('metric') || hasMeaningfulText(anchors.metric),
+      timeframe: answeredSignals.has('timeframe') || hasMeaningfulText(anchors.timeframe),
+      current_baseline: hasBaselineEvidence,
+      success_criteria: hasSuccessCriteriaEvidence,
+      constraints: hasConstraintEvidence,
+      modality: answeredSignals.has('modality'),
+      resources: answeredSignals.has('resources'),
+      safety_context: hasSafetyEvidence,
+    };
+
+    return UNIVERSAL_CRITICAL_SIGNAL_ORDER.filter((signalKey) =>
+      requiredSignals.has(signalKey) && !hasSignal[signalKey],
+    );
+  }
+
+  private getRequiredCriticalSignals(anchors: GenericGoalSignalAnchors): GoalSignalKey[] {
+    const signals: GoalSignalKey[] = [
+      this.context.interpretation?.goalType === 'QUANT_TARGET_TRACKING' || hasMeaningfulText(anchors.metric)
+        ? 'metric'
+        : 'success_criteria',
+      'timeframe',
+      'current_baseline',
+      'constraints',
+    ];
+
+    if (this.requiresSafetyContext()) {
+      signals.push('safety_context');
+    }
+
+    return signals;
+  }
+
+  private requiresSafetyContext(): boolean {
+    return (this.context.interpretation?.riskFlags ?? []).some((riskFlag) => riskFlag.startsWith('HIGH_'));
+  }
+
+  private buildNormalizedUserAnswers(): GoalSignalsSnapshot['normalizedUserAnswers'] {
+    const questionTextById = new Map<string, string>();
+    const questionSignalById = new Map<string, GoalSignalKey | null>();
+    const questionIdByNormalizedText = new Map<string, string>();
+
+    for (const round of this.context.clarificationRounds) {
+      for (const [index, question] of round.questions.entries()) {
+        const trimmedQuestion = question.text.trim();
+        const signalKey = normalizeGoalSignalKey(round.informationGaps[index] ?? null);
+        questionTextById.set(question.id, trimmedQuestion);
+        questionSignalById.set(question.id, signalKey);
+        questionIdByNormalizedText.set(this.normalizeDebugText(trimmedQuestion), question.id);
+      }
+    }
+
+    const normalizedAnswers = Object.entries(this.context.userAnswers)
+      .filter(([, answer]) => typeof answer === 'string' && answer.trim().length > 0)
+      .map(([key, answer]) => {
+        const questionId = questionTextById.has(key)
+          ? key
+          : questionIdByNormalizedText.get(this.normalizeDebugText(key)) ?? null;
+        const question = questionId ? (questionTextById.get(questionId) ?? key) : key;
+        const signalKey = questionId
+          ? (questionSignalById.get(questionId) ?? null)
+          : normalizeGoalSignalKey(key);
+
+        return {
+          key,
+          questionId,
+          signalKey,
+          question,
+          answer: answer.trim(),
+        };
+      });
+
+    const dedupedAnswers: GoalSignalsSnapshot['normalizedUserAnswers'] = [];
+    const seenSignals = new Set<GoalSignalKey>();
+
+    for (let index = normalizedAnswers.length - 1; index >= 0; index -= 1) {
+      const entry = normalizedAnswers[index]!;
+      if (entry.signalKey && seenSignals.has(entry.signalKey)) {
+        continue;
+      }
+
+      if (entry.signalKey) {
+        seenSignals.add(entry.signalKey);
+      }
+
+      dedupedAnswers.unshift(entry);
+    }
+
+    return dedupedAnswers;
+  }
+
   private pauseForInput(): OrchestratorResult {
     const lastClarification = this.context.clarificationRounds.length > 0
       ? this.context.clarificationRounds[this.context.clarificationRounds.length - 1]
@@ -692,6 +1189,7 @@ export class PlanOrchestrator {
         questionCount: lastClarification?.questions.length ?? 0,
         questions: lastClarification?.questions ?? [],
         informationGaps: lastClarification?.informationGaps ?? [],
+        goalSignalsSnapshot: this.syncGoalSignalsSnapshot(),
       },
     });
 
@@ -757,6 +1255,13 @@ export class PlanOrchestrator {
     result: unknown,
   ): string {
     if (previousPhase === 'clarify' && next === 'plan') {
+      if (
+        this.context.goalSignalsSnapshot?.clarificationMode === 'degraded_skip'
+        && !this.context.goalSignalsSnapshot.hasSufficientSignalsForPlanning
+      ) {
+        return 'La aclaracion cierra en modo degradado: el usuario eligio seguir aunque faltan senales criticas.';
+      }
+
       return 'La aclaracion alcanzo contexto suficiente y el pipeline avanza a planificacion.';
     }
 
@@ -806,6 +1311,7 @@ export class PlanOrchestrator {
           ambiguities: interpretation.ambiguities.slice(0, 4),
           assumptions: interpretation.implicitAssumptions.slice(0, 4),
           riskFlags: interpretation.riskFlags.slice(0, 4),
+          goalSignalsSnapshot: this.syncGoalSignalsSnapshot(),
         },
       });
       return;
@@ -835,6 +1341,7 @@ export class PlanOrchestrator {
           knownAnswers,
           duplicateQuestions,
           reasoning: clarification.reasoning,
+          goalSignalsSnapshot: this.syncGoalSignalsSnapshot(),
         },
       });
       return;
@@ -1190,6 +1697,75 @@ export class PlanOrchestrator {
     };
   }
 
+  private buildDeterministicClarifierFallback(input: {
+    goalSignalsSnapshot: GoalSignalsSnapshot;
+  }): ClarificationRound {
+    const templates: Record<GoalSignalKey, Omit<ClarificationQuestion, 'id'>> = {
+      metric: {
+        text: 'Que numero o resultado medible queres alcanzar?',
+        purpose: 'Definir una meta observable para el plan',
+        type: 'text',
+      },
+      timeframe: {
+        text: 'En que plazo queres ver un primer resultado claro?',
+        purpose: 'Ajustar el horizonte del plan',
+        type: 'text',
+      },
+      current_baseline: {
+        text: 'Cual es tu punto de partida hoy respecto de este objetivo?',
+        purpose: 'Ubicar el nivel inicial real',
+        type: 'text',
+      },
+      success_criteria: {
+        text: 'Como vas a reconocer que este plan salio bien?',
+        purpose: 'Alinear el criterio de exito',
+        type: 'text',
+      },
+      constraints: {
+        text: 'Que limites reales de tiempo, energia o agenda tenemos que respetar?',
+        purpose: 'Evitar un plan imposible de sostener',
+        type: 'text',
+      },
+      modality: {
+        text: 'Que modalidad preferis para avanzar con este objetivo?',
+        purpose: 'Elegir un formato de ejecucion realista',
+        type: 'text',
+      },
+      resources: {
+        text: 'Con que recursos concretos contas hoy para avanzar?',
+        purpose: 'Ajustar el plan a los recursos reales disponibles',
+        type: 'text',
+      },
+      safety_context: {
+        text: 'Hay limites, riesgos o supervision profesional que debamos respetar antes de avanzar?',
+        purpose: 'Cuidar el contexto de seguridad del plan',
+        type: 'text',
+      },
+    };
+    const missingSignals = input.goalSignalsSnapshot.missingCriticalSignals.slice(0, 3);
+
+    if (missingSignals.length === 0) {
+      return {
+        questions: [],
+        reasoning: 'No quedan senales criticas pendientes para planificar en modo best-effort.',
+        informationGaps: [],
+        confidence: 0.75,
+        readyToAdvance: true,
+      };
+    }
+
+    return {
+      questions: missingSignals.map((signalKey, index) => ({
+        id: `q${index + 1}`,
+        ...templates[signalKey],
+      })),
+      reasoning: 'Faltan senales criticas universales antes de planificar con contexto suficiente.',
+      informationGaps: missingSignals,
+      confidence: 0.35,
+      readyToAdvance: false,
+    };
+  }
+
   private async executeClarify(): Promise<ClarificationRound> {
     this.lastAction = 'Clarifying goal';
     this.state.clarifyRounds++;
@@ -1204,15 +1780,19 @@ export class PlanOrchestrator {
     const agent = await this.getAgent<{
       interpretation: GoalInterpretation;
       previousAnswers: Record<string, string>;
+      goalSignalsSnapshot: GoalSignalsSnapshot;
       profileSummary: string | null;
+      skipClarification: boolean;
     }, ClarificationRound>('clarifier');
 
     const input = {
       interpretation: this.context.interpretation!,
       previousAnswers: this.context.userAnswers,
+      goalSignalsSnapshot: this.syncGoalSignalsSnapshot(),
       profileSummary: this.context.userProfile
         ? `Horas libres L-V: ${this.context.userProfile.freeHoursWeekday}, finde: ${this.context.userProfile.freeHoursWeekend}, energia: ${this.context.userProfile.energyLevel}`
         : null,
+      skipClarification: this.clarificationSkipRequested,
     };
 
     // Consume pending answers
@@ -1225,11 +1805,14 @@ export class PlanOrchestrator {
         this.recordAgentOutcome('clarifier', 'clarify', 'llm', Date.now() - start);
         return result;
       } catch (error) {
-        return this.handleFallback('clarify', 'clarifier', input, agent, start, error);
+        return this.namespaceClarificationRound(
+          this.handleFallback('clarify', 'clarifier', input, agent, start, error),
+        );
       }
     }
 
-    // Fallback: ready to advance
+    // Fallback: keep the control plane conservative and let state-machine decide
+    // whether a degraded skip can still proceed best-effort.
     const missingAgentError = new Error('Agent not registered');
     this.recordAgentOutcome('clarifier', 'clarify', 'fallback', Date.now() - start, missingAgentError);
     this.recordEntry('clarify', 'clarifier', {
@@ -1237,18 +1820,13 @@ export class PlanOrchestrator {
       reasoning: this.formatDiagnosticReasoning(missingAgentError),
       result: 'Using inline fallback data - NOT from LLM',
     });
-    return {
-      questions: [],
-      reasoning: 'Clarifier unavailable, proceeding with available information.',
-      informationGaps: [],
-      confidence: 0.8,
-      readyToAdvance: true,
-    };
+    return this.namespaceClarificationRound(this.buildDeterministicClarifierFallback(input));
   }
 
   private async executePlan(): Promise<StrategicDraft> {
     this.lastAction = 'Generating strategic plan';
     const domainContext = await this.resolvePlanningDomainContext();
+    const goalSignalsSnapshot = this.syncGoalSignalsSnapshot();
     const start = Date.now();
     this.recordDebugEvent({
       category: 'agent',
@@ -1294,6 +1872,7 @@ export class PlanOrchestrator {
             }
           : undefined,
         clarificationAnswers: this.context.userAnswers,
+        goalSignalsSnapshot,
         domainContext,
       },
     };
@@ -1481,6 +2060,7 @@ export class PlanOrchestrator {
       scheduleQualityScore: number;
       unscheduledCount: number;
       scheduleTradeoffs: string[];
+      goalSignalsSnapshot: GoalSignalsSnapshot;
       domainCard: DomainKnowledgeCard | null;
       previousCriticReports: CriticReport[];
     }, CriticReport>('critic');
@@ -1489,6 +2069,7 @@ export class PlanOrchestrator {
     const profileSummary = profile
       ? `Horas libres L-V: ${profile.freeHoursWeekday}, finde: ${profile.freeHoursWeekend}, energia: ${profile.energyLevel}, compromisos: ${profile.fixedCommitments.join(', ') || 'ninguno'}`
       : 'Perfil no disponible';
+    const goalSignalsSnapshot = this.syncGoalSignalsSnapshot();
 
     const schedule = this.context.scheduleResult;
     const input = {
@@ -1499,6 +2080,7 @@ export class PlanOrchestrator {
       scheduleQualityScore: schedule?.qualityScore ?? 0,
       unscheduledCount: schedule?.unscheduledCount ?? schedule?.solverOutput.unscheduled?.length ?? 0,
       scheduleTradeoffs: schedule?.tradeoffs ?? [],
+      goalSignalsSnapshot,
       domainCard: this.context.domainCard,
       previousCriticReports: this.context.criticReport ? [this.context.criticReport] : [],
     };
@@ -1547,6 +2129,7 @@ export class PlanOrchestrator {
     }
 
     const domainContext = await this.resolvePlanningDomainContext();
+    const goalSignalsSnapshot = this.syncGoalSignalsSnapshot();
 
     const profile = this.context.userProfile ?? {
       freeHoursWeekday: 2,
@@ -1572,6 +2155,7 @@ export class PlanOrchestrator {
             }
           : undefined,
         clarificationAnswers: this.context.userAnswers,
+        goalSignalsSnapshot,
         domainContext,
         previousCriticFindings: (void mustFixSummary, this.context.criticReport?.mustFix ?? []),
         previousCriticReports: this.context.criticReport ? [this.context.criticReport] : [],

@@ -1,0 +1,594 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T20:30:10.492Z",
+  "updatedAt": "2026-03-29T20:30:20.828Z",
+  "invocation": {
+    "goal": "Quiero bajar 15 kilos en 3 meses.",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": "failed",
+    "failureCode": null,
+    "sessionId": "94bd023d-f5c5-4963-a0cc-1636f6f35396",
+    "provider": "ollama",
+    "modelId": null,
+    "status": "failed"
+  },
+  "pendingInput": {
+    "sessionId": "94bd023d-f5c5-4963-a0cc-1636f6f35396",
+    "goal": "Quiero bajar 15 kilos en 3 meses.",
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "questions": [
+      {
+        "id": "clarify-r1-q1",
+        "text": "¿Cuál es tu peso actual en kilogramos?",
+        "type": "number",
+        "options": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "id": "clarify-r1-q2",
+        "text": "¿Tienes alguna condición médica o restricción de salud que debamos considerar al planear la pérdida de peso?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      }
+    ],
+    "createdAt": "2026-03-29T20:30:20.294Z",
+    "pendingFilePath": "F:\\proyectos\\planificador-vida\\.lap-pending-input.json",
+    "resumeCommand": "node scripts/run-plan.mjs --resume-session=94bd023d-f5c5-4963-a0cc-1636f6f35396 --answers-json='{\"id\":\"respuesta\",...}' --debug"
+  },
+  "finalPackage": null,
+  "finalResult": {
+    "success": false,
+    "error": "No se pudo conectar con el modelo (ollama:qwen3:8b). Error: fetch failed. Verifica tu API key o que Ollama este corriendo."
+  },
+  "latestDebugEvent": {
+    "sequence": 12,
+    "timestamp": "2026-03-29T20:30:20.241Z",
+    "category": "lifecycle",
+    "action": "session.paused",
+    "summary_es": "El pipeline quedó pausado esperando 2 respuesta(s) de aclaración.",
+    "phase": "clarify",
+    "agent": "clarifier",
+    "iteration": 2,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 25,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "questionCount": 2,
+      "questions": [
+        {
+          "id": "clarify-r1-q1",
+          "text": "¿Cuál es tu peso actual en kilogramos?",
+          "purpose": "Determinar si perder 15 kg en 3 meses es un ritmo seguro para tu punto de partida",
+          "type": "number"
+        },
+        {
+          "id": "clarify-r1-q2",
+          "text": "¿Tienes alguna condición médica o restricción de salud que debamos considerar al planear la pérdida de peso?",
+          "purpose": "Asegurar que el plan de alimentación y ejercicio sea compatible con tu salud",
+          "type": "text"
+        }
+      ],
+      "informationGaps": [
+        "peso_actual",
+        "condiciones_medicas"
+      ]
+    }
+  },
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T20:30:10.493Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero bajar 15 kilos en 3 meses.",
+        "resumeSession": null,
+        "explicitProvider": "codex",
+        "autoMode": false,
+        "pauseOnInput": true,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:10.495Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "codex-oauth",
+        "label": "OpenAI (sesion)",
+        "attemptIndex": 1,
+        "totalAttempts": 2
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:10.496Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "codex",
+        "goalText": "Quiero bajar 15 kilos en 3 meses.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.295Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "codex-oauth",
+        "recoverable": true,
+        "message": "Pipeline pausado esperando respuestas.",
+        "failureCode": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.295Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "ollama",
+        "label": "Ollama (local)",
+        "attemptIndex": 2,
+        "totalAttempts": 2
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.296Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "ollama",
+        "goalText": "Quiero bajar 15 kilos en 3 meses.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.827Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "ollama",
+        "recoverable": true,
+        "message": "No se pudo conectar con el modelo (ollama:qwen3:8b). Error: fetch failed. Verifica tu API key o que Ollama este corriendo.",
+        "failureCode": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.827Z",
+      "type": "cli.failed",
+      "data": {
+        "message": "No se pudo conectar con el modelo (ollama:qwen3:8b). Error: fetch failed. Verifica tu API key o que Ollama este corriendo.",
+        "failureCode": null,
+        "publicationState": "failed"
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-29T20:30:12.583Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:12.583Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-29T20:30:12.578Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero bajar 15 kilos en 3 meses.\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "openai:gpt-5-codex",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:12.584Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-29T20:30:12.579Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:12.584Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-29T20:30:12.579Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:14.810Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-29T20:30:14.794Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El interprete completo interpretacion con respuesta del modelo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 2215,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:14.811Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-29T20:30:14.795Z",
+        "category": "phase",
+        "action": "interpret.summary",
+        "summary_es": "Objetivo interpretado como QUANT_TARGET_TRACKING con confianza 80%.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "interpretation",
+          "normalizedGoal": "Lose 15 kilograms within three months.",
+          "goalType": "QUANT_TARGET_TRACKING",
+          "suggestedDomain": "safe weight-loss planning",
+          "confidence": 0.8,
+          "ambiguities": [
+            "Their current weight, body composition, and medical constraints",
+            "What diet or exercise strategy they intend to use to lose the weight",
+            "Whether they have professional guidance or medical supervision",
+            "How they will track progress and adjust if the plan is not working"
+          ],
+          "assumptions": [
+            "Losing 15 kilograms in three months is safe and achievable for them",
+            "They have or can follow a plan that creates the necessary calorie deficit or habits",
+            "Their current health status allows for rapid weight loss"
+          ],
+          "riskFlags": [
+            "HIGH_HEALTH"
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:14.811Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-29T20:30:14.795Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:14.812Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-29T20:30:14.795Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:14.812Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-29T20:30:14.795Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.253Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-29T20:30:20.241Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 5446,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.254Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-29T20:30:20.241Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion deja 2 pregunta(s) pendiente(s).",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": false,
+          "confidence": 0.38,
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿Cuál es tu peso actual en kilogramos?",
+              "purpose": "Determinar si perder 15 kg en 3 meses es un ritmo seguro para tu punto de partida",
+              "type": "number"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Tienes alguna condición médica o restricción de salud que debamos considerar al planear la pérdida de peso?",
+              "purpose": "Asegurar que el plan de alimentación y ejercicio sea compatible con tu salud",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "peso_actual",
+            "condiciones_medicas"
+          ],
+          "knownAnswers": [],
+          "duplicateQuestions": [],
+          "reasoning": "Falta conocer el peso inicial para validar el ritmo de descenso y cualquier restricción médica que limite la planificación segura."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.254Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-29T20:30:20.241Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "Todavia faltan respuestas; se mantiene la aclaracion con 2 pregunta(s) pendientes.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.255Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 12,
+        "timestamp": "2026-03-29T20:30:20.241Z",
+        "category": "lifecycle",
+        "action": "session.paused",
+        "summary_es": "El pipeline quedó pausado esperando 2 respuesta(s) de aclaración.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "questionCount": 2,
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿Cuál es tu peso actual en kilogramos?",
+              "purpose": "Determinar si perder 15 kg en 3 meses es un ritmo seguro para tu punto de partida",
+              "type": "number"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Tienes alguna condición médica o restricción de salud que debamos considerar al planear la pérdida de peso?",
+              "purpose": "Asegurar que el plan de alimentación y ejercicio sea compatible con tu salud",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "peso_actual",
+            "condiciones_medicas"
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.293Z",
+      "type": "v6:needs_input",
+      "data": {
+        "sessionId": "94bd023d-f5c5-4963-a0cc-1636f6f35396",
+        "questions": {
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿Cuál es tu peso actual en kilogramos?",
+              "purpose": "Determinar si perder 15 kg en 3 meses es un ritmo seguro para tu punto de partida",
+              "type": "number"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Tienes alguna condición médica o restricción de salud que debamos considerar al planear la pérdida de peso?",
+              "purpose": "Asegurar que el plan de alimentación y ejercicio sea compatible con tu salud",
+              "type": "text"
+            }
+          ],
+          "reasoning": "Falta conocer el peso inicial para validar el ritmo de descenso y cualquier restricción médica que limite la planificación segura.",
+          "informationGaps": [
+            "peso_actual",
+            "condiciones_medicas"
+          ],
+          "confidence": 0.38,
+          "readyToAdvance": false
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:20.825Z",
+      "type": "result",
+      "data": {
+        "type": "result",
+        "result": {
+          "success": false,
+          "error": "No se pudo conectar con el modelo (ollama:qwen3:8b). Error: fetch failed. Verifica tu API key o que Ollama este corriendo."
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-173010-quiero-bajar-15-kilos-en-3-meses.json"
+}

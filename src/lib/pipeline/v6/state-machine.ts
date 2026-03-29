@@ -48,17 +48,23 @@ export function nextPhase(
 
     case 'clarify': {
       const clarifyResult = lastResult as ClarificationRound | null;
-      const confidence = clarifyResult?.confidence ?? context.interpretation?.confidence ?? 0;
+      const signalSnapshot = context.goalSignalsSnapshot;
       const readyToAdvance = clarifyResult?.readyToAdvance ?? false;
       const hasPendingQuestions = (clarifyResult?.questions?.length ?? 0) > 0;
+      const hasSufficientSignalsForPlanning = signalSnapshot?.hasSufficientSignalsForPlanning
+        ?? (readyToAdvance && !hasPendingQuestions);
+      const clarificationMode = signalSnapshot?.clarificationMode ?? 'needs_input';
 
-      if (readyToAdvance || (confidence >= 0.8 && !hasPendingQuestions)) {
+      if (hasSufficientSignalsForPlanning && readyToAdvance && !hasPendingQuestions) {
+        return 'plan';
+      }
+      if (clarificationMode === 'degraded_skip') {
         return 'plan';
       }
       if (state.clarifyRounds >= state.maxClarifyRounds && hasPendingQuestions) {
         return 'clarify';
       }
-      if (state.clarifyRounds >= state.maxClarifyRounds) {
+      if (state.clarifyRounds >= state.maxClarifyRounds && hasSufficientSignalsForPlanning) {
         return 'plan';
       }
       // Stay in clarify for another round (after user input)

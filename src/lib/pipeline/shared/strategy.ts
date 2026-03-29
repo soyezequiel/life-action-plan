@@ -117,6 +117,24 @@ interface TypedClarificationSignals {
   general: GenericPlanAnchors;
 }
 
+type PlanningGoalSignalsSnapshot = NonNullable<
+  NonNullable<StrategyInput['planningContext']>['goalSignalsSnapshot']
+>;
+
+interface UniversalPlanningSignals extends GenericPlanAnchors {
+  currentBaseline: string | null;
+  modality: string | null;
+  constraints: string | null;
+  resources: string | null;
+  successCriteria: string | null;
+  safetyContext: string | null;
+  riskFlags: string[];
+  normalizedUserAnswers: PlanningGoalSignalsSnapshot['normalizedUserAnswers'];
+  missingCriticalSignals: PlanningGoalSignalsSnapshot['missingCriticalSignals'];
+  clarificationMode: PlanningGoalSignalsSnapshot['clarificationMode'];
+  hasSufficientSignalsForPlanning: boolean;
+}
+
 interface StrategyValidationResult {
   valid: boolean;
   failedCheck: string | null;
@@ -197,16 +215,6 @@ function buildCookingSubtopicVariants(value: string): string[] {
   }
 
   return uniqueNonEmpty([...variants]);
-}
-
-function collectSignalValue(values: string[], patterns: RegExp[]): string | null {
-  for (const value of values) {
-    if (patterns.some((pattern) => pattern.test(value))) {
-      return value;
-    }
-  }
-
-  return null;
 }
 
 function collectMatchedSignalValue(values: string[], patterns: RegExp[]): string | null {
@@ -344,6 +352,28 @@ function humanizeLabel(value: string): string {
 
 function uniqueNonEmpty(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+function getPlanningGoalSignalsSnapshot(input: StrategyInput): PlanningGoalSignalsSnapshot | null {
+  return input.planningContext?.goalSignalsSnapshot ?? null;
+}
+
+function getSnapshotSignalValue(
+  snapshot: PlanningGoalSignalsSnapshot | null,
+  signalKey: NonNullable<PlanningGoalSignalsSnapshot['normalizedUserAnswers'][number]['signalKey']>,
+): string | null {
+  if (!snapshot) {
+    return null;
+  }
+
+  for (let index = snapshot.normalizedUserAnswers.length - 1; index >= 0; index -= 1) {
+    const answer = snapshot.normalizedUserAnswers[index];
+    if (answer?.signalKey === signalKey && answer.answer.trim().length > 0) {
+      return answer.answer.trim();
+    }
+  }
+
+  return null;
 }
 
 const GENERIC_ANCHOR_STOPWORDS = new Set([
@@ -536,6 +566,34 @@ function extractGenericPlanAnchors(goalText: string, answers: Record<string, str
   };
 }
 
+function buildUniversalPlanningSignals(
+  input: StrategyInput,
+  domainCard?: DomainKnowledgeCard | null,
+): UniversalPlanningSignals {
+  const snapshot = getPlanningGoalSignalsSnapshot(input);
+  const clarificationAnswers = input.planningContext?.clarificationAnswers ?? {};
+  const extractedAnchors = extractGenericPlanAnchors(input.goalText, clarificationAnswers);
+  const cookingSignals = extractCookingSignals(input.goalText, clarificationAnswers, domainCard ?? undefined);
+  const healthSignals = extractHealthSignals(input.goalText, clarificationAnswers);
+
+  return {
+    metric: snapshot?.metric ?? extractedAnchors.metric,
+    timeframe: snapshot?.timeframe ?? extractedAnchors.timeframe ?? cookingSignals.horizon,
+    anchorTokens: uniqueNonEmpty(snapshot?.anchorTokens?.length ? snapshot.anchorTokens : extractedAnchors.anchorTokens).slice(0, 6),
+    currentBaseline: getSnapshotSignalValue(snapshot, 'current_baseline'),
+    modality: getSnapshotSignalValue(snapshot, 'modality'),
+    constraints: getSnapshotSignalValue(snapshot, 'constraints'),
+    resources: getSnapshotSignalValue(snapshot, 'resources'),
+    successCriteria: getSnapshotSignalValue(snapshot, 'success_criteria'),
+    safetyContext: getSnapshotSignalValue(snapshot, 'safety_context') ?? healthSignals.supervision ?? healthSignals.medicalContext,
+    riskFlags: snapshot?.riskFlags ?? [],
+    normalizedUserAnswers: snapshot?.normalizedUserAnswers ?? [],
+    missingCriticalSignals: snapshot?.missingCriticalSignals ?? [],
+    clarificationMode: snapshot?.clarificationMode ?? 'needs_input',
+    hasSufficientSignalsForPlanning: snapshot?.hasSufficientSignalsForPlanning ?? false,
+  };
+}
+
 function canonicalizeNumericMetricToken(token: string): string | null {
   const normalized = normalizeSignalText(token).replace(/\s+/g, '');
   if (!normalized) {
@@ -626,6 +684,21 @@ function extractClarificationSignals(answers: Record<string, string>) {
   return { mastery, deadline, learningMode, constraints, priority, subtopic, level: mastery };
 }
 
+function buildBestEffortPlanningNote(universalSignals: UniversalPlanningSignals): string | null {
+  if (
+    universalSignals.clarificationMode !== 'degraded_skip'
+    && universalSignals.missingCriticalSignals.length === 0
+  ) {
+    return null;
+  }
+
+  const missingSignals = universalSignals.missingCriticalSignals.length > 0
+    ? universalSignals.missingCriticalSignals.join(', ')
+    : 'ninguno';
+
+  return `Este roadmap avanza en modo best-effort (${universalSignals.clarificationMode}) con las senales confirmadas; faltan ${missingSignals} y por eso no se inventan datos no confirmados.`;
+}
+
 function extractHealthSignals(goalText: string, answers: Record<string, string>) {
   const values = uniqueNonEmpty(Object.values(answers));
   const lowerGoal = goalText.toLowerCase();
@@ -690,13 +763,14 @@ function extractHealthSignals(goalText: string, answers: Record<string, string>)
 }
 
 function buildTypedClarificationAnswers(
-  goalText: string,
-  clarificationAnswers: Record<string, string>,
+  input: StrategyInput,
   domainCard?: DomainKnowledgeCard,
 ): Record<string, string> {
+  const goalText = input.goalText;
+  const clarificationAnswers = input.planningContext?.clarificationAnswers ?? {};
   const cooking = extractCookingSignals(goalText, clarificationAnswers, domainCard);
   const health = extractHealthSignals(goalText, clarificationAnswers);
-  const general = extractGenericPlanAnchors(goalText, clarificationAnswers);
+  const general = buildUniversalPlanningSignals(input, domainCard);
   const typedAnswers: Record<string, string> = {};
 
   if (cooking.level) typedAnswers['senal tipada - cocina: nivel'] = cooking.level;
@@ -717,6 +791,12 @@ function buildTypedClarificationAnswers(
   if (general.metric) typedAnswers['senal tipada - general: metrica'] = general.metric;
   if (general.timeframe) typedAnswers['senal tipada - general: plazo'] = general.timeframe;
   if (general.anchorTokens.length > 0) typedAnswers['senal tipada - general: anclas'] = general.anchorTokens.join(', ');
+  if (general.currentBaseline) typedAnswers['senal tipada - general: baseline'] = general.currentBaseline;
+  if (general.modality) typedAnswers['senal tipada - general: modalidad'] = general.modality;
+  if (general.constraints) typedAnswers['senal tipada - general: restricciones'] = general.constraints;
+  if (general.resources) typedAnswers['senal tipada - general: recursos'] = general.resources;
+  if (general.successCriteria) typedAnswers['senal tipada - general: criterio de exito'] = general.successCriteria;
+  if (general.safetyContext) typedAnswers['senal tipada - general: seguridad'] = general.safetyContext;
 
   if (domainCard?.domainLabel) {
     typedAnswers['senal tipada - dominio'] = domainCard.domainLabel;
@@ -1269,6 +1349,8 @@ function buildCookingReferenceLead(
 function buildHealthFallbackStrategy(input: StrategyInput, domainCard?: DomainKnowledgeCard): StrategyOutput {
   const clarificationSignals = extractClarificationSignals(input.planningContext?.clarificationAnswers ?? {});
   const healthSignals = extractHealthSignals(input.goalText, input.planningContext?.clarificationAnswers ?? {});
+  const universalSignals = buildUniversalPlanningSignals(input, domainCard);
+  const bestEffortNote = buildBestEffortPlanningNote(universalSignals);
   const domainLabel = buildDomainLabel(input, domainCard);
   const taskLabels = buildTaskLabels(domainCard);
   const activityLabels = uniqueNonEmpty([
@@ -1285,7 +1367,7 @@ function buildHealthFallbackStrategy(input: StrategyInput, domainCard?: DomainKn
   const baseDurations = healthSignals.medicalContext || healthSignals.aggressive ? [3, 4, 4] : [3, 4, 5];
   const durations = stretchDurationsToTarget(
     baseDurations,
-    extractTargetHorizonWeeks(input.goalText, clarificationSignals.deadline),
+    extractTargetHorizonWeeks(input.goalText, universalSignals.timeframe ?? clarificationSignals.deadline),
   );
   const safetyLead = healthSignals.medicalContext
     ? 'Validar la intensidad con criterio medico o nutricional antes de subir carga.'
@@ -1297,9 +1379,14 @@ function buildHealthFallbackStrategy(input: StrategyInput, domainCard?: DomainKn
     ? `Antes de tratar esto como aceptable, dejar claro ${healthSignals.supervision.toLowerCase()}.`
     : 'Antes de tratar esto como aceptable, dejar claro que necesita supervision profesional si hay dudas o sintomas.';
   const measurementLead = [
-    healthSignals.weight ? `Tomar ${healthSignals.weight.toLowerCase()} como referencia inicial.` : 'Tomar el punto de partida como referencia inicial.',
+    healthSignals.weight
+      ? `Tomar ${healthSignals.weight.toLowerCase()} como referencia inicial.`
+      : universalSignals.currentBaseline
+        ? `Tomar ${universalSignals.currentBaseline.toLowerCase()} como referencia inicial real.`
+        : 'Tomar el punto de partida como referencia inicial.',
     healthSignals.height ? `Registrar ${healthSignals.height.toLowerCase()} para ajustar expectativas y carga.` : null,
     healthSignals.medicalContext ? 'Respetar cualquier condicion o antecedente medico antes de subir intensidad.' : null,
+    bestEffortNote,
   ].filter(Boolean).join(' ');
 
   return normalizeStrategyOutput({
@@ -1322,6 +1409,7 @@ function buildHealthFallbackStrategy(input: StrategyInput, domainCard?: DomainKn
           secondaryActivity !== primaryActivity ? `Sumar ${secondaryActivity.toLowerCase()} como segunda opcion viable.` : null,
           tertiaryActivity !== primaryActivity && tertiaryActivity !== secondaryActivity ? `Dejar ${tertiaryActivity.toLowerCase()} como alternativa de bajo impacto.` : null,
           healthSignals.support ? `Buscar ${healthSignals.support.toLowerCase()} para no planear esto solo.` : null,
+          universalSignals.constraints ? `Respetar ${universalSignals.constraints.toLowerCase()} para sostener el ritmo.` : null,
         ].filter(Boolean).join(' '),
       },
       {
@@ -1330,8 +1418,11 @@ function buildHealthFallbackStrategy(input: StrategyInput, domainCard?: DomainKn
         focus_esAR: [
           'Buscar una tendencia estable, no una baja brusca.',
           healthSignals.preferredActivities.length > 0 ? `Las actividades viables guian el plan: ${healthSignals.preferredActivities.join(', ').toLowerCase()}.` : null,
-          clarificationSignals.constraints ? `Respetar ${clarificationSignals.constraints.toLowerCase()} al definir el ritmo.` : null,
+          (universalSignals.constraints ?? clarificationSignals.constraints)
+            ? `Respetar ${(universalSignals.constraints ?? clarificationSignals.constraints)!.toLowerCase()} al definir el ritmo.`
+            : null,
           healthSignals.highRisk ? 'No publicar esto como aceptable sin freno de seguridad y supervision.' : null,
+          universalSignals.safetyContext ? `Mantener visible el contexto de seguridad confirmado: ${universalSignals.safetyContext.toLowerCase()}.` : null,
         ].filter(Boolean).join(' '),
       },
     ],
@@ -1350,6 +1441,8 @@ function buildHealthFallbackStrategy(input: StrategyInput, domainCard?: DomainKn
 function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKnowledgeCard): StrategyOutput {
   const signals = extractClarificationSignals(input.planningContext?.clarificationAnswers ?? {});
   const cookingSignals = extractCookingSignals(input.goalText, input.planningContext?.clarificationAnswers ?? {}, domainCard);
+  const universalSignals = buildUniversalPlanningSignals(input, domainCard);
+  const bestEffortNote = buildBestEffortPlanningNote(universalSignals);
   const domainLabel = buildDomainLabel(input, domainCard);
   const taskLabels = buildTaskLabels(domainCard);
   const primaryTasks = taskLabels.slice(0, 3);
@@ -1363,9 +1456,9 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
     ?? signals.subtopic
     ?? primaryTasks[0]
     ?? inferredFocusLabel;
-  const methodLabel = cookingSignals.learningMethod ?? signals.learningMode ?? null;
+  const methodLabel = universalSignals.modality ?? cookingSignals.learningMethod ?? signals.learningMode ?? null;
   const methodPreference = normalizeCookingMethodPreference(methodLabel);
-  const horizonLabel = cookingSignals.horizon ?? signals.deadline ?? null;
+  const horizonLabel = universalSignals.timeframe ?? cookingSignals.horizon ?? signals.deadline ?? null;
   const isCookingGoal = /\b(cocina|cocinar|receta|plato|gastronom)\b/i.test(`${input.goalText} ${domainLabel}`);
   const isItalianCooking = /\bitalian[oa]s?|\bpastas?|\bsalsas?\b/i.test(`${input.goalText} ${subtopicLabel} ${domainLabel}`);
   const preserveItalianBreadth = isCookingGoal && shouldPreserveItalianCookingBreadth(input.goalText, cookingSignals.subtopic ?? subtopicLabel);
@@ -1417,6 +1510,9 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
             explicitReferenceLead ?? buildCookingReferenceLead(methodPreference, [anchors[0]]),
             `Fijar mise en place, punto de coccion y tecnica base alrededor de ${anchors[0]}.`,
             learningLead,
+            universalSignals.currentBaseline ? `Partir desde ${universalSignals.currentBaseline.toLowerCase()} sin reiniciar artificialmente.` : null,
+            universalSignals.resources ? `Reutilizar ${universalSignals.resources.toLowerCase()} como activo confirmado.` : null,
+            bestEffortNote,
           ].filter(Boolean).join(' '),
         },
         {
@@ -1428,6 +1524,7 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
             preserveItalianBreadth ? 'Mantener al menos dos recetas de pasta dentro del repertorio base antes de dar por cumplido el objetivo.' : null,
             signals.priority ? `Priorizar ${signals.priority.toLowerCase()} dentro del repertorio principal.` : null,
             signals.level ? `Respetar el nivel actual ${signals.level.toLowerCase()} sin saltar etapas.` : null,
+            universalSignals.successCriteria ? `Tomar como criterio de exito ${universalSignals.successCriteria.toLowerCase()}.` : null,
           ].filter(Boolean).join(' '),
         },
         {
@@ -1438,7 +1535,9 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
           focus_esAR: [
             `Cerrar el horizonte con un menu corto que combine ${joinHumanList([anchors[0], anchors[1]])}.`,
             horizonLead,
-            signals.constraints ? `Respetar ${signals.constraints.toLowerCase()} al elegir el repertorio.` : null,
+            (universalSignals.constraints ?? signals.constraints)
+              ? `Respetar ${(universalSignals.constraints ?? signals.constraints)!.toLowerCase()} al elegir el repertorio.`
+              : null,
             cookingSignals.subtopic ? `Mantener ${cookingSignals.subtopic.toLowerCase()} como eje y no como detalle secundario.` : null,
             preserveItalianBreadth ? 'El cierre debe demostrar que pizza y pastas conviven dentro de una misma base italiana, no como aprendizajes aislados.' : null,
           ].filter(Boolean).join(' '),
@@ -1463,6 +1562,9 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
         primaryTasks[0] ? `Primero fijar ${primaryTasks[0].toLowerCase()} como bloque estable.` : null,
         learningLead,
         cookingSignals.references.length > 0 ? `Usar ${cookingSignals.references.join(', ').toLowerCase()} como referencia concreta.` : null,
+        universalSignals.currentBaseline ? `Partir desde ${universalSignals.currentBaseline.toLowerCase()} sin resetear progreso real.` : null,
+        universalSignals.resources ? `Reutilizar ${universalSignals.resources.toLowerCase()} como activo confirmado.` : null,
+        bestEffortNote,
       ].filter(Boolean).join(' '),
     },
     {
@@ -1478,6 +1580,7 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
           : `Repetir sesiones concretas para que el plan no quede en teoria.`,
         signals.priority ? `Priorizar ${signals.priority.toLowerCase()} dentro del repertorio principal.` : null,
         signals.level ? `Respetar el nivel actual ${signals.level.toLowerCase()} sin saltar etapas.` : null,
+        universalSignals.successCriteria ? `Tomar como criterio de exito ${universalSignals.successCriteria.toLowerCase()}.` : null,
       ].filter(Boolean).join(' '),
     },
     {
@@ -1490,7 +1593,9 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
           ? `Llevar el repertorio a ejecuciones completas, consistentes y presentables.`
           : `Llevar la practica a ejecuciones completas y consistentes.`,
         horizonLead,
-        signals.constraints ? `Respetar ${signals.constraints.toLowerCase()} al elegir el repertorio.` : null,
+        (universalSignals.constraints ?? signals.constraints)
+          ? `Respetar ${(universalSignals.constraints ?? signals.constraints)!.toLowerCase()} al elegir el repertorio.`
+          : null,
         focusTopic && cookingSignals.subtopic ? `Mantener ${cookingSignals.subtopic.toLowerCase()} como eje y no como detalle secundario.` : null,
       ].filter(Boolean).join(' '),
     },
@@ -1517,14 +1622,15 @@ function buildSkillFallbackStrategy(input: StrategyInput, domainCard?: DomainKno
 function buildGenericFallbackStrategy(input: StrategyInput, domainCard?: DomainKnowledgeCard): StrategyOutput {
   const signals = extractClarificationSignals(input.planningContext?.clarificationAnswers ?? {});
   const cookingSignals = extractCookingSignals(input.goalText, input.planningContext?.clarificationAnswers ?? {}, domainCard);
-  const anchors = extractGenericPlanAnchors(input.goalText, input.planningContext?.clarificationAnswers ?? {});
+  const universalSignals = buildUniversalPlanningSignals(input, domainCard);
+  const bestEffortNote = buildBestEffortPlanningNote(universalSignals);
   const domainLabel = buildDomainLabel(input, domainCard);
-  const anchorLabel = joinHumanList(anchors.anchorTokens.slice(0, 3));
+  const anchorLabel = joinHumanList(universalSignals.anchorTokens.slice(0, 3));
   const topicLabel = cookingSignals.subtopic
     ?? signals.subtopic
     ?? (anchorLabel.length > 0 ? anchorLabel : domainLabel);
-  const timeframeLabel = anchors.timeframe ?? cookingSignals.horizon ?? signals.deadline;
-  const metricLabel = anchors.metric;
+  const timeframeLabel = universalSignals.timeframe ?? cookingSignals.horizon ?? signals.deadline;
+  const metricLabel = universalSignals.metric;
   const durations = stretchDurationsToTarget(
     resolveDurations(cookingSignals.level ?? signals.mastery),
     extractTargetHorizonWeeks(input.goalText, timeframeLabel),
@@ -1544,6 +1650,10 @@ function buildGenericFallbackStrategy(input: StrategyInput, domainCard?: DomainK
           metricLabel ? `La metrica que ordena el plan es ${metricLabel.toLowerCase()}.` : null,
           timeframeLabel ? `El horizonte de trabajo queda en ${timeframeLabel.toLowerCase()}.` : null,
           anchorLabel ? `Reutilizar las senales mas concretas del intake: ${anchorLabel.toLowerCase()}.` : null,
+          universalSignals.currentBaseline ? `Partir desde ${universalSignals.currentBaseline.toLowerCase()} como baseline real.` : null,
+          universalSignals.modality ? `Mantener ${universalSignals.modality.toLowerCase()} como modalidad confirmada.` : null,
+          universalSignals.resources ? `Aprovechar ${universalSignals.resources.toLowerCase()} como activo disponible.` : null,
+          bestEffortNote,
           needsSkillProgression
             ? 'Primero convertir conocimientos sueltos en una base repetible y usable.'
             : 'Primero ordenar el punto de partida real antes de ampliar el alcance.',
@@ -1555,11 +1665,14 @@ function buildGenericFallbackStrategy(input: StrategyInput, domainCard?: DomainK
         focus_esAR: [
           cookingSignals.learningMethod
             ? `Acumular repeticiones deliberadas con apoyo de ${cookingSignals.learningMethod.toLowerCase()} y feedback visible.`
+            : universalSignals.modality
+              ? `Acumular repeticiones deliberadas a traves de ${universalSignals.modality.toLowerCase()} y feedback visible.`
             : 'Acumular repeticiones deliberadas y feedback visible sin caer en tareas intercambiables.',
           needsExternalValidation
             ? 'Bajar el objetivo a validaciones externas, respuesta de mercado o pruebas del mundo real.'
             : 'Bajar el objetivo a pruebas visibles y criterios de calidad observables.',
           anchorLabel ? `Mantener ${anchorLabel.toLowerCase()} como eje para no responder a otro objetivo.` : null,
+          universalSignals.successCriteria ? `Tomar como referencia de cierre ${universalSignals.successCriteria.toLowerCase()}.` : null,
         ].filter(Boolean).join(' '),
       },
       {
@@ -1572,6 +1685,7 @@ function buildGenericFallbackStrategy(input: StrategyInput, domainCard?: DomainK
             ? `Cerrar una iteracion que ya muestre avance visible hacia ${metricLabel.toLowerCase()}.`
             : 'Cerrar una version demostrable del objetivo.',
           timeframeLabel ? `No extender el cierre mas alla de ${timeframeLabel.toLowerCase()}.` : null,
+          universalSignals.constraints ? `Respetar ${universalSignals.constraints.toLowerCase()} al definir el ritmo final.` : null,
           needsExternalValidation
             ? 'Usar feedback real para ajustar sin perder las senales originales del intake.'
             : 'Dejar una rutina repetible y verificable despues del cierre.',
@@ -1834,11 +1948,16 @@ export async function generateStrategyWithSource(
 ): Promise<StrategyGenerationResult> {
   const planningContext = input.planningContext;
   const clarificationAnswers = planningContext?.clarificationAnswers ?? {};
-  const typedClarificationAnswers = buildTypedClarificationAnswers(input.goalText, clarificationAnswers, domainCard);
+  const universalSignals = buildUniversalPlanningSignals(input, domainCard);
+  const typedClarificationAnswers = buildTypedClarificationAnswers(input, domainCard);
   const typedSignals: TypedClarificationSignals = {
     cooking: extractCookingSignals(input.goalText, clarificationAnswers, domainCard),
     health: extractHealthSignals(input.goalText, clarificationAnswers),
-    general: extractGenericPlanAnchors(input.goalText, clarificationAnswers),
+    general: {
+      metric: universalSignals.metric,
+      timeframe: universalSignals.timeframe,
+      anchorTokens: universalSignals.anchorTokens,
+    },
   };
   const prompt = planningContext?.interpretation
     ? buildStrategyPrompt({
@@ -1852,6 +1971,7 @@ export async function generateStrategyWithSource(
           fixedCommitments: input.profile.fixedCommitments,
         },
         domainContext: planningContext.domainContext ?? (domainCard ? { card: domainCard } : null),
+        goalSignalsSnapshot: planningContext.goalSignalsSnapshot,
         clarificationAnswers: {
           ...clarificationAnswers,
           ...typedClarificationAnswers,

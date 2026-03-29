@@ -57,8 +57,56 @@ const clarificationNeedsInput = {
     type: 'number',
   }],
   reasoning: 'Falta disponibilidad.',
-  informationGaps: ['time available'],
+  informationGaps: ['constraints'],
   confidence: 0.4,
+  readyToAdvance: false,
+};
+
+const clarificationCriticalBatch = {
+  questions: [
+    {
+      id: 'q-1',
+      text: 'Cual es tu punto de partida hoy respecto de este objetivo?',
+      purpose: 'Ubicar el nivel inicial real',
+      type: 'text',
+    },
+    {
+      id: 'q-2',
+      text: 'En que plazo queres ver un primer resultado claro?',
+      purpose: 'Ajustar el horizonte del plan',
+      type: 'text',
+    },
+    {
+      id: 'q-3',
+      text: 'Que limites reales de tiempo, energia o agenda tenemos que respetar?',
+      purpose: 'Evitar un plan imposible de sostener',
+      type: 'text',
+    },
+  ],
+  reasoning: 'Faltan baseline, plazo y constraints.',
+  informationGaps: ['current_baseline', 'timeframe', 'constraints'],
+  confidence: 0.35,
+  readyToAdvance: false,
+};
+
+const clarificationStillMissingCritical = {
+  questions: [
+    {
+      id: 'q-1',
+      text: 'Cual es tu punto de partida hoy respecto de este objetivo?',
+      purpose: 'Ubicar el nivel inicial real',
+      type: 'text',
+    },
+    {
+      id: 'q-2',
+      text: 'En que plazo queres ver un primer resultado claro?',
+      purpose: 'Ajustar el horizonte del plan',
+      type: 'text',
+    },
+  ],
+  reasoning: 'Siguen faltando baseline y plazo.',
+  informationGaps: ['current_baseline', 'timeframe'],
+  confidence: 0.35,
   readyToAdvance: false,
 };
 
@@ -84,7 +132,7 @@ const clarificationRoundOne = {
     },
   ],
   reasoning: 'Faltan via, situacion financiera y plazo.',
-  informationGaps: ['via', 'finanzas', 'plazo'],
+  informationGaps: ['modality', 'current_baseline', 'timeframe'],
   confidence: 0.35,
   readyToAdvance: false,
 };
@@ -111,7 +159,7 @@ const clarificationRoundTwoWithReusedIds = {
     },
   ],
   reasoning: 'Faltan stack, modalidad y disposicion de capacitacion.',
-  informationGaps: ['stack', 'modalidad', 'capacitacion'],
+  informationGaps: ['resources', 'modality', 'success_criteria'],
   confidence: 0.45,
   readyToAdvance: false,
 };
@@ -258,6 +306,8 @@ const userCtx = {
   locale: 'es-AR',
 };
 
+const sufficientGoalText = 'Mejorar mi nivel actual en 12 semanas';
+
 const agentState = {
   fallbackCalled: false,
   strategyCalls: 0,
@@ -268,10 +318,57 @@ const packagerInputs: unknown[] = [];
 const clarifierQueue = [];
 const criticQueue = [];
 
+function attachMockInternals(orchestrator, agentMap) {
+  const internal = orchestrator;
+  internal.getAgent = async (name) => agentMap[name] ?? null;
+  if (
+    scenario === 'needs_input'
+    || scenario === 'progress'
+    || scenario === 'resume'
+    || scenario === 'resume_empty_skip'
+    || scenario === 'resume_restore'
+    || scenario === 'clarify_limit_pause'
+    || scenario === 'clarify_limit_resume'
+    || scenario === 'reused_question_ids'
+  ) {
+    internal.getForceFinishReason = () => null;
+  }
+  internal.executePlan = async () => {
+    if (scenario === 'planner_unauthorized') {
+      throw new Error('Unauthorized');
+    }
+    agentState.strategyCalls += 1;
+    return strategicDraft;
+  };
+  internal.executeRevise = async () => {
+    internal.lastAction = 'Revising plan based on critic feedback';
+    internal.state.revisionCycles += 1;
+    agentState.strategyCalls += 1;
+
+    if (internal.context.criticReport) {
+      internal.context.revisionHistory.push({
+        findings: internal.context.criticReport.mustFix,
+        appliedFixes: [],
+      });
+    }
+
+    return revisedDraft;
+  };
+  internal.run = async (goalText, ctx) => {
+    internal.initializeContext(goalText, ctx);
+    internal.state.phase = 'interpret';
+    internal.registry = {
+      get(name) {
+        return agentMap[name];
+      },
+    };
+    return internal.executeLoop();
+  };
+}
+
 function buildOrchestrator(config = {}) {
   const orchestrator = new PlanOrchestrator(config, runtime);
   const internal = orchestrator;
-
   const agentMap = {
     'goal-interpreter': {
       name: 'goal-interpreter',
@@ -386,49 +483,7 @@ function buildOrchestrator(config = {}) {
     },
   };
 
-  internal.getAgent = async (name) => agentMap[name] ?? null;
-  if (
-    scenario === 'needs_input'
-    || scenario === 'progress'
-    || scenario === 'resume'
-    || scenario === 'clarify_limit_pause'
-    || scenario === 'clarify_limit_resume'
-    || scenario === 'reused_question_ids'
-  ) {
-    internal.getForceFinishReason = () => null;
-  }
-  internal.executePlan = async () => {
-    if (scenario === 'planner_unauthorized') {
-      throw new Error('Unauthorized');
-    }
-    agentState.strategyCalls += 1;
-    return strategicDraft;
-  };
-  internal.executeRevise = async () => {
-    internal.lastAction = 'Revising plan based on critic feedback';
-    internal.state.revisionCycles += 1;
-    agentState.strategyCalls += 1;
-
-    if (internal.context.criticReport) {
-      internal.context.revisionHistory.push({
-        findings: internal.context.criticReport.mustFix,
-        appliedFixes: [],
-      });
-    }
-
-    return revisedDraft;
-  };
-  internal.run = async (goalText, ctx) => {
-    internal.initializeContext(goalText, ctx);
-    internal.state.phase = 'interpret';
-    internal.registry = {
-      get(name) {
-        return agentMap[name];
-      },
-    };
-    return internal.executeLoop();
-  };
-
+  attachMockInternals(orchestrator, agentMap);
   return orchestrator;
 }
 
@@ -436,19 +491,27 @@ let payload;
 
 if (scenario === 'complete' || scenario === 'scratchpad') {
   const orchestrator = buildOrchestrator();
-  const result = await orchestrator.run('Test goal', userCtx);
+  const result = await orchestrator.run(sufficientGoalText, userCtx);
   payload = { result, progress: orchestrator.getProgress(), strategyCalls: agentState.strategyCalls, fallbackCalled: agentState.fallbackCalled };
 } else if (scenario === 'needs_input' || scenario === 'progress') {
   clarifierQueue.push(clarificationNeedsInput);
   const orchestrator = buildOrchestrator();
   const result = await orchestrator.run('Test goal', { ...userCtx, profile: null });
-  payload = { result, progress: orchestrator.getProgress() };
+  payload = {
+    result,
+    progress: orchestrator.getProgress(),
+    snapshot: orchestrator.getSnapshot(),
+    debugTrace: orchestrator.getDebugTrace(),
+  };
 } else if (scenario === 'resume') {
-  clarifierQueue.push(clarificationNeedsInput, clarificationAdvance);
+  clarifierQueue.push(clarificationCriticalBatch, clarificationAdvance);
   const orchestrator = buildOrchestrator();
   const firstResult = await orchestrator.run('Test goal', { ...userCtx, profile: null });
-  const firstQuestionId = firstResult.pendingQuestions?.questions?.[0]?.id ?? 'q-1';
-  const resumed = await orchestrator.resume({ [firstQuestionId]: '6 horas' });
+  const firstRoundQuestions = firstResult.pendingQuestions?.questions ?? [];
+  const resumed = await orchestrator.resume(Object.fromEntries(firstRoundQuestions.map((question, index) => [
+    question.id,
+    ['nivel inicial bajo', '12 semanas', '6 horas por semana'][index] ?? ('respuesta-' + (index + 1)),
+  ])));
   payload = {
     firstResult,
     resumed,
@@ -457,13 +520,51 @@ if (scenario === 'complete' || scenario === 'scratchpad') {
     debugTrace: orchestrator.getDebugTrace(),
     snapshot: orchestrator.getSnapshot(),
   };
+} else if (scenario === 'resume_empty_skip') {
+  clarifierQueue.push(clarificationNeedsInput, clarificationAdvance);
+  const orchestrator = buildOrchestrator();
+  const firstResult = await orchestrator.run('Test goal', { ...userCtx, profile: null });
+  const resumed = await orchestrator.resume({});
+  payload = {
+    firstResult,
+    resumed,
+    progress: orchestrator.getProgress(),
+    debugTrace: orchestrator.getDebugTrace(),
+    snapshot: orchestrator.getSnapshot(),
+  };
+} else if (scenario === 'resume_restore') {
+  clarifierQueue.push(clarificationCriticalBatch, clarificationAdvance);
+  const orchestrator = buildOrchestrator();
+  const firstResult = await orchestrator.run('Test goal', { ...userCtx, profile: null });
+  const firstRoundQuestions = firstResult.pendingQuestions?.questions ?? [];
+  const snapshot = orchestrator.getSnapshot();
+  const restored = PlanOrchestrator.restore(snapshot, runtime);
+  attachMockInternals(restored, {
+    'goal-interpreter': orchestrator.getAgent ? await orchestrator.getAgent('goal-interpreter') : null,
+    clarifier: orchestrator.getAgent ? await orchestrator.getAgent('clarifier') : null,
+    'feasibility-checker': orchestrator.getAgent ? await orchestrator.getAgent('feasibility-checker') : null,
+    scheduler: orchestrator.getAgent ? await orchestrator.getAgent('scheduler') : null,
+    critic: orchestrator.getAgent ? await orchestrator.getAgent('critic') : null,
+    packager: orchestrator.getAgent ? await orchestrator.getAgent('packager') : null,
+  });
+  const resumed = await restored.resume(Object.fromEntries(firstRoundQuestions.map((question, index) => [
+    question.id,
+    ['nivel inicial bajo', '12 semanas', '6 horas por semana'][index] ?? ('respuesta-' + (index + 1)),
+  ])));
+  payload = {
+    firstResult,
+    snapshot,
+    restoredSnapshot: restored.getSnapshot(),
+    resumed,
+    debugTrace: restored.getDebugTrace(),
+  };
 } else if (scenario === 'clarify_limit_pause') {
   clarifierQueue.push(clarificationNeedsInput);
   const orchestrator = buildOrchestrator({ maxClarifyRounds: 1 });
   const result = await orchestrator.run('Test goal', { ...userCtx, profile: null });
   payload = { result, progress: orchestrator.getProgress() };
 } else if (scenario === 'clarify_limit_resume') {
-  clarifierQueue.push(clarificationNeedsInput);
+  clarifierQueue.push(clarificationNeedsInput, clarificationStillMissingCritical);
   const orchestrator = buildOrchestrator({ maxClarifyRounds: 1 });
   const firstResult = await orchestrator.run('Test goal', { ...userCtx, profile: null });
   const firstQuestionId = firstResult.pendingQuestions?.questions?.[0]?.id ?? 'q-1';
@@ -494,7 +595,7 @@ if (scenario === 'complete' || scenario === 'scratchpad') {
 } else if (scenario === 'revise') {
   criticQueue.push(criticRevise, criticApprove);
   const orchestrator = buildOrchestrator();
-  const result = await orchestrator.run('Test goal', userCtx);
+  const result = await orchestrator.run(sufficientGoalText, userCtx);
   payload = { result, progress: orchestrator.getProgress(), strategyCalls: agentState.strategyCalls };
 } else if (scenario === 'max_iterations') {
   const orchestrator = buildOrchestrator({ maxIterations: 1 });
@@ -506,15 +607,15 @@ if (scenario === 'complete' || scenario === 'scratchpad') {
   payload = { result, progress: orchestrator.getProgress() };
 } else if (scenario === 'fallback') {
   const orchestrator = buildOrchestrator();
-  const result = await orchestrator.run('Test goal', { ...userCtx, profile: null });
+  const result = await orchestrator.run(sufficientGoalText, userCtx);
   payload = { result, progress: orchestrator.getProgress(), fallbackCalled: agentState.fallbackCalled };
 } else if (scenario === 'planner_unauthorized') {
   const orchestrator = buildOrchestrator();
-  const result = await orchestrator.run('Test goal', { ...userCtx, profile: null });
+  const result = await orchestrator.run(sufficientGoalText, userCtx);
   payload = { result, progress: orchestrator.getProgress() };
 } else if (scenario === 'critic_unauthorized') {
   const orchestrator = buildOrchestrator();
-  const result = await orchestrator.run('Test goal', userCtx);
+  const result = await orchestrator.run(sufficientGoalText, userCtx);
   payload = { result, progress: orchestrator.getProgress() };
 } else if (scenario === 'planner_validation_fallback_publishable') {
   const orchestrator = buildOrchestrator();
@@ -540,7 +641,7 @@ if (scenario === 'complete' || scenario === 'scratchpad') {
   payload = { result };
 } else if (scenario === 'metadata') {
   const orchestrator = buildOrchestrator();
-  const result = await orchestrator.run('Test goal', userCtx);
+  const result = await orchestrator.run(sufficientGoalText, userCtx);
   payload = {
     result,
     progress: orchestrator.getProgress(),
@@ -650,6 +751,45 @@ describe('PlanOrchestrator', () => {
     expect(result.agentOutcomes.every((entry) => entry.source !== 'fallback')).toBe(true);
   });
 
+  it('creates an initial goal signals snapshot after interpret without forcing a domain', () => {
+    const payload = runScenario('needs_input');
+    const debugTrace = payload.debugTrace as Array<{
+      action: string;
+      details?: {
+        goalSignalsSnapshot?: {
+          parsedGoal: string | null;
+          goalType: string | null;
+          suggestedDomain: string | null;
+          riskFlags: string[];
+          informationGaps: string[];
+          missingCriticalSignals: string[];
+          hasSufficientSignalsForPlanning: boolean;
+          clarificationMode: string;
+          degraded: boolean;
+          fallbackCount: number;
+          phase: string;
+          clarifyRounds: number;
+        };
+      } | null;
+    }>;
+
+    const interpretSummary = debugTrace.find((event) => event.action === 'interpret.summary');
+    expect(interpretSummary?.details?.goalSignalsSnapshot).toMatchObject({
+      parsedGoal: 'Test goal',
+      goalType: 'SKILL_ACQUISITION',
+      suggestedDomain: null,
+      riskFlags: ['LOW'],
+      informationGaps: ['timeframe', 'current_baseline', 'constraints'],
+      missingCriticalSignals: ['timeframe', 'current_baseline', 'constraints'],
+      hasSufficientSignalsForPlanning: false,
+      clarificationMode: 'needs_input',
+      degraded: false,
+      fallbackCount: 0,
+      phase: 'interpret',
+      clarifyRounds: 0,
+    });
+  });
+
   it('resumes after receiving answers and continues to plan', () => {
     const payload = runScenario('resume');
     const firstResult = payload.firstResult as { status: string };
@@ -666,6 +806,148 @@ describe('PlanOrchestrator', () => {
     expect(resumed.scratchpad.some((entry) => entry.phase === 'plan')).toBe(true);
   });
 
+  it('updates the goal signals snapshot with normalized answers on resume', () => {
+    const payload = runScenario('resume');
+    const debugTrace = payload.debugTrace as Array<{
+      action: string;
+      details?: {
+        goalSignalsSnapshot?: {
+          normalizedUserAnswers: Array<{
+            questionId: string | null;
+            signalKey: string | null;
+            question: string;
+            answer: string;
+          }>;
+          phase: string;
+          missingCriticalSignals: string[];
+          hasSufficientSignalsForPlanning: boolean;
+          clarificationMode: string;
+        };
+      } | null;
+    }>;
+    const snapshot = payload.snapshot as {
+      context: {
+        goalSignalsSnapshot?: {
+          normalizedUserAnswers: Array<{
+            questionId: string | null;
+            signalKey: string | null;
+            question: string;
+            answer: string;
+          }>;
+          readyToAdvance: boolean | null;
+          clarifyConfidence: number | null;
+          missingCriticalSignals: string[];
+          hasSufficientSignalsForPlanning: boolean;
+          clarificationMode: string;
+        };
+      };
+    };
+
+    const resumedEvent = debugTrace.find((event) => event.action === 'session.resumed');
+    expect(resumedEvent?.details?.goalSignalsSnapshot).toMatchObject({
+      phase: 'clarify',
+      normalizedUserAnswers: [
+        {
+          questionId: 'clarify-r1-q-1',
+          signalKey: 'current_baseline',
+          question: 'Cual es tu punto de partida hoy respecto de este objetivo?',
+          answer: 'nivel inicial bajo',
+        },
+        {
+          questionId: 'clarify-r1-q-2',
+          signalKey: 'timeframe',
+          question: 'En que plazo queres ver un primer resultado claro?',
+          answer: '12 semanas',
+        },
+        {
+          questionId: 'clarify-r1-q-3',
+          signalKey: 'constraints',
+          question: 'Que limites reales de tiempo, energia o agenda tenemos que respetar?',
+          answer: '6 horas por semana',
+        },
+      ],
+      missingCriticalSignals: [],
+      hasSufficientSignalsForPlanning: true,
+      clarificationMode: 'sufficient',
+    });
+    expect(snapshot.context.goalSignalsSnapshot).toMatchObject({
+      normalizedUserAnswers: [
+        {
+          questionId: 'clarify-r1-q-1',
+          signalKey: 'current_baseline',
+          question: 'Cual es tu punto de partida hoy respecto de este objetivo?',
+          answer: 'nivel inicial bajo',
+        },
+        {
+          questionId: 'clarify-r1-q-2',
+          signalKey: 'timeframe',
+          question: 'En que plazo queres ver un primer resultado claro?',
+          answer: '12 semanas',
+        },
+        {
+          questionId: 'clarify-r1-q-3',
+          signalKey: 'constraints',
+          question: 'Que limites reales de tiempo, energia o agenda tenemos que respetar?',
+          answer: '6 horas por semana',
+        },
+      ],
+      readyToAdvance: true,
+      clarifyConfidence: 0.9,
+      missingCriticalSignals: [],
+      hasSufficientSignalsForPlanning: true,
+      clarificationMode: 'sufficient',
+    });
+  });
+
+  it('does not jump blindly to plan on empty resume and keeps the degraded skip explicit', () => {
+    const payload = runScenario('resume_empty_skip');
+    const firstResult = payload.firstResult as { status: string };
+    const resumed = payload.resumed as {
+      status: string;
+      package: Record<string, unknown> | null;
+    };
+    const debugTrace = payload.debugTrace as Array<{
+      action: string;
+      phase: string | null;
+      details?: {
+        goalSignalsSnapshot?: {
+          missingCriticalSignals: string[];
+          hasSufficientSignalsForPlanning: boolean;
+          clarificationMode: string;
+        };
+      } | null;
+    }>;
+    const snapshot = payload.snapshot as {
+      context: {
+        goalSignalsSnapshot?: {
+          missingCriticalSignals: string[];
+          hasSufficientSignalsForPlanning: boolean;
+          clarificationMode: string;
+        };
+      };
+    };
+
+    expect(firstResult.status).toBe('needs_input');
+    expect(resumed.status).toBe('completed');
+    expect(resumed.package).not.toBeNull();
+    const resumedEvent = debugTrace.find((event) => event.action === 'session.resumed');
+    expect(resumedEvent).toMatchObject({
+      phase: 'clarify',
+      details: {
+        goalSignalsSnapshot: {
+          missingCriticalSignals: ['timeframe', 'current_baseline', 'constraints'],
+          hasSufficientSignalsForPlanning: false,
+          clarificationMode: 'degraded_skip',
+        },
+      },
+    });
+    expect(snapshot.context.goalSignalsSnapshot).toMatchObject({
+      missingCriticalSignals: ['timeframe', 'current_baseline', 'constraints'],
+      hasSufficientSignalsForPlanning: false,
+      clarificationMode: 'degraded_skip',
+    });
+  });
+
   it('still pauses for input when the last allowed clarify round returns questions', () => {
     const payload = runScenario('clarify_limit_pause');
     const result = payload.result as {
@@ -678,20 +960,18 @@ describe('PlanOrchestrator', () => {
     expect(result.pendingQuestions?.questions).toHaveLength(1);
   });
 
-  it('uses the final clarification answers to continue directly into planning after the clarify limit', () => {
+  it('keeps clarify active after the limit when critical signals are still missing', () => {
     const payload = runScenario('clarify_limit_resume');
     const firstResult = payload.firstResult as { status: string };
     const resumed = payload.resumed as {
       status: string;
-      package: Record<string, unknown> | null;
-      scratchpad: Array<{ phase: string }>;
+      pendingQuestions: { questions: unknown[]; readyToAdvance: boolean } | null;
     };
 
     expect(firstResult.status).toBe('needs_input');
-    expect(resumed.status).toBe('completed');
-    expect(resumed.package).not.toBeNull();
-    expect(resumed.scratchpad.filter((entry) => entry.phase === 'clarify')).toHaveLength(1);
-    expect(resumed.scratchpad.some((entry) => entry.phase === 'plan')).toBe(true);
+    expect(resumed.status).toBe('needs_input');
+    expect(resumed.pendingQuestions?.readyToAdvance).toBe(false);
+    expect(resumed.pendingQuestions?.questions).toHaveLength(2);
   });
 
   it('preserves answers from different clarification rounds even if the model reuses q1/q2/q3 ids', () => {
@@ -734,6 +1014,79 @@ describe('PlanOrchestrator', () => {
     ]));
   });
 
+  it('persists goal signals snapshots across restore and resume', () => {
+    const payload = runScenario('resume_restore');
+    const firstResult = payload.firstResult as { status: string };
+    const snapshot = payload.snapshot as {
+      context: {
+        goalSignalsSnapshot?: {
+          informationGaps: string[];
+          readyToAdvance: boolean | null;
+          normalizedUserAnswers: Array<unknown>;
+          missingCriticalSignals: string[];
+          hasSufficientSignalsForPlanning: boolean;
+          clarificationMode: string;
+        };
+      };
+    };
+    const restoredSnapshot = payload.restoredSnapshot as {
+      context: {
+        goalSignalsSnapshot?: {
+          normalizedUserAnswers: Array<{
+            questionId: string | null;
+            signalKey: string | null;
+            question: string;
+            answer: string;
+          }>;
+          readyToAdvance: boolean | null;
+          phase: string;
+          missingCriticalSignals: string[];
+          hasSufficientSignalsForPlanning: boolean;
+          clarificationMode: string;
+        };
+      };
+    };
+    const resumed = payload.resumed as { status: string };
+
+    expect(firstResult.status).toBe('needs_input');
+    expect(snapshot.context.goalSignalsSnapshot).toMatchObject({
+      informationGaps: ['timeframe', 'current_baseline', 'constraints'],
+      readyToAdvance: false,
+      normalizedUserAnswers: [],
+      missingCriticalSignals: ['timeframe', 'current_baseline', 'constraints'],
+      hasSufficientSignalsForPlanning: false,
+      clarificationMode: 'needs_input',
+    });
+    expect(resumed.status).toBe('completed');
+    expect(restoredSnapshot.context.goalSignalsSnapshot).toMatchObject({
+      phase: 'done',
+      readyToAdvance: true,
+      missingCriticalSignals: [],
+      hasSufficientSignalsForPlanning: true,
+      clarificationMode: 'sufficient',
+      normalizedUserAnswers: [
+        {
+          questionId: 'clarify-r1-q-1',
+          signalKey: 'current_baseline',
+          question: 'Cual es tu punto de partida hoy respecto de este objetivo?',
+          answer: 'nivel inicial bajo',
+        },
+        {
+          questionId: 'clarify-r1-q-2',
+          signalKey: 'timeframe',
+          question: 'En que plazo queres ver un primer resultado claro?',
+          answer: '12 semanas',
+        },
+        {
+          questionId: 'clarify-r1-q-3',
+          signalKey: 'constraints',
+          question: 'Que limites reales de tiempo, energia o agenda tenemos que respetar?',
+          answer: '6 horas por semana',
+        },
+      ],
+    });
+  });
+
   it('handles critic revise verdict by looping back to planner', () => {
     const payload = runScenario('revise');
     const result = payload.result as {
@@ -755,6 +1108,12 @@ describe('PlanOrchestrator', () => {
       scheduleQualityScore: number;
       unscheduledCount: number;
       scheduleTradeoffs: string[];
+      goalSignalsSnapshot: {
+        timeframe: string | null;
+        clarificationMode: string;
+        hasSufficientSignalsForPlanning: boolean;
+        anchorTokens: string[];
+      };
     };
     const packagerInput = payload.packagerInput as {
       context: {
@@ -774,6 +1133,12 @@ describe('PlanOrchestrator', () => {
           question_esAR: 'Preferis compactar la semana o dejar aire?',
         }),
       ],
+      goalSignalsSnapshot: {
+        timeframe: '12 semanas',
+        clarificationMode: 'sufficient',
+        hasSufficientSignalsForPlanning: true,
+        anchorTokens: expect.arrayContaining(['mejorar', 'nivel']),
+      },
     });
     expect(packagerInput.context.scheduleResult).toMatchObject({
       qualityScore: 87,
@@ -798,7 +1163,7 @@ describe('PlanOrchestrator', () => {
         action: 'interpret.summary',
         details: expect.objectContaining({
           partialKind: 'interpretation',
-          normalizedGoal: 'Test goal',
+          normalizedGoal: 'Mejorar mi nivel actual en 12 semanas',
         }),
       }),
       expect.objectContaining({

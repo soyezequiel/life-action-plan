@@ -5,6 +5,7 @@ import { cocinaItalianaCard } from '../../src/lib/domain/domain-knowledge/cards/
 import type { StrategyInput } from '../../src/lib/pipeline/shared/phase-io';
 import { generateStrategy, generateStrategyWithSource, buildFallbackStrategy } from '../../src/lib/pipeline/shared/strategy';
 import { buildStrategyPrompt } from '../../src/lib/pipeline/v6/prompts/strategy-reasoning';
+import { GoalSignalsSnapshotSchema } from '../../src/lib/pipeline/v6/types';
 import type { AgentRuntime } from '../../src/lib/runtime/types';
 
 const cookingCard: DomainKnowledgeCard = {
@@ -131,6 +132,59 @@ const pastaCookingCard: DomainKnowledgeCard = {
     },
   ],
 };
+
+function createGoalSignalsSnapshot(overrides: Record<string, unknown> = {}) {
+  return GoalSignalsSnapshotSchema.parse({
+    parsedGoal: 'Generar 3k USD por mes desde Argentina',
+    goalType: 'QUANT_TARGET_TRACKING',
+    riskFlags: ['MEDIUM'],
+    suggestedDomain: null,
+    metric: '3k dolares por mes',
+    timeframe: '12 meses',
+    anchorTokens: ['react', 'python', 'remoto'],
+    informationGaps: [],
+    clarifyConfidence: 0.55,
+    readyToAdvance: true,
+    normalizedUserAnswers: [
+      {
+        key: 'situacion',
+        questionId: 'clarify-r1-q1',
+        signalKey: 'current_baseline',
+        question: 'Cual es tu punto de partida hoy respecto de este objetivo?',
+        answer: 'junior sin experiencia',
+      },
+      {
+        key: 'modalidad',
+        questionId: 'clarify-r1-q2',
+        signalKey: 'modality',
+        question: 'Que via queres priorizar?',
+        answer: 'empleo remoto',
+      },
+      {
+        key: 'restricciones',
+        questionId: 'clarify-r1-q3',
+        signalKey: 'constraints',
+        question: 'Que limites reales tenemos que respetar?',
+        answer: '6 horas por semana',
+      },
+      {
+        key: 'recursos',
+        questionId: 'clarify-r1-q4',
+        signalKey: 'resources',
+        question: 'Que activos ya tenes disponibles?',
+        answer: 'portfolio react y python',
+      },
+    ],
+    missingCriticalSignals: [],
+    hasSufficientSignalsForPlanning: true,
+    clarificationMode: 'sufficient',
+    degraded: false,
+    fallbackCount: 0,
+    phase: 'plan',
+    clarifyRounds: 1,
+    ...overrides,
+  });
+}
 
 function createUnauthorizedRuntime(): AgentRuntime {
   const runtime: AgentRuntime = {
@@ -475,6 +529,38 @@ describe('buildFallbackStrategy', () => {
     expect(phaseNames).not.toContain('12 y 50');
     expect(summary).toContain('12 meses');
     expect(summary).not.toMatch(/\b2 meses\b/);
+  });
+
+  it('usa GoalSignalsSnapshot como fuente prioritaria en el fallback general aunque no haya domain card', () => {
+    const result = buildFallbackStrategy({
+      ...createAnchoredIncomeInput({
+        experiencia: 'dato ruidoso que no deberia desplazar el snapshot',
+      }),
+      planningContext: {
+        interpretation: {
+          parsedGoal: 'Generar 3k USD por mes desde Argentina',
+          implicitAssumptions: [],
+        },
+        clarificationAnswers: {
+          experiencia: 'dato ruidoso que no deberia desplazar el snapshot',
+        },
+        goalSignalsSnapshot: createGoalSignalsSnapshot({
+          clarificationMode: 'degraded_skip',
+          missingCriticalSignals: ['success_criteria'],
+          hasSufficientSignalsForPlanning: false,
+        }),
+      },
+    });
+    const summary = result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`).join(' ').toLowerCase();
+
+    expect(summary).toContain('3k dolares por mes');
+    expect(summary).toContain('12 meses');
+    expect(summary).toContain('empleo remoto');
+    expect(summary).toContain('junior sin experiencia');
+    expect(summary).toContain('6 horas por semana');
+    expect(summary).toContain('portfolio react y python');
+    expect(summary).toContain('best-effort');
+    expect(summary).not.toContain('falta dominio');
   });
 });
 
@@ -836,6 +922,68 @@ describe('generateStrategyWithSource validation', () => {
     expect(result.source).toBe('llm');
     expect(result.fallbackCode).toBeUndefined();
   });
+
+  it('inyecta el snapshot de senales prioritarias en el prompt del planner', async () => {
+    let capturedPrompt = '';
+    const runtime: AgentRuntime = {
+      async chat(messages) {
+        capturedPrompt = String(messages[0]?.content ?? '');
+        return {
+          content: JSON.stringify(createReasoningPayload([
+            {
+              id: 'phase-1',
+              title: 'Base remota con React y Python',
+              summary: 'Primeros 4 meses con portfolio visible y empleo remoto.',
+              startMonth: 1,
+              endMonth: 4,
+            },
+            {
+              id: 'phase-2',
+              title: 'Pipeline remoto hacia 3k dolares por mes',
+              summary: 'Meses 5-12 con entrevistas remotas y foco en 3k dolares por mes.',
+              startMonth: 5,
+              endMonth: 12,
+            },
+          ])),
+          usage: {
+            promptTokens: 1,
+            completionTokens: 1,
+          },
+        };
+      },
+      async *stream() {
+      },
+      newContext() {
+        return runtime;
+      },
+    };
+
+    await generateStrategyWithSource(runtime, {
+      ...createAnchoredIncomeInput(),
+      planningContext: {
+        interpretation: {
+          parsedGoal: 'Generar 3k USD por mes desde Argentina',
+          implicitAssumptions: [],
+        },
+        clarificationAnswers: {
+          via: 'dato secundario',
+        },
+        goalSignalsSnapshot: createGoalSignalsSnapshot({
+          clarificationMode: 'degraded_skip',
+          missingCriticalSignals: ['success_criteria'],
+          hasSufficientSignalsForPlanning: false,
+        }),
+      },
+    });
+
+    expect(capturedPrompt).toContain('SENALES UNIVERSALES PRIORITARIAS');
+    expect(capturedPrompt).toContain('3k dolares por mes');
+    expect(capturedPrompt).toContain('12 meses');
+    expect(capturedPrompt).toContain('empleo remoto');
+    expect(capturedPrompt).toContain('junior sin experiencia');
+    expect(capturedPrompt).toContain('clarification_mode: degraded_skip');
+    expect(capturedPrompt).toContain('NO inventes dominio, metrica, plazo, baseline ni mecanismo');
+  });
 });
 
 describe('isStructuralPhaseTitle - specificity gate', () => {
@@ -1107,5 +1255,39 @@ describe('buildStrategyPrompt domain alignment', () => {
     expect(prompt).toContain('Construir presencia online y explorar ingresos digitales');
     expect(prompt).toContain('Base de masas, salsas y pasta corta para cocina italiana con entrada por pizza');
     expect(prompt).toContain('Lanzar un microemprendimiento de pizzas por Instagram');
+  });
+
+  it('muestra el bloque signal-first y deja el dominio como overlay opcional', () => {
+    const prompt = buildStrategyPrompt({
+      goalText: 'Quiero lograr obtener un flujo de 3k dolares por mes en argentina',
+      goalType: 'QUANT_TARGET_TRACKING',
+      interpretation: {
+        parsedGoal: 'Generar 3k USD por mes desde Argentina',
+        implicitAssumptions: [],
+      },
+      userProfile: {
+        freeHoursWeekday: 1,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+      },
+      domainContext: null,
+      goalSignalsSnapshot: createGoalSignalsSnapshot({
+        clarificationMode: 'degraded_skip',
+        missingCriticalSignals: ['success_criteria'],
+        hasSufficientSignalsForPlanning: false,
+      }),
+      clarificationAnswers: {
+        via: 'empleo remoto',
+      },
+    });
+
+    expect(prompt).toContain('SENALES UNIVERSALES PRIORITARIAS');
+    expect(prompt).toContain('current_baseline: junior sin experiencia');
+    expect(prompt).toContain('modality: empleo remoto');
+    expect(prompt).toContain('missing_critical_signals: success_criteria');
+    expect(prompt).toContain('OVERLAY DE DOMINIO OPCIONAL');
+    expect(prompt).toContain('El dominio es un overlay');
+    expect(prompt).toContain('si el snapshot marca `clarificationMode = degraded_skip`');
   });
 });

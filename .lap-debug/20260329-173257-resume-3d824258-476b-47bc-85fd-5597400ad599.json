@@ -1,0 +1,2013 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T20:32:57.733Z",
+  "updatedAt": "2026-03-29T20:35:01.614Z",
+  "invocation": {
+    "goal": "",
+    "resumeSession": "3d824258-476b-47bc-85fd-5597400ad599",
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": "ready",
+    "failureCode": null,
+    "sessionId": "3d824258-476b-47bc-85fd-5597400ad599",
+    "provider": null,
+    "modelId": null,
+    "status": "running"
+  },
+  "pendingInput": null,
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 65,
+    "timestamp": "2026-03-29T20:35:01.559Z",
+    "category": "publication",
+    "action": "publication.evaluated",
+    "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+    "phase": "done",
+    "agent": "critic",
+    "iteration": 11,
+    "revisionCycle": 2,
+    "clarifyRound": 1,
+    "progressScore": 100,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": "ready",
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "partialKind": "publication",
+      "canPublish": true,
+      "degraded": true,
+      "blockingAgents": [],
+      "fallbackLedger": [
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "count": 1,
+          "latestErrorCode": "Error",
+          "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+        }
+      ],
+      "qualityIssues": [],
+      "criticVerdict": "approve",
+      "criticScore": 81,
+      "warnings": [
+        "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+      ],
+      "exactBlockers": [],
+      "misalignedGoal": false
+    }
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "critique",
+    "currentAgent": "critic",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+    "iteration": 9,
+    "revisionCycles": 2,
+    "clarifyRounds": 1,
+    "progressScore": 80,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 56,
+    "lastEventTimestamp": "2026-03-29T20:34:49.234Z",
+    "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T20:32:57.734Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "",
+        "resumeSession": "3d824258-476b-47bc-85fd-5597400ad599",
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:32:57.736Z",
+      "type": "resume.explicit_request",
+      "data": {
+        "endpoint": "/api/plan/build/resume",
+        "sessionId": "3d824258-476b-47bc-85fd-5597400ad599",
+        "answersCount": 0
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-29T20:32:58.199Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "clarify-resume",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:32:58.200Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 13,
+        "timestamp": "2026-03-29T20:32:58.196Z",
+        "category": "lifecycle",
+        "action": "session.resumed",
+        "summary_es": "Se retomó la sesión sin respuestas nuevas; el pipeline sigue con el contexto actual.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "answersCount": 0,
+          "answeredQuestionIds": [],
+          "storedAnswerKeys": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:32:58.200Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 14,
+        "timestamp": "2026-03-29T20:32:58.196Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta armando el plan estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:32:58.201Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 15,
+        "timestamp": "2026-03-29T20:32:58.196Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:04.321Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 16,
+        "timestamp": "2026-03-29T20:33:04.309Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 6113,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:04.322Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 17,
+        "timestamp": "2026-03-29T20:33:04.309Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo a generar el roadmap estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:08.195Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:33:08.195Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 2,
+          "revisionCycles": 0,
+          "clarifyRounds": 1,
+          "progressScore": 25,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 17,
+          "lastEventTimestamp": "2026-03-29T20:33:04.309Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:18.197Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:33:18.197Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 2,
+          "revisionCycles": 0,
+          "clarifyRounds": 1,
+          "progressScore": 25,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 17,
+          "lastEventTimestamp": "2026-03-29T20:33:04.309Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.663Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 18,
+        "timestamp": "2026-03-29T20:33:22.551Z",
+        "category": "agent",
+        "action": "agent.fallback",
+        "summary_es": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable. Se uso un fallback del planificador.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": "Error",
+        "details": {
+          "source": "fallback",
+          "durationMs": 18242,
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "reinventarme",
+              "sentir",
+              "avanzo",
+              "vida."
+            ],
+            "observedTexts": [
+              "Bitácora matutina de reinvención y emoción dominante Cada mañana dedicas 30-40 minutos a escribir tres ideas concretas sobre cómo quieres crecer y registras la emoción dominante del día para generar un récord tangible de tu reinvención personal.",
+              "Revisión semanal y charlas de confianza sobre patrones personales Usas una sesión semanal de 60 minutos para revisar la bitácora y preparas una charla quincenal con alguien de confianza enfocada en compartir patrones de motivación o cansancio que detectaste.",
+              "Micro-experimentos desafiantes (taller, clase o voluntariado) para sentir avance Seleccionas una práctica desafiante nueva por semana (taller, clase, voluntariado) y tras cada sesión registras cómo influye en tus decisiones personales para medir la sensación de avance.",
+              "Integración de rutina semanal y plan de seguimiento trimestral Compilas los hábitos útiles (bitácora, revisión, práctica desafiante) en una rutina semanal de 4 horas y redactas un plan claro para los próximos tres meses que incluya fechas de revisión y temas a compartir.",
+              "Bitácora diaria completada con emociones dominantes",
+              "Tres charlas de patrones personales documentadas"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.664Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 19,
+        "timestamp": "2026-03-29T20:33:22.552Z",
+        "category": "phase",
+        "action": "plan.summary",
+        "summary_es": "Roadmap generado con 3 fase(s) y 3 hito(s).",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 12,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Punto de partida y activos utiles de reinventarme, sentir y avanzo",
+              "focus": "Traducir el objetivo a bloques concretos y medibles en reinventarme, sentir y avanzo. Reutilizar las senales mas concretas del intake: reinventarme, sentir y avanzo. Primero ordenar el punto de partida real antes de ampliar el alcance.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 2,
+              "title": "Pruebas visibles y feedback externo para reinventarme, sentir y avanzo",
+              "focus": "Acumular repeticiones deliberadas y feedback visible sin caer en tareas intercambiables. Bajar el objetivo a validaciones externas, respuesta de mercado o pruebas del mundo real. Mantener reinventarme, sentir y avanzo como eje para no responder a otro objetivo.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 3,
+              "title": "Cierre verificable de reinventarme, sentir y avanzo",
+              "focus": "Cerrar una version demostrable del objetivo. Usar feedback real para ajustar sin perder las senales originales del intake.",
+              "durationWeeks": 4
+            }
+          ],
+          "milestones": [
+            "Definir una base operativa clara de reinventarme, sentir y avanzo",
+            "Conseguir una prueba visible o feedback real relacionado con reinventarme, sentir y avanzo",
+            "Cerrar una demostracion final del objetivo"
+          ],
+          "fallbackUsed": true,
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "reinventarme",
+              "sentir",
+              "avanzo",
+              "vida."
+            ],
+            "observedTexts": [
+              "Bitácora matutina de reinvención y emoción dominante Cada mañana dedicas 30-40 minutos a escribir tres ideas concretas sobre cómo quieres crecer y registras la emoción dominante del día para generar un récord tangible de tu reinvención personal.",
+              "Revisión semanal y charlas de confianza sobre patrones personales Usas una sesión semanal de 60 minutos para revisar la bitácora y preparas una charla quincenal con alguien de confianza enfocada en compartir patrones de motivación o cansancio que detectaste.",
+              "Micro-experimentos desafiantes (taller, clase o voluntariado) para sentir avance Seleccionas una práctica desafiante nueva por semana (taller, clase, voluntariado) y tras cada sesión registras cómo influye en tus decisiones personales para medir la sensación de avance.",
+              "Integración de rutina semanal y plan de seguimiento trimestral Compilas los hábitos útiles (bitácora, revisión, práctica desafiante) en una rutina semanal de 4 horas y redactas un plan claro para los próximos tres meses que incluya fechas de revisión y temas a compartir.",
+              "Bitácora diaria completada con emociones dominantes",
+              "Tres charlas de patrones personales documentadas"
+            ]
+          },
+          "fallbackPublishability": "pendiente_de_critica"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.664Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 20,
+        "timestamp": "2026-03-29T20:33:22.552Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de planificacion a factibilidad.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "plan",
+          "toPhase": "check"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.665Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 21,
+        "timestamp": "2026-03-29T20:33:22.552Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta chequeando la factibilidad del plan.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.665Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 22,
+        "timestamp": "2026-03-29T20:33:22.552Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El verificador de factibilidad esta chequeando horas, energia y restricciones.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.666Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 23,
+        "timestamp": "2026-03-29T20:33:22.553Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El verificador de factibilidad completo factibilidad con respuesta del modelo.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 1,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.666Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 24,
+        "timestamp": "2026-03-29T20:33:22.553Z",
+        "category": "phase",
+        "action": "check.summary",
+        "summary_es": "Factibilidad feasible: 18h disponibles vs 0h requeridas.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "feasibility",
+          "status": "feasible",
+          "availableHours": 18,
+          "requiredHours": 0,
+          "gap": 0,
+          "conflicts": [],
+          "adjustments": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.667Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 25,
+        "timestamp": "2026-03-29T20:33:22.553Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de factibilidad a calendarizacion.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "check",
+          "toPhase": "schedule"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.667Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 26,
+        "timestamp": "2026-03-29T20:33:22.553Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta resolviendo el calendario de actividades.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.668Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 27,
+        "timestamp": "2026-03-29T20:33:22.553Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El scheduler esta distribuyendo actividades en el calendario.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.803Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 28,
+        "timestamp": "2026-03-29T20:33:22.800Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El scheduler cerro calendarizacion por via deterministica.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 247,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.803Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 29,
+        "timestamp": "2026-03-29T20:33:22.800Z",
+        "category": "phase",
+        "action": "schedule.summary",
+        "summary_es": "Calendarizacion optimal con fill rate 100%.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "schedule",
+          "fillRate": 1,
+          "solverStatus": "optimal",
+          "solverTimeMs": 245,
+          "unscheduledCount": 0,
+          "tradeoffs": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.804Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 30,
+        "timestamp": "2026-03-29T20:33:22.800Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de calendarizacion a critica.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "schedule",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.804Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 31,
+        "timestamp": "2026-03-29T20:33:22.800Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:22.805Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 32,
+        "timestamp": "2026-03-29T20:33:22.800Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:28.197Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:33:28.197Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 5,
+          "revisionCycles": 0,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 32,
+          "lastEventTimestamp": "2026-03-29T20:33:22.800Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:30.839Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 33,
+        "timestamp": "2026-03-29T20:33:30.802Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 8002,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:30.840Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 34,
+        "timestamp": "2026-03-29T20:33:30.802Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict revise y score 65/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "revise",
+          "overallScore": 65,
+          "mustFix": [
+            {
+              "id": "f-1",
+              "severity": "critical",
+              "category": "domain",
+              "message": "La estrategia no aprovecha ninguna de las prácticas recomendadas del dominio (registro diario de ideas, revisión con alguien de confianza, experimentos concretos) ni mapea las fases a los niveles L1-L3 indicados, por lo que carece de los elementos metodológicos que sostienen un proceso de desarrollo personal sostenible.",
+              "suggestion": "Integrar explícitamente las prácticas sugeridas (ej. escritura diaria, conversación semanal, prueba de un taller/voluntariado) dentro de cada fase y alinear los hitos con las salidas de L1-L3 para asegurar que el avance siga la progresión recomendada.",
+              "affectedPhaseIds": [
+                "Punto de partida y activos utiles de reinventarme, sentir y avanzo",
+                "Pruebas visibles y feedback externo para reinventarme, sentir y avanzo",
+                "Cierre verificable de reinventarme, sentir y avanzo"
+              ]
+            }
+          ],
+          "shouldFix": [
+            {
+              "id": "f-2",
+              "severity": "warning",
+              "category": "specificity",
+              "message": "Las fases y los hitos repiten la formulación del objetivo sin traducirlo en resultados medibles (p.ej., qué significa \"base operativa\" o \"demostración final\" en términos concretos).",
+              "suggestion": "Definir entregables observables para cada fase, como un inventario documentado de motivaciones en la fase 1, tres experimentos concretos con métricas de éxito en la fase 2 y un resumen de aprendizajes con plan de seguimiento en la fase 3.",
+              "affectedPhaseIds": [
+                "Punto de partida y activos utiles de reinventarme, sentir y avanzo",
+                "Pruebas visibles y feedback externo para reinventarme, sentir y avanzo",
+                "Cierre verificable de reinventarme, sentir y avanzo"
+              ]
+            }
+          ],
+          "reasoning": "El plan es demasiado genérico y no incorpora las metodologías del dominio, por lo que es difícil que genere un progreso real y verificable. Se necesitan fases e hitos más concretos y alineados con las prácticas recomendadas antes de considerar la estrategia viable.",
+          "scoreDelta": null,
+          "comparison": "sin_base"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:30.841Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 35,
+        "timestamp": "2026-03-29T20:33:30.802Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El critico pidio otra vuelta (score 65/100, must-fix 1).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "revise"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:30.841Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 36,
+        "timestamp": "2026-03-29T20:33:30.802Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta corrigiendo el plan a partir de la critica.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:30.841Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 37,
+        "timestamp": "2026-03-29T20:33:30.802Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo una nueva vuelta de revision.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 6,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:30.842Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 38,
+        "timestamp": "2026-03-29T20:33:30.803Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 6,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:38.199Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:33:38.199Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+          "iteration": 6,
+          "revisionCycles": 1,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 38,
+          "lastEventTimestamp": "2026-03-29T20:33:30.803Z",
+          "lastEventSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:38.442Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 39,
+        "timestamp": "2026-03-29T20:33:38.420Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 6,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 7617,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:48.199Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:33:48.199Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 6,
+          "revisionCycles": 1,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 39,
+          "lastEventTimestamp": "2026-03-29T20:33:38.420Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:54.402Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 40,
+        "timestamp": "2026-03-29T20:33:54.328Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El planificador completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 6,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 23526,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:54.402Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 41,
+        "timestamp": "2026-03-29T20:33:54.328Z",
+        "category": "phase",
+        "action": "revise.summary",
+        "summary_es": "Revision lista con 3 fase(s) y 3 hito(s).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 6,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 12,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Inventario de motivaciones y señales corporales para reinventarme",
+              "focus": "Durante 4 semanas dedicarás sesiones de 30-40 minutos a escribir un diario en frío tres veces por semana y cerrarás cada semana con una charla profunda de 30 minutos con alguien de confianza para validar lo que sientes; el resultado observable será un inventario escrito con momentos clave y valores que se repiten.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 2,
+              "title": "Microacciones visibles y feedback externo para sentir avance personal",
+              "focus": "Basándote en el inventario, planearás y ejecutarás dos o tres microacciones (p. ej., participar en un taller, voluntariado breve o conversación guiada) registrando qué, cuándo y cómo medirás el efecto; cada acción se comenta en tu charla semanal para obtener feedback externo.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 3,
+              "title": "Síntesis y hoja de ruta viva para seguir reinventándome",
+              "focus": "Con la experiencia de las pruebas, mantendrás un ritmo de reflexión semanal (diario y charla) y elaborarás una síntesis escrita con lo aprendido, los cambios que quieres sostener y una hoja de ruta de seguimiento de un mes para asegurar que sigues sintiendo avance.",
+              "durationWeeks": 4
+            }
+          ],
+          "milestones": [
+            "Inventario documentado con entradas de diario y valor recurrente confirmado",
+            "Tabla de microacciones completadas con métricas emocionales y feedback",
+            "Síntesis escrita con hoja de ruta de seguimiento"
+          ],
+          "fallbackUsed": false,
+          "failedCheck": null,
+          "validationSummaryEs": null,
+          "validationEvidence": null,
+          "fallbackPublishability": "sin_fallback"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:54.403Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 42,
+        "timestamp": "2026-03-29T20:33:54.329Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La revision volvio a critica para validar la nueva version del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "revise",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:54.404Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 43,
+        "timestamp": "2026-03-29T20:33:54.329Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:54.404Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 44,
+        "timestamp": "2026-03-29T20:33:54.329Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:33:58.200Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:33:58.199Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-29T20:33:54.329Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:08.203Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:34:08.202Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-29T20:33:54.329Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:12.876Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 45,
+        "timestamp": "2026-03-29T20:34:12.840Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 18511,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:12.877Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 46,
+        "timestamp": "2026-03-29T20:34:12.840Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict revise y score 72/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "revise",
+          "overallScore": 72,
+          "mustFix": [
+            {
+              "id": "f-1",
+              "severity": "critical",
+              "category": "progression",
+              "message": "La fase 3 solo contempla reflexión y síntesis, pero el nivel L3 exige mantener durante un mes un ritmo combinado de reflexión y pruebas; al eliminar las microacciones en la última etapa, no podrás cumplir con los criterios de salida ni consolidar hábitos de experimentación.",
+              "suggestion": "Añadí en la fase 3 al menos una microacción ligera por semana (o quincena) que se revise junto con el diario y la charla, para asegurar que sigas probando cambios mientras elaborás la síntesis y la hoja de ruta.",
+              "affectedPhaseIds": [
+                "Síntesis y hoja de ruta viva para seguir reinventándome"
+              ]
+            }
+          ],
+          "shouldFix": [
+            {
+              "id": "f-2",
+              "severity": "warning",
+              "category": "feasibility",
+              "message": "El plan no incorpora mecanismos concretos para respetar la advertencia de \"escuchar el cuerpo y pausar cuando una exploración se siente demasiado\", por lo que podrías forzarte a completar diarios, charlas o microacciones aun cuando resulte abrumador.",
+              "suggestion": "Incluí señales de pausa explícitas (p. ej., una autoevaluación rápida antes de cada sesión y la posibilidad de cambiar a una práctica de cuidado personal) para detener o ajustar actividades cuando notes sobrecarga.",
+              "affectedPhaseIds": [
+                "Inventario de motivaciones y señales corporales para reinventarme",
+                "Microacciones visibles y feedback externo para sentir avance personal",
+                "Síntesis y hoja de ruta viva para seguir reinventándome"
+              ]
+            }
+          ],
+          "reasoning": "Aunque la estrategia ahora integra diarios, charlas y microacciones, la última fase suprime las pruebas continuas, impidiendo alcanzar el nivel L3 y consolidar el nuevo modo de vida. Además, no se contemplan salvaguardas para pausar cuando el proceso resulte abrumador, lo que pone en riesgo la sostenibilidad del plan.",
+          "scoreDelta": 7,
+          "comparison": "similar"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:12.878Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 47,
+        "timestamp": "2026-03-29T20:34:12.840Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El critico pidio otra vuelta (score 72/100, must-fix 1).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "revise"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:12.879Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 48,
+        "timestamp": "2026-03-29T20:34:12.840Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta corrigiendo el plan a partir de la critica.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:12.879Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 49,
+        "timestamp": "2026-03-29T20:34:12.840Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo una nueva vuelta de revision.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 8,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:12.879Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 50,
+        "timestamp": "2026-03-29T20:34:12.840Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 8,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:18.204Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:34:18.203Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+          "iteration": 8,
+          "revisionCycles": 2,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 50,
+          "lastEventTimestamp": "2026-03-29T20:34:12.840Z",
+          "lastEventSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:23.998Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 51,
+        "timestamp": "2026-03-29T20:34:23.986Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 8,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 11146,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:28.205Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:34:28.204Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 8,
+          "revisionCycles": 2,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 51,
+          "lastEventTimestamp": "2026-03-29T20:34:23.986Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:38.207Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:34:38.206Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 8,
+          "revisionCycles": 2,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 51,
+          "lastEventTimestamp": "2026-03-29T20:34:23.986Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:48.208Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:34:48.207Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 8,
+          "revisionCycles": 2,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 51,
+          "lastEventTimestamp": "2026-03-29T20:34:23.986Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:49.323Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 52,
+        "timestamp": "2026-03-29T20:34:49.234Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El planificador completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 8,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 36394,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:49.324Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 53,
+        "timestamp": "2026-03-29T20:34:49.234Z",
+        "category": "phase",
+        "action": "revise.summary",
+        "summary_es": "Revision lista con 3 fase(s) y 3 hito(s).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 8,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 24,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Inventario emocional y señales corporales con diarios de reinvención",
+              "focus": "Dedico 3 sesiones de diario (20 min) por semana, tras un chequeo rápido de energía/abrumo; si el chequeo da negativo, hago 5 minutos de respiración o estiramiento y reprogramo la escritura. Cada domingo organizo las entradas para mapear emociones, anclas (“reinventarme, sentir, avanzo, vida”) y al menos dos deseos profundos, dejando un inventario escrito como salida observable.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 2,
+              "title": "Microacciones visibles y feedback externo para sentir avance personal",
+              "focus": "Cada semana defino una microacción (30-60 min) derivada del inventario, la ejecuto tras el mismo chequeo energético/pausa y documento resultados con fotos o breves notas; cada dos semanas converso con una persona de confianza para comentar lo vivido. La salida es un registro con microacciones, aprendizajes y apoyos recibidos que muestran avance tangible.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 3,
+              "title": "Síntesis y hoja de ruta viva mientras mantengo microacciones ligeras",
+              "focus": "Mantengo un diario semanal (30 min) y una microacción ligera (≤30 min) revisada junto con la conversación bi-semanal; ambos parten del chequeo energético y pueden reemplazarse por pausa si estoy saturado. Con esas evidencias creo una hoja de ruta viva con 3 líneas de acción y reviso quincenalmente qué ajustes mantener para seguir reinventándome.",
+              "durationWeeks": 8
+            }
+          ],
+          "milestones": [
+            "Inventario emocional y corporal documentado",
+            "Microacciones y feedback que muestran avance tangible",
+            "Hoja de ruta viva con microacciones ligeras sostenidas"
+          ],
+          "fallbackUsed": false,
+          "failedCheck": null,
+          "validationSummaryEs": null,
+          "validationEvidence": null,
+          "fallbackPublishability": "sin_fallback"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:49.325Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 54,
+        "timestamp": "2026-03-29T20:34:49.234Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La revision volvio a critica para validar la nueva version del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "revise",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:49.325Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 55,
+        "timestamp": "2026-03-29T20:34:49.234Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:49.326Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 56,
+        "timestamp": "2026-03-29T20:34:49.234Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:34:58.208Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:34:58.208Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 9,
+          "revisionCycles": 2,
+          "clarifyRounds": 1,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 56,
+          "lastEventTimestamp": "2026-03-29T20:34:49.234Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:35:01.606Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 57,
+        "timestamp": "2026-03-29T20:35:01.547Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 12313,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:35:01.607Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 58,
+        "timestamp": "2026-03-29T20:35:01.547Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict approve y score 81/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "approve",
+          "overallScore": 81,
+          "mustFix": [],
+          "shouldFix": [
+            {
+              "id": "f-1",
+              "severity": "warning",
+              "category": "progression",
+              "message": "Las conversaciones quincenales con una persona de confianza se plantean solo para “comentar lo vivido”, sin ningún mecanismo explícito para pedir guía o ayuda cuando la necesitás; esto deja sin cubrir el criterio de salida L2 y puede estancar la transición a L3.",
+              "suggestion": "En cada conversación definí una petición concreta (consejo, acompañamiento o co-creación de ideas) para asegurar que estás practicando el pedir ayuda y recibiendo feedback accionable.",
+              "affectedPhaseIds": [
+                "Microacciones visibles y feedback externo para sentir avance personal",
+                "Síntesis y hoja de ruta viva mientras mantengo microacciones ligeras"
+              ]
+            },
+            {
+              "id": "f-2",
+              "severity": "warning",
+              "category": "motivation",
+              "message": "Los primeros 8 semanas se centran exclusivamente en escritura y análisis, sin ninguna microacción visible; ese lapso prolongado sin experimentos concretos puede hacerte sentir estancado y reduce los refuerzos tempranos.",
+              "suggestion": "Introduce al menos una microacción breve o una prueba de curiosidad durante las primeras semanas para generar pequeños logros que mantengan la motivación antes de llegar a la Fase 2.",
+              "affectedPhaseIds": [
+                "Inventario emocional y señales corporales con diarios de reinvención"
+              ]
+            }
+          ],
+          "reasoning": "El plan es claro y está bien calendarizado, pero conviene ajustar cómo se aprovechan las conversaciones para practicar pedir ayuda y añadir experimentos tempranos que mantengan la motivación. Con esas mejoras, la ruta propuesta sería más robusta.",
+          "scoreDelta": 9,
+          "comparison": "similar"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:35:01.608Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 59,
+        "timestamp": "2026-03-29T20:35:01.547Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de critica a empaquetado.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "package"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:35:01.609Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 60,
+        "timestamp": "2026-03-29T20:35:01.547Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta empaquetando el resultado final.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:35:01.610Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 61,
+        "timestamp": "2026-03-29T20:35:01.547Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El empaquetador esta armando el resultado final publicable.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:35:01.612Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 62,
+        "timestamp": "2026-03-29T20:35:01.558Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El empaquetador cerro empaquetado por via deterministica.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 11,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:35:01.612Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 63,
+        "timestamp": "2026-03-29T20:35:01.558Z",
+        "category": "phase",
+        "action": "package.summary",
+        "summary_es": "Empaquetado listo con score base 100/100 y 0 advertencia(s).",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "package",
+          "packageReady": true,
+          "qualityScore": 100,
+          "summary": "Este plan convierte \"Quiero reinventarme y sentir que avanzo con mi vida.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "warnings": [],
+          "qualityIssues": [],
+          "requestDomain": null,
+          "packageDomain": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:35:01.613Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 64,
+        "timestamp": "2026-03-29T20:35:01.559Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El paquete final quedo listo para resolver la publicacion.",
+        "phase": "done",
+        "agent": null,
+        "iteration": 11,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "package",
+          "toPhase": "done"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:35:01.614Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 65,
+        "timestamp": "2026-03-29T20:35:01.559Z",
+        "category": "publication",
+        "action": "publication.evaluated",
+        "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+        "phase": "done",
+        "agent": "critic",
+        "iteration": 11,
+        "revisionCycle": 2,
+        "clarifyRound": 1,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": "ready",
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "publication",
+          "canPublish": true,
+          "degraded": true,
+          "blockingAgents": [],
+          "fallbackLedger": [
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "count": 1,
+              "latestErrorCode": "Error",
+              "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+            }
+          ],
+          "qualityIssues": [],
+          "criticVerdict": "approve",
+          "criticScore": 81,
+          "warnings": [
+            "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+          ],
+          "exactBlockers": [],
+          "misalignedGoal": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-173257-resume-3d824258-476b-47bc-85fd-5597400ad599.json"
+}

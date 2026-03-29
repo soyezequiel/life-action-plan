@@ -86,6 +86,85 @@ export const ClarificationRoundSchema = z.object({
 }).strict();
 export type ClarificationRound = z.infer<typeof ClarificationRoundSchema>;
 
+export const GoalSignalKeySchema = z.enum([
+  'metric',
+  'timeframe',
+  'current_baseline',
+  'success_criteria',
+  'constraints',
+  'modality',
+  'resources',
+  'safety_context',
+]);
+export type GoalSignalKey = z.infer<typeof GoalSignalKeySchema>;
+
+export const ClarificationModeSchema = z.enum([
+  'needs_input',
+  'sufficient',
+  'degraded_skip',
+]);
+export type ClarificationMode = z.infer<typeof ClarificationModeSchema>;
+
+const GOAL_SIGNAL_KEY_ALIASES: Record<string, GoalSignalKey> = {
+  baseline: 'current_baseline',
+  constraints: 'constraints',
+  current_baseline: 'current_baseline',
+  current_state: 'current_baseline',
+  metric: 'metric',
+  modality: 'modality',
+  resources: 'resources',
+  safety: 'safety_context',
+  safety_context: 'safety_context',
+  success: 'success_criteria',
+  success_criteria: 'success_criteria',
+  timeframe: 'timeframe',
+};
+
+export function normalizeGoalSignalKey(value: string | null | undefined): GoalSignalKey | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, '_');
+
+  return GOAL_SIGNAL_KEY_ALIASES[normalized] ?? null;
+}
+
+export const GoalSignalsUserAnswerSchema = z.object({
+  key: z.string(),
+  questionId: z.string().nullable(),
+  signalKey: GoalSignalKeySchema.nullable().default(null),
+  question: z.string(),
+  answer: z.string(),
+}).strict();
+export type GoalSignalsUserAnswer = z.infer<typeof GoalSignalsUserAnswerSchema>;
+
+export const GoalSignalsSnapshotSchema = z.object({
+  parsedGoal: z.string().nullable(),
+  goalType: GoalTypeSchema.nullable(),
+  riskFlags: z.array(GoalDomainRiskSchema),
+  suggestedDomain: z.string().nullable(),
+  metric: z.string().nullable(),
+  timeframe: z.string().nullable(),
+  anchorTokens: z.array(z.string()),
+  informationGaps: z.array(z.string()),
+  clarifyConfidence: z.number().min(0).max(1).nullable(),
+  readyToAdvance: z.boolean().nullable(),
+  normalizedUserAnswers: z.array(GoalSignalsUserAnswerSchema),
+  missingCriticalSignals: z.array(GoalSignalKeySchema).default([]),
+  hasSufficientSignalsForPlanning: z.boolean().default(false),
+  clarificationMode: ClarificationModeSchema.default('needs_input'),
+  degraded: z.boolean(),
+  fallbackCount: z.number().int().min(0),
+  phase: OrchestratorPhaseSchema,
+  clarifyRounds: z.number().int().min(0),
+}).strict();
+export type GoalSignalsSnapshot = z.infer<typeof GoalSignalsSnapshotSchema>;
+
 export const FeasibilityConflictSchema = z.object({
   description: z.string(),
   severity: z.enum(['blocking', 'warning']),
@@ -311,6 +390,7 @@ export const OrchestratorContextSchema = z.object({
   interpretation: GoalInterpretationSchema.nullable(),
   clarificationRounds: z.array(ClarificationRoundSchema),
   userAnswers: z.record(z.string()),
+  goalSignalsSnapshot: GoalSignalsSnapshotSchema.optional(),
   userProfile: UserProfileV5Schema.nullable(),
   domainCard: DomainKnowledgeCardSchema.nullable(),
   strategicDraft: StrategicDraftSchema.nullable(),

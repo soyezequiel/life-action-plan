@@ -22,6 +22,7 @@ import {
   CriticReportSchema,
   FeasibilityReportSchema,
   GoalInterpretationSchema,
+  GoalSignalsSnapshotSchema,
   OrchestratorContextSchema,
   PlanPackageSchema,
   SchedulerOutputSchema,
@@ -91,6 +92,82 @@ function createInterpretation() {
     riskFlags: ['LOW'],
     suggestedDomain: 'guitarra',
     confidence: 0.8,
+  });
+}
+
+function createClarifierInput(overrides: Partial<ClarifierInput> = {}): ClarifierInput {
+  return {
+    interpretation: createInterpretation(),
+    previousAnswers: {},
+    goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+      parsedGoal: 'Aprender guitarra',
+      goalType: 'SKILL_ACQUISITION',
+      riskFlags: ['LOW'],
+      suggestedDomain: 'guitarra',
+      metric: null,
+      timeframe: null,
+      anchorTokens: [],
+      informationGaps: [],
+      clarifyConfidence: null,
+      readyToAdvance: null,
+      normalizedUserAnswers: [],
+      missingCriticalSignals: [],
+      hasSufficientSignalsForPlanning: true,
+      clarificationMode: 'sufficient',
+      degraded: false,
+      fallbackCount: 0,
+      phase: 'clarify',
+      clarifyRounds: 1,
+    }),
+    profileSummary: null,
+    skipClarification: false,
+    ...overrides,
+  };
+}
+
+function createCriticGoalSignalsSnapshot(overrides: Record<string, unknown> = {}) {
+  return GoalSignalsSnapshotSchema.parse({
+    parsedGoal: 'Generar 3k USD por mes desde Argentina',
+    goalType: 'QUANT_TARGET_TRACKING',
+    riskFlags: ['MEDIUM'],
+    suggestedDomain: null,
+    metric: '3k dolares por mes',
+    timeframe: '12 meses',
+    anchorTokens: ['react', 'python', 'remoto'],
+    informationGaps: [],
+    clarifyConfidence: 0.8,
+    readyToAdvance: true,
+    normalizedUserAnswers: [
+      {
+        key: 'baseline',
+        questionId: 'clarify-r1-q1',
+        signalKey: 'current_baseline',
+        question: 'Cual es tu punto de partida hoy respecto de este objetivo?',
+        answer: 'junior sin experiencia',
+      },
+      {
+        key: 'modalidad',
+        questionId: 'clarify-r1-q2',
+        signalKey: 'modality',
+        question: 'Que via queres priorizar?',
+        answer: 'empleo remoto',
+      },
+      {
+        key: 'restricciones',
+        questionId: 'clarify-r1-q3',
+        signalKey: 'constraints',
+        question: 'Que limites reales tenemos que respetar?',
+        answer: '6 horas por semana',
+      },
+    ],
+    missingCriticalSignals: [],
+    hasSufficientSignalsForPlanning: true,
+    clarificationMode: 'sufficient',
+    degraded: false,
+    fallbackCount: 0,
+    phase: 'critique',
+    clarifyRounds: 1,
+    ...overrides,
   });
 }
 
@@ -242,11 +319,7 @@ describe('agent fallbacks (no LLM)', () => {
 
   describe('clarifierAgent.fallback', () => {
     it('returns readyToAdvance true with confidence 0.6', () => {
-      const input: ClarifierInput = {
-        interpretation: createInterpretation(),
-        previousAnswers: {},
-        profileSummary: null,
-      };
+      const input = createClarifierInput();
 
       const result = clarifierAgent.fallback(input);
 
@@ -256,11 +329,7 @@ describe('agent fallbacks (no LLM)', () => {
     });
 
     it('returns empty questions array', () => {
-      const input: ClarifierInput = {
-        interpretation: createInterpretation(),
-        previousAnswers: {},
-        profileSummary: null,
-      };
+      const input = createClarifierInput();
 
       expect(clarifierAgent.fallback(input).questions).toEqual([]);
     });
@@ -268,21 +337,13 @@ describe('agent fallbacks (no LLM)', () => {
 
   describe('clarifierAgent.execute', () => {
     it('propagates Unauthorized from the runtime', async () => {
-      const input: ClarifierInput = {
-        interpretation: createInterpretation(),
-        previousAnswers: {},
-        profileSummary: null,
-      };
+      const input = createClarifierInput();
 
       await expect(clarifierAgent.execute(input, createUnauthorizedRuntime())).rejects.toThrow('Unauthorized');
     });
 
     it('does not advance when there are still valid clarification questions even if the model reports high confidence', async () => {
-      const input: ClarifierInput = {
-        interpretation: createInterpretation(),
-        previousAnswers: {},
-        profileSummary: null,
-      };
+      const input = createClarifierInput();
 
       const result = await clarifierAgent.execute(input, createJsonRuntime({
         questions: [{
@@ -311,11 +372,7 @@ describe('agent fallbacks (no LLM)', () => {
     });
 
     it('normalizes ids sequentially and keeps stable snake_case gap keys', async () => {
-      const input: ClarifierInput = {
-        interpretation: createInterpretation(),
-        previousAnswers: {},
-        profileSummary: null,
-      };
+      const input = createClarifierInput();
 
       const result = await clarifierAgent.execute(input, createJsonRuntime({
         questions: [
@@ -515,6 +572,13 @@ describe('agent fallbacks (no LLM)', () => {
         scheduleQualityScore: 80,
         unscheduledCount: 0,
         scheduleTradeoffs: [],
+        goalSignalsSnapshot: createCriticGoalSignalsSnapshot({
+          parsedGoal: 'Aprender guitarra',
+          goalType: 'SKILL_ACQUISITION',
+          metric: null,
+          timeframe: null,
+          anchorTokens: ['guitarra'],
+        }),
         domainCard: null,
         previousCriticReports: [],
       };
@@ -535,6 +599,13 @@ describe('agent fallbacks (no LLM)', () => {
         scheduleQualityScore: 80,
         unscheduledCount: 0,
         scheduleTradeoffs: [],
+        goalSignalsSnapshot: createCriticGoalSignalsSnapshot({
+          parsedGoal: 'Aprender guitarra',
+          goalType: 'SKILL_ACQUISITION',
+          metric: null,
+          timeframe: null,
+          anchorTokens: ['guitarra'],
+        }),
         domainCard: null,
         previousCriticReports: [],
       };
@@ -560,6 +631,13 @@ describe('agent fallbacks (no LLM)', () => {
         scheduleQualityScore: 80,
         unscheduledCount: 0,
         scheduleTradeoffs: [],
+        goalSignalsSnapshot: createCriticGoalSignalsSnapshot({
+          parsedGoal: 'Aprender guitarra',
+          goalType: 'SKILL_ACQUISITION',
+          metric: null,
+          timeframe: null,
+          anchorTokens: ['guitarra'],
+        }),
         domainCard: null,
         previousCriticReports: [],
       };
@@ -582,6 +660,7 @@ describe('agent fallbacks (no LLM)', () => {
         scheduleQualityScore: 90,
         unscheduledCount: 0,
         scheduleTradeoffs: [],
+        goalSignalsSnapshot: createCriticGoalSignalsSnapshot(),
         domainCard: cocinaItalianaCard,
         previousCriticReports: [],
       };
@@ -619,6 +698,7 @@ describe('agent fallbacks (no LLM)', () => {
         scheduleQualityScore: 90,
         unscheduledCount: 0,
         scheduleTradeoffs: [],
+        goalSignalsSnapshot: createCriticGoalSignalsSnapshot(),
         domainCard: cocinaItalianaCard,
         previousCriticReports: [],
       };
@@ -640,6 +720,107 @@ describe('agent fallbacks (no LLM)', () => {
       expect(result.findings).toHaveLength(1);
       expect(result.mustFix).toHaveLength(1);
       expect(result.verdict).toBe('revise');
+    });
+
+    it('drops spurious domain findings when there is no confirmed domain card', async () => {
+      const input: CriticInput = {
+        goalText: 'Quiero lograr obtener un flujo de 3k dolares por mes en argentina',
+        goalType: 'QUANT_TARGET_TRACKING',
+        profileSummary: '6 horas por semana, energia media',
+        strategicDraft: {
+          phases: [
+            { id: 'phase-1', name: 'Base remota con React y Python', durationWeeks: 16 },
+            { id: 'phase-2', name: 'Entrevistas remotas hacia 3k dolares', durationWeeks: 16 },
+          ],
+        },
+        scheduleQualityScore: 84,
+        unscheduledCount: 0,
+        scheduleTradeoffs: [],
+        goalSignalsSnapshot: createCriticGoalSignalsSnapshot({
+          clarificationMode: 'degraded_skip',
+          missingCriticalSignals: ['success_criteria'],
+          hasSufficientSignalsForPlanning: false,
+        }),
+        domainCard: null,
+        previousCriticReports: [],
+      };
+
+      const result = await criticAgent.execute(input, createJsonRuntime({
+        overallScore: 62,
+        findings: [
+          {
+            id: 'f-domain',
+            severity: 'critical',
+            category: 'domain',
+            message: 'Faltan best practices de dominio para escalar una agencia de reclutamiento tech.',
+            suggestion: 'Agregar una fase de especializacion sectorial.',
+            affectedPhaseIds: ['phase-1'],
+          },
+          {
+            id: 'f-signal',
+            severity: 'warning',
+            category: 'specificity',
+            message: 'El plan necesita dejar mas explicito el criterio de exito porque viene de degraded_skip.',
+            suggestion: 'Mantener el foco en empleo remoto y 3k dolares sin inventar otro mecanismo.',
+            affectedPhaseIds: ['phase-2'],
+          },
+        ],
+        verdict: 'revise',
+        reasoning: 'Faltan anclas de dominio y un criterio de exito mas explicito.',
+      }));
+
+      expect(result.findings).toHaveLength(1);
+      expect(result.findings[0]).toMatchObject({
+        category: 'specificity',
+        severity: 'warning',
+      });
+      expect(result.findings[0]?.message).toContain('degraded_skip');
+      expect(result.findings.some((finding) => finding.category === 'domain')).toBe(false);
+    });
+
+    it('keeps domain findings when there is a confirmed domain card', async () => {
+      const input: CriticInput = {
+        goalText: 'Quiero aprender a cocinar platos italianos',
+        goalType: 'SKILL_ACQUISITION',
+        profileSummary: '2h libres entre semana, 4h libres el fin de semana, energia media',
+        strategicDraft: {
+          phases: [
+            { id: 'phase-1', name: 'Primer repertorio de pastas italianas con libros', durationWeeks: 3 },
+          ],
+        },
+        scheduleQualityScore: 90,
+        unscheduledCount: 0,
+        scheduleTradeoffs: [],
+        goalSignalsSnapshot: createCriticGoalSignalsSnapshot({
+          parsedGoal: 'Aprender cocina italiana',
+          goalType: 'SKILL_ACQUISITION',
+          metric: null,
+          timeframe: '2 meses',
+          anchorTokens: ['pastas', 'videos'],
+        }),
+        domainCard: cocinaItalianaCard,
+        previousCriticReports: [],
+      };
+
+      const result = await criticAgent.execute(input, createJsonRuntime({
+        overallScore: 70,
+        findings: [{
+          id: 'f-domain',
+          severity: 'warning',
+          category: 'domain',
+          message: 'La progresion de cocina italiana salta demasiado rapido y omite practicas base del dominio.',
+          suggestion: 'Agregar una fase de base italiana antes del cierre.',
+          affectedPhaseIds: ['phase-1'],
+        }],
+        verdict: 'revise',
+        reasoning: 'Hay un riesgo de progresion de dominio.',
+      }));
+
+      expect(result.findings).toHaveLength(1);
+      expect(result.findings[0]).toMatchObject({
+        category: 'domain',
+        severity: 'warning',
+      });
     });
   });
 

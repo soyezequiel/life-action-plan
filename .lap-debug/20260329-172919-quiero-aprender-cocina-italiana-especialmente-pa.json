@@ -1,0 +1,3932 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T20:29:19.618Z",
+  "updatedAt": "2026-03-29T20:30:01.510Z",
+  "invocation": {
+    "goal": "Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": "ac504cc6-58ab-437a-a21f-a8355d756388",
+    "score": 100,
+    "iterations": 7,
+    "degraded": false,
+    "publicationState": "publishable",
+    "failureCode": null,
+    "sessionId": null,
+    "provider": "codex-oauth",
+    "modelId": "openai:gpt-5-codex",
+    "status": "completed"
+  },
+  "pendingInput": null,
+  "finalPackage": {
+    "package": {
+      "plan": {
+        "goalIds": [
+          "generated-goal"
+        ],
+        "timezone": "UTC",
+        "createdAt": "2026-03-29T20:29:55.116Z",
+        "updatedAt": "2026-03-29T20:29:55.116Z",
+        "skeleton": {
+          "horizonWeeks": 12,
+          "goalIds": [
+            "generated-goal"
+          ],
+          "phases": [
+            {
+              "phaseId": "phase-1",
+              "title": "Mise en place italiana y pasta fresca basica en el mes 1",
+              "startWeek": 1,
+              "endWeek": 4,
+              "startDate": "2026-03-31",
+              "endDate": "2026-04-27",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Dedicar 6 h/semana durante el primer mes a afilar cuchillos, organizar mise en place y ejecutar paso a paso tres recetas de pasta italiana (ej. spaghetti, fettuccine y gnocchi) con registros de textura para avanzar hacia el menu simple en 3 meses."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task2-wfmd34i",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task3-dt1273r",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 90
+                },
+                {
+                  "activityId": "act-task1-w6kwe2y",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": []
+            },
+            {
+              "phaseId": "phase-2",
+              "title": "Salsas italianas clasicas y maridaje con pasta en el mes 2",
+              "startWeek": 5,
+              "endWeek": 8,
+              "startDate": "2026-04-28",
+              "endDate": "2026-05-25",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Invertir 6 h/semana en el segundo mes en preparar salsas italianas (pomodoro, pesto, carbonara) y combinarlas con las pastas del mes 1, buscando equilibrio de sabor y textura conforme al plan de 3 meses."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task2-wfmd34i",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task3-dt1273r",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 90
+                },
+                {
+                  "activityId": "act-task1-w6kwe2y",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": [
+                "milestone-1"
+              ]
+            },
+            {
+              "phaseId": "phase-3",
+              "title": "Menu italiano simple con pastas y salsas completas en el mes 3",
+              "startWeek": 9,
+              "endWeek": 12,
+              "startDate": "2026-05-26",
+              "endDate": "2026-06-22",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Planificar y ejecutar durante el tercer mes, dedicando 6 h/semana, un menu italiano simple de tres tiempos (entrada ligera, pasta principal con salsa dominada y postre sencillo) coordinando ritmo de servicio y presentacion dentro de los 3 meses pactados."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task2-wfmd34i",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task3-dt1273r",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 90
+                },
+                {
+                  "activityId": "act-task1-w6kwe2y",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": [
+                "milestone-2"
+              ]
+            }
+          ],
+          "milestones": [
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Tres pastas italianas basicas documentadas con mise en place ordenada",
+              "notes": "Dedicar 6 h/semana durante el primer mes a afilar cuchillos, organizar mise en place y ejecutar paso a paso tres recetas de pasta italiana (ej. spaghetti, fettuccine y gnocchi) con registros de textura para avanzar hacia el menu simple en 3 meses.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "dueDate": "2026-04-28"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Dos platos de pasta con salsas clasicas evaluados positivamente",
+              "notes": "Invertir 6 h/semana en el segundo mes en preparar salsas italianas (pomodoro, pesto, carbonara) y combinarlas con las pastas del mes 1, buscando equilibrio de sabor y textura conforme al plan de 3 meses.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "dueDate": "2026-05-26"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Menu italiano simple servido a invitados en el mes 3",
+              "notes": "Planificar y ejecutar durante el tercer mes, dedicando 6 h/semana, un menu italiano simple de tres tiempos (entrada ligera, pasta principal con salsa dominada y postre sencillo) coordinando ritmo de servicio y presentacion dentro de los 3 meses pactados.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "dueDate": "2026-06-23"
+            }
+          ]
+        },
+        "detail": {
+          "horizonWeeks": 2,
+          "startDate": "2026-03-31",
+          "endDate": "2026-04-13",
+          "scheduledEvents": [
+            {
+              "id": "act-task1-w6kwe2y_s84_a8898460",
+              "kind": "time_event",
+              "title": "Practicar una receta salada simple con cortes basicos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-03-31T18:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-dt1273r_s86_0771cad6",
+              "kind": "time_event",
+              "title": "Organizar y probar un menu corto para amistades o familia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-03-31T19:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-wfmd34i_s133_27dd6b4e",
+              "kind": "time_event",
+              "title": "Ensayar una tecnica especifica como saltear o hornear",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-01T18:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-dt1273r_s232_37f59d23",
+              "kind": "time_event",
+              "title": "Organizar y probar un menu corto para amistades o familia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-03T20:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-wfmd34i_s281_ec1f2351",
+              "kind": "time_event",
+              "title": "Ensayar una tecnica especifica como saltear o hornear",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-04T20:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+              "kind": "time_event",
+              "title": "Practicar una receta salada simple con cortes basicos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-05T11:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-w6kwe2y_s84_a8898460-w2",
+              "kind": "time_event",
+              "title": "Practicar una receta salada simple con cortes basicos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-07T18:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-dt1273r_s86_0771cad6-w2",
+              "kind": "time_event",
+              "title": "Organizar y probar un menu corto para amistades o familia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-07T19:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-wfmd34i_s133_27dd6b4e-w2",
+              "kind": "time_event",
+              "title": "Ensayar una tecnica especifica como saltear o hornear",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-08T18:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-dt1273r_s232_37f59d23-w2",
+              "kind": "time_event",
+              "title": "Organizar y probar un menu corto para amistades o familia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-10T20:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-wfmd34i_s281_ec1f2351-w2",
+              "kind": "time_event",
+              "title": "Ensayar una tecnica especifica como saltear o hornear",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-11T20:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-w6kwe2y_s310_2c0dbdb1-w2",
+              "kind": "time_event",
+              "title": "Practicar una receta salada simple con cortes basicos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-12T11:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            }
+          ],
+          "weeks": [
+            {
+              "weekIndex": 1,
+              "startDate": "2026-03-31",
+              "endDate": "2026-04-06",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-w6kwe2y_s84_a8898460",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-03-31T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s86_0771cad6",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s133_27dd6b4e",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-01T18:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s232_37f59d23",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-03T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s281_ec1f2351",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-04T20:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-05T11:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ]
+            },
+            {
+              "weekIndex": 2,
+              "startDate": "2026-04-07",
+              "endDate": "2026-04-13",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-w6kwe2y_s84_a8898460-w2",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-07T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s86_0771cad6-w2",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-07T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s133_27dd6b4e-w2",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-08T18:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s232_37f59d23-w2",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-10T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s281_ec1f2351-w2",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-11T20:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-w6kwe2y_s310_2c0dbdb1-w2",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-12T11:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ]
+            }
+          ]
+        },
+        "operational": {
+          "horizonDays": 7,
+          "startDate": "2026-03-31",
+          "endDate": "2026-04-06",
+          "frozen": true,
+          "scheduledEvents": [
+            {
+              "id": "act-task1-w6kwe2y_s84_a8898460",
+              "kind": "time_event",
+              "title": "Practicar una receta salada simple con cortes basicos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-03-31T18:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-dt1273r_s86_0771cad6",
+              "kind": "time_event",
+              "title": "Organizar y probar un menu corto para amistades o familia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-03-31T19:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-wfmd34i_s133_27dd6b4e",
+              "kind": "time_event",
+              "title": "Ensayar una tecnica especifica como saltear o hornear",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-01T18:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-dt1273r_s232_37f59d23",
+              "kind": "time_event",
+              "title": "Organizar y probar un menu corto para amistades o familia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-03T20:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-wfmd34i_s281_ec1f2351",
+              "kind": "time_event",
+              "title": "Ensayar una tecnica especifica como saltear o hornear",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-04T20:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+              "kind": "time_event",
+              "title": "Practicar una receta salada simple con cortes basicos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z",
+              "startAt": "2026-04-05T11:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            }
+          ],
+          "buffers": [
+            {
+              "id": "buffer-slack-1-1",
+              "startAt": "2026-03-31T20:30:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-2-1",
+              "startAt": "2026-04-01T19:15:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-4-1",
+              "startAt": "2026-04-03T21:30:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-5-1",
+              "startAt": "2026-04-04T21:15:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            }
+          ],
+          "days": [
+            {
+              "date": "2026-03-31",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-w6kwe2y_s84_a8898460",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-03-31T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s86_0771cad6",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-03-31T20:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-01",
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-wfmd34i_s133_27dd6b4e",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-01T18:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-01T19:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-02",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-03",
+              "scheduledEvents": [
+                {
+                  "id": "act-task3-dt1273r_s232_37f59d23",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-03T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-03T21:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-04",
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-wfmd34i_s281_ec1f2351",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-04T20:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-5-1",
+                  "startAt": "2026-04-04T21:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-05",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-05T11:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-06",
+              "scheduledEvents": [],
+              "buffers": []
+            }
+          ],
+          "totalBufferMin": 120
+        }
+      },
+      "items": [
+        {
+          "id": "act-task1-w6kwe2y_s84_a8898460",
+          "kind": "time_event",
+          "title": "Practicar una receta salada simple con cortes basicos",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-03-31T18:00:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "act-task3-dt1273r_s86_0771cad6",
+          "kind": "time_event",
+          "title": "Organizar y probar un menu corto para amistades o familia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-03-31T19:00:00.000Z",
+          "durationMin": 90,
+          "rigidity": "soft",
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "act-task2-wfmd34i_s133_27dd6b4e",
+          "kind": "time_event",
+          "title": "Ensayar una tecnica especifica como saltear o hornear",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-01T18:30:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "act-task3-dt1273r_s232_37f59d23",
+          "kind": "time_event",
+          "title": "Organizar y probar un menu corto para amistades o familia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-03T20:00:00.000Z",
+          "durationMin": 90,
+          "rigidity": "soft",
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "act-task2-wfmd34i_s281_ec1f2351",
+          "kind": "time_event",
+          "title": "Ensayar una tecnica especifica como saltear o hornear",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T20:30:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+          "kind": "time_event",
+          "title": "Practicar una receta salada simple con cortes basicos",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-05T11:00:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "milestone-1",
+          "kind": "milestone",
+          "title": "Tres pastas italianas basicas documentadas con mise en place ordenada",
+          "notes": "Dedicar 6 h/semana durante el primer mes a afilar cuchillos, organizar mise en place y ejecutar paso a paso tres recetas de pasta italiana (ej. spaghetti, fettuccine y gnocchi) con registros de textura para avanzar hacia el menu simple en 3 meses.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-04-28",
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "milestone-2",
+          "kind": "milestone",
+          "title": "Dos platos de pasta con salsas clasicas evaluados positivamente",
+          "notes": "Invertir 6 h/semana en el segundo mes en preparar salsas italianas (pomodoro, pesto, carbonara) y combinarlas con las pastas del mes 1, buscando equilibrio de sabor y textura conforme al plan de 3 meses.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-05-26",
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "milestone-3",
+          "kind": "milestone",
+          "title": "Menu italiano simple servido a invitados en el mes 3",
+          "notes": "Planificar y ejecutar durante el tercer mes, dedicando 6 h/semana, un menu italiano simple de tres tiempos (entrada ligera, pasta principal con salsa dominada y postre sencillo) coordinando ritmo de servicio y presentacion dentro de los 3 meses pactados.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-06-23",
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "metric-plan-quality",
+          "kind": "metric",
+          "title": "Calidad del plan",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "plan_quality_score",
+          "unit": "puntos",
+          "direction": "increase",
+          "target": {
+            "targetValue": 100
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "last"
+          },
+          "series": [
+            {
+              "at": "2026-03-29T20:29:55.116Z",
+              "value": 100
+            }
+          ],
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "metric-sessions-week",
+          "kind": "metric",
+          "title": "Sesiones completables por semana",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "scheduled_sessions_per_week",
+          "unit": "sesiones",
+          "direction": "increase",
+          "target": {
+            "targetValue": 6
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "count"
+          },
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        },
+        {
+          "id": "trigger-low-adherence",
+          "kind": "trigger_rule",
+          "title": "Revisar plan si baja la adherencia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "enabled": true,
+          "conditions": [
+            {
+              "left": {
+                "type": "metric",
+                "ref": "plan_quality_score"
+              },
+              "op": "lt",
+              "right": {
+                "value": 70
+              }
+            }
+          ],
+          "actions": [
+            {
+              "type": "create_task",
+              "payload": {
+                "title": "Revisar y reajustar el plan",
+                "estimateMin": 30
+              }
+            }
+          ],
+          "throttle": {
+            "minHoursBetweenRuns": 168
+          },
+          "createdAt": "2026-03-29T20:29:55.116Z",
+          "updatedAt": "2026-03-29T20:29:55.116Z"
+        }
+      ],
+      "habitStates": [
+        {
+          "progressionKey": "generated-goal",
+          "weeksActive": 0,
+          "level": 0,
+          "currentDose": {
+            "sessionsPerWeek": 6,
+            "minimumViable": {
+              "minutes": 15,
+              "description": "Version minima de Ensayar una tecnica especifica como saltear o hornear"
+            }
+          },
+          "protectedFromReset": false
+        }
+      ],
+      "slackPolicy": {
+        "weeklyTimeBufferMin": 120,
+        "maxChurnMovesPerWeek": 3,
+        "frozenHorizonDays": 2
+      },
+      "timezone": "UTC",
+      "summary_esAR": "Este plan convierte \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 12 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+      "qualityScore": 100,
+      "implementationIntentions": [
+        "Si llega martes a las 18:00, entonces hago Practicar una receta salada simple con cortes basicos durante 60 minutos.",
+        "Si llega martes a las 19:00, entonces hago Organizar y probar un menu corto para amistades o familia durante 90 minutos.",
+        "Si llega miércoles a las 18:30, entonces hago Ensayar una tecnica especifica como saltear o hornear durante 45 minutos.",
+        "Si llega viernes a las 20:00, entonces hago Organizar y probar un menu corto para amistades o familia durante 90 minutos."
+      ],
+      "warnings": [],
+      "tradeoffs": [],
+      "publicationState": "publishable",
+      "qualityIssues": [],
+      "requestDomain": "cocina-italiana",
+      "packageDomain": "cocina-italiana",
+      "intakeCoverage": {
+        "requiredSignals": [],
+        "missingSignals": [],
+        "signalUsage": []
+      },
+      "degraded": false,
+      "reasoningTrace": [
+        {
+          "phase": "interpret",
+          "agent": "goal-interpreter",
+          "iteration": 1,
+          "action": "Executed interpret",
+          "reasoning": "Phase completed",
+          "result": "Goal: Learn Italian cooking, focusing on pastas and sauces, and be able to cook a simple menu within 3 months., confidence: 0.84",
+          "tokensUsed": 32,
+          "timestamp": "2026-03-29T20:29:24.856Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 2,
+          "action": "Executed clarify",
+          "reasoning": "No hay faltantes críticos; se puede asumir un nivel inicial y planificar un menú simple centrado en pastas y salsas dentro del plazo dado.",
+          "result": "Ready to advance (confidence: 0.06)",
+          "tokensUsed": 9,
+          "timestamp": "2026-03-29T20:29:27.775Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 3,
+          "action": "Executed plan",
+          "reasoning": "Phase completed",
+          "result": "3 phases generated",
+          "tokensUsed": 5,
+          "timestamp": "2026-03-29T20:29:54.906Z"
+        },
+        {
+          "phase": "check",
+          "agent": "feasibility-checker",
+          "iteration": 4,
+          "action": "Executed check",
+          "reasoning": "Status: feasible",
+          "result": "Feasibility: feasible",
+          "tokensUsed": 6,
+          "timestamp": "2026-03-29T20:29:54.909Z"
+        },
+        {
+          "phase": "schedule",
+          "agent": "scheduler",
+          "iteration": 5,
+          "action": "Executed schedule",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-29T20:29:55.117Z"
+        },
+        {
+          "phase": "critique",
+          "agent": "critic",
+          "iteration": 6,
+          "action": "Executed critique",
+          "reasoning": "La estrategia es coherente y escalona bien las habilidades clave, pero sería más robusta si contemplara ensayos del menú completo antes del evento final. El resto de dimensiones se mantiene sólido, por lo que, con el ajuste sugerido, el plan debería funcionar en la práctica.",
+          "result": "Score: 82, verdict: approve",
+          "tokensUsed": 7,
+          "timestamp": "2026-03-29T20:30:00.737Z"
+        },
+        {
+          "phase": "package",
+          "agent": "packager",
+          "iteration": 7,
+          "action": "Executed package",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-29T20:30:00.753Z"
+        }
+      ],
+      "agentOutcomes": [
+        {
+          "agent": "goal-interpreter",
+          "phase": "interpret",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 2438
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 2918
+        },
+        {
+          "agent": "domain-expert",
+          "phase": "plan",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 7620
+        },
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 19509
+        },
+        {
+          "agent": "feasibility-checker",
+          "phase": "check",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 0
+        },
+        {
+          "agent": "scheduler",
+          "phase": "schedule",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 207
+        },
+        {
+          "agent": "critic",
+          "phase": "critique",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 5618
+        },
+        {
+          "agent": "packager",
+          "phase": "package",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 16
+        }
+      ]
+    },
+    "meta": {
+      "modelId": "openai:gpt-5-codex"
+    }
+  },
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 39,
+    "timestamp": "2026-03-29T20:30:00.754Z",
+    "category": "publication",
+    "action": "publication.evaluated",
+    "summary_es": "La publicacion quedo habilitada.",
+    "phase": "done",
+    "agent": "critic",
+    "iteration": 7,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 100,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": "ready",
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "partialKind": "publication",
+      "canPublish": true,
+      "degraded": false,
+      "blockingAgents": [],
+      "fallbackLedger": [],
+      "qualityIssues": [],
+      "criticVerdict": "approve",
+      "criticScore": 82,
+      "warnings": [],
+      "exactBlockers": [],
+      "misalignedGoal": false
+    }
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "plan",
+    "currentAgent": "planner",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+    "iteration": 2,
+    "revisionCycles": 0,
+    "clarifyRounds": 1,
+    "progressScore": 40,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 15,
+    "lastEventTimestamp": "2026-03-29T20:29:35.396Z",
+    "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T20:29:19.619Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.",
+        "resumeSession": null,
+        "explicitProvider": "codex",
+        "autoMode": false,
+        "pauseOnInput": true,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:19.621Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "codex-oauth",
+        "label": "OpenAI (sesion)",
+        "attemptIndex": 1,
+        "totalAttempts": 2
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:19.622Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "codex",
+        "goalText": "Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:01.118Z",
+      "type": "attempt.succeeded",
+      "data": {
+        "provider": "codex-oauth",
+        "planId": "ac504cc6-58ab-437a-a21f-a8355d756388",
+        "degraded": false
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:01.119Z",
+      "type": "package.fetch_requested",
+      "data": {
+        "planId": "ac504cc6-58ab-437a-a21f-a8355d756388",
+        "provider": "codex-oauth"
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:01.507Z",
+      "type": "package.fetched",
+      "data": {
+        "planId": "ac504cc6-58ab-437a-a21f-a8355d756388",
+        "provider": "codex-oauth",
+        "modelId": "openai:gpt-5-codex",
+        "publicationState": "publishable",
+        "degraded": false
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-29T20:29:22.421Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:22.421Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-29T20:29:22.416Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "openai:gpt-5-codex",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:22.422Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-29T20:29:22.416Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:22.422Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-29T20:29:22.417Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:24.871Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-29T20:29:24.855Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El interprete completo interpretacion con respuesta del modelo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 2438,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:24.871Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-29T20:29:24.856Z",
+        "category": "phase",
+        "action": "interpret.summary",
+        "summary_es": "Objetivo interpretado como SKILL_ACQUISITION con confianza 84%.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "interpretation",
+          "normalizedGoal": "Learn Italian cooking, focusing on pastas and sauces, and be able to cook a simple menu within 3 months.",
+          "goalType": "SKILL_ACQUISITION",
+          "suggestedDomain": "cooking",
+          "confidence": 0.84,
+          "ambiguities": [
+            "Current cooking skill level and experience with Italian cuisine.",
+            "What specific dishes or components make up the “simple menu.”",
+            "How they plan to learn (class, self-study, online course).",
+            "Availability of necessary tools and ingredients for practice."
+          ],
+          "assumptions": [
+            "They have regular access to a kitchen and ingredients for Italian recipes.",
+            "They can dedicate sufficient time over the next 3 months to learn and practice cooking.",
+            "Learning resources (classes, books, videos) will be available and suitable for their level."
+          ],
+          "riskFlags": [
+            "LOW"
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:24.872Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-29T20:29:24.857Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:24.872Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-29T20:29:24.857Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:24.872Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-29T20:29:24.857Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:27.784Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-29T20:29:27.775Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 2918,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:27.785Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-29T20:29:27.776Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion ya tiene contexto suficiente para avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": true,
+          "confidence": 0.06,
+          "questions": [],
+          "informationGaps": [],
+          "knownAnswers": [],
+          "duplicateQuestions": [],
+          "reasoning": "No hay faltantes críticos; se puede asumir un nivel inicial y planificar un menú simple centrado en pastas y salsas dentro del plazo dado."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:27.785Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-29T20:29:27.776Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La aclaracion alcanzo contexto suficiente y el pipeline avanza a planificacion.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "plan"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:27.786Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 12,
+        "timestamp": "2026-03-29T20:29:27.776Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta armando el plan estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:27.786Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 13,
+        "timestamp": "2026-03-29T20:29:27.776Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:32.405Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:29:32.404Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 2,
+          "revisionCycles": 0,
+          "clarifyRounds": 1,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 13,
+          "lastEventTimestamp": "2026-03-29T20:29:27.776Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:35.414Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 14,
+        "timestamp": "2026-03-29T20:29:35.396Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 7620,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:35.414Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 15,
+        "timestamp": "2026-03-29T20:29:35.396Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo a generar el roadmap estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:42.405Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:29:42.405Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 2,
+          "revisionCycles": 0,
+          "clarifyRounds": 1,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 15,
+          "lastEventTimestamp": "2026-03-29T20:29:35.396Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:52.409Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T20:29:52.408Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 2,
+          "revisionCycles": 0,
+          "clarifyRounds": 1,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 15,
+          "lastEventTimestamp": "2026-03-29T20:29:35.396Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.001Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 16,
+        "timestamp": "2026-03-29T20:29:54.905Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El planificador completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 19509,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.001Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 17,
+        "timestamp": "2026-03-29T20:29:54.906Z",
+        "category": "phase",
+        "action": "plan.summary",
+        "summary_es": "Roadmap generado con 3 fase(s) y 3 hito(s).",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 12,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Mise en place italiana y pasta fresca basica en el mes 1",
+              "focus": "Dedicar 6 h/semana durante el primer mes a afilar cuchillos, organizar mise en place y ejecutar paso a paso tres recetas de pasta italiana (ej. spaghetti, fettuccine y gnocchi) con registros de textura para avanzar hacia el menu simple en 3 meses.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 2,
+              "title": "Salsas italianas clasicas y maridaje con pasta en el mes 2",
+              "focus": "Invertir 6 h/semana en el segundo mes en preparar salsas italianas (pomodoro, pesto, carbonara) y combinarlas con las pastas del mes 1, buscando equilibrio de sabor y textura conforme al plan de 3 meses.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 3,
+              "title": "Menu italiano simple con pastas y salsas completas en el mes 3",
+              "focus": "Planificar y ejecutar durante el tercer mes, dedicando 6 h/semana, un menu italiano simple de tres tiempos (entrada ligera, pasta principal con salsa dominada y postre sencillo) coordinando ritmo de servicio y presentacion dentro de los 3 meses pactados.",
+              "durationWeeks": 4
+            }
+          ],
+          "milestones": [
+            "Tres pastas italianas basicas documentadas con mise en place ordenada",
+            "Dos platos de pasta con salsas clasicas evaluados positivamente",
+            "Menu italiano simple servido a invitados en el mes 3"
+          ],
+          "fallbackUsed": false,
+          "failedCheck": null,
+          "validationSummaryEs": null,
+          "validationEvidence": null,
+          "fallbackPublishability": "sin_fallback"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.002Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 18,
+        "timestamp": "2026-03-29T20:29:54.906Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de planificacion a factibilidad.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "plan",
+          "toPhase": "check"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.003Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 19,
+        "timestamp": "2026-03-29T20:29:54.906Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta chequeando la factibilidad del plan.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.003Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 20,
+        "timestamp": "2026-03-29T20:29:54.906Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El verificador de factibilidad esta chequeando horas, energia y restricciones.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.004Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 21,
+        "timestamp": "2026-03-29T20:29:54.908Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El verificador de factibilidad completo factibilidad con respuesta del modelo.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 0,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.004Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 22,
+        "timestamp": "2026-03-29T20:29:54.909Z",
+        "category": "phase",
+        "action": "check.summary",
+        "summary_es": "Factibilidad feasible: 18h disponibles vs 0h requeridas.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "feasibility",
+          "status": "feasible",
+          "availableHours": 18,
+          "requiredHours": 0,
+          "gap": 0,
+          "conflicts": [],
+          "adjustments": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.005Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 23,
+        "timestamp": "2026-03-29T20:29:54.909Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de factibilidad a calendarizacion.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "check",
+          "toPhase": "schedule"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.005Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 24,
+        "timestamp": "2026-03-29T20:29:54.909Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta resolviendo el calendario de actividades.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.006Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 25,
+        "timestamp": "2026-03-29T20:29:54.909Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El scheduler esta distribuyendo actividades en el calendario.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.121Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 26,
+        "timestamp": "2026-03-29T20:29:55.116Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El scheduler cerro calendarizacion por via deterministica.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 207,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.122Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 27,
+        "timestamp": "2026-03-29T20:29:55.117Z",
+        "category": "phase",
+        "action": "schedule.summary",
+        "summary_es": "Calendarizacion optimal con fill rate 100%.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "schedule",
+          "fillRate": 1,
+          "solverStatus": "optimal",
+          "solverTimeMs": 203,
+          "unscheduledCount": 0,
+          "tradeoffs": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.122Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 28,
+        "timestamp": "2026-03-29T20:29:55.117Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de calendarizacion a critica.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "schedule",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.123Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 29,
+        "timestamp": "2026-03-29T20:29:55.117Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:29:55.123Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 30,
+        "timestamp": "2026-03-29T20:29:55.117Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:00.775Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 31,
+        "timestamp": "2026-03-29T20:30:00.737Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 5618,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:00.775Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 32,
+        "timestamp": "2026-03-29T20:30:00.737Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict approve y score 82/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "approve",
+          "overallScore": 82,
+          "mustFix": [],
+          "shouldFix": [
+            {
+              "id": "f-1",
+              "severity": "warning",
+              "category": "feasibility",
+              "message": "El plan deja la práctica de coordinar un menú completo para el último mes sin ensayos previos; pasar de platos individuales a un servicio de tres tiempos directamente puede generar problemas de ritmo y sincronización cuando llegue la cena con invitados.",
+              "suggestion": "Incorporar en el segundo mes o al inicio del tercero uno o dos ensayos completos del menú (aunque sea para uno o dos comensales) para ajustar tiempos, porciones y flujo de trabajo antes del evento final.",
+              "affectedPhaseIds": [
+                "Menu italiano simple con pastas y salsas completas en el mes 3"
+              ]
+            }
+          ],
+          "reasoning": "La estrategia es coherente y escalona bien las habilidades clave, pero sería más robusta si contemplara ensayos del menú completo antes del evento final. El resto de dimensiones se mantiene sólido, por lo que, con el ajuste sugerido, el plan debería funcionar en la práctica.",
+          "scoreDelta": null,
+          "comparison": "sin_base"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:00.776Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 33,
+        "timestamp": "2026-03-29T20:30:00.737Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de critica a empaquetado.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "package"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:00.777Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 34,
+        "timestamp": "2026-03-29T20:30:00.737Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta empaquetando el resultado final.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:00.777Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 35,
+        "timestamp": "2026-03-29T20:30:00.737Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El empaquetador esta armando el resultado final publicable.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:00.778Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 36,
+        "timestamp": "2026-03-29T20:30:00.753Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El empaquetador cerro empaquetado por via deterministica.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 16,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:00.778Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 37,
+        "timestamp": "2026-03-29T20:30:00.753Z",
+        "category": "phase",
+        "action": "package.summary",
+        "summary_es": "Empaquetado listo con score base 100/100 y 0 advertencia(s).",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "package",
+          "packageReady": true,
+          "qualityScore": 100,
+          "summary": "Este plan convierte \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 12 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "warnings": [],
+          "qualityIssues": [],
+          "requestDomain": "cocina-italiana",
+          "packageDomain": "cocina-italiana"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:00.779Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 38,
+        "timestamp": "2026-03-29T20:30:00.753Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El paquete final quedo listo para resolver la publicacion.",
+        "phase": "done",
+        "agent": null,
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 100,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "package",
+          "toPhase": "done"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:00.780Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 39,
+        "timestamp": "2026-03-29T20:30:00.754Z",
+        "category": "publication",
+        "action": "publication.evaluated",
+        "summary_es": "La publicacion quedo habilitada.",
+        "phase": "done",
+        "agent": "critic",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 100,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": "ready",
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "publication",
+          "canPublish": true,
+          "degraded": false,
+          "blockingAgents": [],
+          "fallbackLedger": [],
+          "qualityIssues": [],
+          "criticVerdict": "approve",
+          "criticScore": 82,
+          "warnings": [],
+          "exactBlockers": [],
+          "misalignedGoal": false
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:01.112Z",
+      "type": "v6:progress",
+      "data": {
+        "score": 100,
+        "lastAction": "Packaging final plan"
+      }
+    },
+    {
+      "timestamp": "2026-03-29T20:30:01.113Z",
+      "type": "v6:complete",
+      "data": {
+        "planId": "ac504cc6-58ab-437a-a21f-a8355d756388",
+        "score": 100,
+        "iterations": 7,
+        "package": {
+          "plan": {
+            "goalIds": [
+              "generated-goal"
+            ],
+            "timezone": "UTC",
+            "createdAt": "2026-03-29T20:29:55.116Z",
+            "updatedAt": "2026-03-29T20:29:55.116Z",
+            "skeleton": {
+              "horizonWeeks": 12,
+              "goalIds": [
+                "generated-goal"
+              ],
+              "phases": [
+                {
+                  "phaseId": "phase-1",
+                  "title": "Mise en place italiana y pasta fresca basica en el mes 1",
+                  "startWeek": 1,
+                  "endWeek": 4,
+                  "startDate": "2026-03-31",
+                  "endDate": "2026-04-27",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Dedicar 6 h/semana durante el primer mes a afilar cuchillos, organizar mise en place y ejecutar paso a paso tres recetas de pasta italiana (ej. spaghetti, fettuccine y gnocchi) con registros de textura para avanzar hacia el menu simple en 3 meses."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task2-wfmd34i",
+                      "title": "Ensayar una tecnica especifica como saltear o hornear",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task3-dt1273r",
+                      "title": "Organizar y probar un menu corto para amistades o familia",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 90
+                    },
+                    {
+                      "activityId": "act-task1-w6kwe2y",
+                      "title": "Practicar una receta salada simple con cortes basicos",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": []
+                },
+                {
+                  "phaseId": "phase-2",
+                  "title": "Salsas italianas clasicas y maridaje con pasta en el mes 2",
+                  "startWeek": 5,
+                  "endWeek": 8,
+                  "startDate": "2026-04-28",
+                  "endDate": "2026-05-25",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Invertir 6 h/semana en el segundo mes en preparar salsas italianas (pomodoro, pesto, carbonara) y combinarlas con las pastas del mes 1, buscando equilibrio de sabor y textura conforme al plan de 3 meses."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task2-wfmd34i",
+                      "title": "Ensayar una tecnica especifica como saltear o hornear",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task3-dt1273r",
+                      "title": "Organizar y probar un menu corto para amistades o familia",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 90
+                    },
+                    {
+                      "activityId": "act-task1-w6kwe2y",
+                      "title": "Practicar una receta salada simple con cortes basicos",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-1"
+                  ]
+                },
+                {
+                  "phaseId": "phase-3",
+                  "title": "Menu italiano simple con pastas y salsas completas en el mes 3",
+                  "startWeek": 9,
+                  "endWeek": 12,
+                  "startDate": "2026-05-26",
+                  "endDate": "2026-06-22",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Planificar y ejecutar durante el tercer mes, dedicando 6 h/semana, un menu italiano simple de tres tiempos (entrada ligera, pasta principal con salsa dominada y postre sencillo) coordinando ritmo de servicio y presentacion dentro de los 3 meses pactados."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task2-wfmd34i",
+                      "title": "Ensayar una tecnica especifica como saltear o hornear",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task3-dt1273r",
+                      "title": "Organizar y probar un menu corto para amistades o familia",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 90
+                    },
+                    {
+                      "activityId": "act-task1-w6kwe2y",
+                      "title": "Practicar una receta salada simple con cortes basicos",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-2"
+                  ]
+                }
+              ],
+              "milestones": [
+                {
+                  "id": "milestone-1",
+                  "kind": "milestone",
+                  "title": "Tres pastas italianas basicas documentadas con mise en place ordenada",
+                  "notes": "Dedicar 6 h/semana durante el primer mes a afilar cuchillos, organizar mise en place y ejecutar paso a paso tres recetas de pasta italiana (ej. spaghetti, fettuccine y gnocchi) con registros de textura para avanzar hacia el menu simple en 3 meses.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "dueDate": "2026-04-28"
+                },
+                {
+                  "id": "milestone-2",
+                  "kind": "milestone",
+                  "title": "Dos platos de pasta con salsas clasicas evaluados positivamente",
+                  "notes": "Invertir 6 h/semana en el segundo mes en preparar salsas italianas (pomodoro, pesto, carbonara) y combinarlas con las pastas del mes 1, buscando equilibrio de sabor y textura conforme al plan de 3 meses.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "dueDate": "2026-05-26"
+                },
+                {
+                  "id": "milestone-3",
+                  "kind": "milestone",
+                  "title": "Menu italiano simple servido a invitados en el mes 3",
+                  "notes": "Planificar y ejecutar durante el tercer mes, dedicando 6 h/semana, un menu italiano simple de tres tiempos (entrada ligera, pasta principal con salsa dominada y postre sencillo) coordinando ritmo de servicio y presentacion dentro de los 3 meses pactados.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "dueDate": "2026-06-23"
+                }
+              ]
+            },
+            "detail": {
+              "horizonWeeks": 2,
+              "startDate": "2026-03-31",
+              "endDate": "2026-04-13",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-w6kwe2y_s84_a8898460",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-03-31T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s86_0771cad6",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s133_27dd6b4e",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-01T18:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s232_37f59d23",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-03T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s281_ec1f2351",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-04T20:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-05T11:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-w6kwe2y_s84_a8898460-w2",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-07T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s86_0771cad6-w2",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-07T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s133_27dd6b4e-w2",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-08T18:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s232_37f59d23-w2",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-10T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s281_ec1f2351-w2",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-11T20:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-w6kwe2y_s310_2c0dbdb1-w2",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-12T11:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "weeks": [
+                {
+                  "weekIndex": 1,
+                  "startDate": "2026-03-31",
+                  "endDate": "2026-04-06",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-w6kwe2y_s84_a8898460",
+                      "kind": "time_event",
+                      "title": "Practicar una receta salada simple con cortes basicos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-03-31T18:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-dt1273r_s86_0771cad6",
+                      "kind": "time_event",
+                      "title": "Organizar y probar un menu corto para amistades o familia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-03-31T19:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-wfmd34i_s133_27dd6b4e",
+                      "kind": "time_event",
+                      "title": "Ensayar una tecnica especifica como saltear o hornear",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-01T18:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-dt1273r_s232_37f59d23",
+                      "kind": "time_event",
+                      "title": "Organizar y probar un menu corto para amistades o familia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-03T20:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-wfmd34i_s281_ec1f2351",
+                      "kind": "time_event",
+                      "title": "Ensayar una tecnica especifica como saltear o hornear",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-04T20:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+                      "kind": "time_event",
+                      "title": "Practicar una receta salada simple con cortes basicos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-05T11:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ]
+                },
+                {
+                  "weekIndex": 2,
+                  "startDate": "2026-04-07",
+                  "endDate": "2026-04-13",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-w6kwe2y_s84_a8898460-w2",
+                      "kind": "time_event",
+                      "title": "Practicar una receta salada simple con cortes basicos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-07T18:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-dt1273r_s86_0771cad6-w2",
+                      "kind": "time_event",
+                      "title": "Organizar y probar un menu corto para amistades o familia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-07T19:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-wfmd34i_s133_27dd6b4e-w2",
+                      "kind": "time_event",
+                      "title": "Ensayar una tecnica especifica como saltear o hornear",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-08T18:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-dt1273r_s232_37f59d23-w2",
+                      "kind": "time_event",
+                      "title": "Organizar y probar un menu corto para amistades o familia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-10T20:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-wfmd34i_s281_ec1f2351-w2",
+                      "kind": "time_event",
+                      "title": "Ensayar una tecnica especifica como saltear o hornear",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-11T20:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-w6kwe2y_s310_2c0dbdb1-w2",
+                      "kind": "time_event",
+                      "title": "Practicar una receta salada simple con cortes basicos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-12T11:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ]
+                }
+              ]
+            },
+            "operational": {
+              "horizonDays": 7,
+              "startDate": "2026-03-31",
+              "endDate": "2026-04-06",
+              "frozen": true,
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-w6kwe2y_s84_a8898460",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-03-31T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s86_0771cad6",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s133_27dd6b4e",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-01T18:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-dt1273r_s232_37f59d23",
+                  "kind": "time_event",
+                  "title": "Organizar y probar un menu corto para amistades o familia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-03T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-wfmd34i_s281_ec1f2351",
+                  "kind": "time_event",
+                  "title": "Ensayar una tecnica especifica como saltear o hornear",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-04T20:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+                  "kind": "time_event",
+                  "title": "Practicar una receta salada simple con cortes basicos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-29T20:29:55.116Z",
+                  "updatedAt": "2026-03-29T20:29:55.116Z",
+                  "startAt": "2026-04-05T11:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-03-31T20:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-01T19:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-03T21:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-5-1",
+                  "startAt": "2026-04-04T21:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ],
+              "days": [
+                {
+                  "date": "2026-03-31",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-w6kwe2y_s84_a8898460",
+                      "kind": "time_event",
+                      "title": "Practicar una receta salada simple con cortes basicos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-03-31T18:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-dt1273r_s86_0771cad6",
+                      "kind": "time_event",
+                      "title": "Organizar y probar un menu corto para amistades o familia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-03-31T19:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-1-1",
+                      "startAt": "2026-03-31T20:30:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-01",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task2-wfmd34i_s133_27dd6b4e",
+                      "kind": "time_event",
+                      "title": "Ensayar una tecnica especifica como saltear o hornear",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-01T18:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-2-1",
+                      "startAt": "2026-04-01T19:15:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-02",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-03",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task3-dt1273r_s232_37f59d23",
+                      "kind": "time_event",
+                      "title": "Organizar y probar un menu corto para amistades o familia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-03T20:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-4-1",
+                      "startAt": "2026-04-03T21:30:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-04",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task2-wfmd34i_s281_ec1f2351",
+                      "kind": "time_event",
+                      "title": "Ensayar una tecnica especifica como saltear o hornear",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-04T20:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-5-1",
+                      "startAt": "2026-04-04T21:15:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-05",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+                      "kind": "time_event",
+                      "title": "Practicar una receta salada simple con cortes basicos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-29T20:29:55.116Z",
+                      "updatedAt": "2026-03-29T20:29:55.116Z",
+                      "startAt": "2026-04-05T11:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-06",
+                  "scheduledEvents": [],
+                  "buffers": []
+                }
+              ],
+              "totalBufferMin": 120
+            }
+          },
+          "items": [
+            {
+              "id": "act-task1-w6kwe2y_s84_a8898460",
+              "kind": "time_event",
+              "title": "Practicar una receta salada simple con cortes basicos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-03-31T18:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "act-task3-dt1273r_s86_0771cad6",
+              "kind": "time_event",
+              "title": "Organizar y probar un menu corto para amistades o familia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-03-31T19:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft",
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "act-task2-wfmd34i_s133_27dd6b4e",
+              "kind": "time_event",
+              "title": "Ensayar una tecnica especifica como saltear o hornear",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-01T18:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "act-task3-dt1273r_s232_37f59d23",
+              "kind": "time_event",
+              "title": "Organizar y probar un menu corto para amistades o familia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-03T20:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft",
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "act-task2-wfmd34i_s281_ec1f2351",
+              "kind": "time_event",
+              "title": "Ensayar una tecnica especifica como saltear o hornear",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T20:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "act-task1-w6kwe2y_s310_2c0dbdb1",
+              "kind": "time_event",
+              "title": "Practicar una receta salada simple con cortes basicos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-05T11:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Tres pastas italianas basicas documentadas con mise en place ordenada",
+              "notes": "Dedicar 6 h/semana durante el primer mes a afilar cuchillos, organizar mise en place y ejecutar paso a paso tres recetas de pasta italiana (ej. spaghetti, fettuccine y gnocchi) con registros de textura para avanzar hacia el menu simple en 3 meses.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-04-28",
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Dos platos de pasta con salsas clasicas evaluados positivamente",
+              "notes": "Invertir 6 h/semana en el segundo mes en preparar salsas italianas (pomodoro, pesto, carbonara) y combinarlas con las pastas del mes 1, buscando equilibrio de sabor y textura conforme al plan de 3 meses.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-05-26",
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Menu italiano simple servido a invitados en el mes 3",
+              "notes": "Planificar y ejecutar durante el tercer mes, dedicando 6 h/semana, un menu italiano simple de tres tiempos (entrada ligera, pasta principal con salsa dominada y postre sencillo) coordinando ritmo de servicio y presentacion dentro de los 3 meses pactados.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-06-23",
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "metric-plan-quality",
+              "kind": "metric",
+              "title": "Calidad del plan",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "plan_quality_score",
+              "unit": "puntos",
+              "direction": "increase",
+              "target": {
+                "targetValue": 100
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "last"
+              },
+              "series": [
+                {
+                  "at": "2026-03-29T20:29:55.116Z",
+                  "value": 100
+                }
+              ],
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "metric-sessions-week",
+              "kind": "metric",
+              "title": "Sesiones completables por semana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "scheduled_sessions_per_week",
+              "unit": "sesiones",
+              "direction": "increase",
+              "target": {
+                "targetValue": 6
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "count"
+              },
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            },
+            {
+              "id": "trigger-low-adherence",
+              "kind": "trigger_rule",
+              "title": "Revisar plan si baja la adherencia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "enabled": true,
+              "conditions": [
+                {
+                  "left": {
+                    "type": "metric",
+                    "ref": "plan_quality_score"
+                  },
+                  "op": "lt",
+                  "right": {
+                    "value": 70
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "type": "create_task",
+                  "payload": {
+                    "title": "Revisar y reajustar el plan",
+                    "estimateMin": 30
+                  }
+                }
+              ],
+              "throttle": {
+                "minHoursBetweenRuns": 168
+              },
+              "createdAt": "2026-03-29T20:29:55.116Z",
+              "updatedAt": "2026-03-29T20:29:55.116Z"
+            }
+          ],
+          "habitStates": [
+            {
+              "progressionKey": "generated-goal",
+              "weeksActive": 0,
+              "level": 0,
+              "currentDose": {
+                "sessionsPerWeek": 6,
+                "minimumViable": {
+                  "minutes": 15,
+                  "description": "Version minima de Ensayar una tecnica especifica como saltear o hornear"
+                }
+              },
+              "protectedFromReset": false
+            }
+          ],
+          "slackPolicy": {
+            "weeklyTimeBufferMin": 120,
+            "maxChurnMovesPerWeek": 3,
+            "frozenHorizonDays": 2
+          },
+          "timezone": "UTC",
+          "summary_esAR": "Este plan convierte \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 12 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "qualityScore": 100,
+          "implementationIntentions": [
+            "Si llega martes a las 18:00, entonces hago Practicar una receta salada simple con cortes basicos durante 60 minutos.",
+            "Si llega martes a las 19:00, entonces hago Organizar y probar un menu corto para amistades o familia durante 90 minutos.",
+            "Si llega miércoles a las 18:30, entonces hago Ensayar una tecnica especifica como saltear o hornear durante 45 minutos.",
+            "Si llega viernes a las 20:00, entonces hago Organizar y probar un menu corto para amistades o familia durante 90 minutos."
+          ],
+          "warnings": [],
+          "tradeoffs": [],
+          "publicationState": "publishable",
+          "qualityIssues": [],
+          "requestDomain": "cocina-italiana",
+          "packageDomain": "cocina-italiana",
+          "intakeCoverage": {
+            "requiredSignals": [],
+            "missingSignals": [],
+            "signalUsage": []
+          },
+          "degraded": false,
+          "reasoningTrace": [
+            {
+              "phase": "interpret",
+              "agent": "goal-interpreter",
+              "iteration": 1,
+              "action": "Executed interpret",
+              "reasoning": "Phase completed",
+              "result": "Goal: Learn Italian cooking, focusing on pastas and sauces, and be able to cook a simple menu within 3 months., confidence: 0.84",
+              "tokensUsed": 32,
+              "timestamp": "2026-03-29T20:29:24.856Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 2,
+              "action": "Executed clarify",
+              "reasoning": "No hay faltantes críticos; se puede asumir un nivel inicial y planificar un menú simple centrado en pastas y salsas dentro del plazo dado.",
+              "result": "Ready to advance (confidence: 0.06)",
+              "tokensUsed": 9,
+              "timestamp": "2026-03-29T20:29:27.775Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 3,
+              "action": "Executed plan",
+              "reasoning": "Phase completed",
+              "result": "3 phases generated",
+              "tokensUsed": 5,
+              "timestamp": "2026-03-29T20:29:54.906Z"
+            },
+            {
+              "phase": "check",
+              "agent": "feasibility-checker",
+              "iteration": 4,
+              "action": "Executed check",
+              "reasoning": "Status: feasible",
+              "result": "Feasibility: feasible",
+              "tokensUsed": 6,
+              "timestamp": "2026-03-29T20:29:54.909Z"
+            },
+            {
+              "phase": "schedule",
+              "agent": "scheduler",
+              "iteration": 5,
+              "action": "Executed schedule",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-29T20:29:55.117Z"
+            },
+            {
+              "phase": "critique",
+              "agent": "critic",
+              "iteration": 6,
+              "action": "Executed critique",
+              "reasoning": "La estrategia es coherente y escalona bien las habilidades clave, pero sería más robusta si contemplara ensayos del menú completo antes del evento final. El resto de dimensiones se mantiene sólido, por lo que, con el ajuste sugerido, el plan debería funcionar en la práctica.",
+              "result": "Score: 82, verdict: approve",
+              "tokensUsed": 7,
+              "timestamp": "2026-03-29T20:30:00.737Z"
+            },
+            {
+              "phase": "package",
+              "agent": "packager",
+              "iteration": 7,
+              "action": "Executed package",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-29T20:30:00.753Z"
+            }
+          ],
+          "agentOutcomes": [
+            {
+              "agent": "goal-interpreter",
+              "phase": "interpret",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 2438
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 2918
+            },
+            {
+              "agent": "domain-expert",
+              "phase": "plan",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 7620
+            },
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 19509
+            },
+            {
+              "agent": "feasibility-checker",
+              "phase": "check",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 0
+            },
+            {
+              "agent": "scheduler",
+              "phase": "schedule",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 207
+            },
+            {
+              "agent": "critic",
+              "phase": "critique",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 5618
+            },
+            {
+              "agent": "packager",
+              "phase": "package",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 16
+            }
+          ]
+        },
+        "reasoningTrace": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Learn Italian cooking, focusing on pastas and sauces, and be able to cook a simple menu within 3 months., confidence: 0.84",
+            "tokensUsed": 32,
+            "timestamp": "2026-03-29T20:29:24.856Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "No hay faltantes críticos; se puede asumir un nivel inicial y planificar un menú simple centrado en pastas y salsas dentro del plazo dado.",
+            "result": "Ready to advance (confidence: 0.06)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-29T20:29:27.775Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 3,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-29T20:29:54.906Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 4,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-29T20:29:54.909Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 5,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-29T20:29:55.117Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 6,
+            "action": "Executed critique",
+            "reasoning": "La estrategia es coherente y escalona bien las habilidades clave, pero sería más robusta si contemplara ensayos del menú completo antes del evento final. El resto de dimensiones se mantiene sólido, por lo que, con el ajuste sugerido, el plan debería funcionar en la práctica.",
+            "result": "Score: 82, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-29T20:30:00.737Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 7,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-29T20:30:00.753Z"
+          }
+        ],
+        "scratchpad": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Learn Italian cooking, focusing on pastas and sauces, and be able to cook a simple menu within 3 months., confidence: 0.84",
+            "tokensUsed": 32,
+            "timestamp": "2026-03-29T20:29:24.856Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "No hay faltantes críticos; se puede asumir un nivel inicial y planificar un menú simple centrado en pastas y salsas dentro del plazo dado.",
+            "result": "Ready to advance (confidence: 0.06)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-29T20:29:27.775Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 3,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-29T20:29:54.906Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 4,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-29T20:29:54.909Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 5,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-29T20:29:55.117Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 6,
+            "action": "Executed critique",
+            "reasoning": "La estrategia es coherente y escalona bien las habilidades clave, pero sería más robusta si contemplara ensayos del menú completo antes del evento final. El resto de dimensiones se mantiene sólido, por lo que, con el ajuste sugerido, el plan debería funcionar en la práctica.",
+            "result": "Score: 82, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-29T20:30:00.737Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 7,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-29T20:30:00.753Z"
+          }
+        ],
+        "degraded": false,
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 2438
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 2918
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 7620
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 19509
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 0
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 207
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 5618
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 16
+          }
+        ]
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-172919-quiero-aprender-cocina-italiana-especialmente-pa.json"
+}

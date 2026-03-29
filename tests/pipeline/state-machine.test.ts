@@ -9,6 +9,7 @@ import {
   CriticReportSchema,
   FeasibilityReportSchema,
   OrchestratorContextSchema,
+  GoalSignalsSnapshotSchema,
   OrchestratorStateSchema,
   type OrchestratorContext,
   type OrchestratorPhase,
@@ -52,12 +53,36 @@ function createContext(overrides: Partial<OrchestratorContext> = {}): Orchestrat
   });
 }
 
+function createGoalSignalsSnapshot(overrides: Record<string, unknown> = {}) {
+  return GoalSignalsSnapshotSchema.parse({
+    parsedGoal: 'Aprender guitarra',
+    goalType: 'SKILL_ACQUISITION',
+    riskFlags: ['LOW'],
+    suggestedDomain: null,
+    metric: null,
+    timeframe: null,
+    anchorTokens: [],
+    informationGaps: ['timeframe', 'current_baseline', 'constraints'],
+    clarifyConfidence: null,
+    readyToAdvance: null,
+    normalizedUserAnswers: [],
+    missingCriticalSignals: ['timeframe', 'current_baseline', 'constraints'],
+    hasSufficientSignalsForPlanning: false,
+    clarificationMode: 'needs_input',
+    degraded: false,
+    fallbackCount: 0,
+    phase: 'clarify',
+    clarifyRounds: 1,
+    ...overrides,
+  });
+}
+
 describe('nextPhase', () => {
   it('interpret always transitions to clarify', () => {
     expect(nextPhase('interpret', createState(), createContext(), null)).toBe('clarify');
   });
 
-  it('clarify transitions to plan when confidence >= 0.8', () => {
+  it('clarify transitions to plan only when the signal snapshot says planning is sufficient', () => {
     const context = createContext({
       interpretation: {
         parsedGoal: 'Aprender guitarra',
@@ -68,6 +93,13 @@ describe('nextPhase', () => {
         suggestedDomain: 'guitarra',
         confidence: 0.5,
       },
+      goalSignalsSnapshot: createGoalSignalsSnapshot({
+        informationGaps: [],
+        missingCriticalSignals: [],
+        hasSufficientSignalsForPlanning: true,
+        clarificationMode: 'sufficient',
+        readyToAdvance: true,
+      }),
     });
 
     expect(nextPhase(
@@ -79,36 +111,40 @@ describe('nextPhase', () => {
         reasoning: 'Hay contexto suficiente.',
         informationGaps: [],
         confidence: 0.8,
-        readyToAdvance: false,
+        readyToAdvance: true,
       },
     )).toBe('plan');
   });
 
-  it('clarify stays in clarify when confidence < 0.8 and rounds < max', () => {
+  it('clarify stays in clarify when critical signals are still missing even if the round says ready', () => {
     expect(nextPhase(
       'clarify',
       createState({ phase: 'clarify', clarifyRounds: 1, maxClarifyRounds: 3 }),
-      createContext(),
+      createContext({
+        goalSignalsSnapshot: createGoalSignalsSnapshot({
+          readyToAdvance: true,
+          clarifyConfidence: 0.9,
+        }),
+      }),
       {
-        questions: [{
-          id: 'q-1',
-          text: 'Cuantas horas tenes?',
-          purpose: 'Dimensionar el plan',
-          type: 'number',
-        }],
-        reasoning: 'Faltan datos clave.',
-        informationGaps: ['horas disponibles'],
-        confidence: 0.6,
-        readyToAdvance: false,
+        questions: [],
+        reasoning: 'El modelo no devolvio preguntas.',
+        informationGaps: [],
+        confidence: 0.9,
+        readyToAdvance: true,
       },
     )).toBe('clarify');
   });
 
-  it('clarify transitions to plan when maxClarifyRounds reached regardless of confidence', () => {
+  it('clarify transitions to plan when the user explicitly skipped and the degraded mode is visible', () => {
     expect(nextPhase(
       'clarify',
-      createState({ phase: 'clarify', clarifyRounds: 3, maxClarifyRounds: 3 }),
-      createContext(),
+      createState({ phase: 'clarify', clarifyRounds: 2, maxClarifyRounds: 3 }),
+      createContext({
+        goalSignalsSnapshot: createGoalSignalsSnapshot({
+          clarificationMode: 'degraded_skip',
+        }),
+      }),
       {
         questions: [{
           id: 'q-1',
@@ -117,11 +153,33 @@ describe('nextPhase', () => {
           type: 'number',
         }],
         reasoning: 'Sigue faltando informacion.',
-        informationGaps: ['horas disponibles'],
+        informationGaps: ['constraints'],
         confidence: 0.2,
         readyToAdvance: false,
       },
     )).toBe('plan');
+  });
+
+  it('clarify stays in clarify when maxClarifyRounds is reached but critical questions are still pending', () => {
+    expect(nextPhase(
+      'clarify',
+      createState({ phase: 'clarify', clarifyRounds: 3, maxClarifyRounds: 3 }),
+      createContext({
+        goalSignalsSnapshot: createGoalSignalsSnapshot(),
+      }),
+      {
+        questions: [{
+          id: 'q-1',
+          text: 'Cuantas horas tenes?',
+          purpose: 'Dimensionar el plan',
+          type: 'number',
+        }],
+        reasoning: 'Sigue faltando informacion.',
+        informationGaps: ['constraints'],
+        confidence: 0.2,
+        readyToAdvance: false,
+      },
+    )).toBe('clarify');
   });
 
   it('plan always transitions to check', () => {
