@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   formatCodexCreditsLine,
   formatCodexRateLimitLines,
+  formatCodexRateLimitLinesFor,
   formatCodexUsageDeltaLines,
+  hasCodexCreditsAvailable,
   parseCodexUsageSnapshot
 } from '../src/lib/auth/codex-usage'
 
@@ -42,6 +44,7 @@ describe('codex usage', () => {
     expect(snapshot.rateLimit.weekly?.usedPercent).toBe(3)
     expect(snapshot.rateLimit.weekly?.remainingPercent).toBe(97)
     expect(snapshot.credits.hasCredits).toBe(false)
+    expect(hasCodexCreditsAvailable(snapshot)).toBe(false)
   })
 
   it('formatea credito, uso y delta para la terminal', () => {
@@ -87,9 +90,14 @@ describe('codex usage', () => {
     })
 
     expect(formatCodexCreditsLine(before)).toBe('Credito Codex: saldo=12 | plan=plus')
+    expect(hasCodexCreditsAvailable(before)).toBe(true)
     expect(formatCodexRateLimitLines(before, 'America/Buenos_Aires')).toEqual([
       expect.stringContaining('Uso Codex 5h: 4% usado | 96% disponible'),
       expect.stringContaining('Uso Codex 7d: 10% usado | 90% disponible')
+    ])
+    expect(formatCodexRateLimitLinesFor('Uso Code Review', before.rateLimit, 'America/Buenos_Aires')).toEqual([
+      expect.stringContaining('Uso Code Review 5h: 4% usado | 96% disponible'),
+      expect.stringContaining('Uso Code Review 7d: 10% usado | 90% disponible')
     ])
     expect(formatCodexUsageDeltaLines(before, after)).toEqual([
       'Cambio uso 5h: +1 pp',

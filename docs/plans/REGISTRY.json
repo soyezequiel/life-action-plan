@@ -51,6 +51,16 @@
       "canonical_plan_file": "docs/plans/flow-viewer-data-v1/PLAN.md"
     },
     {
+      "plan_id": "frontend-system-integration-v1",
+      "series_id": "frontend-system-integration",
+      "version": 1,
+      "title": "Plan: Integracion del sistema al frontend",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/frontend-system-integration-v1/PLAN.md"
+    },
+    {
       "plan_id": "lap-flow-runner-v1",
       "series_id": "lap-flow-runner",
       "version": 1,

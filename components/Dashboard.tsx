@@ -747,6 +747,11 @@ export default function Dashboard({ deploymentMode = 'local' }: DashboardProps):
       return
     }
 
+    if (mode === 'service') {
+      router.push(`/flow?profileId=${encodeURIComponent(profileId)}`)
+      return
+    }
+
     router.push(`/settings?intent=build&mode=${mode}`)
   }
 

@@ -2574,6 +2574,7 @@ export class PlanOrchestrator {
   private isPlannerBestEffortFallback(outcome: AgentExecutionOutcome): boolean {
     const errorMessage = outcome.errorMessage?.toLowerCase() ?? '';
     return errorMessage.includes('fallback strategy was used.')
+      || errorMessage.includes('intake.anchor_coverage')
       || errorMessage.includes('tardo demasiado')
       || errorMessage.includes('timeout')
       || errorMessage.includes('timed out');

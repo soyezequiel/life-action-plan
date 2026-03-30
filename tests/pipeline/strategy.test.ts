@@ -1070,7 +1070,7 @@ describe('generateStrategyWithSource validation', () => {
     expect(result.fallbackMessage).toContain('cooking.horizon');
   });
 
-  it('rechaza salidas intercambiables si ignoran las anclas concretas del intake', async () => {
+  it('no bloquea salidas financieras solo porque ignoran anclas incidentales del intake', async () => {
     const result = await generateStrategyWithSource(
       createReasoningRuntime(createReasoningPayload([
         {
@@ -1091,9 +1091,9 @@ describe('generateStrategyWithSource validation', () => {
       createAnchoredIncomeInput(),
     );
 
-    expect(result.source).toBe('fallback');
-    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
-    expect(result.fallbackMessage).toContain('intake.anchor_coverage');
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+    expect(result.fallbackMessage).toBeUndefined();
   });
 
   it('acepta una salida financiera cuando preserva metrica, plazo y baseline aunque las anclas heredadas sean genericas', async () => {

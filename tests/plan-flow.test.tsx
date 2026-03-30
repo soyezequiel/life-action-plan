@@ -57,6 +57,22 @@ describe('PlanFlow', () => {
       await screen.findByText('Necesitás configurar esta conexión antes de usar este asistente.')
     ).toBeTruthy()
   })
+  it('muestra un mensaje claro cuando el proveedor se queda sin cupo', async () => {
+    const user = userEvent.setup()
+    mocks.startMock.mockImplementation(async (_goalText, _profileId, _provider, callbacks) => {
+      callbacks.onError(
+        'Provider error [provider_quota_exceeded]. El backend respondio, pero no puede procesar la corrida por limite de uso o cuota. Raw: Failed after 3 attempts. Last error: The usage limit has been reached.'
+      )
+    })
+
+    render(<PlanFlow profileId="profile-1" provider="codex" />)
+
+    await user.type(screen.getByRole('textbox', { name: /gustar[ií]a lograr/i }), 'Ganar 1000 usd')
+    await user.click(screen.getByRole('button', { name: 'Crear mi plan' }))
+
+    expect(await screen.findByText('Se acabaron las consultas disponibles por ahora.')).toBeTruthy()
+  })
+
   it('muestra la advertencia cuando la corrida llega degradada', async () => {
     const user = userEvent.setup()
     mocks.startMock.mockImplementation(async (_goalText, _profileId, _provider, callbacks) => {

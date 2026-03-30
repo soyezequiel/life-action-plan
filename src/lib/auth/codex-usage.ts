@@ -162,6 +162,10 @@ export async function fetchCodexUsageSnapshot(forceRefresh = false): Promise<Cod
   return parseCodexUsageSnapshot(payload)
 }
 
+export function hasCodexCreditsAvailable(snapshot: CodexUsageSnapshot): boolean {
+  return snapshot.credits.unlimited || snapshot.credits.hasCredits
+}
+
 export function getPrimaryCodexUsageWindow(rateLimit: CodexUsageRateLimit): CodexUsageWindow | null {
   return rateLimit.fiveHour ?? rateLimit.weekly ?? rateLimit.primary ?? rateLimit.secondary
 }
@@ -228,27 +232,43 @@ function formatCodexWindowLine(
   return `${prefix} ${label}: ${used}% usado | ${remaining}% disponible | reinicia ${resetAt}`
 }
 
-export function formatCodexRateLimitLines(snapshot: CodexUsageSnapshot, timezone: string): string[] {
+function formatRateLimitLines(
+  prefix: string,
+  rateLimit: CodexUsageRateLimit,
+  timezone: string
+): string[] {
   const lines: string[] = []
 
-  lines.push(snapshot.rateLimit.fiveHour
-    ? formatCodexWindowLine('Uso Codex', snapshot.rateLimit.fiveHour, timezone)
-    : 'Uso Codex 5h: no expuesto por el backend para esta cuenta')
+  lines.push(rateLimit.fiveHour
+    ? formatCodexWindowLine(prefix, rateLimit.fiveHour, timezone)
+    : `${prefix} 5h: no expuesto por el backend para esta cuenta`)
 
-  if (snapshot.rateLimit.weekly) {
-    lines.push(formatCodexWindowLine('Uso Codex', snapshot.rateLimit.weekly, timezone))
-  } else if (!snapshot.rateLimit.fiveHour) {
-    const fallbackWindow = getPrimaryCodexUsageWindow(snapshot.rateLimit)
+  if (rateLimit.weekly) {
+    lines.push(formatCodexWindowLine(prefix, rateLimit.weekly, timezone))
+  } else if (!rateLimit.fiveHour) {
+    const fallbackWindow = getPrimaryCodexUsageWindow(rateLimit)
     if (fallbackWindow) {
-      lines.push(formatCodexWindowLine('Uso Codex', fallbackWindow, timezone))
+      lines.push(formatCodexWindowLine(prefix, fallbackWindow, timezone))
     } else {
-      lines.push('Uso Codex 7d: no expuesto por el backend para esta cuenta')
+      lines.push(`${prefix} 7d: no expuesto por el backend para esta cuenta`)
     }
   } else {
-    lines.push('Uso Codex 7d: no expuesto por el backend para esta cuenta')
+    lines.push(`${prefix} 7d: no expuesto por el backend para esta cuenta`)
   }
 
   return lines
+}
+
+export function formatCodexRateLimitLinesFor(
+  prefix: string,
+  rateLimit: CodexUsageRateLimit,
+  timezone: string
+): string[] {
+  return formatRateLimitLines(prefix, rateLimit, timezone)
+}
+
+export function formatCodexRateLimitLines(snapshot: CodexUsageSnapshot, timezone: string): string[] {
+  return formatRateLimitLines('Uso Codex', snapshot.rateLimit, timezone)
 }
 
 function formatCodexUsageDeltaForWindow(

@@ -1,4 +1,5 @@
-import { PlanFlow } from '../../components/flow/PlanFlow'
+import { PlanFlowPage } from '../../components/flow/PlanFlowPage'
+import { getDeploymentMode } from '../../src/lib/env/deployment'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -25,13 +26,7 @@ async function resolveSearchParams(searchParams: Promise<SearchParams> | undefin
 export default async function PlanPage({ searchParams }: PlanPageProps) {
   const params = await resolveSearchParams(searchParams)
   const profileId = readParam(params.profileId) ?? readParam(params.id) ?? ''
-  const provider = readParam(params.provider) ?? 'openai'
+  const provider = readParam(params.provider) ?? (getDeploymentMode() === 'local' ? 'codex' : 'openai')
 
-  return (
-    <main className="app-shell dashboard-shell">
-      <div className="view-layer">
-        <PlanFlow profileId={profileId} provider={provider} />
-      </div>
-    </main>
-  )
+  return <PlanFlowPage initialProfileId={profileId} provider={provider} />
 }

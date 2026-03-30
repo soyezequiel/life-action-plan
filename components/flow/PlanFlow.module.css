@@ -5,6 +5,10 @@
   gap: 24px;
 }
 
+.layoutMinimal {
+  width: min(100%, 720px);
+}
+
 .sidebar {
   display: grid;
   gap: 16px;
@@ -38,6 +42,10 @@
 
 .contentSurface {
   gap: 1.4rem;
+}
+
+.contentSurfaceMinimal {
+  min-height: 320px;
 }
 
 .eyebrow {
@@ -87,6 +95,11 @@
 
 .warningText {
   color: #f2bf82;
+}
+
+.sectionStackCentered {
+  align-content: center;
+  min-height: 100%;
 }
 
 .banner {
@@ -221,6 +234,7 @@
 }
 
 .progressPanel,
+.processingState,
 .summaryCard,
 .questionItem,
 .goalCard {
@@ -243,6 +257,12 @@
   color: var(--text-primary);
   font-size: 1.02rem;
   font-weight: 600;
+}
+
+.processingState {
+  justify-items: center;
+  text-align: center;
+  padding-block: 2rem;
 }
 
 .progressTrack {

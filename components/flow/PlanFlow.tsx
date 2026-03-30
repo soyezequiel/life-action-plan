@@ -25,7 +25,6 @@ interface GoalInputSectionProps {
 
 interface ProgressSectionProps {
   phase: string
-  progressScore: number
 }
 
 interface ClarificationSectionProps {
@@ -231,8 +230,22 @@ function getFriendlyErrorMessage(message: string): string {
     || normalized.includes('configurar tu conexión')
     || normalized.includes('clave configurada')
     || normalized.includes('api key')
+    || normalized.includes('provider_not_configured')
+    || normalized.includes('credential_missing')
+    || normalized.includes('codex_auth_missing')
   ) {
     return COPY.providerSetupRequired
+  }
+
+  if (
+    normalized.includes('provider_quota_exceeded')
+    || normalized.includes('usage limit')
+    || normalized.includes('rate limit')
+    || normalized.includes('insufficient_quota')
+    || normalized.includes('quota')
+    || normalized.includes('429')
+  ) {
+    return t('errors.budget_exceeded')
   }
 
   if (
@@ -315,40 +328,17 @@ function GoalInputSection(props: GoalInputSectionProps) {
 
 function ProgressSection(props: ProgressSectionProps) {
   return (
-    <div className={styles.sectionStack}>
+    <div className={`${styles.sectionStack} ${styles.sectionStackCentered}`}>
       <div className={styles.banner}>
         <p className={styles.eyebrow}>Progreso</p>
         <h2 className={styles.sectionTitle}>{COPY.processingTitle}</h2>
         <p className={styles.sectionCopy}>{COPY.processingCopy}</p>
       </div>
 
-      <div className={styles.progressPanel}>
-        <div className={styles.progressHeader}>
-          <div>
-            <p className={styles.progressLabel}>{getPhaseLabel(props.phase)}</p>
-            <p className={styles.miniText}>Vamos paso por paso para que el resultado quede claro y realista.</p>
-          </div>
-          <div className={styles.spinner} aria-hidden="true" />
-        </div>
-
-        <div
-          className={styles.progressTrack}
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={clampProgress(props.progressScore)}
-          aria-label="Avance del plan"
-        >
-          <div
-            className={styles.progressFill}
-            style={{ width: `${clampProgress(props.progressScore)}%` }}
-          />
-        </div>
-
-        <div className={styles.progressMeta}>
-          <span>{clampProgress(props.progressScore)}%</span>
-          <span className={styles.pulseDot} aria-hidden="true" />
-        </div>
+      <div className={styles.processingState} role="status" aria-live="polite">
+        <div className={styles.spinner} aria-hidden="true" />
+        <p className={styles.progressLabel}>{getPhaseLabel(props.phase)}</p>
+        <p className={styles.miniText}>Te mostramos preguntas solo si realmente hacen falta.</p>
       </div>
     </div>
   )
@@ -546,6 +536,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
 
   const profileReady = profileId.trim().length > 0
   const missingAnswers = questions?.questions.some((question) => !isAnswerFilled(question, answers[question.id])) ?? false
+  const showFlowChrome = step === 'clarifying'
 
   function createCallbacks(origin: 'start' | 'resume', runId: number): PlanStreamCallbacks {
     const isCurrent = (): boolean => runIdRef.current === runId
@@ -690,18 +681,19 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
   }
 
   return (
-    <section className={styles.layout}>
-      <aside className={styles.sidebar}>
+    <section className={`${styles.layout} ${!showFlowChrome ? styles.layoutMinimal : ''}`}>
+      {showFlowChrome && (
+        <aside className={styles.sidebar}>
         <div className={`${styles.surface} ${styles.sidebarSurface}`}>
           <p className={styles.eyebrow}>{COPY.eyebrow}</p>
           <h1 className={styles.title}>{getSidebarTitle(step)}</h1>
           <p className={styles.copy}>{getSidebarCopy(step)}</p>
 
           <div className={styles.metaRow}>
-            <span className={`${styles.statusChip} ${step === 'completed' ? styles.statusChipDone : styles.statusChipActive}`}>
+            <span className={`${styles.statusChip} ${styles.statusChipActive}`}>
               {getStatusLabel(step)}
             </span>
-            {step === 'clarifying' && <span className={styles.chip}>Ronda {Math.max(1, clarifyRound)}</span>}
+            <span className={styles.chip}>Ronda {Math.max(1, clarifyRound)}</span>
           </div>
         </div>
 
@@ -711,16 +703,15 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
             <p className={styles.goalText}>{goalText.trim() || 'Todavía no escribiste un objetivo.'}</p>
           </div>
 
-          {(step === 'processing' || step === 'clarifying' || step === 'completed') && (
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryLabel}>Estado actual</span>
-              <strong className={styles.summaryValue}>{getPhaseLabel(currentPhase || 'interpret')}</strong>
-            </div>
-          )}
+          <div className={styles.summaryCard}>
+            <span className={styles.summaryLabel}>Estado actual</span>
+            <strong className={styles.summaryValue}>{getPhaseLabel(currentPhase || 'interpret')}</strong>
+          </div>
         </div>
-      </aside>
+        </aside>
+      )}
 
-      <div className={`${styles.surface} ${styles.contentSurface}`}>
+      <div className={`${styles.surface} ${styles.contentSurface} ${!showFlowChrome ? styles.contentSurfaceMinimal : ''}`}>
         {error && <div className={styles.errorBox}>{error}</div>}
         {degraded && (
           <div className={styles.warningBox}>
@@ -745,7 +736,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
         )}
 
         {step === 'processing' && (
-          <ProgressSection phase={currentPhase || 'interpret'} progressScore={progressScore} />
+          <ProgressSection phase={currentPhase || 'interpret'} />
         )}
 
         {step === 'clarifying' && questions && (
