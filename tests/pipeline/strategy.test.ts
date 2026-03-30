@@ -320,6 +320,89 @@ function createAnchoredIncomeInput(clarificationAnswers: Record<string, string> 
   };
 }
 
+function createFinanceSavingsInput(clarificationAnswers: Record<string, string> = {}): StrategyInput {
+  return {
+    ...strategyInput,
+    goalText: 'Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.',
+    classification: {
+      goalType: 'QUANT_TARGET_TRACKING',
+      confidence: 0.88,
+      risk: 'MEDIUM',
+      extractedSignals: {
+        isRecurring: true,
+        hasDeliverable: false,
+        hasNumericTarget: true,
+        requiresSkillProgression: false,
+        dependsOnThirdParties: false,
+        isOpenEnded: false,
+        isRelational: false,
+      },
+    },
+    planningContext: {
+      interpretation: {
+        parsedGoal: 'Ordenar finanzas personales y ahorrar 200 por mes de forma sostenible.',
+        implicitAssumptions: [],
+      },
+      clarificationAnswers: {
+        metrica: '200 por mes',
+        plazo: '6 meses',
+        baseline: '0',
+        modalidad: 'transferencia automatica',
+        ...clarificationAnswers,
+      },
+      goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+        parsedGoal: 'Ordenar finanzas personales y ahorrar 200 por mes de forma sostenible.',
+        goalType: 'QUANT_TARGET_TRACKING',
+        riskFlags: ['MEDIUM'],
+        suggestedDomain: 'personal finance',
+        metric: '200 por mes',
+        timeframe: '6 meses',
+        anchorTokens: ['finanzas', 'ahorro', 'transferencia'],
+        informationGaps: [],
+        clarifyConfidence: 0.72,
+        readyToAdvance: true,
+        normalizedUserAnswers: [
+          {
+            key: 'metrica',
+            questionId: 'clarify-r1-q1',
+            signalKey: 'metric',
+            question: 'Cual es la cantidad especifica que queres ahorrar?',
+            answer: '200 por mes',
+          },
+          {
+            key: 'plazo',
+            questionId: 'clarify-r1-q2',
+            signalKey: 'timeframe',
+            question: 'En cuantos meses queres llegar?',
+            answer: '6 meses',
+          },
+          {
+            key: 'baseline',
+            questionId: 'clarify-r1-q3',
+            signalKey: 'current_baseline',
+            question: 'Cuanto ahorras hoy?',
+            answer: '0',
+          },
+          {
+            key: 'modalidad',
+            questionId: 'clarify-r1-q4',
+            signalKey: 'modality',
+            question: 'Que mecanismo queres usar?',
+            answer: 'transferencia automatica',
+          },
+        ],
+        missingCriticalSignals: [],
+        hasSufficientSignalsForPlanning: true,
+        clarificationMode: 'sufficient',
+        degraded: false,
+        fallbackCount: 0,
+        phase: 'plan',
+        clarifyRounds: 2,
+      }),
+    },
+  };
+}
+
 function createReasoningPayload(phases: Array<{
   id: string;
   title: string;
@@ -339,6 +422,52 @@ function createReasoningPayload(phases: Array<{
       targetMonth: phase.endMonth,
       phaseId: phase.id,
     })),
+    conflicts: [],
+  };
+}
+
+function createFinanceSavingsReasoningPayload(): unknown {
+  return {
+    title: 'Plan de ahorro sostenible',
+    summary: 'Roadmap para ordenar finanzas y ahorrar 200 por mes en 6 meses.',
+    totalMonths: 6,
+    estimatedWeeklyHours: 3,
+    phases: [
+      {
+        id: 'phase-1',
+        title: 'Registro de gastos y baseline del mes 1',
+        summary: 'Registrar ingresos y gastos para saber de donde saldra el ahorro.',
+        startMonth: 1,
+        endMonth: 1,
+      },
+      {
+        id: 'phase-2',
+        title: 'Presupuesto realista y margen de 200',
+        summary: 'Ajustar rubros y dejar configurado el presupuesto del cierre del mes 1.',
+        startMonth: 1,
+        endMonth: 1,
+      },
+      {
+        id: 'phase-3',
+        title: 'Transferencia automatica de 200 y seguimiento mensual durante meses 1-6',
+        summary: 'Desde el final del mes 1 hasta el mes 6, separar 200 por mes y verificar cada cumplimiento mensual.',
+        startMonth: 2,
+        endMonth: 5,
+      },
+      {
+        id: 'phase-4',
+        title: 'Revision integral del mes 6 para mantener el ahorro sostenible',
+        summary: 'En el mes 6 revisar si el ahorro de 200 por mes ya es sostenible.',
+        startMonth: 6,
+        endMonth: 6,
+      },
+    ],
+    milestones: [
+      { id: 'm-1', label: 'Baseline financiera registrada', targetMonth: 1, phaseId: 'phase-1' },
+      { id: 'm-2', label: 'Presupuesto equilibrado con margen de 200', targetMonth: 1, phaseId: 'phase-2' },
+      { id: 'm-3', label: 'Seis transferencias automaticas consecutivas de 200 registradas', targetMonth: 6, phaseId: 'phase-3' },
+      { id: 'm-4', label: 'Revision final del mes 6 completada', targetMonth: 6, phaseId: 'phase-4' },
+    ],
     conflicts: [],
   };
 }
@@ -504,6 +633,64 @@ describe('buildFallbackStrategy', () => {
     expect(summary).toContain('react');
   });
 
+  it('preserva metrica en pesos y baseline financiero cuando entra el fallback de ahorro', () => {
+    const financeInput = createFinanceSavingsInput({
+      metrica: '150000 pesos por mes',
+      baseline: 'Ingreso neto mensual 1200000 pesos. Gasto fijo 850000. Gasto variable 250000. Deuda de tarjeta 300000. Ahorro actual 0 a 20000 pesos por mes.',
+    });
+    const result = buildFallbackStrategy({
+      ...financeInput,
+      planningContext: financeInput.planningContext ? {
+        ...financeInput.planningContext,
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          ...financeInput.planningContext.goalSignalsSnapshot,
+          metric: '150000 pesos por mes',
+          normalizedUserAnswers: [
+            {
+              key: 'metrica',
+              questionId: 'clarify-r1-q1',
+              signalKey: 'metric',
+              question: 'Cual es la cantidad especifica que queres ahorrar?',
+              answer: '150000 pesos por mes',
+            },
+            {
+              key: 'plazo',
+              questionId: 'clarify-r1-q2',
+              signalKey: 'timeframe',
+              question: 'En cuantos meses queres llegar?',
+              answer: '6 meses',
+            },
+            {
+              key: 'baseline',
+              questionId: 'clarify-r1-q3',
+              signalKey: 'current_baseline',
+              question: 'Cuanto ahorras hoy?',
+              answer: 'Ingreso neto mensual 1200000 pesos. Gasto fijo 850000. Gasto variable 250000. Deuda de tarjeta 300000. Ahorro actual 0 a 20000 pesos por mes.',
+            },
+            {
+              key: 'modalidad',
+              questionId: 'clarify-r1-q4',
+              signalKey: 'modality',
+              question: 'Que mecanismo queres usar?',
+              answer: 'transferencia automatica',
+            },
+          ],
+        }),
+      } : undefined,
+    });
+
+    const summary = [
+      ...result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`),
+      ...result.milestones,
+    ].join(' ').toLowerCase();
+
+    expect(summary).toContain('150000 pesos por mes');
+    expect(summary).toContain('1200000 pesos');
+    expect(summary).toContain('250000');
+    expect(summary).toContain('transferencia automatica');
+    expect(summary).toContain('6 meses');
+  });
+
   it('no contamina el fallback generico con señales culinarias cuando el objetivo no tiene card de dominio', () => {
     const result = buildFallbackStrategy(createAnchoredIncomeInput({
       experiencia: 'trabaje en la crypta un tiempo como cm y como editor de videos usando ia para clips de instagram',
@@ -561,6 +748,95 @@ describe('buildFallbackStrategy', () => {
     expect(summary).toContain('portfolio react y python');
     expect(summary).toContain('best-effort');
     expect(summary).not.toContain('falta dominio');
+  });
+
+  it('genera un fallback financiero que no promete una secuencia mensual imposible dentro del horizonte', () => {
+    const result = buildFallbackStrategy(createFinanceSavingsInput());
+    const summary = [
+      ...result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`),
+      ...result.milestones,
+    ].join(' ').toLowerCase();
+
+    expect(result.phases.reduce((total, phase) => total + (phase.durationWeeks ?? 0), 0)).toBe(24);
+    expect(summary).toContain('200 por mes');
+    expect(summary).toContain('6 meses');
+    expect(summary).toContain('0');
+    expect(summary).toContain('transferencia automatica');
+    expect(summary).toContain('revision final queda integrada');
+    expect(summary).not.toContain('seis transferencias');
+  });
+
+  it('recupera metrica y plazo desde respuestas normalizadas aunque el snapshot no los haya materializado arriba', () => {
+    const result = buildFallbackStrategy({
+      ...createFinanceSavingsInput(),
+      planningContext: {
+        ...createFinanceSavingsInput().planningContext,
+        goalSignalsSnapshot: createFinanceSavingsInput().planningContext?.goalSignalsSnapshot
+          ? GoalSignalsSnapshotSchema.parse({
+            ...createFinanceSavingsInput().planningContext?.goalSignalsSnapshot,
+            metric: null,
+            timeframe: null,
+          })
+          : undefined,
+      },
+    });
+    const summary = result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`).join(' ').toLowerCase();
+
+    expect(summary).toContain('200 por mes');
+    expect(summary).toContain('6 meses');
+  });
+
+  it('interpreta una metrica financiera numerica sin cadencia como objetivo total del horizonte', () => {
+    const result = buildFallbackStrategy({
+      ...createFinanceSavingsInput(),
+      planningContext: {
+        ...createFinanceSavingsInput().planningContext,
+        goalSignalsSnapshot: createFinanceSavingsInput().planningContext?.goalSignalsSnapshot
+          ? GoalSignalsSnapshotSchema.parse({
+            ...createFinanceSavingsInput().planningContext?.goalSignalsSnapshot,
+            metric: '200000',
+            normalizedUserAnswers: [
+              {
+                key: 'metrica',
+                questionId: 'clarify-r1-q1',
+                signalKey: 'metric',
+                question: 'Cual es la cantidad especifica que queres ahorrar?',
+                answer: '200000',
+              },
+              {
+                key: 'plazo',
+                questionId: 'clarify-r1-q2',
+                signalKey: 'timeframe',
+                question: 'En cuantos meses queres llegar?',
+                answer: '6 meses',
+              },
+              {
+                key: 'baseline',
+                questionId: 'clarify-r1-q3',
+                signalKey: 'current_baseline',
+                question: 'Cuanto ahorras hoy?',
+                answer: '20000',
+              },
+            ],
+          })
+          : undefined,
+        clarificationAnswers: {
+          metrica: '200000',
+          plazo: '6 meses',
+          baseline: '20000',
+        },
+      },
+    });
+
+    const summary = [
+      ...result.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`),
+      ...result.milestones,
+    ].join(' ').toLowerCase();
+
+    expect(summary).toContain('200000');
+    expect(summary).toContain('33334 por mes');
+    expect(summary).toContain('20000 como baseline real');
+    expect(summary).not.toContain('cadencia mensual de 200000');
   });
 });
 
@@ -817,6 +1093,97 @@ describe('generateStrategyWithSource validation', () => {
     expect(result.source).toBe('fallback');
     expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
     expect(result.fallbackMessage).toContain('intake.anchor_coverage');
+  });
+
+  it('acepta una salida financiera cuando preserva metrica, plazo y baseline aunque las anclas heredadas sean genericas', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime({
+        title: 'Plan financiero sostenible',
+        summary: 'Roadmap para ordenar finanzas personales y llegar a un ahorro de 200000 en 6 meses.',
+        totalMonths: 6,
+        estimatedWeeklyHours: 3,
+        phases: [
+          {
+            id: 'phase-1',
+            title: 'Registro financiero y baseline real del mes 1',
+            summary: 'Ordenar finanzas personales, registrar ingresos y gastos y partir desde un ahorro actual de 20000.',
+            startMonth: 1,
+            endMonth: 1,
+          },
+          {
+            id: 'phase-2',
+            title: 'Presupuesto gradual para escalar el ahorro en 6 meses',
+            summary: 'Ajustar categorias y sostener un plan realista para acercarse a 200000 sin perder el control financiero.',
+            startMonth: 2,
+            endMonth: 4,
+          },
+          {
+            id: 'phase-3',
+            title: 'Cierre de 6 meses con ahorro objetivo activo',
+            summary: 'Cerrar 6 meses con seguimiento del ahorro de 200000 y correcciones visibles sobre las finanzas personales.',
+            startMonth: 5,
+            endMonth: 6,
+          },
+        ],
+        milestones: [
+          { id: 'm-1', label: 'Baseline financiera y ahorro actual de 20000 registrados', targetMonth: 1, phaseId: 'phase-1' },
+          { id: 'm-2', label: 'Presupuesto ajustado con progreso verificable hacia 200000', targetMonth: 4, phaseId: 'phase-2' },
+          { id: 'm-3', label: 'Cierre de 6 meses con ahorro objetivo documentado', targetMonth: 6, phaseId: 'phase-3' },
+        ],
+        conflicts: [],
+      }),
+      {
+        ...createFinanceSavingsInput(),
+        planningContext: {
+          ...createFinanceSavingsInput().planningContext,
+          goalSignalsSnapshot: createFinanceSavingsInput().planningContext?.goalSignalsSnapshot
+            ? GoalSignalsSnapshotSchema.parse({
+              ...createFinanceSavingsInput().planningContext?.goalSignalsSnapshot,
+              metric: '200000',
+              anchorTokens: ['ordenar', 'finanzas', 'personales', 'empezar', 'ahorrar', 'forma'],
+              normalizedUserAnswers: [
+                {
+                  key: 'metrica',
+                  questionId: 'clarify-r1-q1',
+                  signalKey: 'metric',
+                  question: 'Cual es la cantidad especifica que queres ahorrar?',
+                  answer: '200000',
+                },
+                {
+                  key: 'plazo',
+                  questionId: 'clarify-r1-q2',
+                  signalKey: 'timeframe',
+                  question: 'En cuantos meses queres llegar?',
+                  answer: '6 meses',
+                },
+                {
+                  key: 'baseline',
+                  questionId: 'clarify-r1-q3',
+                  signalKey: 'current_baseline',
+                  question: 'Cuanto ahorras hoy?',
+                  answer: '20000',
+                },
+              ],
+            })
+            : undefined,
+        },
+      },
+    );
+
+    expect(result.source).toBe('llm');
+    expect(result.fallbackCode).toBeUndefined();
+  });
+
+  it('rechaza una cadencia mensual financiera que no entra en la duracion real de la fase', async () => {
+    const result = await generateStrategyWithSource(
+      createReasoningRuntime(createFinanceSavingsReasoningPayload()),
+      createFinanceSavingsInput(),
+    );
+
+    expect(result.source).toBe('fallback');
+    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
+    expect(result.fallbackMessage).toContain('intake.cadence_horizon');
+    expect(result.output.milestones.join(' ').toLowerCase()).not.toContain('seis transferencias');
   });
 
   it('acepta salidas cuando preservan metrica, plazo y anclas del intake', async () => {
@@ -1136,6 +1503,34 @@ describe('buildStrategyPrompt domain alignment', () => {
     expect(prompt).toContain('ANCLAJES DEL INTAKE');
     expect(prompt).toContain('via preferida');
     expect(prompt).toContain('mecanismo causal');
+  });
+
+  it('explicita que las fases se materializan en secuencia y no deben depender de solapamientos invisibles', () => {
+    const prompt = buildStrategyPrompt({
+      goalText: 'Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.',
+      goalType: 'QUANT_TARGET_TRACKING',
+      interpretation: {
+        parsedGoal: 'Ordenar finanzas y ahorrar 200 por mes en 6 meses',
+        implicitAssumptions: [],
+      },
+      userProfile: {
+        freeHoursWeekday: 1,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+      },
+      domainContext: null,
+      clarificationAnswers: {
+        metrica: '200 por mes',
+        plazo: '6 meses',
+        baseline: '0',
+        modalidad: 'transferencia automatica',
+      },
+    });
+
+    expect(prompt).toContain('el runtime materializa estas fases en SECUENCIA');
+    expect(prompt).toContain('No disenes fases que solo funcionen si se superponen');
+    expect(prompt).toContain('No prometas "6 transferencias"');
   });
 
   it('prioriza el plazo tipado frente a una duracion incidental en otra respuesta', () => {

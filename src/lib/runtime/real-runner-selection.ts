@@ -1,7 +1,6 @@
 import { getCodexAuthAvailability } from '../auth/codex-auth'
 import {
   DEFAULT_CODEX_BUILD_MODEL,
-  DEFAULT_OLLAMA_BUILD_MODEL,
   DEFAULT_OPENAI_BUILD_MODEL,
   DEFAULT_OPENROUTER_BUILD_MODEL,
   getModelProviderName
@@ -36,7 +35,6 @@ export interface RealRunnerEnvironment {
   OPENAI_BASE_URL?: string
   OPENROUTER_API_KEY?: string
   OPENROUTER_BASE_URL?: string
-  OLLAMA_BASE_URL?: string
 }
 
 function normalizeRequestedModelId(modelId: string): string {
@@ -72,7 +70,7 @@ function resolveDefaultModelId(env: RealRunnerEnvironment | undefined, codexAuth
     return DEFAULT_OPENROUTER_BUILD_MODEL
   }
 
-  return DEFAULT_OLLAMA_BUILD_MODEL
+  return DEFAULT_OPENAI_BUILD_MODEL
 }
 
 function resolveRuntimeConfig(
@@ -120,14 +118,6 @@ function resolveRuntimeConfig(
     return {
       apiKey,
       baseURL: env?.OPENROUTER_BASE_URL?.trim() || undefined,
-      thinkingMode
-    }
-  }
-
-  if (providerName === 'ollama') {
-    return {
-      apiKey: '',
-      baseURL: env?.OLLAMA_BASE_URL?.trim() || 'http://localhost:11434',
       thinkingMode
     }
   }

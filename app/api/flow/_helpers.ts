@@ -301,9 +301,7 @@ export async function resolveRuntimeForWorkflow(session: FlowSession): Promise<A
     throw new Error('FLOW_GATE_PROVIDER_REQUIRED')
   }
 
-  const requestedMode = gateState.llmMode === 'local'
-    ? 'backend-local'
-    : gateState.llmMode === 'own'
+  const requestedMode = gateState.llmMode === 'own'
       ? 'user-cloud'
       : gateState.llmMode === 'codex'
         ? 'codex-cloud'

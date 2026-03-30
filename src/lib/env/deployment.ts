@@ -22,10 +22,6 @@ export function getDeploymentMode(env: NodeJS.ProcessEnv = process.env): Deploym
   return 'local'
 }
 
-export function canUseLocalOllama(mode: DeploymentMode = getDeploymentMode()): boolean {
-  return mode === 'local'
-}
-
 export function isCloudDeployment(mode: DeploymentMode = getDeploymentMode()): boolean {
   return mode !== 'local'
 }

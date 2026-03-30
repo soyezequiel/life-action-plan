@@ -1,0 +1,13 @@
+{
+  "plan_id": "pipeline-visualizer-v1",
+  "status": "ready",
+  "created_by": "claude-code",
+  "created_at": "2026-03-30T10:50:00-03:00",
+  "updated_at": "2026-03-30T10:50:00-03:00",
+  "updated_by": "claude-code",
+  "assigned_to": null,
+  "priority": "high",
+  "tags": ["ui", "pipeline", "visualizer", "ux"],
+  "blockers": [],
+  "notes": ""
+}

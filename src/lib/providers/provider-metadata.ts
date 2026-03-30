@@ -1,10 +1,13 @@
-export type SupportedModelProvider = 'openai' | 'openrouter' | 'ollama' | 'unknown'
+export type SupportedModelProvider = 'openai' | 'openrouter' | 'unknown'
 export type SupportedCloudModelProvider = Extract<SupportedModelProvider, 'openai' | 'openrouter'>
 
 export const DEFAULT_OPENAI_BUILD_MODEL = 'openai:gpt-4o-mini'
 export const DEFAULT_CODEX_BUILD_MODEL = 'openai:gpt-5-codex'
 export const DEFAULT_OPENROUTER_BUILD_MODEL = 'openrouter:openai/gpt-4o-mini'
-export const DEFAULT_OLLAMA_BUILD_MODEL = 'ollama:qwen3:8b'
+
+function isBareOpenAIModelId(value: string): boolean {
+  return /^(gpt-|o\d|chatgpt-)/i.test(value)
+}
 
 export function getDefaultBuildModelForProvider(providerId: SupportedModelProvider | string): string | null {
   const normalized = providerId.trim()
@@ -17,10 +20,6 @@ export function getDefaultBuildModelForProvider(providerId: SupportedModelProvid
     return DEFAULT_OPENROUTER_BUILD_MODEL
   }
 
-  if (normalized === 'ollama') {
-    return DEFAULT_OLLAMA_BUILD_MODEL
-  }
-
   return null
 }
 
@@ -31,9 +30,15 @@ export function getModelProviderName(modelId: string | undefined | null): Suppor
   }
 
   const colonIdx = normalized.indexOf(':')
-  const providerName = colonIdx >= 0 ? normalized.slice(0, colonIdx) : 'openai'
+  if (colonIdx < 0) {
+    return isBareOpenAIModelId(normalized)
+      ? 'openai'
+      : 'unknown'
+  }
 
-  if (providerName === 'openai' || providerName === 'openrouter' || providerName === 'ollama') {
+  const providerName = normalized.slice(0, colonIdx)
+
+  if (providerName === 'openai' || providerName === 'openrouter') {
     return providerName
   }
 
@@ -41,21 +46,13 @@ export function getModelProviderName(modelId: string | undefined | null): Suppor
 }
 
 export function isLocalModel(modelId: string | undefined | null): boolean {
-  return getModelProviderName(modelId) === 'ollama'
+  void modelId
+  return false
 }
 
 export function isCloudModel(modelId: string | undefined | null): boolean {
   const providerName = getModelProviderName(modelId)
   return providerName === 'openai' || providerName === 'openrouter'
-}
-
-export function supportsOllamaThinking(modelId: string | undefined | null): boolean {
-  const normalized = modelId?.trim() || ''
-  const modelName = normalized.startsWith('ollama:')
-    ? normalized.slice('ollama:'.length)
-    : normalized
-
-  return /(qwen|deepseek|gpt-oss|qwq|r1)/i.test(modelName)
 }
 
 export function resolveBuildModel(requestedProvider: string | undefined | null): string {
@@ -75,12 +72,7 @@ export function resolveBuildModel(requestedProvider: string | undefined | null):
 }
 
 export function getProviderLabelKey(modelId: string | undefined | null): string {
-  const providerName = getModelProviderName(modelId)
-
-  if (providerName === 'ollama') {
-    return 'builder.provider_local'
-  }
-
+  void modelId
   return 'builder.provider_online'
 }
 
@@ -89,12 +81,7 @@ export function getBuildRouteLabelKey(modelId: string | undefined | null, fallba
     return 'builder.route_fallback_done'
   }
 
-  const providerName = getModelProviderName(modelId)
-
-  if (providerName === 'ollama') {
-    return 'builder.route_local_done'
-  }
-
+  void modelId
   return 'builder.route_online_done'
 }
 

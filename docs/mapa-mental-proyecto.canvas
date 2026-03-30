@@ -1,0 +1,35 @@
+{
+	"nodes":[
+		{"id":"pipeline","type":"text","text":"# Pipeline V6 — Agentico\nCorazon del producto.\n\nUn **orquestador** con FSM coordina 7 agentes especializados que colaboran para construir un plan personalizado.","x":-650,"y":250,"width":320,"height":180,"color":"1"},
+		{"id":"agentes","type":"text","text":"# 7 Agentes IA\n1. **Goal Interpreter** — entiende el objetivo\n2. **Clarifier** — hace preguntas dinamicas\n3. **Domain Expert** — conocimiento especializado\n4. **Feasibility** — evalua viabilidad\n5. **Critic** — revision critica\n6. **Scheduler** — planifica en el tiempo\n7. **Packager** — empaqueta el plan final","x":-650,"y":480,"width":320,"height":280,"color":"1"},
+		{"id":"dominio","type":"text","text":"# Dominio y Logica\n- Taxonomia de metas\n- Simulacion de plan\n- Modelo de adherencia\n- Pronostico de riesgo\n- Estado de habitos\n- Plan incremental (rolling wave)\n- Base de conocimiento por dominio","x":0,"y":500,"width":300,"height":250,"color":"3"},
+		{"id":"persistencia","type":"text","text":"# Persistencia\n**PostgreSQL** + **Drizzle ORM**\n\n- Schema, conexion, helpers\n- Sesiones interactivas\n- Local: PostgreSQL via DATABASE_URL\n- Produccion: PostgreSQL cloud","x":350,"y":250,"width":300,"height":210,"color":"5"},
+		{"id":"providers","type":"text","text":"# Providers LLM\n- **OpenAI** — produccion (cloud)\n- **Ollama** — desarrollo local\n- Factory pattern\n- Metadata y disponibilidad por servicio","x":700,"y":250,"width":280,"height":180,"color":"5"},
+		{"id":"billing","type":"text","text":"# Billing y Pagos\n- **Nostr Wallet Connect** (Lightning)\n- Cobro por operacion\n- Ciclo de vida de operaciones\n- Politicas de billing","x":0,"y":800,"width":300,"height":170,"color":"3"},
+		{"id":"root","type":"text","text":"# 🎯 LAP\n**Life Action Planner**\n\nWeb app Next.js 15 para crear planes de accion personales con asistencia de IA","x":-150,"y":10,"width":300,"height":180,"color":"6"},
+		{"id":"frontend","type":"text","text":"# Frontend\n- **Dashboard** — vista principal\n- **Intake** — captura de objetivo\n- **Plan/Flow** — construccion guiada\n- **Settings** — configuracion\n- **Calendario** — vista temporal\n- **Inspector LLM** — debug","x":-830,"y":-495,"width":320,"height":230,"color":"4"},
+		{"id":"testing","type":"text","text":"# Testing\n- **Vitest** como framework\n- Tests unitarios\n- Tests de pipeline y agentes\n- Tests de componentes React\n- Tests de rutas API","x":-830,"y":-95,"width":280,"height":180,"color":"2"},
+		{"id":"estado_hecho","type":"text","text":"# ✅ Implementado\n- App Router + 5 paginas\n- 20+ API routes activas\n- Pipeline V6 agentico completo\n- Build con streaming SSE\n- Simulacion de plan\n- Exportacion .ics\n- Inspector LLM\n- PostgreSQL + Drizzle\n- Suite de tests","x":-430,"y":-520,"width":280,"height":280,"color":"6"},
+		{"id":"estado_pendiente","type":"text","text":"# ⏳ Pendiente\n- Hardening deploy Vercel\n- Pulido visual y accesibilidad\n- Productizacion wallet/costos\n- Frontera explicita real vs demo","x":0,"y":-580,"width":280,"height":170,"color":"0"},
+		{"id":"auth","type":"text","text":"# Auth y Seguridad\n- Sesiones\n- API Keys (server-side)\n- Login guard\n- Codex auth\n- Almacen seguro\n- Hashing de passwords","x":940,"y":-200,"width":260,"height":210,"color":"2"},
+		{"id":"api","type":"text","text":"# API Routes (20+)\n- `plan/build` — SSE streaming\n- `plan/build/resume` — reanudacion\n- `plan/simulate` — simulacion SSE\n- `plan/export-ics` — exportar calendario\n- `intake` / `profile`\n- `progress` / `streak`\n- `wallet` / `cost`\n- `debug` / `settings`","x":540,"y":-540,"width":320,"height":260,"color":"4"},
+		{"id":"estado_progreso","type":"text","text":"# 🔧 En progreso\n- Branch `planificador-agentico`\n- Refactors de organizacion\n- Limpieza de residuos legacy","x":160,"y":-280,"width":280,"height":150,"color":"0"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"root","fromSide":"left","toNode":"frontend","toSide":"bottom","label":"UI"},
+		{"id":"e2","fromNode":"root","fromSide":"right","toNode":"api","toSide":"bottom","label":"Backend"},
+		{"id":"e3","fromNode":"root","fromSide":"left","toNode":"pipeline","toSide":"top","label":"Motor IA"},
+		{"id":"e4","fromNode":"pipeline","fromSide":"bottom","toNode":"agentes","toSide":"top"},
+		{"id":"e5","fromNode":"root","fromSide":"right","toNode":"persistencia","toSide":"top","label":"Datos"},
+		{"id":"e6","fromNode":"root","fromSide":"bottom","toNode":"dominio","toSide":"top","label":"Logica"},
+		{"id":"e7","fromNode":"persistencia","fromSide":"right","toNode":"providers","toSide":"left"},
+		{"id":"e8","fromNode":"api","fromSide":"right","toNode":"auth","toSide":"top"},
+		{"id":"e9","fromNode":"dominio","fromSide":"bottom","toNode":"billing","toSide":"top"},
+		{"id":"e10","fromNode":"frontend","fromSide":"bottom","toNode":"testing","toSide":"top"},
+		{"id":"e11","fromNode":"root","fromSide":"top","toNode":"estado_hecho","toSide":"bottom"},
+		{"id":"e12","fromNode":"root","fromSide":"top","toNode":"estado_progreso","toSide":"bottom"},
+		{"id":"e13","fromNode":"root","fromSide":"top","toNode":"estado_pendiente","toSide":"bottom"},
+		{"id":"e14","fromNode":"agentes","fromSide":"right","toNode":"dominio","toSide":"left","label":"usa"},
+		{"id":"e15","fromNode":"pipeline","fromSide":"right","toNode":"providers","toSide":"bottom","label":"llama"}
+	]
+}

@@ -1,0 +1,74 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a73e8', 'lineColor': '#5f6368'}}}%%
+
+flowchart TD
+    subgraph USUARIO["👤 Usuario"]
+        A[Define su meta de vida]
+        H[Responde preguntas de clarificación]
+        M[Revisa y acepta el plan]
+    end
+
+    subgraph SERVIDOR["🔌 Servidor"]
+        B["Recibe pedido de nuevo plan"]
+        K["Recibe respuestas y retoma generación"]
+    end
+
+    subgraph PIPELINE["⚙️ Motor de generación — 10 fases"]
+        C["1. Interpretar meta\nprogreso: 10%"]
+        D["2. Clarificar\nprogreso: 25%"]
+        E["3. Planificar estrategia\nprogreso: 40%"]
+        F["4. Verificar viabilidad\nprogreso: 50%"]
+        G["5. Armar agenda semanal\nprogreso: 65%"]
+        I["6. Criticar el plan\nprogreso: 80%"]
+        J["7. Revisar y mejorar\nprogreso: 70%"]
+        L["8. Empaquetar resultado\nprogreso: 95%"]
+        N["9. Listo ✅\nprogreso: 100%"]
+        X["10. Fallo ❌\nbloqueado o tiempo agotado"]
+    end
+
+    subgraph DATOS["💾 Almacenamiento"]
+        O[Plan guardado en base de datos]
+        P[Sesión pausada guardada]
+    end
+
+    subgraph NOTIFICACIONES["📡 Notificaciones al navegador"]
+        S1["Cambio de fase"]
+        S2["Progreso actualizado"]
+        S3["Se necesitan respuestas del usuario"]
+        S4["Plan completado"]
+        S5["Plan bloqueado"]
+        S6["Plan generado con limitaciones"]
+    end
+
+    A --> B
+    B --> C
+    C --> D
+    D -->|"¿necesita respuestas?"| S3
+    S3 --> H
+    H --> K
+    K --> D
+    D -->|"máximo 3 rondas"| E
+    E --> F
+    F --> G
+    G --> I
+    I -->|"encontró problemas"| J
+    J -->|"máximo 2 ciclos"| I
+    I -->|"aprobado"| L
+    L --> N
+    N --> O
+    N --> S4
+
+    C & D & E & F & G & I & J & L --> S1
+    C & D & E & F & G & I & J & L --> S2
+
+    D -->|"pausa"| P
+    P -->|"retoma"| K
+
+    E -->|"IA parcialmente disponible"| S6
+    I -->|"calidad insuficiente"| X
+    X --> S5
+
+    style PIPELINE fill:#e8f0fe,stroke:#1a73e8
+    style SERVIDOR fill:#fce8e6,stroke:#d93025
+    style DATOS fill:#e6f4ea,stroke:#1e8e3e
+    style NOTIFICACIONES fill:#fef7e0,stroke:#f9ab00
+    style USUARIO fill:#f3e8fd,stroke:#9334e6

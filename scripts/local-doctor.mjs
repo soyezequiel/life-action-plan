@@ -12,7 +12,6 @@ const REQUIRED_TABLES = [
   'operation_charges'
 ]
 
-const DEFAULT_OLLAMA_BASE_URL = 'http://localhost:11434'
 const PLACEHOLDER_DATABASE_URL = /:\/\/user:password@host(?::\d+)?\//i
 
 function loadLocalEnv() {
@@ -26,11 +25,6 @@ function loadLocalEnv() {
   }
 
   return loadedFiles
-}
-
-function normalizeOllamaBaseUrl(rawValue) {
-  const trimmed = (rawValue || DEFAULT_OLLAMA_BASE_URL).trim().replace(/\/+$/g, '')
-  return trimmed.endsWith('/v1') ? trimmed.slice(0, -3) : trimmed
 }
 
 function needsSsl(connectionString) {
@@ -118,29 +112,10 @@ async function getResourceSmokeReadiness(connectionString) {
   }
 }
 
-async function checkOllama(baseUrl) {
-  const response = await fetch(`${baseUrl}/api/tags`)
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`)
-  }
-
-  const payload = await response.json()
-  const models = Array.isArray(payload.models)
-    ? payload.models
-      .map((model) => (typeof model?.name === 'string' ? model.name : ''))
-      .filter(Boolean)
-    : []
-
-  return models
-}
-
 async function main() {
   const loadedFiles = loadLocalEnv()
-  const skipOllama = process.argv.includes('--skip-ollama')
   const requireCharge = process.argv.includes('--require-charge')
   const databaseUrl = process.env.DATABASE_URL?.trim() || ''
-  const ollamaBaseUrl = normalizeOllamaBaseUrl(process.env.OLLAMA_BASE_URL)
   const lightningReceiverUrl = process.env.LAP_LIGHTNING_RECEIVER_NWC_URL?.trim() || ''
   const configuredChargeSats = process.env.LAP_PLAN_BUILD_CHARGE_SATS?.trim() || ''
   let hasFailure = false
@@ -215,22 +190,7 @@ async function main() {
     logStatus(false, 'Lightning receiver', 'falta LAP_LIGHTNING_RECEIVER_NWC_URL para ejecutar cobro Lightning real')
     console.log('Siguiente paso sugerido: configurar la wallet receptora del producto en .env.local.')
   } else {
-    logNote('Lightning receiver', 'sin LAP_LIGHTNING_RECEIVER_NWC_URL; el smoke local solo valida build gratis/local y bloqueos de cobro')
-  }
-
-  if (skipOllama) {
-    console.log('Ollama omitido por --skip-ollama')
-  } else {
-    try {
-      const models = await checkOllama(ollamaBaseUrl)
-      const modelSummary = models.length > 0 ? models.join(', ') : 'sin modelos listados'
-      logStatus(true, 'Ollama', `${ollamaBaseUrl} (${modelSummary})`)
-    } catch (error) {
-      hasFailure = true
-      const detail = error instanceof Error ? error.message : String(error)
-      logStatus(false, 'Ollama', `${ollamaBaseUrl} (${detail})`)
-      console.log('Siguiente paso sugerido: abrir Ollama o correr `ollama serve`.')
-    }
+    logNote('Lightning receiver', 'sin LAP_LIGHTNING_RECEIVER_NWC_URL; el smoke local solo valida build cloud y bloqueos de cobro')
   }
 
   if (hasFailure) {

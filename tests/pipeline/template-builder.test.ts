@@ -118,4 +118,51 @@ describe('buildTemplate', () => {
     expect(labels).toContain('referencia concreta de cocina italiana');
     expect(labels).not.toContain('Lectura de recetas italianas en libros');
   });
+
+  it('vuelve accion concreta un task de dominio cuando el label se fuga al nombre de una fase', () => {
+    const roadmap = {
+      phases: [
+        {
+          name: 'Practica principiante de masas y pastas frescas con salsas base italianas',
+          durationWeeks: 5,
+          focus_esAR: 'Repetir masas simples y salsas base hasta estabilizar textura y sabor.',
+        },
+      ],
+      milestones: ['Resolver una salsa base italiana repetible'],
+    };
+
+    const template = buildTemplate(
+      {
+        goalText: 'Quiero aprender cocina italiana, especialmente pastas y salsas',
+        roadmap,
+      },
+      {
+        goalType: 'SKILL_ACQUISITION',
+        confidence: 0.9,
+        risk: 'LOW',
+        extractedSignals: {
+          isRecurring: false,
+          hasDeliverable: false,
+          hasNumericTarget: false,
+          requiresSkillProgression: true,
+          dependsOnThirdParties: false,
+          isOpenEnded: false,
+          isRelational: false,
+        },
+      },
+      {
+        freeHoursWeekday: 2,
+        freeHoursWeekend: 4,
+        energyLevel: 'medium',
+        fixedCommitments: [],
+        scheduleConstraints: [],
+      },
+      cocinaItalianaCard,
+    );
+
+    const labels = template.activities.map((activity) => activity.label);
+
+    expect(labels).toContain('Practicar salsas base italianas');
+    expect(labels).not.toContain('Salsas base italianas');
+  });
 });

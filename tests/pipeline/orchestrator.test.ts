@@ -639,6 +639,166 @@ if (scenario === 'complete' || scenario === 'scratchpad') {
   });
   const result = internal.buildFinalResult();
   payload = { result };
+} else if (scenario === 'planner_timeout_fallback_publishable_finance') {
+  const orchestrator = buildOrchestrator();
+  const internal = orchestrator;
+  internal.initializeContext('Quiero ordenar mis finanzas personales y ahorrar 200000 en 6 meses', userCtx);
+  internal.state.phase = 'done';
+  internal.context.interpretation = {
+    parsedGoal: 'Ordenar finanzas personales y ahorrar 200000 en 6 meses',
+    goalType: 'QUANT_TARGET_TRACKING',
+    implicitAssumptions: [],
+    ambiguities: [],
+    riskFlags: ['MEDIUM'],
+    suggestedDomain: 'personal finance',
+    confidence: 0.91,
+  };
+  internal.context.goalSignalsSnapshot = {
+    ...internal.context.goalSignalsSnapshot,
+    parsedGoal: 'Ordenar finanzas personales y ahorrar 200000 en 6 meses',
+    goalType: 'QUANT_TARGET_TRACKING',
+    metric: '200000',
+    timeframe: '6 meses',
+    anchorTokens: ['ordenar', 'finanzas', 'personales', 'empezar', 'ahorrar', 'forma'],
+    missingCriticalSignals: [],
+    hasSufficientSignalsForPlanning: true,
+    clarificationMode: 'sufficient',
+  };
+  internal.context.criticReport = criticApprove;
+  internal.context.finalPackage = {
+    ...packageFixture,
+    publicationState: 'requires_regeneration',
+    warnings: [],
+    qualityIssues: [],
+  };
+  internal.agentOutcomes.push({
+    agent: 'planner',
+    phase: 'plan',
+    source: 'fallback',
+    errorCode: 'Error',
+    errorMessage: 'El asistente tardo demasiado en responder. Intentalo de nuevo.',
+    durationMs: 60019,
+  });
+  const result = internal.buildFinalResult();
+  payload = { result };
+} else if (scenario === 'planner_validation_fallback_publishable_finance') {
+  const orchestrator = buildOrchestrator();
+  const internal = orchestrator;
+  internal.initializeContext('Quiero ordenar mis finanzas personales y ahorrar 150000 pesos por mes en 6 meses', userCtx);
+  internal.state.phase = 'done';
+  internal.context.interpretation = {
+    parsedGoal: 'Ordenar finanzas personales y ahorrar 150000 pesos por mes en 6 meses',
+    goalType: 'QUANT_TARGET_TRACKING',
+    implicitAssumptions: [],
+    ambiguities: [],
+    riskFlags: ['MEDIUM'],
+    suggestedDomain: 'personal finance',
+    confidence: 0.91,
+  };
+  internal.context.goalSignalsSnapshot = {
+    ...internal.context.goalSignalsSnapshot,
+    parsedGoal: 'Ordenar finanzas personales y ahorrar 150000 pesos por mes en 6 meses',
+    goalType: 'QUANT_TARGET_TRACKING',
+    metric: '150000 pesos por mes',
+    timeframe: '6 meses',
+    anchorTokens: ['pesos', 'variable', '250000'],
+    missingCriticalSignals: [],
+    hasSufficientSignalsForPlanning: true,
+    clarificationMode: 'sufficient',
+  };
+  internal.context.criticReport = criticApprove;
+  internal.context.finalPackage = {
+    ...packageFixture,
+    publicationState: 'requires_regeneration',
+    warnings: [],
+    qualityIssues: [],
+  };
+  internal.agentOutcomes.push({
+    agent: 'planner',
+    phase: 'plan',
+    source: 'fallback',
+    errorCode: 'Error',
+    errorMessage: 'Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.',
+    durationMs: 60019,
+  });
+  const result = internal.buildFinalResult();
+  payload = { result };
+} else if (scenario === 'health_requires_supervision_trace') {
+  const orchestrator = buildOrchestrator();
+  const internal = orchestrator;
+  internal.initializeContext('Quiero bajar 50kg en 12 meses', userCtx);
+  internal.state.phase = 'done';
+  internal.context.interpretation = {
+    parsedGoal: 'Bajar 50kg en 12 meses',
+    goalType: 'QUANT_TARGET_TRACKING',
+    implicitAssumptions: [],
+    ambiguities: [],
+    riskFlags: ['HIGH_HEALTH'],
+    suggestedDomain: 'salud',
+    confidence: 0.93,
+  };
+  internal.context.criticReport = criticApprove;
+  internal.context.finalPackage = {
+    ...packageFixture,
+    publicationState: 'requires_regeneration',
+    warnings: [],
+    qualityIssues: [
+      {
+        code: 'health_safety_gap',
+        severity: 'blocking',
+        message: 'Hace falta supervision profesional.',
+      },
+    ],
+  };
+  internal.agentOutcomes.push({
+    agent: 'planner',
+    phase: 'plan',
+    source: 'fallback',
+    errorCode: 'Error',
+    errorMessage: 'Planner output failed validation: check "health.supervision" did not pass. Fallback strategy was used.',
+    durationMs: 21,
+  });
+  const result = internal.buildFinalResult();
+  payload = { result };
+} else if (scenario === 'health_negated_supervision_trace') {
+  const orchestrator = buildOrchestrator();
+  const internal = orchestrator;
+  internal.initializeContext('Quiero bajar 15 kilos en 3 meses', userCtx);
+  internal.state.phase = 'done';
+  internal.context.interpretation = {
+    parsedGoal: 'Bajar 15 kilos en 3 meses',
+    goalType: 'QUANT_TARGET_TRACKING',
+    implicitAssumptions: [],
+    ambiguities: [],
+    riskFlags: ['HIGH_HEALTH'],
+    suggestedDomain: 'salud',
+    confidence: 0.91,
+  };
+  internal.context.criticReport = {
+    ...criticRevise,
+    reasoning: 'El plan evita la supervision profesional pese a que el ritmo requerido excede lo permitido sin aval medico.',
+  };
+  internal.context.finalPackage = {
+    ...packageFixture,
+    publicationState: 'requires_regeneration',
+    warnings: [
+      'Mantener visible el contexto de seguridad confirmado: no tengo seguimiento medico ni nutricionista ahora y no quiero basar esto en una supervision profesional por el momento.',
+    ],
+    qualityIssues: [],
+    implementationIntentions: [
+      'Si llega el fin de semana, entonces agendo un control medico y nutricional.',
+    ],
+  };
+  internal.agentOutcomes.push({
+    agent: 'planner',
+    phase: 'plan',
+    source: 'fallback',
+    errorCode: 'Error',
+    errorMessage: 'Planner output failed validation: check "health.supervision" did not pass. Fallback strategy was used.',
+    durationMs: 21,
+  });
+  const result = internal.buildFinalResult();
+  payload = { result };
 } else if (scenario === 'metadata') {
   const orchestrator = buildOrchestrator();
   const result = await orchestrator.run(sufficientGoalText, userCtx);
@@ -899,11 +1059,12 @@ describe('PlanOrchestrator', () => {
     });
   });
 
-  it('does not jump blindly to plan on empty resume and keeps the degraded skip explicit', () => {
+  it('does not jump blindly to plan on empty resume and keeps the session waiting in clarify', () => {
     const payload = runScenario('resume_empty_skip');
     const firstResult = payload.firstResult as { status: string };
     const resumed = payload.resumed as {
       status: string;
+      pendingQuestions: { questions: unknown[]; readyToAdvance: boolean } | null;
       package: Record<string, unknown> | null;
     };
     const debugTrace = payload.debugTrace as Array<{
@@ -928,8 +1089,10 @@ describe('PlanOrchestrator', () => {
     };
 
     expect(firstResult.status).toBe('needs_input');
-    expect(resumed.status).toBe('completed');
-    expect(resumed.package).not.toBeNull();
+    expect(resumed.status).toBe('needs_input');
+    expect(resumed.package).toBeNull();
+    expect(resumed.pendingQuestions?.readyToAdvance).toBe(false);
+    expect(resumed.pendingQuestions?.questions).toHaveLength(1);
     const resumedEvent = debugTrace.find((event) => event.action === 'session.resumed');
     expect(resumedEvent).toMatchObject({
       phase: 'clarify',
@@ -937,14 +1100,14 @@ describe('PlanOrchestrator', () => {
         goalSignalsSnapshot: {
           missingCriticalSignals: ['timeframe', 'current_baseline', 'constraints'],
           hasSufficientSignalsForPlanning: false,
-          clarificationMode: 'degraded_skip',
+          clarificationMode: 'needs_input',
         },
       },
     });
     expect(snapshot.context.goalSignalsSnapshot).toMatchObject({
       missingCriticalSignals: ['timeframe', 'current_baseline', 'constraints'],
       hasSufficientSignalsForPlanning: false,
-      clarificationMode: 'degraded_skip',
+      clarificationMode: 'needs_input',
     });
   });
 
@@ -1317,6 +1480,90 @@ describe('PlanOrchestrator', () => {
       'No se puede publicar este plan: la revision critica fallo y hace falta regenerarlo con un proveedor que responda bien.',
     );
     expect(result.package?.qualityScore).toBe(60);
+  });
+
+  it('allows a finance planner timeout fallback to publish when signals were sufficient and critic approved the result', () => {
+    const payload = runScenario('planner_timeout_fallback_publishable_finance');
+    const result = payload.result as {
+      status: string;
+      degraded: boolean;
+      publicationState: string;
+      package: { publicationState: string; warnings: string[]; qualityScore: number } | null;
+      blockingAgents?: Array<{ agent: string; errorMessage: string | null }>;
+    };
+
+    expect(result.status).toBe('completed');
+    expect(result.degraded).toBe(true);
+    expect(result.publicationState).toBe('ready');
+    expect(result.package?.publicationState).toBe('publishable');
+    expect(result.blockingAgents).toEqual([]);
+    expect(result.package?.warnings).toContain(
+      'Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido.',
+    );
+  });
+
+  it('allows a finance planner validation fallback to publish when sufficient signals were already covered', () => {
+    const payload = runScenario('planner_validation_fallback_publishable_finance');
+    const result = payload.result as {
+      status: string;
+      degraded: boolean;
+      publicationState: string;
+      package: { publicationState: string; warnings: string[]; qualityScore: number } | null;
+      blockingAgents?: Array<{ agent: string; errorMessage: string | null }>;
+    };
+
+    expect(result.status).toBe('completed');
+    expect(result.degraded).toBe(true);
+    expect(result.publicationState).toBe('ready');
+    expect(result.package?.publicationState).toBe('publishable');
+    expect(result.blockingAgents).toEqual([]);
+    expect(result.package?.warnings).toContain(
+      'Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido.',
+    );
+  });
+
+  it('keeps requires_supervision ahead of generic planner degradation in health goals', () => {
+    const payload = runScenario('health_requires_supervision_trace');
+    const result = payload.result as {
+      status: string;
+      publicationState: string;
+      failureCode: string | null;
+      package: {
+        publicationState: string;
+        qualityIssues: Array<{ code: string }>;
+      } | null;
+      blockingAgents?: Array<{ agent: string }>;
+    };
+
+    expect(result.status).toBe('failed');
+    expect(result.publicationState).toBe('blocked');
+    expect(result.failureCode).toBe('requires_supervision');
+    expect(result.package?.publicationState).toBe('requires_supervision');
+    expect(result.package?.qualityIssues.map((issue) => issue.code)).toContain('HEALTH_SAFETY_SUPERVISION_MISSING');
+    expect(result.blockingAgents).toEqual([]);
+  });
+
+  it('treats negated supervision wording as missing supervision in health goals', () => {
+    const payload = runScenario('health_negated_supervision_trace');
+    const result = payload.result as {
+      status: string;
+      publicationState: string;
+      failureCode: string | null;
+      package: {
+        publicationState: string;
+        warnings: string[];
+      } | null;
+      blockingAgents?: Array<{ agent: string }>;
+    };
+
+    expect(result.status).toBe('failed');
+    expect(result.publicationState).toBe('blocked');
+    expect(result.failureCode).toBe('requires_supervision');
+    expect(result.package?.publicationState).toBe('requires_supervision');
+    expect(result.package?.warnings).toContain(
+      'No se puede publicar este plan de salud sin una referencia clara a seguimiento profesional o supervision clinica.',
+    );
+    expect(result.blockingAgents).toEqual([]);
   });
 
   it('getProgress returns current phase and iteration', () => {

@@ -177,7 +177,7 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [gateChoice, setGateChoice] = useState<'pulso' | 'advanced'>('pulso')
-  const [llmMode, setLlmMode] = useState<'service' | 'own' | 'codex' | 'local'>('service')
+  const [llmMode, setLlmMode] = useState<'service' | 'own' | 'codex'>('service')
   const [provider, setProvider] = useState('openai')
   const [hasUserApiKey, setHasUserApiKey] = useState(false)
   const [objectivesText, setObjectivesText] = useState('')
@@ -344,10 +344,13 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
     }
 
     setGateChoice(session.state.gate?.choice ?? 'pulso')
-    setLlmMode(session.state.gate?.llmMode === 'codex' && !codexModeVisible
+    const persistedLlmMode = session.state.gate?.llmMode
+    setLlmMode(persistedLlmMode === 'codex' && !codexModeVisible
       ? 'service'
-      : session.state.gate?.llmMode ?? 'service')
-    setProvider(session.state.gate?.provider?.includes('openrouter') ? 'openrouter' : session.state.gate?.provider?.includes('ollama') ? 'ollama' : 'openai')
+      : persistedLlmMode === 'own' || persistedLlmMode === 'codex' || persistedLlmMode === 'service'
+        ? persistedLlmMode
+        : 'service')
+    setProvider(session.state.gate?.provider?.includes('openrouter') ? 'openrouter' : 'openai')
     setHasUserApiKey(session.state.gate?.hasUserApiKey ?? false)
     setObjectivesText(session.state.goals.map((goal) => goal.text).join('\n'))
     setIntakeAnswers(session.state.intakeAnswers)
@@ -457,10 +460,6 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
       return [t('flow.gate.requirement_wallet')]
     }
 
-    if (gateChoice === 'advanced' && llmMode === 'local') {
-      return [t('flow.gate.requirement_local')]
-    }
-
     return gateState.summary ? [gateState.summary] : []
   }
 
@@ -473,7 +472,7 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
       const result = await flowClient.saveGate(session.id, {
         choice: gateChoice,
         llmMode,
-        provider: llmMode === 'local' ? 'ollama' : provider,
+        provider,
         hasUserApiKey
       })
 
@@ -1089,20 +1088,10 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
                     onChange={(event) => {
                       const nextMode = event.target.value as typeof llmMode
                       setLlmMode(nextMode)
-                      if (nextMode === 'local') {
-                        setProvider('ollama')
-                        setHasUserApiKey(false)
-                        return
-                      }
-
                       if (nextMode === 'codex') {
                         setProvider('openai')
                         setHasUserApiKey(false)
                         return
-                      }
-
-                      if (provider === 'ollama') {
-                        setProvider('openai')
                       }
 
                       if (nextMode !== 'own') {
@@ -1113,10 +1102,9 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
                     <option value="service">{t('flow.gate.mode_service')}</option>
                     <option value="own">{t('flow.gate.mode_own')}</option>
                     {codexModeVisible && <option value="codex">{t('flow.gate.mode_codex')}</option>}
-                    <option value="local">{t('flow.gate.mode_local')}</option>
                   </select>
                 </label>
-                {llmMode !== 'local' && llmMode !== 'codex' && (
+                {llmMode !== 'codex' && (
                   <label className={styles.field}>
                     <span>{t('flow.gate.provider')}</span>
                     <select className="intake-control" value={provider} onChange={(event) => setProvider(event.target.value)}>

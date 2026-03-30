@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T02:38:04.887Z",
+  "updatedAt": "2026-03-30T02:38:07.050Z",
+  "invocation": {
+    "goal": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+    "resumeSession": null,
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": "failed",
+    "failureCode": null,
+    "sessionId": null,
+    "provider": "ollama",
+    "modelId": null,
+    "status": "failed"
+  },
+  "pendingInput": null,
+  "finalPackage": null,
+  "finalResult": {
+    "success": false,
+    "error": "No pude entender ese pedido. Revisalo e intenta de nuevo."
+  },
+  "latestDebugEvent": null,
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T02:38:04.888Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+        "resumeSession": null,
+        "explicitProvider": "ollama",
+        "autoMode": false,
+        "pauseOnInput": true,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T02:38:04.890Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "ollama",
+        "label": "ollama",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-30T02:38:04.891Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "ollama",
+        "goalText": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+        "profileId": ""
+      }
+    },
+    {
+      "timestamp": "2026-03-30T02:38:07.049Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "ollama",
+        "recoverable": false,
+        "message": "No pude entender ese pedido. Revisalo e intenta de nuevo.",
+        "failureCode": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T02:38:07.050Z",
+      "type": "cli.failed",
+      "data": {
+        "message": "No pude entender ese pedido. Revisalo e intenta de nuevo.",
+        "failureCode": null,
+        "publicationState": "failed"
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T02:38:07.048Z",
+      "type": "result",
+      "data": {
+        "type": "result",
+        "result": {
+          "success": false,
+          "error": "No pude entender ese pedido. Revisalo e intenta de nuevo."
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-233804-quiero-ordenar-mis-finanzas-personales-y-empezar.json"
+}

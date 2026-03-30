@@ -64,7 +64,6 @@ function getConfiguredCloudProvider() {
 async function main() {
   const loadedFiles = loadDeployEnv()
   const databaseUrl = process.env.DATABASE_URL?.trim() || ''
-  const ollamaBaseUrl = process.env.OLLAMA_BASE_URL?.trim() || ''
   const cloudProvider = getConfiguredCloudProvider()
   let hasFailure = false
 
@@ -104,10 +103,6 @@ async function main() {
   } else {
     hasFailure = true
     logStatus(false, 'vercel.json', 'faltan timeouts largos para build y simulate')
-  }
-
-  if (ollamaBaseUrl) {
-    console.log(`Nota: OLLAMA_BASE_URL esta configurado, pero Vercel no debe depender de ${ollamaBaseUrl}.`)
   }
 
   if (hasFailure) {

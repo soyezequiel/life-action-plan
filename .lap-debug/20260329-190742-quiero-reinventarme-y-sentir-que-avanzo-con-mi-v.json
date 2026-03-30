@@ -1,0 +1,723 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T22:07:42.138Z",
+  "updatedAt": "2026-03-29T22:07:54.105Z",
+  "invocation": {
+    "goal": "Quiero reinventarme y sentir que avanzo con mi vida.",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": "ecccbcfe-dbe8-42c6-bc62-58e411febb46",
+    "provider": "ollama",
+    "modelId": null,
+    "status": "paused_for_input"
+  },
+  "pendingInput": {
+    "sessionId": "ecccbcfe-dbe8-42c6-bc62-58e411febb46",
+    "goal": "Quiero reinventarme y sentir que avanzo con mi vida.",
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "questions": [
+      {
+        "id": "clarify-r1-q",
+        "text": "¿Cuánto tiempo estás dispuesto a dedicar a este proceso de transformación?",
+        "type": "number",
+        "options": null,
+        "min": 1,
+        "max": 365
+      },
+      {
+        "id": "clarify-r1-q",
+        "text": "¿Cuál es tu situación actual en términos de progreso en tu vida?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      }
+    ],
+    "createdAt": "2026-03-29T22:07:54.103Z",
+    "pendingFilePath": "F:\\proyectos\\planificador-vida\\.lap-pending-input.json",
+    "resumeCommand": "node scripts/run-plan.mjs --resume-session=ecccbcfe-dbe8-42c6-bc62-58e411febb46 --answers-json='{\"id\":\"respuesta\",...}' --debug"
+  },
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 12,
+    "timestamp": "2026-03-29T22:07:54.078Z",
+    "category": "lifecycle",
+    "action": "session.paused",
+    "summary_es": "El pipeline quedó pausado esperando 2 respuesta(s) de aclaración.",
+    "phase": "clarify",
+    "agent": "clarifier",
+    "iteration": 2,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 25,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "questionCount": 2,
+      "questions": [
+        {
+          "id": "clarify-r1-q",
+          "text": "¿Cuánto tiempo estás dispuesto a dedicar a este proceso de transformación?",
+          "purpose": "Definir el horizonte temporal para planificar el proceso",
+          "type": "number",
+          "min": 1,
+          "max": 365
+        },
+        {
+          "id": "clarify-r1-q",
+          "text": "¿Cuál es tu situación actual en términos de progreso en tu vida?",
+          "purpose": "Establecer una base de comparación para medir el avance",
+          "type": "text"
+        }
+      ],
+      "informationGaps": [
+        "timeframe",
+        "current_baseline"
+      ],
+      "goalSignalsSnapshot": {
+        "parsedGoal": "I want to reinvent myself and feel that I am progressing in my life.",
+        "goalType": "HIGH_UNCERTAINTY_TRANSFORM",
+        "riskFlags": [
+          "MEDIUM"
+        ],
+        "suggestedDomain": null,
+        "metric": null,
+        "timeframe": null,
+        "anchorTokens": [
+          "reinventarme",
+          "sentir",
+          "avanzo",
+          "vida."
+        ],
+        "informationGaps": [
+          "timeframe",
+          "current_baseline"
+        ],
+        "clarifyConfidence": 0.5,
+        "readyToAdvance": false,
+        "normalizedUserAnswers": [],
+        "missingCriticalSignals": [
+          "timeframe",
+          "current_baseline"
+        ],
+        "hasSufficientSignalsForPlanning": false,
+        "clarificationMode": "needs_input",
+        "degraded": false,
+        "fallbackCount": 0,
+        "phase": "clarify",
+        "clarifyRounds": 1
+      }
+    }
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "clarify",
+    "currentAgent": "clarifier",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+    "iteration": 1,
+    "revisionCycles": 0,
+    "clarifyRounds": 1,
+    "progressScore": 25,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 8,
+    "lastEventTimestamp": "2026-03-29T22:07:46.926Z",
+    "lastEventSummary_es": "El clarificador esta evaluando si faltan datos antes de avanzar."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T22:07:42.139Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero reinventarme y sentir que avanzo con mi vida.",
+        "resumeSession": null,
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": true,
+        "noCodex": true
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:42.141Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "ollama",
+        "label": "Ollama (local)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:42.143Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "ollama",
+        "goalText": "Quiero reinventarme y sentir que avanzo con mi vida.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:54.104Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "ollama",
+        "recoverable": true,
+        "message": "Pipeline pausado esperando respuestas.",
+        "failureCode": null
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-29T22:07:42.885Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:42.886Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-29T22:07:42.881Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero reinventarme y sentir que avanzo con mi vida.\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "ollama:qwen3:8b",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:42.887Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-29T22:07:42.881Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:42.887Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-29T22:07:42.881Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.928Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-29T22:07:46.926Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El interprete completo interpretacion con respuesta del modelo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 4045,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.929Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-29T22:07:46.926Z",
+        "category": "phase",
+        "action": "interpret.summary",
+        "summary_es": "Objetivo interpretado como HIGH_UNCERTAINTY_TRANSFORM con confianza 72%.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "interpretation",
+          "normalizedGoal": "I want to reinvent myself and feel that I am progressing in my life.",
+          "goalType": "HIGH_UNCERTAINTY_TRANSFORM",
+          "suggestedDomain": null,
+          "confidence": 0.72,
+          "ambiguities": [
+            "What specific aspects of life or identity does the user want to reinvent?",
+            "How will the user define or measure progress in their life?",
+            "What role, if any, do external factors or support play in this transformation?",
+            "Is the user seeking a complete change or a partial transformation?"
+          ],
+          "assumptions": [
+            "The user believes that reinvention is possible through personal effort and change.",
+            "The user assumes that progress in life can be measured and felt subjectively.",
+            "The user likely assumes that external factors or support may be necessary for transformation."
+          ],
+          "riskFlags": [
+            "MEDIUM"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "I want to reinvent myself and feel that I am progressing in my life.",
+            "goalType": "HIGH_UNCERTAINTY_TRANSFORM",
+            "riskFlags": [
+              "MEDIUM"
+            ],
+            "suggestedDomain": null,
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "reinventarme",
+              "sentir",
+              "avanzo",
+              "vida."
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": null,
+            "readyToAdvance": null,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "interpret",
+            "clarifyRounds": 0
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.929Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-29T22:07:46.926Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.930Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-29T22:07:46.926Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.930Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-29T22:07:46.926Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:52.882Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T22:07:52.881Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "clarify",
+          "currentAgent": "clarifier",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+          "iteration": 1,
+          "revisionCycles": 0,
+          "clarifyRounds": 1,
+          "progressScore": 25,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 8,
+          "lastEventTimestamp": "2026-03-29T22:07:46.926Z",
+          "lastEventSummary_es": "El clarificador esta evaluando si faltan datos antes de avanzar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:54.079Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-29T22:07:54.077Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 7151,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:54.080Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-29T22:07:54.077Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion deja 2 pregunta(s) pendiente(s).",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": false,
+          "confidence": 0.5,
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuánto tiempo estás dispuesto a dedicar a este proceso de transformación?",
+              "purpose": "Definir el horizonte temporal para planificar el proceso",
+              "type": "number",
+              "min": 1,
+              "max": 365
+            },
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuál es tu situación actual en términos de progreso en tu vida?",
+              "purpose": "Establecer una base de comparación para medir el avance",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "timeframe",
+            "current_baseline"
+          ],
+          "knownAnswers": [],
+          "duplicateQuestions": [],
+          "reasoning": "Faltan señales críticas de marco temporal y situación actual para definir el plan de acción",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "I want to reinvent myself and feel that I am progressing in my life.",
+            "goalType": "HIGH_UNCERTAINTY_TRANSFORM",
+            "riskFlags": [
+              "MEDIUM"
+            ],
+            "suggestedDomain": null,
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "reinventarme",
+              "sentir",
+              "avanzo",
+              "vida."
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.5,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:54.081Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-29T22:07:54.078Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "Todavia faltan respuestas; se mantiene la aclaracion con 2 pregunta(s) pendientes.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:54.081Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 12,
+        "timestamp": "2026-03-29T22:07:54.078Z",
+        "category": "lifecycle",
+        "action": "session.paused",
+        "summary_es": "El pipeline quedó pausado esperando 2 respuesta(s) de aclaración.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "questionCount": 2,
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuánto tiempo estás dispuesto a dedicar a este proceso de transformación?",
+              "purpose": "Definir el horizonte temporal para planificar el proceso",
+              "type": "number",
+              "min": 1,
+              "max": 365
+            },
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuál es tu situación actual en términos de progreso en tu vida?",
+              "purpose": "Establecer una base de comparación para medir el avance",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "timeframe",
+            "current_baseline"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "I want to reinvent myself and feel that I am progressing in my life.",
+            "goalType": "HIGH_UNCERTAINTY_TRANSFORM",
+            "riskFlags": [
+              "MEDIUM"
+            ],
+            "suggestedDomain": null,
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "reinventarme",
+              "sentir",
+              "avanzo",
+              "vida."
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.5,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:54.102Z",
+      "type": "v6:needs_input",
+      "data": {
+        "sessionId": "ecccbcfe-dbe8-42c6-bc62-58e411febb46",
+        "questions": {
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuánto tiempo estás dispuesto a dedicar a este proceso de transformación?",
+              "purpose": "Definir el horizonte temporal para planificar el proceso",
+              "type": "number",
+              "min": 1,
+              "max": 365
+            },
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuál es tu situación actual en términos de progreso en tu vida?",
+              "purpose": "Establecer una base de comparación para medir el avance",
+              "type": "text"
+            }
+          ],
+          "reasoning": "Faltan señales críticas de marco temporal y situación actual para definir el plan de acción",
+          "informationGaps": [
+            "timeframe",
+            "current_baseline"
+          ],
+          "confidence": 0.5,
+          "readyToAdvance": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-190742-quiero-reinventarme-y-sentir-que-avanzo-con-mi-v.json"
+}

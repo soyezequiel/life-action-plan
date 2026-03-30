@@ -1,0 +1,683 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T04:35:35.870Z",
+  "updatedAt": "2026-03-30T04:35:44.833Z",
+  "invocation": {
+    "goal": "Quiero organizar mejor mi semana laboral sin agotarme",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://127.0.0.1:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": "8095431e-b4f7-4294-b7d4-bd041c90ef5b",
+    "provider": "codex",
+    "modelId": null,
+    "status": "running"
+  },
+  "pendingInput": {
+    "sessionId": "8095431e-b4f7-4294-b7d4-bd041c90ef5b",
+    "goal": "Quiero organizar mejor mi semana laboral sin agotarme",
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "questions": [
+      {
+        "id": "clarify-r1-q1",
+        "text": "¿En qué plazo específico (por ejemplo, las próximas 4 semanas) quieres evaluar si organizar mejor tu semana laboral reduce el agotamiento?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "id": "clarify-r1-q2",
+        "text": "¿Cómo organizas actualmente tu semana laboral (por ejemplo, planificas día a día, utilizas una agenda fija o no tienes un sistema definido)?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      }
+    ],
+    "createdAt": "2026-03-30T04:35:44.833Z",
+    "pendingFilePath": "F:\\proyectos\\planificador-vida\\.lap-pending-input.json",
+    "resumeCommand": "node scripts/run-plan.mjs --resume-session=8095431e-b4f7-4294-b7d4-bd041c90ef5b --answers-json='{\"id\":\"respuesta\",...}' --debug"
+  },
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 12,
+    "timestamp": "2026-03-30T04:35:44.782Z",
+    "category": "lifecycle",
+    "action": "session.paused",
+    "summary_es": "El pipeline quedó pausado esperando 2 respuesta(s) de aclaración.",
+    "phase": "clarify",
+    "agent": "clarifier",
+    "iteration": 2,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 25,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "questionCount": 2,
+      "questions": [
+        {
+          "id": "clarify-r1-q1",
+          "text": "¿En qué plazo específico (por ejemplo, las próximas 4 semanas) quieres evaluar si organizar mejor tu semana laboral reduce el agotamiento?",
+          "purpose": "Definir el timeframe para medir la mejora en la organización semanal.",
+          "type": "text"
+        },
+        {
+          "id": "clarify-r1-q2",
+          "text": "¿Cómo organizas actualmente tu semana laboral (por ejemplo, planificas día a día, utilizas una agenda fija o no tienes un sistema definido)?",
+          "purpose": "Entender el current_baseline de tu organización semanal.",
+          "type": "text"
+        }
+      ],
+      "informationGaps": [
+        "timeframe",
+        "current_baseline"
+      ],
+      "goalSignalsSnapshot": {
+        "parsedGoal": "Organizar la semana laboral de forma más eficiente para evitar el agotamiento",
+        "goalType": "RECURRENT_HABIT",
+        "riskFlags": [
+          "LOW"
+        ],
+        "suggestedDomain": "productivity_and_time_management",
+        "metric": null,
+        "timeframe": null,
+        "anchorTokens": [
+          "organizar",
+          "mejor",
+          "laboral",
+          "sin",
+          "agotarme"
+        ],
+        "informationGaps": [
+          "timeframe",
+          "current_baseline"
+        ],
+        "clarifyConfidence": 0.22,
+        "readyToAdvance": false,
+        "normalizedUserAnswers": [],
+        "missingCriticalSignals": [
+          "timeframe",
+          "current_baseline"
+        ],
+        "hasSufficientSignalsForPlanning": false,
+        "clarificationMode": "needs_input",
+        "degraded": false,
+        "fallbackCount": 0,
+        "phase": "clarify",
+        "clarifyRounds": 1
+      }
+    }
+  },
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T04:35:35.871Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero organizar mejor mi semana laboral sin agotarme",
+        "resumeSession": null,
+        "explicitProvider": "codex",
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:35.873Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "codex-oauth",
+        "label": "OpenAI (sesion iniciada)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:35.874Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "codex",
+        "goalText": "Quiero organizar mejor mi semana laboral sin agotarme",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T04:35:37.110Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "codex",
+        "requestedMode": "codex-cloud",
+        "resolvedModelId": "openai:gpt-5-codex",
+        "providerId": "openai",
+        "executionMode": "codex-cloud",
+        "resolutionSource": "requested-mode",
+        "authMode": "codex-oauth",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:38.605Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:38.605Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-30T04:35:38.599Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero organizar mejor mi semana laboral sin agotarme\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "openai:gpt-5-codex",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:38.606Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-30T04:35:38.599Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:38.606Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-30T04:35:38.600Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:41.012Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-30T04:35:40.991Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El interprete completo interpretacion con respuesta del modelo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 2391,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:41.013Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-30T04:35:40.993Z",
+        "category": "phase",
+        "action": "interpret.summary",
+        "summary_es": "Objetivo interpretado como RECURRENT_HABIT con confianza 74%.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "interpretation",
+          "normalizedGoal": "Organizar la semana laboral de forma más eficiente para evitar el agotamiento",
+          "goalType": "RECURRENT_HABIT",
+          "suggestedDomain": "productivity_and_time_management",
+          "confidence": 0.74,
+          "ambiguities": [
+            "Qué tipo de trabajo y responsabilidades específicas tiene durante la semana",
+            "Qué significa exactamente “organizar mejor” (p. ej., priorizar tareas, delegar, ajustar horarios)",
+            "Cómo medirá la reducción del agotamiento",
+            "Qué limitaciones externas podrían impedir cambios en la agenda"
+          ],
+          "assumptions": [
+            "Tiene control suficiente sobre su agenda laboral como para reorganizarla",
+            "Una mejor planificación reducirá la sensación de agotamiento",
+            "Cuenta con tiempo o herramientas para implementar cambios en su rutina"
+          ],
+          "riskFlags": [
+            "LOW"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organizar la semana laboral de forma más eficiente para evitar el agotamiento",
+            "goalType": "RECURRENT_HABIT",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "productivity_and_time_management",
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "organizar",
+              "mejor",
+              "laboral",
+              "sin",
+              "agotarme"
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": null,
+            "readyToAdvance": null,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "interpret",
+            "clarifyRounds": 0
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:41.013Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-30T04:35:40.994Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:41.014Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-30T04:35:40.994Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:41.014Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-30T04:35:40.994Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:44.799Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-30T04:35:44.780Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 3785,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:44.799Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-30T04:35:44.781Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion deja 2 pregunta(s) pendiente(s).",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": false,
+          "confidence": 0.22,
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿En qué plazo específico (por ejemplo, las próximas 4 semanas) quieres evaluar si organizar mejor tu semana laboral reduce el agotamiento?",
+              "purpose": "Definir el timeframe para medir la mejora en la organización semanal.",
+              "type": "text"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Cómo organizas actualmente tu semana laboral (por ejemplo, planificas día a día, utilizas una agenda fija o no tienes un sistema definido)?",
+              "purpose": "Entender el current_baseline de tu organización semanal.",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "timeframe",
+            "current_baseline"
+          ],
+          "knownAnswers": [],
+          "duplicateQuestions": [],
+          "reasoning": "Faltan el plazo para evaluar la mejora y la descripción de cómo se organiza actualmente la semana laboral, ambos necesarios antes de planificar.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organizar la semana laboral de forma más eficiente para evitar el agotamiento",
+            "goalType": "RECURRENT_HABIT",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "productivity_and_time_management",
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "organizar",
+              "mejor",
+              "laboral",
+              "sin",
+              "agotarme"
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.22,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:44.800Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-30T04:35:44.781Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "Todavia faltan respuestas; se mantiene la aclaracion con 2 pregunta(s) pendientes.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:44.801Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 12,
+        "timestamp": "2026-03-30T04:35:44.782Z",
+        "category": "lifecycle",
+        "action": "session.paused",
+        "summary_es": "El pipeline quedó pausado esperando 2 respuesta(s) de aclaración.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "questionCount": 2,
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿En qué plazo específico (por ejemplo, las próximas 4 semanas) quieres evaluar si organizar mejor tu semana laboral reduce el agotamiento?",
+              "purpose": "Definir el timeframe para medir la mejora en la organización semanal.",
+              "type": "text"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Cómo organizas actualmente tu semana laboral (por ejemplo, planificas día a día, utilizas una agenda fija o no tienes un sistema definido)?",
+              "purpose": "Entender el current_baseline de tu organización semanal.",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "timeframe",
+            "current_baseline"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organizar la semana laboral de forma más eficiente para evitar el agotamiento",
+            "goalType": "RECURRENT_HABIT",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "productivity_and_time_management",
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "organizar",
+              "mejor",
+              "laboral",
+              "sin",
+              "agotarme"
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.22,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T04:35:44.833Z",
+      "type": "v6:needs_input",
+      "data": {
+        "sessionId": "8095431e-b4f7-4294-b7d4-bd041c90ef5b",
+        "questions": {
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿En qué plazo específico (por ejemplo, las próximas 4 semanas) quieres evaluar si organizar mejor tu semana laboral reduce el agotamiento?",
+              "purpose": "Definir el timeframe para medir la mejora en la organización semanal.",
+              "type": "text"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Cómo organizas actualmente tu semana laboral (por ejemplo, planificas día a día, utilizas una agenda fija o no tienes un sistema definido)?",
+              "purpose": "Entender el current_baseline de tu organización semanal.",
+              "type": "text"
+            }
+          ],
+          "reasoning": "Faltan el plazo para evaluar la mejora y la descripción de cómo se organiza actualmente la semana laboral, ambos necesarios antes de planificar.",
+          "informationGaps": [
+            "timeframe",
+            "current_baseline"
+          ],
+          "confidence": 0.22,
+          "readyToAdvance": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-013535-quiero-organizar-mejor-mi-semana-laboral-sin-ago.json"
+}

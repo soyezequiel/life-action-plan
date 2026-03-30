@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { apiErrorMessages, encodeSseData, sseHeaders } from '../../_shared'
 import { planBuildRequestSchema } from '../../_schemas'
 import { resolveUserId } from '../../_user-settings'
-import { buildModelConnectionErrorMessage } from './_model-connection-error'
 import * as terminalFailure from './_terminal-failure'
 
 export const maxDuration = 120
@@ -61,9 +60,15 @@ function handleV6Build(
         const { getDeploymentMode } = await import(
           '../../../../src/lib/env/deployment'
         )
-        const { resolveBuildModel } = await import(
-          '../../../../src/lib/providers/provider-metadata'
-        )
+        const {
+          createExecutionBlockedProviderFailure,
+          createProviderTrace,
+          createRuntimeProviderFailure,
+          createUnexpectedPreflightFailure,
+          normalizeRequestedProvider,
+          resolveRequestedBuildModel,
+          resolveRequestedBuildMode,
+        } = await import('../../../../src/lib/runtime/plan-build-provider')
         const { createBuildAgentRuntime } = await import(
           '../../../../src/lib/runtime/build-agent-runtime'
         )
@@ -113,17 +118,14 @@ function handleV6Build(
           return
         }
 
-        const modelId = resolveBuildModel(provider)
+        const requestedMode = resolveRequestedBuildMode({
+          provider,
+          resourceMode,
+          backendCredentialId,
+        })
+        const normalizedProvider = normalizeRequestedProvider(provider, requestedMode)
+        const modelId = resolveRequestedBuildModel(provider, requestedMode)
         const deploymentMode = getDeploymentMode()
-        const requestedMode = resourceMode === 'backend'
-          ? 'backend-cloud' as const
-          : resourceMode === 'user'
-            ? 'user-cloud' as const
-            : resourceMode === 'codex'
-              ? 'codex-cloud' as const
-              : backendCredentialId
-                ? 'backend-cloud' as const
-                : undefined
 
         const execution = await resolvePlanBuildExecution({
           modelId,
@@ -133,14 +135,26 @@ function handleV6Build(
           userSuppliedApiKey: apiKey || undefined,
           backendCredentialId,
         })
+        const providerTrace = createProviderTrace({
+          execution,
+          requestedProvider: normalizedProvider,
+          requestedMode,
+        })
+
+        send({
+          type: 'v6:provider',
+          data: providerTrace,
+        })
 
         if (!execution.runtime) {
-          const { toExecutionBlockErrorMessage } = await import('../../_plan')
+          const providerFailure = createExecutionBlockedProviderFailure(providerTrace)
           send({
             type: 'result',
             result: {
               success: false,
-              error: toExecutionBlockErrorMessage(execution.executionContext.blockReasonCode ?? null),
+              error: providerFailure.message,
+              providerErrorCode: providerFailure.code,
+              providerTrace: providerFailure.trace,
             },
           })
           return
@@ -157,26 +171,34 @@ function handleV6Build(
           }])
 
           if (!preflight.content.includes('OK')) {
+            const providerFailure = createUnexpectedPreflightFailure({
+              responseText: preflight.content,
+              trace: providerTrace,
+            })
             send({
               type: 'result',
               result: {
                 success: false,
-                error: `El modelo respondio de forma inesperada. Respuesta: "${preflight.content.slice(0, 100)}". Verifica que ${execution.runtime.modelId} este disponible.`,
+                error: providerFailure.message,
+                providerErrorCode: providerFailure.code,
+                providerTrace: providerFailure.trace,
               },
             })
             return
           }
         } catch (preflightError) {
           const message = preflightError instanceof Error ? preflightError.message : String(preflightError)
+          const providerFailure = createRuntimeProviderFailure({
+            rawMessage: message,
+            trace: providerTrace,
+          })
           send({
             type: 'result',
             result: {
               success: false,
-              error: buildModelConnectionErrorMessage(
-                execution.runtime.modelId,
-                execution.runtime.authMode,
-                message,
-              ),
+              error: providerFailure.message,
+              providerErrorCode: providerFailure.code,
+              providerTrace: providerFailure.trace,
             },
           })
           return
@@ -264,7 +286,7 @@ function handleV6Build(
               request: {
                 goalText,
                 profileId,
-                provider: provider ?? null,
+                provider: normalizedProvider,
                 resourceMode: resourceMode ?? null,
                 apiKey: apiKey || null,
                 backendCredentialId: backendCredentialId ?? null,

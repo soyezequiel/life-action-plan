@@ -136,7 +136,7 @@ describe('nextPhase', () => {
     )).toBe('clarify');
   });
 
-  it('clarify transitions to plan when the user explicitly skipped and the degraded mode is visible', () => {
+  it('clarify stays in clarify when degraded_skip is visible but critical signals are still missing', () => {
     expect(nextPhase(
       'clarify',
       createState({ phase: 'clarify', clarifyRounds: 2, maxClarifyRounds: 3 }),
@@ -157,7 +157,7 @@ describe('nextPhase', () => {
         confidence: 0.2,
         readyToAdvance: false,
       },
-    )).toBe('plan');
+    )).toBe('clarify');
   });
 
   it('clarify stays in clarify when maxClarifyRounds is reached but critical questions are still pending', () => {

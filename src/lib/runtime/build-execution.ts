@@ -46,11 +46,6 @@ export interface OperationChargeSkipReason {
   reasonDetail: string
 }
 
-function getLocalBaseUrl(): string | undefined {
-  const trimmed = process.env.OLLAMA_BASE_URL?.trim()
-  return trimmed || undefined
-}
-
 async function resolveStoredCredentialSecret(executionContext: ResolvedExecutionContext): Promise<string> {
   if (!executionContext.credentialId) {
     throw new Error('CREDENTIAL_ID_REQUIRED')
@@ -85,11 +80,7 @@ async function resolveBuildRuntimeConfig(input: {
   }
 
   if (input.executionContext.executionTarget !== 'cloud') {
-    return {
-      modelId: input.modelId,
-      apiKey: '',
-      baseURL: getLocalBaseUrl()
-    }
+    throw new Error(`UNSUPPORTED_EXECUTION_TARGET:${input.executionContext.executionTarget}`)
   }
 
   if (input.executionContext.credentialSource === 'user-supplied') {

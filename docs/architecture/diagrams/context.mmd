@@ -1,0 +1,21 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a73e8', 'primaryTextColor': '#fff', 'lineColor': '#5f6368', 'secondaryColor': '#e8f0fe', 'tertiaryColor': '#f1f3f4'}}}%%
+
+C4Context
+    title LAP — Contexto del Sistema
+
+    Person(user, "Usuario", "Persona que quiere organizar sus metas de vida con un plan personalizado")
+
+    System(lap, "LAP — Planificador de Vida", "Aplicación web que convierte metas personales en planes ejecutables con inteligencia artificial")
+
+    System_Ext(llm_cloud, "Proveedor de IA en la nube", "Genera preguntas, estrategias, simulaciones y críticas del plan (ej: OpenAI)")
+    System_Ext(llm_local, "IA local (solo desarrollo)", "Modelo de IA alternativo gratuito para programadores (Ollama)")
+    System_Ext(postgres, "Base de datos", "Almacena usuarios, perfiles, planes, sesiones y credenciales (PostgreSQL)")
+    System_Ext(lightning, "Red de pagos Lightning", "Procesa micropagos por cada generación de plan")
+
+    Rel(user, lap, "Define metas, responde preguntas, revisa y acepta planes", "Navegador web")
+    Rel(lap, llm_cloud, "Envía instrucciones, recibe respuestas de IA", "Conexión segura")
+    Rel(lap, llm_local, "Envía instrucciones, recibe respuestas de IA", "Conexión local")
+    Rel(lap, postgres, "Lee y escribe datos persistentes", "Conexión a base de datos")
+    Rel(lap, lightning, "Cobra por operaciones de generación", "Protocolo de pago")
+
+    UpdateRelStyle(lap, llm_local, $lineStyle="dotted")

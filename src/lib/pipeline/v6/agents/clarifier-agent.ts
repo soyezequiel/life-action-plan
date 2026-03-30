@@ -318,7 +318,7 @@ function normalizeQuestion(value: unknown): ClarificationQuestion | null {
     : type;
 
   const question: ClarificationQuestion = {
-    id: 'q',
+    id: normalizeText(record.id),
     text,
     purpose,
     type: normalizedType,
@@ -438,7 +438,7 @@ function normalizeClarificationRound(
       ? []
       : effectiveQuestions.map(({ signalKey: _signalKey, ...question }, index) => ({
           ...question,
-          id: question.id || `q${index + 1}`,
+          id: `q${index + 1}`,
         })),
     reasoning,
     informationGaps: readyToAdvance ? [] : effectiveSignals,

@@ -1,0 +1,1186 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T13:52:56.830Z",
+  "updatedAt": "2026-03-30T13:54:40.548Z",
+  "invocation": {
+    "goal": "",
+    "resumeSession": "ed4f05c9-0e35-4fcb-baa5-3d027638b80a",
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": "ed4f05c9-0e35-4fcb-baa5-3d027638b80a",
+    "provider": null,
+    "modelId": null,
+    "status": "running"
+  },
+  "pendingInput": null,
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 37,
+    "timestamp": "2026-03-30T13:53:50.025Z",
+    "category": "agent",
+    "action": "agent.start",
+    "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+    "phase": "critique",
+    "agent": "critic",
+    "iteration": 6,
+    "revisionCycle": 0,
+    "clarifyRound": 2,
+    "progressScore": 80,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": null
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "critique",
+    "currentAgent": "critic",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+    "iteration": 6,
+    "revisionCycles": 0,
+    "clarifyRounds": 2,
+    "progressScore": 80,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 37,
+    "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
+    "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T13:52:56.830Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "",
+        "resumeSession": "ed4f05c9-0e35-4fcb-baa5-3d027638b80a",
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:52:56.833Z",
+      "type": "resume.explicit_request",
+      "data": {
+        "endpoint": "/api/plan/build/resume",
+        "sessionId": "ed4f05c9-0e35-4fcb-baa5-3d027638b80a",
+        "answersCount": 2
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T13:52:57.036Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "codex",
+        "requestedMode": "codex-cloud",
+        "resolvedModelId": "openai:gpt-5-codex",
+        "providerId": "openai",
+        "executionMode": "codex-cloud",
+        "resolutionSource": "requested-mode",
+        "authMode": "codex-oauth",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:00.480Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "clarify-resume",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:00.481Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 13,
+        "timestamp": "2026-03-30T13:53:00.478Z",
+        "category": "lifecycle",
+        "action": "session.resumed",
+        "summary_es": "Se retomó la sesión con 2 respuesta(s) nuevas.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "answersCount": 2,
+          "answeredQuestionIds": [
+            "clarify-r1-q1",
+            "clarify-r1-q2"
+          ],
+          "storedAnswerKeys": [
+            "¿En qué plazo te gustaría notar avances claros en este proceso de reinventarte (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+            "¿Cómo describirías hoy tu punto de partida en tu vida personal respecto a esa sensación de avance que buscas?"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Reinventarme y percibir que avanzo en mi vida personal",
+            "goalType": "HIGH_UNCERTAINTY_TRANSFORM",
+            "riskFlags": [
+              "MEDIUM"
+            ],
+            "suggestedDomain": "desarrollo personal",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "avances",
+              "claros.",
+              "notar",
+              "laboralmente",
+              "reenfocarme",
+              "estancado"
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.46,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿En qué plazo te gustaría notar avances claros en este proceso de reinventarte (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "timeframe",
+                "question": "¿En qué plazo te gustaría notar avances claros en este proceso de reinventarte (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+                "answer": "En 6 meses quiero notar avances claros."
+              },
+              {
+                "key": "¿Cómo describirías hoy tu punto de partida en tu vida personal respecto a esa sensación de avance que buscas?",
+                "questionId": "clarify-r1-q2",
+                "signalKey": "current_baseline",
+                "question": "¿Cómo describirías hoy tu punto de partida en tu vida personal respecto a esa sensación de avance que buscas?",
+                "answer": "Hoy me siento estancado laboralmente, con poca energía y sin una rutina clara; quiero reenfocarme en mi trabajo creativo y ordenar mis hábitos."
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:00.482Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 14,
+        "timestamp": "2026-03-30T13:53:00.478Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan procesando las respuestas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:00.482Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 15,
+        "timestamp": "2026-03-30T13:53:00.478Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:04.275Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 16,
+        "timestamp": "2026-03-30T13:53:04.271Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 3792,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:04.276Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 17,
+        "timestamp": "2026-03-30T13:53:04.272Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion ya tiene contexto suficiente para avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": true,
+          "confidence": 0.62,
+          "questions": [],
+          "informationGaps": [],
+          "knownAnswers": [
+            {
+              "id": "¿En qué plazo te gustaría notar avances claros en este proceso de reinventarte (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+              "question": "¿En qué plazo te gustaría notar avances claros en este proceso de reinventarte (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+              "answer": "En 6 meses quiero notar avances claros."
+            },
+            {
+              "id": "¿Cómo describirías hoy tu punto de partida en tu vida personal respecto a esa sensación de avance que buscas?",
+              "question": "¿Cómo describirías hoy tu punto de partida en tu vida personal respecto a esa sensación de avance que buscas?",
+              "answer": "Hoy me siento estancado laboralmente, con poca energía y sin una rutina clara; quiero reenfocarme en mi trabajo creativo y ordenar mis hábitos."
+            }
+          ],
+          "duplicateQuestions": [],
+          "reasoning": "No faltan señales críticas para planificar.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Reinventarme y percibir que avanzo en mi vida personal",
+            "goalType": "HIGH_UNCERTAINTY_TRANSFORM",
+            "riskFlags": [
+              "MEDIUM"
+            ],
+            "suggestedDomain": "desarrollo personal",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "avances",
+              "claros.",
+              "notar",
+              "laboralmente",
+              "reenfocarme",
+              "estancado"
+            ],
+            "informationGaps": [],
+            "clarifyConfidence": 0.62,
+            "readyToAdvance": true,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿En qué plazo te gustaría notar avances claros en este proceso de reinventarte (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "timeframe",
+                "question": "¿En qué plazo te gustaría notar avances claros en este proceso de reinventarte (por ejemplo, en 1 mes, 3 meses, 6 meses)?",
+                "answer": "En 6 meses quiero notar avances claros."
+              },
+              {
+                "key": "¿Cómo describirías hoy tu punto de partida en tu vida personal respecto a esa sensación de avance que buscas?",
+                "questionId": "clarify-r1-q2",
+                "signalKey": "current_baseline",
+                "question": "¿Cómo describirías hoy tu punto de partida en tu vida personal respecto a esa sensación de avance que buscas?",
+                "answer": "Hoy me siento estancado laboralmente, con poca energía y sin una rutina clara; quiero reenfocarme en mi trabajo creativo y ordenar mis hábitos."
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 2
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:04.276Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 18,
+        "timestamp": "2026-03-30T13:53:04.272Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La aclaracion alcanzo contexto suficiente y el pipeline avanza a planificacion.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "plan"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:04.277Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 19,
+        "timestamp": "2026-03-30T13:53:04.272Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta armando el plan estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:04.277Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 20,
+        "timestamp": "2026-03-30T13:53:04.272Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:10.482Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:53:10.482Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 20,
+          "lastEventTimestamp": "2026-03-30T13:53:04.272Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:20.484Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:53:20.484Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 20,
+          "lastEventTimestamp": "2026-03-30T13:53:04.272Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:30.487Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:53:30.487Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 20,
+          "lastEventTimestamp": "2026-03-30T13:53:04.272Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:32.076Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 21,
+        "timestamp": "2026-03-30T13:53:32.067Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 27795,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:32.076Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 22,
+        "timestamp": "2026-03-30T13:53:32.068Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo a generar el roadmap estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:40.495Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:53:40.495Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 22,
+          "lastEventTimestamp": "2026-03-30T13:53:32.068Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.956Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 23,
+        "timestamp": "2026-03-30T13:53:49.874Z",
+        "category": "agent",
+        "action": "agent.fallback",
+        "summary_es": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable. Se uso un fallback del planificador.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": "Error",
+        "details": {
+          "source": "fallback",
+          "durationMs": 17806,
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "avances",
+              "claros.",
+              "notar",
+              "laboralmente",
+              "reenfocarme",
+              "estancado"
+            ],
+            "observedTexts": [
+              "Rutina de energía, diario y caminata consciente en los meses 1-2 del plan de 6 meses Bloquea dos huecos fijos semanales (caminata consciente y diario breve) durante los primeros dos meses para salir del estancamiento laboral y recuperar energía observable en tus notas.",
+              "Bloques creativos protegidos y charlas sinceras en los meses 3-4 rumbo a reinventarme en 6 meses En los meses 3-4 convierte la energía recuperada en acción concreta: agenda dos bloques creativos de 90 minutos y una charla sincera semanal usando el diario como base para reenfocarte laboralmente.",
+              "Reajuste integral de hábitos y propósito personal en los meses 5-6 antes de completar los 6 meses En los meses finales revisa métricas, decide qué prácticas sostener y diseña un plan creativo a mediano plazo para sentir avances claros antes de concluir los 6 meses.",
+              "Rutina básica de energía consolidada (mes 2)",
+              "Bloques creativos y charlas consistentes (mes 4)",
+              "Plan de hábitos y propósito ajustado antes del mes 6"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.957Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 24,
+        "timestamp": "2026-03-30T13:53:49.875Z",
+        "category": "phase",
+        "action": "plan.summary",
+        "summary_es": "Roadmap generado con 3 fase(s) y 3 hito(s).",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 24,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Punto de partida y activos utiles de avances, claros. y notar",
+              "focus": "Traducir el objetivo a bloques concretos y medibles en avances, claros. y notar. El horizonte de trabajo queda en 6 meses. Reutilizar las senales mas concretas del intake: avances, claros. y notar. Partir desde hoy me siento estancado laboralmente, con poca energía y sin una rutina clara; quiero reenfocarme en mi trabajo creativo y ordenar mis hábitos. como baseline real. Primero ordenar el punto de partida real antes de ampliar el alcance.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 2,
+              "title": "Pruebas visibles y feedback externo para avances, claros. y notar",
+              "focus": "Acumular repeticiones deliberadas y feedback visible sin caer en tareas intercambiables. Bajar el objetivo a validaciones externas, respuesta de mercado o pruebas del mundo real. Mantener avances, claros. y notar como eje para no responder a otro objetivo.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 3,
+              "title": "Cierre verificable de avances, claros. y notar",
+              "focus": "Cerrar una version demostrable del objetivo. No extender el cierre mas alla de 6 meses. Usar feedback real para ajustar sin perder las senales originales del intake.",
+              "durationWeeks": 8
+            }
+          ],
+          "milestones": [
+            "Definir una base operativa clara de avances, claros. y notar",
+            "Conseguir una prueba visible o feedback real relacionado con avances, claros. y notar",
+            "Cerrar una demostracion final del objetivo"
+          ],
+          "fallbackUsed": true,
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "avances",
+              "claros.",
+              "notar",
+              "laboralmente",
+              "reenfocarme",
+              "estancado"
+            ],
+            "observedTexts": [
+              "Rutina de energía, diario y caminata consciente en los meses 1-2 del plan de 6 meses Bloquea dos huecos fijos semanales (caminata consciente y diario breve) durante los primeros dos meses para salir del estancamiento laboral y recuperar energía observable en tus notas.",
+              "Bloques creativos protegidos y charlas sinceras en los meses 3-4 rumbo a reinventarme en 6 meses En los meses 3-4 convierte la energía recuperada en acción concreta: agenda dos bloques creativos de 90 minutos y una charla sincera semanal usando el diario como base para reenfocarte laboralmente.",
+              "Reajuste integral de hábitos y propósito personal en los meses 5-6 antes de completar los 6 meses En los meses finales revisa métricas, decide qué prácticas sostener y diseña un plan creativo a mediano plazo para sentir avances claros antes de concluir los 6 meses.",
+              "Rutina básica de energía consolidada (mes 2)",
+              "Bloques creativos y charlas consistentes (mes 4)",
+              "Plan de hábitos y propósito ajustado antes del mes 6"
+            ]
+          },
+          "fallbackPublishability": "pendiente_de_critica"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.957Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 25,
+        "timestamp": "2026-03-30T13:53:49.875Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de planificacion a factibilidad.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "plan",
+          "toPhase": "check"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.958Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 26,
+        "timestamp": "2026-03-30T13:53:49.875Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta chequeando la factibilidad del plan.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.958Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 27,
+        "timestamp": "2026-03-30T13:53:49.875Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El verificador de factibilidad esta chequeando horas, energia y restricciones.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.959Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 28,
+        "timestamp": "2026-03-30T13:53:49.876Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El verificador de factibilidad completo factibilidad con respuesta del modelo.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 1,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.959Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 29,
+        "timestamp": "2026-03-30T13:53:49.876Z",
+        "category": "phase",
+        "action": "check.summary",
+        "summary_es": "Factibilidad feasible: 18h disponibles vs 0h requeridas.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "feasibility",
+          "status": "feasible",
+          "availableHours": 18,
+          "requiredHours": 0,
+          "gap": 0,
+          "conflicts": [],
+          "adjustments": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.960Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 30,
+        "timestamp": "2026-03-30T13:53:49.876Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de factibilidad a calendarizacion.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "check",
+          "toPhase": "schedule"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.960Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 31,
+        "timestamp": "2026-03-30T13:53:49.876Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta resolviendo el calendario de actividades.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:49.961Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 32,
+        "timestamp": "2026-03-30T13:53:49.877Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El scheduler esta distribuyendo actividades en el calendario.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:50.027Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 33,
+        "timestamp": "2026-03-30T13:53:50.025Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El scheduler cerro calendarizacion por via deterministica.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 148,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:50.028Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 34,
+        "timestamp": "2026-03-30T13:53:50.025Z",
+        "category": "phase",
+        "action": "schedule.summary",
+        "summary_es": "Calendarizacion optimal con fill rate 100%.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "schedule",
+          "fillRate": 1,
+          "solverStatus": "optimal",
+          "solverTimeMs": 146,
+          "unscheduledCount": 0,
+          "tradeoffs": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:50.028Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 35,
+        "timestamp": "2026-03-30T13:53:50.025Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de calendarizacion a critica.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "schedule",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:50.029Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 36,
+        "timestamp": "2026-03-30T13:53:50.025Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:50.029Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 37,
+        "timestamp": "2026-03-30T13:53:50.025Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:53:50.509Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:53:50.509Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:00.514Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:54:00.513Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:10.525Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:54:10.523Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:20.533Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:54:20.532Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:30.544Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:54:30.543Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:40.548Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:54:40.547Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-105256-resume-ed4f05c9-0e35-4fcb-baa5-3d027638b80a.json"
+}

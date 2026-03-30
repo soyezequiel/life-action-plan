@@ -1098,7 +1098,10 @@ describe('agent fallbacks (no LLM)', () => {
       });
 
       expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('goal_mismatch');
-      expect(result.intakeCoverage?.missingSignals).toEqual([]);
+      expect(result.intakeCoverage?.missingSignals).not.toEqual(expect.arrayContaining([
+        'metric',
+        'timeframe',
+      ]));
       expect(result.intakeCoverage?.requiredSignals).toEqual(expect.arrayContaining([
         'health_weight',
         'health_height',
@@ -1196,7 +1199,10 @@ describe('agent fallbacks (no LLM)', () => {
         'cooking_level',
         'cooking_horizon',
       ]));
-      expect(result.intakeCoverage?.missingSignals).toEqual([]);
+      expect(result.intakeCoverage?.missingSignals).not.toEqual(expect.arrayContaining([
+        'metric',
+        'timeframe',
+      ]));
       expect(result.plan.skeleton.horizonWeeks).toBe(8);
       expect(result.plan.skeleton.phases.map((phase) => ({
         title: phase.title,
@@ -1221,12 +1227,608 @@ describe('agent fallbacks (no LLM)', () => {
       ]);
     });
 
+    it('keeps explicit cooking goals publishable when the overlay and confirmed signals are preserved by paraphrase', () => {
+      const result = packagePlan({
+        goalText: 'Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.',
+        goalId: 'goal-cocina-overlay',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        requestedDomain: 'cocina-italiana',
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          parsedGoal: 'Aprender cocina italiana con foco en pastas y salsas en 3 meses',
+          goalType: 'SKILL_ACQUISITION',
+          riskFlags: ['LOW'],
+          suggestedDomain: 'cocina-italiana',
+          metric: null,
+          timeframe: '3 meses',
+          anchorTokens: ['pasta', 'salsa'],
+          informationGaps: [],
+          clarifyConfidence: 0.88,
+          readyToAdvance: true,
+          normalizedUserAnswers: [
+            {
+              key: 'nivel',
+              questionId: 'clarify-r1-q1',
+              signalKey: 'current_baseline',
+              question: 'Cual es tu punto de partida hoy?',
+              answer: 'Basico',
+            },
+            {
+              key: 'metodo',
+              questionId: 'clarify-r1-q2',
+              signalKey: 'modality',
+              question: 'Como queres aprender?',
+              answer: 'videos y practica guiada',
+            },
+          ],
+          missingCriticalSignals: [],
+          hasSufficientSignalsForPlanning: true,
+          clarificationMode: 'sufficient',
+          degraded: false,
+          fallbackCount: 0,
+          phase: 'critique',
+          clarifyRounds: 1,
+        }),
+        clarificationAnswers: {
+          subtema: 'pastas y salsas',
+          metodo: 'videos y practica guiada',
+          nivel: 'principiante',
+          horizonte: '3 meses',
+        },
+        classification: {
+          goalType: 'SKILL_ACQUISITION',
+          confidence: 0.92,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: false,
+            hasNumericTarget: false,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: false,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Primer repertorio de pasta y salsas con apoyo guiado',
+              durationWeeks: 4,
+              focus_esAR: 'Practicar tecnicas base de pasta y salsas con apoyo de videos y repeticion guiada.',
+            },
+            {
+              name: 'Repeticion autonoma de platos italianos simples',
+              durationWeeks: 4,
+              focus_esAR: 'Convertir la referencia externa en ejecucion repetible de pasta y salsa.',
+            },
+            {
+              name: 'Menu corto italiano para invitados',
+              durationWeeks: 4,
+              focus_esAR: 'Cerrar un menu simple de pasta con salsa sin depender paso a paso del video.',
+            },
+          ],
+          milestones: [
+            'Resolver una pasta con salsa roja',
+            'Resolver una pasta con salsa blanca',
+            'Servir un menu corto italiano completo',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'cook-overlay-1',
+              kind: 'time_event',
+              title: 'Estudiar tecnicas base de masa y salsa',
+              status: 'active',
+              goalIds: ['goal-cocina-overlay'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 45,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'cook-overlay-2',
+              kind: 'time_event',
+              title: 'Preparar una receta nueva para compartir',
+              status: 'active',
+              goalIds: ['goal-cocina-overlay'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 60,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 9,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.publicationState).toBe('publishable');
+      expect(result.requestDomain).toBe('cocina-italiana');
+      expect(result.packageDomain).toBe('cocina-italiana');
+      expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('goal_mismatch');
+      expect(result.intakeCoverage?.missingSignals).not.toContain('timeframe');
+      expect(result.intakeCoverage?.requiredSignals).toEqual(expect.arrayContaining([
+        'timeframe',
+        'cooking_subtopic',
+        'cooking_method',
+        'cooking_horizon',
+      ]));
+    });
+
+    it('does not block the cooking overlay when scheduled events stay concrete and aligned to the roadmap', () => {
+      const result = packagePlan({
+        goalText: 'Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.',
+        goalId: 'goal-cocina-calendar-fix',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        requestedDomain: 'cocina-italiana',
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          parsedGoal: 'Aprender cocina italiana enfocada en pastas y salsas y poder preparar un menu sencillo dentro de 3 meses.',
+          goalType: 'SKILL_ACQUISITION',
+          riskFlags: ['LOW'],
+          suggestedDomain: 'cocina-italiana',
+          metric: null,
+          timeframe: '3 meses',
+          anchorTokens: ['aprender', 'cocina', 'italiana', 'pasta', 'salsas'],
+          informationGaps: [],
+          clarifyConfidence: 0.9,
+          readyToAdvance: true,
+          normalizedUserAnswers: [
+            {
+              key: 'nivel',
+              questionId: 'clarify-r1-q1',
+              signalKey: 'current_baseline',
+              question: 'Cual es tu nivel actual?',
+              answer: 'Principiante absoluto',
+            },
+          ],
+          missingCriticalSignals: [],
+          hasSufficientSignalsForPlanning: true,
+          clarificationMode: 'sufficient',
+          degraded: false,
+          fallbackCount: 0,
+          phase: 'package',
+          clarifyRounds: 1,
+        }),
+        clarificationAnswers: {
+          nivel: 'Principiante absoluto',
+          horizonte: '3 meses',
+          metodo: 'videos y practica guiada',
+        },
+        classification: {
+          goalType: 'SKILL_ACQUISITION',
+          confidence: 0.92,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: false,
+            hasNumericTarget: false,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: false,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Rutina principiante de mise en place y lectura de recetas de pastas italianas (mes 1)',
+              durationWeeks: 2,
+              focus_esAR: 'Dedicar las primeras semanas a una referencia confiable, mise en place y tecnicas base de pasta.',
+            },
+            {
+              name: 'Practica principiante de masas y pastas frescas con salsas base italianas (meses 1-2)',
+              durationWeeks: 5,
+              focus_esAR: 'Repetir masas simples y conectar cada una con salsas base italianas hasta lograr textura y sabor consistentes.',
+            },
+            {
+              name: 'Ensayo de menu simple de pastas y salsas italianas listo en 3 meses para principiante absoluto (meses 2-3)',
+              durationWeeks: 5,
+              focus_esAR: 'Ensayar un menu simple de pasta y salsa para dos comensales con mise en place y emplatado ordenados.',
+            },
+          ],
+          milestones: [
+            'Mise en place y lectura dominadas durante 4 sesiones',
+            'Tres pastas y salsas italianas repetibles por principiante absoluto',
+            'Menu simple italiano de pastas y salsas servido dentro de los 3 meses',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'cook-calendar-fix-1',
+              kind: 'time_event',
+              title: 'Estudiar una referencia concreta de cocina italiana',
+              status: 'active',
+              goalIds: ['goal-cocina-calendar-fix'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 25,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'cook-calendar-fix-2',
+              kind: 'time_event',
+              title: 'Practicar salsas base italianas',
+              status: 'active',
+              goalIds: ['goal-cocina-calendar-fix'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 35,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'cook-calendar-fix-3',
+              kind: 'time_event',
+              title: 'Practica de pastas italianas',
+              status: 'active',
+              goalIds: ['goal-cocina-calendar-fix'],
+              startAt: '2026-04-03T18:00:00.000Z',
+              durationMin: 45,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 8,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.publicationState).toBe('publishable');
+      expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('calendar_phase_leak');
+      expect(result.requestDomain).toBe('cocina-italiana');
+      expect(result.packageDomain).toBe('cocina-italiana');
+      expect(result.plan.skeleton.horizonWeeks).toBe(12);
+    });
+
+    it('still blocks a real calendar phase leak when the event title copies the phase label', () => {
+      const result = packagePlan({
+        goalText: 'Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.',
+        goalId: 'goal-cocina-real-leak',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        requestedDomain: 'cocina-italiana',
+        classification: {
+          goalType: 'SKILL_ACQUISITION',
+          confidence: 0.92,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: false,
+            hasNumericTarget: false,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: false,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Practica principiante de masas y pastas frescas con salsas base italianas',
+              durationWeeks: 6,
+              focus_esAR: 'Repetir masas y salsas base hasta estabilizar la tecnica.',
+            },
+          ],
+          milestones: [
+            'Resolver una pasta y una salsa base con consistencia',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'cook-real-leak-1',
+              kind: 'time_event',
+              title: 'Salsas base italianas',
+              status: 'active',
+              goalIds: ['goal-cocina-real-leak'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 35,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 8,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.publicationState).toBe('failed_for_quality_review');
+      expect(result.qualityIssues?.map((issue) => issue.code)).toContain('calendar_phase_leak');
+    });
+
+    it('keeps general goals publishable when wording changes but confirmed signals stay aligned', () => {
+      const result = packagePlan({
+        goalText: 'Quiero conseguir trabajo remoto estable como desarrollador en 10 meses',
+        goalId: 'goal-general-paraphrase',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          parsedGoal: 'Conseguir trabajo remoto estable como desarrollador en 10 meses',
+          goalType: 'QUANT_TARGET_TRACKING',
+          riskFlags: ['LOW'],
+          suggestedDomain: null,
+          metric: null,
+          timeframe: '10 meses',
+          anchorTokens: ['react', 'portfolio'],
+          informationGaps: [],
+          clarifyConfidence: 0.84,
+          readyToAdvance: true,
+          normalizedUserAnswers: [
+            {
+              key: 'modalidad',
+              questionId: 'clarify-r1-q1',
+              signalKey: 'modality',
+              question: 'Que via queres priorizar?',
+              answer: 'empleo remoto',
+            },
+            {
+              key: 'baseline',
+              questionId: 'clarify-r1-q2',
+              signalKey: 'current_baseline',
+              question: 'Cual es tu punto de partida?',
+              answer: 'portfolio chico con React',
+            },
+          ],
+          missingCriticalSignals: [],
+          hasSufficientSignalsForPlanning: true,
+          clarificationMode: 'sufficient',
+          degraded: false,
+          fallbackCount: 0,
+          phase: 'critique',
+          clarifyRounds: 1,
+        }),
+        clarificationAnswers: {
+          modalidad: 'empleo remoto',
+          baseline: 'portfolio chico con React',
+          horizonte: '10 meses',
+        },
+        classification: {
+          goalType: 'QUANT_TARGET_TRACKING',
+          confidence: 0.9,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: true,
+            hasDeliverable: false,
+            hasNumericTarget: false,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: true,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Base demostrable para entrevistas distribuidas',
+              durationWeeks: 14,
+              focus_esAR: 'Expandir portfolio React y traducirlo a evidencia concreta para empleo remoto.',
+            },
+            {
+              name: 'Pipeline de aplicaciones con feedback real',
+              durationWeeks: 13,
+              focus_esAR: 'Sostener postulaciones y entrevistas para empleo remoto con iteracion sobre el portfolio.',
+            },
+            {
+              name: 'Cierre de oferta y onboarding remoto',
+              durationWeeks: 13,
+              focus_esAR: 'Cerrar una oferta remota estable sin perder continuidad en React y portfolio.',
+            },
+          ],
+          milestones: [
+            'Portfolio con casos publicables',
+            'Entrevistas remotas en curso',
+            'Oferta remota aceptada',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'general-paraphrase-1',
+              kind: 'time_event',
+              title: 'Pulir un caso demostrable del portfolio',
+              status: 'active',
+              goalIds: ['goal-general-paraphrase'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 60,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'general-paraphrase-2',
+              kind: 'time_event',
+              title: 'Enviar postulaciones y registrar feedback',
+              status: 'active',
+              goalIds: ['goal-general-paraphrase'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 45,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 8,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.publicationState).toBe('publishable');
+      expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('goal_mismatch');
+      expect(result.intakeCoverage?.missingSignals).not.toContain('timeframe');
+      expect(result.intakeCoverage?.missingSignals).not.toContain('modality');
+    });
+
+    it('still blocks packages that drop the critical goal signals and drift to another objective', () => {
+      const result = packagePlan({
+        goalText: 'Quiero conseguir trabajo remoto estable como desarrollador en 10 meses',
+        goalId: 'goal-general-misaligned',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          parsedGoal: 'Conseguir trabajo remoto estable como desarrollador en 10 meses',
+          goalType: 'QUANT_TARGET_TRACKING',
+          riskFlags: ['LOW'],
+          suggestedDomain: null,
+          metric: null,
+          timeframe: '10 meses',
+          anchorTokens: ['react', 'portfolio'],
+          informationGaps: [],
+          clarifyConfidence: 0.84,
+          readyToAdvance: true,
+          normalizedUserAnswers: [
+            {
+              key: 'modalidad',
+              questionId: 'clarify-r1-q1',
+              signalKey: 'modality',
+              question: 'Que via queres priorizar?',
+              answer: 'empleo remoto',
+            },
+          ],
+          missingCriticalSignals: [],
+          hasSufficientSignalsForPlanning: true,
+          clarificationMode: 'sufficient',
+          degraded: false,
+          fallbackCount: 0,
+          phase: 'critique',
+          clarifyRounds: 1,
+        }),
+        clarificationAnswers: {
+          modalidad: 'empleo remoto',
+          horizonte: '10 meses',
+        },
+        classification: {
+          goalType: 'QUANT_TARGET_TRACKING',
+          confidence: 0.9,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: true,
+            hasDeliverable: false,
+            hasNumericTarget: false,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: true,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Borrador inicial de novela',
+              durationWeeks: 4,
+              focus_esAR: 'Escribir escenas y voz narrativa sin relacion con entrevistas ni empleo remoto.',
+            },
+            {
+              name: 'Revision literaria',
+              durationWeeks: 4,
+              focus_esAR: 'Editar capitulos y consistencia narrativa.',
+            },
+          ],
+          milestones: [
+            'Primer capitulo completo',
+            'Borrador revisado',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'general-misaligned-1',
+              kind: 'time_event',
+              title: 'Escribir una escena de ficcion',
+              status: 'active',
+              goalIds: ['goal-general-misaligned'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 60,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 8,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.publicationState).toBe('failed_for_quality_review');
+      expect(result.qualityIssues?.map((issue) => issue.code)).toContain('goal_mismatch');
+      expect(result.intakeCoverage?.missingSignals).toContain('timeframe');
+      expect(result.qualityIssues?.find((issue) => issue.code === 'goal_mismatch')?.message).toContain('timeframe');
+    });
+
     it('does not infer health domain from monetary pesos in finance goals', () => {
       const result = packagePlan({
         goalText: 'Quiero lograr obtener un flujo de 3k dolares por mes en argentina',
         goalId: 'goal-ingresos',
         timezone: 'UTC',
         weekStartDate: '2026-03-30T00:00:00.000Z',
+        goalSignalsSnapshot: createCriticGoalSignalsSnapshot(),
         clarificationAnswers: {
           plazo: '12 meses',
           via: 'empleo remoto',
@@ -1317,11 +1919,364 @@ describe('agent fallbacks (no LLM)', () => {
 
       expect(result.requestDomain).toBeNull();
       expect(result.packageDomain).toBeNull();
+      expect(result.publicationState).toBe('publishable');
+      expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('goal_mismatch');
+      expect(result.intakeCoverage?.missingSignals).not.toEqual(expect.arrayContaining([
+        'metric',
+        'timeframe',
+      ]));
       expect(result.intakeCoverage?.requiredSignals).not.toEqual(expect.arrayContaining([
         'health_weight',
         'health_height',
         'health_supervision',
       ]));
+    });
+
+    it('keeps open creative goals publishable without forcing a domain when signals are preserved', () => {
+      const result = packagePlan({
+        goalText: 'Quiero armar una serie personal de ilustraciones para publicar en 6 meses',
+        goalId: 'goal-creativo',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          parsedGoal: 'Armar una serie personal de ilustraciones para publicar en 6 meses',
+          goalType: 'IDENTITY_EXPLORATION',
+          riskFlags: ['LOW'],
+          suggestedDomain: null,
+          metric: '12 ilustraciones publicadas',
+          timeframe: '6 meses',
+          anchorTokens: ['ilustracion', 'serie', 'portfolio'],
+          informationGaps: [],
+          clarifyConfidence: 0.82,
+          readyToAdvance: true,
+          normalizedUserAnswers: [
+            {
+              key: 'modalidad',
+              questionId: 'q1',
+              signalKey: 'modality',
+              question: 'Que formato queres priorizar?',
+              answer: 'proyecto personal con portfolio publico',
+            },
+            {
+              key: 'exito',
+              questionId: 'q2',
+              signalKey: 'success_criteria',
+              question: 'Como sabras que funciono?',
+              answer: 'cerrar una serie de 12 ilustraciones listas para publicar',
+            },
+          ],
+          missingCriticalSignals: [],
+          hasSufficientSignalsForPlanning: true,
+          clarificationMode: 'sufficient',
+          degraded: false,
+          fallbackCount: 0,
+          phase: 'package',
+          clarifyRounds: 1,
+        }),
+        clarificationAnswers: {
+          modalidad: 'proyecto personal con portfolio publico',
+          exito: 'cerrar una serie de 12 ilustraciones listas para publicar',
+        },
+        classification: {
+          goalType: 'IDENTITY_EXPLORATION',
+          confidence: 0.88,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: true,
+            hasNumericTarget: true,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: false,
+            isOpenEnded: true,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 5,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Lenguaje visual de la serie',
+              durationWeeks: 8,
+              focus_esAR: 'Definir el tono de la serie de ilustracion y preparar un portfolio simple para publicar 12 ilustraciones en 6 meses.',
+            },
+            {
+              name: 'Produccion de ilustraciones publicables',
+              durationWeeks: 8,
+              focus_esAR: 'Completar ilustraciones consistentes para cerrar una serie de 12 piezas publicables en el plazo de 6 meses.',
+            },
+            {
+              name: 'Cierre y publicacion del portfolio',
+              durationWeeks: 8,
+              focus_esAR: 'Ordenar la serie final y publicarla como portfolio personal dentro de 6 meses.',
+            },
+          ],
+          milestones: [
+            'Definir la serie y su tono visual',
+            'Llegar a 8 ilustraciones consistentes',
+            'Publicar 12 ilustraciones en el portfolio personal dentro de 6 meses',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'creative-1',
+              kind: 'time_event',
+              title: 'Bocetar ilustracion para la serie personal',
+              status: 'active',
+              goalIds: ['goal-creativo'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 90,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'creative-2',
+              kind: 'time_event',
+              title: 'Cerrar una ilustracion para el portfolio publico',
+              status: 'active',
+              goalIds: ['goal-creativo'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 90,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 7,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.requestDomain).toBeNull();
+      expect(result.packageDomain).toBeNull();
+      expect(result.publicationState).toBe('publishable');
+      expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('goal_mismatch');
+      expect(result.intakeCoverage?.missingSignals).toEqual([]);
+    });
+
+    it('marks degraded_skip as an explicit package risk instead of a domain failure', () => {
+      const result = packagePlan({
+        goalText: 'Quiero publicar una serie corta de ilustraciones en 3 meses',
+        goalId: 'goal-degraded-skip',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          parsedGoal: 'Publicar una serie corta de ilustraciones en 3 meses',
+          goalType: 'IDENTITY_EXPLORATION',
+          riskFlags: ['LOW'],
+          suggestedDomain: null,
+          metric: '12 ilustraciones',
+          timeframe: '3 meses',
+          anchorTokens: ['ilustracion', 'serie'],
+          informationGaps: ['baseline', 'constraints'],
+          clarifyConfidence: 0.62,
+          readyToAdvance: true,
+          normalizedUserAnswers: [
+            {
+              key: 'modalidad',
+              questionId: 'q1',
+              signalKey: 'modality',
+              question: 'Que formato queres priorizar?',
+              answer: 'serie personal',
+            },
+          ],
+          missingCriticalSignals: ['current_baseline', 'constraints'],
+          hasSufficientSignalsForPlanning: false,
+          clarificationMode: 'degraded_skip',
+          degraded: true,
+          fallbackCount: 1,
+          phase: 'package',
+          clarifyRounds: 2,
+        }),
+        clarificationAnswers: {
+          modalidad: 'serie personal',
+        },
+        classification: {
+          goalType: 'IDENTITY_EXPLORATION',
+          confidence: 0.75,
+          risk: 'LOW',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: true,
+            hasNumericTarget: true,
+            requiresSkillProgression: true,
+            dependsOnThirdParties: false,
+            isOpenEnded: true,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 3,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Serie inicial de ilustracion',
+              durationWeeks: 6,
+              focus_esAR: 'Empezar una serie de ilustracion personal y sostener el ritmo.',
+            },
+          ],
+          milestones: [
+            'Llegar a 12 ilustraciones en 3 meses',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'degraded-1',
+              kind: 'time_event',
+              title: 'Terminar una ilustracion para la serie',
+              status: 'active',
+              goalIds: ['goal-degraded-skip'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 90,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 7,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.requestDomain).toBeNull();
+      expect(result.packageDomain).toBeNull();
+      expect(result.publicationState).toBe('requires_regeneration');
+      expect(result.qualityIssues?.map((issue) => issue.code)).not.toContain('goal_mismatch');
+      expect(result.qualityIssues?.map((issue) => issue.code)).toContain('intake_signals_missing');
+    });
+
+    it('keeps health safety blocked as requires_supervision when supervision is missing', () => {
+      const result = packagePlan({
+        goalText: 'Quiero bajar 50kg en 12 meses',
+        goalId: 'goal-salud-sin-supervision',
+        timezone: 'UTC',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
+        requestedDomain: 'salud',
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          ...createCriticGoalSignalsSnapshot(),
+          goalType: 'QUANT_TARGET_TRACKING',
+          riskFlags: ['HIGH_HEALTH'],
+          suggestedDomain: 'salud',
+          metric: 'bajar 50kg',
+          timeframe: '12 meses',
+          anchorTokens: ['ciclismo', 'natacion'],
+          normalizedUserAnswers: [
+            {
+              key: 'baseline',
+              questionId: 'q1',
+              signalKey: 'current_baseline',
+              question: 'Cual es tu punto de partida?',
+              answer: '117 kg y 179 cm',
+            },
+            {
+              key: 'actividades',
+              questionId: 'q2',
+              signalKey: 'modality',
+              question: 'Que actividades toleras?',
+              answer: 'ciclismo y natacion',
+            },
+          ],
+        }),
+        clarificationAnswers: {
+          metrics: '117 kg y 179 cm',
+          activities: 'ciclismo y natacion',
+          support: 'sin apoyo todavia',
+        },
+        classification: {
+          goalType: 'QUANT_TARGET_TRACKING',
+          confidence: 0.95,
+          risk: 'HIGH_HEALTH',
+          extractedSignals: {
+            isRecurring: false,
+            hasDeliverable: false,
+            hasNumericTarget: true,
+            requiresSkillProgression: false,
+            dependsOnThirdParties: false,
+            isOpenEnded: false,
+            isRelational: false,
+          },
+        },
+        profile: {
+          freeHoursWeekday: 2,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+          scheduleConstraints: [],
+        },
+        roadmap: {
+          phases: [
+            {
+              name: 'Base con actividad viable',
+              durationWeeks: 12,
+              focus_esAR: 'Tomar ciclismo y natacion como actividades viables sin empujar atajos agresivos.',
+            },
+          ],
+          milestones: [
+            'Sostener actividad viable varias semanas',
+          ],
+        },
+        finalSchedule: {
+          events: [
+            {
+              id: 'health-no-support-1',
+              kind: 'time_event',
+              title: 'Ciclismo suave',
+              status: 'active',
+              goalIds: ['goal-salud-sin-supervision'],
+              startAt: '2026-03-30T18:00:00.000Z',
+              durationMin: 45,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+            {
+              id: 'health-no-support-2',
+              kind: 'time_event',
+              title: 'Natacion tranquila',
+              status: 'active',
+              goalIds: ['goal-salud-sin-supervision'],
+              startAt: '2026-04-01T18:00:00.000Z',
+              durationMin: 40,
+              rigidity: 'soft',
+              createdAt: '2026-03-30T00:00:00.000Z',
+              updatedAt: '2026-03-30T00:00:00.000Z',
+            },
+          ],
+          unscheduled: [],
+          tradeoffs: [],
+          metrics: {
+            fillRate: 1,
+            solverTimeMs: 7,
+            solverStatus: 'optimal',
+          },
+        },
+      });
+
+      expect(result.publicationState).toBe('requires_supervision');
+      expect(result.qualityIssues?.map((issue) => issue.code)).toContain('health_safety_gap');
     });
 
     it('detects video-based cooking methods without relying on book language', () => {

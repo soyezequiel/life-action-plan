@@ -180,6 +180,12 @@ const SAFETY_PATTERNS = [
   /\b(profesional|medico|médico|supervision|supervisión|seguimiento|consulta|nutricion|nutrición|control|especialista)\b/i,
 ];
 
+const NEGATED_SAFETY_PATTERNS = [
+  /\b(no|sin|ningun|ninguna|falta(?:n)?|carece(?:n)?|omite|omitir|evita(?:r)?|rechaza(?:r)?)\b.{0,60}\b(profesional|medico|médico|supervision|supervisión|seguimiento|consulta|nutricion|nutrición|control|especialista|nutricionista|acompanamiento|acompañamiento)\b/i,
+  /\b(profesional|medico|médico|supervision|supervisión|seguimiento|consulta|nutricion|nutrición|control|especialista|nutricionista|acompanamiento|acompañamiento)\b.{0,30}\b(no|sin|ausente|inexistente)\b/i,
+  /\bno\s+(?:tengo|hay|cuento|contamos|dispongo|dispone|quiero\s+basar)\b.{0,80}\b(profesional|medico|médico|supervision|supervisión|seguimiento|consulta|nutricion|nutrición|control|especialista|nutricionista|acompanamiento|acompañamiento)\b/i,
+];
+
 export type PackageValidationStatus = 'ok' | 'degraded' | 'blocked';
 
 export interface PackageValidationIssue {
@@ -202,6 +208,7 @@ export interface PackageValidationInput {
   classification?: GoalClassification;
   requestedDomain?: string | null;
   clarificationAnswers?: Record<string, string>;
+  goalSignalsSnapshot?: PackageInput['goalSignalsSnapshot'];
 }
 
 export interface PackageValidationResult {
@@ -326,7 +333,29 @@ function isStructuralPhaseLabel(value: string): boolean {
 }
 
 function hasSafetyFraming(texts: string[]): boolean {
-  return texts.some((text) => SAFETY_PATTERNS.some((pattern) => pattern.test(text)));
+  return texts.some((text) => hasAffirmativeSafetyFraming(text));
+}
+
+function hasAffirmativeSafetyFraming(text: string): boolean {
+  const normalized = normalizeComparableText(text);
+  if (!normalized) {
+    return false;
+  }
+
+  if (!SAFETY_PATTERNS.some((pattern) => pattern.test(normalized))) {
+    return false;
+  }
+
+  return !NEGATED_SAFETY_PATTERNS.some((pattern) => pattern.test(normalized));
+}
+
+function hasNegatedSafetyContext(value: string | null | undefined): boolean {
+  const normalized = normalizeComparableText(value);
+  if (!normalized) {
+    return false;
+  }
+
+  return NEGATED_SAFETY_PATTERNS.some((pattern) => pattern.test(normalized));
 }
 
 function looksLikeHealthRisk(goalText: string, classification?: GoalClassification): boolean {
@@ -380,16 +409,144 @@ function buildValidationWarning(status: PackageValidationStatus): string | null 
   return null;
 }
 
-function buildValidationPublicationState(status: PackageValidationStatus): NonNullable<PlanPackage['publicationState']> {
-  if (status === 'blocked') {
+function buildValidationPublicationState(validation: PackageValidationResult): NonNullable<PlanPackage['publicationState']> {
+  if (validation.issues.some((issue) => issue.code === 'health_safety_gap' && issue.severity === 'block')) {
+    return 'requires_supervision';
+  }
+
+  if (validation.status === 'blocked') {
     return 'failed_for_quality_review';
   }
 
-  if (status === 'degraded') {
+  if (validation.status === 'degraded') {
     return 'requires_regeneration';
   }
 
   return 'publishable';
+}
+
+function getGoalSignalSnapshotAnswer(
+  snapshot: PackageInput['goalSignalsSnapshot'],
+  signalKey: string,
+): string | null {
+  return snapshot?.normalizedUserAnswers.find((answer) => answer.signalKey === signalKey)?.answer ?? null;
+}
+
+function collectSignalEvidence(expectedValue: string, packageTokens: Set<string>): string[] {
+  return tokenizeMeaningfulText(expectedValue).filter((token) => packageTokens.has(token));
+}
+
+function matchesSignalValue(
+  expectedValue: string | null | undefined,
+  normalizedPackageText: string,
+  packageTokens: Set<string>,
+): { used: boolean; evidence: string[] } {
+  const normalizedExpectedValue = normalizeComparableText(expectedValue);
+  if (!normalizedExpectedValue) {
+    return { used: false, evidence: [] };
+  }
+
+  if (normalizedPackageText.includes(normalizedExpectedValue)) {
+    return { used: true, evidence: [normalizedExpectedValue] };
+  }
+
+  const evidence = collectSignalEvidence(normalizedExpectedValue, packageTokens);
+  const expectedTokens = tokenizeMeaningfulText(normalizedExpectedValue);
+  const hasNumericEvidence = expectedTokens.some((token) => /\d/.test(token)) && evidence.length > 0;
+  const used = evidence.length >= Math.min(expectedTokens.length, 2)
+    || (expectedTokens.length <= 2 && evidence.length >= 1)
+    || hasNumericEvidence;
+
+  return {
+    used,
+    evidence,
+  };
+}
+
+function matchTimeframeSignal(
+  input: PackageInput,
+  expectedValue: string | null | undefined,
+  normalizedPackageText: string,
+  packageTokens: Set<string>,
+): { used: boolean; evidence: string[] } {
+  const directMatch = matchesSignalValue(expectedValue, normalizedPackageText, packageTokens);
+  if (directMatch.used) {
+    return directMatch;
+  }
+
+  const requestedWeeks = parseHorizonWeeks(expectedValue ?? null);
+  const roadmapWeeks = input.roadmap
+    ? resolveRoadmapHorizonWeeks(input.roadmap)
+    : 0;
+
+  if (!requestedWeeks || roadmapWeeks <= 0) {
+    return directMatch;
+  }
+
+  const minAcceptedWeeks = Math.max(1, Math.floor(requestedWeeks * 0.7));
+  const maxAcceptedWeeks = Math.max(minAcceptedWeeks, Math.ceil(requestedWeeks * 1.35));
+  if (roadmapWeeks >= minAcceptedWeeks && roadmapWeeks <= maxAcceptedWeeks) {
+    return {
+      used: true,
+      evidence: [`${roadmapWeeks} semanas`],
+    };
+  }
+
+  return directMatch;
+}
+
+function buildSnapshotSignalUsage(
+  input: PackageInput,
+  normalizedPackageText: string,
+  packageTokens: Set<string>,
+): NonNullable<PlanPackage['intakeCoverage']> {
+  const signalUsage: NonNullable<PlanPackage['intakeCoverage']>['signalUsage'] = [];
+  const requiredSignals: string[] = [];
+  const snapshot = input.goalSignalsSnapshot;
+
+  const registerSignal = (signal: string, expectedValue: string | null | undefined) => {
+    if (!expectedValue || !expectedValue.trim()) {
+      return;
+    }
+
+    requiredSignals.push(signal);
+    const match = signal === 'timeframe'
+      ? matchTimeframeSignal(input, expectedValue, normalizedPackageText, packageTokens)
+      : matchesSignalValue(expectedValue, normalizedPackageText, packageTokens);
+    signalUsage.push({
+      signal,
+      expectedValue,
+      used: match.used,
+      evidence: match.evidence,
+    });
+  };
+
+  registerSignal('metric', snapshot?.metric ?? null);
+  registerSignal('timeframe', snapshot?.timeframe ?? null);
+  registerSignal('modality', getGoalSignalSnapshotAnswer(snapshot, 'modality'));
+  registerSignal('current_baseline', getGoalSignalSnapshotAnswer(snapshot, 'current_baseline'));
+  registerSignal('success_criteria', getGoalSignalSnapshotAnswer(snapshot, 'success_criteria'));
+  registerSignal('constraints', getGoalSignalSnapshotAnswer(snapshot, 'constraints'));
+  registerSignal('safety_context', getGoalSignalSnapshotAnswer(snapshot, 'safety_context'));
+
+  if ((snapshot?.anchorTokens.length ?? 0) > 0) {
+    const expectedValue = snapshot?.anchorTokens.join(', ') ?? '';
+    const evidence = snapshot?.anchorTokens.filter((token) => packageTokens.has(canonicalizeToken(token))) ?? [];
+    const minimumMatches = Math.max(1, Math.min(2, Math.ceil((snapshot?.anchorTokens.length ?? 0) / 2)));
+    requiredSignals.push('anchor_tokens');
+    signalUsage.push({
+      signal: 'anchor_tokens',
+      expectedValue,
+      used: evidence.length >= minimumMatches,
+      evidence,
+    });
+  }
+
+  return {
+    requiredSignals: uniqueNonEmpty(requiredSignals),
+    missingSignals: uniqueNonEmpty(signalUsage.filter((usage) => !usage.used).map((usage) => usage.signal)),
+    signalUsage,
+  };
 }
 
 export function evaluatePackageValidation(input: PackageValidationInput): PackageValidationResult {
@@ -408,6 +565,7 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
     classification: input.classification,
     requestedDomain: requestDomain,
     clarificationAnswers: input.clarificationAnswers,
+    goalSignalsSnapshot: input.goalSignalsSnapshot,
     roadmap: {
       phases: input.package.plan.skeleton.phases.map((phase) => ({
         name: phase.title,
@@ -428,28 +586,74 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
     },
     timezone: input.package.plan.timezone,
   }, packageTexts.join(' '));
-  const domainsCoherent = requestDomain !== null && packageDomain !== null && requestDomain === packageDomain;
-  const hasTrustedSignalReuse = (intakeCoverage?.requiredSignals.length ?? 0) > 0
-    && (intakeCoverage?.missingSignals.length ?? 0) === 0;
+  const criticalValidationSignals = new Set([
+    'metric',
+    'timeframe',
+    'modality',
+    'current_baseline',
+    'success_criteria',
+    'constraints',
+    'anchor_tokens',
+    'safety_context',
+  ]);
+  const criticalSignalLosses = (intakeCoverage?.signalUsage ?? []).filter((usage) =>
+    !usage.used && criticalValidationSignals.has(usage.signal),
+  );
+  const degradedSkip = input.goalSignalsSnapshot?.clarificationMode === 'degraded_skip';
+  const blockingMissingSignals = criticalSignalLosses.filter((usage) =>
+    usage.signal === 'metric' || usage.signal === 'timeframe' || usage.signal === 'safety_context',
+  );
+  const confirmedCriticalSignals = (intakeCoverage?.signalUsage ?? []).filter((usage) =>
+    usage.used && criticalValidationSignals.has(usage.signal),
+  );
+  const confirmedOverlaySignals = (intakeCoverage?.signalUsage ?? []).filter((usage) =>
+    usage.used && !criticalValidationSignals.has(usage.signal),
+  );
 
   const contentOverlap = ratioOfOverlap(goalTokens, packageTokens);
-  if (goalTokens.size >= 2
+  const hasUsefulDomainOverlay = Boolean(requestDomain && packageDomain && requestDomain === packageDomain);
+  const hasSemanticAlignment = contentOverlap >= 0.1
+    || confirmedCriticalSignals.length > 0
+    || confirmedOverlaySignals.length > 0
+    || hasUsefulDomainOverlay;
+  const losesCriticalGoalSignals = blockingMissingSignals.length > 0
+    || (
+      criticalSignalLosses.some((usage) => usage.signal === 'modality')
+      && criticalSignalLosses.some((usage) => usage.signal === 'anchor_tokens')
+      && !hasSemanticAlignment
+    );
+  const fallbackGoalMismatch = !input.goalSignalsSnapshot
+    && requestDomain !== null
+    && (intakeCoverage?.requiredSignals.length ?? 0) === 0
+    && goalTokens.size >= 2
     && packageTokens.size > 0
-    && contentOverlap < 0.25
-    && !(domainsCoherent && hasTrustedSignalReuse)) {
+    && contentOverlap < 0.2
+    && !hasSemanticAlignment;
+  if ((losesCriticalGoalSignals && !degradedSkip) || fallbackGoalMismatch) {
+    const goalMismatchEvidence = blockingMissingSignals.length > 0
+      ? blockingMissingSignals.map((usage) => `${usage.signal}: ${usage.expectedValue}`)
+      : criticalSignalLosses.length > 0
+        ? criticalSignalLosses.map((usage) => `${usage.signal}: ${usage.expectedValue}`)
+        : [
+          `overlap=${contentOverlap.toFixed(2)}`,
+          `request_domain=${requestDomain ?? 'none'}`,
+          `package_domain=${packageDomain ?? 'none'}`,
+        ];
     issues.push({
       code: 'goal_mismatch',
       severity: 'block',
-      message: 'El paquete no comparte suficientes señales con el pedido original y parece responder a otro objetivo.',
-      evidence: [input.goalText, packageTexts[0] ?? ''],
+      message: blockingMissingSignals.length > 0
+        ? `El paquete pierde senales criticas del intake (${blockingMissingSignals.map((usage) => usage.signal).join(', ')}) y queda desalineado con el objetivo.`
+        : 'El paquete no conserva alineacion semantica suficiente con el objetivo original.',
+      evidence: goalMismatchEvidence,
     });
   }
 
   if (requestDomain && packageDomain && requestDomain !== packageDomain) {
     issues.push({
       code: 'domain_mismatch',
-      severity: 'block',
-      message: `El paquete se parece mas a "${packageDomain}" que al dominio pedido "${requestDomain}".`,
+      severity: 'warn',
+      message: `El paquete activa señales del dominio "${packageDomain}" aunque el overlay pedido era "${requestDomain}".`,
       evidence: [requestDomain, packageDomain],
     });
   }
@@ -521,13 +725,17 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
       ...input.package.plan.skeleton.phases.flatMap((phase) => [phase.title, ...phase.objectives]),
       ...scheduledEventTitles,
     ];
+    const healthSignals = extractHealthSignals(input.goalText, input.clarificationAnswers);
 
-    if (!hasSafetyFraming(safetyTexts)) {
+    if (hasNegatedSafetyContext(healthSignals.support) || !hasSafetyFraming(safetyTexts)) {
       issues.push({
         code: 'health_safety_gap',
         severity: 'block',
         message: 'Para una meta de salud de alto riesgo hace falta una referencia clara a supervision profesional o seguimiento medico.',
-        evidence: [input.goalText],
+        evidence: uniqueNonEmpty([
+          input.goalText,
+          healthSignals.support ?? '',
+        ]),
       });
     }
   }
@@ -543,11 +751,27 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
   }
 
   if ((intakeCoverage?.missingSignals?.length ?? 0) > 0) {
+    const missingBlockingSignals = (intakeCoverage?.missingSignals ?? []).filter((signal) =>
+      signal === 'metric' || signal === 'timeframe' || signal === 'safety_context',
+    );
+    if (degradedSkip || missingBlockingSignals.length > 0) {
+      issues.push({
+        code: 'intake_signals_missing',
+        severity: degradedSkip ? 'warn' : 'block',
+        message: degradedSkip
+          ? `El plan avanza con degraded_skip y deja señales incompletas o poco visibles: ${intakeCoverage?.missingSignals.join(', ')}.`
+          : `El plan no reutiliza señales criticas del intake: ${missingBlockingSignals.join(', ')}.`,
+        evidence: intakeCoverage?.missingSignals ?? [],
+      });
+    }
+  }
+
+  if (degradedSkip && (input.goalSignalsSnapshot?.missingCriticalSignals.length ?? 0) > 0) {
     issues.push({
       code: 'intake_signals_missing',
-      severity: 'block',
-      message: `El plan no reutiliza senales criticas del intake: ${intakeCoverage?.missingSignals.join(', ')}.`,
-      evidence: intakeCoverage?.missingSignals ?? [],
+      severity: 'warn',
+      message: `El plan se construyo en modo degraded_skip; quedan huecos explicitados en ${input.goalSignalsSnapshot?.missingCriticalSignals.join(', ')} y conviene revisarlos antes de ejecutarlo.`,
+      evidence: input.goalSignalsSnapshot?.missingCriticalSignals ?? [],
     });
   }
 
@@ -618,7 +842,7 @@ function buildValidatedSummary(
 
 function hasValidationProjection(pkg: PlanPackage, validation: PackageValidationResult): boolean {
   const statusWarning = buildValidationWarning(validation.status);
-  const expectedPublicationState = buildValidationPublicationState(validation.status);
+  const expectedPublicationState = buildValidationPublicationState(validation);
   const expectedDegraded = validation.status !== 'ok';
 
   return pkg.publicationState === expectedPublicationState
@@ -685,7 +909,7 @@ export function projectValidatedPackage(
       warnings.length,
       validation.status,
     ),
-    publicationState: buildValidationPublicationState(validation.status),
+    publicationState: buildValidationPublicationState(validation),
     qualityIssues: validation.issues.map((issue) => ({
       code: issue.code,
       severity: issue.severity === 'block' ? 'blocking' : 'warning',
@@ -1125,8 +1349,10 @@ function buildSignalUsage(
 ): NonNullable<PlanPackage['intakeCoverage']> {
   const requestedDomain = canonicalizeKnownDomain(input.requestedDomain);
   const normalizedPackageText = normalizeComparableText(packageText);
-  const signalUsage: NonNullable<PlanPackage['intakeCoverage']>['signalUsage'] = [];
-  const requiredSignals: string[] = [];
+  const packageTokens = uniqueTokens([packageText]);
+  const baseCoverage = buildSnapshotSignalUsage(input, normalizedPackageText, packageTokens);
+  const signalUsage: NonNullable<PlanPackage['intakeCoverage']>['signalUsage'] = [...baseCoverage.signalUsage];
+  const requiredSignals: string[] = [...baseCoverage.requiredSignals];
 
   if (requestedDomain === 'cocina-italiana') {
     const signals = extractCookingSignals(input.clarificationAnswers);
@@ -1241,16 +1467,18 @@ function buildSignalUsage(
 
     const needsSupervision = Boolean(signals.aggressiveLossMatch) || Boolean(signals.weight && signals.height);
     if (needsSupervision) {
+      const hasAffirmativeSupervision = hasAffirmativeSafetyFraming(normalizedPackageText)
+        && !hasNegatedSafetyContext(signals.support);
       requiredSignals.push('health_supervision');
       signalUsage.push({
         signal: 'health_supervision',
         expectedValue: signals.support ?? 'supervision profesional',
-        used: /\bmedico|profesional|supervision|nutricionista|nutricion|acompanamiento\b/.test(normalizedPackageText),
+        used: hasAffirmativeSupervision,
         evidence: uniqueNonEmpty([
-          normalizedPackageText.includes('medico') ? 'medico' : '',
-          normalizedPackageText.includes('profesional') ? 'profesional' : '',
-          normalizedPackageText.includes('supervision') ? 'supervision' : '',
-          normalizedPackageText.includes('nutricion') || normalizedPackageText.includes('nutricionista') ? 'nutricion' : '',
+          hasAffirmativeSupervision && normalizedPackageText.includes('medico') ? 'medico' : '',
+          hasAffirmativeSupervision && normalizedPackageText.includes('profesional') ? 'profesional' : '',
+          hasAffirmativeSupervision && normalizedPackageText.includes('supervision') ? 'supervision' : '',
+          hasAffirmativeSupervision && (normalizedPackageText.includes('nutricion') || normalizedPackageText.includes('nutricionista')) ? 'nutricion' : '',
         ]),
       });
     }
@@ -1760,6 +1988,7 @@ export function packagePlan(input: PackageInput): PlanPackage {
     classification: input.classification,
     requestedDomain: input.requestedDomain,
     clarificationAnswers: input.clarificationAnswers,
+    goalSignalsSnapshot: input.goalSignalsSnapshot,
   });
   const finalWarnings = buildValidatedWarnings(warnings, validation);
   const finalQualityScore = buildValidatedQualityScore(qualityScore, validation);
@@ -1790,7 +2019,7 @@ export function packagePlan(input: PackageInput): PlanPackage {
     implementationIntentions,
     warnings: finalWarnings,
     tradeoffs: input.finalSchedule.tradeoffs ?? [],
-    publicationState: buildValidationPublicationState(validation.status),
+    publicationState: buildValidationPublicationState(validation),
     qualityIssues: validation.issues.map((issue) => ({
       code: issue.code,
       severity: issue.severity === 'block' ? 'blocking' : 'warning',

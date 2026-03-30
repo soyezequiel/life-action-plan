@@ -25,13 +25,13 @@ describe('pipeline context reader', () => {
     const outputFile = resolve(TEST_ROOT, 'pipeline-v5-real.json')
     const latest = createEmptyPipelineRuntimeData({
       source: 'interactive',
-      modelId: 'ollama:qwen3:8b',
+      modelId: 'openai:gpt-4o-mini',
       goalText: 'Aprender dibujo',
       outputFile
     })
     const latestSuccess = createEmptyPipelineRuntimeData({
       source: 'interactive',
-      modelId: 'ollama:qwen3:8b',
+      modelId: 'openai:gpt-4o-mini',
       goalText: 'Aprender dibujo',
       outputFile
     })

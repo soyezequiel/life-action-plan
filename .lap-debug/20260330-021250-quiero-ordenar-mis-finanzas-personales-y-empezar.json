@@ -1,0 +1,744 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T05:12:50.958Z",
+  "updatedAt": "2026-03-30T05:12:58.248Z",
+  "invocation": {
+    "goal": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": "51b28b8b-b615-479e-8a0d-c26d49142c3a",
+    "provider": "codex",
+    "modelId": null,
+    "status": "running"
+  },
+  "pendingInput": {
+    "sessionId": "51b28b8b-b615-479e-8a0d-c26d49142c3a",
+    "goal": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "questions": [
+      {
+        "id": "clarify-r1-q1",
+        "text": "¿Cuánto dinero te gustaría empezar a ahorrar cada mes o en total?",
+        "type": "number",
+        "options": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "id": "clarify-r1-q2",
+        "text": "¿Para cuándo te gustaría lograr ese objetivo de ahorro?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "id": "clarify-r1-q3",
+        "text": "¿Cuál es tu situación financiera actual en cuanto a ahorro disponible o saldo que tienes hoy?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      }
+    ],
+    "createdAt": "2026-03-30T05:12:58.248Z",
+    "pendingFilePath": "F:\\proyectos\\planificador-vida\\.lap-pending-input.json",
+    "resumeCommand": "node scripts/run-plan.mjs --resume-session=51b28b8b-b615-479e-8a0d-c26d49142c3a --answers-json='{\"id\":\"respuesta\",...}' --debug"
+  },
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 12,
+    "timestamp": "2026-03-30T05:12:58.204Z",
+    "category": "lifecycle",
+    "action": "session.paused",
+    "summary_es": "El pipeline quedó pausado esperando 3 respuesta(s) de aclaración.",
+    "phase": "clarify",
+    "agent": "clarifier",
+    "iteration": 2,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 25,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "questionCount": 3,
+      "questions": [
+        {
+          "id": "clarify-r1-q1",
+          "text": "¿Cuánto dinero te gustaría empezar a ahorrar cada mes o en total?",
+          "purpose": "Definir la métrica concreta de ahorro para orientar el plan",
+          "type": "number"
+        },
+        {
+          "id": "clarify-r1-q2",
+          "text": "¿Para cuándo te gustaría lograr ese objetivo de ahorro?",
+          "purpose": "Establecer el plazo específico para organizar el plan",
+          "type": "text"
+        },
+        {
+          "id": "clarify-r1-q3",
+          "text": "¿Cuál es tu situación financiera actual en cuanto a ahorro disponible o saldo que tienes hoy?",
+          "purpose": "Conocer la línea de base desde la cual comenzar a planificar",
+          "type": "text"
+        }
+      ],
+      "informationGaps": [
+        "metric",
+        "timeframe",
+        "current_baseline"
+      ],
+      "goalSignalsSnapshot": {
+        "parsedGoal": "Organize personal finances and begin saving sustainably.",
+        "goalType": "QUANT_TARGET_TRACKING",
+        "riskFlags": [
+          "HIGH_FINANCE",
+          "MEDIUM"
+        ],
+        "suggestedDomain": "personal finance",
+        "metric": null,
+        "timeframe": null,
+        "anchorTokens": [
+          "ordenar",
+          "finanzas",
+          "personales",
+          "empezar",
+          "ahorrar",
+          "forma"
+        ],
+        "informationGaps": [
+          "metric",
+          "timeframe",
+          "current_baseline",
+          "safety_context"
+        ],
+        "clarifyConfidence": 0.09,
+        "readyToAdvance": false,
+        "normalizedUserAnswers": [],
+        "missingCriticalSignals": [
+          "metric",
+          "timeframe",
+          "current_baseline",
+          "safety_context"
+        ],
+        "hasSufficientSignalsForPlanning": false,
+        "clarificationMode": "needs_input",
+        "degraded": false,
+        "fallbackCount": 0,
+        "phase": "clarify",
+        "clarifyRounds": 1
+      }
+    }
+  },
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T05:12:50.959Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+        "resumeSession": null,
+        "explicitProvider": "codex",
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:50.961Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "codex-oauth",
+        "label": "OpenAI (sesion iniciada)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:50.962Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "codex",
+        "goalText": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T05:12:51.382Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "codex",
+        "requestedMode": "codex-cloud",
+        "resolvedModelId": "openai:gpt-5-codex",
+        "providerId": "openai",
+        "executionMode": "codex-cloud",
+        "resolutionSource": "requested-mode",
+        "authMode": "codex-oauth",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:52.840Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:52.840Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-30T05:12:52.836Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "openai:gpt-5-codex",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:52.841Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-30T05:12:52.836Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:52.842Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-30T05:12:52.836Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:55.924Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-30T05:12:55.909Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El interprete completo interpretacion con respuesta del modelo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 3073,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:55.925Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-30T05:12:55.911Z",
+        "category": "phase",
+        "action": "interpret.summary",
+        "summary_es": "Objetivo interpretado como QUANT_TARGET_TRACKING con confianza 74%.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "interpretation",
+          "normalizedGoal": "Organize personal finances and begin saving sustainably.",
+          "goalType": "QUANT_TARGET_TRACKING",
+          "suggestedDomain": "personal finance",
+          "confidence": 0.74,
+          "ambiguities": [
+            "How much money the user aims to save and in what timeframe.",
+            "The current financial situation, including income, expenses, debts, and assets.",
+            "Which tools or methods (budgeting apps, accounts, automation) the user plans to use.",
+            "Specific motivation or purpose for the savings (emergency fund, investment, large purchase)."
+          ],
+          "assumptions": [
+            "The user has sufficient income or cash flow to allocate toward savings once finances are organized.",
+            "There is disposable income available after covering existing obligations to build savings.",
+            "Setting up a systematic process will lead to sustainable saving without unexpected financial disruptions."
+          ],
+          "riskFlags": [
+            "HIGH_FINANCE",
+            "MEDIUM"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organize personal finances and begin saving sustainably.",
+            "goalType": "QUANT_TARGET_TRACKING",
+            "riskFlags": [
+              "HIGH_FINANCE",
+              "MEDIUM"
+            ],
+            "suggestedDomain": "personal finance",
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "ordenar",
+              "finanzas",
+              "personales",
+              "empezar",
+              "ahorrar",
+              "forma"
+            ],
+            "informationGaps": [
+              "metric",
+              "timeframe",
+              "current_baseline",
+              "safety_context"
+            ],
+            "clarifyConfidence": null,
+            "readyToAdvance": null,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "metric",
+              "timeframe",
+              "current_baseline",
+              "safety_context"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "interpret",
+            "clarifyRounds": 0
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:55.925Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-30T05:12:55.911Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:55.926Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-30T05:12:55.911Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:55.926Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-30T05:12:55.911Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:58.227Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-30T05:12:58.202Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 2290,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:58.227Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-30T05:12:58.203Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion deja 3 pregunta(s) pendiente(s).",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": false,
+          "confidence": 0.09,
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿Cuánto dinero te gustaría empezar a ahorrar cada mes o en total?",
+              "purpose": "Definir la métrica concreta de ahorro para orientar el plan",
+              "type": "number"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Para cuándo te gustaría lograr ese objetivo de ahorro?",
+              "purpose": "Establecer el plazo específico para organizar el plan",
+              "type": "text"
+            },
+            {
+              "id": "clarify-r1-q3",
+              "text": "¿Cuál es tu situación financiera actual en cuanto a ahorro disponible o saldo que tienes hoy?",
+              "purpose": "Conocer la línea de base desde la cual comenzar a planificar",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "metric",
+            "timeframe",
+            "current_baseline"
+          ],
+          "knownAnswers": [],
+          "duplicateQuestions": [],
+          "reasoning": "Faltan los datos críticos de métrica, plazo, línea base y contexto de seguridad para definir un plan financiero preciso.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organize personal finances and begin saving sustainably.",
+            "goalType": "QUANT_TARGET_TRACKING",
+            "riskFlags": [
+              "HIGH_FINANCE",
+              "MEDIUM"
+            ],
+            "suggestedDomain": "personal finance",
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "ordenar",
+              "finanzas",
+              "personales",
+              "empezar",
+              "ahorrar",
+              "forma"
+            ],
+            "informationGaps": [
+              "metric",
+              "timeframe",
+              "current_baseline",
+              "safety_context"
+            ],
+            "clarifyConfidence": 0.09,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "metric",
+              "timeframe",
+              "current_baseline",
+              "safety_context"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:58.228Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-30T05:12:58.203Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "Todavia faltan respuestas; se mantiene la aclaracion con 3 pregunta(s) pendientes.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:58.228Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 12,
+        "timestamp": "2026-03-30T05:12:58.204Z",
+        "category": "lifecycle",
+        "action": "session.paused",
+        "summary_es": "El pipeline quedó pausado esperando 3 respuesta(s) de aclaración.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "questionCount": 3,
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿Cuánto dinero te gustaría empezar a ahorrar cada mes o en total?",
+              "purpose": "Definir la métrica concreta de ahorro para orientar el plan",
+              "type": "number"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Para cuándo te gustaría lograr ese objetivo de ahorro?",
+              "purpose": "Establecer el plazo específico para organizar el plan",
+              "type": "text"
+            },
+            {
+              "id": "clarify-r1-q3",
+              "text": "¿Cuál es tu situación financiera actual en cuanto a ahorro disponible o saldo que tienes hoy?",
+              "purpose": "Conocer la línea de base desde la cual comenzar a planificar",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "metric",
+            "timeframe",
+            "current_baseline"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organize personal finances and begin saving sustainably.",
+            "goalType": "QUANT_TARGET_TRACKING",
+            "riskFlags": [
+              "HIGH_FINANCE",
+              "MEDIUM"
+            ],
+            "suggestedDomain": "personal finance",
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "ordenar",
+              "finanzas",
+              "personales",
+              "empezar",
+              "ahorrar",
+              "forma"
+            ],
+            "informationGaps": [
+              "metric",
+              "timeframe",
+              "current_baseline",
+              "safety_context"
+            ],
+            "clarifyConfidence": 0.09,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "metric",
+              "timeframe",
+              "current_baseline",
+              "safety_context"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:58.248Z",
+      "type": "v6:needs_input",
+      "data": {
+        "sessionId": "51b28b8b-b615-479e-8a0d-c26d49142c3a",
+        "questions": {
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿Cuánto dinero te gustaría empezar a ahorrar cada mes o en total?",
+              "purpose": "Definir la métrica concreta de ahorro para orientar el plan",
+              "type": "number"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Para cuándo te gustaría lograr ese objetivo de ahorro?",
+              "purpose": "Establecer el plazo específico para organizar el plan",
+              "type": "text"
+            },
+            {
+              "id": "clarify-r1-q3",
+              "text": "¿Cuál es tu situación financiera actual en cuanto a ahorro disponible o saldo que tienes hoy?",
+              "purpose": "Conocer la línea de base desde la cual comenzar a planificar",
+              "type": "text"
+            }
+          ],
+          "reasoning": "Faltan los datos críticos de métrica, plazo, línea base y contexto de seguridad para definir un plan financiero preciso.",
+          "informationGaps": [
+            "metric",
+            "timeframe",
+            "current_baseline"
+          ],
+          "confidence": 0.09,
+          "readyToAdvance": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-021250-quiero-ordenar-mis-finanzas-personales-y-empezar.json"
+}

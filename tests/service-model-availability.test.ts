@@ -4,7 +4,6 @@ const mocks = vi.hoisted(() => ({
   ensureBackendEnvCredentialConfigurationMock: vi.fn(),
   listCredentialConfigurationsMock: vi.fn(),
   validateCredentialConfigurationMock: vi.fn(),
-  canUseLocalOllamaMock: vi.fn(() => true),
   getDeploymentModeMock: vi.fn(() => 'local')
 }))
 
@@ -16,7 +15,6 @@ vi.mock('../src/lib/auth/credential-config', () => ({
 }))
 
 vi.mock('../src/lib/env/deployment', () => ({
-  canUseLocalOllama: mocks.canUseLocalOllamaMock,
   getDeploymentMode: mocks.getDeploymentModeMock
 }))
 
@@ -25,12 +23,11 @@ import { listAvailableServiceModels } from '../src/lib/providers/service-model-a
 describe('service model availability', () => {
   beforeEach(() => {
     Object.values(mocks).forEach((mock) => mock.mockReset())
-    mocks.canUseLocalOllamaMock.mockReturnValue(true)
     mocks.getDeploymentModeMock.mockReturnValue('local')
     vi.unstubAllGlobals()
   })
 
-  it('solo devuelve modelos del servicio que validan y los modelos de Ollama disponibles', async () => {
+  it('solo devuelve modelos del servicio que validan', async () => {
     mocks.listCredentialConfigurationsMock.mockResolvedValue([
       {
         id: 'cred-openrouter',
@@ -70,18 +67,6 @@ describe('service model availability', () => {
         }
       }
     })
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({
-      models: [
-        { name: 'qwen3:8b' },
-        { name: 'llama3.2:3b' }
-      ]
-    }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })))
-
     const result = await listAvailableServiceModels()
 
     expect(mocks.ensureBackendEnvCredentialConfigurationMock).toHaveBeenCalledWith({
@@ -95,25 +80,12 @@ describe('service model availability', () => {
         providerId: 'openai',
         modelId: 'openai:gpt-4o-mini',
         displayName: 'OpenAI'
-      },
-      {
-        providerId: 'ollama',
-        modelId: 'ollama:qwen3:8b',
-        displayName: 'Ollama - qwen3:8b'
-      },
-      {
-        providerId: 'ollama',
-        modelId: 'ollama:llama3.2:3b',
-        displayName: 'Ollama - llama3.2:3b'
       }
     ])
   })
 
-  it('oculta Ollama cuando el servicio local no responde', async () => {
+  it('devuelve vacio cuando no hay credenciales validas', async () => {
     mocks.listCredentialConfigurationsMock.mockResolvedValue([])
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(null, {
-      status: 503
-    })))
 
     const result = await listAvailableServiceModels()
 

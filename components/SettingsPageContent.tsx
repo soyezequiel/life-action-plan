@@ -19,11 +19,7 @@ import { downloadVaultBackup, uploadVaultBackup } from '../src/lib/client/vault-
 import type { DeploymentMode } from '../src/lib/env/deployment'
 import {
   DEFAULT_CODEX_BUILD_MODEL,
-  DEFAULT_OPENAI_BUILD_MODEL,
   getDefaultBuildModelForProvider,
-  getProviderLabelKey,
-  isLocalModel,
-  supportsOllamaThinking,
   resolveBuildModel
 } from '../src/lib/providers/provider-metadata'
 import type { BuildUsagePreviewResult, PlanBuildProgress, WalletStatus } from '../src/shared/types/lap-api'
@@ -57,8 +53,6 @@ const initialAuthState: AuthState = {
   authenticated: false,
   user: null
 }
-const OLLAMA_THINKING_STORAGE_KEY = 'lap.ollama-thinking-enabled'
-
 interface SettingsPageContentProps {
   deploymentMode: DeploymentMode
 }
@@ -66,12 +60,7 @@ interface SettingsPageContentProps {
 function resolveRequestedBuildResourceMode(input: {
   activeBuildModel: string
   llmMode: LlmMode
-  localBuildIntent: boolean
 }): 'auto' | 'backend' | 'user' | 'codex' {
-  if (input.localBuildIntent) {
-    return 'auto'
-  }
-
   if (input.llmMode === 'own') {
     return 'user'
   }
@@ -80,7 +69,8 @@ function resolveRequestedBuildResourceMode(input: {
     return 'codex'
   }
 
-  return isLocalModel(input.activeBuildModel) ? 'auto' : 'backend'
+  void input.activeBuildModel
+  return 'backend'
 }
 
 export default function SettingsPageContent({ deploymentMode }: SettingsPageContentProps) {
@@ -106,12 +96,8 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const requestedMode = searchParams?.get('mode')
   const requestedProvider = searchParams?.get('provider')
   const shouldBuild = intent === 'build'
-  const localProviderBlocked = requestedProvider === 'ollama' && deploymentMode !== 'local'
-  const localBuildIntent = shouldBuild && requestedProvider === 'ollama' && !localProviderBlocked
   const codexModeVisible = deploymentMode === 'local'
-  const requestedBuildModel = localProviderBlocked
-    ? DEFAULT_OPENAI_BUILD_MODEL
-    : resolveBuildModel(requestedProvider)
+  const requestedBuildModel = resolveBuildModel(requestedProvider)
 
   const [llmMode, setLlmMode] = useState<LlmMode>('service')
   const [advancedVisible, setAdvancedVisible] = useState(requestedMode === 'own')
@@ -136,41 +122,29 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
   const [buildNotice, setBuildNotice] = useState('')
   const [buildError, setBuildError] = useState('')
   const [debugPanelVisible, setDebugPanelVisible] = useState(false)
-  const [ollamaThinkingEnabled, setOllamaThinkingEnabled] = useState(false)
 
   const selectedLocalKey = localKeys.find((record) => record.id === selectedLocalKeyId) ?? null
   const selectedServiceModel = serviceModels.find((model) => model.modelId === selectedServiceModelId) ?? null
-  const activeBuildModel = localBuildIntent
-    ? requestedBuildModel
-    : llmMode === 'own'
-      ? getDefaultBuildModelForProvider(selectedLocalKey?.provider ?? '') ?? requestedBuildModel
-      : llmMode === 'codex'
-        ? DEFAULT_CODEX_BUILD_MODEL
-        : selectedServiceModel?.modelId ?? requestedBuildModel
-  const selectedProviderLabel = localBuildIntent
-    ? t(getProviderLabelKey(activeBuildModel))
-    : llmMode === 'own'
+  const activeBuildModel = llmMode === 'own'
+    ? getDefaultBuildModelForProvider(selectedLocalKey?.provider ?? '') ?? requestedBuildModel
+    : llmMode === 'codex'
+      ? DEFAULT_CODEX_BUILD_MODEL
+      : selectedServiceModel?.modelId ?? requestedBuildModel
+  const selectedProviderLabel = llmMode === 'own'
       ? t('settings.llm_mode.own_key_title')
       : llmMode === 'codex'
         ? t('settings.llm_mode.codex_title')
-      : t('settings.llm_mode.service_title')
+        : t('settings.llm_mode.service_title')
   const requestedBuildResourceMode = resolveRequestedBuildResourceMode({
     activeBuildModel,
-    llmMode,
-    localBuildIntent
+    llmMode
   })
-  const canToggleOllamaThinking = supportsOllamaThinking(activeBuildModel)
-  const requestedThinkingMode = canToggleOllamaThinking
-    ? (ollamaThinkingEnabled ? 'enabled' : 'disabled')
-    : undefined
   const canBuild = shouldBuild && (
-    localBuildIntent
-      ? buildUsage?.canExecute === true
-      : llmMode === 'own'
-        ? Boolean(selectedLocalKey && protectionPassword.trim() && buildUsage?.canExecute)
-        : llmMode === 'codex'
-          ? buildUsage?.canExecute === true
-          : Boolean((selectedServiceModel || serviceModels.length > 0) && buildUsage?.canExecute)
+    llmMode === 'own'
+      ? Boolean(selectedLocalKey && protectionPassword.trim() && buildUsage?.canExecute)
+      : llmMode === 'codex'
+        ? buildUsage?.canExecute === true
+        : Boolean((selectedServiceModel || serviceModels.length > 0) && buildUsage?.canExecute)
   )
 
   useEffect(() => {
@@ -183,15 +157,6 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       .then(setWalletStatus)
       .catch(() => setWalletStatus(initialWalletStatus))
   }, [client])
-
-  useEffect(() => {
-    const storedValue = window.localStorage.getItem(OLLAMA_THINKING_STORAGE_KEY)
-    setOllamaThinkingEnabled(storedValue === '1')
-  }, [])
-
-  useEffect(() => {
-    window.localStorage.setItem(OLLAMA_THINKING_STORAGE_KEY, ollamaThinkingEnabled ? '1' : '0')
-  }, [ollamaThinkingEnabled])
 
   useEffect(() => {
     let active = true
@@ -276,10 +241,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       provider: activeBuildModel,
       resourceMode: requestedBuildResourceMode
     })
-
-    if (!localBuildIntent) {
-      params.set('hasUserApiKey', llmMode === 'own' && selectedLocalKey ? '1' : '0')
-    }
+    params.set('hasUserApiKey', llmMode === 'own' && selectedLocalKey ? '1' : '0')
 
     setBuildUsageLoading(true)
 
@@ -314,7 +276,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
     return () => {
       active = false
     }
-  }, [activeBuildModel, llmMode, localBuildIntent, requestedBuildResourceMode, selectedLocalKey, shouldBuild])
+  }, [activeBuildModel, llmMode, requestedBuildResourceMode, selectedLocalKey, shouldBuild])
 
   async function refreshAuthState(nextUser?: AuthUser | null): Promise<void> {
     if (typeof nextUser !== 'undefined') {
@@ -494,14 +456,14 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       const apiKey = llmMode === 'own' && selectedLocalKey
         ? await decryptStoredApiKey(selectedLocalKey, protectionPassword)
         : ''
-      const provider = localBuildIntent ? requestedBuildModel : activeBuildModel
+      const provider = activeBuildModel
       const result = await client.plan.build(
         profileId,
         apiKey,
         provider,
         undefined,
         requestedBuildResourceMode,
-        requestedThinkingMode
+        undefined
       )
 
       if (!result.success) {
@@ -551,34 +513,29 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
             <div className={styles.heroCopy}>
               <span className="app-status app-status--eyebrow">{t('dashboard.actions_title')}</span>
               <h1 className="app-title">
-                {localBuildIntent ? t('settings.local_build_title') : t('settings.apikey_title')}
+                {t('settings.apikey_title')}
               </h1>
               <p className="app-copy">
-                {localBuildIntent ? t('settings.local_build_hint') : t('settings.apikey_hint')}
+                {t('settings.apikey_hint')}
               </p>
             </div>
           </div>
 
-          {!localBuildIntent && (
-            <LlmModeSelector
-              value={llmMode}
-              advancedVisible={advancedVisible}
-              showCodexMode={codexModeVisible}
-              onChange={setLlmMode}
-              onToggleAdvanced={handleToggleAdvanced}
-            />
-          )}
+          <LlmModeSelector
+            value={llmMode}
+            advancedVisible={advancedVisible}
+            showCodexMode={codexModeVisible}
+            onChange={setLlmMode}
+            onToggleAdvanced={handleToggleAdvanced}
+          />
 
           <div className={styles.grid}>
             <BuildSection
-              title={localBuildIntent ? t('settings.local_build_title') : t('settings.apikey_title')}
-              hint={localBuildIntent ? t('settings.local_build_hint') : t('settings.apikey_hint')}
+              title={t('settings.apikey_title')}
+              hint={t('settings.apikey_hint')}
               selectedProviderLabel={selectedProviderLabel}
-              showThinkingControl={canToggleOllamaThinking}
-              thinkingEnabled={ollamaThinkingEnabled}
               inspectorVisible={debugPanelVisible}
               shouldBuild={shouldBuild}
-              localProviderBlocked={localProviderBlocked}
               buildBusy={buildBusy}
               buildUsageLoading={buildUsageLoading}
               canBuild={canBuild}
@@ -586,14 +543,13 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
               buildError={buildError}
               buildProgress={buildProgress}
               buildUsage={buildUsage}
-              showAdvancedDetails={advancedVisible || localBuildIntent}
+              showAdvancedDetails={advancedVisible}
               walletStatus={walletStatus}
-              onThinkingChange={setOllamaThinkingEnabled}
               onToggleInspector={() => setDebugPanelVisible((visible) => !visible)}
               onBuild={handleBuild}
             />
 
-            {!localBuildIntent && advancedVisible && llmMode === 'own' ? (
+            {advancedVisible && llmMode === 'own' ? (
               <OwnKeyManager
                 keys={localKeys}
                 selectedKeyId={selectedLocalKeyId}
@@ -609,7 +565,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
                 onBackup={handleBackupVault}
                 onRestore={handleRestoreVault}
               />
-            ) : !localBuildIntent && advancedVisible && llmMode !== 'codex' ? (
+            ) : advancedVisible && llmMode !== 'codex' ? (
               <ServiceAiSelector
                 models={serviceModels}
                 selectedModelId={selectedServiceModelId}

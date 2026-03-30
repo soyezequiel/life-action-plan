@@ -1,0 +1,54 @@
+{
+  "finance": {
+    "id": "finance",
+    "name": "Finanzas Personales",
+    "patterns": ["finanzas"],
+    "flags": "i",
+    "expected": {
+      "publicationState": "publishable",
+      "failureCode": "none",
+      "mustContain": [],
+      "mustNotContain": [],
+      "allowPaused": false
+    }
+  },
+  "cooking": {
+    "id": "cooking",
+    "name": "Cocina Italiana",
+    "patterns": ["cocina"],
+    "flags": "i",
+    "expected": {
+      "publicationState": "publishable",
+      "failureCode": "none",
+      "mustContain": [],
+      "mustNotContain": [],
+      "allowPaused": false
+    }
+  },
+  "health": {
+    "id": "health",
+    "name": "Bajar de Peso",
+    "patterns": ["(bajar.*?kilos|salud)"],
+    "flags": "i",
+    "expected": {
+      "publicationState": "publishable",
+      "failureCode": "none",
+      "mustContain": [],
+      "mustNotContain": [],
+      "allowPaused": false
+    }
+  },
+  "ambiguous": {
+    "id": "ambiguous",
+    "name": "Reinventarme (Ambiguo)",
+    "patterns": ["reinventarme"],
+    "flags": "i",
+    "expected": {
+      "publicationState": "publishable",
+      "failureCode": "none",
+      "mustContain": [],
+      "mustNotContain": [],
+      "allowPaused": false
+    }
+  }
+}

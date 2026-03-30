@@ -14,12 +14,9 @@ describe('build section', () => {
       <BuildSection
         title="Preparar asistente"
         hint="Hint"
-        selectedProviderLabel="Ollama"
-        showThinkingControl={false}
-        thinkingEnabled={false}
+        selectedProviderLabel="OpenAI"
         inspectorVisible={false}
         shouldBuild
-        localProviderBlocked={false}
         buildBusy={false}
         buildUsageLoading={false}
         canBuild
@@ -33,7 +30,6 @@ describe('build section', () => {
           connected: false,
           canUseSecureStorage: true
         }}
-        onThinkingChange={() => {}}
         onToggleInspector={handleToggleInspector}
         onBuild={async () => {}}
       />

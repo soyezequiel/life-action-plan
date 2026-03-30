@@ -58,9 +58,15 @@ export async function POST(request: Request): Promise<Response> {
         const { getDeploymentMode } = await import(
           '../../../../../src/lib/env/deployment'
         )
-        const { resolveBuildModel } = await import(
-          '../../../../../src/lib/providers/provider-metadata'
-        )
+        const {
+          createExecutionBlockedProviderFailure,
+          createProviderTrace,
+          createRuntimeProviderFailure,
+          createUnexpectedPreflightFailure,
+          normalizeRequestedProvider,
+          resolveRequestedBuildModel,
+          resolveRequestedBuildMode,
+        } = await import('../../../../../src/lib/runtime/plan-build-provider')
         const { createBuildAgentRuntime } = await import(
           '../../../../../src/lib/runtime/build-agent-runtime'
         )
@@ -120,17 +126,14 @@ export async function POST(request: Request): Promise<Response> {
           return
         }
 
-        const modelId = resolveBuildModel(provider ?? undefined)
+        const requestedMode = resolveRequestedBuildMode({
+          provider,
+          resourceMode,
+          backendCredentialId,
+        })
+        const normalizedProvider = normalizeRequestedProvider(provider, requestedMode)
+        const modelId = resolveRequestedBuildModel(provider, requestedMode)
         const deploymentMode = getDeploymentMode()
-        const requestedMode = resourceMode === 'backend'
-          ? 'backend-cloud' as const
-          : resourceMode === 'user'
-            ? 'user-cloud' as const
-            : resourceMode === 'codex'
-              ? 'codex-cloud' as const
-              : backendCredentialId
-                ? 'backend-cloud' as const
-                : undefined
 
         const execution = await resolvePlanBuildExecution({
           modelId,
@@ -140,14 +143,26 @@ export async function POST(request: Request): Promise<Response> {
           userSuppliedApiKey: apiKey || undefined,
           backendCredentialId
         })
+        const providerTrace = createProviderTrace({
+          execution,
+          requestedProvider: normalizedProvider,
+          requestedMode,
+        })
+
+        send({
+          type: 'v6:provider',
+          data: providerTrace,
+        })
 
         if (!execution.runtime) {
-          const { toExecutionBlockErrorMessage } = await import('../../../_plan')
+          const providerFailure = createExecutionBlockedProviderFailure(providerTrace)
           send({
             type: 'result',
             result: {
               success: false,
-              error: toExecutionBlockErrorMessage(execution.executionContext.blockReasonCode ?? null)
+              error: providerFailure.message,
+              providerErrorCode: providerFailure.code,
+              providerTrace: providerFailure.trace,
             }
           })
           return
@@ -156,6 +171,45 @@ export async function POST(request: Request): Promise<Response> {
         const runtime = createBuildAgentRuntime(execution.runtime, {
           thinkingMode: thinkingMode ?? undefined
         })
+
+        try {
+          const preflight = await runtime.chat([{
+            role: 'user',
+            content: 'Respond with exactly: OK',
+          }])
+
+          if (!preflight.content.includes('OK')) {
+            const providerFailure = createUnexpectedPreflightFailure({
+              responseText: preflight.content,
+              trace: providerTrace,
+            })
+            send({
+              type: 'result',
+              result: {
+                success: false,
+                error: providerFailure.message,
+                providerErrorCode: providerFailure.code,
+                providerTrace: providerFailure.trace,
+              }
+            })
+            return
+          }
+        } catch (preflightError) {
+          const providerFailure = createRuntimeProviderFailure({
+            rawMessage: preflightError instanceof Error ? preflightError.message : String(preflightError),
+            trace: providerTrace,
+          })
+          send({
+            type: 'result',
+            result: {
+              success: false,
+              error: providerFailure.message,
+              providerErrorCode: providerFailure.code,
+              providerTrace: providerFailure.trace,
+            }
+          })
+          return
+        }
 
         send({ type: 'v6:phase', data: { phase: 'clarify-resume', iteration: 0 } })
 

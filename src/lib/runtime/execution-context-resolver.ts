@@ -15,8 +15,8 @@ import {
 } from '../auth/credential-config'
 import { getCodexAuthAvailability } from '../auth/codex-auth'
 import { DEFAULT_USER_ID, getApiKeySettingKey, type CloudApiKeyProvider } from '../auth/user-settings'
-import { canUseLocalOllama, getDeploymentMode, type DeploymentMode } from '../env/deployment'
-import { getModelProviderName, isCloudModel, isLocalModel } from '../providers/provider-metadata'
+import { getDeploymentMode, type DeploymentMode } from '../env/deployment'
+import { getModelProviderName, isCloudModel } from '../providers/provider-metadata'
 
 type RequestedExecutionMode = ExecutionMode | 'auto'
 
@@ -138,7 +138,7 @@ function getProviderDescriptor(modelId: string): ProviderDescriptor | null {
   return {
     providerId,
     modelId: normalizedModelId,
-    providerKind: isLocalModel(normalizedModelId) ? 'local' : 'cloud'
+    providerKind: 'cloud'
   }
 }
 
@@ -388,53 +388,6 @@ async function resolveCloudRequestedMode(input: {
   })
 }
 
-function resolveLocalRequestedMode(input: {
-  provider: ProviderDescriptor
-  requestedMode: 'backend-local' | 'user-local'
-  deploymentMode: DeploymentMode
-  allowUserLocalExecution: boolean
-}): ResolvedExecutionContext {
-  if (input.requestedMode === 'backend-local') {
-    if (canUseLocalOllama(input.deploymentMode)) {
-      return createExecutableContext({
-        mode: 'backend-local',
-        provider: input.provider,
-        credentialSource: 'none',
-        credentialId: null,
-        resolutionSource: 'requested-mode'
-      })
-    }
-
-    return createBlockedContext({
-      mode: 'backend-local',
-      provider: input.provider,
-      credentialSource: 'none',
-      resolutionSource: 'requested-mode',
-      blockReasonCode: 'backend_local_unavailable',
-      blockReasonDetail: `Backend local execution is unavailable in deployment mode ${input.deploymentMode}.`
-    })
-  }
-
-  if (input.allowUserLocalExecution) {
-    return createExecutableContext({
-      mode: 'user-local',
-      provider: input.provider,
-      credentialSource: 'none',
-      credentialId: null,
-      resolutionSource: 'requested-mode'
-    })
-  }
-
-  return createBlockedContext({
-    mode: 'user-local',
-    provider: input.provider,
-    credentialSource: 'none',
-    resolutionSource: 'requested-mode',
-    blockReasonCode: 'user_local_not_supported',
-    blockReasonDetail: 'User-local execution is not supported from the current backend flow.'
-  })
-}
-
 async function resolveCloudAutoMode(input: {
   provider: ProviderDescriptor
   userSuppliedApiKey: string
@@ -516,47 +469,8 @@ async function resolveCloudAutoMode(input: {
   })
 }
 
-function resolveLocalAutoMode(input: {
-  provider: ProviderDescriptor
-  deploymentMode: DeploymentMode
-  allowUserLocalExecution: boolean
-}): ResolvedExecutionContext {
-  if (canUseLocalOllama(input.deploymentMode)) {
-    return createExecutableContext({
-      mode: 'backend-local',
-      provider: input.provider,
-      credentialSource: 'none',
-      credentialId: null,
-      resolutionSource: 'auto-backend-local'
-    })
-  }
-
-  if (input.allowUserLocalExecution) {
-    return createExecutableContext({
-      mode: 'user-local',
-      provider: input.provider,
-      credentialSource: 'none',
-      credentialId: null,
-      resolutionSource: 'auto-user-local'
-    })
-  }
-
-  return createBlockedContext({
-    mode: 'backend-local',
-    provider: input.provider,
-    credentialSource: 'none',
-    resolutionSource: 'auto-local-unavailable',
-    blockReasonCode: 'backend_local_unavailable',
-    blockReasonDetail: `Backend local execution is unavailable in deployment mode ${input.deploymentMode}.`
-  })
-}
-
 function isCloudExecutionMode(mode: ExecutionMode): mode is 'backend-cloud' | 'user-cloud' | 'codex-cloud' {
   return mode === 'backend-cloud' || mode === 'user-cloud' || mode === 'codex-cloud'
-}
-
-function isLocalExecutionMode(mode: ExecutionMode): mode is 'backend-local' | 'user-local' {
-  return mode === 'backend-local' || mode === 'user-local'
 }
 
 export async function resolveExecutionContext(input: ResolveExecutionContextInput): Promise<ResolvedExecutionContext> {
@@ -568,8 +482,6 @@ export async function resolveExecutionContext(input: ResolveExecutionContextInpu
   const backendOwnerId = input.backendOwnerId?.trim() || DEFAULT_BACKEND_OWNER_ID
   const userSuppliedApiKey = input.userSuppliedApiKey?.trim() || ''
   const backendCredentialId = input.backendCredentialId?.trim() || ''
-  const allowUserLocalExecution = input.allowUserLocalExecution ?? false
-
   if (!provider) {
     return createBlockedContext({
       mode: 'user-cloud',
@@ -586,47 +498,31 @@ export async function resolveExecutionContext(input: ResolveExecutionContextInpu
   }
 
   if (requestedMode !== 'auto') {
-    if (isCloudExecutionMode(requestedMode) && !isCloudModel(modelId)) {
+    if (!isCloudExecutionMode(requestedMode) || !isCloudModel(modelId)) {
       return createBlockedContext({
-        mode: requestedMode === 'user-cloud' ? 'user-local' : 'backend-local',
+        mode: 'backend-cloud',
         provider,
-        credentialSource: 'none',
+        credentialSource: 'backend-stored',
         resolutionSource: 'requested-mode',
-        blockReasonCode: 'execution_mode_provider_mismatch',
-        blockReasonDetail: `Requested mode ${requestedMode} requires a cloud model.`
+        blockReasonCode: isCloudExecutionMode(requestedMode)
+          ? 'execution_mode_provider_mismatch'
+          : 'unsupported_provider',
+        blockReasonDetail: isCloudExecutionMode(requestedMode)
+          ? `Requested mode ${requestedMode} requires a cloud model.`
+          : `Requested mode ${requestedMode} is not supported for plan build.`
       })
     }
 
-    if (isLocalExecutionMode(requestedMode) && !isLocalModel(modelId)) {
-      return createBlockedContext({
-        mode: requestedMode === 'backend-local' ? 'backend-cloud' : 'user-cloud',
-        provider,
-        credentialSource: requestedMode === 'backend-local' ? 'backend-stored' : 'user-stored',
-        resolutionSource: 'requested-mode',
-        blockReasonCode: 'execution_mode_provider_mismatch',
-        blockReasonDetail: `Requested mode ${requestedMode} requires a local model.`
-      })
-    }
-
-    if (isCloudExecutionMode(requestedMode)) {
-      return resolveCloudRequestedMode({
-        provider,
-        requestedMode,
-        deploymentMode,
-        userSuppliedApiKey,
-        userId,
-        backendOwnerId,
-        backendCredentialId,
-        userStoredCredentialLabel: input.userStoredCredentialLabel,
-        backendStoredCredentialLabel: input.backendStoredCredentialLabel
-      })
-    }
-
-    return resolveLocalRequestedMode({
+    return resolveCloudRequestedMode({
       provider,
       requestedMode,
       deploymentMode,
-      allowUserLocalExecution
+      userSuppliedApiKey,
+      userId,
+      backendOwnerId,
+      backendCredentialId,
+      userStoredCredentialLabel: input.userStoredCredentialLabel,
+      backendStoredCredentialLabel: input.backendStoredCredentialLabel
     })
   }
 
@@ -638,14 +534,6 @@ export async function resolveExecutionContext(input: ResolveExecutionContextInpu
       backendOwnerId,
       userStoredCredentialLabel: input.userStoredCredentialLabel,
       backendStoredCredentialLabel: input.backendStoredCredentialLabel
-    })
-  }
-
-  if (isLocalModel(modelId)) {
-    return resolveLocalAutoMode({
-      provider,
-      deploymentMode,
-      allowUserLocalExecution
     })
   }
 

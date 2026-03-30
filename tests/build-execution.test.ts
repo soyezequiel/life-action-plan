@@ -21,7 +21,6 @@ describe('build execution runtime', () => {
   beforeEach(() => {
     mocks.resolveExecutionContextMock.mockReset()
     mocks.getCredentialConfigurationSecretMock.mockReset()
-    delete process.env.OLLAMA_BASE_URL
   })
 
   it('usa la api key del usuario cuando el contexto resuelto es user-cloud user-supplied', async () => {
@@ -139,27 +138,8 @@ describe('build execution runtime', () => {
     })
   })
 
-  it('resuelve runtime local del backend sin api key y conserva bloqueo cuando no puede ejecutar', async () => {
-    process.env.OLLAMA_BASE_URL = 'http://localhost:11434'
-    mocks.resolveExecutionContextMock.mockResolvedValueOnce(resolvedExecutionContextSchema.parse({
-      mode: 'backend-local',
-      resourceOwner: 'backend',
-      executionTarget: 'backend-local',
-      credentialSource: 'none',
-      provider: {
-        providerId: 'ollama',
-        modelId: 'ollama:qwen3:8b',
-        providerKind: 'local'
-      },
-      chargePolicy: 'charge',
-      chargeReason: 'backend_resource',
-      credentialId: null,
-      canExecute: true,
-      resolutionSource: 'auto-backend-local',
-      blockReasonCode: null,
-      blockReasonDetail: null
-    }))
-    mocks.resolveExecutionContextMock.mockResolvedValueOnce(resolvedExecutionContextSchema.parse({
+  it('conserva bloqueo cuando no puede ejecutar una ruta backend-cloud', async () => {
+    mocks.resolveExecutionContextMock.mockResolvedValue(resolvedExecutionContextSchema.parse({
       mode: 'backend-cloud',
       resourceOwner: 'backend',
       executionTarget: 'cloud',
@@ -178,20 +158,11 @@ describe('build execution runtime', () => {
       blockReasonDetail: 'No active backend credential is configured.'
     }))
 
-    const localResolution = await resolvePlanBuildExecution({
-      modelId: 'ollama:qwen3:8b',
-      deploymentMode: 'local'
-    })
     const blockedResolution = await resolvePlanBuildExecution({
       modelId: 'openai:gpt-4o-mini',
       deploymentMode: 'local'
     })
 
-    expect(localResolution.runtime).toEqual({
-      modelId: 'ollama:qwen3:8b',
-      apiKey: '',
-      baseURL: 'http://localhost:11434'
-    })
     expect(blockedResolution.runtime).toBeNull()
     expect(blockedResolution.billingPolicy.skipReasonCode).toBe('execution_blocked')
     expect(toOperationChargeSkipReason(blockedResolution.billingPolicy)).toEqual({

@@ -6,7 +6,6 @@ const mocks = vi.hoisted(() => ({
   updateInteractiveSessionMock: vi.fn(),
   resolvePlanBuildExecutionMock: vi.fn(),
   getDeploymentModeMock: vi.fn(() => 'local'),
-  resolveBuildModelMock: vi.fn(() => 'openai:gpt-5-codex'),
   createBuildAgentRuntimeMock: vi.fn(),
   getProfileMock: vi.fn(),
   parseStoredProfileMock: vi.fn(),
@@ -49,10 +48,6 @@ vi.mock('../src/lib/env/deployment', () => ({
   getDeploymentMode: mocks.getDeploymentModeMock,
 }))
 
-vi.mock('../src/lib/providers/provider-metadata', () => ({
-  resolveBuildModel: mocks.resolveBuildModelMock,
-}))
-
 vi.mock('../src/lib/runtime/build-agent-runtime', () => ({
   createBuildAgentRuntime: mocks.createBuildAgentRuntimeMock,
 }))
@@ -89,7 +84,6 @@ describe('plan build resume route', () => {
 
     mocks.resolveUserIdMock.mockReturnValue('local-user')
     mocks.getDeploymentModeMock.mockReturnValue('local')
-    mocks.resolveBuildModelMock.mockReturnValue('openai:gpt-5-codex')
     mocks.getInteractiveSessionMock.mockResolvedValue({
       id: 'session-1',
       status: 'active',
@@ -113,10 +107,19 @@ describe('plan build resume route', () => {
       orchestrator: { restored: true },
     })
     mocks.resolvePlanBuildExecutionMock.mockResolvedValue({
+      requestedModelId: 'openai:gpt-5-codex',
       executionContext: {
         canExecute: true,
         mode: 'codex-cloud',
         resourceOwner: 'backend',
+        resolutionSource: 'requested-mode',
+        blockReasonCode: null,
+        blockReasonDetail: null,
+        provider: {
+          providerId: 'openai',
+          modelId: 'openai:gpt-5-codex',
+          providerKind: 'cloud',
+        },
       },
       runtime: {
         modelId: 'openai:gpt-5-codex',
@@ -124,9 +127,20 @@ describe('plan build resume route', () => {
         baseURL: 'https://chatgpt.com/backend-api/codex',
         authMode: 'codex-oauth',
       },
+      billingPolicy: {
+        chargeable: false,
+        skipReasonCode: 'internal_tooling',
+        skipReasonDetail: 'INTERNAL_TOOLING_MODE',
+      },
     })
     mocks.createBuildAgentRuntimeMock.mockReturnValue({
-      chat: vi.fn(),
+      chat: vi.fn().mockResolvedValue({
+        content: 'OK',
+        usage: {
+          promptTokens: 1,
+          completionTokens: 1,
+        },
+      }),
       stream: vi.fn(),
       newContext: vi.fn(),
     })
@@ -204,6 +218,123 @@ describe('plan build resume route', () => {
     }, {
       thinkingMode: 'enabled',
     })
+  })
+
+  it('falla rapido con diagnostico explicito si el provider restaurado no esta soportado', async () => {
+    mocks.parseV6RuntimeSnapshotMock.mockReturnValueOnce({
+      request: {
+        goalText: 'Aprender cocina italiana',
+        profileId: 'profile-1',
+        provider: 'openai',
+        resourceMode: null,
+        apiKey: null,
+        backendCredentialId: null,
+        thinkingMode: 'enabled',
+      },
+      orchestrator: { restored: true },
+    })
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValueOnce({
+      requestedModelId: 'openai:gpt-4o-mini',
+      executionContext: {
+        canExecute: false,
+        mode: 'user-cloud',
+        resourceOwner: 'user',
+        resolutionSource: 'requested-mode',
+        blockReasonCode: 'unsupported_provider',
+        blockReasonDetail: 'Model openai:gpt-4o-mini is not supported by the execution resolver.',
+        provider: {
+          providerId: 'unknown',
+          modelId: 'openai:gpt-4o-mini',
+          providerKind: 'cloud',
+        },
+      },
+      runtime: null,
+      billingPolicy: {
+        chargeable: false,
+        skipReasonCode: 'execution_blocked',
+        skipReasonDetail: 'Model openai:gpt-4o-mini is not supported by the execution resolver.',
+      },
+    })
+
+    const response = await POST(new Request('http://localhost/api/plan/build/resume', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sessionId: 'session-1',
+        answers: {
+          nivel: 'principiante',
+        },
+      }),
+    }))
+
+    const payloads = extractSsePayloads(await response.text())
+    const providerPayload = payloads.find((payload) => payload.type === 'v6:provider')
+    const resultPayload = payloads.find((payload) => payload.type === 'result')
+
+    expect(providerPayload).toEqual(expect.objectContaining({
+      type: 'v6:provider',
+      data: expect.objectContaining({
+        requestedProvider: 'openai',
+        resolvedModelId: 'openai:gpt-4o-mini',
+        canExecute: false,
+        blockReasonCode: 'unsupported_provider',
+      }),
+    }))
+    expect(resultPayload?.result).toEqual(expect.objectContaining({
+      success: false,
+      providerErrorCode: 'provider_not_supported',
+      providerTrace: expect.objectContaining({
+        requestedProvider: 'openai',
+      }),
+      error: expect.stringContaining('provider_not_supported'),
+    }))
+    expect(mocks.createBuildAgentRuntimeMock).not.toHaveBeenCalled()
+  })
+
+  it('normalizes legacy gpt-5-codex snapshots into the codex oauth path during resume', async () => {
+    mocks.parseV6RuntimeSnapshotMock.mockReturnValueOnce({
+      request: {
+        goalText: 'Aprender cocina italiana',
+        profileId: 'profile-1',
+        provider: 'openai:gpt-5-codex',
+        resourceMode: null,
+        apiKey: null,
+        backendCredentialId: null,
+        thinkingMode: 'enabled',
+      },
+      orchestrator: { restored: true },
+    })
+
+    const response = await POST(new Request('http://localhost/api/plan/build/resume', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sessionId: 'session-1',
+        answers: {
+          nivel: 'principiante',
+        },
+      }),
+    }))
+
+    const payloads = extractSsePayloads(await response.text())
+    const providerPayload = payloads.find((payload) => payload.type === 'v6:provider')
+
+    expect(mocks.resolvePlanBuildExecutionMock).toHaveBeenCalledWith(expect.objectContaining({
+      modelId: 'openai:gpt-5-codex',
+      requestedMode: 'codex-cloud',
+    }))
+    expect(providerPayload).toEqual(expect.objectContaining({
+      type: 'v6:provider',
+      data: expect.objectContaining({
+        requestedProvider: 'codex',
+        executionMode: 'codex-cloud',
+        authMode: 'codex-oauth',
+      }),
+    }))
   })
 
   it('surfaces failed_for_quality_review details when resume terminates in final review', async () => {

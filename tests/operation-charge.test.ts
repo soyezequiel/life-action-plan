@@ -190,7 +190,7 @@ describe('operation charge helpers', () => {
         profileId: 'profile-1',
         planId: 'plan-1',
         operation: 'plan_simulate',
-        model: 'ollama:qwen3:8b',
+        model: 'openai:gpt-4o-mini',
         paymentProvider: null,
         status: 'skipped',
         estimatedCostUsd: 0,

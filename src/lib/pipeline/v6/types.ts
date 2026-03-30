@@ -369,7 +369,7 @@ export const PlanPackageSchema: z.ZodType<PlanPackage> = z.object({
   implementationIntentions: z.array(z.string()),
   warnings: z.array(z.string()),
   tradeoffs: z.array(TradeoffSchema).optional(),
-  publicationState: z.enum(['publishable', 'requires_regeneration', 'failed_for_quality_review']).optional(),
+  publicationState: z.enum(['publishable', 'requires_regeneration', 'requires_supervision', 'failed_for_quality_review']).optional(),
   qualityIssues: z.array(PlanQualityIssueSchema).optional(),
   requestDomain: z.string().nullable().optional(),
   packageDomain: z.string().nullable().optional(),

@@ -89,9 +89,9 @@ describe('execution context contract', () => {
       mode: 'backend-local',
       credentialSource: 'none',
       provider: {
-        providerId: 'ollama',
-        modelId: 'ollama:qwen3:8b',
-        providerKind: 'local'
+        providerId: 'openai',
+        modelId: 'openai:gpt-4o-mini',
+        providerKind: 'cloud'
       }
     })
 
@@ -104,9 +104,9 @@ describe('execution context contract', () => {
       mode: 'user-local',
       credentialSource: 'none',
       provider: {
-        providerId: 'ollama',
-        modelId: 'ollama:qwen3:8b',
-        providerKind: 'local'
+        providerId: 'openai',
+        modelId: 'openai:gpt-4o-mini',
+        providerKind: 'cloud'
       }
     })
 
@@ -160,8 +160,8 @@ describe('execution context contract', () => {
       chargePolicy: 'charge',
       chargeReason: 'backend_resource',
       provider: {
-        providerId: 'ollama',
-        modelId: 'ollama:qwen3:8b',
+        providerId: 'openai',
+        modelId: 'openai:gpt-4o-mini',
         providerKind: 'cloud'
       }
     })

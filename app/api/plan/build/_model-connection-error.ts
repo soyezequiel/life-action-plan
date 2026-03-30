@@ -17,7 +17,7 @@ export function buildModelConnectionErrorMessage(
       ? 'Verifica que tu sesion de Codex este activa: ejecuta "codex" en la terminal para re-autenticar.'
       : authMode === 'codex-oauth'
         ? 'Verifica el estado de Codex o proba con otro proveedor si el problema persiste.'
-        : 'Verifica tu API key o que Ollama este corriendo.';
+        : 'Verifica tu API key, credencial backend o disponibilidad del proveedor.';
 
   return `No se pudo conectar con el modelo (${modelId}). Error: ${rawMessage}. ${guidance}`;
 }

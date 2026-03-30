@@ -19,11 +19,11 @@ afterEach(() => {
 
 describe('traceCollector', () => {
   it('captura trazas aunque el inspector todavia no este activo', () => {
-    const traceId = traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { profileId: 'p1' })
+    const traceId = traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', { profileId: 'p1' })
     const spanId = traceCollector.startSpan({
       traceId,
       skillName: 'plan-builder',
-      provider: 'ollama:qwen3:8b',
+      provider: 'openai:gpt-4o-mini',
       type: 'stream',
       messages: [
         { role: 'system', content: 'solo json' },
@@ -43,11 +43,11 @@ describe('traceCollector', () => {
     const senderMock = createSenderMock()
     traceCollector.enable(senderMock)
 
-    const traceId = traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { profileId: 'p1' })
+    const traceId = traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', { profileId: 'p1' })
     const spanId = traceCollector.startSpan({
       traceId,
       skillName: 'plan-builder',
-      provider: 'ollama:qwen3:8b',
+      provider: 'openai:gpt-4o-mini',
       type: 'stream',
       messages: [
         { role: 'system', content: 'solo json' },
@@ -79,10 +79,10 @@ describe('traceCollector', () => {
     const senderMock = createSenderMock()
     traceCollector.enable(senderMock)
 
-    const firstTraceId = traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { index: 0 })
+    const firstTraceId = traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', { index: 0 })
 
     for (let index = 1; index <= 100; index += 1) {
-      traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { index })
+      traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', { index })
     }
 
     const activeTraces = (traceCollector as unknown as { activeTraces: Map<string, unknown> }).activeTraces
@@ -110,11 +110,11 @@ describe('traceCollector', () => {
     const senderMock = createSenderMock()
     traceCollector.enable(senderMock)
 
-    const traceId = traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { profileId: 'p1' })
+    const traceId = traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', { profileId: 'p1' })
     const spanId = traceCollector.startSpan({
       traceId,
       skillName: 'plan-builder',
-      provider: 'ollama:qwen3:8b',
+      provider: 'openai:gpt-4o-mini',
       type: 'stream',
       messages: [
         { role: 'system', content: 'solo json' },
@@ -172,11 +172,11 @@ describe('traceCollector', () => {
   it('clear vacia las trazas activas y los batches pendientes', () => {
     vi.useFakeTimers()
 
-    const traceId = traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { profileId: 'p1' })
+    const traceId = traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', { profileId: 'p1' })
     const spanId = traceCollector.startSpan({
       traceId,
       skillName: 'plan-builder',
-      provider: 'ollama:qwen3:8b',
+      provider: 'openai:gpt-4o-mini',
       type: 'stream',
       messages: [
         { role: 'system', content: 'solo json' },

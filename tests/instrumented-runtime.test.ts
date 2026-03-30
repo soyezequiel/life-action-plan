@@ -75,9 +75,9 @@ describe('createInstrumentedRuntime', () => {
   it('usa streamChat y emite tokens cuando debug esta activo', async () => {
     const senderMock = createSenderMock()
     traceCollector.enable(senderMock)
-    const traceId = traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { profileId: 'p1' })
+    const traceId = traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', { profileId: 'p1' })
     const runtime = createRuntime()
-    const instrumented = createInstrumentedRuntime(runtime, traceId, 'plan-builder', 'ollama:qwen3:8b')
+    const instrumented = createInstrumentedRuntime(runtime, traceId, 'plan-builder', 'openai:gpt-4o-mini')
 
     const result = await instrumented.chat(messages)
 
@@ -92,13 +92,13 @@ describe('createInstrumentedRuntime', () => {
   it('propaga errores y marca el span como fallido', async () => {
     const senderMock = createSenderMock()
     traceCollector.enable(senderMock)
-    const traceId = traceCollector.startTrace('plan-builder', 'ollama:qwen3:8b', { profileId: 'p1' })
+    const traceId = traceCollector.startTrace('plan-builder', 'openai:gpt-4o-mini', { profileId: 'p1' })
     const runtime = createRuntime({
       streamChat: vi.fn(async () => {
         throw new Error('boom')
       })
     })
-    const instrumented = createInstrumentedRuntime(runtime, traceId, 'plan-builder', 'ollama:qwen3:8b')
+    const instrumented = createInstrumentedRuntime(runtime, traceId, 'plan-builder', 'openai:gpt-4o-mini')
 
     await expect(instrumented.chat(messages)).rejects.toThrow('boom')
 

@@ -1,0 +1,4972 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T10:58:43.406Z",
+  "updatedAt": "2026-03-30T11:00:17.904Z",
+  "invocation": {
+    "goal": "",
+    "resumeSession": "86ccd11e-346f-4825-b88e-79d945246afa",
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": "65f48af7-55c1-469f-974a-f67cc47c7f8d",
+    "score": null,
+    "iterations": 10,
+    "degraded": true,
+    "publicationState": "publishable",
+    "failureCode": null,
+    "sessionId": "86ccd11e-346f-4825-b88e-79d945246afa",
+    "provider": "resume",
+    "modelId": "openai:gpt-5-codex",
+    "status": "completed"
+  },
+  "pendingInput": null,
+  "finalPackage": {
+    "package": {
+      "plan": {
+        "goalIds": [
+          "generated-goal"
+        ],
+        "timezone": "UTC",
+        "createdAt": "2026-03-30T10:59:08.730Z",
+        "updatedAt": "2026-03-30T10:59:08.730Z",
+        "skeleton": {
+          "horizonWeeks": 24,
+          "goalIds": [
+            "generated-goal"
+          ],
+          "phases": [
+            {
+              "phaseId": "phase-1",
+              "title": "Registro del primer mes de ingresos y gastos reales (mes 1)",
+              "startWeek": 1,
+              "endWeek": 4,
+              "startDate": "2026-03-30",
+              "endDate": "2026-04-26",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Durante las primeras 4 semanas del plan de 6 meses registras diariamente todos los ingresos, gastos fijos, variables y críticos en una hoja única, conciliándolos con tus extractos para tener control real del punto de partida."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task3-bfihz17",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                },
+                {
+                  "activityId": "act-task2-gqvx5iv",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task1-e3lxw16",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": []
+            },
+            {
+              "phaseId": "phase-2",
+              "title": "Presupuesto con prioridades y ajustes de gastos variables (meses 2-3)",
+              "startWeek": 5,
+              "endWeek": 12,
+              "startDate": "2026-04-27",
+              "endDate": "2026-06-21",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Con los datos del mes 1 construyes en semanas 5 a 12 un presupuesto mensual priorizando gastos críticos, fijando topes a variables y definiendo ajustes concretos para sostener el ahorro a 6 meses."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task3-bfihz17",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                },
+                {
+                  "activityId": "act-task2-gqvx5iv",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task1-e3lxw16",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": [
+                "milestone-1"
+              ]
+            },
+            {
+              "phaseId": "phase-3",
+              "title": "Implementación del plan de ahorro automático y control de gastos críticos (meses 4-5)",
+              "startWeek": 13,
+              "endWeek": 20,
+              "startDate": "2026-06-22",
+              "endDate": "2026-08-16",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Entre los meses 4 y 5 configuras transferencias automáticas hacia tu ahorro, aplicas los recortes definidos y monitoreas semanalmente que los gastos críticos se mantengan bajo control para consolidar el hábito antes de llegar al mes 6."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task3-bfihz17",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                },
+                {
+                  "activityId": "act-task2-gqvx5iv",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task1-e3lxw16",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": [
+                "milestone-2"
+              ]
+            },
+            {
+              "phaseId": "phase-4",
+              "title": "Revisión y ajuste final del plan de ahorro sostenible en el mes 6",
+              "startWeek": 21,
+              "endWeek": 24,
+              "startDate": "2026-08-17",
+              "endDate": "2026-09-13",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "En el mes 6 elaboras un informe comparando los indicadores de todo el semestre, decides ajustes finales y documentas el protocolo de control mensual que mantendrá el plan de ahorro sostenible."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task3-bfihz17",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                },
+                {
+                  "activityId": "act-task2-gqvx5iv",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task1-e3lxw16",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": [
+                "milestone-3"
+              ]
+            }
+          ],
+          "milestones": [
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Registro mensual completo de ingresos y gastos listo",
+              "notes": "Durante las primeras 4 semanas del plan de 6 meses registras diariamente todos los ingresos, gastos fijos, variables y críticos en una hoja única, conciliándolos con tus extractos para tener control real del punto de partida.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "dueDate": "2026-04-27"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Presupuesto con prioridades y ajustes aprobado",
+              "notes": "Con los datos del mes 1 construyes en semanas 5 a 12 un presupuesto mensual priorizando gastos críticos, fijando topes a variables y definiendo ajustes concretos para sostener el ahorro a 6 meses.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "dueDate": "2026-06-22"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Plan de ahorro automático funcionando 2 meses seguidos",
+              "notes": "Entre los meses 4 y 5 configuras transferencias automáticas hacia tu ahorro, aplicas los recortes definidos y monitoreas semanalmente que los gastos críticos se mantengan bajo control para consolidar el hábito antes de llegar al mes 6.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "id": "milestone-4",
+              "kind": "milestone",
+              "title": "Informe de cierre y protocolo de control mensual",
+              "notes": "En el mes 6 elaboras un informe comparando los indicadores de todo el semestre, decides ajustes finales y documentas el protocolo de control mensual que mantendrá el plan de ahorro sostenible.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "dueDate": "2026-09-14"
+            }
+          ]
+        },
+        "detail": {
+          "horizonWeeks": 2,
+          "startDate": "2026-03-30",
+          "endDate": "2026-04-12",
+          "scheduledEvents": [
+            {
+              "id": "act-task1-e3lxw16_s37_e80951c5",
+              "kind": "time_event",
+              "title": "Ordenar mis ingresos y gastos en una hoja simple",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-03-30T18:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-gqvx5iv_s43_a0817bf7",
+              "kind": "time_event",
+              "title": "Definir un presupuesto mensual realista con prioridades",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-03-30T21:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-bfihz17_s90_2ad3d5d0",
+              "kind": "time_event",
+              "title": "Armar un plan de pago para deudas y ahorro inicial",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-03-31T21:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-gqvx5iv_s263_4619c468",
+              "kind": "time_event",
+              "title": "Definir un presupuesto mensual realista con prioridades",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-04T11:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-e3lxw16_s284_dfdadf5c",
+              "kind": "time_event",
+              "title": "Ordenar mis ingresos y gastos en una hoja simple",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-04T22:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-bfihz17_s303_f644a674",
+              "kind": "time_event",
+              "title": "Armar un plan de pago para deudas y ahorro inicial",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-05T07:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-e3lxw16_s37_e80951c5-w2",
+              "kind": "time_event",
+              "title": "Ordenar mis ingresos y gastos en una hoja simple",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-06T18:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-gqvx5iv_s43_a0817bf7-w2",
+              "kind": "time_event",
+              "title": "Definir un presupuesto mensual realista con prioridades",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-06T21:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-bfihz17_s90_2ad3d5d0-w2",
+              "kind": "time_event",
+              "title": "Armar un plan de pago para deudas y ahorro inicial",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-07T21:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-gqvx5iv_s263_4619c468-w2",
+              "kind": "time_event",
+              "title": "Definir un presupuesto mensual realista con prioridades",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-11T11:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-e3lxw16_s284_dfdadf5c-w2",
+              "kind": "time_event",
+              "title": "Ordenar mis ingresos y gastos en una hoja simple",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-11T22:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-bfihz17_s303_f644a674-w2",
+              "kind": "time_event",
+              "title": "Armar un plan de pago para deudas y ahorro inicial",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-12T07:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            }
+          ],
+          "weeks": [
+            {
+              "weekIndex": 1,
+              "startDate": "2026-03-30",
+              "endDate": "2026-04-05",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-e3lxw16_s37_e80951c5",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-30T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s43_a0817bf7",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-30T21:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s90_2ad3d5d0",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-31T21:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s263_4619c468",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-04T11:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-e3lxw16_s284_dfdadf5c",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-04T22:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s303_f644a674",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-05T07:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ]
+            },
+            {
+              "weekIndex": 2,
+              "startDate": "2026-04-06",
+              "endDate": "2026-04-12",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-e3lxw16_s37_e80951c5-w2",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-06T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s43_a0817bf7-w2",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-06T21:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s90_2ad3d5d0-w2",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-07T21:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s263_4619c468-w2",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-11T11:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-e3lxw16_s284_dfdadf5c-w2",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-11T22:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s303_f644a674-w2",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-12T07:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ]
+            }
+          ]
+        },
+        "operational": {
+          "horizonDays": 7,
+          "startDate": "2026-03-30",
+          "endDate": "2026-04-05",
+          "frozen": true,
+          "scheduledEvents": [
+            {
+              "id": "act-task1-e3lxw16_s37_e80951c5",
+              "kind": "time_event",
+              "title": "Ordenar mis ingresos y gastos en una hoja simple",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-03-30T18:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-gqvx5iv_s43_a0817bf7",
+              "kind": "time_event",
+              "title": "Definir un presupuesto mensual realista con prioridades",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-03-30T21:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-bfihz17_s90_2ad3d5d0",
+              "kind": "time_event",
+              "title": "Armar un plan de pago para deudas y ahorro inicial",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-03-31T21:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-gqvx5iv_s263_4619c468",
+              "kind": "time_event",
+              "title": "Definir un presupuesto mensual realista con prioridades",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-04T11:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-e3lxw16_s284_dfdadf5c",
+              "kind": "time_event",
+              "title": "Ordenar mis ingresos y gastos en una hoja simple",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-04T22:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-bfihz17_s303_f644a674",
+              "kind": "time_event",
+              "title": "Armar un plan de pago para deudas y ahorro inicial",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z",
+              "startAt": "2026-04-05T07:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            }
+          ],
+          "buffers": [
+            {
+              "id": "buffer-slack-1-1",
+              "startAt": "2026-03-30T22:15:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-2-1",
+              "startAt": "2026-03-31T22:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-6-1",
+              "startAt": "2026-04-04T23:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-7-1",
+              "startAt": "2026-04-05T18:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            }
+          ],
+          "days": [
+            {
+              "date": "2026-03-30",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-e3lxw16_s37_e80951c5",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-30T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s43_a0817bf7",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-30T21:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-03-30T22:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-03-31",
+              "scheduledEvents": [
+                {
+                  "id": "act-task3-bfihz17_s90_2ad3d5d0",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-31T21:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-03-31T22:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-01",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-02",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-03",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-04",
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-gqvx5iv_s263_4619c468",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-04T11:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-e3lxw16_s284_dfdadf5c",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-04T22:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-6-1",
+                  "startAt": "2026-04-04T23:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-05",
+              "scheduledEvents": [
+                {
+                  "id": "act-task3-bfihz17_s303_f644a674",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-05T07:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-7-1",
+                  "startAt": "2026-04-05T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            }
+          ],
+          "totalBufferMin": 120
+        }
+      },
+      "items": [
+        {
+          "id": "act-task1-e3lxw16_s37_e80951c5",
+          "kind": "time_event",
+          "title": "Ordenar mis ingresos y gastos en una hoja simple",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-03-30T18:30:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "act-task2-gqvx5iv_s43_a0817bf7",
+          "kind": "time_event",
+          "title": "Definir un presupuesto mensual realista con prioridades",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-03-30T21:30:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "act-task3-bfihz17_s90_2ad3d5d0",
+          "kind": "time_event",
+          "title": "Armar un plan de pago para deudas y ahorro inicial",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-03-31T21:00:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "act-task2-gqvx5iv_s263_4619c468",
+          "kind": "time_event",
+          "title": "Definir un presupuesto mensual realista con prioridades",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T11:30:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "act-task1-e3lxw16_s284_dfdadf5c",
+          "kind": "time_event",
+          "title": "Ordenar mis ingresos y gastos en una hoja simple",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T22:00:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "act-task3-bfihz17_s303_f644a674",
+          "kind": "time_event",
+          "title": "Armar un plan de pago para deudas y ahorro inicial",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-05T07:30:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "milestone-1",
+          "kind": "milestone",
+          "title": "Registro mensual completo de ingresos y gastos listo",
+          "notes": "Durante las primeras 4 semanas del plan de 6 meses registras diariamente todos los ingresos, gastos fijos, variables y críticos en una hoja única, conciliándolos con tus extractos para tener control real del punto de partida.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-04-27",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "milestone-2",
+          "kind": "milestone",
+          "title": "Presupuesto con prioridades y ajustes aprobado",
+          "notes": "Con los datos del mes 1 construyes en semanas 5 a 12 un presupuesto mensual priorizando gastos críticos, fijando topes a variables y definiendo ajustes concretos para sostener el ahorro a 6 meses.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-06-22",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "milestone-3",
+          "kind": "milestone",
+          "title": "Plan de ahorro automático funcionando 2 meses seguidos",
+          "notes": "Entre los meses 4 y 5 configuras transferencias automáticas hacia tu ahorro, aplicas los recortes definidos y monitoreas semanalmente que los gastos críticos se mantengan bajo control para consolidar el hábito antes de llegar al mes 6.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-08-17",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "milestone-4",
+          "kind": "milestone",
+          "title": "Informe de cierre y protocolo de control mensual",
+          "notes": "En el mes 6 elaboras un informe comparando los indicadores de todo el semestre, decides ajustes finales y documentas el protocolo de control mensual que mantendrá el plan de ahorro sostenible.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-09-14",
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "metric-plan-quality",
+          "kind": "metric",
+          "title": "Calidad del plan",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "plan_quality_score",
+          "unit": "puntos",
+          "direction": "increase",
+          "target": {
+            "targetValue": 100
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "last"
+          },
+          "series": [
+            {
+              "at": "2026-03-30T10:59:08.730Z",
+              "value": 100
+            }
+          ],
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "metric-sessions-week",
+          "kind": "metric",
+          "title": "Sesiones completables por semana",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "scheduled_sessions_per_week",
+          "unit": "sesiones",
+          "direction": "increase",
+          "target": {
+            "targetValue": 6
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "count"
+          },
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        },
+        {
+          "id": "trigger-low-adherence",
+          "kind": "trigger_rule",
+          "title": "Revisar plan si baja la adherencia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "enabled": true,
+          "conditions": [
+            {
+              "left": {
+                "type": "metric",
+                "ref": "plan_quality_score"
+              },
+              "op": "lt",
+              "right": {
+                "value": 70
+              }
+            }
+          ],
+          "actions": [
+            {
+              "type": "create_task",
+              "payload": {
+                "title": "Revisar y reajustar el plan",
+                "estimateMin": 30
+              }
+            }
+          ],
+          "throttle": {
+            "minHoursBetweenRuns": 168
+          },
+          "createdAt": "2026-03-30T10:59:08.730Z",
+          "updatedAt": "2026-03-30T10:59:08.730Z"
+        }
+      ],
+      "habitStates": [],
+      "slackPolicy": {
+        "weeklyTimeBufferMin": 120,
+        "maxChurnMovesPerWeek": 3,
+        "frozenHorizonDays": 2
+      },
+      "timezone": "UTC",
+      "summary_esAR": "Este plan convierte \"Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.\" en 6 bloques concretos para esta semana. Lo organizamos en 4 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+      "qualityScore": 60,
+      "implementationIntentions": [
+        "Si llega lunes a las 18:30, entonces hago Ordenar mis ingresos y gastos en una hoja simple durante 60 minutos.",
+        "Si llega lunes a las 21:30, entonces hago Definir un presupuesto mensual realista con prioridades durante 45 minutos.",
+        "Si llega martes a las 21:00, entonces hago Armar un plan de pago para deudas y ahorro inicial durante 60 minutos.",
+        "Si llega sábado a las 11:30, entonces hago Definir un presupuesto mensual realista con prioridades durante 45 minutos."
+      ],
+      "warnings": [
+        "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+      ],
+      "tradeoffs": [],
+      "publicationState": "publishable",
+      "qualityIssues": [],
+      "requestDomain": null,
+      "packageDomain": null,
+      "intakeCoverage": {
+        "requiredSignals": [],
+        "missingSignals": [],
+        "signalUsage": []
+      },
+      "degraded": true,
+      "reasoningTrace": [
+        {
+          "phase": "interpret",
+          "agent": "goal-interpreter",
+          "iteration": 1,
+          "action": "Executed interpret",
+          "reasoning": "Phase completed",
+          "result": "Goal: Organizar las finanzas personales y establecer un plan de ahorro sostenible, confidence: 0.53",
+          "tokensUsed": 25,
+          "timestamp": "2026-03-30T10:58:29.553Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 2,
+          "action": "Executed clarify",
+          "reasoning": "Faltan las señales críticas de plazo, línea de base financiera y contexto de seguridad, necesarias antes de planificar.",
+          "result": "3 questions pending (confidence: 0.35)",
+          "tokensUsed": 10,
+          "timestamp": "2026-03-30T10:58:32.293Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 3,
+          "action": "Executed clarify",
+          "reasoning": "Todos los indicadores críticos requeridos ya fueron respondidos, no quedan vacíos que impidan planificar.",
+          "result": "Ready to advance (confidence: 0.61)",
+          "tokensUsed": 9,
+          "timestamp": "2026-03-30T10:58:47.237Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 4,
+          "action": "FALLBACK: planner",
+          "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "result": "Using fallback strategic draft - NOT from LLM",
+          "tokensUsed": 12,
+          "timestamp": "2026-03-30T10:59:08.491Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 4,
+          "action": "Executed plan",
+          "reasoning": "Phase completed",
+          "result": "3 phases generated",
+          "tokensUsed": 5,
+          "timestamp": "2026-03-30T10:59:08.491Z"
+        },
+        {
+          "phase": "check",
+          "agent": "feasibility-checker",
+          "iteration": 5,
+          "action": "Executed check",
+          "reasoning": "Status: feasible",
+          "result": "Feasibility: feasible",
+          "tokensUsed": 6,
+          "timestamp": "2026-03-30T10:59:08.494Z"
+        },
+        {
+          "phase": "schedule",
+          "agent": "scheduler",
+          "iteration": 6,
+          "action": "Executed schedule",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T10:59:08.731Z"
+        },
+        {
+          "phase": "critique",
+          "agent": "critic",
+          "iteration": 7,
+          "action": "Executed critique",
+          "reasoning": "El plan es demasiado vago y no traduce las señales en acciones concretas, lo que impide saber cómo se ordenarán las finanzas en 6 meses. Además, ignora las tareas específicas del dominio financiero y carece de hitos motivadores tempranos. Es necesario reformular la estrategia con entregables claros y alineados al overlay.",
+          "result": "Score: 52, verdict: revise",
+          "tokensUsed": 7,
+          "timestamp": "2026-03-30T10:59:24.234Z"
+        },
+        {
+          "phase": "revise",
+          "agent": "planner",
+          "iteration": 8,
+          "action": "Executed revise",
+          "reasoning": "Phase completed",
+          "result": "4 phases generated",
+          "tokensUsed": 5,
+          "timestamp": "2026-03-30T10:59:56.894Z"
+        },
+        {
+          "phase": "critique",
+          "agent": "critic",
+          "iteration": 9,
+          "action": "Executed critique",
+          "reasoning": "La hoja de ruta cubre los pasos clave (registro, presupuesto, automatización y revisión) siguiendo la progresión y el plazo requeridos, por lo que es funcional en términos generales. Sin embargo, para confirmar el logro del ahorro sostenible necesita incorporar un indicador cuantificable de ahorro; al enmendarlo se tendrá un plan verificable.",
+          "result": "Score: 82, verdict: approve",
+          "tokensUsed": 7,
+          "timestamp": "2026-03-30T11:00:16.967Z"
+        },
+        {
+          "phase": "package",
+          "agent": "packager",
+          "iteration": 10,
+          "action": "Executed package",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T11:00:16.986Z"
+        }
+      ],
+      "agentOutcomes": [
+        {
+          "agent": "goal-interpreter",
+          "phase": "interpret",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 5132
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 2738
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 1813
+        },
+        {
+          "agent": "domain-expert",
+          "phase": "plan",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 9345
+        },
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "source": "fallback",
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "durationMs": 11905
+        },
+        {
+          "agent": "feasibility-checker",
+          "phase": "check",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 1
+        },
+        {
+          "agent": "scheduler",
+          "phase": "schedule",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 236
+        },
+        {
+          "agent": "critic",
+          "phase": "critique",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 15501
+        },
+        {
+          "agent": "domain-expert",
+          "phase": "revise",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 5622
+        },
+        {
+          "agent": "planner",
+          "phase": "revise",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 32659
+        },
+        {
+          "agent": "critic",
+          "phase": "critique",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 20072
+        },
+        {
+          "agent": "packager",
+          "phase": "package",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 18
+        }
+      ]
+    },
+    "meta": {
+      "modelId": "openai:gpt-5-codex"
+    }
+  },
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 58,
+    "timestamp": "2026-03-30T11:00:16.987Z",
+    "category": "publication",
+    "action": "publication.evaluated",
+    "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+    "phase": "done",
+    "agent": "critic",
+    "iteration": 10,
+    "revisionCycle": 1,
+    "clarifyRound": 2,
+    "progressScore": 100,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": "ready",
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "partialKind": "publication",
+      "canPublish": true,
+      "degraded": true,
+      "blockingAgents": [],
+      "fallbackLedger": [
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "count": 1,
+          "latestErrorCode": "Error",
+          "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+        }
+      ],
+      "qualityIssues": [],
+      "criticVerdict": "approve",
+      "criticScore": 82,
+      "warnings": [
+        "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+      ],
+      "exactBlockers": [],
+      "misalignedGoal": false
+    }
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "critique",
+    "currentAgent": "critic",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+    "iteration": 8,
+    "revisionCycles": 1,
+    "clarifyRounds": 2,
+    "progressScore": 80,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 49,
+    "lastEventTimestamp": "2026-03-30T10:59:56.895Z",
+    "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T10:58:43.406Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "",
+        "resumeSession": "86ccd11e-346f-4825-b88e-79d945246afa",
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:43.409Z",
+      "type": "resume.explicit_request",
+      "data": {
+        "endpoint": "/api/plan/build/resume",
+        "sessionId": "86ccd11e-346f-4825-b88e-79d945246afa",
+        "answersCount": 3
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.247Z",
+      "type": "package.fetch_requested",
+      "data": {
+        "planId": "65f48af7-55c1-469f-974a-f67cc47c7f8d",
+        "provider": "resume"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.897Z",
+      "type": "package.fetched",
+      "data": {
+        "planId": "65f48af7-55c1-469f-974a-f67cc47c7f8d",
+        "provider": "resume",
+        "modelId": "openai:gpt-5-codex",
+        "publicationState": "publishable",
+        "degraded": true
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T10:58:44.185Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "codex",
+        "requestedMode": "codex-cloud",
+        "resolvedModelId": "openai:gpt-5-codex",
+        "providerId": "openai",
+        "executionMode": "codex-cloud",
+        "resolutionSource": "requested-mode",
+        "authMode": "codex-oauth",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:45.427Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "clarify-resume",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:45.428Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 13,
+        "timestamp": "2026-03-30T10:58:45.422Z",
+        "category": "lifecycle",
+        "action": "session.resumed",
+        "summary_es": "Se retomó la sesión con 3 respuesta(s) nuevas.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "answersCount": 3,
+          "answeredQuestionIds": [
+            "clarify-r1-q1",
+            "clarify-r1-q2",
+            "clarify-r1-q3"
+          ],
+          "storedAnswerKeys": [
+            "¿Para cuándo te gustaría tener implementado tu plan de ahorro sostenible?",
+            "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas principales?",
+            "¿Existe alguna circunstancia especial o riesgo personal que debamos considerar al planificar tus finanzas?"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organizar las finanzas personales y establecer un plan de ahorro sostenible",
+            "goalType": "FINITE_PROJECT",
+            "riskFlags": [
+              "HIGH_FINANCE",
+              "MEDIUM"
+            ],
+            "suggestedDomain": "personal finance",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "variables",
+              "criticas",
+              "estables",
+              "control",
+              "ahorro",
+              "deudas"
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline",
+              "safety_context"
+            ],
+            "clarifyConfidence": 0.35,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿Para cuándo te gustaría tener implementado tu plan de ahorro sostenible?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "timeframe",
+                "question": "¿Para cuándo te gustaría tener implementado tu plan de ahorro sostenible?",
+                "answer": "6 meses"
+              },
+              {
+                "key": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas principales?",
+                "questionId": "clarify-r1-q2",
+                "signalKey": "current_baseline",
+                "question": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas principales?",
+                "answer": "Ingresos estables, gastos fijos y variables bajo control, hoy ahorro 20000 por mes y no tengo deudas criticas"
+              },
+              {
+                "key": "¿Existe alguna circunstancia especial o riesgo personal que debamos considerar al planificar tus finanzas?",
+                "questionId": "clarify-r1-q3",
+                "signalKey": "safety_context",
+                "question": "¿Existe alguna circunstancia especial o riesgo personal que debamos considerar al planificar tus finanzas?",
+                "answer": "No"
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:45.428Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 14,
+        "timestamp": "2026-03-30T10:58:45.423Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan procesando las respuestas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:45.429Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 15,
+        "timestamp": "2026-03-30T10:58:45.423Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:47.247Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 16,
+        "timestamp": "2026-03-30T10:58:47.237Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 1813,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:47.247Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 17,
+        "timestamp": "2026-03-30T10:58:47.239Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion ya tiene contexto suficiente para avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": true,
+          "confidence": 0.61,
+          "questions": [],
+          "informationGaps": [],
+          "knownAnswers": [
+            {
+              "id": "¿Para cuándo te gustaría tener implementado tu plan de ahorro sostenible?",
+              "question": "¿Para cuándo te gustaría tener implementado tu plan de ahorro sostenible?",
+              "answer": "6 meses"
+            },
+            {
+              "id": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas principales?",
+              "question": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas principales?",
+              "answer": "Ingresos estables, gastos fijos y variables bajo control, hoy ahorro 20000 por mes y no tengo deudas criticas"
+            },
+            {
+              "id": "¿Existe alguna circunstancia especial o riesgo personal que debamos considerar al planificar tus finanzas?",
+              "question": "¿Existe alguna circunstancia especial o riesgo personal que debamos considerar al planificar tus finanzas?",
+              "answer": "No"
+            }
+          ],
+          "duplicateQuestions": [],
+          "reasoning": "Todos los indicadores críticos requeridos ya fueron respondidos, no quedan vacíos que impidan planificar.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organizar las finanzas personales y establecer un plan de ahorro sostenible",
+            "goalType": "FINITE_PROJECT",
+            "riskFlags": [
+              "HIGH_FINANCE",
+              "MEDIUM"
+            ],
+            "suggestedDomain": "personal finance",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "variables",
+              "criticas",
+              "estables",
+              "control",
+              "ahorro",
+              "deudas"
+            ],
+            "informationGaps": [],
+            "clarifyConfidence": 0.61,
+            "readyToAdvance": true,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿Para cuándo te gustaría tener implementado tu plan de ahorro sostenible?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "timeframe",
+                "question": "¿Para cuándo te gustaría tener implementado tu plan de ahorro sostenible?",
+                "answer": "6 meses"
+              },
+              {
+                "key": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas principales?",
+                "questionId": "clarify-r1-q2",
+                "signalKey": "current_baseline",
+                "question": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas principales?",
+                "answer": "Ingresos estables, gastos fijos y variables bajo control, hoy ahorro 20000 por mes y no tengo deudas criticas"
+              },
+              {
+                "key": "¿Existe alguna circunstancia especial o riesgo personal que debamos considerar al planificar tus finanzas?",
+                "questionId": "clarify-r1-q3",
+                "signalKey": "safety_context",
+                "question": "¿Existe alguna circunstancia especial o riesgo personal que debamos considerar al planificar tus finanzas?",
+                "answer": "No"
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 2
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:47.248Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 18,
+        "timestamp": "2026-03-30T10:58:47.239Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La aclaracion alcanzo contexto suficiente y el pipeline avanza a planificacion.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "plan"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:47.248Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 19,
+        "timestamp": "2026-03-30T10:58:47.239Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta armando el plan estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:47.249Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 20,
+        "timestamp": "2026-03-30T10:58:47.240Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:55.413Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:58:55.412Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 20,
+          "lastEventTimestamp": "2026-03-30T10:58:47.240Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:56.599Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 21,
+        "timestamp": "2026-03-30T10:58:56.585Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 9345,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:58:56.600Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 22,
+        "timestamp": "2026-03-30T10:58:56.585Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo a generar el roadmap estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:05.418Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:59:05.417Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 22,
+          "lastEventTimestamp": "2026-03-30T10:58:56.585Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.620Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 23,
+        "timestamp": "2026-03-30T10:59:08.490Z",
+        "category": "agent",
+        "action": "agent.fallback",
+        "summary_es": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable. Se uso un fallback del planificador.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": "Error",
+        "details": {
+          "source": "fallback",
+          "durationMs": 11905,
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "variables",
+              "criticas",
+              "estables",
+              "control",
+              "ahorro",
+              "deudas"
+            ],
+            "observedTexts": [
+              "Inventario inicial de ingresos y gastos rumbo a los 6 meses Durante el primer mes reunirás extractos y recibos, cargarás cada ingreso y gasto en una hoja única y validarás tu spending respecto al objetivo de ahorro sostenible a 6 meses.",
+              "Presupuesto y ajustes para aumentar el ahorro sostenible en 6 meses Entre los meses 2 y 3 transformarás el inventario en un presupuesto con límites por categoría, definirás recortes concretos y fijarás el monto de ahorro mensual alineado al plan de 6 meses.",
+              "Automatización de ahorro y seguimiento bimestral dentro de los 6 meses Entre los meses 4 y 5 configurarás transferencias automáticas hacia la cuenta de ahorro, asignarás porcentajes claros y llevarás un control bimestral para sostener el plan durante los 6 meses.",
+              "Revisión y ajustes finales del plan de ahorro sostenible al mes 6 En el mes 6 compararás los resultados reales vs. planificados, documentarás aprendizajes y fijarás ajustes para sostener el orden financiero más allá de los 6 meses.",
+              "Registro de ingresos y gastos consolidado",
+              "Presupuesto con ajustes aplicados"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.621Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 24,
+        "timestamp": "2026-03-30T10:59:08.491Z",
+        "category": "phase",
+        "action": "plan.summary",
+        "summary_es": "Roadmap generado con 3 fase(s) y 3 hito(s).",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 24,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Punto de partida y activos utiles de variables, criticas y estables",
+              "focus": "Traducir el objetivo a bloques concretos y medibles en variables, criticas y estables. El horizonte de trabajo queda en 6 meses. Reutilizar las senales mas concretas del intake: variables, criticas y estables. Partir desde ingresos estables, gastos fijos y variables bajo control, hoy ahorro 20000 por mes y no tengo deudas criticas como baseline real. Primero ordenar el punto de partida real antes de ampliar el alcance.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 2,
+              "title": "Pruebas visibles y feedback externo para variables, criticas y estables",
+              "focus": "Acumular repeticiones deliberadas y feedback visible sin caer en tareas intercambiables. Bajar el objetivo a pruebas visibles y criterios de calidad observables. Mantener variables, criticas y estables como eje para no responder a otro objetivo.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 3,
+              "title": "Cierre verificable de variables, criticas y estables",
+              "focus": "Cerrar una version demostrable del objetivo. No extender el cierre mas alla de 6 meses. Dejar una rutina repetible y verificable despues del cierre.",
+              "durationWeeks": 8
+            }
+          ],
+          "milestones": [
+            "Definir una base operativa clara de variables, criticas y estables",
+            "Completar una practica intermedia verificable",
+            "Cerrar una demostracion final del objetivo"
+          ],
+          "fallbackUsed": true,
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "variables",
+              "criticas",
+              "estables",
+              "control",
+              "ahorro",
+              "deudas"
+            ],
+            "observedTexts": [
+              "Inventario inicial de ingresos y gastos rumbo a los 6 meses Durante el primer mes reunirás extractos y recibos, cargarás cada ingreso y gasto en una hoja única y validarás tu spending respecto al objetivo de ahorro sostenible a 6 meses.",
+              "Presupuesto y ajustes para aumentar el ahorro sostenible en 6 meses Entre los meses 2 y 3 transformarás el inventario en un presupuesto con límites por categoría, definirás recortes concretos y fijarás el monto de ahorro mensual alineado al plan de 6 meses.",
+              "Automatización de ahorro y seguimiento bimestral dentro de los 6 meses Entre los meses 4 y 5 configurarás transferencias automáticas hacia la cuenta de ahorro, asignarás porcentajes claros y llevarás un control bimestral para sostener el plan durante los 6 meses.",
+              "Revisión y ajustes finales del plan de ahorro sostenible al mes 6 En el mes 6 compararás los resultados reales vs. planificados, documentarás aprendizajes y fijarás ajustes para sostener el orden financiero más allá de los 6 meses.",
+              "Registro de ingresos y gastos consolidado",
+              "Presupuesto con ajustes aplicados"
+            ]
+          },
+          "fallbackPublishability": "pendiente_de_critica"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.621Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 25,
+        "timestamp": "2026-03-30T10:59:08.492Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de planificacion a factibilidad.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "plan",
+          "toPhase": "check"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.622Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 26,
+        "timestamp": "2026-03-30T10:59:08.492Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta chequeando la factibilidad del plan.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.622Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 27,
+        "timestamp": "2026-03-30T10:59:08.492Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El verificador de factibilidad esta chequeando horas, energia y restricciones.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.623Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 28,
+        "timestamp": "2026-03-30T10:59:08.494Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El verificador de factibilidad completo factibilidad con respuesta del modelo.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 1,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.623Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 29,
+        "timestamp": "2026-03-30T10:59:08.494Z",
+        "category": "phase",
+        "action": "check.summary",
+        "summary_es": "Factibilidad feasible: 18h disponibles vs 0h requeridas.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "feasibility",
+          "status": "feasible",
+          "availableHours": 18,
+          "requiredHours": 0,
+          "gap": 0,
+          "conflicts": [],
+          "adjustments": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.623Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 30,
+        "timestamp": "2026-03-30T10:59:08.494Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de factibilidad a calendarizacion.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "check",
+          "toPhase": "schedule"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.624Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 31,
+        "timestamp": "2026-03-30T10:59:08.494Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta resolviendo el calendario de actividades.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.624Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 32,
+        "timestamp": "2026-03-30T10:59:08.495Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El scheduler esta distribuyendo actividades en el calendario.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.737Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 33,
+        "timestamp": "2026-03-30T10:59:08.731Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El scheduler cerro calendarizacion por via deterministica.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 236,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.738Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 34,
+        "timestamp": "2026-03-30T10:59:08.731Z",
+        "category": "phase",
+        "action": "schedule.summary",
+        "summary_es": "Calendarizacion optimal con fill rate 100%.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "schedule",
+          "fillRate": 1,
+          "solverStatus": "optimal",
+          "solverTimeMs": 231,
+          "unscheduledCount": 0,
+          "tradeoffs": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.738Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 35,
+        "timestamp": "2026-03-30T10:59:08.732Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de calendarizacion a critica.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "schedule",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.739Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 36,
+        "timestamp": "2026-03-30T10:59:08.732Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:08.739Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 37,
+        "timestamp": "2026-03-30T10:59:08.732Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:15.419Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:59:15.419Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T10:59:08.732Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:24.271Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 38,
+        "timestamp": "2026-03-30T10:59:24.234Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 15501,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:24.272Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 39,
+        "timestamp": "2026-03-30T10:59:24.235Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict revise y score 52/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "revise",
+          "overallScore": 52,
+          "mustFix": [
+            {
+              "id": "f-1",
+              "severity": "critical",
+              "category": "specificity",
+              "message": "Las fases están redactadas en términos abstractos (\"variables, críticas y estables\") sin detallar qué entregables concretos o indicadores verificables se espera lograr, por lo que no se puede saber si realmente se está ordenando el presupuesto, el registro de gastos o el plan de ahorro.",
+              "suggestion": "Redefinir cada fase con resultados tangibles: p.ej., \"Fase 1: registrar ingresos/gastos reales y validar el baseline\", \"Fase 2: construir y probar un presupuesto mensual con ajustes\", \"Fase 3: formalizar un plan de ahorro y controles mensuales\".",
+              "affectedPhaseIds": [
+                "Punto de partida y activos utiles de variables, criticas y estables",
+                "Pruebas visibles y feedback externo para variables, criticas y estables",
+                "Cierre verificable de variables, criticas y estables"
+              ]
+            },
+            {
+              "id": "f-2",
+              "severity": "critical",
+              "category": "domain",
+              "message": "La estrategia no aborda explícitamente las tareas clave del dominio financiero indicado (registrar ingresos y gastos, armar un presupuesto con prioridades y un plan de pago/ahorro); se queda en repetir el concepto \"variables/críticas/estables\" sin describir cómo se ejecutarán esas prácticas.",
+              "suggestion": "Alinear cada fase con las tareas del overlay: comenzar con una hoja de ingresos/gastos, luego construir el presupuesto con ajustes de gasto y finalmente definir el plan de ahorro/pago y control mensual.",
+              "affectedPhaseIds": [
+                "Punto de partida y activos utiles de variables, criticas y estables",
+                "Pruebas visibles y feedback externo para variables, criticas y estables",
+                "Cierre verificable de variables, criticas y estables"
+              ]
+            }
+          ],
+          "shouldFix": [
+            {
+              "id": "f-3",
+              "severity": "warning",
+              "category": "motivation",
+              "message": "No hay victorias tempranas o hitos visibles que refuercen el progreso; todo el lenguaje es genérico y podría demorar la sensación de avance durante los primeros meses.",
+              "suggestion": "Introducir hitos concretos en las primeras semanas (p.ej., completar el registro del primer mes y ajustar una categoría de gasto) para que el usuario perciba resultados tempranos.",
+              "affectedPhaseIds": [
+                "Punto de partida y activos utiles de variables, criticas y estables",
+                "Pruebas visibles y feedback externo para variables, criticas y estables"
+              ]
+            }
+          ],
+          "reasoning": "El plan es demasiado vago y no traduce las señales en acciones concretas, lo que impide saber cómo se ordenarán las finanzas en 6 meses. Además, ignora las tareas específicas del dominio financiero y carece de hitos motivadores tempranos. Es necesario reformular la estrategia con entregables claros y alineados al overlay.",
+          "scoreDelta": null,
+          "comparison": "sin_base"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:24.272Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 40,
+        "timestamp": "2026-03-30T10:59:24.235Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El critico pidio otra vuelta (score 52/100, must-fix 2).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "revise"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:24.272Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 41,
+        "timestamp": "2026-03-30T10:59:24.235Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta corrigiendo el plan a partir de la critica.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:24.273Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 42,
+        "timestamp": "2026-03-30T10:59:24.235Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo una nueva vuelta de revision.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:24.273Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 43,
+        "timestamp": "2026-03-30T10:59:24.236Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:25.434Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:59:25.433Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 43,
+          "lastEventTimestamp": "2026-03-30T10:59:24.236Z",
+          "lastEventSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:29.879Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 44,
+        "timestamp": "2026-03-30T10:59:29.858Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 5622,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:35.446Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:59:35.445Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T10:59:29.858Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:45.455Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:59:45.454Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T10:59:29.858Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:55.470Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:59:55.470Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T10:59:29.858Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:56.974Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 45,
+        "timestamp": "2026-03-30T10:59:56.894Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El planificador completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 32659,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:56.975Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 46,
+        "timestamp": "2026-03-30T10:59:56.894Z",
+        "category": "phase",
+        "action": "revise.summary",
+        "summary_es": "Revision lista con 4 fase(s) y 4 hito(s).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 24,
+          "phaseCount": 4,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Registro del primer mes de ingresos y gastos reales (mes 1)",
+              "focus": "Durante las primeras 4 semanas del plan de 6 meses registras diariamente todos los ingresos, gastos fijos, variables y críticos en una hoja única, conciliándolos con tus extractos para tener control real del punto de partida.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 2,
+              "title": "Presupuesto con prioridades y ajustes de gastos variables (meses 2-3)",
+              "focus": "Con los datos del mes 1 construyes en semanas 5 a 12 un presupuesto mensual priorizando gastos críticos, fijando topes a variables y definiendo ajustes concretos para sostener el ahorro a 6 meses.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 3,
+              "title": "Implementación del plan de ahorro automático y control de gastos críticos (meses 4-5)",
+              "focus": "Entre los meses 4 y 5 configuras transferencias automáticas hacia tu ahorro, aplicas los recortes definidos y monitoreas semanalmente que los gastos críticos se mantengan bajo control para consolidar el hábito antes de llegar al mes 6.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 4,
+              "title": "Revisión y ajuste final del plan de ahorro sostenible en el mes 6",
+              "focus": "En el mes 6 elaboras un informe comparando los indicadores de todo el semestre, decides ajustes finales y documentas el protocolo de control mensual que mantendrá el plan de ahorro sostenible.",
+              "durationWeeks": 4
+            }
+          ],
+          "milestones": [
+            "Registro mensual completo de ingresos y gastos listo",
+            "Presupuesto con prioridades y ajustes aprobado",
+            "Plan de ahorro automático funcionando 2 meses seguidos",
+            "Informe de cierre y protocolo de control mensual"
+          ],
+          "fallbackUsed": false,
+          "failedCheck": null,
+          "validationSummaryEs": null,
+          "validationEvidence": null,
+          "fallbackPublishability": "sin_fallback"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:56.975Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 47,
+        "timestamp": "2026-03-30T10:59:56.895Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La revision volvio a critica para validar la nueva version del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "revise",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:56.976Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 48,
+        "timestamp": "2026-03-30T10:59:56.895Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:59:56.976Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 49,
+        "timestamp": "2026-03-30T10:59:56.895Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:05.480Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:00:05.480Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 8,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 49,
+          "lastEventTimestamp": "2026-03-30T10:59:56.895Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:15.488Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:00:15.488Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 8,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 49,
+          "lastEventTimestamp": "2026-03-30T10:59:56.895Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.011Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 50,
+        "timestamp": "2026-03-30T11:00:16.967Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 20072,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.011Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 51,
+        "timestamp": "2026-03-30T11:00:16.967Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict approve y score 82/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "approve",
+          "overallScore": 82,
+          "mustFix": [],
+          "shouldFix": [
+            {
+              "id": "f-1",
+              "severity": "warning",
+              "category": "specificity",
+              "message": "El plan describe registrar gastos, presupuestar y automatizar transferencias, pero nunca define qué monto o porcentaje concreto se desea ahorrar ni qué indicador confirmará que el ahorro es sostenible. Sin un objetivo cuantificado es difícil saber si el presupuesto y las transferencias automáticas cumplen la meta.",
+              "suggestion": "Durante la fase 2 incorpora explícitamente un objetivo de ahorro (monto o porcentaje mensual) basado en los datos del mes 1 y úsalo como criterio para configurar las transferencias y evaluar el éxito en las fases 3 y 4.",
+              "affectedPhaseIds": [
+                "phase-2",
+                "phase-3",
+                "phase-4"
+              ]
+            }
+          ],
+          "reasoning": "La hoja de ruta cubre los pasos clave (registro, presupuesto, automatización y revisión) siguiendo la progresión y el plazo requeridos, por lo que es funcional en términos generales. Sin embargo, para confirmar el logro del ahorro sostenible necesita incorporar un indicador cuantificable de ahorro; al enmendarlo se tendrá un plan verificable.",
+          "scoreDelta": 30,
+          "comparison": "mejor"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.012Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 52,
+        "timestamp": "2026-03-30T11:00:16.968Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de critica a empaquetado.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "package"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.012Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 53,
+        "timestamp": "2026-03-30T11:00:16.968Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta empaquetando el resultado final.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.012Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 54,
+        "timestamp": "2026-03-30T11:00:16.968Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El empaquetador esta armando el resultado final publicable.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.013Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 55,
+        "timestamp": "2026-03-30T11:00:16.986Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El empaquetador cerro empaquetado por via deterministica.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 18,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.013Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 56,
+        "timestamp": "2026-03-30T11:00:16.987Z",
+        "category": "phase",
+        "action": "package.summary",
+        "summary_es": "Empaquetado listo con score base 100/100 y 0 advertencia(s).",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "package",
+          "packageReady": true,
+          "qualityScore": 100,
+          "summary": "Este plan convierte \"Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.\" en 6 bloques concretos para esta semana. Lo organizamos en 4 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "warnings": [],
+          "qualityIssues": [],
+          "requestDomain": null,
+          "packageDomain": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.014Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 57,
+        "timestamp": "2026-03-30T11:00:16.987Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El paquete final quedo listo para resolver la publicacion.",
+        "phase": "done",
+        "agent": null,
+        "iteration": 10,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "package",
+          "toPhase": "done"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.014Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 58,
+        "timestamp": "2026-03-30T11:00:16.987Z",
+        "category": "publication",
+        "action": "publication.evaluated",
+        "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+        "phase": "done",
+        "agent": "critic",
+        "iteration": 10,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": "ready",
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "publication",
+          "canPublish": true,
+          "degraded": true,
+          "blockingAgents": [],
+          "fallbackLedger": [
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "count": 1,
+              "latestErrorCode": "Error",
+              "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+            }
+          ],
+          "qualityIssues": [],
+          "criticVerdict": "approve",
+          "criticScore": 82,
+          "warnings": [
+            "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+          ],
+          "exactBlockers": [],
+          "misalignedGoal": false
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.242Z",
+      "type": "v6:progress",
+      "data": {
+        "score": 100,
+        "lastAction": "Packaging final plan"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.243Z",
+      "type": "v6:degraded",
+      "data": {
+        "message": "El plan se genero con datos parcialmente sinteticos porque 1 agente(s) no pudieron conectarse al LLM.",
+        "failedAgents": "planner: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 5132
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 2738
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1813
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 9345
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "fallback",
+            "errorCode": "Error",
+            "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "durationMs": 11905
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 236
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 15501
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 5622
+          },
+          {
+            "agent": "planner",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 32659
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 20072
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 18
+          }
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:00:17.244Z",
+      "type": "v6:complete",
+      "data": {
+        "planId": "65f48af7-55c1-469f-974a-f67cc47c7f8d",
+        "score": 60,
+        "iterations": 10,
+        "package": {
+          "plan": {
+            "goalIds": [
+              "generated-goal"
+            ],
+            "timezone": "UTC",
+            "createdAt": "2026-03-30T10:59:08.730Z",
+            "updatedAt": "2026-03-30T10:59:08.730Z",
+            "skeleton": {
+              "horizonWeeks": 24,
+              "goalIds": [
+                "generated-goal"
+              ],
+              "phases": [
+                {
+                  "phaseId": "phase-1",
+                  "title": "Registro del primer mes de ingresos y gastos reales (mes 1)",
+                  "startWeek": 1,
+                  "endWeek": 4,
+                  "startDate": "2026-03-30",
+                  "endDate": "2026-04-26",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Durante las primeras 4 semanas del plan de 6 meses registras diariamente todos los ingresos, gastos fijos, variables y críticos en una hoja única, conciliándolos con tus extractos para tener control real del punto de partida."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task3-bfihz17",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    },
+                    {
+                      "activityId": "act-task2-gqvx5iv",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task1-e3lxw16",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": []
+                },
+                {
+                  "phaseId": "phase-2",
+                  "title": "Presupuesto con prioridades y ajustes de gastos variables (meses 2-3)",
+                  "startWeek": 5,
+                  "endWeek": 12,
+                  "startDate": "2026-04-27",
+                  "endDate": "2026-06-21",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Con los datos del mes 1 construyes en semanas 5 a 12 un presupuesto mensual priorizando gastos críticos, fijando topes a variables y definiendo ajustes concretos para sostener el ahorro a 6 meses."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task3-bfihz17",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    },
+                    {
+                      "activityId": "act-task2-gqvx5iv",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task1-e3lxw16",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-1"
+                  ]
+                },
+                {
+                  "phaseId": "phase-3",
+                  "title": "Implementación del plan de ahorro automático y control de gastos críticos (meses 4-5)",
+                  "startWeek": 13,
+                  "endWeek": 20,
+                  "startDate": "2026-06-22",
+                  "endDate": "2026-08-16",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Entre los meses 4 y 5 configuras transferencias automáticas hacia tu ahorro, aplicas los recortes definidos y monitoreas semanalmente que los gastos críticos se mantengan bajo control para consolidar el hábito antes de llegar al mes 6."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task3-bfihz17",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    },
+                    {
+                      "activityId": "act-task2-gqvx5iv",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task1-e3lxw16",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-2"
+                  ]
+                },
+                {
+                  "phaseId": "phase-4",
+                  "title": "Revisión y ajuste final del plan de ahorro sostenible en el mes 6",
+                  "startWeek": 21,
+                  "endWeek": 24,
+                  "startDate": "2026-08-17",
+                  "endDate": "2026-09-13",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "En el mes 6 elaboras un informe comparando los indicadores de todo el semestre, decides ajustes finales y documentas el protocolo de control mensual que mantendrá el plan de ahorro sostenible."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task3-bfihz17",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    },
+                    {
+                      "activityId": "act-task2-gqvx5iv",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task1-e3lxw16",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-3"
+                  ]
+                }
+              ],
+              "milestones": [
+                {
+                  "id": "milestone-1",
+                  "kind": "milestone",
+                  "title": "Registro mensual completo de ingresos y gastos listo",
+                  "notes": "Durante las primeras 4 semanas del plan de 6 meses registras diariamente todos los ingresos, gastos fijos, variables y críticos en una hoja única, conciliándolos con tus extractos para tener control real del punto de partida.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "dueDate": "2026-04-27"
+                },
+                {
+                  "id": "milestone-2",
+                  "kind": "milestone",
+                  "title": "Presupuesto con prioridades y ajustes aprobado",
+                  "notes": "Con los datos del mes 1 construyes en semanas 5 a 12 un presupuesto mensual priorizando gastos críticos, fijando topes a variables y definiendo ajustes concretos para sostener el ahorro a 6 meses.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "dueDate": "2026-06-22"
+                },
+                {
+                  "id": "milestone-3",
+                  "kind": "milestone",
+                  "title": "Plan de ahorro automático funcionando 2 meses seguidos",
+                  "notes": "Entre los meses 4 y 5 configuras transferencias automáticas hacia tu ahorro, aplicas los recortes definidos y monitoreas semanalmente que los gastos críticos se mantengan bajo control para consolidar el hábito antes de llegar al mes 6.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "dueDate": "2026-08-17"
+                },
+                {
+                  "id": "milestone-4",
+                  "kind": "milestone",
+                  "title": "Informe de cierre y protocolo de control mensual",
+                  "notes": "En el mes 6 elaboras un informe comparando los indicadores de todo el semestre, decides ajustes finales y documentas el protocolo de control mensual que mantendrá el plan de ahorro sostenible.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "dueDate": "2026-09-14"
+                }
+              ]
+            },
+            "detail": {
+              "horizonWeeks": 2,
+              "startDate": "2026-03-30",
+              "endDate": "2026-04-12",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-e3lxw16_s37_e80951c5",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-30T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s43_a0817bf7",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-30T21:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s90_2ad3d5d0",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-31T21:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s263_4619c468",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-04T11:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-e3lxw16_s284_dfdadf5c",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-04T22:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s303_f644a674",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-05T07:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-e3lxw16_s37_e80951c5-w2",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-06T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s43_a0817bf7-w2",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-06T21:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s90_2ad3d5d0-w2",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-07T21:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s263_4619c468-w2",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-11T11:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-e3lxw16_s284_dfdadf5c-w2",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-11T22:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s303_f644a674-w2",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-12T07:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "weeks": [
+                {
+                  "weekIndex": 1,
+                  "startDate": "2026-03-30",
+                  "endDate": "2026-04-05",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-e3lxw16_s37_e80951c5",
+                      "kind": "time_event",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-03-30T18:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-gqvx5iv_s43_a0817bf7",
+                      "kind": "time_event",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-03-30T21:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-bfihz17_s90_2ad3d5d0",
+                      "kind": "time_event",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-03-31T21:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-gqvx5iv_s263_4619c468",
+                      "kind": "time_event",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-04T11:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-e3lxw16_s284_dfdadf5c",
+                      "kind": "time_event",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-04T22:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-bfihz17_s303_f644a674",
+                      "kind": "time_event",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-05T07:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ]
+                },
+                {
+                  "weekIndex": 2,
+                  "startDate": "2026-04-06",
+                  "endDate": "2026-04-12",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-e3lxw16_s37_e80951c5-w2",
+                      "kind": "time_event",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-06T18:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-gqvx5iv_s43_a0817bf7-w2",
+                      "kind": "time_event",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-06T21:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-bfihz17_s90_2ad3d5d0-w2",
+                      "kind": "time_event",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-07T21:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-gqvx5iv_s263_4619c468-w2",
+                      "kind": "time_event",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-11T11:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-e3lxw16_s284_dfdadf5c-w2",
+                      "kind": "time_event",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-11T22:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-bfihz17_s303_f644a674-w2",
+                      "kind": "time_event",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-12T07:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ]
+                }
+              ]
+            },
+            "operational": {
+              "horizonDays": 7,
+              "startDate": "2026-03-30",
+              "endDate": "2026-04-05",
+              "frozen": true,
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-e3lxw16_s37_e80951c5",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-30T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s43_a0817bf7",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-30T21:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s90_2ad3d5d0",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-03-31T21:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-gqvx5iv_s263_4619c468",
+                  "kind": "time_event",
+                  "title": "Definir un presupuesto mensual realista con prioridades",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-04T11:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-e3lxw16_s284_dfdadf5c",
+                  "kind": "time_event",
+                  "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-04T22:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-bfihz17_s303_f644a674",
+                  "kind": "time_event",
+                  "title": "Armar un plan de pago para deudas y ahorro inicial",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:59:08.730Z",
+                  "updatedAt": "2026-03-30T10:59:08.730Z",
+                  "startAt": "2026-04-05T07:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-03-30T22:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-03-31T22:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-6-1",
+                  "startAt": "2026-04-04T23:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-7-1",
+                  "startAt": "2026-04-05T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ],
+              "days": [
+                {
+                  "date": "2026-03-30",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-e3lxw16_s37_e80951c5",
+                      "kind": "time_event",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-03-30T18:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-gqvx5iv_s43_a0817bf7",
+                      "kind": "time_event",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-03-30T21:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-1-1",
+                      "startAt": "2026-03-30T22:15:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-03-31",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task3-bfihz17_s90_2ad3d5d0",
+                      "kind": "time_event",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-03-31T21:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-2-1",
+                      "startAt": "2026-03-31T22:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-01",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-02",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-03",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-04",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task2-gqvx5iv_s263_4619c468",
+                      "kind": "time_event",
+                      "title": "Definir un presupuesto mensual realista con prioridades",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-04T11:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-e3lxw16_s284_dfdadf5c",
+                      "kind": "time_event",
+                      "title": "Ordenar mis ingresos y gastos en una hoja simple",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-04T22:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-6-1",
+                      "startAt": "2026-04-04T23:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-05",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task3-bfihz17_s303_f644a674",
+                      "kind": "time_event",
+                      "title": "Armar un plan de pago para deudas y ahorro inicial",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:59:08.730Z",
+                      "updatedAt": "2026-03-30T10:59:08.730Z",
+                      "startAt": "2026-04-05T07:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-7-1",
+                      "startAt": "2026-04-05T18:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                }
+              ],
+              "totalBufferMin": 120
+            }
+          },
+          "items": [
+            {
+              "id": "act-task1-e3lxw16_s37_e80951c5",
+              "kind": "time_event",
+              "title": "Ordenar mis ingresos y gastos en una hoja simple",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-03-30T18:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "act-task2-gqvx5iv_s43_a0817bf7",
+              "kind": "time_event",
+              "title": "Definir un presupuesto mensual realista con prioridades",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-03-30T21:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "act-task3-bfihz17_s90_2ad3d5d0",
+              "kind": "time_event",
+              "title": "Armar un plan de pago para deudas y ahorro inicial",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-03-31T21:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "act-task2-gqvx5iv_s263_4619c468",
+              "kind": "time_event",
+              "title": "Definir un presupuesto mensual realista con prioridades",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T11:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "act-task1-e3lxw16_s284_dfdadf5c",
+              "kind": "time_event",
+              "title": "Ordenar mis ingresos y gastos en una hoja simple",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T22:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "act-task3-bfihz17_s303_f644a674",
+              "kind": "time_event",
+              "title": "Armar un plan de pago para deudas y ahorro inicial",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-05T07:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Registro mensual completo de ingresos y gastos listo",
+              "notes": "Durante las primeras 4 semanas del plan de 6 meses registras diariamente todos los ingresos, gastos fijos, variables y críticos en una hoja única, conciliándolos con tus extractos para tener control real del punto de partida.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-04-27",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Presupuesto con prioridades y ajustes aprobado",
+              "notes": "Con los datos del mes 1 construyes en semanas 5 a 12 un presupuesto mensual priorizando gastos críticos, fijando topes a variables y definiendo ajustes concretos para sostener el ahorro a 6 meses.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-06-22",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Plan de ahorro automático funcionando 2 meses seguidos",
+              "notes": "Entre los meses 4 y 5 configuras transferencias automáticas hacia tu ahorro, aplicas los recortes definidos y monitoreas semanalmente que los gastos críticos se mantengan bajo control para consolidar el hábito antes de llegar al mes 6.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-08-17",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "milestone-4",
+              "kind": "milestone",
+              "title": "Informe de cierre y protocolo de control mensual",
+              "notes": "En el mes 6 elaboras un informe comparando los indicadores de todo el semestre, decides ajustes finales y documentas el protocolo de control mensual que mantendrá el plan de ahorro sostenible.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-09-14",
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "metric-plan-quality",
+              "kind": "metric",
+              "title": "Calidad del plan",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "plan_quality_score",
+              "unit": "puntos",
+              "direction": "increase",
+              "target": {
+                "targetValue": 100
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "last"
+              },
+              "series": [
+                {
+                  "at": "2026-03-30T10:59:08.730Z",
+                  "value": 100
+                }
+              ],
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "metric-sessions-week",
+              "kind": "metric",
+              "title": "Sesiones completables por semana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "scheduled_sessions_per_week",
+              "unit": "sesiones",
+              "direction": "increase",
+              "target": {
+                "targetValue": 6
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "count"
+              },
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            },
+            {
+              "id": "trigger-low-adherence",
+              "kind": "trigger_rule",
+              "title": "Revisar plan si baja la adherencia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "enabled": true,
+              "conditions": [
+                {
+                  "left": {
+                    "type": "metric",
+                    "ref": "plan_quality_score"
+                  },
+                  "op": "lt",
+                  "right": {
+                    "value": 70
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "type": "create_task",
+                  "payload": {
+                    "title": "Revisar y reajustar el plan",
+                    "estimateMin": 30
+                  }
+                }
+              ],
+              "throttle": {
+                "minHoursBetweenRuns": 168
+              },
+              "createdAt": "2026-03-30T10:59:08.730Z",
+              "updatedAt": "2026-03-30T10:59:08.730Z"
+            }
+          ],
+          "habitStates": [],
+          "slackPolicy": {
+            "weeklyTimeBufferMin": 120,
+            "maxChurnMovesPerWeek": 3,
+            "frozenHorizonDays": 2
+          },
+          "timezone": "UTC",
+          "summary_esAR": "Este plan convierte \"Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.\" en 6 bloques concretos para esta semana. Lo organizamos en 4 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "qualityScore": 60,
+          "implementationIntentions": [
+            "Si llega lunes a las 18:30, entonces hago Ordenar mis ingresos y gastos en una hoja simple durante 60 minutos.",
+            "Si llega lunes a las 21:30, entonces hago Definir un presupuesto mensual realista con prioridades durante 45 minutos.",
+            "Si llega martes a las 21:00, entonces hago Armar un plan de pago para deudas y ahorro inicial durante 60 minutos.",
+            "Si llega sábado a las 11:30, entonces hago Definir un presupuesto mensual realista con prioridades durante 45 minutos."
+          ],
+          "warnings": [
+            "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+          ],
+          "tradeoffs": [],
+          "publicationState": "publishable",
+          "qualityIssues": [],
+          "requestDomain": null,
+          "packageDomain": null,
+          "intakeCoverage": {
+            "requiredSignals": [],
+            "missingSignals": [],
+            "signalUsage": []
+          },
+          "degraded": true,
+          "reasoningTrace": [
+            {
+              "phase": "interpret",
+              "agent": "goal-interpreter",
+              "iteration": 1,
+              "action": "Executed interpret",
+              "reasoning": "Phase completed",
+              "result": "Goal: Organizar las finanzas personales y establecer un plan de ahorro sostenible, confidence: 0.53",
+              "tokensUsed": 25,
+              "timestamp": "2026-03-30T10:58:29.553Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 2,
+              "action": "Executed clarify",
+              "reasoning": "Faltan las señales críticas de plazo, línea de base financiera y contexto de seguridad, necesarias antes de planificar.",
+              "result": "3 questions pending (confidence: 0.35)",
+              "tokensUsed": 10,
+              "timestamp": "2026-03-30T10:58:32.293Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 3,
+              "action": "Executed clarify",
+              "reasoning": "Todos los indicadores críticos requeridos ya fueron respondidos, no quedan vacíos que impidan planificar.",
+              "result": "Ready to advance (confidence: 0.61)",
+              "tokensUsed": 9,
+              "timestamp": "2026-03-30T10:58:47.237Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 4,
+              "action": "FALLBACK: planner",
+              "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+              "result": "Using fallback strategic draft - NOT from LLM",
+              "tokensUsed": 12,
+              "timestamp": "2026-03-30T10:59:08.491Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 4,
+              "action": "Executed plan",
+              "reasoning": "Phase completed",
+              "result": "3 phases generated",
+              "tokensUsed": 5,
+              "timestamp": "2026-03-30T10:59:08.491Z"
+            },
+            {
+              "phase": "check",
+              "agent": "feasibility-checker",
+              "iteration": 5,
+              "action": "Executed check",
+              "reasoning": "Status: feasible",
+              "result": "Feasibility: feasible",
+              "tokensUsed": 6,
+              "timestamp": "2026-03-30T10:59:08.494Z"
+            },
+            {
+              "phase": "schedule",
+              "agent": "scheduler",
+              "iteration": 6,
+              "action": "Executed schedule",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T10:59:08.731Z"
+            },
+            {
+              "phase": "critique",
+              "agent": "critic",
+              "iteration": 7,
+              "action": "Executed critique",
+              "reasoning": "El plan es demasiado vago y no traduce las señales en acciones concretas, lo que impide saber cómo se ordenarán las finanzas en 6 meses. Además, ignora las tareas específicas del dominio financiero y carece de hitos motivadores tempranos. Es necesario reformular la estrategia con entregables claros y alineados al overlay.",
+              "result": "Score: 52, verdict: revise",
+              "tokensUsed": 7,
+              "timestamp": "2026-03-30T10:59:24.234Z"
+            },
+            {
+              "phase": "revise",
+              "agent": "planner",
+              "iteration": 8,
+              "action": "Executed revise",
+              "reasoning": "Phase completed",
+              "result": "4 phases generated",
+              "tokensUsed": 5,
+              "timestamp": "2026-03-30T10:59:56.894Z"
+            },
+            {
+              "phase": "critique",
+              "agent": "critic",
+              "iteration": 9,
+              "action": "Executed critique",
+              "reasoning": "La hoja de ruta cubre los pasos clave (registro, presupuesto, automatización y revisión) siguiendo la progresión y el plazo requeridos, por lo que es funcional en términos generales. Sin embargo, para confirmar el logro del ahorro sostenible necesita incorporar un indicador cuantificable de ahorro; al enmendarlo se tendrá un plan verificable.",
+              "result": "Score: 82, verdict: approve",
+              "tokensUsed": 7,
+              "timestamp": "2026-03-30T11:00:16.967Z"
+            },
+            {
+              "phase": "package",
+              "agent": "packager",
+              "iteration": 10,
+              "action": "Executed package",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T11:00:16.986Z"
+            }
+          ],
+          "agentOutcomes": [
+            {
+              "agent": "goal-interpreter",
+              "phase": "interpret",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 5132
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 2738
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 1813
+            },
+            {
+              "agent": "domain-expert",
+              "phase": "plan",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 9345
+            },
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "source": "fallback",
+              "errorCode": "Error",
+              "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+              "durationMs": 11905
+            },
+            {
+              "agent": "feasibility-checker",
+              "phase": "check",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 1
+            },
+            {
+              "agent": "scheduler",
+              "phase": "schedule",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 236
+            },
+            {
+              "agent": "critic",
+              "phase": "critique",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 15501
+            },
+            {
+              "agent": "domain-expert",
+              "phase": "revise",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 5622
+            },
+            {
+              "agent": "planner",
+              "phase": "revise",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 32659
+            },
+            {
+              "agent": "critic",
+              "phase": "critique",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 20072
+            },
+            {
+              "agent": "packager",
+              "phase": "package",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 18
+            }
+          ]
+        },
+        "reasoningTrace": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Organizar las finanzas personales y establecer un plan de ahorro sostenible, confidence: 0.53",
+            "tokensUsed": 25,
+            "timestamp": "2026-03-30T10:58:29.553Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Faltan las señales críticas de plazo, línea de base financiera y contexto de seguridad, necesarias antes de planificar.",
+            "result": "3 questions pending (confidence: 0.35)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T10:58:32.293Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "Todos los indicadores críticos requeridos ya fueron respondidos, no quedan vacíos que impidan planificar.",
+            "result": "Ready to advance (confidence: 0.61)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T10:58:47.237Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "FALLBACK: planner",
+            "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "result": "Using fallback strategic draft - NOT from LLM",
+            "tokensUsed": 12,
+            "timestamp": "2026-03-30T10:59:08.491Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:59:08.491Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T10:59:08.494Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:59:08.731Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "El plan es demasiado vago y no traduce las señales en acciones concretas, lo que impide saber cómo se ordenarán las finanzas en 6 meses. Además, ignora las tareas específicas del dominio financiero y carece de hitos motivadores tempranos. Es necesario reformular la estrategia con entregables claros y alineados al overlay.",
+            "result": "Score: 52, verdict: revise",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T10:59:24.234Z"
+          },
+          {
+            "phase": "revise",
+            "agent": "planner",
+            "iteration": 8,
+            "action": "Executed revise",
+            "reasoning": "Phase completed",
+            "result": "4 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:59:56.894Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 9,
+            "action": "Executed critique",
+            "reasoning": "La hoja de ruta cubre los pasos clave (registro, presupuesto, automatización y revisión) siguiendo la progresión y el plazo requeridos, por lo que es funcional en términos generales. Sin embargo, para confirmar el logro del ahorro sostenible necesita incorporar un indicador cuantificable de ahorro; al enmendarlo se tendrá un plan verificable.",
+            "result": "Score: 82, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T11:00:16.967Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 10,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T11:00:16.986Z"
+          }
+        ],
+        "scratchpad": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Organizar las finanzas personales y establecer un plan de ahorro sostenible, confidence: 0.53",
+            "tokensUsed": 25,
+            "timestamp": "2026-03-30T10:58:29.553Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Faltan las señales críticas de plazo, línea de base financiera y contexto de seguridad, necesarias antes de planificar.",
+            "result": "3 questions pending (confidence: 0.35)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T10:58:32.293Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "Todos los indicadores críticos requeridos ya fueron respondidos, no quedan vacíos que impidan planificar.",
+            "result": "Ready to advance (confidence: 0.61)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T10:58:47.237Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "FALLBACK: planner",
+            "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "result": "Using fallback strategic draft - NOT from LLM",
+            "tokensUsed": 12,
+            "timestamp": "2026-03-30T10:59:08.491Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:59:08.491Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T10:59:08.494Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:59:08.731Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "El plan es demasiado vago y no traduce las señales en acciones concretas, lo que impide saber cómo se ordenarán las finanzas en 6 meses. Además, ignora las tareas específicas del dominio financiero y carece de hitos motivadores tempranos. Es necesario reformular la estrategia con entregables claros y alineados al overlay.",
+            "result": "Score: 52, verdict: revise",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T10:59:24.234Z"
+          },
+          {
+            "phase": "revise",
+            "agent": "planner",
+            "iteration": 8,
+            "action": "Executed revise",
+            "reasoning": "Phase completed",
+            "result": "4 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:59:56.894Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 9,
+            "action": "Executed critique",
+            "reasoning": "La hoja de ruta cubre los pasos clave (registro, presupuesto, automatización y revisión) siguiendo la progresión y el plazo requeridos, por lo que es funcional en términos generales. Sin embargo, para confirmar el logro del ahorro sostenible necesita incorporar un indicador cuantificable de ahorro; al enmendarlo se tendrá un plan verificable.",
+            "result": "Score: 82, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T11:00:16.967Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 10,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T11:00:16.986Z"
+          }
+        ],
+        "degraded": true,
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 5132
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 2738
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1813
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 9345
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "fallback",
+            "errorCode": "Error",
+            "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "durationMs": 11905
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 236
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 15501
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 5622
+          },
+          {
+            "agent": "planner",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 32659
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 20072
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 18
+          }
+        ]
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-075843-resume-86ccd11e-346f-4825-b88e-79d945246afa.json"
+}

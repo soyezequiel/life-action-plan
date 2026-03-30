@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T05:12:36.603Z",
+  "updatedAt": "2026-03-30T05:12:37.220Z",
+  "invocation": {
+    "goal": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+    "resumeSession": null,
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": "failed",
+    "failureCode": null,
+    "sessionId": null,
+    "provider": "codex-oauth",
+    "modelId": null,
+    "status": "failed"
+  },
+  "pendingInput": null,
+  "finalPackage": null,
+  "finalResult": {
+    "success": false,
+    "error": "No pude entender ese pedido. Revisalo e intenta de nuevo."
+  },
+  "latestDebugEvent": null,
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T05:12:36.604Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+        "resumeSession": null,
+        "explicitProvider": "codex",
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:36.607Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "codex-oauth",
+        "label": "OpenAI (sesion iniciada)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:36.608Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "codex",
+        "goalText": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+        "profileId": ""
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:37.219Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "codex-oauth",
+        "message": "No pude entender ese pedido. Revisalo e intenta de nuevo.",
+        "failureCode": null,
+        "providerErrorCode": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T05:12:37.220Z",
+      "type": "cli.failed",
+      "data": {
+        "message": "No pude entender ese pedido. Revisalo e intenta de nuevo.",
+        "failureCode": null,
+        "publicationState": "failed"
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T05:12:37.218Z",
+      "type": "result",
+      "data": {
+        "type": "result",
+        "result": {
+          "success": false,
+          "error": "No pude entender ese pedido. Revisalo e intenta de nuevo."
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-021236-quiero-ordenar-mis-finanzas-personales-y-empezar.json"
+}

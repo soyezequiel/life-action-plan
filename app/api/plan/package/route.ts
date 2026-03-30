@@ -89,20 +89,30 @@ export async function GET(request: Request): Promise<Response> {
       }), { status: 404 });
     }
 
-    const validation = evaluatePackageValidation({
-      goalText: plan.nombre,
-      package: v5.package,
-      requestedDomain: v5.package.requestDomain ?? null,
-    });
-    if (validation.status === 'blocked') {
-      const blockingIssue = validation.issues.find((issue) => issue.severity === 'block');
+    let validatedPackage = v5.package;
+
+    if (!v5.package.publicationState) {
+      const validation = evaluatePackageValidation({
+        goalText: plan.nombre,
+        package: v5.package,
+        requestedDomain: v5.package.requestDomain ?? null,
+      });
+      if (validation.status === 'blocked') {
+        const blockingIssue = validation.issues.find((issue) => issue.severity === 'block');
+        return jsonResponse(packageErrorSchema.parse({
+          ok: false,
+          error: blockingIssue?.message ?? validation.issues[0]?.message ?? t('planV5.error'),
+        }), { status: 422 });
+      }
+
+      validatedPackage = projectValidatedPackage(v5.package, validation, plan.nombre);
+    } else if (v5.package.publicationState === 'failed_for_quality_review') {
+      const blockingIssue = v5.package.qualityIssues?.find((issue) => issue.severity === 'blocking');
       return jsonResponse(packageErrorSchema.parse({
         ok: false,
-        error: blockingIssue?.message ?? validation.issues[0]?.message ?? t('planV5.error'),
+        error: blockingIssue?.message ?? v5.package.warnings?.[0] ?? t('planV5.error'),
       }), { status: 422 });
     }
-
-    const validatedPackage = projectValidatedPackage(v5.package, validation, plan.nombre);
     const detailStartWeek = parsedQuery.data.detailStartWeek ?? v5.package.plan.detail.weeks[0]?.weekIndex ?? 1;
     const detailWeeks = parsedQuery.data.detailWeeks ?? v5.package.plan.detail.horizonWeeks;
     const packageView = parsedQuery.data.detailStartWeek || parsedQuery.data.detailWeeks

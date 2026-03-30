@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T22:07:07.213Z",
+  "updatedAt": "2026-03-29T22:07:07.662Z",
+  "invocation": {
+    "goal": "",
+    "resumeSession": "c859ecee-2caf-4945-a15e-274a5258bd5f",
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": "failed",
+    "failureCode": null,
+    "sessionId": "c859ecee-2caf-4945-a15e-274a5258bd5f",
+    "provider": null,
+    "modelId": null,
+    "status": "failed"
+  },
+  "pendingInput": null,
+  "finalPackage": null,
+  "finalResult": {
+    "success": false,
+    "error": "Session not found or expired"
+  },
+  "latestDebugEvent": null,
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T22:07:07.213Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "",
+        "resumeSession": "c859ecee-2caf-4945-a15e-274a5258bd5f",
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:07.216Z",
+      "type": "resume.explicit_request",
+      "data": {
+        "endpoint": "/api/plan/build/resume",
+        "sessionId": "c859ecee-2caf-4945-a15e-274a5258bd5f",
+        "answersCount": 3
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:07.662Z",
+      "type": "cli.failed",
+      "data": {
+        "message": "Session not found or expired",
+        "failureCode": null,
+        "publicationState": "failed"
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-29T22:07:07.660Z",
+      "type": "result",
+      "data": {
+        "type": "result",
+        "result": {
+          "success": false,
+          "error": "Session not found or expired"
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-190707-resume-c859ecee-2caf-4945-a15e-274a5258bd5f.json"
+}

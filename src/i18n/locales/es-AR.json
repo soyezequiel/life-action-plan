@@ -142,7 +142,6 @@
     "build_plan": "Armar mi plan",
     "build_openai": "Armar con asistente en línea",
     "build_openrouter": "Armar con asistente alternativo",
-    "build_ollama": "Armar con asistente local",
     "build_service": "Quiero que Pulso se ocupe",
     "build_own": "Avanzado",
     "actions_title": "Acciones del plan",
@@ -644,8 +643,6 @@
   "settings": {
     "apikey_title": "Deja listo como queres usar Pulso",
     "apikey_hint": "El camino simple ya viene preparado. Si necesitas algo tecnico, esta bajo Avanzado.",
-    "local_build_title": "Preparar asistente local",
-    "local_build_hint": "En esta maquina podes armar el plan sin cargar una clave.",
     "build_route_hint": "Ruta elegida: {{provider}}",
     "build_charge_hint": "Esta acción va a cobrar {{sats}} sats.",
     "build_charge_ready": "Tu billetera está lista para este cobro.",
@@ -730,9 +727,7 @@
       "title": "Asistentes disponibles",
       "empty": "No hay asistentes disponibles ahora.",
       "selected": "Usando: {{name}}"
-    },
-    "ollama_thinking_toggle": "Activar pensamiento extendido",
-    "ollama_thinking_hint": "Hace que este modelo local se tome mas tiempo para razonar antes de responder. Puede mejorar tareas complejas, pero tarda mas."
+    }
   },
   "calendar": {
     "file_type": "Calendario",

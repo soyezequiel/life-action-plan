@@ -184,7 +184,7 @@ export interface PlanPackage {
   implementationIntentions: string[];
   warnings: string[];
   tradeoffs?: Tradeoff[];
-  publicationState?: 'publishable' | 'requires_regeneration' | 'failed_for_quality_review';
+  publicationState?: 'publishable' | 'requires_regeneration' | 'requires_supervision' | 'failed_for_quality_review';
   qualityIssues?: Array<{
     code: string;
     severity: 'warning' | 'blocking';
@@ -239,6 +239,7 @@ export interface PackageInput {
   goalId?: string;
   requestedDomain?: string | null;
   clarificationAnswers?: Record<string, string>;
+  goalSignalsSnapshot?: GoalSignalsSnapshot;
   weekStartDate?: string;
   hardFindings?: HardFinding[];
   softFindings?: SoftFinding[];

@@ -1,0 +1,686 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T22:15:38.338Z",
+  "updatedAt": "2026-03-29T22:15:49.581Z",
+  "invocation": {
+    "goal": "Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": "a37ee153-2b75-47f0-9e4e-86a0602a77df",
+    "provider": "ollama",
+    "modelId": null,
+    "status": "paused_for_input"
+  },
+  "pendingInput": {
+    "sessionId": "a37ee153-2b75-47f0-9e4e-86a0602a77df",
+    "goal": "Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.",
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "questions": [
+      {
+        "id": "clarify-r1-q",
+        "text": "¿Cuánto tiempo quieres dedicarle al proyecto creativo por semana?",
+        "type": "number",
+        "options": null,
+        "min": 1,
+        "max": 10
+      }
+    ],
+    "createdAt": "2026-03-29T22:15:49.579Z",
+    "pendingFilePath": "F:\\proyectos\\planificador-vida\\.lap-pending-input.json",
+    "resumeCommand": "node scripts/run-plan.mjs --resume-session=a37ee153-2b75-47f0-9e4e-86a0602a77df --answers-json='{\"id\":\"respuesta\",...}' --debug"
+  },
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 12,
+    "timestamp": "2026-03-29T22:15:49.555Z",
+    "category": "lifecycle",
+    "action": "session.paused",
+    "summary_es": "El pipeline quedó pausado esperando 1 respuesta(s) de aclaración.",
+    "phase": "clarify",
+    "agent": "clarifier",
+    "iteration": 2,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 25,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "questionCount": 1,
+      "questions": [
+        {
+          "id": "clarify-r1-q",
+          "text": "¿Cuánto tiempo quieres dedicarle al proyecto creativo por semana?",
+          "purpose": "Determinar el tiempo necesario para planificar el proyecto",
+          "type": "number",
+          "min": 1,
+          "max": 10
+        }
+      ],
+      "informationGaps": [
+        "timeframe"
+      ],
+      "goalSignalsSnapshot": {
+        "parsedGoal": "Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.",
+        "goalType": "RECURRENT_HABIT",
+        "riskFlags": [
+          "LOW"
+        ],
+        "suggestedDomain": null,
+        "metric": null,
+        "timeframe": null,
+        "anchorTokens": [
+          "desarrollar",
+          "proyecto",
+          "creativo",
+          "propio",
+          "sentirme",
+          "mas"
+        ],
+        "informationGaps": [
+          "timeframe",
+          "current_baseline"
+        ],
+        "clarifyConfidence": 0.5,
+        "readyToAdvance": false,
+        "normalizedUserAnswers": [],
+        "missingCriticalSignals": [
+          "timeframe",
+          "current_baseline"
+        ],
+        "hasSufficientSignalsForPlanning": false,
+        "clarificationMode": "needs_input",
+        "degraded": true,
+        "fallbackCount": 1,
+        "phase": "clarify",
+        "clarifyRounds": 1
+      }
+    }
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "clarify",
+    "currentAgent": "clarifier",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+    "iteration": 1,
+    "revisionCycles": 0,
+    "clarifyRounds": 1,
+    "progressScore": 25,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 8,
+    "lastEventTimestamp": "2026-03-29T22:15:46.977Z",
+    "lastEventSummary_es": "El clarificador esta evaluando si faltan datos antes de avanzar."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T22:15:38.339Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.",
+        "resumeSession": null,
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": true,
+        "noCodex": true
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:38.341Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "ollama",
+        "label": "Ollama (local)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:38.342Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "ollama",
+        "goalText": "Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:49.580Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "ollama",
+        "recoverable": true,
+        "message": "Pipeline pausado esperando respuestas.",
+        "failureCode": null
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-29T22:15:39.162Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:39.163Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-29T22:15:39.160Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "ollama:qwen3:8b",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:39.164Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-29T22:15:39.160Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:39.164Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-29T22:15:39.160Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.979Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-29T22:15:46.976Z",
+        "category": "agent",
+        "action": "agent.fallback",
+        "summary_es": "El interprete uso fallback en interpretacion (SyntaxError).",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": "SyntaxError",
+        "details": {
+          "source": "fallback",
+          "durationMs": 7816,
+          "errorCode": "SyntaxError",
+          "errorMessage": "Expected ',' or '}' after property value in JSON at position 926 (line 17 column 43)"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.979Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-29T22:15:46.977Z",
+        "category": "phase",
+        "action": "interpret.summary",
+        "summary_es": "Objetivo interpretado como RECURRENT_HABIT con confianza 50%.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "interpretation",
+          "normalizedGoal": "Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.",
+          "goalType": "RECURRENT_HABIT",
+          "suggestedDomain": null,
+          "confidence": 0.5,
+          "ambiguities": [],
+          "assumptions": [],
+          "riskFlags": [
+            "LOW"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.",
+            "goalType": "RECURRENT_HABIT",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": null,
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "desarrollar",
+              "proyecto",
+              "creativo",
+              "propio",
+              "sentirme",
+              "mas"
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": null,
+            "readyToAdvance": null,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": true,
+            "fallbackCount": 1,
+            "phase": "interpret",
+            "clarifyRounds": 0
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.980Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-29T22:15:46.977Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.980Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-29T22:15:46.977Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.980Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-29T22:15:46.977Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:49.163Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-29T22:15:49.164Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "clarify",
+          "currentAgent": "clarifier",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+          "iteration": 1,
+          "revisionCycles": 0,
+          "clarifyRounds": 1,
+          "progressScore": 25,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 8,
+          "lastEventTimestamp": "2026-03-29T22:15:46.977Z",
+          "lastEventSummary_es": "El clarificador esta evaluando si faltan datos antes de avanzar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:49.555Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-29T22:15:49.554Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 2577,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:49.556Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-29T22:15:49.555Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion deja 1 pregunta(s) pendiente(s).",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": false,
+          "confidence": 0.5,
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuánto tiempo quieres dedicarle al proyecto creativo por semana?",
+              "purpose": "Determinar el tiempo necesario para planificar el proyecto",
+              "type": "number",
+              "min": 1,
+              "max": 10
+            }
+          ],
+          "informationGaps": [
+            "timeframe"
+          ],
+          "knownAnswers": [],
+          "duplicateQuestions": [],
+          "reasoning": "Falta información sobre el marco temporal y la base actual para planificar el proyecto",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.",
+            "goalType": "RECURRENT_HABIT",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": null,
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "desarrollar",
+              "proyecto",
+              "creativo",
+              "propio",
+              "sentirme",
+              "mas"
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.5,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": true,
+            "fallbackCount": 1,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:49.557Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-29T22:15:49.555Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "Todavia faltan respuestas; se mantiene la aclaracion con 1 pregunta(s) pendientes.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:49.557Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 12,
+        "timestamp": "2026-03-29T22:15:49.555Z",
+        "category": "lifecycle",
+        "action": "session.paused",
+        "summary_es": "El pipeline quedó pausado esperando 1 respuesta(s) de aclaración.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "questionCount": 1,
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuánto tiempo quieres dedicarle al proyecto creativo por semana?",
+              "purpose": "Determinar el tiempo necesario para planificar el proyecto",
+              "type": "number",
+              "min": 1,
+              "max": 10
+            }
+          ],
+          "informationGaps": [
+            "timeframe"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Quiero desarrollar un proyecto creativo propio y sentirme mas expresivo este año.",
+            "goalType": "RECURRENT_HABIT",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": null,
+            "metric": null,
+            "timeframe": null,
+            "anchorTokens": [
+              "desarrollar",
+              "proyecto",
+              "creativo",
+              "propio",
+              "sentirme",
+              "mas"
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.5,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": true,
+            "fallbackCount": 1,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:49.578Z",
+      "type": "v6:needs_input",
+      "data": {
+        "sessionId": "a37ee153-2b75-47f0-9e4e-86a0602a77df",
+        "questions": {
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuánto tiempo quieres dedicarle al proyecto creativo por semana?",
+              "purpose": "Determinar el tiempo necesario para planificar el proyecto",
+              "type": "number",
+              "min": 1,
+              "max": 10
+            }
+          ],
+          "reasoning": "Falta información sobre el marco temporal y la base actual para planificar el proyecto",
+          "informationGaps": [
+            "timeframe"
+          ],
+          "confidence": 0.5,
+          "readyToAdvance": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-191538-quiero-desarrollar-un-proyecto-creativo-propio-y.json"
+}

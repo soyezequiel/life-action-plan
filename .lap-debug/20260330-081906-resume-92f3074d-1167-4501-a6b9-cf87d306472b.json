@@ -1,0 +1,2541 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T11:19:06.226Z",
+  "updatedAt": "2026-03-30T11:22:07.889Z",
+  "invocation": {
+    "goal": "",
+    "resumeSession": "92f3074d-1167-4501-a6b9-cf87d306472b",
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": "blocked",
+    "failureCode": "requires_regeneration",
+    "sessionId": "92f3074d-1167-4501-a6b9-cf87d306472b",
+    "provider": null,
+    "modelId": null,
+    "status": "running"
+  },
+  "pendingInput": null,
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 70,
+    "timestamp": "2026-03-30T11:22:07.833Z",
+    "category": "publication",
+    "action": "publication.evaluated",
+    "summary_es": "La publicacion quedo bloqueada y el plan no puede salir tal como esta.",
+    "phase": "done",
+    "agent": "planner",
+    "iteration": 12,
+    "revisionCycle": 2,
+    "clarifyRound": 2,
+    "progressScore": 100,
+    "degraded": true,
+    "fallbackCount": 2,
+    "publicationState": "blocked",
+    "failureCode": "requires_regeneration",
+    "errorCode": null,
+    "details": {
+      "partialKind": "publication",
+      "canPublish": false,
+      "degraded": true,
+      "blockingAgents": [
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "source": "fallback",
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.metric\" did not pass. Fallback strategy was used.",
+          "durationMs": 25807
+        },
+        {
+          "agent": "planner",
+          "phase": "revise",
+          "source": "fallback",
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "durationMs": 39627
+        }
+      ],
+      "fallbackLedger": [
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "count": 1,
+          "latestErrorCode": "Error",
+          "latestErrorMessage": "Planner output failed validation: check \"intake.metric\" did not pass. Fallback strategy was used."
+        },
+        {
+          "agent": "planner",
+          "phase": "revise",
+          "count": 1,
+          "latestErrorCode": "Error",
+          "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+        }
+      ],
+      "qualityIssues": [
+        {
+          "code": "CRITICAL_AGENT_FAILURE",
+          "severity": "blocking",
+          "message": "La ruta critica del pipeline fallo y hace falta regenerar el plan con agentes que respondan correctamente."
+        }
+      ],
+      "criticVerdict": "revise",
+      "criticScore": 62,
+      "warnings": [
+        "No se puede publicar este plan: la revision critica fallo y hace falta regenerarlo con un proveedor que responda bien."
+      ],
+      "exactBlockers": [
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.metric\" did not pass. Fallback strategy was used."
+        },
+        {
+          "agent": "planner",
+          "phase": "revise",
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+        }
+      ],
+      "misalignedGoal": false
+    }
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "critique",
+    "currentAgent": "critic",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+    "iteration": 10,
+    "revisionCycles": 2,
+    "clarifyRounds": 2,
+    "progressScore": 80,
+    "degraded": true,
+    "fallbackCount": 2,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 61,
+    "lastEventTimestamp": "2026-03-30T11:21:54.273Z",
+    "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T11:19:06.227Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "",
+        "resumeSession": "92f3074d-1167-4501-a6b9-cf87d306472b",
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:06.229Z",
+      "type": "resume.explicit_request",
+      "data": {
+        "endpoint": "/api/plan/build/resume",
+        "sessionId": "92f3074d-1167-4501-a6b9-cf87d306472b",
+        "answersCount": 3
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T11:19:06.398Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "codex",
+        "requestedMode": "codex-cloud",
+        "resolvedModelId": "openai:gpt-5-codex",
+        "providerId": "openai",
+        "executionMode": "codex-cloud",
+        "resolutionSource": "requested-mode",
+        "authMode": "codex-oauth",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:07.644Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "clarify-resume",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:07.645Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 13,
+        "timestamp": "2026-03-30T11:19:07.640Z",
+        "category": "lifecycle",
+        "action": "session.resumed",
+        "summary_es": "Se retomó la sesión con 3 respuesta(s) nuevas.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "answersCount": 3,
+          "answeredQuestionIds": [
+            "clarify-r1-q1",
+            "clarify-r1-q2",
+            "clarify-r1-q3"
+          ],
+          "storedAnswerKeys": [
+            "¿Qué monto o porcentaje te gustaría lograr ahorrar de forma sostenida?",
+            "¿En qué plazo te gustaría alcanzarlo?",
+            "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas para tener una línea de base?"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organizar mis finanzas personales y establecer un plan de ahorro sostenible.",
+            "goalType": "QUANT_TARGET_TRACKING",
+            "riskFlags": [
+              "HIGH_FINANCE",
+              "MEDIUM"
+            ],
+            "suggestedDomain": "personal_finance",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "pesos",
+              "variable",
+              "250000.",
+              "300000.",
+              "850000.",
+              "mensual"
+            ],
+            "informationGaps": [
+              "metric",
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.2,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿Qué monto o porcentaje te gustaría lograr ahorrar de forma sostenida?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "metric",
+                "question": "¿Qué monto o porcentaje te gustaría lograr ahorrar de forma sostenida?",
+                "answer": "150000 pesos por mes"
+              },
+              {
+                "key": "¿En qué plazo te gustaría alcanzarlo?",
+                "questionId": "clarify-r1-q2",
+                "signalKey": "timeframe",
+                "question": "¿En qué plazo te gustaría alcanzarlo?",
+                "answer": "6 meses"
+              },
+              {
+                "key": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas para tener una línea de base?",
+                "questionId": "clarify-r1-q3",
+                "signalKey": "current_baseline",
+                "question": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas para tener una línea de base?",
+                "answer": "Ingreso neto mensual 1200000 pesos. Gasto fijo 850000. Gasto variable 250000. Deuda de tarjeta 300000. Ahorro actual 0 a 20000 pesos por mes."
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:07.645Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 14,
+        "timestamp": "2026-03-30T11:19:07.640Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan procesando las respuestas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:07.646Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 15,
+        "timestamp": "2026-03-30T11:19:07.640Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:11.128Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 16,
+        "timestamp": "2026-03-30T11:19:11.122Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 3481,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:11.128Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 17,
+        "timestamp": "2026-03-30T11:19:11.123Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion ya tiene contexto suficiente para avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": true,
+          "confidence": 0.72,
+          "questions": [],
+          "informationGaps": [],
+          "knownAnswers": [
+            {
+              "id": "¿Qué monto o porcentaje te gustaría lograr ahorrar de forma sostenida?",
+              "question": "¿Qué monto o porcentaje te gustaría lograr ahorrar de forma sostenida?",
+              "answer": "150000 pesos por mes"
+            },
+            {
+              "id": "¿En qué plazo te gustaría alcanzarlo?",
+              "question": "¿En qué plazo te gustaría alcanzarlo?",
+              "answer": "6 meses"
+            },
+            {
+              "id": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas para tener una línea de base?",
+              "question": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas para tener una línea de base?",
+              "answer": "Ingreso neto mensual 1200000 pesos. Gasto fijo 850000. Gasto variable 250000. Deuda de tarjeta 300000. Ahorro actual 0 a 20000 pesos por mes."
+            }
+          ],
+          "duplicateQuestions": [],
+          "reasoning": "No hay señales críticas pendientes; planificación puede avanzar.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Organizar mis finanzas personales y establecer un plan de ahorro sostenible.",
+            "goalType": "QUANT_TARGET_TRACKING",
+            "riskFlags": [
+              "HIGH_FINANCE",
+              "MEDIUM"
+            ],
+            "suggestedDomain": "personal_finance",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "pesos",
+              "variable",
+              "250000.",
+              "300000.",
+              "850000.",
+              "mensual"
+            ],
+            "informationGaps": [],
+            "clarifyConfidence": 0.72,
+            "readyToAdvance": true,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿Qué monto o porcentaje te gustaría lograr ahorrar de forma sostenida?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "metric",
+                "question": "¿Qué monto o porcentaje te gustaría lograr ahorrar de forma sostenida?",
+                "answer": "150000 pesos por mes"
+              },
+              {
+                "key": "¿En qué plazo te gustaría alcanzarlo?",
+                "questionId": "clarify-r1-q2",
+                "signalKey": "timeframe",
+                "question": "¿En qué plazo te gustaría alcanzarlo?",
+                "answer": "6 meses"
+              },
+              {
+                "key": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas para tener una línea de base?",
+                "questionId": "clarify-r1-q3",
+                "signalKey": "current_baseline",
+                "question": "¿Cuál es tu situación financiera actual en términos de ingresos, gastos y deudas para tener una línea de base?",
+                "answer": "Ingreso neto mensual 1200000 pesos. Gasto fijo 850000. Gasto variable 250000. Deuda de tarjeta 300000. Ahorro actual 0 a 20000 pesos por mes."
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 2
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:11.129Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 18,
+        "timestamp": "2026-03-30T11:19:11.123Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La aclaracion alcanzo contexto suficiente y el pipeline avanza a planificacion.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "plan"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:11.129Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 19,
+        "timestamp": "2026-03-30T11:19:11.123Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta armando el plan estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:11.129Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 20,
+        "timestamp": "2026-03-30T11:19:11.123Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:17.643Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:19:17.642Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 20,
+          "lastEventTimestamp": "2026-03-30T11:19:11.123Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:27.646Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:19:27.646Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 20,
+          "lastEventTimestamp": "2026-03-30T11:19:11.123Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:29.041Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 21,
+        "timestamp": "2026-03-30T11:19:29.031Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 17908,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:29.042Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 22,
+        "timestamp": "2026-03-30T11:19:29.032Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo a generar el roadmap estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:37.650Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:19:37.650Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 22,
+          "lastEventTimestamp": "2026-03-30T11:19:29.032Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:47.664Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:19:47.664Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 22,
+          "lastEventTimestamp": "2026-03-30T11:19:29.032Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.925Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 23,
+        "timestamp": "2026-03-30T11:19:54.839Z",
+        "category": "agent",
+        "action": "agent.fallback",
+        "summary_es": "El borrador perdiÃ³ la metrica o el resultado medible que el intake dejaba explÃ­cito. Se uso un fallback del planificador.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": "Error",
+        "details": {
+          "source": "fallback",
+          "durationMs": 25807,
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.metric\" did not pass. Fallback strategy was used.",
+          "failedCheck": "intake.metric",
+          "validationSummaryEs": "El borrador perdiÃ³ la metrica o el resultado medible que el intake dejaba explÃ­cito.",
+          "validationEvidence": {
+            "expectedMetric": "150000 pesos por mes",
+            "observedTexts": [
+              "Registro base de ingresos, gastos y deuda para el plan de 6 meses Durante el primer mes dedicarás unas 3 horas semanales a documentar cada ingreso, gasto fijo y variable, y el saldo de la tarjeta por al menos dos semanas seguidas, generando un registro que respalde el plan de ahorro sostenible.",
+              "Presupuesto ajustado y plan de pago de tarjeta para los 6 meses Entre los meses 2 y 3 invertirás 4 horas semanales en analizar el registro, categorizar gastos fijos/variables, definir recortes específicos y ordenar un plan de pago de la tarjeta de 300000 pesos que habilite ahorro sostenible.",
+              "Ejecución de pagos y transferencias automáticas de ahorro en meses 4 y 5 En los meses 4 y 5 asignarás 3 horas semanales a programar transferencias automáticas de ahorro apenas cobres y a ejecutar los pagos planificados de la tarjeta, monitoreando que los movimientos coincidan con el presupuesto.",
+              "Auditoría y ajustes finales del plan financiero al mes 6 En el mes 6 usarás 2 horas semanales para comparar resultados reales con el presupuesto, revisar la evolución de la deuda y documentar ajustes para sostener el ahorro más allá del semestre.",
+              "Registro financiero completo del mes 1",
+              "Presupuesto ajustado y plan de pago listos"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.925Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 24,
+        "timestamp": "2026-03-30T11:19:54.839Z",
+        "category": "phase",
+        "action": "plan.summary",
+        "summary_es": "Roadmap generado con 3 fase(s) y 3 hito(s).",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 24,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Baseline y mapa de gastos para liberar 150000 pesos por mes",
+              "focus": "Ordenar ingresos, gastos fijos y variables para detectar de donde sale 150000 pesos por mes sin prometer recortes imposibles. Partir desde ingreso neto mensual 1200000 pesos. gasto fijo 850000. gasto variable 250000. deuda de tarjeta 300000. ahorro actual 0 a 20000 pesos por mes. como baseline real.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 2,
+              "title": "Presupuesto y automatizacion inicial de 150000 pesos por mes",
+              "focus": "Convertir el diagnostico en un presupuesto realista, definir una separacion mensual cercana a 150000 pesos por mes y dejar configurada la primera transferencia o separacion automatica. Mantener un mecanismo simple y repetible para mover el ahorro sin friccion extra.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 3,
+              "title": "Sostenimiento de 150000 pesos por mes hasta cerrar 6 meses",
+              "focus": "Sostener la cadencia mensual de 150000 pesos por mes durante el tramo restante, registrar cada cumplimiento y ajustar desvios sin salir del horizonte. Cerrar 6 meses con 150000 pesos por mes activo y registro acumulado al dia. La revision final queda integrada en este cierre, sin depender de fases superpuestas que el runtime no representa.",
+              "durationWeeks": 16
+            }
+          ],
+          "milestones": [
+            "Baseline de gastos y ahorro actual registrada con categorias claras",
+            "Presupuesto equilibrado y primera separacion automatica de 150000 pesos por mes",
+            "Cierre de 6 meses con 150000 pesos por mes activo y seguimiento mensual documentado"
+          ],
+          "fallbackUsed": true,
+          "failedCheck": "intake.metric",
+          "validationSummaryEs": "El borrador perdiÃ³ la metrica o el resultado medible que el intake dejaba explÃ­cito.",
+          "validationEvidence": {
+            "expectedMetric": "150000 pesos por mes",
+            "observedTexts": [
+              "Registro base de ingresos, gastos y deuda para el plan de 6 meses Durante el primer mes dedicarás unas 3 horas semanales a documentar cada ingreso, gasto fijo y variable, y el saldo de la tarjeta por al menos dos semanas seguidas, generando un registro que respalde el plan de ahorro sostenible.",
+              "Presupuesto ajustado y plan de pago de tarjeta para los 6 meses Entre los meses 2 y 3 invertirás 4 horas semanales en analizar el registro, categorizar gastos fijos/variables, definir recortes específicos y ordenar un plan de pago de la tarjeta de 300000 pesos que habilite ahorro sostenible.",
+              "Ejecución de pagos y transferencias automáticas de ahorro en meses 4 y 5 En los meses 4 y 5 asignarás 3 horas semanales a programar transferencias automáticas de ahorro apenas cobres y a ejecutar los pagos planificados de la tarjeta, monitoreando que los movimientos coincidan con el presupuesto.",
+              "Auditoría y ajustes finales del plan financiero al mes 6 En el mes 6 usarás 2 horas semanales para comparar resultados reales con el presupuesto, revisar la evolución de la deuda y documentar ajustes para sostener el ahorro más allá del semestre.",
+              "Registro financiero completo del mes 1",
+              "Presupuesto ajustado y plan de pago listos"
+            ]
+          },
+          "fallbackPublishability": "pendiente_de_critica"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.926Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 25,
+        "timestamp": "2026-03-30T11:19:54.840Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de planificacion a factibilidad.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "plan",
+          "toPhase": "check"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.926Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 26,
+        "timestamp": "2026-03-30T11:19:54.840Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta chequeando la factibilidad del plan.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.927Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 27,
+        "timestamp": "2026-03-30T11:19:54.840Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El verificador de factibilidad esta chequeando horas, energia y restricciones.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.927Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 28,
+        "timestamp": "2026-03-30T11:19:54.840Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El verificador de factibilidad completo factibilidad con respuesta del modelo.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 0,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.927Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 29,
+        "timestamp": "2026-03-30T11:19:54.840Z",
+        "category": "phase",
+        "action": "check.summary",
+        "summary_es": "Factibilidad feasible: 18h disponibles vs 0h requeridas.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "feasibility",
+          "status": "feasible",
+          "availableHours": 18,
+          "requiredHours": 0,
+          "gap": 0,
+          "conflicts": [],
+          "adjustments": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.928Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 30,
+        "timestamp": "2026-03-30T11:19:54.840Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de factibilidad a calendarizacion.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "check",
+          "toPhase": "schedule"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.928Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 31,
+        "timestamp": "2026-03-30T11:19:54.841Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta resolviendo el calendario de actividades.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:54.929Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 32,
+        "timestamp": "2026-03-30T11:19:54.841Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El scheduler esta distribuyendo actividades en el calendario.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:55.858Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 33,
+        "timestamp": "2026-03-30T11:19:55.855Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El scheduler cerro calendarizacion por via deterministica.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 1014,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:55.859Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 34,
+        "timestamp": "2026-03-30T11:19:55.855Z",
+        "category": "phase",
+        "action": "schedule.summary",
+        "summary_es": "Calendarizacion optimal con fill rate 100%.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "schedule",
+          "fillRate": 1,
+          "solverStatus": "optimal",
+          "solverTimeMs": 1012,
+          "unscheduledCount": 0,
+          "tradeoffs": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:55.859Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 35,
+        "timestamp": "2026-03-30T11:19:55.856Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de calendarizacion a critica.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "schedule",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:55.860Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 36,
+        "timestamp": "2026-03-30T11:19:55.856Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:55.860Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 37,
+        "timestamp": "2026-03-30T11:19:55.856Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:19:57.670Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:19:57.670Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T11:19:55.856Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:07.682Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:20:07.683Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T11:19:55.856Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:17.694Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:20:17.694Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T11:19:55.856Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:26.187Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 38,
+        "timestamp": "2026-03-30T11:20:26.138Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 30282,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:26.187Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 39,
+        "timestamp": "2026-03-30T11:20:26.139Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict revise y score 68/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "revise",
+          "overallScore": 68,
+          "mustFix": [
+            {
+              "id": "f-1",
+              "severity": "critical",
+              "category": "feasibility",
+              "message": "Aunque existe una deuda de tarjeta de 300 000 pesos, ninguna fase explica cómo se pagará o cómo se coordinarán esas cuotas con el objetivo de ahorrar 150 000 pesos mensuales, lo que pone en riesgo la liquidez y el costo financiero del plan.",
+              "suggestion": "Incorpora un subplan de amortización de la deuda (p.ej., monto mensual, orden de pagos, uso del ahorro liberado) y verifica que el flujo de caja permita ahorrar sin dejar de cubrir intereses y capital.",
+              "affectedPhaseIds": [
+                "Baseline y mapa de gastos para liberar 150000 pesos por mes",
+                "Presupuesto y automatizacion inicial de 150000 pesos por mes",
+                "Sostenimiento de 150000 pesos por mes hasta cerrar 6 meses"
+              ]
+            }
+          ],
+          "shouldFix": [
+            {
+              "id": "f-2",
+              "severity": "warning",
+              "category": "progression",
+              "message": "Las primeras 8 semanas se destinan solo a diagnóstico y presupuesto, por lo que la persona no llegaría a completar seis meses completos de ahorro sostenido dentro del plazo comprometido de seis meses.",
+              "suggestion": "Introduce una separación inicial (aunque sea parcial) desde el primer mes o acorta el diagnóstico para que existan al menos seis meses efectivos de ahorro dentro del horizonte señalado.",
+              "affectedPhaseIds": [
+                "Baseline y mapa de gastos para liberar 150000 pesos por mes",
+                "Presupuesto y automatizacion inicial de 150000 pesos por mes"
+              ]
+            },
+            {
+              "id": "f-3",
+              "severity": "warning",
+              "category": "domain",
+              "message": "El plan no incluye acciones explícitas para comparar precios de servicios fijos o renegociarlos, pese a ser una táctica recomendada para liberar efectivo en este dominio.",
+              "suggestion": "Añade actividades concretas para revisar tarifas de servicios esenciales, cotizar alternativas y renegociar o cambiar proveedores si se detectan ahorros posibles.",
+              "affectedPhaseIds": [
+                "Baseline y mapa de gastos para liberar 150000 pesos por mes",
+                "Presupuesto y automatizacion inicial de 150000 pesos por mes"
+              ]
+            }
+          ],
+          "reasoning": "El plan respeta la meta cuantitativa pero omite cómo manejar la deuda existente, punto crítico para que el ahorro sea viable. Además, el calendario deja poco tiempo para demostrar seis meses completos de ahorro y no aprovecha tácticas recomendadas del dominio. Corrigiendo esos aspectos la estrategia sería más realista.",
+          "scoreDelta": null,
+          "comparison": "sin_base"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:26.188Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 40,
+        "timestamp": "2026-03-30T11:20:26.139Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El critico pidio otra vuelta (score 68/100, must-fix 1).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "revise"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:26.189Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 41,
+        "timestamp": "2026-03-30T11:20:26.140Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta corrigiendo el plan a partir de la critica.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:26.189Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 42,
+        "timestamp": "2026-03-30T11:20:26.140Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo una nueva vuelta de revision.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:26.190Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 43,
+        "timestamp": "2026-03-30T11:20:26.140Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:27.695Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:20:27.695Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 43,
+          "lastEventTimestamp": "2026-03-30T11:20:26.140Z",
+          "lastEventSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:31.304Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 44,
+        "timestamp": "2026-03-30T11:20:31.290Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 5150,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:37.700Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:20:37.699Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T11:20:31.290Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:47.704Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:20:47.703Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T11:20:31.290Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:20:57.715Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:20:57.715Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T11:20:31.290Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:05.874Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 45,
+        "timestamp": "2026-03-30T11:21:05.767Z",
+        "category": "agent",
+        "action": "agent.fallback",
+        "summary_es": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable. La revision siguio con fallback del planificador.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": "Error",
+        "details": {
+          "source": "fallback",
+          "durationMs": 39627,
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "pesos",
+              "variable",
+              "250000.",
+              "300000.",
+              "850000.",
+              "mensual"
+            ],
+            "observedTexts": [
+              "Registro del mes 1 y separación inmediata de 150000 pesos hacia los 6 meses de ahorro En el primer mes anota cada ingreso y gasto, recorta de inmediato 50k de gastos discrecionales, separa 150000 pesos apenas cobres y realiza un pago inicial (>=60000 pesos) a la tarjeta para arrancar los 6 meses con liquidez controlada.",
+              "Presupuesto y renegociación de servicios para sostener 150000 pesos y amortizar la tarjeta en 6 meses En el mes 2 consolida el registro, fija un presupuesto mensual <=1050000 pesos, cotiza al menos dos alternativas por cada servicio fijo y agenda pagos automáticos de 150000 pesos al ahorro y 75000 pesos a la tarjeta para cubrir los seis meses.",
+              "Ejecución mensual meses 3-5: ahorro de 150000 pesos y pagos coordinados de la tarjeta Durante los meses 3 a 5 mantén el presupuesto, valida cada semana que los débitos de 150000 pesos de ahorro y 75000 pesos de tarjeta se ejecutaron y actualiza el saldo para comprobar que la deuda bajará a cero dentro del horizonte de 6 meses.",
+              "Cierre del mes 6: sexto ahorro consecutivo y liquidación de deuda para continuar sostenible En el mes 6 confirma el sexto depósito de 150000 pesos, aplica el último pago necesario para dejar la tarjeta en cero y documenta el flujo mensual ajustado para que el hábito continúe más allá de los 6 meses.",
+              "Mes 1 registrado, 150000 ahorrados y primer pago a la tarjeta",
+              "Presupuesto <=1050000 pesos con tarifas renegociadas y automatizaciones activas"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:05.876Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 46,
+        "timestamp": "2026-03-30T11:21:05.768Z",
+        "category": "phase",
+        "action": "revise.summary",
+        "summary_es": "Revision lista con 3 fase(s) y 3 hito(s).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 24,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Baseline y mapa de gastos para liberar 150000 pesos por mes",
+              "focus": "Ordenar ingresos, gastos fijos y variables para detectar de donde sale 150000 pesos por mes sin prometer recortes imposibles. Partir desde ingreso neto mensual 1200000 pesos. gasto fijo 850000. gasto variable 250000. deuda de tarjeta 300000. ahorro actual 0 a 20000 pesos por mes. como baseline real.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 2,
+              "title": "Presupuesto y automatizacion inicial de 150000 pesos por mes",
+              "focus": "Convertir el diagnostico en un presupuesto realista, definir una separacion mensual cercana a 150000 pesos por mes y dejar configurada la primera transferencia o separacion automatica. Mantener un mecanismo simple y repetible para mover el ahorro sin friccion extra.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 3,
+              "title": "Sostenimiento de 150000 pesos por mes hasta cerrar 6 meses",
+              "focus": "Sostener la cadencia mensual de 150000 pesos por mes durante el tramo restante, registrar cada cumplimiento y ajustar desvios sin salir del horizonte. Cerrar 6 meses con 150000 pesos por mes activo y registro acumulado al dia. La revision final queda integrada en este cierre, sin depender de fases superpuestas que el runtime no representa.",
+              "durationWeeks": 16
+            }
+          ],
+          "milestones": [
+            "Baseline de gastos y ahorro actual registrada con categorias claras",
+            "Presupuesto equilibrado y primera separacion automatica de 150000 pesos por mes",
+            "Cierre de 6 meses con 150000 pesos por mes activo y seguimiento mensual documentado"
+          ],
+          "fallbackUsed": true,
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "pesos",
+              "variable",
+              "250000.",
+              "300000.",
+              "850000.",
+              "mensual"
+            ],
+            "observedTexts": [
+              "Registro del mes 1 y separación inmediata de 150000 pesos hacia los 6 meses de ahorro En el primer mes anota cada ingreso y gasto, recorta de inmediato 50k de gastos discrecionales, separa 150000 pesos apenas cobres y realiza un pago inicial (>=60000 pesos) a la tarjeta para arrancar los 6 meses con liquidez controlada.",
+              "Presupuesto y renegociación de servicios para sostener 150000 pesos y amortizar la tarjeta en 6 meses En el mes 2 consolida el registro, fija un presupuesto mensual <=1050000 pesos, cotiza al menos dos alternativas por cada servicio fijo y agenda pagos automáticos de 150000 pesos al ahorro y 75000 pesos a la tarjeta para cubrir los seis meses.",
+              "Ejecución mensual meses 3-5: ahorro de 150000 pesos y pagos coordinados de la tarjeta Durante los meses 3 a 5 mantén el presupuesto, valida cada semana que los débitos de 150000 pesos de ahorro y 75000 pesos de tarjeta se ejecutaron y actualiza el saldo para comprobar que la deuda bajará a cero dentro del horizonte de 6 meses.",
+              "Cierre del mes 6: sexto ahorro consecutivo y liquidación de deuda para continuar sostenible En el mes 6 confirma el sexto depósito de 150000 pesos, aplica el último pago necesario para dejar la tarjeta en cero y documenta el flujo mensual ajustado para que el hábito continúe más allá de los 6 meses.",
+              "Mes 1 registrado, 150000 ahorrados y primer pago a la tarjeta",
+              "Presupuesto <=1050000 pesos con tarifas renegociadas y automatizaciones activas"
+            ]
+          },
+          "fallbackPublishability": "pendiente_de_critica"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:05.877Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 47,
+        "timestamp": "2026-03-30T11:21:05.768Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La revision volvio a critica para validar la nueva version del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "revise",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:05.877Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 48,
+        "timestamp": "2026-03-30T11:21:05.768Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:05.878Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 49,
+        "timestamp": "2026-03-30T11:21:05.768Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:07.720Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:21:07.720Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 8,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 2,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 49,
+          "lastEventTimestamp": "2026-03-30T11:21:05.768Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:12.773Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 50,
+        "timestamp": "2026-03-30T11:21:12.743Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 6974,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:12.774Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 51,
+        "timestamp": "2026-03-30T11:21:12.743Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict revise y score 58/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "revise",
+          "overallScore": 58,
+          "mustFix": [
+            {
+              "id": "f-1",
+              "severity": "critical",
+              "category": "feasibility",
+              "message": "Aunque la deuda de tarjeta de 300 000 pesos se cita como parte del baseline, ninguna fase explica cómo se pagará ni cómo afectará el flujo para lograr ahorrar 150 000 pesos mensuales, lo que puede descarrilar el objetivo si aparecen intereses o pagos mínimos elevados.",
+              "suggestion": "Incorporar en la fase de diagnóstico y presupuesto un plan concreto para amortizar la deuda (cronograma de pagos, impacto mensual, orden de prioridad) y verificar que aún se pueda liberar y sostener los 150 000 pesos de ahorro neto tras cumplir con esas cuotas.",
+              "affectedPhaseIds": [
+                "Baseline y mapa de gastos para liberar 150000 pesos por mes",
+                "Presupuesto y automatizacion inicial de 150000 pesos por mes",
+                "Sostenimiento de 150000 pesos por mes hasta cerrar 6 meses"
+              ]
+            }
+          ],
+          "shouldFix": [
+            {
+              "id": "f-2",
+              "severity": "warning",
+              "category": "domain",
+              "message": "El dominio de finanzas personales requiere acciones como planear pagos de deudas y comparar servicios fijos; el plan solo menciona el registro y el presupuesto, sin abordar explícitamente esas tareas recomendadas.",
+              "suggestion": "Añadir actividades específicas dentro de las fases (p. ej., analizar opciones para refinanciar la tarjeta o definir un plan de pagos, revisar contratos de servicios fijos y negociar o cambiar proveedores) para cumplir con las mejores prácticas del dominio.",
+              "affectedPhaseIds": [
+                "Baseline y mapa de gastos para liberar 150000 pesos por mes",
+                "Presupuesto y automatizacion inicial de 150000 pesos por mes"
+              ]
+            }
+          ],
+          "reasoning": "El plan sigue sin integrar cómo se atenderá la deuda actual, lo que compromete la viabilidad del ahorro mensual objetivo. Además, omite algunas prácticas clave del dominio financiero, como programar pagos de deudas o revisar servicios fijos. Estos huecos requieren ajustar la estrategia antes de ejecutarla.",
+          "scoreDelta": -10,
+          "comparison": "peor"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:12.775Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 52,
+        "timestamp": "2026-03-30T11:21:12.743Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El critico pidio otra vuelta (score 58/100, must-fix 1).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "revise"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:12.776Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 53,
+        "timestamp": "2026-03-30T11:21:12.743Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta corrigiendo el plan a partir de la critica.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:12.776Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 54,
+        "timestamp": "2026-03-30T11:21:12.744Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo una nueva vuelta de revision.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:12.777Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 55,
+        "timestamp": "2026-03-30T11:21:12.744Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:15.659Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 56,
+        "timestamp": "2026-03-30T11:21:15.640Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 2896,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:17.722Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:21:17.721Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 9,
+          "revisionCycles": 2,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 2,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 56,
+          "lastEventTimestamp": "2026-03-30T11:21:15.640Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:27.728Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:21:27.727Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 9,
+          "revisionCycles": 2,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 2,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 56,
+          "lastEventTimestamp": "2026-03-30T11:21:15.640Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:37.736Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:21:37.737Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 9,
+          "revisionCycles": 2,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 2,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 56,
+          "lastEventTimestamp": "2026-03-30T11:21:15.640Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:47.743Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:21:47.743Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 9,
+          "revisionCycles": 2,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 2,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 56,
+          "lastEventTimestamp": "2026-03-30T11:21:15.640Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:54.411Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 57,
+        "timestamp": "2026-03-30T11:21:54.271Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El planificador completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 41527,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:54.411Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 58,
+        "timestamp": "2026-03-30T11:21:54.272Z",
+        "category": "phase",
+        "action": "revise.summary",
+        "summary_es": "Revision lista con 4 fase(s) y 4 hito(s).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 9,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 24,
+          "phaseCount": 4,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Diagnóstico financiero y calendario de la tarjeta en el mes 1",
+              "focus": "Dedica el primer mes a registrar dos semanas completas de ingresos y gastos, validar el baseline (1.200.000 ingresos, 850.000 fijos, 250.000 variables) y calcular el pago mínimo e interés de la tarjeta de 300.000 pesos para diseñar un calendario de seis meses.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 2,
+              "title": "Presupuesto ajustado y automatización inicial del ahorro de 150000 pesos en el mes 2",
+              "focus": "Con el diagnóstico listo, recorta variables y prioriza desembolsos: actualiza el presupuesto para liberar 150000 pesos de ahorro mensual más la cuota pactada de la tarjeta, configura órdenes automáticas (transferencia de 150000 pesos al ahorro y pago programado antes del corte) y documenta los ajustes.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 3,
+              "title": "Optimización de servicios fijos y renegociación para liberar flujo en meses 3-4",
+              "focus": "Durante los meses 3 y 4 compara contratos de servicios (internet, telefonía, seguros) para renegociar o cambiar proveedores, documenta el ahorro liberado y aplícalo al plan de pagos y ahorro, actualizando el presupuesto y la hoja de control.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 4,
+              "title": "Sostenimiento del ahorro de 150000 pesos y pagos de tarjeta en meses 5-6",
+              "focus": "En los meses 5 y 6 ejecuta el presupuesto afinado: registra cada cobro y gasto, confirma que la transferencia de 150000 pesos y el pago de la tarjeta salen puntualmente, monitorea el saldo para que siga bajando y ajusta las categorías si aparece un desvío.",
+              "durationWeeks": 8
+            }
+          ],
+          "milestones": [
+            "Calendario de pagos de la tarjeta armado con flujo real del mes 1",
+            "Presupuesto ajustado con transferencias automáticas activas en el mes 2",
+            "Servicios fijos renegociados liberando ≥20000 pesos mensuales al mes 4",
+            "Ahorro de 150000 pesos y pagos de tarjeta cumplidos en meses 5 y 6"
+          ],
+          "fallbackUsed": false,
+          "failedCheck": null,
+          "validationSummaryEs": null,
+          "validationEvidence": null,
+          "fallbackPublishability": "sin_fallback"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:54.412Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 59,
+        "timestamp": "2026-03-30T11:21:54.273Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La revision volvio a critica para validar la nueva version del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "revise",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:54.413Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 60,
+        "timestamp": "2026-03-30T11:21:54.273Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:54.413Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 61,
+        "timestamp": "2026-03-30T11:21:54.273Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:21:57.749Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:21:57.749Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 10,
+          "revisionCycles": 2,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 2,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 61,
+          "lastEventTimestamp": "2026-03-30T11:21:54.273Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:22:07.881Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 62,
+        "timestamp": "2026-03-30T11:22:07.816Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 13543,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:22:07.882Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 63,
+        "timestamp": "2026-03-30T11:22:07.817Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict revise y score 62/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 10,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "revise",
+          "overallScore": 62,
+          "mustFix": [
+            {
+              "id": "f-1",
+              "severity": "critical",
+              "category": "feasibility",
+              "message": "Aunque se menciona calcular el pago mínimo y programar los pagos de la tarjeta, nunca se define cuánto se abonará cada mes ni si ese monto amortiza el saldo de 300 000 pesos dentro de los seis meses mientras se ahorran 150 000 pesos; sin esa cifra el presupuesto puede resultar insuficiente y el objetivo descarrilar.",
+              "suggestion": "Determina explícitamente el pago mensual necesario para cubrir intereses y reducir el capital según el calendario de seis meses, verifica que pueda coexistir con el ahorro de 150 000 pesos y ajusta el presupuesto si el flujo no alcanza.",
+              "affectedPhaseIds": [
+                "Diagnóstico financiero y calendario de la tarjeta en el mes 1",
+                "Presupuesto ajustado y automatización inicial del ahorro de 150000 pesos en el mes 2",
+                "Optimización de servicios fijos y renegociación para liberar flujo en meses 3-4",
+                "Sostenimiento del ahorro de 150000 pesos y pagos de tarjeta en meses 5-6"
+              ]
+            }
+          ],
+          "shouldFix": [],
+          "reasoning": "El plan es sólido en estructura y alineación con la meta, pero omite especificar el monto de pago de la tarjeta dentro del flujo mensual. Sin esa cifra no se puede comprobar si es viable mantener el ahorro propuesto y reducir la deuda, por lo que se necesita ajustar el plan.",
+          "scoreDelta": 4,
+          "comparison": "similar"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:22:07.883Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 64,
+        "timestamp": "2026-03-30T11:22:07.817Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de critica a empaquetado.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 11,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "package"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:22:07.884Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 65,
+        "timestamp": "2026-03-30T11:22:07.817Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta empaquetando el resultado final.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 11,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:22:07.885Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 66,
+        "timestamp": "2026-03-30T11:22:07.817Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El empaquetador esta armando el resultado final publicable.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 11,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:22:07.886Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 67,
+        "timestamp": "2026-03-30T11:22:07.831Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El empaquetador cerro empaquetado por via deterministica.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 11,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 14,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:22:07.887Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 68,
+        "timestamp": "2026-03-30T11:22:07.832Z",
+        "category": "phase",
+        "action": "package.summary",
+        "summary_es": "Empaquetado listo con score base 100/100 y 0 advertencia(s).",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 11,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "package",
+          "packageReady": true,
+          "qualityScore": 100,
+          "summary": "Este plan convierte \"Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.\" en 8 bloques concretos para esta semana. Lo organizamos en 4 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "warnings": [],
+          "qualityIssues": [],
+          "requestDomain": null,
+          "packageDomain": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:22:07.888Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 69,
+        "timestamp": "2026-03-30T11:22:07.832Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El paquete final quedo listo para resolver la publicacion.",
+        "phase": "done",
+        "agent": null,
+        "iteration": 12,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "package",
+          "toPhase": "done"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:22:07.889Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 70,
+        "timestamp": "2026-03-30T11:22:07.833Z",
+        "category": "publication",
+        "action": "publication.evaluated",
+        "summary_es": "La publicacion quedo bloqueada y el plan no puede salir tal como esta.",
+        "phase": "done",
+        "agent": "planner",
+        "iteration": 12,
+        "revisionCycle": 2,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 2,
+        "publicationState": "blocked",
+        "failureCode": "requires_regeneration",
+        "errorCode": null,
+        "details": {
+          "partialKind": "publication",
+          "canPublish": false,
+          "degraded": true,
+          "blockingAgents": [
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "source": "fallback",
+              "errorCode": "Error",
+              "errorMessage": "Planner output failed validation: check \"intake.metric\" did not pass. Fallback strategy was used.",
+              "durationMs": 25807
+            },
+            {
+              "agent": "planner",
+              "phase": "revise",
+              "source": "fallback",
+              "errorCode": "Error",
+              "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+              "durationMs": 39627
+            }
+          ],
+          "fallbackLedger": [
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "count": 1,
+              "latestErrorCode": "Error",
+              "latestErrorMessage": "Planner output failed validation: check \"intake.metric\" did not pass. Fallback strategy was used."
+            },
+            {
+              "agent": "planner",
+              "phase": "revise",
+              "count": 1,
+              "latestErrorCode": "Error",
+              "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+            }
+          ],
+          "qualityIssues": [
+            {
+              "code": "CRITICAL_AGENT_FAILURE",
+              "severity": "blocking",
+              "message": "La ruta critica del pipeline fallo y hace falta regenerar el plan con agentes que respondan correctamente."
+            }
+          ],
+          "criticVerdict": "revise",
+          "criticScore": 62,
+          "warnings": [
+            "No se puede publicar este plan: la revision critica fallo y hace falta regenerarlo con un proveedor que responda bien."
+          ],
+          "exactBlockers": [
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "errorCode": "Error",
+              "errorMessage": "Planner output failed validation: check \"intake.metric\" did not pass. Fallback strategy was used."
+            },
+            {
+              "agent": "planner",
+              "phase": "revise",
+              "errorCode": "Error",
+              "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+            }
+          ],
+          "misalignedGoal": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-081906-resume-92f3074d-1167-4501-a6b9-cf87d306472b.json"
+}

@@ -1,0 +1,656 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T22:07:41.959Z",
+  "updatedAt": "2026-03-29T22:07:49.824Z",
+  "invocation": {
+    "goal": "Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": "0f44eee5-e3a9-4d7b-b200-8f3946d129b4",
+    "provider": "ollama",
+    "modelId": null,
+    "status": "running"
+  },
+  "pendingInput": {
+    "sessionId": "0f44eee5-e3a9-4d7b-b200-8f3946d129b4",
+    "goal": "Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.",
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "questions": [
+      {
+        "id": "clarify-r1-q",
+        "text": "¿Cuál es tu nivel actual de conocimiento en cocina italiana?",
+        "type": "select",
+        "options": [
+          "Ninguno",
+          "Básico",
+          "Intermedio",
+          "Avanzado"
+        ],
+        "min": null,
+        "max": null
+      }
+    ],
+    "createdAt": "2026-03-29T22:07:49.824Z",
+    "pendingFilePath": "F:\\proyectos\\planificador-vida\\.lap-pending-input.json",
+    "resumeCommand": "node scripts/run-plan.mjs --resume-session=0f44eee5-e3a9-4d7b-b200-8f3946d129b4 --answers-json='{\"id\":\"respuesta\",...}' --debug"
+  },
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 12,
+    "timestamp": "2026-03-29T22:07:49.800Z",
+    "category": "lifecycle",
+    "action": "session.paused",
+    "summary_es": "El pipeline quedó pausado esperando 1 respuesta(s) de aclaración.",
+    "phase": "clarify",
+    "agent": "clarifier",
+    "iteration": 2,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 25,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "questionCount": 1,
+      "questions": [
+        {
+          "id": "clarify-r1-q",
+          "text": "¿Cuál es tu nivel actual de conocimiento en cocina italiana?",
+          "purpose": "Determinar el punto de partida para planificar el aprendizaje",
+          "type": "select",
+          "options": [
+            "Ninguno",
+            "Básico",
+            "Intermedio",
+            "Avanzado"
+          ]
+        }
+      ],
+      "informationGaps": [
+        "current_baseline"
+      ],
+      "goalSignalsSnapshot": {
+        "parsedGoal": "I want to learn Italian cooking, specifically pasta and sauces, and be able to cook a simple menu within 3 months.",
+        "goalType": "SKILL_ACQUISITION",
+        "riskFlags": [
+          "LOW"
+        ],
+        "suggestedDomain": "cooking",
+        "metric": null,
+        "timeframe": "3 meses",
+        "anchorTokens": [
+          "aprender",
+          "cocina",
+          "italiana",
+          "especialmente",
+          "pasta",
+          "salsas"
+        ],
+        "informationGaps": [
+          "current_baseline"
+        ],
+        "clarifyConfidence": 0.7,
+        "readyToAdvance": false,
+        "normalizedUserAnswers": [],
+        "missingCriticalSignals": [
+          "current_baseline"
+        ],
+        "hasSufficientSignalsForPlanning": false,
+        "clarificationMode": "needs_input",
+        "degraded": false,
+        "fallbackCount": 0,
+        "phase": "clarify",
+        "clarifyRounds": 1
+      }
+    }
+  },
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T22:07:41.960Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.",
+        "resumeSession": null,
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": true
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:41.964Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "ollama",
+        "label": "Ollama (local)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:41.965Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "ollama",
+        "goalText": "Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-29T22:07:42.691Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:42.691Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-29T22:07:42.687Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "ollama:qwen3:8b",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:42.692Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-29T22:07:42.687Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:42.692Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-29T22:07:42.687Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.692Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-29T22:07:46.689Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El interprete completo interpretacion con respuesta del modelo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 4002,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.693Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-29T22:07:46.690Z",
+        "category": "phase",
+        "action": "interpret.summary",
+        "summary_es": "Objetivo interpretado como SKILL_ACQUISITION con confianza 90%.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "interpretation",
+          "normalizedGoal": "I want to learn Italian cooking, specifically pasta and sauces, and be able to cook a simple menu within 3 months.",
+          "goalType": "SKILL_ACQUISITION",
+          "suggestedDomain": "cooking",
+          "confidence": 0.9,
+          "ambiguities": [
+            "What level of proficiency is considered 'simple menu'?",
+            "What specific resources or learning methods will be used?",
+            "How will progress be measured over the 3-month period?",
+            "Is there a specific regional or traditional style of Italian cooking the user is interested in?"
+          ],
+          "assumptions": [
+            "The user has access to resources or materials needed to learn Italian cooking.",
+            "The user has the time and consistency to dedicate to learning over 3 months.",
+            "The user is willing to practice and experiment with recipes."
+          ],
+          "riskFlags": [
+            "LOW"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "I want to learn Italian cooking, specifically pasta and sauces, and be able to cook a simple menu within 3 months.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "cooking",
+            "metric": null,
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "aprender",
+              "cocina",
+              "italiana",
+              "especialmente",
+              "pasta",
+              "salsas"
+            ],
+            "informationGaps": [
+              "current_baseline"
+            ],
+            "clarifyConfidence": null,
+            "readyToAdvance": null,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "interpret",
+            "clarifyRounds": 0
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.694Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-29T22:07:46.690Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.694Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-29T22:07:46.690Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:46.694Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-29T22:07:46.690Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:49.801Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-29T22:07:49.799Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 3108,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:49.802Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-29T22:07:49.800Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion deja 1 pregunta(s) pendiente(s).",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": false,
+          "confidence": 0.7,
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuál es tu nivel actual de conocimiento en cocina italiana?",
+              "purpose": "Determinar el punto de partida para planificar el aprendizaje",
+              "type": "select",
+              "options": [
+                "Ninguno",
+                "Básico",
+                "Intermedio",
+                "Avanzado"
+              ]
+            }
+          ],
+          "informationGaps": [
+            "current_baseline"
+          ],
+          "knownAnswers": [],
+          "duplicateQuestions": [],
+          "reasoning": "Falta información sobre el nivel actual de conocimiento en cocina italiana para planificar adecuadamente el aprendizaje.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "I want to learn Italian cooking, specifically pasta and sauces, and be able to cook a simple menu within 3 months.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "cooking",
+            "metric": null,
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "aprender",
+              "cocina",
+              "italiana",
+              "especialmente",
+              "pasta",
+              "salsas"
+            ],
+            "informationGaps": [
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.7,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:49.802Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-29T22:07:49.800Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "Todavia faltan respuestas; se mantiene la aclaracion con 1 pregunta(s) pendientes.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:49.803Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 12,
+        "timestamp": "2026-03-29T22:07:49.800Z",
+        "category": "lifecycle",
+        "action": "session.paused",
+        "summary_es": "El pipeline quedó pausado esperando 1 respuesta(s) de aclaración.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "questionCount": 1,
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuál es tu nivel actual de conocimiento en cocina italiana?",
+              "purpose": "Determinar el punto de partida para planificar el aprendizaje",
+              "type": "select",
+              "options": [
+                "Ninguno",
+                "Básico",
+                "Intermedio",
+                "Avanzado"
+              ]
+            }
+          ],
+          "informationGaps": [
+            "current_baseline"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "I want to learn Italian cooking, specifically pasta and sauces, and be able to cook a simple menu within 3 months.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "cooking",
+            "metric": null,
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "aprender",
+              "cocina",
+              "italiana",
+              "especialmente",
+              "pasta",
+              "salsas"
+            ],
+            "informationGaps": [
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.7,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:07:49.823Z",
+      "type": "v6:needs_input",
+      "data": {
+        "sessionId": "0f44eee5-e3a9-4d7b-b200-8f3946d129b4",
+        "questions": {
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuál es tu nivel actual de conocimiento en cocina italiana?",
+              "purpose": "Determinar el punto de partida para planificar el aprendizaje",
+              "type": "select",
+              "options": [
+                "Ninguno",
+                "Básico",
+                "Intermedio",
+                "Avanzado"
+              ]
+            }
+          ],
+          "reasoning": "Falta información sobre el nivel actual de conocimiento en cocina italiana para planificar adecuadamente el aprendizaje.",
+          "informationGaps": [
+            "current_baseline"
+          ],
+          "confidence": 0.7,
+          "readyToAdvance": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-190741-quiero-aprender-cocina-italiana-especialmente-pa.json"
+}

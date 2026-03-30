@@ -1,0 +1,661 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-29T22:15:38.182Z",
+  "updatedAt": "2026-03-29T22:15:46.394Z",
+  "invocation": {
+    "goal": "Quiero mejorar mi ingles y conseguir un trabajo remoto en 6 meses.",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": "8cbc6447-bee4-4869-83cb-f43767b10c5e",
+    "provider": "ollama",
+    "modelId": null,
+    "status": "paused_for_input"
+  },
+  "pendingInput": {
+    "sessionId": "8cbc6447-bee4-4869-83cb-f43767b10c5e",
+    "goal": "Quiero mejorar mi ingles y conseguir un trabajo remoto en 6 meses.",
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "questions": [
+      {
+        "id": "clarify-r1-q",
+        "text": "¿Cuál es tu nivel actual de inglés?",
+        "type": "select",
+        "options": [
+          "Bajo",
+          "Medio",
+          "Alto"
+        ],
+        "min": null,
+        "max": null
+      }
+    ],
+    "createdAt": "2026-03-29T22:15:46.392Z",
+    "pendingFilePath": "F:\\proyectos\\planificador-vida\\.lap-pending-input.json",
+    "resumeCommand": "node scripts/run-plan.mjs --resume-session=8cbc6447-bee4-4869-83cb-f43767b10c5e --answers-json='{\"id\":\"respuesta\",...}' --debug"
+  },
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 12,
+    "timestamp": "2026-03-29T22:15:46.362Z",
+    "category": "lifecycle",
+    "action": "session.paused",
+    "summary_es": "El pipeline quedó pausado esperando 1 respuesta(s) de aclaración.",
+    "phase": "clarify",
+    "agent": "clarifier",
+    "iteration": 2,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 25,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "questionCount": 1,
+      "questions": [
+        {
+          "id": "clarify-r1-q",
+          "text": "¿Cuál es tu nivel actual de inglés?",
+          "purpose": "Determinar el punto de partida para el plan de mejora",
+          "type": "select",
+          "options": [
+            "Bajo",
+            "Medio",
+            "Alto"
+          ]
+        }
+      ],
+      "informationGaps": [
+        "current_baseline"
+      ],
+      "goalSignalsSnapshot": {
+        "parsedGoal": "Improve my English and secure a remote job within six months.",
+        "goalType": "SKILL_ACQUISITION",
+        "riskFlags": [
+          "LOW"
+        ],
+        "suggestedDomain": "language learning and remote work",
+        "metric": null,
+        "timeframe": "6 meses",
+        "anchorTokens": [
+          "mejorar",
+          "ingles",
+          "conseguir",
+          "trabajo",
+          "remoto",
+          "meses."
+        ],
+        "informationGaps": [
+          "current_baseline"
+        ],
+        "clarifyConfidence": 0.5,
+        "readyToAdvance": false,
+        "normalizedUserAnswers": [],
+        "missingCriticalSignals": [
+          "current_baseline"
+        ],
+        "hasSufficientSignalsForPlanning": false,
+        "clarificationMode": "needs_input",
+        "degraded": false,
+        "fallbackCount": 0,
+        "phase": "clarify",
+        "clarifyRounds": 1
+      }
+    }
+  },
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-29T22:15:38.183Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero mejorar mi ingles y conseguir un trabajo remoto en 6 meses.",
+        "resumeSession": null,
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": true,
+        "noCodex": true
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:38.186Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "ollama",
+        "label": "Ollama (local)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:38.187Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "ollama",
+        "goalText": "Quiero mejorar mi ingles y conseguir un trabajo remoto en 6 meses.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.393Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "ollama",
+        "recoverable": true,
+        "message": "Pipeline pausado esperando respuestas.",
+        "failureCode": null
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-29T22:15:38.823Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:38.824Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-29T22:15:38.819Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero mejorar mi ingles y conseguir un trabajo remoto en 6 meses.\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "ollama:qwen3:8b",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:38.825Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-29T22:15:38.819Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:38.825Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-29T22:15:38.819Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:42.615Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-29T22:15:42.613Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El interprete completo interpretacion con respuesta del modelo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 3794,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:42.616Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-29T22:15:42.613Z",
+        "category": "phase",
+        "action": "interpret.summary",
+        "summary_es": "Objetivo interpretado como SKILL_ACQUISITION con confianza 85%.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "interpretation",
+          "normalizedGoal": "Improve my English and secure a remote job within six months.",
+          "goalType": "SKILL_ACQUISITION",
+          "suggestedDomain": "language learning and remote work",
+          "confidence": 0.85,
+          "ambiguities": [
+            "What level of English proficiency is required for the remote job?",
+            "What specific field or industry is the user targeting for a remote job?",
+            "What resources or strategies will the user use to improve their English?",
+            "How will the user determine when they have achieved sufficient English proficiency for a remote job?"
+          ],
+          "assumptions": [
+            "The user has the necessary skills or qualifications to qualify for a remote job.",
+            "The user can effectively improve their English within six months.",
+            "The user can find and secure a remote job in their field of expertise."
+          ],
+          "riskFlags": [
+            "LOW"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Improve my English and secure a remote job within six months.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "language learning and remote work",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "mejorar",
+              "ingles",
+              "conseguir",
+              "trabajo",
+              "remoto",
+              "meses."
+            ],
+            "informationGaps": [
+              "current_baseline"
+            ],
+            "clarifyConfidence": null,
+            "readyToAdvance": null,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "interpret",
+            "clarifyRounds": 0
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:42.616Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-29T22:15:42.613Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:42.617Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-29T22:15:42.613Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:42.617Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-29T22:15:42.613Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.363Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-29T22:15:46.361Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 3748,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.364Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-29T22:15:46.361Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion deja 1 pregunta(s) pendiente(s).",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": false,
+          "confidence": 0.5,
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuál es tu nivel actual de inglés?",
+              "purpose": "Determinar el punto de partida para el plan de mejora",
+              "type": "select",
+              "options": [
+                "Bajo",
+                "Medio",
+                "Alto"
+              ]
+            }
+          ],
+          "informationGaps": [
+            "current_baseline"
+          ],
+          "knownAnswers": [],
+          "duplicateQuestions": [],
+          "reasoning": "Falta información sobre el nivel actual de inglés para definir un plan realista",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Improve my English and secure a remote job within six months.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "language learning and remote work",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "mejorar",
+              "ingles",
+              "conseguir",
+              "trabajo",
+              "remoto",
+              "meses."
+            ],
+            "informationGaps": [
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.5,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.364Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-29T22:15:46.361Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "Todavia faltan respuestas; se mantiene la aclaracion con 1 pregunta(s) pendientes.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.365Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 12,
+        "timestamp": "2026-03-29T22:15:46.362Z",
+        "category": "lifecycle",
+        "action": "session.paused",
+        "summary_es": "El pipeline quedó pausado esperando 1 respuesta(s) de aclaración.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "questionCount": 1,
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuál es tu nivel actual de inglés?",
+              "purpose": "Determinar el punto de partida para el plan de mejora",
+              "type": "select",
+              "options": [
+                "Bajo",
+                "Medio",
+                "Alto"
+              ]
+            }
+          ],
+          "informationGaps": [
+            "current_baseline"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Improve my English and secure a remote job within six months.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "language learning and remote work",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "mejorar",
+              "ingles",
+              "conseguir",
+              "trabajo",
+              "remoto",
+              "meses."
+            ],
+            "informationGaps": [
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.5,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "current_baseline"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-29T22:15:46.391Z",
+      "type": "v6:needs_input",
+      "data": {
+        "sessionId": "8cbc6447-bee4-4869-83cb-f43767b10c5e",
+        "questions": {
+          "questions": [
+            {
+              "id": "clarify-r1-q",
+              "text": "¿Cuál es tu nivel actual de inglés?",
+              "purpose": "Determinar el punto de partida para el plan de mejora",
+              "type": "select",
+              "options": [
+                "Bajo",
+                "Medio",
+                "Alto"
+              ]
+            }
+          ],
+          "reasoning": "Falta información sobre el nivel actual de inglés para definir un plan realista",
+          "informationGaps": [
+            "current_baseline"
+          ],
+          "confidence": 0.5,
+          "readyToAdvance": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260329-191538-quiero-mejorar-mi-ingles-y-conseguir-un-trabajo-.json"
+}

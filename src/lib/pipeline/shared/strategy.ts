@@ -109,6 +109,9 @@ interface GenericPlanAnchors {
   metric: string | null;
   timeframe: string | null;
   anchorTokens: string[];
+  currentBaseline: string | null;
+  modality: string | null;
+  successCriteria: string | null;
 }
 
 interface TypedClarificationSignals {
@@ -483,6 +486,11 @@ function canonicalizeAnchorToken(token: string): string {
   switch (normalized) {
     case '3k':
       return '3000';
+    case 'ar$':
+    case 'ars':
+    case 'peso':
+    case 'pesos':
+      return 'pesos';
     case 'dolar':
     case 'dolares':
     case 'us':
@@ -517,9 +525,9 @@ function tokenizeAnchorText(value: string): string[] {
 
 function extractGenericPlanAnchors(goalText: string, answers: Record<string, string>): GenericPlanAnchors {
   const answerValues = uniqueNonEmpty(Object.values(answers));
-  const metric = extractMatchedFragment([goalText], /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i)
+  const metric = extractMatchedFragment([goalText], /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|ars|ar\$|peso(?:s)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i)
     ?? collectBestMatchedSignalValue(answerValues, [
-    /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i,
+    /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|ars|ar\$|peso(?:s)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i,
   ]);
   const timeframe = extractMatchedFragment([goalText], /\b\d+\s*(?:a[ñn]o|a[ñn]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i)
     ?? collectBestMatchedSignalValue(answerValues, [
@@ -563,6 +571,9 @@ function extractGenericPlanAnchors(goalText: string, answers: Record<string, str
     metric,
     timeframe,
     anchorTokens: uniqueNonEmpty(baseTokens).slice(0, 6),
+    currentBaseline: null,
+    modality: null,
+    successCriteria: null,
   };
 }
 
@@ -577,8 +588,8 @@ function buildUniversalPlanningSignals(
   const healthSignals = extractHealthSignals(input.goalText, clarificationAnswers);
 
   return {
-    metric: snapshot?.metric ?? extractedAnchors.metric,
-    timeframe: snapshot?.timeframe ?? extractedAnchors.timeframe ?? cookingSignals.horizon,
+    metric: snapshot?.metric ?? getSnapshotSignalValue(snapshot, 'metric') ?? extractedAnchors.metric,
+    timeframe: snapshot?.timeframe ?? getSnapshotSignalValue(snapshot, 'timeframe') ?? extractedAnchors.timeframe ?? cookingSignals.horizon,
     anchorTokens: uniqueNonEmpty(snapshot?.anchorTokens?.length ? snapshot.anchorTokens : extractedAnchors.anchorTokens).slice(0, 6),
     currentBaseline: getSnapshotSignalValue(snapshot, 'current_baseline'),
     modality: getSnapshotSignalValue(snapshot, 'modality'),
@@ -657,6 +668,75 @@ function hasGenericMetricAlignment(text: string, metric: string | null): boolean
   const hasDescriptors = descriptorTokens.length === 0 || descriptorTokens.some((token) => normalizedText.includes(token));
 
   return hasNumbers && hasDescriptors;
+}
+
+function hasGenericSignalAlignment(text: string, signal: string | null): boolean {
+  if (!signal) {
+    return true;
+  }
+
+  const signalTokens = tokenizeAnchorText(signal);
+  if (signalTokens.length === 0) {
+    return true;
+  }
+
+  const normalizedText = normalizeSignalText(text);
+  const numericTokens = signalTokens.filter((token) => /\d/.test(token));
+  const descriptorTokens = signalTokens.filter((token) => !/\d/.test(token));
+  const normalizedNumericTokens = collectCanonicalNumericMetricTokens(text);
+
+  const hasNumbers = numericTokens.length === 0 || numericTokens.some((token) =>
+    normalizedNumericTokens.has(token) || normalizedText.includes(token));
+  const hasDescriptors = descriptorTokens.length === 0 || descriptorTokens.some((token) => normalizedText.includes(token));
+
+  return hasNumbers && hasDescriptors;
+}
+
+const LOW_SIGNAL_ANCHOR_TOKENS = new Set([
+  'actual',
+  'ahorrar',
+  'empezar',
+  'finanzas',
+  'forma',
+  'objetivo',
+  'ordenar',
+  'personales',
+  'sostenible',
+]);
+
+function getMeaningfulAnchorTokens(anchorTokens: string[]): string[] {
+  return anchorTokens.filter((token) => {
+    const normalized = normalizeSignalText(token);
+    return normalized.length >= 4 && !LOW_SIGNAL_ANCHOR_TOKENS.has(normalized);
+  });
+}
+
+function countConfirmedSignalCoverage(text: string, general: GenericPlanAnchors): number {
+  return [
+    general.metric ? hasGenericMetricAlignment(text, general.metric) : false,
+    general.timeframe ? includesAny(text, buildHorizonVariants(general.timeframe)) : false,
+    general.currentBaseline ? hasGenericSignalAlignment(text, general.currentBaseline) : false,
+    general.modality ? hasGenericSignalAlignment(text, general.modality) : false,
+    general.successCriteria ? hasGenericSignalAlignment(text, general.successCriteria) : false,
+  ].filter(Boolean).length;
+}
+
+function getPrimaryNumericSignalValue(value: string | null): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const [firstMatch] = [...collectCanonicalNumericMetricTokens(value)];
+  if (!firstMatch) {
+    return null;
+  }
+
+  const parsed = Number(firstMatch);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function hasMonthlySavingsCadence(value: string | null): boolean {
+  return value != null && /\b(?:por\s+mes|mensual|al\s+mes|month|monthly)\b/i.test(normalizeSignalText(value));
 }
 
 function extractClarificationSignals(answers: Record<string, string>) {
@@ -947,6 +1027,106 @@ function isDurationCloseToTarget(totalPlanWeeks: number, targetWeeks: number | n
     && totalPlanWeeks <= targetWeeks * 1.5;
 }
 
+const MONTHLY_CADENCE_PATTERN = /\b(mensual(?:es)?|cada\s+mes|por\s+mes|mes\s+a\s+mes|month(?:ly)?|per\s+month)\b/i;
+const FINANCE_CADENCE_PATTERN = /\b(?:ahorr|finanz|presupuest|gasto|transferenc|deposit|aporte|saldo|cuota|pago)\w*\b/i;
+const CADENCE_REPETITION_PATTERN = /\b(\d+|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce)\s+(transferencias?|depositos?|ahorros?|aportes?|pagos?|cuotas?)\b/i;
+
+function parseCadenceCountToken(token: string): number | null {
+  const normalized = normalizeSignalText(token);
+  if (/^\d+$/.test(normalized)) {
+    return Number(normalized);
+  }
+
+  switch (normalized) {
+    case 'uno':
+    case 'una':
+      return 1;
+    case 'dos':
+      return 2;
+    case 'tres':
+      return 3;
+    case 'cuatro':
+      return 4;
+    case 'cinco':
+      return 5;
+    case 'seis':
+      return 6;
+    case 'siete':
+      return 7;
+    case 'ocho':
+      return 8;
+    case 'nueve':
+      return 9;
+    case 'diez':
+      return 10;
+    case 'once':
+      return 11;
+    case 'doce':
+      return 12;
+    default:
+      return null;
+  }
+}
+
+function extractMonthlyCadenceRequirement(text: string): number | null {
+  const match = text.match(CADENCE_REPETITION_PATTERN);
+  if (!match) {
+    return null;
+  }
+
+  return parseCadenceCountToken(match[1] ?? '');
+}
+
+function minimumWeeksForMonthlyCadence(repetitions: number): number {
+  if (repetitions <= 1) {
+    return 2;
+  }
+
+  return ((repetitions - 1) * 4) + 2;
+}
+
+function hasMonthlyFinanceCadenceMismatch(
+  output: StrategyOutput,
+  input: StrategyInput,
+  typedSignals: TypedClarificationSignals,
+): boolean {
+  if (input.classification.goalType !== 'QUANT_TARGET_TRACKING') {
+    return false;
+  }
+
+  const targetWeeks = extractTargetHorizonWeeks(input.goalText, typedSignals.general.timeframe);
+  const normalizedGoal = normalizeSignalText(input.goalText);
+  if (!FINANCE_CADENCE_PATTERN.test(normalizedGoal)) {
+    return false;
+  }
+
+  let elapsedWeeks = 0;
+  for (let index = 0; index < output.phases.length; index += 1) {
+    const phase = output.phases[index];
+    const phaseDuration = Math.max(1, phase.durationWeeks ?? 4);
+    const phaseMilestone = output.milestones[index] ?? '';
+    const combinedText = `${phase.name} ${phase.focus_esAR} ${phaseMilestone}`;
+    const cadenceCount = extractMonthlyCadenceRequirement(combinedText);
+
+    if (
+      cadenceCount
+      && cadenceCount >= 2
+      && FINANCE_CADENCE_PATTERN.test(normalizeSignalText(combinedText))
+    ) {
+      const requiredCadenceWeeks = minimumWeeksForMonthlyCadence(cadenceCount);
+      const remainingWeeks = Math.max(0, (targetWeeks ?? output.totalSpanWeeks ?? 0) - elapsedWeeks);
+
+      if (phaseDuration < requiredCadenceWeeks || remainingWeeks < requiredCadenceWeeks) {
+        return true;
+      }
+    }
+
+    elapsedWeeks += phaseDuration;
+  }
+
+  return false;
+}
+
 function validateStrategyOutput(
   output: StrategyOutput,
   input: StrategyInput,
@@ -1024,11 +1204,20 @@ function validateStrategyOutput(
     }
   }
 
-  if (typedSignals.general.anchorTokens.length >= 3) {
-    const coveredAnchors = typedSignals.general.anchorTokens.filter((token) => includesAny(textFields, [token]));
-    const minimumCoverage = Math.min(3, Math.max(2, Math.ceil(typedSignals.general.anchorTokens.length * 0.4)));
+  if (hasMonthlyFinanceCadenceMismatch(output, input, typedSignals)) {
+    return { valid: false, failedCheck: 'intake.cadence_horizon' };
+  }
 
-    if (coveredAnchors.length < minimumCoverage) {
+  if (typedSignals.general.anchorTokens.length >= 3) {
+    const meaningfulAnchors = getMeaningfulAnchorTokens(typedSignals.general.anchorTokens);
+    const anchorsToValidate = meaningfulAnchors.length >= 2
+      ? meaningfulAnchors
+      : typedSignals.general.anchorTokens;
+    const coveredAnchors = anchorsToValidate.filter((token) => includesAny(textFields, [token]));
+    const minimumCoverage = Math.min(3, Math.max(2, Math.ceil(anchorsToValidate.length * 0.4)));
+    const confirmedSignalCoverage = countConfirmedSignalCoverage(textFields, typedSignals.general);
+
+    if (coveredAnchors.length < minimumCoverage && confirmedSignalCoverage < 3) {
       return { valid: false, failedCheck: 'intake.anchor_coverage' };
     }
   }
@@ -1706,9 +1895,109 @@ function buildGenericFallbackStrategy(input: StrategyInput, domainCard?: DomainK
   });
 }
 
+function buildFinanceSavingsFallbackStrategy(input: StrategyInput, domainCard?: DomainKnowledgeCard): StrategyOutput {
+  const universalSignals = buildUniversalPlanningSignals(input, domainCard);
+  const metricLabel = universalSignals.metric ?? 'un ahorro mensual sostenible';
+  const timeframeLabel = universalSignals.timeframe ?? 'el horizonte confirmado';
+  const targetWeeks = extractTargetHorizonWeeks(input.goalText, timeframeLabel);
+  const totalWeeks = Math.max(8, targetWeeks ?? 12);
+  const totalMonths = Math.max(1, Math.round(totalWeeks / 4));
+  const setupWeeks = Math.min(4, Math.max(2, Math.round(totalWeeks * 0.25)));
+  const automationWeeks = Math.min(4, Math.max(2, Math.round(totalWeeks * 0.2)));
+  const sustainWeeks = Math.max(2, totalWeeks - setupWeeks - automationWeeks);
+  const metricAmount = getPrimaryNumericSignalValue(universalSignals.metric);
+  const baselineAmount = getPrimaryNumericSignalValue(universalSignals.currentBaseline);
+  const metricIsMonthly = hasMonthlySavingsCadence(universalSignals.metric);
+  const derivedMonthlyTarget = !metricIsMonthly && metricAmount != null
+    ? Math.max(1, Math.ceil(metricAmount / totalMonths))
+    : null;
+  const monthlyTargetLabel = metricIsMonthly
+    ? metricLabel
+    : derivedMonthlyTarget != null
+      ? `${derivedMonthlyTarget} por mes`
+      : null;
+  const cumulativeTargetText = !metricIsMonthly && metricAmount != null
+    ? `Tomar ${metricAmount.toLocaleString('es-AR')} como meta total acumulada al cierre del horizonte, no como cuota mensual.`
+    : null;
+  const baselineText = universalSignals.currentBaseline
+    ? `Partir desde ${universalSignals.currentBaseline.toLowerCase()} como baseline real${metricIsMonthly ? '' : ' de ahorro mensual actual'}.`
+    : 'Partir desde el baseline financiero confirmado antes de automatizar.';
+  const modalityText = universalSignals.modality
+    ? `Mantener ${universalSignals.modality.toLowerCase()} como mecanismo principal del plan.`
+    : 'Mantener un mecanismo simple y repetible para mover el ahorro sin friccion extra.';
+  const successText = universalSignals.successCriteria
+    ? `Tomar como criterio de cierre ${universalSignals.successCriteria.toLowerCase()}.`
+    : metricIsMonthly
+      ? `Cerrar ${timeframeLabel.toLowerCase()} con ${metricLabel.toLowerCase()} activo y registro acumulado al dia.`
+      : `Cerrar ${timeframeLabel.toLowerCase()} con ${metricLabel.toLowerCase()} acumulados y una cadencia mensual consistente documentada.`;
+
+  return normalizeStrategyOutput({
+    phases: [
+      {
+        name: !metricIsMonthly && metricAmount != null
+          ? `Baseline y mapa de gastos para cerrar ${metricLabel}`
+          : `Baseline y mapa de gastos para liberar ${metricLabel}`,
+        durationWeeks: setupWeeks,
+        focus_esAR: [
+          !metricIsMonthly && monthlyTargetLabel
+            ? `Ordenar ingresos, gastos fijos y variables para sostener una cadencia cercana a ${monthlyTargetLabel.toLowerCase()} sin perder de vista que la meta final es ${metricLabel.toLowerCase()}.`
+            : `Ordenar ingresos, gastos fijos y variables para detectar de donde sale ${metricLabel.toLowerCase()} sin prometer recortes imposibles.`,
+          baselineText,
+          cumulativeTargetText,
+          universalSignals.constraints ? `Respetar ${universalSignals.constraints.toLowerCase()} como limite operativo.` : null,
+        ].filter(Boolean).join(' '),
+      },
+      {
+        name: monthlyTargetLabel
+          ? `Presupuesto y automatizacion inicial de ${monthlyTargetLabel}`
+          : `Presupuesto y automatizacion inicial de ${metricLabel}`,
+        durationWeeks: automationWeeks,
+        focus_esAR: [
+          monthlyTargetLabel
+            ? `Convertir el diagnostico en un presupuesto realista, definir una separacion mensual cercana a ${monthlyTargetLabel.toLowerCase()} y dejar configurada la primera transferencia o separacion automatica.`
+            : 'Convertir el diagnostico en un presupuesto realista, definir el monto a separar y dejar configurada la primera transferencia o separacion automatica.',
+          modalityText,
+          universalSignals.resources ? `Usar ${universalSignals.resources.toLowerCase()} como recurso ya disponible.` : null,
+        ].filter(Boolean).join(' '),
+      },
+      {
+        name: metricIsMonthly
+          ? `Sostenimiento de ${metricLabel} hasta cerrar ${timeframeLabel}`
+          : `Sostenimiento del ahorro hasta cerrar ${metricLabel} en ${timeframeLabel}`,
+        durationWeeks: sustainWeeks,
+        focus_esAR: [
+          metricIsMonthly
+            ? `Sostener la cadencia mensual de ${metricLabel.toLowerCase()} durante el tramo restante, registrar cada cumplimiento y ajustar desvios sin salir del horizonte.`
+            : monthlyTargetLabel
+              ? `Sostener durante el tramo restante una cadencia mensual cercana a ${monthlyTargetLabel.toLowerCase()}, registrar cada cumplimiento y verificar que el acumulado final llegue a ${metricLabel.toLowerCase()}.`
+              : `Sostener la cadencia de ahorro durante el tramo restante, registrar cada cumplimiento y ajustar desvios sin salir del horizonte.`,
+          successText,
+          'La revision final queda integrada en este cierre, sin depender de fases superpuestas que el runtime no representa.',
+        ].filter(Boolean).join(' '),
+      },
+    ],
+    milestones: [
+      'Baseline de gastos y ahorro actual registrada con categorias claras',
+      monthlyTargetLabel
+        ? `Presupuesto equilibrado y primera separacion automatica de ${monthlyTargetLabel}`
+        : `Presupuesto equilibrado y primera separacion automatica de ${metricLabel}`,
+      metricIsMonthly
+        ? `Cierre de ${timeframeLabel} con ${metricLabel} activo y seguimiento mensual documentado`
+        : `Cierre de ${timeframeLabel} con ${metricLabel} acumulados y seguimiento mensual documentado`,
+    ],
+  });
+}
+
 export function buildFallbackStrategy(input: StrategyInput, domainCard?: DomainKnowledgeCard): StrategyOutput {
   if (isHealthWeightGoal(input, domainCard)) {
     return buildHealthFallbackStrategy(input, domainCard);
+  }
+
+  if (
+    input.classification.goalType === 'QUANT_TARGET_TRACKING'
+    && /\b(?:ahorr|finanz|presupuest|gasto|transferenc|deposit)\w*\b/i.test(normalizeSignalText(input.goalText))
+  ) {
+    return buildFinanceSavingsFallbackStrategy(input, domainCard);
   }
 
   if (input.classification.goalType === 'SKILL_ACQUISITION') {
@@ -1914,6 +2203,18 @@ function buildStrategyValidationDiagnosis(
         },
       };
     }
+    case 'intake.cadence_horizon':
+      return {
+        summaryEs: 'El borrador prometio una cadencia mensual que no entra en la duracion real de la fase ni en el horizonte secuencial del plan.',
+        evidence: {
+          expectedTimeframe: typedSignals.general.timeframe,
+          observedPhases: output.phases.map((phase, index) => ({
+            name: phase.name,
+            durationWeeks: phase.durationWeeks,
+            milestone: output.milestones[index] ?? null,
+          })),
+        },
+      };
     case 'intake.anchor_coverage':
       return {
         summaryEs: 'El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.',
@@ -1957,6 +2258,9 @@ export async function generateStrategyWithSource(
       metric: universalSignals.metric,
       timeframe: universalSignals.timeframe,
       anchorTokens: universalSignals.anchorTokens,
+      currentBaseline: universalSignals.currentBaseline,
+      modality: universalSignals.modality,
+      successCriteria: universalSignals.successCriteria,
     },
   };
   const prompt = planningContext?.interpretation

@@ -9,11 +9,8 @@ interface BuildSectionProps {
   title: string
   hint: string
   selectedProviderLabel: string
-  showThinkingControl: boolean
-  thinkingEnabled: boolean
   inspectorVisible: boolean
   shouldBuild: boolean
-  localProviderBlocked: boolean
   buildBusy: boolean
   buildUsageLoading: boolean
   canBuild: boolean
@@ -23,7 +20,6 @@ interface BuildSectionProps {
   buildUsage: BuildUsagePreviewResult['usage'] | null
   showAdvancedDetails: boolean
   walletStatus: WalletStatus
-  onThinkingChange: (enabled: boolean) => void
   onToggleInspector: () => void
   onBuild: () => Promise<void>
 }
@@ -72,25 +68,8 @@ export default function BuildSection(props: BuildSectionProps) {
             )}
           </>
         )}
-        {props.localProviderBlocked && (
-          <p className="status-message status-message--warning">{t('builder.local_unavailable_deploy')}</p>
-        )}
         {blockedMessage && (
           <p className="status-message status-message--warning">{blockedMessage}</p>
-        )}
-        {props.showThinkingControl && (
-          <div className={styles.fieldGroup}>
-            <label className={styles.choiceOption}>
-              <input
-                type="checkbox"
-                checked={props.thinkingEnabled}
-                disabled={props.buildBusy}
-                onChange={(event) => props.onThinkingChange(event.target.checked)}
-              />
-              <span>{t('settings.ollama_thinking_toggle')}</span>
-            </label>
-            <p className={styles.helperCopy}>{t('settings.ollama_thinking_hint')}</p>
-          </div>
         )}
       </div>
 

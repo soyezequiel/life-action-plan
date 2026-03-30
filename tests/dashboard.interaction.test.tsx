@@ -98,7 +98,7 @@ const basePlan: PlanRow = {
   slug: 'plan-de-constancia',
   manifest: JSON.stringify({
     fallbackUsed: false,
-    ultimoModeloUsado: 'ollama:qwen3:8b',
+    ultimoModeloUsado: 'openai:gpt-4o-mini',
     ultimaSimulacion: null
   }),
   createdAt: '2026-03-19',

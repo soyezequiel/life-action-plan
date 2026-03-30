@@ -72,6 +72,10 @@ export function getCodexAuthFilePath(): string {
   return path.join(getCodexHomeDir(), 'auth.json')
 }
 
+export function getRuntimeCodexAuthFilePath(): string {
+  return getLapCodexAuthFilePath()
+}
+
 function normalizeString(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
@@ -269,7 +273,7 @@ async function refreshCodexSession(authFile: CodexAuthFile, filePath = getCodexA
   }
 }
 
-export async function getCodexAuthIdentity(filePath = getCodexAuthFilePath()): Promise<CodexAuthIdentity | null> {
+export async function getCodexAuthIdentity(filePath = getRuntimeCodexAuthFilePath()): Promise<CodexAuthIdentity | null> {
   const authFile = await readCodexAuthFile(filePath)
   const tokens = authFile?.tokens ?? null
   const accountId = resolveAccountId(tokens)
@@ -299,13 +303,13 @@ export async function getCodexAuthIdentity(filePath = getCodexAuthFilePath()): P
 }
 
 export async function getCodexAuthAvailability(): Promise<CodexAuthAvailability> {
-  const filePath = getCodexAuthFilePath()
+  const filePath = getRuntimeCodexAuthFilePath()
   const authFile = await readCodexAuthFile(filePath)
 
   if (!authFile) {
     return {
       available: false,
-      reason: `No pude leer la sesion local de Codex en ${filePath}.`
+      reason: `La sesion OAuth actual de Codex no es accesible desde backend/CLI. Ejecuta "npm run codex:login" para crear ${filePath}.`
     }
   }
 
@@ -314,7 +318,7 @@ export async function getCodexAuthAvailability(): Promise<CodexAuthAvailability>
   if (!session) {
     return {
       available: false,
-      reason: 'La sesion local de Codex no tiene los tokens necesarios para esta ruta.'
+      reason: 'La sesion OAuth actual de Codex no es accesible desde backend/CLI. Ejecuta "npm run codex:login" para regenerar la sesion local de este workspace.'
     }
   }
 
@@ -322,12 +326,12 @@ export async function getCodexAuthAvailability(): Promise<CodexAuthAvailability>
     available: Boolean(session.accountId && (hasFreshAccessToken(session.accessToken) || session.refreshToken)),
     reason: session.accountId && (hasFreshAccessToken(session.accessToken) || session.refreshToken)
       ? null
-      : 'La sesion local de Codex no esta lista para usarse desde esta maquina.'
+      : 'La sesion OAuth actual de Codex no es accesible desde backend/CLI. Ejecuta "npm run codex:login" para refrescar la sesion local de este workspace.'
   }
 }
 
 export async function getCodexAuthSession(options?: { forceRefresh?: boolean }): Promise<CodexAuthSession> {
-  const filePath = getCodexAuthFilePath()
+  const filePath = getRuntimeCodexAuthFilePath()
   const authFile = await readCodexAuthFile(filePath)
 
   if (!authFile) {

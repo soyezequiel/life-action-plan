@@ -1,0 +1,4881 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T10:28:05.183Z",
+  "updatedAt": "2026-03-30T10:30:28.042Z",
+  "invocation": {
+    "goal": "",
+    "resumeSession": "1ac6eeec-f71d-4552-bb3c-2cd8aeececef",
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": "5d859dd2-b980-403a-939d-08586b39ff4b",
+    "score": null,
+    "iterations": 10,
+    "degraded": true,
+    "publicationState": "requires_regeneration",
+    "failureCode": null,
+    "sessionId": "1ac6eeec-f71d-4552-bb3c-2cd8aeececef",
+    "provider": "resume",
+    "modelId": "openai:gpt-5-codex",
+    "status": "completed"
+  },
+  "pendingInput": null,
+  "finalPackage": {
+    "package": {
+      "plan": {
+        "goalIds": [
+          "generated-goal"
+        ],
+        "timezone": "UTC",
+        "createdAt": "2026-03-30T10:28:54.967Z",
+        "updatedAt": "2026-03-30T10:28:54.967Z",
+        "skeleton": {
+          "horizonWeeks": 12,
+          "goalIds": [
+            "generated-goal"
+          ],
+          "phases": [
+            {
+              "phaseId": "phase-1",
+              "title": "Pastas secas y salsas básicas para principiante en el mes 1",
+              "startWeek": 1,
+              "endWeek": 4,
+              "startDate": "2026-04-01",
+              "endDate": "2026-04-28",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Dedica el primer mes a preparar spaghetti aglio e olio y penne al pomodoro como principiante, practicando mise en place, cocción al dente y registro de costos para producir dos platos reproducibles."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task3-h3x3egz",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 30
+                },
+                {
+                  "activityId": "act-task1-szghtna",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task2-t07mdhs",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": []
+            },
+            {
+              "phaseId": "phase-2",
+              "title": "Pasta fresca y carbonara sin crema para principiante en el mes 2",
+              "startWeek": 5,
+              "endWeek": 8,
+              "startDate": "2026-04-29",
+              "endDate": "2026-05-26",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Durante el segundo mes aprende a amasar tagliatelle fresca y ejecuta una carbonara auténtica sin crema, coordinando tiempos entre pasta y salsa y ajustando texturas con agua de cocción."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task3-h3x3egz",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 30
+                },
+                {
+                  "activityId": "act-task1-szghtna",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task2-t07mdhs",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": [
+                "milestone-1"
+              ]
+            },
+            {
+              "phaseId": "phase-3",
+              "title": "Menu italiano simple coordinado en el mes 3 de los 3 meses",
+              "startWeek": 9,
+              "endWeek": 12,
+              "startDate": "2026-05-27",
+              "endDate": "2026-06-23",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "En el tercer mes planifica y ejecuta un menú simple de tres tiempos (entrada de verduras asadas, pasta principal con salsa dominada y ensalada) controlando presupuesto, presentación y ritmo de servicio."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task3-h3x3egz",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 30
+                },
+                {
+                  "activityId": "act-task1-szghtna",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task2-t07mdhs",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                }
+              ],
+              "milestoneIds": [
+                "milestone-2"
+              ]
+            }
+          ],
+          "milestones": [
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Dominar dos pastas secas con registros de ajuste",
+              "notes": "Dedica el primer mes a preparar spaghetti aglio e olio y penne al pomodoro como principiante, practicando mise en place, cocción al dente y registro de costos para producir dos platos reproducibles.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "dueDate": "2026-04-29"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Servir tagliatelle fresca con carbonara emulsionada",
+              "notes": "Durante el segundo mes aprende a amasar tagliatelle fresca y ejecuta una carbonara auténtica sin crema, coordinando tiempos entre pasta y salsa y ajustando texturas con agua de cocción.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "dueDate": "2026-05-27"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Ensayo exitoso del menú italiano simple completo",
+              "notes": "En el tercer mes planifica y ejecuta un menú simple de tres tiempos (entrada de verduras asadas, pasta principal con salsa dominada y ensalada) controlando presupuesto, presentación y ritmo de servicio.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "dueDate": "2026-06-24"
+            }
+          ]
+        },
+        "detail": {
+          "horizonWeeks": 2,
+          "startDate": "2026-04-01",
+          "endDate": "2026-04-14",
+          "scheduledEvents": [
+            {
+              "id": "act-task2-t07mdhs_s36_658da693",
+              "kind": "time_event",
+              "title": "Seguir una receta sencilla de olla y ajustar sabores",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-03-30T18:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-szghtna_s135_888ff415",
+              "kind": "time_event",
+              "title": "Practicar cortes parejos con verduras baratas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-01T19:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-h3x3egz_s158_daea8914",
+              "kind": "time_event",
+              "title": "Organizar mise en place antes de cocinar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-02T07:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-h3x3egz_s268_b8647344",
+              "kind": "time_event",
+              "title": "Organizar mise en place antes de cocinar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-04T14:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-t07mdhs_s308_7e07910f",
+              "kind": "time_event",
+              "title": "Seguir una receta sencilla de olla y ajustar sabores",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-05T10:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-szghtna_s322_199f233d",
+              "kind": "time_event",
+              "title": "Practicar cortes parejos con verduras baratas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-05T17:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-t07mdhs_s36_658da693-w2",
+              "kind": "time_event",
+              "title": "Seguir una receta sencilla de olla y ajustar sabores",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-06T18:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-szghtna_s135_888ff415-w2",
+              "kind": "time_event",
+              "title": "Practicar cortes parejos con verduras baratas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-08T19:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-h3x3egz_s158_daea8914-w2",
+              "kind": "time_event",
+              "title": "Organizar mise en place antes de cocinar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-09T07:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-h3x3egz_s268_b8647344-w2",
+              "kind": "time_event",
+              "title": "Organizar mise en place antes de cocinar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-11T14:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-t07mdhs_s308_7e07910f-w2",
+              "kind": "time_event",
+              "title": "Seguir una receta sencilla de olla y ajustar sabores",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-12T10:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-szghtna_s322_199f233d-w2",
+              "kind": "time_event",
+              "title": "Practicar cortes parejos con verduras baratas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-12T17:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            }
+          ],
+          "weeks": [
+            {
+              "weekIndex": 1,
+              "startDate": "2026-04-01",
+              "endDate": "2026-04-07",
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-t07mdhs_s36_658da693",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-03-30T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s135_888ff415",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s158_daea8914",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-02T07:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s268_b8647344",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-04T14:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-t07mdhs_s308_7e07910f",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-05T10:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s322_199f233d",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-05T17:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ]
+            },
+            {
+              "weekIndex": 2,
+              "startDate": "2026-04-08",
+              "endDate": "2026-04-14",
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-t07mdhs_s36_658da693-w2",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-06T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s135_888ff415-w2",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-08T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s158_daea8914-w2",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-09T07:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s268_b8647344-w2",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-11T14:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-t07mdhs_s308_7e07910f-w2",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-12T10:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s322_199f233d-w2",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-12T17:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ]
+            }
+          ]
+        },
+        "operational": {
+          "horizonDays": 7,
+          "startDate": "2026-04-01",
+          "endDate": "2026-04-07",
+          "frozen": true,
+          "scheduledEvents": [
+            {
+              "id": "act-task2-t07mdhs_s36_658da693",
+              "kind": "time_event",
+              "title": "Seguir una receta sencilla de olla y ajustar sabores",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-03-30T18:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-szghtna_s135_888ff415",
+              "kind": "time_event",
+              "title": "Practicar cortes parejos con verduras baratas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-01T19:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-h3x3egz_s158_daea8914",
+              "kind": "time_event",
+              "title": "Organizar mise en place antes de cocinar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-02T07:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-h3x3egz_s268_b8647344",
+              "kind": "time_event",
+              "title": "Organizar mise en place antes de cocinar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-04T14:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-t07mdhs_s308_7e07910f",
+              "kind": "time_event",
+              "title": "Seguir una receta sencilla de olla y ajustar sabores",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-05T10:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-szghtna_s322_199f233d",
+              "kind": "time_event",
+              "title": "Practicar cortes parejos con verduras baratas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z",
+              "startAt": "2026-04-05T17:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            }
+          ],
+          "buffers": [
+            {
+              "id": "buffer-slack-1-1",
+              "startAt": "2026-04-01T20:15:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-2-1",
+              "startAt": "2026-04-02T18:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-4-1",
+              "startAt": "2026-04-04T18:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-5-1",
+              "startAt": "2026-04-05T18:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            }
+          ],
+          "days": [
+            {
+              "date": "2026-04-01",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-szghtna_s135_888ff415",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-04-01T20:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-02",
+              "scheduledEvents": [
+                {
+                  "id": "act-task3-h3x3egz_s158_daea8914",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-02T07:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-02T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-03",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-04",
+              "scheduledEvents": [
+                {
+                  "id": "act-task3-h3x3egz_s268_b8647344",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-04T14:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-04T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-05",
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-t07mdhs_s308_7e07910f",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-05T10:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s322_199f233d",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-05T17:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-5-1",
+                  "startAt": "2026-04-05T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-06",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-07",
+              "scheduledEvents": [],
+              "buffers": []
+            }
+          ],
+          "totalBufferMin": 120
+        }
+      },
+      "items": [
+        {
+          "id": "act-task2-t07mdhs_s36_658da693",
+          "kind": "time_event",
+          "title": "Seguir una receta sencilla de olla y ajustar sabores",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-03-30T18:00:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "act-task1-szghtna_s135_888ff415",
+          "kind": "time_event",
+          "title": "Practicar cortes parejos con verduras baratas",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-01T19:30:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "act-task3-h3x3egz_s158_daea8914",
+          "kind": "time_event",
+          "title": "Organizar mise en place antes de cocinar",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-02T07:00:00.000Z",
+          "durationMin": 30,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "act-task3-h3x3egz_s268_b8647344",
+          "kind": "time_event",
+          "title": "Organizar mise en place antes de cocinar",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T14:00:00.000Z",
+          "durationMin": 30,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "act-task2-t07mdhs_s308_7e07910f",
+          "kind": "time_event",
+          "title": "Seguir una receta sencilla de olla y ajustar sabores",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-05T10:00:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "act-task1-szghtna_s322_199f233d",
+          "kind": "time_event",
+          "title": "Practicar cortes parejos con verduras baratas",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-05T17:00:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "milestone-1",
+          "kind": "milestone",
+          "title": "Dominar dos pastas secas con registros de ajuste",
+          "notes": "Dedica el primer mes a preparar spaghetti aglio e olio y penne al pomodoro como principiante, practicando mise en place, cocción al dente y registro de costos para producir dos platos reproducibles.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-04-29",
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "milestone-2",
+          "kind": "milestone",
+          "title": "Servir tagliatelle fresca con carbonara emulsionada",
+          "notes": "Durante el segundo mes aprende a amasar tagliatelle fresca y ejecuta una carbonara auténtica sin crema, coordinando tiempos entre pasta y salsa y ajustando texturas con agua de cocción.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-05-27",
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "milestone-3",
+          "kind": "milestone",
+          "title": "Ensayo exitoso del menú italiano simple completo",
+          "notes": "En el tercer mes planifica y ejecuta un menú simple de tres tiempos (entrada de verduras asadas, pasta principal con salsa dominada y ensalada) controlando presupuesto, presentación y ritmo de servicio.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-06-24",
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "metric-plan-quality",
+          "kind": "metric",
+          "title": "Calidad del plan",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "plan_quality_score",
+          "unit": "puntos",
+          "direction": "increase",
+          "target": {
+            "targetValue": 85
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "last"
+          },
+          "series": [
+            {
+              "at": "2026-03-30T10:28:54.967Z",
+              "value": 60
+            }
+          ],
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "metric-sessions-week",
+          "kind": "metric",
+          "title": "Sesiones completables por semana",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "scheduled_sessions_per_week",
+          "unit": "sesiones",
+          "direction": "increase",
+          "target": {
+            "targetValue": 6
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "count"
+          },
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        },
+        {
+          "id": "trigger-low-adherence",
+          "kind": "trigger_rule",
+          "title": "Revisar plan si baja la adherencia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "enabled": true,
+          "conditions": [
+            {
+              "left": {
+                "type": "metric",
+                "ref": "plan_quality_score"
+              },
+              "op": "lt",
+              "right": {
+                "value": 70
+              }
+            }
+          ],
+          "actions": [
+            {
+              "type": "create_task",
+              "payload": {
+                "title": "Revisar y reajustar el plan",
+                "estimateMin": 30
+              }
+            }
+          ],
+          "throttle": {
+            "minHoursBetweenRuns": 168
+          },
+          "createdAt": "2026-03-30T10:28:54.967Z",
+          "updatedAt": "2026-03-30T10:28:54.967Z"
+        }
+      ],
+      "habitStates": [
+        {
+          "progressionKey": "generated-goal",
+          "weeksActive": 0,
+          "level": 0,
+          "currentDose": {
+            "sessionsPerWeek": 6,
+            "minimumViable": {
+              "minutes": 10,
+              "description": "Version minima de Organizar mise en place antes de cocinar"
+            }
+          },
+          "protectedFromReset": false
+        }
+      ],
+      "slackPolicy": {
+        "weeklyTimeBufferMin": 120,
+        "maxChurnMovesPerWeek": 3,
+        "frozenHorizonDays": 2
+      },
+      "timezone": "UTC",
+      "summary_esAR": "Este plan convierte \"Plan - Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 12 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 60/100. Ojo: hay 2 advertencias para mirar con calma. Hay alertas importantes y conviene revisarlo antes de usarlo.",
+      "qualityScore": 60,
+      "implementationIntentions": [
+        "Si llega lunes a las 18:00, entonces hago Seguir una receta sencilla de olla y ajustar sabores durante 60 minutos.",
+        "Si llega miércoles a las 19:30, entonces hago Practicar cortes parejos con verduras baratas durante 45 minutos.",
+        "Si llega jueves a las 07:00, entonces hago Organizar mise en place antes de cocinar durante 30 minutos.",
+        "Si llega sábado a las 14:00, entonces hago Organizar mise en place antes de cocinar durante 30 minutos."
+      ],
+      "warnings": [
+        "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido.",
+        "Este paquete quedo con advertencias importantes y conviene revisarlo antes de usarlo."
+      ],
+      "tradeoffs": [],
+      "publicationState": "requires_regeneration",
+      "qualityIssues": [],
+      "requestDomain": "cocina-italiana",
+      "packageDomain": "cocina-italiana",
+      "intakeCoverage": {
+        "requiredSignals": [],
+        "missingSignals": [],
+        "signalUsage": []
+      },
+      "degraded": true,
+      "reasoningTrace": [
+        {
+          "phase": "interpret",
+          "agent": "goal-interpreter",
+          "iteration": 1,
+          "action": "Executed interpret",
+          "reasoning": "Phase completed",
+          "result": "Goal: Learn to cook Italian dishes, focusing on pastas and sauces, and be able to prepare a simple menu within three months., confidence: 0.82",
+          "tokensUsed": 36,
+          "timestamp": "2026-03-30T10:21:09.072Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 2,
+          "action": "Executed clarify",
+          "reasoning": "Falta conocer la señal crítica de nivel de partida para adaptar el plan de aprendizaje.",
+          "result": "1 questions pending (confidence: 0.37)",
+          "tokensUsed": 10,
+          "timestamp": "2026-03-30T10:21:12.193Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 3,
+          "action": "Executed clarify",
+          "reasoning": "Se dispone de señales críticas suficientes para planificar.",
+          "result": "Ready to advance (confidence: 0.47)",
+          "tokensUsed": 9,
+          "timestamp": "2026-03-30T10:28:14.704Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 4,
+          "action": "FALLBACK: planner",
+          "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "result": "Using fallback strategic draft - NOT from LLM",
+          "tokensUsed": 12,
+          "timestamp": "2026-03-30T10:28:54.781Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 4,
+          "action": "Executed plan",
+          "reasoning": "Phase completed",
+          "result": "3 phases generated",
+          "tokensUsed": 5,
+          "timestamp": "2026-03-30T10:28:54.781Z"
+        },
+        {
+          "phase": "check",
+          "agent": "feasibility-checker",
+          "iteration": 5,
+          "action": "Executed check",
+          "reasoning": "Status: feasible",
+          "result": "Feasibility: feasible",
+          "tokensUsed": 6,
+          "timestamp": "2026-03-30T10:28:54.783Z"
+        },
+        {
+          "phase": "schedule",
+          "agent": "scheduler",
+          "iteration": 6,
+          "action": "Executed schedule",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T10:28:54.968Z"
+        },
+        {
+          "phase": "critique",
+          "agent": "critic",
+          "iteration": 7,
+          "action": "Executed critique",
+          "reasoning": "El plan actual no cubre los componentes centrales del objetivo (pastas y salsas italianas) y la progresión no evoluciona más allá de practicar cortes, por lo que no se alcanzará la meta en tres meses. Ajustar el enfoque a las habilidades específicas requeridas y escalar la dificultad resolvería el problema.",
+          "result": "Score: 55, verdict: revise",
+          "tokensUsed": 7,
+          "timestamp": "2026-03-30T10:29:19.825Z"
+        },
+        {
+          "phase": "revise",
+          "agent": "planner",
+          "iteration": 8,
+          "action": "Executed revise",
+          "reasoning": "Phase completed",
+          "result": "3 phases generated",
+          "tokensUsed": 5,
+          "timestamp": "2026-03-30T10:30:09.959Z"
+        },
+        {
+          "phase": "critique",
+          "agent": "critic",
+          "iteration": 9,
+          "action": "Executed critique",
+          "reasoning": "La estrategia está bien alineada con la meta de dominar pastas y salsas en tres meses, con fases secuenciales y metas claras. El único riesgo detectado es que no incorpora explícitamente la práctica de cortes de verduras, lo que podría dificultar la ejecución del menú final, pero es un ajuste menor.",
+          "result": "Score: 88, verdict: approve",
+          "tokensUsed": 7,
+          "timestamp": "2026-03-30T10:30:27.251Z"
+        },
+        {
+          "phase": "package",
+          "agent": "packager",
+          "iteration": 10,
+          "action": "Executed package",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T10:30:27.268Z"
+        }
+      ],
+      "agentOutcomes": [
+        {
+          "agent": "goal-interpreter",
+          "phase": "interpret",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 7636
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 3120
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 6007
+        },
+        {
+          "agent": "domain-expert",
+          "phase": "plan",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 22832
+        },
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "source": "fallback",
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "durationMs": 17243
+        },
+        {
+          "agent": "feasibility-checker",
+          "phase": "check",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 1
+        },
+        {
+          "agent": "scheduler",
+          "phase": "schedule",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 184
+        },
+        {
+          "agent": "critic",
+          "phase": "critique",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 24856
+        },
+        {
+          "agent": "domain-expert",
+          "phase": "revise",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 12426
+        },
+        {
+          "agent": "planner",
+          "phase": "revise",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 50134
+        },
+        {
+          "agent": "critic",
+          "phase": "critique",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 17291
+        },
+        {
+          "agent": "packager",
+          "phase": "package",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 16
+        }
+      ]
+    },
+    "meta": {
+      "modelId": "openai:gpt-5-codex"
+    }
+  },
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 58,
+    "timestamp": "2026-03-30T10:30:27.269Z",
+    "category": "publication",
+    "action": "publication.evaluated",
+    "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+    "phase": "done",
+    "agent": "critic",
+    "iteration": 10,
+    "revisionCycle": 1,
+    "clarifyRound": 2,
+    "progressScore": 100,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": "ready",
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "partialKind": "publication",
+      "canPublish": true,
+      "degraded": true,
+      "blockingAgents": [],
+      "fallbackLedger": [
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "count": 1,
+          "latestErrorCode": "Error",
+          "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+        }
+      ],
+      "qualityIssues": [],
+      "criticVerdict": "approve",
+      "criticScore": 88,
+      "warnings": [
+        "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+      ],
+      "exactBlockers": [],
+      "misalignedGoal": false
+    }
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "critique",
+    "currentAgent": "critic",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+    "iteration": 8,
+    "revisionCycles": 1,
+    "clarifyRounds": 2,
+    "progressScore": 80,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 49,
+    "lastEventTimestamp": "2026-03-30T10:30:09.960Z",
+    "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T10:28:05.183Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "",
+        "resumeSession": "1ac6eeec-f71d-4552-bb3c-2cd8aeececef",
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:05.186Z",
+      "type": "resume.explicit_request",
+      "data": {
+        "endpoint": "/api/plan/build/resume",
+        "sessionId": "1ac6eeec-f71d-4552-bb3c-2cd8aeececef",
+        "answersCount": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.522Z",
+      "type": "package.fetch_requested",
+      "data": {
+        "planId": "5d859dd2-b980-403a-939d-08586b39ff4b",
+        "provider": "resume"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:28.034Z",
+      "type": "package.fetched",
+      "data": {
+        "planId": "5d859dd2-b980-403a-939d-08586b39ff4b",
+        "provider": "resume",
+        "modelId": "openai:gpt-5-codex",
+        "publicationState": "requires_regeneration",
+        "degraded": true
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T10:28:05.316Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "codex",
+        "requestedMode": "codex-cloud",
+        "resolvedModelId": "openai:gpt-5-codex",
+        "providerId": "openai",
+        "executionMode": "codex-cloud",
+        "resolutionSource": "requested-mode",
+        "authMode": "codex-oauth",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:08.699Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "clarify-resume",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:08.700Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 13,
+        "timestamp": "2026-03-30T10:28:08.696Z",
+        "category": "lifecycle",
+        "action": "session.resumed",
+        "summary_es": "Se retomó la sesión con 1 respuesta(s) nuevas.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "answersCount": 1,
+          "answeredQuestionIds": [
+            "clarify-r1-q1"
+          ],
+          "storedAnswerKeys": [
+            "¿Cuál es tu nivel actual de experiencia cocinando platos italianos (por ejemplo: principiante sin experiencia, nivel básico siguiendo recetas, o ya tienes práctica regular)?"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Learn to cook Italian dishes, focusing on pastas and sauces, and be able to prepare a simple menu within three months.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "cooking",
+            "metric": null,
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "principiante",
+              "experiencia",
+              "sin"
+            ],
+            "informationGaps": [
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.37,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿Cuál es tu nivel actual de experiencia cocinando platos italianos (por ejemplo: principiante sin experiencia, nivel básico siguiendo recetas, o ya tienes práctica regular)?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "current_baseline",
+                "question": "¿Cuál es tu nivel actual de experiencia cocinando platos italianos (por ejemplo: principiante sin experiencia, nivel básico siguiendo recetas, o ya tienes práctica regular)?",
+                "answer": "Principiante sin experiencia"
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:08.700Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 14,
+        "timestamp": "2026-03-30T10:28:08.696Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan procesando las respuestas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:08.701Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 15,
+        "timestamp": "2026-03-30T10:28:08.696Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:14.711Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 16,
+        "timestamp": "2026-03-30T10:28:14.704Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 6007,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:14.712Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 17,
+        "timestamp": "2026-03-30T10:28:14.705Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion ya tiene contexto suficiente para avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": true,
+          "confidence": 0.47,
+          "questions": [],
+          "informationGaps": [],
+          "knownAnswers": [
+            {
+              "id": "¿Cuál es tu nivel actual de experiencia cocinando platos italianos (por ejemplo: principiante sin experiencia, nivel básico siguiendo recetas, o ya tienes práctica regular)?",
+              "question": "¿Cuál es tu nivel actual de experiencia cocinando platos italianos (por ejemplo: principiante sin experiencia, nivel básico siguiendo recetas, o ya tienes práctica regular)?",
+              "answer": "Principiante sin experiencia"
+            }
+          ],
+          "duplicateQuestions": [],
+          "reasoning": "Se dispone de señales críticas suficientes para planificar.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Learn to cook Italian dishes, focusing on pastas and sauces, and be able to prepare a simple menu within three months.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "cooking",
+            "metric": null,
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "principiante",
+              "experiencia",
+              "sin"
+            ],
+            "informationGaps": [],
+            "clarifyConfidence": 0.47,
+            "readyToAdvance": true,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿Cuál es tu nivel actual de experiencia cocinando platos italianos (por ejemplo: principiante sin experiencia, nivel básico siguiendo recetas, o ya tienes práctica regular)?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "current_baseline",
+                "question": "¿Cuál es tu nivel actual de experiencia cocinando platos italianos (por ejemplo: principiante sin experiencia, nivel básico siguiendo recetas, o ya tienes práctica regular)?",
+                "answer": "Principiante sin experiencia"
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 2
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:14.712Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 18,
+        "timestamp": "2026-03-30T10:28:14.705Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La aclaracion alcanzo contexto suficiente y el pipeline avanza a planificacion.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "plan"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:14.713Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 19,
+        "timestamp": "2026-03-30T10:28:14.705Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta armando el plan estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:14.713Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 20,
+        "timestamp": "2026-03-30T10:28:14.706Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:18.706Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:28:18.705Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 20,
+          "lastEventTimestamp": "2026-03-30T10:28:14.706Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:28.711Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:28:28.710Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 20,
+          "lastEventTimestamp": "2026-03-30T10:28:14.706Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:37.548Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 21,
+        "timestamp": "2026-03-30T10:28:37.537Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 22832,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:37.549Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 22,
+        "timestamp": "2026-03-30T10:28:37.538Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo a generar el roadmap estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:38.713Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:28:38.712Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 22,
+          "lastEventTimestamp": "2026-03-30T10:28:37.538Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:48.715Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:28:48.714Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 22,
+          "lastEventTimestamp": "2026-03-30T10:28:37.538Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.877Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 23,
+        "timestamp": "2026-03-30T10:28:54.781Z",
+        "category": "agent",
+        "action": "agent.fallback",
+        "summary_es": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable. Se uso un fallback del planificador.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": "Error",
+        "details": {
+          "source": "fallback",
+          "durationMs": 17243,
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "principiante",
+              "experiencia",
+              "sin"
+            ],
+            "observedTexts": [
+              "Mes 1 principiante: mise en place italiana y primeras pastas cortas Dedicarás 4-5 horas semanales a dominar mise en place, cortes seguros y tres recetas básicas de pasta italiana (spaghetti, penne, gnocchi) para que un principiante gane soltura antes de avanzar en el plazo de 3 meses.",
+              "Mes 2 principiante: salsas clásicas italianas ligadas a pastas Invertirás 5 horas semanales en aprender salsas base (pomodoro, pesto, carbonara ligera) y combinarlas con las pastas del mes anterior para ajustar sazón y consistencia mientras sigues siendo principiante.",
+              "Mes 3 principiante: menú italiano simple con servicio completo Durante 6 horas semanales planificarás y ejecutarás un menú simple (entrada fría, pasta principal con salsa dominada, postre ligero) ensayando tiempos y coordinación hasta poder servirlo completo dentro de los 3 meses.",
+              "Tres pastas italianas básicas completadas y registradas",
+              "Tres salsas clásicas italianas servidas con pasta y feedback anotado",
+              "Cena piloto con menú italiano simple servida en tiempo"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.878Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 24,
+        "timestamp": "2026-03-30T10:28:54.782Z",
+        "category": "phase",
+        "action": "plan.summary",
+        "summary_es": "Roadmap generado con 3 fase(s) y 3 hito(s).",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 12,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Primer repertorio de Practicar cortes parejos con verduras baratas",
+              "focus": "Construir una base repetible de Practicar cortes parejos con verduras baratas. Tomar mise en place italiana como referencia concreta del repertorio. Fijar mise en place, punto de coccion y tecnica base alrededor de mise en place italiana. Partir desde principiante sin experiencia sin reiniciar artificialmente.",
+              "durationWeeks": 5
+            },
+            {
+              "index": 2,
+              "title": "Recetas repetibles de Practicar cortes parejos con verduras baratas",
+              "focus": "Tomar una receta eje del repertorio y un menu corto italiano como referencia concreta del repertorio. Repetir una receta eje del repertorio y un menu corto italiano hasta que deje de depender del paso a paso. Respetar el nivel actual principiante sin experiencia sin saltar etapas.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 3,
+              "title": "Menu corto de Practicar cortes parejos con verduras baratas para 3 meses",
+              "focus": "Cerrar el horizonte con un menu corto que combine mise en place italiana y una receta eje del repertorio. El horizonte de trabajo queda en 3 meses y no en una improvisacion corta.",
+              "durationWeeks": 3
+            }
+          ],
+          "milestones": [
+            "Completar una rutina base estable de Practicar cortes parejos con verduras baratas con mise en place italiana",
+            "Resolver una receta eje del repertorio y un menu corto italiano sin depender del paso a paso",
+            "Preparar un menu corto de Practicar cortes parejos con verduras baratas con calidad consistente y referencias concretas"
+          ],
+          "fallbackUsed": true,
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "principiante",
+              "experiencia",
+              "sin"
+            ],
+            "observedTexts": [
+              "Mes 1 principiante: mise en place italiana y primeras pastas cortas Dedicarás 4-5 horas semanales a dominar mise en place, cortes seguros y tres recetas básicas de pasta italiana (spaghetti, penne, gnocchi) para que un principiante gane soltura antes de avanzar en el plazo de 3 meses.",
+              "Mes 2 principiante: salsas clásicas italianas ligadas a pastas Invertirás 5 horas semanales en aprender salsas base (pomodoro, pesto, carbonara ligera) y combinarlas con las pastas del mes anterior para ajustar sazón y consistencia mientras sigues siendo principiante.",
+              "Mes 3 principiante: menú italiano simple con servicio completo Durante 6 horas semanales planificarás y ejecutarás un menú simple (entrada fría, pasta principal con salsa dominada, postre ligero) ensayando tiempos y coordinación hasta poder servirlo completo dentro de los 3 meses.",
+              "Tres pastas italianas básicas completadas y registradas",
+              "Tres salsas clásicas italianas servidas con pasta y feedback anotado",
+              "Cena piloto con menú italiano simple servida en tiempo"
+            ]
+          },
+          "fallbackPublishability": "pendiente_de_critica"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.880Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 25,
+        "timestamp": "2026-03-30T10:28:54.782Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de planificacion a factibilidad.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "plan",
+          "toPhase": "check"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.880Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 26,
+        "timestamp": "2026-03-30T10:28:54.782Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta chequeando la factibilidad del plan.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.880Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 27,
+        "timestamp": "2026-03-30T10:28:54.782Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El verificador de factibilidad esta chequeando horas, energia y restricciones.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.880Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 28,
+        "timestamp": "2026-03-30T10:28:54.783Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El verificador de factibilidad completo factibilidad con respuesta del modelo.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 1,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.881Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 29,
+        "timestamp": "2026-03-30T10:28:54.784Z",
+        "category": "phase",
+        "action": "check.summary",
+        "summary_es": "Factibilidad feasible: 18h disponibles vs 0h requeridas.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "feasibility",
+          "status": "feasible",
+          "availableHours": 18,
+          "requiredHours": 0,
+          "gap": 0,
+          "conflicts": [],
+          "adjustments": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.881Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 30,
+        "timestamp": "2026-03-30T10:28:54.784Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de factibilidad a calendarizacion.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "check",
+          "toPhase": "schedule"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.881Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 31,
+        "timestamp": "2026-03-30T10:28:54.784Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta resolviendo el calendario de actividades.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.882Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 32,
+        "timestamp": "2026-03-30T10:28:54.784Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El scheduler esta distribuyendo actividades en el calendario.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.971Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 33,
+        "timestamp": "2026-03-30T10:28:54.968Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El scheduler cerro calendarizacion por via deterministica.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 184,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.972Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 34,
+        "timestamp": "2026-03-30T10:28:54.968Z",
+        "category": "phase",
+        "action": "schedule.summary",
+        "summary_es": "Calendarizacion optimal con fill rate 100%.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "schedule",
+          "fillRate": 1,
+          "solverStatus": "optimal",
+          "solverTimeMs": 180,
+          "unscheduledCount": 0,
+          "tradeoffs": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.972Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 35,
+        "timestamp": "2026-03-30T10:28:54.968Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de calendarizacion a critica.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "schedule",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.972Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 36,
+        "timestamp": "2026-03-30T10:28:54.968Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:54.973Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 37,
+        "timestamp": "2026-03-30T10:28:54.968Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:28:58.722Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:28:58.721Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T10:28:54.968Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:08.730Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:29:08.729Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T10:28:54.968Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:18.729Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:29:18.729Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T10:28:54.968Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:19.857Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 38,
+        "timestamp": "2026-03-30T10:29:19.824Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 24856,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:19.858Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 39,
+        "timestamp": "2026-03-30T10:29:19.825Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict revise y score 55/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "revise",
+          "overallScore": 55,
+          "mustFix": [
+            {
+              "id": "f-1",
+              "severity": "critical",
+              "category": "feasibility",
+              "message": "Los tres fases y hitos se concentran casi exclusivamente en “practicar cortes parejos con verduras” y una mise en place general, sin abordar explícitamente la preparación de pastas, salsas o un menú italiano simple, por lo que es improbable que en 3 meses se alcance la meta declarada de dominar esas preparaciones.",
+              "suggestion": "Reformular las fases para incluir progresivamente la elaboración de pastas (ej. pasta seca, luego fresca), técnicas de salsas italianas básicas y la integración de un menú completo que practique los tiempos de cocción y servicio.",
+              "affectedPhaseIds": [
+                "Primer repertorio de Practicar cortes parejos con verduras baratas",
+                "Recetas repetibles de Practicar cortes parejos con verduras baratas",
+                "Menu corto de Practicar cortes parejos con verduras baratas para 3 meses"
+              ]
+            }
+          ],
+          "shouldFix": [
+            {
+              "id": "f-2",
+              "severity": "warning",
+              "category": "progression",
+              "message": "La progresión propuesta no cambia de un foco técnico a otro más avanzado: las tres fases repiten esencialmente el mismo objetivo (mise en place y cortes) sin introducir nuevas destrezas o retos que amplíen el repertorio hacia recetas y coordinación de un menú.",
+              "suggestion": "Escalar la dificultad: comenzar con técnicas básicas de cocina italiana, pasar a recetas guiadas de pastas y salsas, y terminar coordinando un menú completo con tiempos y presentación.",
+              "affectedPhaseIds": [
+                "Primer repertorio de Practicar cortes parejos con verduras baratas",
+                "Recetas repetibles de Practicar cortes parejos con verduras baratas",
+                "Menu corto de Practicar cortes parejos con verduras baratas para 3 meses"
+              ]
+            }
+          ],
+          "reasoning": "El plan actual no cubre los componentes centrales del objetivo (pastas y salsas italianas) y la progresión no evoluciona más allá de practicar cortes, por lo que no se alcanzará la meta en tres meses. Ajustar el enfoque a las habilidades específicas requeridas y escalar la dificultad resolvería el problema.",
+          "scoreDelta": null,
+          "comparison": "sin_base"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:19.859Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 40,
+        "timestamp": "2026-03-30T10:29:19.825Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El critico pidio otra vuelta (score 55/100, must-fix 1).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "revise"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:19.859Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 41,
+        "timestamp": "2026-03-30T10:29:19.825Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta corrigiendo el plan a partir de la critica.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:19.860Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 42,
+        "timestamp": "2026-03-30T10:29:19.825Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo una nueva vuelta de revision.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:19.861Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 43,
+        "timestamp": "2026-03-30T10:29:19.826Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:28.741Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:29:28.741Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 43,
+          "lastEventTimestamp": "2026-03-30T10:29:19.826Z",
+          "lastEventSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:32.267Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 44,
+        "timestamp": "2026-03-30T10:29:32.252Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 12426,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:38.756Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:29:38.755Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T10:29:32.252Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:48.767Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:29:48.767Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T10:29:32.252Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:29:58.767Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:29:58.767Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T10:29:32.252Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:08.780Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:30:08.780Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T10:29:32.252Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:10.035Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 45,
+        "timestamp": "2026-03-30T10:30:09.959Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El planificador completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 50134,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:10.036Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 46,
+        "timestamp": "2026-03-30T10:30:09.959Z",
+        "category": "phase",
+        "action": "revise.summary",
+        "summary_es": "Revision lista con 3 fase(s) y 3 hito(s).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 12,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Pastas secas y salsas básicas para principiante en el mes 1",
+              "focus": "Dedica el primer mes a preparar spaghetti aglio e olio y penne al pomodoro como principiante, practicando mise en place, cocción al dente y registro de costos para producir dos platos reproducibles.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 2,
+              "title": "Pasta fresca y carbonara sin crema para principiante en el mes 2",
+              "focus": "Durante el segundo mes aprende a amasar tagliatelle fresca y ejecuta una carbonara auténtica sin crema, coordinando tiempos entre pasta y salsa y ajustando texturas con agua de cocción.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 3,
+              "title": "Menu italiano simple coordinado en el mes 3 de los 3 meses",
+              "focus": "En el tercer mes planifica y ejecuta un menú simple de tres tiempos (entrada de verduras asadas, pasta principal con salsa dominada y ensalada) controlando presupuesto, presentación y ritmo de servicio.",
+              "durationWeeks": 4
+            }
+          ],
+          "milestones": [
+            "Dominar dos pastas secas con registros de ajuste",
+            "Servir tagliatelle fresca con carbonara emulsionada",
+            "Ensayo exitoso del menú italiano simple completo"
+          ],
+          "fallbackUsed": false,
+          "failedCheck": null,
+          "validationSummaryEs": null,
+          "validationEvidence": null,
+          "fallbackPublishability": "sin_fallback"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:10.037Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 47,
+        "timestamp": "2026-03-30T10:30:09.959Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La revision volvio a critica para validar la nueva version del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "revise",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:10.038Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 48,
+        "timestamp": "2026-03-30T10:30:09.960Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:10.038Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 49,
+        "timestamp": "2026-03-30T10:30:09.960Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:18.791Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:30:18.791Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 8,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 49,
+          "lastEventTimestamp": "2026-03-30T10:30:09.960Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.310Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 50,
+        "timestamp": "2026-03-30T10:30:27.251Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 17291,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.311Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 51,
+        "timestamp": "2026-03-30T10:30:27.251Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict approve y score 88/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "approve",
+          "overallScore": 88,
+          "mustFix": [],
+          "shouldFix": [
+            {
+              "id": "f-1",
+              "severity": "warning",
+              "category": "domain",
+              "message": "El plan casi no aborda la práctica sistemática de cortes parejos con verduras baratas, aun cuando el menú final incluye una entrada de verduras asadas y ensaladas que dependen de esa destreza básica.",
+              "suggestion": "Añadir en las primeras fases sesiones específicas de cuchillo usando verduras económicas (por ejemplo, cebolla, zanahoria, zucchini) para asegurar cortes consistentes antes de pasar a las recetas completas.",
+              "affectedPhaseIds": [
+                "Pastas secas y salsas básicas para principiante en el mes 1",
+                "Menu italiano simple coordinado en el mes 3 de los 3 meses"
+              ]
+            }
+          ],
+          "reasoning": "La estrategia está bien alineada con la meta de dominar pastas y salsas en tres meses, con fases secuenciales y metas claras. El único riesgo detectado es que no incorpora explícitamente la práctica de cortes de verduras, lo que podría dificultar la ejecución del menú final, pero es un ajuste menor.",
+          "scoreDelta": 33,
+          "comparison": "mejor"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.312Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 52,
+        "timestamp": "2026-03-30T10:30:27.252Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de critica a empaquetado.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "package"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.312Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 53,
+        "timestamp": "2026-03-30T10:30:27.252Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta empaquetando el resultado final.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.313Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 54,
+        "timestamp": "2026-03-30T10:30:27.252Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El empaquetador esta armando el resultado final publicable.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.313Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 55,
+        "timestamp": "2026-03-30T10:30:27.268Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El empaquetador cerro empaquetado por via deterministica.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 16,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.314Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 56,
+        "timestamp": "2026-03-30T10:30:27.268Z",
+        "category": "phase",
+        "action": "package.summary",
+        "summary_es": "Empaquetado listo con score base 100/100 y 0 advertencia(s).",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "package",
+          "packageReady": true,
+          "qualityScore": 100,
+          "summary": "Este plan convierte \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 12 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "warnings": [],
+          "qualityIssues": [],
+          "requestDomain": "cocina-italiana",
+          "packageDomain": "cocina-italiana"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.315Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 57,
+        "timestamp": "2026-03-30T10:30:27.268Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El paquete final quedo listo para resolver la publicacion.",
+        "phase": "done",
+        "agent": null,
+        "iteration": 10,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "package",
+          "toPhase": "done"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.315Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 58,
+        "timestamp": "2026-03-30T10:30:27.269Z",
+        "category": "publication",
+        "action": "publication.evaluated",
+        "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+        "phase": "done",
+        "agent": "critic",
+        "iteration": 10,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": "ready",
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "publication",
+          "canPublish": true,
+          "degraded": true,
+          "blockingAgents": [],
+          "fallbackLedger": [
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "count": 1,
+              "latestErrorCode": "Error",
+              "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+            }
+          ],
+          "qualityIssues": [],
+          "criticVerdict": "approve",
+          "criticScore": 88,
+          "warnings": [
+            "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+          ],
+          "exactBlockers": [],
+          "misalignedGoal": false
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.515Z",
+      "type": "v6:progress",
+      "data": {
+        "score": 100,
+        "lastAction": "Packaging final plan"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.516Z",
+      "type": "v6:degraded",
+      "data": {
+        "message": "El plan se genero con datos parcialmente sinteticos porque 1 agente(s) no pudieron conectarse al LLM.",
+        "failedAgents": "planner: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 7636
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 3120
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 6007
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 22832
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "fallback",
+            "errorCode": "Error",
+            "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "durationMs": 17243
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 184
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 24856
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 12426
+          },
+          {
+            "agent": "planner",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 50134
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 17291
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 16
+          }
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:30:27.518Z",
+      "type": "v6:complete",
+      "data": {
+        "planId": "5d859dd2-b980-403a-939d-08586b39ff4b",
+        "score": 60,
+        "iterations": 10,
+        "package": {
+          "plan": {
+            "goalIds": [
+              "generated-goal"
+            ],
+            "timezone": "UTC",
+            "createdAt": "2026-03-30T10:28:54.967Z",
+            "updatedAt": "2026-03-30T10:28:54.967Z",
+            "skeleton": {
+              "horizonWeeks": 12,
+              "goalIds": [
+                "generated-goal"
+              ],
+              "phases": [
+                {
+                  "phaseId": "phase-1",
+                  "title": "Pastas secas y salsas básicas para principiante en el mes 1",
+                  "startWeek": 1,
+                  "endWeek": 4,
+                  "startDate": "2026-04-01",
+                  "endDate": "2026-04-28",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Dedica el primer mes a preparar spaghetti aglio e olio y penne al pomodoro como principiante, practicando mise en place, cocción al dente y registro de costos para producir dos platos reproducibles."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task3-h3x3egz",
+                      "title": "Organizar mise en place antes de cocinar",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 30
+                    },
+                    {
+                      "activityId": "act-task1-szghtna",
+                      "title": "Practicar cortes parejos con verduras baratas",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task2-t07mdhs",
+                      "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": []
+                },
+                {
+                  "phaseId": "phase-2",
+                  "title": "Pasta fresca y carbonara sin crema para principiante en el mes 2",
+                  "startWeek": 5,
+                  "endWeek": 8,
+                  "startDate": "2026-04-29",
+                  "endDate": "2026-05-26",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Durante el segundo mes aprende a amasar tagliatelle fresca y ejecuta una carbonara auténtica sin crema, coordinando tiempos entre pasta y salsa y ajustando texturas con agua de cocción."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task3-h3x3egz",
+                      "title": "Organizar mise en place antes de cocinar",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 30
+                    },
+                    {
+                      "activityId": "act-task1-szghtna",
+                      "title": "Practicar cortes parejos con verduras baratas",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task2-t07mdhs",
+                      "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-1"
+                  ]
+                },
+                {
+                  "phaseId": "phase-3",
+                  "title": "Menu italiano simple coordinado en el mes 3 de los 3 meses",
+                  "startWeek": 9,
+                  "endWeek": 12,
+                  "startDate": "2026-05-27",
+                  "endDate": "2026-06-23",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "En el tercer mes planifica y ejecuta un menú simple de tres tiempos (entrada de verduras asadas, pasta principal con salsa dominada y ensalada) controlando presupuesto, presentación y ritmo de servicio."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task3-h3x3egz",
+                      "title": "Organizar mise en place antes de cocinar",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 30
+                    },
+                    {
+                      "activityId": "act-task1-szghtna",
+                      "title": "Practicar cortes parejos con verduras baratas",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task2-t07mdhs",
+                      "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-2"
+                  ]
+                }
+              ],
+              "milestones": [
+                {
+                  "id": "milestone-1",
+                  "kind": "milestone",
+                  "title": "Dominar dos pastas secas con registros de ajuste",
+                  "notes": "Dedica el primer mes a preparar spaghetti aglio e olio y penne al pomodoro como principiante, practicando mise en place, cocción al dente y registro de costos para producir dos platos reproducibles.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "dueDate": "2026-04-29"
+                },
+                {
+                  "id": "milestone-2",
+                  "kind": "milestone",
+                  "title": "Servir tagliatelle fresca con carbonara emulsionada",
+                  "notes": "Durante el segundo mes aprende a amasar tagliatelle fresca y ejecuta una carbonara auténtica sin crema, coordinando tiempos entre pasta y salsa y ajustando texturas con agua de cocción.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "dueDate": "2026-05-27"
+                },
+                {
+                  "id": "milestone-3",
+                  "kind": "milestone",
+                  "title": "Ensayo exitoso del menú italiano simple completo",
+                  "notes": "En el tercer mes planifica y ejecuta un menú simple de tres tiempos (entrada de verduras asadas, pasta principal con salsa dominada y ensalada) controlando presupuesto, presentación y ritmo de servicio.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "dueDate": "2026-06-24"
+                }
+              ]
+            },
+            "detail": {
+              "horizonWeeks": 2,
+              "startDate": "2026-04-01",
+              "endDate": "2026-04-14",
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-t07mdhs_s36_658da693",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-03-30T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s135_888ff415",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s158_daea8914",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-02T07:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s268_b8647344",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-04T14:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-t07mdhs_s308_7e07910f",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-05T10:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s322_199f233d",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-05T17:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-t07mdhs_s36_658da693-w2",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-06T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s135_888ff415-w2",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-08T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s158_daea8914-w2",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-09T07:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s268_b8647344-w2",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-11T14:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-t07mdhs_s308_7e07910f-w2",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-12T10:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s322_199f233d-w2",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-12T17:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "weeks": [
+                {
+                  "weekIndex": 1,
+                  "startDate": "2026-04-01",
+                  "endDate": "2026-04-07",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task2-t07mdhs_s36_658da693",
+                      "kind": "time_event",
+                      "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-03-30T18:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-szghtna_s135_888ff415",
+                      "kind": "time_event",
+                      "title": "Practicar cortes parejos con verduras baratas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-01T19:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-h3x3egz_s158_daea8914",
+                      "kind": "time_event",
+                      "title": "Organizar mise en place antes de cocinar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-02T07:00:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-h3x3egz_s268_b8647344",
+                      "kind": "time_event",
+                      "title": "Organizar mise en place antes de cocinar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-04T14:00:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-t07mdhs_s308_7e07910f",
+                      "kind": "time_event",
+                      "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-05T10:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-szghtna_s322_199f233d",
+                      "kind": "time_event",
+                      "title": "Practicar cortes parejos con verduras baratas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-05T17:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ]
+                },
+                {
+                  "weekIndex": 2,
+                  "startDate": "2026-04-08",
+                  "endDate": "2026-04-14",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task2-t07mdhs_s36_658da693-w2",
+                      "kind": "time_event",
+                      "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-06T18:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-szghtna_s135_888ff415-w2",
+                      "kind": "time_event",
+                      "title": "Practicar cortes parejos con verduras baratas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-08T19:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-h3x3egz_s158_daea8914-w2",
+                      "kind": "time_event",
+                      "title": "Organizar mise en place antes de cocinar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-09T07:00:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-h3x3egz_s268_b8647344-w2",
+                      "kind": "time_event",
+                      "title": "Organizar mise en place antes de cocinar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-11T14:00:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-t07mdhs_s308_7e07910f-w2",
+                      "kind": "time_event",
+                      "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-12T10:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-szghtna_s322_199f233d-w2",
+                      "kind": "time_event",
+                      "title": "Practicar cortes parejos con verduras baratas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-12T17:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ]
+                }
+              ]
+            },
+            "operational": {
+              "horizonDays": 7,
+              "startDate": "2026-04-01",
+              "endDate": "2026-04-07",
+              "frozen": true,
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-t07mdhs_s36_658da693",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-03-30T18:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s135_888ff415",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s158_daea8914",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-02T07:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-h3x3egz_s268_b8647344",
+                  "kind": "time_event",
+                  "title": "Organizar mise en place antes de cocinar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-04T14:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-t07mdhs_s308_7e07910f",
+                  "kind": "time_event",
+                  "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-05T10:00:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-szghtna_s322_199f233d",
+                  "kind": "time_event",
+                  "title": "Practicar cortes parejos con verduras baratas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:28:54.967Z",
+                  "updatedAt": "2026-03-30T10:28:54.967Z",
+                  "startAt": "2026-04-05T17:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-04-01T20:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-02T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-04T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-5-1",
+                  "startAt": "2026-04-05T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ],
+              "days": [
+                {
+                  "date": "2026-04-01",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-szghtna_s135_888ff415",
+                      "kind": "time_event",
+                      "title": "Practicar cortes parejos con verduras baratas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-01T19:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-1-1",
+                      "startAt": "2026-04-01T20:15:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-02",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task3-h3x3egz_s158_daea8914",
+                      "kind": "time_event",
+                      "title": "Organizar mise en place antes de cocinar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-02T07:00:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-2-1",
+                      "startAt": "2026-04-02T18:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-03",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-04",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task3-h3x3egz_s268_b8647344",
+                      "kind": "time_event",
+                      "title": "Organizar mise en place antes de cocinar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-04T14:00:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-4-1",
+                      "startAt": "2026-04-04T18:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-05",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task2-t07mdhs_s308_7e07910f",
+                      "kind": "time_event",
+                      "title": "Seguir una receta sencilla de olla y ajustar sabores",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-05T10:00:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-szghtna_s322_199f233d",
+                      "kind": "time_event",
+                      "title": "Practicar cortes parejos con verduras baratas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:28:54.967Z",
+                      "updatedAt": "2026-03-30T10:28:54.967Z",
+                      "startAt": "2026-04-05T17:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-5-1",
+                      "startAt": "2026-04-05T18:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-06",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-07",
+                  "scheduledEvents": [],
+                  "buffers": []
+                }
+              ],
+              "totalBufferMin": 120
+            }
+          },
+          "items": [
+            {
+              "id": "act-task2-t07mdhs_s36_658da693",
+              "kind": "time_event",
+              "title": "Seguir una receta sencilla de olla y ajustar sabores",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-03-30T18:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "act-task1-szghtna_s135_888ff415",
+              "kind": "time_event",
+              "title": "Practicar cortes parejos con verduras baratas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-01T19:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "act-task3-h3x3egz_s158_daea8914",
+              "kind": "time_event",
+              "title": "Organizar mise en place antes de cocinar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-02T07:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "act-task3-h3x3egz_s268_b8647344",
+              "kind": "time_event",
+              "title": "Organizar mise en place antes de cocinar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T14:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "act-task2-t07mdhs_s308_7e07910f",
+              "kind": "time_event",
+              "title": "Seguir una receta sencilla de olla y ajustar sabores",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-05T10:00:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "act-task1-szghtna_s322_199f233d",
+              "kind": "time_event",
+              "title": "Practicar cortes parejos con verduras baratas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-05T17:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Dominar dos pastas secas con registros de ajuste",
+              "notes": "Dedica el primer mes a preparar spaghetti aglio e olio y penne al pomodoro como principiante, practicando mise en place, cocción al dente y registro de costos para producir dos platos reproducibles.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-04-29",
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Servir tagliatelle fresca con carbonara emulsionada",
+              "notes": "Durante el segundo mes aprende a amasar tagliatelle fresca y ejecuta una carbonara auténtica sin crema, coordinando tiempos entre pasta y salsa y ajustando texturas con agua de cocción.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-05-27",
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Ensayo exitoso del menú italiano simple completo",
+              "notes": "En el tercer mes planifica y ejecuta un menú simple de tres tiempos (entrada de verduras asadas, pasta principal con salsa dominada y ensalada) controlando presupuesto, presentación y ritmo de servicio.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-06-24",
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "metric-plan-quality",
+              "kind": "metric",
+              "title": "Calidad del plan",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "plan_quality_score",
+              "unit": "puntos",
+              "direction": "increase",
+              "target": {
+                "targetValue": 100
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "last"
+              },
+              "series": [
+                {
+                  "at": "2026-03-30T10:28:54.967Z",
+                  "value": 100
+                }
+              ],
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "metric-sessions-week",
+              "kind": "metric",
+              "title": "Sesiones completables por semana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "scheduled_sessions_per_week",
+              "unit": "sesiones",
+              "direction": "increase",
+              "target": {
+                "targetValue": 6
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "count"
+              },
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            },
+            {
+              "id": "trigger-low-adherence",
+              "kind": "trigger_rule",
+              "title": "Revisar plan si baja la adherencia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "enabled": true,
+              "conditions": [
+                {
+                  "left": {
+                    "type": "metric",
+                    "ref": "plan_quality_score"
+                  },
+                  "op": "lt",
+                  "right": {
+                    "value": 70
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "type": "create_task",
+                  "payload": {
+                    "title": "Revisar y reajustar el plan",
+                    "estimateMin": 30
+                  }
+                }
+              ],
+              "throttle": {
+                "minHoursBetweenRuns": 168
+              },
+              "createdAt": "2026-03-30T10:28:54.967Z",
+              "updatedAt": "2026-03-30T10:28:54.967Z"
+            }
+          ],
+          "habitStates": [
+            {
+              "progressionKey": "generated-goal",
+              "weeksActive": 0,
+              "level": 0,
+              "currentDose": {
+                "sessionsPerWeek": 6,
+                "minimumViable": {
+                  "minutes": 10,
+                  "description": "Version minima de Organizar mise en place antes de cocinar"
+                }
+              },
+              "protectedFromReset": false
+            }
+          ],
+          "slackPolicy": {
+            "weeklyTimeBufferMin": 120,
+            "maxChurnMovesPerWeek": 3,
+            "frozenHorizonDays": 2
+          },
+          "timezone": "UTC",
+          "summary_esAR": "Este plan convierte \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 12 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "qualityScore": 60,
+          "implementationIntentions": [
+            "Si llega lunes a las 18:00, entonces hago Seguir una receta sencilla de olla y ajustar sabores durante 60 minutos.",
+            "Si llega miércoles a las 19:30, entonces hago Practicar cortes parejos con verduras baratas durante 45 minutos.",
+            "Si llega jueves a las 07:00, entonces hago Organizar mise en place antes de cocinar durante 30 minutos.",
+            "Si llega sábado a las 14:00, entonces hago Organizar mise en place antes de cocinar durante 30 minutos."
+          ],
+          "warnings": [
+            "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+          ],
+          "tradeoffs": [],
+          "publicationState": "publishable",
+          "qualityIssues": [],
+          "requestDomain": "cocina-italiana",
+          "packageDomain": "cocina-italiana",
+          "intakeCoverage": {
+            "requiredSignals": [
+              "cooking_level"
+            ],
+            "missingSignals": [],
+            "signalUsage": [
+              {
+                "signal": "cooking_level",
+                "expectedValue": "Principiante sin experiencia",
+                "used": true,
+                "evidence": [
+                  "principiante"
+                ]
+              }
+            ]
+          },
+          "degraded": true,
+          "reasoningTrace": [
+            {
+              "phase": "interpret",
+              "agent": "goal-interpreter",
+              "iteration": 1,
+              "action": "Executed interpret",
+              "reasoning": "Phase completed",
+              "result": "Goal: Learn to cook Italian dishes, focusing on pastas and sauces, and be able to prepare a simple menu within three months., confidence: 0.82",
+              "tokensUsed": 36,
+              "timestamp": "2026-03-30T10:21:09.072Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 2,
+              "action": "Executed clarify",
+              "reasoning": "Falta conocer la señal crítica de nivel de partida para adaptar el plan de aprendizaje.",
+              "result": "1 questions pending (confidence: 0.37)",
+              "tokensUsed": 10,
+              "timestamp": "2026-03-30T10:21:12.193Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 3,
+              "action": "Executed clarify",
+              "reasoning": "Se dispone de señales críticas suficientes para planificar.",
+              "result": "Ready to advance (confidence: 0.47)",
+              "tokensUsed": 9,
+              "timestamp": "2026-03-30T10:28:14.704Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 4,
+              "action": "FALLBACK: planner",
+              "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+              "result": "Using fallback strategic draft - NOT from LLM",
+              "tokensUsed": 12,
+              "timestamp": "2026-03-30T10:28:54.781Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 4,
+              "action": "Executed plan",
+              "reasoning": "Phase completed",
+              "result": "3 phases generated",
+              "tokensUsed": 5,
+              "timestamp": "2026-03-30T10:28:54.781Z"
+            },
+            {
+              "phase": "check",
+              "agent": "feasibility-checker",
+              "iteration": 5,
+              "action": "Executed check",
+              "reasoning": "Status: feasible",
+              "result": "Feasibility: feasible",
+              "tokensUsed": 6,
+              "timestamp": "2026-03-30T10:28:54.783Z"
+            },
+            {
+              "phase": "schedule",
+              "agent": "scheduler",
+              "iteration": 6,
+              "action": "Executed schedule",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T10:28:54.968Z"
+            },
+            {
+              "phase": "critique",
+              "agent": "critic",
+              "iteration": 7,
+              "action": "Executed critique",
+              "reasoning": "El plan actual no cubre los componentes centrales del objetivo (pastas y salsas italianas) y la progresión no evoluciona más allá de practicar cortes, por lo que no se alcanzará la meta en tres meses. Ajustar el enfoque a las habilidades específicas requeridas y escalar la dificultad resolvería el problema.",
+              "result": "Score: 55, verdict: revise",
+              "tokensUsed": 7,
+              "timestamp": "2026-03-30T10:29:19.825Z"
+            },
+            {
+              "phase": "revise",
+              "agent": "planner",
+              "iteration": 8,
+              "action": "Executed revise",
+              "reasoning": "Phase completed",
+              "result": "3 phases generated",
+              "tokensUsed": 5,
+              "timestamp": "2026-03-30T10:30:09.959Z"
+            },
+            {
+              "phase": "critique",
+              "agent": "critic",
+              "iteration": 9,
+              "action": "Executed critique",
+              "reasoning": "La estrategia está bien alineada con la meta de dominar pastas y salsas en tres meses, con fases secuenciales y metas claras. El único riesgo detectado es que no incorpora explícitamente la práctica de cortes de verduras, lo que podría dificultar la ejecución del menú final, pero es un ajuste menor.",
+              "result": "Score: 88, verdict: approve",
+              "tokensUsed": 7,
+              "timestamp": "2026-03-30T10:30:27.251Z"
+            },
+            {
+              "phase": "package",
+              "agent": "packager",
+              "iteration": 10,
+              "action": "Executed package",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T10:30:27.268Z"
+            }
+          ],
+          "agentOutcomes": [
+            {
+              "agent": "goal-interpreter",
+              "phase": "interpret",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 7636
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 3120
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 6007
+            },
+            {
+              "agent": "domain-expert",
+              "phase": "plan",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 22832
+            },
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "source": "fallback",
+              "errorCode": "Error",
+              "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+              "durationMs": 17243
+            },
+            {
+              "agent": "feasibility-checker",
+              "phase": "check",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 1
+            },
+            {
+              "agent": "scheduler",
+              "phase": "schedule",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 184
+            },
+            {
+              "agent": "critic",
+              "phase": "critique",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 24856
+            },
+            {
+              "agent": "domain-expert",
+              "phase": "revise",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 12426
+            },
+            {
+              "agent": "planner",
+              "phase": "revise",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 50134
+            },
+            {
+              "agent": "critic",
+              "phase": "critique",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 17291
+            },
+            {
+              "agent": "packager",
+              "phase": "package",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 16
+            }
+          ]
+        },
+        "reasoningTrace": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Learn to cook Italian dishes, focusing on pastas and sauces, and be able to prepare a simple menu within three months., confidence: 0.82",
+            "tokensUsed": 36,
+            "timestamp": "2026-03-30T10:21:09.072Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Falta conocer la señal crítica de nivel de partida para adaptar el plan de aprendizaje.",
+            "result": "1 questions pending (confidence: 0.37)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T10:21:12.193Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "Se dispone de señales críticas suficientes para planificar.",
+            "result": "Ready to advance (confidence: 0.47)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T10:28:14.704Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "FALLBACK: planner",
+            "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "result": "Using fallback strategic draft - NOT from LLM",
+            "tokensUsed": 12,
+            "timestamp": "2026-03-30T10:28:54.781Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:28:54.781Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T10:28:54.783Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:28:54.968Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "El plan actual no cubre los componentes centrales del objetivo (pastas y salsas italianas) y la progresión no evoluciona más allá de practicar cortes, por lo que no se alcanzará la meta en tres meses. Ajustar el enfoque a las habilidades específicas requeridas y escalar la dificultad resolvería el problema.",
+            "result": "Score: 55, verdict: revise",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T10:29:19.825Z"
+          },
+          {
+            "phase": "revise",
+            "agent": "planner",
+            "iteration": 8,
+            "action": "Executed revise",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:30:09.959Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 9,
+            "action": "Executed critique",
+            "reasoning": "La estrategia está bien alineada con la meta de dominar pastas y salsas en tres meses, con fases secuenciales y metas claras. El único riesgo detectado es que no incorpora explícitamente la práctica de cortes de verduras, lo que podría dificultar la ejecución del menú final, pero es un ajuste menor.",
+            "result": "Score: 88, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T10:30:27.251Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 10,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:30:27.268Z"
+          }
+        ],
+        "scratchpad": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Learn to cook Italian dishes, focusing on pastas and sauces, and be able to prepare a simple menu within three months., confidence: 0.82",
+            "tokensUsed": 36,
+            "timestamp": "2026-03-30T10:21:09.072Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Falta conocer la señal crítica de nivel de partida para adaptar el plan de aprendizaje.",
+            "result": "1 questions pending (confidence: 0.37)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T10:21:12.193Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "Se dispone de señales críticas suficientes para planificar.",
+            "result": "Ready to advance (confidence: 0.47)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T10:28:14.704Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "FALLBACK: planner",
+            "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "result": "Using fallback strategic draft - NOT from LLM",
+            "tokensUsed": 12,
+            "timestamp": "2026-03-30T10:28:54.781Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:28:54.781Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T10:28:54.783Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:28:54.968Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "El plan actual no cubre los componentes centrales del objetivo (pastas y salsas italianas) y la progresión no evoluciona más allá de practicar cortes, por lo que no se alcanzará la meta en tres meses. Ajustar el enfoque a las habilidades específicas requeridas y escalar la dificultad resolvería el problema.",
+            "result": "Score: 55, verdict: revise",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T10:29:19.825Z"
+          },
+          {
+            "phase": "revise",
+            "agent": "planner",
+            "iteration": 8,
+            "action": "Executed revise",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:30:09.959Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 9,
+            "action": "Executed critique",
+            "reasoning": "La estrategia está bien alineada con la meta de dominar pastas y salsas en tres meses, con fases secuenciales y metas claras. El único riesgo detectado es que no incorpora explícitamente la práctica de cortes de verduras, lo que podría dificultar la ejecución del menú final, pero es un ajuste menor.",
+            "result": "Score: 88, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T10:30:27.251Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 10,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:30:27.268Z"
+          }
+        ],
+        "degraded": true,
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 7636
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 3120
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 6007
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 22832
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "fallback",
+            "errorCode": "Error",
+            "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "durationMs": 17243
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 184
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 24856
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 12426
+          },
+          {
+            "agent": "planner",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 50134
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 17291
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 16
+          }
+        ]
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-072805-resume-1ac6eeec-f71d-4552-bb3c-2cd8aeececef.json"
+}

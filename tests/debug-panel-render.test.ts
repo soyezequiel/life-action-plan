@@ -17,7 +17,7 @@ const baseSpan: DebugSpan = {
   spanId,
   parentSpanId: null,
   skillName: 'plan-builder',
-  provider: 'ollama:qwen3:8b',
+  provider: 'openai:gpt-4o-mini',
   type: 'stream',
   status: 'streaming',
   messages: [
@@ -44,7 +44,7 @@ afterEach(() => {
 const baseTrace: DebugTraceView = {
   traceId,
   skillName: 'plan-builder',
-  provider: 'ollama:qwen3:8b',
+  provider: 'openai:gpt-4o-mini',
   startedAt: '2026-03-19T15:00:00.000Z',
   completedAt: null,
   error: null,
@@ -73,7 +73,7 @@ describe('debug panel render', () => {
     )
 
     expect(html).toContain('plan-builder')
-    expect(html).toContain('ollama:qwen3:8b')
+    expect(html).toContain('openai:gpt-4o-mini')
     expect(html).toContain(t('debug.stream_thinking_label'))
     expect(html).toContain(t('debug.stream_answer_label'))
     expect(html).toContain('acomodo el horario')

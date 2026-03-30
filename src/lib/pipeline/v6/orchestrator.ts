@@ -127,6 +127,13 @@ const AGENT_LABELS_ES: Record<V6AgentName, string> = {
   packager: 'empaquetador',
 };
 
+const HEALTH_SAFETY_TERMS = /\b(medico|médico|profesional|supervision|supervisión|seguimiento(?:\s+clinico|\s+clínico)?|consulta|nutricion|nutrición|nutricionista|especialista|acompanamiento|acompañamiento)\b/;
+const NEGATED_HEALTH_SAFETY_TERMS = [
+  /\b(no|sin|ningun|ninguna|falta(?:n)?|carece(?:n)?|omite|omitir|evita(?:r)?|rechaza(?:r)?)\b.{0,60}\b(medico|médico|profesional|supervision|supervisión|seguimiento(?:\s+clinico|\s+clínico)?|consulta|nutricion|nutrición|nutricionista|especialista|acompanamiento|acompañamiento)\b/,
+  /\b(medico|médico|profesional|supervision|supervisión|seguimiento(?:\s+clinico|\s+clínico)?|consulta|nutricion|nutrición|nutricionista|especialista|acompanamiento|acompañamiento)\b.{0,30}\b(no|sin|ausente|inexistente)\b/,
+  /\bno\s+(?:tengo|hay|cuento|contamos|dispongo|dispone|quiero\s+basar)\b.{0,80}\b(medico|médico|profesional|supervision|supervisión|seguimiento(?:\s+clinico|\s+clínico)?|consulta|nutricion|nutrición|nutricionista|especialista|acompanamiento|acompañamiento)\b/,
+];
+
 // ─── Dynamic agent registry loader ──────────────────────────────────────────
 
 async function loadRegistry(): Promise<AgentRegistryLike | null> {
@@ -330,6 +337,11 @@ function canonicalizeGoalSignalToken(token: string): string {
   switch (normalized) {
     case '3k':
       return '3000';
+    case 'ar$':
+    case 'ars':
+    case 'peso':
+    case 'pesos':
+      return 'pesos';
     case 'dolar':
     case 'dolares':
     case 'us':
@@ -415,9 +427,9 @@ function extractGoalSignalAnchors(goalText: string, answers: Record<string, stri
   const answerValues = uniqueNonEmpty(Object.values(answers));
   const metric = extractMatchedFragment(
     [goalText],
-    /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i,
+    /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|ars|ar\$|peso(?:s)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i,
   ) ?? collectBestMatchedGoalSignalValue(answerValues, [
-    /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i,
+    /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|ars|ar\$|peso(?:s)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i,
   ]);
   const timeframe = extractMatchedFragment(
     [goalText],
@@ -640,12 +652,12 @@ export class PlanOrchestrator {
 
   async resume(answers: Record<string, string>): Promise<OrchestratorResult> {
     this.registry = await loadRegistry();
-    this.pendingAnswers = answers;
     const storedAnswers = this.mapAnswersToStoredAnswers(answers);
     this.context.userAnswers = { ...this.context.userAnswers, ...storedAnswers };
 
-    const hasActualAnswers = Object.keys(answers).length > 0;
-    this.clarificationSkipRequested = !hasActualAnswers;
+    const hasActualAnswers = Object.values(answers).some((answer) => answer.trim().length > 0);
+    this.pendingAnswers = hasActualAnswers ? answers : null;
+    this.clarificationSkipRequested = false;
     this.state.phase = 'clarify';
 
     const goalSignalsSnapshot = this.syncGoalSignalsSnapshot();
@@ -665,6 +677,10 @@ export class PlanOrchestrator {
         goalSignalsSnapshot,
       },
     });
+
+    if (!hasActualAnswers) {
+      return this.pauseForInput();
+    }
 
     return this.executeLoop();
   }
@@ -950,7 +966,7 @@ export class PlanOrchestrator {
 
   private hasPendingAnswers(): boolean {
     if (this.pendingAnswers !== null) {
-      return true;
+      return Object.values(this.pendingAnswers).some((answer) => answer.trim().length > 0);
     }
 
     // First clarify round always executes to generate questions
@@ -2545,12 +2561,31 @@ export class PlanOrchestrator {
     return this.agentOutcomes.filter((outcome) => outcome.source === 'fallback');
   }
 
+  private isFinanceSavingsGoal(): boolean {
+    const goalText = `${this.context.goalText} ${this.context.interpretation?.parsedGoal ?? ''}`;
+    return /\b(?:ahorr|finanz|presupuest|gasto|transferenc|deposit)\w*\b/i.test(goalText);
+  }
+
+  private isPlannerBestEffortFallback(outcome: AgentExecutionOutcome): boolean {
+    const errorMessage = outcome.errorMessage?.toLowerCase() ?? '';
+    return errorMessage.includes('fallback strategy was used.')
+      || errorMessage.includes('tardo demasiado')
+      || errorMessage.includes('timeout')
+      || errorMessage.includes('timed out');
+  }
+
   private isPublishablePlannerFallback(outcome: AgentExecutionOutcome): boolean {
     if (outcome.agent !== 'planner' || outcome.source !== 'fallback') {
       return false;
     }
 
-    if (!outcome.errorMessage?.includes('Fallback strategy was used.')) {
+    const fallbackWasValidationDriven = outcome.errorMessage?.includes('Fallback strategy was used.') ?? false;
+    const fallbackIsFinanceBestEffort = this.isFinanceSavingsGoal()
+      && this.context.goalSignalsSnapshot?.hasSufficientSignalsForPlanning === true
+      && (this.context.goalSignalsSnapshot?.missingCriticalSignals?.length ?? 0) === 0
+      && this.isPlannerBestEffortFallback(outcome);
+
+    if (!fallbackWasValidationDriven && !fallbackIsFinanceBestEffort) {
       return false;
     }
 
@@ -2558,7 +2593,16 @@ export class PlanOrchestrator {
       return false;
     }
 
-    return this.context.finalPackage?.publicationState === 'publishable';
+    if (!this.context.finalPackage) {
+      return false;
+    }
+
+    if (fallbackIsFinanceBestEffort) {
+      return this.context.finalPackage.publicationState !== 'requires_supervision'
+        && this.context.finalPackage.publicationState !== 'failed_for_quality_review';
+    }
+
+    return this.context.finalPackage.publicationState === 'publishable';
   }
 
   private getBlockingOutcomes(): AgentExecutionOutcome[] {
@@ -2593,12 +2637,69 @@ export class PlanOrchestrator {
     return /\b(medico|médico|profesional|supervision|supervisión|seguimiento clinico|seguimiento clínico|consulta)\b/.test(packageText);
   }
 
+  private hasEffectiveHealthSafetyCoverage(): boolean {
+    const packageText = [
+      this.context.finalPackage?.summary_esAR,
+      ...(this.context.finalPackage?.warnings ?? []),
+      ...(this.context.finalPackage?.implementationIntentions ?? []),
+      this.context.criticReport?.reasoning,
+      this.context.strategicDraft?.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`) ?? [],
+    ]
+      .flat()
+      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      .join(' ')
+      .toLowerCase();
+
+    if (!packageText.trim()) {
+      return false;
+    }
+
+    if (!HEALTH_SAFETY_TERMS.test(packageText)) {
+      return false;
+    }
+
+    return !NEGATED_HEALTH_SAFETY_TERMS.some((pattern) => pattern.test(packageText));
+  }
+
+  private hasHealthSupervisionFailureSignal(): boolean {
+    if (this.context.finalPackage?.publicationState === 'requires_supervision') {
+      return true;
+    }
+
+    if ((this.context.finalPackage?.qualityIssues ?? []).some((issue) =>
+      issue.code === 'health_safety_gap' || issue.code === 'HEALTH_SAFETY_SUPERVISION_MISSING')) {
+      return true;
+    }
+
+    return this.agentOutcomes.some((outcome) =>
+      outcome.agent === 'planner'
+      && outcome.source === 'fallback'
+      && (outcome.errorMessage?.includes('health.supervision') ?? false));
+  }
+
   private getPublicationGate(): {
     publicationState: 'ready' | 'blocked' | 'failed';
     failureCode: 'requires_regeneration' | 'requires_supervision' | 'failed_for_quality_review' | null;
     blockingAgents: AgentExecutionOutcome[];
   } {
+    if (
+      this.isHighRiskHealthGoal()
+      && (
+        this.hasHealthSupervisionFailureSignal()
+        || !this.hasEffectiveHealthSafetyCoverage()
+      )
+    ) {
+      return {
+        publicationState: 'blocked',
+        failureCode: 'requires_supervision',
+        blockingAgents: [],
+      };
+    }
+
     const blockingAgents = this.getBlockingOutcomes();
+    const hasPublishablePlannerFallback = this.getFallbackOutcomes().some((outcome) =>
+      this.isPublishablePlannerFallback(outcome),
+    );
 
     if (blockingAgents.length > 0) {
       return {
@@ -2616,14 +2717,6 @@ export class PlanOrchestrator {
       };
     }
 
-    if (this.isHighRiskHealthGoal() && !this.hasHealthSafetyFraming()) {
-      return {
-        publicationState: 'blocked',
-        failureCode: 'requires_supervision',
-        blockingAgents: [],
-      };
-    }
-
     if (!this.context.finalPackage) {
       return {
         publicationState: 'failed',
@@ -2633,9 +2726,25 @@ export class PlanOrchestrator {
     }
 
     if (this.context.finalPackage?.publicationState === 'requires_regeneration') {
+      if (hasPublishablePlannerFallback && this.context.criticReport?.verdict === 'approve') {
+        return {
+          publicationState: 'ready',
+          failureCode: null,
+          blockingAgents: [],
+        };
+      }
+
       return {
         publicationState: 'blocked',
         failureCode: 'requires_regeneration',
+        blockingAgents: [],
+      };
+    }
+
+    if (this.context.finalPackage?.publicationState === 'requires_supervision') {
+      return {
+        publicationState: 'blocked',
+        failureCode: 'requires_supervision',
         blockingAgents: [],
       };
     }
@@ -2674,13 +2783,19 @@ export class PlanOrchestrator {
   ): string[] {
     const warnings = new Set(existingWarnings);
     if (publicationState === 'blocked') {
-      if (this.getBlockingOutcomes().length > 0) {
-        warnings.add(
-          'No se puede publicar este plan: la revision critica fallo y hace falta regenerarlo con un proveedor que responda bien.',
-        );
-      } else if (this.isHighRiskHealthGoal()) {
+      if (
+        this.isHighRiskHealthGoal()
+        && (
+          this.hasHealthSupervisionFailureSignal()
+          || !this.hasEffectiveHealthSafetyCoverage()
+        )
+      ) {
         warnings.add(
           'No se puede publicar este plan de salud sin una referencia clara a seguimiento profesional o supervision clinica.',
+        );
+      } else if (this.getBlockingOutcomes().length > 0) {
+        warnings.add(
+          'No se puede publicar este plan: la revision critica fallo y hace falta regenerarlo con un proveedor que responda bien.',
         );
       } else {
         warnings.add(
@@ -2871,6 +2986,8 @@ export class PlanOrchestrator {
       ? 'publishable'
       : publicationGate.failureCode === 'requires_regeneration'
         ? 'requires_regeneration'
+        : publicationGate.failureCode === 'requires_supervision'
+          ? 'requires_supervision'
         : 'failed_for_quality_review';
     const gateQualityIssues = publicationGate.failureCode === 'requires_regeneration'
       ? [{

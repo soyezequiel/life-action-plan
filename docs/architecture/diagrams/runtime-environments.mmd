@@ -1,0 +1,39 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a73e8', 'lineColor': '#5f6368'}}}%%
+
+C4Deployment
+    title LAP — Entornos de Ejecución
+
+    Deployment_Node(local, "Desarrollo Local", "Computadora del programador") {
+        Deployment_Node(node_local, "Servidor de desarrollo", "Next.js en modo desarrollo") {
+            Container(app_local, "Aplicación LAP", "Next.js 15", "Interfaz y servicios en localhost:3000")
+        }
+        Deployment_Node(pg_local, "Base de datos local", "PostgreSQL puerto 5432") {
+            ContainerDb(db_local, "lap_dev", "PostgreSQL", "Datos de desarrollo y pruebas")
+        }
+        Deployment_Node(ollama, "IA local", "Ollama puerto 11434") {
+            Container(llm_local, "Modelo local", "llama3 / mistral", "IA gratuita para desarrollo")
+        }
+    }
+
+    Deployment_Node(vercel, "Producción — Vercel", "Servidor en la nube") {
+        Deployment_Node(serverless, "Funciones serverless", "Node.js 20") {
+            Container(app_prod, "Aplicación LAP", "Next.js 15", "Interfaz y servicios para usuarios reales")
+        }
+    }
+
+    Deployment_Node(cloud_db, "Base de datos en la nube", "Neon / Supabase / RDS") {
+        ContainerDb(db_prod, "lap_production", "PostgreSQL", "Datos de producción")
+    }
+
+    Deployment_Node(openai, "Servicio de IA en la nube", "OpenAI") {
+        Container(llm_prod, "Modelos GPT", "API de OpenAI", "IA para generación de planes en producción")
+    }
+
+    Rel(app_local, db_local, "Conexión a base de datos", "TCP")
+    Rel(app_local, llm_local, "Conexión a IA local", "HTTP")
+    Rel(app_local, llm_prod, "Conexión a IA en la nube (opcional)", "HTTPS")
+
+    Rel(app_prod, db_prod, "Conexión a base de datos", "TCP cifrado")
+    Rel(app_prod, llm_prod, "Conexión a IA en la nube", "HTTPS")
+
+    UpdateRelStyle(app_local, llm_prod, $lineStyle="dotted")

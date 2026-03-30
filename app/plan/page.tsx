@@ -1,5 +1,4 @@
 import { PlanFlow } from '../../components/flow/PlanFlow'
-import { getDeploymentMode } from '../../src/lib/env/deployment'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -24,10 +23,9 @@ async function resolveSearchParams(searchParams: Promise<SearchParams> | undefin
 }
 
 export default async function PlanPage({ searchParams }: PlanPageProps) {
-  const deploymentMode = getDeploymentMode()
   const params = await resolveSearchParams(searchParams)
   const profileId = readParam(params.profileId) ?? readParam(params.id) ?? ''
-  const provider = readParam(params.provider) ?? (deploymentMode === 'local' ? 'ollama' : 'openai')
+  const provider = readParam(params.provider) ?? 'openai'
 
   return (
     <main className="app-shell dashboard-shell">

@@ -1,0 +1,3940 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T10:35:18.582Z",
+  "updatedAt": "2026-03-30T10:35:55.619Z",
+  "invocation": {
+    "goal": "",
+    "resumeSession": "6617c97c-4802-40ca-b1b6-866873799a88",
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": "3cf44eda-5af7-4beb-84b6-1cc47edb86bc",
+    "score": 100,
+    "iterations": 8,
+    "degraded": false,
+    "publicationState": "publishable",
+    "failureCode": null,
+    "sessionId": "6617c97c-4802-40ca-b1b6-866873799a88",
+    "provider": "resume",
+    "modelId": "openai:gpt-5-codex",
+    "status": "completed"
+  },
+  "pendingInput": null,
+  "finalPackage": {
+    "package": {
+      "plan": {
+        "goalIds": [
+          "generated-goal"
+        ],
+        "timezone": "UTC",
+        "createdAt": "2026-03-30T10:35:45.825Z",
+        "updatedAt": "2026-03-30T10:35:45.825Z",
+        "skeleton": {
+          "horizonWeeks": 24,
+          "goalIds": [
+            "generated-goal"
+          ],
+          "phases": [
+            {
+              "phaseId": "phase-1",
+              "title": "Bitácora semanal de dirección personal para romper el estancamiento (meses 1-2)",
+              "startWeek": 1,
+              "endWeek": 8,
+              "startDate": "2026-03-31",
+              "endDate": "2026-05-25",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Reserva 45-60 minutos semanales para escribir qué te deja estancada en el trabajo y dónde sientes energía de cambio, generando un cuaderno con patrones concretos sobre tu dirección deseada."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task2-z1j0dyt",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                },
+                {
+                  "activityId": "act-task1-9ilvh2v",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task3-fvefe2e",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 90
+                }
+              ],
+              "milestoneIds": []
+            },
+            {
+              "phaseId": "phase-2",
+              "title": "Charlas quincenales y mapa de foco para sostener el cambio (meses 3-4)",
+              "startWeek": 9,
+              "endWeek": 16,
+              "startDate": "2026-05-26",
+              "endDate": "2026-07-20",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Comparte tus hallazgos con una persona de confianza cada dos semanas y condensa lo aprendido en un mapa visual que indique 2-3 líneas de acción para redirigir tu trabajo y sostener el foco."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task2-z1j0dyt",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                },
+                {
+                  "activityId": "act-task1-9ilvh2v",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task3-fvefe2e",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 90
+                }
+              ],
+              "milestoneIds": [
+                "milestone-1"
+              ]
+            },
+            {
+              "phaseId": "phase-3",
+              "title": "Experimentos nuevos y revisión de avance para sentir progreso (meses 5-6)",
+              "startWeek": 17,
+              "endWeek": 24,
+              "startDate": "2026-07-21",
+              "endDate": "2026-09-14",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Implementa al menos dos actividades fuera de la rutina laboral (taller, voluntariado, proyecto paralelo) y documenta antes-durante-después para evaluar si acercan la sensación de avance y reinvención."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-task2-z1j0dyt",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 60
+                },
+                {
+                  "activityId": "act-task1-9ilvh2v",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-task3-fvefe2e",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 90
+                }
+              ],
+              "milestoneIds": [
+                "milestone-2"
+              ]
+            }
+          ],
+          "milestones": [
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Bitácora con 8 entradas y 3 patrones identificados",
+              "notes": "Reserva 45-60 minutos semanales para escribir qué te deja estancada en el trabajo y dónde sientes energía de cambio, generando un cuaderno con patrones concretos sobre tu dirección deseada.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z",
+              "dueDate": "2026-05-26"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Mapa de foco actualizado tras 4 charlas quincenales",
+              "notes": "Comparte tus hallazgos con una persona de confianza cada dos semanas y condensa lo aprendido en un mapa visual que indique 2-3 líneas de acción para redirigir tu trabajo y sostener el foco.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z",
+              "dueDate": "2026-07-21"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Dos experimentos completados y revisión final de reinvención",
+              "notes": "Implementa al menos dos actividades fuera de la rutina laboral (taller, voluntariado, proyecto paralelo) y documenta antes-durante-después para evaluar si acercan la sensación de avance y reinvención.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z",
+              "dueDate": "2026-09-15"
+            }
+          ]
+        },
+        "detail": {
+          "horizonWeeks": 2,
+          "startDate": "2026-03-31",
+          "endDate": "2026-04-13",
+          "scheduledEvents": [
+            {
+              "id": "act-task1-9ilvh2v_s84_c03df41c",
+              "kind": "time_event",
+              "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z",
+              "startAt": "2026-03-31T18:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-fvefe2e_s86_11ddf403",
+              "kind": "time_event",
+              "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-03-31T19:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-z1j0dyt_s133_777a4fb0",
+              "kind": "time_event",
+              "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-01T18:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-fvefe2e_s232_e83fbb84",
+              "kind": "time_event",
+              "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-03T20:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-z1j0dyt_s281_55921319",
+              "kind": "time_event",
+              "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-04T20:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-9ilvh2v_s310_cde9e654",
+              "kind": "time_event",
+              "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-05T11:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-9ilvh2v_s84_c03df41c-w2",
+              "kind": "time_event",
+              "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z",
+              "startAt": "2026-04-07T18:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-fvefe2e_s86_11ddf403-w2",
+              "kind": "time_event",
+              "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-07T19:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-z1j0dyt_s133_777a4fb0-w2",
+              "kind": "time_event",
+              "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-08T18:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-fvefe2e_s232_e83fbb84-w2",
+              "kind": "time_event",
+              "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-10T20:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-z1j0dyt_s281_55921319-w2",
+              "kind": "time_event",
+              "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-11T20:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-9ilvh2v_s310_cde9e654-w2",
+              "kind": "time_event",
+              "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-12T11:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            }
+          ],
+          "weeks": [
+            {
+              "weekIndex": 1,
+              "startDate": "2026-03-31",
+              "endDate": "2026-04-06",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-9ilvh2v_s84_c03df41c",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.825Z",
+                  "updatedAt": "2026-03-30T10:35:45.825Z",
+                  "startAt": "2026-03-31T18:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s86_11ddf403",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s133_777a4fb0",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-01T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s232_e83fbb84",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-03T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s281_55921319",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-04T20:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-9ilvh2v_s310_cde9e654",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-05T11:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ]
+            },
+            {
+              "weekIndex": 2,
+              "startDate": "2026-04-07",
+              "endDate": "2026-04-13",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-9ilvh2v_s84_c03df41c-w2",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.825Z",
+                  "updatedAt": "2026-03-30T10:35:45.825Z",
+                  "startAt": "2026-04-07T18:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s86_11ddf403-w2",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-07T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s133_777a4fb0-w2",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-08T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s232_e83fbb84-w2",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-10T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s281_55921319-w2",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-11T20:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-9ilvh2v_s310_cde9e654-w2",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-12T11:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ]
+            }
+          ]
+        },
+        "operational": {
+          "horizonDays": 7,
+          "startDate": "2026-03-31",
+          "endDate": "2026-04-06",
+          "frozen": true,
+          "scheduledEvents": [
+            {
+              "id": "act-task1-9ilvh2v_s84_c03df41c",
+              "kind": "time_event",
+              "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z",
+              "startAt": "2026-03-31T18:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-fvefe2e_s86_11ddf403",
+              "kind": "time_event",
+              "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-03-31T19:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-z1j0dyt_s133_777a4fb0",
+              "kind": "time_event",
+              "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-01T18:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task3-fvefe2e_s232_e83fbb84",
+              "kind": "time_event",
+              "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-03T20:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task2-z1j0dyt_s281_55921319",
+              "kind": "time_event",
+              "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-04T20:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-task1-9ilvh2v_s310_cde9e654",
+              "kind": "time_event",
+              "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z",
+              "startAt": "2026-04-05T11:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            }
+          ],
+          "buffers": [
+            {
+              "id": "buffer-slack-1-1",
+              "startAt": "2026-03-31T20:30:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-2-1",
+              "startAt": "2026-04-01T19:30:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-4-1",
+              "startAt": "2026-04-03T21:30:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-5-1",
+              "startAt": "2026-04-04T21:30:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            }
+          ],
+          "days": [
+            {
+              "date": "2026-03-31",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-9ilvh2v_s84_c03df41c",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.825Z",
+                  "updatedAt": "2026-03-30T10:35:45.825Z",
+                  "startAt": "2026-03-31T18:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s86_11ddf403",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-03-31T20:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-01",
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-z1j0dyt_s133_777a4fb0",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-01T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-02",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-03",
+              "scheduledEvents": [
+                {
+                  "id": "act-task3-fvefe2e_s232_e83fbb84",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-03T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-03T21:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-04",
+              "scheduledEvents": [
+                {
+                  "id": "act-task2-z1j0dyt_s281_55921319",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-04T20:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-5-1",
+                  "startAt": "2026-04-04T21:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-05",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-9ilvh2v_s310_cde9e654",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-05T11:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-06",
+              "scheduledEvents": [],
+              "buffers": []
+            }
+          ],
+          "totalBufferMin": 120
+        }
+      },
+      "items": [
+        {
+          "id": "act-task1-9ilvh2v_s84_c03df41c",
+          "kind": "time_event",
+          "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-03-31T18:00:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:35:45.825Z",
+          "updatedAt": "2026-03-30T10:35:45.825Z"
+        },
+        {
+          "id": "act-task3-fvefe2e_s86_11ddf403",
+          "kind": "time_event",
+          "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-03-31T19:00:00.000Z",
+          "durationMin": 90,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:35:45.826Z",
+          "updatedAt": "2026-03-30T10:35:45.826Z"
+        },
+        {
+          "id": "act-task2-z1j0dyt_s133_777a4fb0",
+          "kind": "time_event",
+          "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-01T18:30:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:35:45.826Z",
+          "updatedAt": "2026-03-30T10:35:45.826Z"
+        },
+        {
+          "id": "act-task3-fvefe2e_s232_e83fbb84",
+          "kind": "time_event",
+          "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-03T20:00:00.000Z",
+          "durationMin": 90,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:35:45.826Z",
+          "updatedAt": "2026-03-30T10:35:45.826Z"
+        },
+        {
+          "id": "act-task2-z1j0dyt_s281_55921319",
+          "kind": "time_event",
+          "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T20:30:00.000Z",
+          "durationMin": 60,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:35:45.826Z",
+          "updatedAt": "2026-03-30T10:35:45.826Z"
+        },
+        {
+          "id": "act-task1-9ilvh2v_s310_cde9e654",
+          "kind": "time_event",
+          "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-05T11:00:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T10:35:45.826Z",
+          "updatedAt": "2026-03-30T10:35:45.826Z"
+        },
+        {
+          "id": "milestone-1",
+          "kind": "milestone",
+          "title": "Bitácora con 8 entradas y 3 patrones identificados",
+          "notes": "Reserva 45-60 minutos semanales para escribir qué te deja estancada en el trabajo y dónde sientes energía de cambio, generando un cuaderno con patrones concretos sobre tu dirección deseada.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-05-26",
+          "createdAt": "2026-03-30T10:35:45.825Z",
+          "updatedAt": "2026-03-30T10:35:45.825Z"
+        },
+        {
+          "id": "milestone-2",
+          "kind": "milestone",
+          "title": "Mapa de foco actualizado tras 4 charlas quincenales",
+          "notes": "Comparte tus hallazgos con una persona de confianza cada dos semanas y condensa lo aprendido en un mapa visual que indique 2-3 líneas de acción para redirigir tu trabajo y sostener el foco.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-07-21",
+          "createdAt": "2026-03-30T10:35:45.825Z",
+          "updatedAt": "2026-03-30T10:35:45.825Z"
+        },
+        {
+          "id": "milestone-3",
+          "kind": "milestone",
+          "title": "Dos experimentos completados y revisión final de reinvención",
+          "notes": "Implementa al menos dos actividades fuera de la rutina laboral (taller, voluntariado, proyecto paralelo) y documenta antes-durante-después para evaluar si acercan la sensación de avance y reinvención.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-09-15",
+          "createdAt": "2026-03-30T10:35:45.825Z",
+          "updatedAt": "2026-03-30T10:35:45.825Z"
+        },
+        {
+          "id": "metric-plan-quality",
+          "kind": "metric",
+          "title": "Calidad del plan",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "plan_quality_score",
+          "unit": "puntos",
+          "direction": "increase",
+          "target": {
+            "targetValue": 100
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "last"
+          },
+          "series": [
+            {
+              "at": "2026-03-30T10:35:45.825Z",
+              "value": 100
+            }
+          ],
+          "createdAt": "2026-03-30T10:35:45.825Z",
+          "updatedAt": "2026-03-30T10:35:45.825Z"
+        },
+        {
+          "id": "metric-sessions-week",
+          "kind": "metric",
+          "title": "Sesiones completables por semana",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "scheduled_sessions_per_week",
+          "unit": "sesiones",
+          "direction": "increase",
+          "target": {
+            "targetValue": 6
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "count"
+          },
+          "createdAt": "2026-03-30T10:35:45.825Z",
+          "updatedAt": "2026-03-30T10:35:45.825Z"
+        },
+        {
+          "id": "trigger-low-adherence",
+          "kind": "trigger_rule",
+          "title": "Revisar plan si baja la adherencia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "enabled": true,
+          "conditions": [
+            {
+              "left": {
+                "type": "metric",
+                "ref": "plan_quality_score"
+              },
+              "op": "lt",
+              "right": {
+                "value": 70
+              }
+            }
+          ],
+          "actions": [
+            {
+              "type": "create_task",
+              "payload": {
+                "title": "Revisar y reajustar el plan",
+                "estimateMin": 30
+              }
+            }
+          ],
+          "throttle": {
+            "minHoursBetweenRuns": 168
+          },
+          "createdAt": "2026-03-30T10:35:45.825Z",
+          "updatedAt": "2026-03-30T10:35:45.825Z"
+        }
+      ],
+      "habitStates": [],
+      "slackPolicy": {
+        "weeklyTimeBufferMin": 120,
+        "maxChurnMovesPerWeek": 3,
+        "frozenHorizonDays": 2
+      },
+      "timezone": "UTC",
+      "summary_esAR": "Este plan convierte \"Quiero reinventarme y sentir que avanzo con mi vida.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+      "qualityScore": 100,
+      "implementationIntentions": [
+        "Si llega martes a las 18:00, entonces hago Escribir cada semana sobre lo que sentis y lo que queres cambiar durante 45 minutos.",
+        "Si llega martes a las 19:00, entonces hago Probar una actividad fuera de tu rutina para ver que te despierta durante 90 minutos.",
+        "Si llega miércoles a las 18:30, entonces hago Charlar con alguien de confianza para probar nuevas miradas sobre vos durante 60 minutos.",
+        "Si llega viernes a las 20:00, entonces hago Probar una actividad fuera de tu rutina para ver que te despierta durante 90 minutos."
+      ],
+      "warnings": [],
+      "tradeoffs": [],
+      "publicationState": "publishable",
+      "qualityIssues": [],
+      "requestDomain": null,
+      "packageDomain": null,
+      "intakeCoverage": {
+        "requiredSignals": [],
+        "missingSignals": [],
+        "signalUsage": []
+      },
+      "degraded": false,
+      "reasoningTrace": [
+        {
+          "phase": "interpret",
+          "agent": "goal-interpreter",
+          "iteration": 1,
+          "action": "Executed interpret",
+          "reasoning": "Phase completed",
+          "result": "Goal: Reinvent myself and feel that I am moving forward in my life., confidence: 0.6",
+          "tokensUsed": 21,
+          "timestamp": "2026-03-30T10:21:53.157Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 2,
+          "action": "Executed clarify",
+          "reasoning": "Faltan las señales críticas de horizonte temporal y línea base para contextualizar el plan de reinvención personal.",
+          "result": "2 questions pending (confidence: 0.28)",
+          "tokensUsed": 10,
+          "timestamp": "2026-03-30T10:21:57.634Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 3,
+          "action": "Executed clarify",
+          "reasoning": "No faltan señales críticas para iniciar la planificación.",
+          "result": "Ready to advance (confidence: 0.68)",
+          "tokensUsed": 9,
+          "timestamp": "2026-03-30T10:35:21.558Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 4,
+          "action": "Executed plan",
+          "reasoning": "Phase completed",
+          "result": "3 phases generated",
+          "tokensUsed": 5,
+          "timestamp": "2026-03-30T10:35:45.660Z"
+        },
+        {
+          "phase": "check",
+          "agent": "feasibility-checker",
+          "iteration": 5,
+          "action": "Executed check",
+          "reasoning": "Status: feasible",
+          "result": "Feasibility: feasible",
+          "tokensUsed": 6,
+          "timestamp": "2026-03-30T10:35:45.662Z"
+        },
+        {
+          "phase": "schedule",
+          "agent": "scheduler",
+          "iteration": 6,
+          "action": "Executed schedule",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T10:35:45.826Z"
+        },
+        {
+          "phase": "critique",
+          "agent": "critic",
+          "iteration": 7,
+          "action": "Executed critique",
+          "reasoning": "La hoja de ruta está alineada con el horizonte de seis meses y toca los frentes clave (registro, conversaciones y experimentos), pero el arranque es pasivo y deja la sensación de progreso para demasiado tarde. Además, depende de recursos externos no garantizados. Con pequeños ajustes en la progresión temprana y en la planificación de apoyos, el plan sería más robusto.",
+          "result": "Score: 78, verdict: approve",
+          "tokensUsed": 7,
+          "timestamp": "2026-03-30T10:35:55.419Z"
+        },
+        {
+          "phase": "package",
+          "agent": "packager",
+          "iteration": 8,
+          "action": "Executed package",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T10:35:55.428Z"
+        }
+      ],
+      "agentOutcomes": [
+        {
+          "agent": "goal-interpreter",
+          "phase": "interpret",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 9172
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 4477
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 1399
+        },
+        {
+          "agent": "domain-expert",
+          "phase": "plan",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 9672
+        },
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 14428
+        },
+        {
+          "agent": "feasibility-checker",
+          "phase": "check",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 0
+        },
+        {
+          "agent": "scheduler",
+          "phase": "schedule",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 164
+        },
+        {
+          "agent": "critic",
+          "phase": "critique",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 9592
+        },
+        {
+          "agent": "packager",
+          "phase": "package",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 8
+        }
+      ]
+    },
+    "meta": {
+      "modelId": "openai:gpt-5-codex"
+    }
+  },
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 46,
+    "timestamp": "2026-03-30T10:35:55.429Z",
+    "category": "publication",
+    "action": "publication.evaluated",
+    "summary_es": "La publicacion quedo habilitada.",
+    "phase": "done",
+    "agent": "critic",
+    "iteration": 8,
+    "revisionCycle": 0,
+    "clarifyRound": 2,
+    "progressScore": 100,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": "ready",
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "partialKind": "publication",
+      "canPublish": true,
+      "degraded": false,
+      "blockingAgents": [],
+      "fallbackLedger": [],
+      "qualityIssues": [],
+      "criticVerdict": "approve",
+      "criticScore": 78,
+      "warnings": [],
+      "exactBlockers": [],
+      "misalignedGoal": false
+    }
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "critique",
+    "currentAgent": "critic",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+    "iteration": 6,
+    "revisionCycles": 0,
+    "clarifyRounds": 2,
+    "progressScore": 80,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 37,
+    "lastEventTimestamp": "2026-03-30T10:35:45.827Z",
+    "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T10:35:18.582Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "",
+        "resumeSession": "6617c97c-4802-40ca-b1b6-866873799a88",
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:18.585Z",
+      "type": "resume.explicit_request",
+      "data": {
+        "endpoint": "/api/plan/build/resume",
+        "sessionId": "6617c97c-4802-40ca-b1b6-866873799a88",
+        "answersCount": 2
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.555Z",
+      "type": "package.fetch_requested",
+      "data": {
+        "planId": "3cf44eda-5af7-4beb-84b6-1cc47edb86bc",
+        "provider": "resume"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.611Z",
+      "type": "package.fetched",
+      "data": {
+        "planId": "3cf44eda-5af7-4beb-84b6-1cc47edb86bc",
+        "provider": "resume",
+        "modelId": "openai:gpt-5-codex",
+        "publicationState": "publishable",
+        "degraded": false
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T10:35:18.672Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "codex",
+        "requestedMode": "codex-cloud",
+        "resolvedModelId": "openai:gpt-5-codex",
+        "providerId": "openai",
+        "executionMode": "codex-cloud",
+        "resolutionSource": "requested-mode",
+        "authMode": "codex-oauth",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:20.161Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "clarify-resume",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:20.162Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 13,
+        "timestamp": "2026-03-30T10:35:20.158Z",
+        "category": "lifecycle",
+        "action": "session.resumed",
+        "summary_es": "Se retomó la sesión con 2 respuesta(s) nuevas.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "answersCount": 2,
+          "answeredQuestionIds": [
+            "clarify-r1-q1",
+            "clarify-r1-q2"
+          ],
+          "storedAnswerKeys": [
+            "¿En qué plazo (por ejemplo, 3 meses, 6 meses, un año) te gustaría notar avances claros en esta reinvención personal?",
+            "Actualmente, ¿cómo describirías tu situación de partida respecto a sentirte estancada o en movimiento en tu vida?"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Reinvent myself and feel that I am moving forward in my life.",
+            "goalType": "HIGH_UNCERTAINTY_TRANSFORM",
+            "riskFlags": [
+              "MEDIUM"
+            ],
+            "suggestedDomain": "personal growth",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "direccion",
+              "estancada",
+              "sostener",
+              "cambiar",
+              "energia",
+              "trabajo"
+            ],
+            "informationGaps": [
+              "timeframe",
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.28,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿En qué plazo (por ejemplo, 3 meses, 6 meses, un año) te gustaría notar avances claros en esta reinvención personal?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "timeframe",
+                "question": "¿En qué plazo (por ejemplo, 3 meses, 6 meses, un año) te gustaría notar avances claros en esta reinvención personal?",
+                "answer": "En 6 meses"
+              },
+              {
+                "key": "Actualmente, ¿cómo describirías tu situación de partida respecto a sentirte estancada o en movimiento en tu vida?",
+                "questionId": "clarify-r1-q2",
+                "signalKey": "current_baseline",
+                "question": "Actualmente, ¿cómo describirías tu situación de partida respecto a sentirte estancada o en movimiento en tu vida?",
+                "answer": "Me siento estancada en mi trabajo y rutina; tengo energía para cambiar pero me cuesta sostener dirección y foco."
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:20.163Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 14,
+        "timestamp": "2026-03-30T10:35:20.158Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan procesando las respuestas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:20.163Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 15,
+        "timestamp": "2026-03-30T10:35:20.158Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:21.564Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 16,
+        "timestamp": "2026-03-30T10:35:21.558Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 1399,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:21.564Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 17,
+        "timestamp": "2026-03-30T10:35:21.559Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion ya tiene contexto suficiente para avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": true,
+          "confidence": 0.68,
+          "questions": [],
+          "informationGaps": [],
+          "knownAnswers": [
+            {
+              "id": "¿En qué plazo (por ejemplo, 3 meses, 6 meses, un año) te gustaría notar avances claros en esta reinvención personal?",
+              "question": "¿En qué plazo (por ejemplo, 3 meses, 6 meses, un año) te gustaría notar avances claros en esta reinvención personal?",
+              "answer": "En 6 meses"
+            },
+            {
+              "id": "Actualmente, ¿cómo describirías tu situación de partida respecto a sentirte estancada o en movimiento en tu vida?",
+              "question": "Actualmente, ¿cómo describirías tu situación de partida respecto a sentirte estancada o en movimiento en tu vida?",
+              "answer": "Me siento estancada en mi trabajo y rutina; tengo energía para cambiar pero me cuesta sostener dirección y foco."
+            }
+          ],
+          "duplicateQuestions": [],
+          "reasoning": "No faltan señales críticas para iniciar la planificación.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Reinvent myself and feel that I am moving forward in my life.",
+            "goalType": "HIGH_UNCERTAINTY_TRANSFORM",
+            "riskFlags": [
+              "MEDIUM"
+            ],
+            "suggestedDomain": "personal growth",
+            "metric": null,
+            "timeframe": "6 meses",
+            "anchorTokens": [
+              "direccion",
+              "estancada",
+              "sostener",
+              "cambiar",
+              "energia",
+              "trabajo"
+            ],
+            "informationGaps": [],
+            "clarifyConfidence": 0.68,
+            "readyToAdvance": true,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿En qué plazo (por ejemplo, 3 meses, 6 meses, un año) te gustaría notar avances claros en esta reinvención personal?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "timeframe",
+                "question": "¿En qué plazo (por ejemplo, 3 meses, 6 meses, un año) te gustaría notar avances claros en esta reinvención personal?",
+                "answer": "En 6 meses"
+              },
+              {
+                "key": "Actualmente, ¿cómo describirías tu situación de partida respecto a sentirte estancada o en movimiento en tu vida?",
+                "questionId": "clarify-r1-q2",
+                "signalKey": "current_baseline",
+                "question": "Actualmente, ¿cómo describirías tu situación de partida respecto a sentirte estancada o en movimiento en tu vida?",
+                "answer": "Me siento estancada en mi trabajo y rutina; tengo energía para cambiar pero me cuesta sostener dirección y foco."
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 2
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:21.564Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 18,
+        "timestamp": "2026-03-30T10:35:21.559Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La aclaracion alcanzo contexto suficiente y el pipeline avanza a planificacion.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "plan"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:21.565Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 19,
+        "timestamp": "2026-03-30T10:35:21.559Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta armando el plan estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:21.565Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 20,
+        "timestamp": "2026-03-30T10:35:21.559Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:30.162Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:35:30.162Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 20,
+          "lastEventTimestamp": "2026-03-30T10:35:21.559Z",
+          "lastEventSummary_es": "El experto de dominio esta aportando contexto antes de planificar."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:31.242Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 21,
+        "timestamp": "2026-03-30T10:35:31.231Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 9672,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:31.243Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 22,
+        "timestamp": "2026-03-30T10:35:31.232Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo a generar el roadmap estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:40.165Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:35:40.165Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 22,
+          "lastEventTimestamp": "2026-03-30T10:35:31.232Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.737Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 23,
+        "timestamp": "2026-03-30T10:35:45.660Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El planificador completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 14428,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.738Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 24,
+        "timestamp": "2026-03-30T10:35:45.660Z",
+        "category": "phase",
+        "action": "plan.summary",
+        "summary_es": "Roadmap generado con 3 fase(s) y 3 hito(s).",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 24,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Bitácora semanal de dirección personal para romper el estancamiento (meses 1-2)",
+              "focus": "Reserva 45-60 minutos semanales para escribir qué te deja estancada en el trabajo y dónde sientes energía de cambio, generando un cuaderno con patrones concretos sobre tu dirección deseada.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 2,
+              "title": "Charlas quincenales y mapa de foco para sostener el cambio (meses 3-4)",
+              "focus": "Comparte tus hallazgos con una persona de confianza cada dos semanas y condensa lo aprendido en un mapa visual que indique 2-3 líneas de acción para redirigir tu trabajo y sostener el foco.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 3,
+              "title": "Experimentos nuevos y revisión de avance para sentir progreso (meses 5-6)",
+              "focus": "Implementa al menos dos actividades fuera de la rutina laboral (taller, voluntariado, proyecto paralelo) y documenta antes-durante-después para evaluar si acercan la sensación de avance y reinvención.",
+              "durationWeeks": 8
+            }
+          ],
+          "milestones": [
+            "Bitácora con 8 entradas y 3 patrones identificados",
+            "Mapa de foco actualizado tras 4 charlas quincenales",
+            "Dos experimentos completados y revisión final de reinvención"
+          ],
+          "fallbackUsed": false,
+          "failedCheck": null,
+          "validationSummaryEs": null,
+          "validationEvidence": null,
+          "fallbackPublishability": "sin_fallback"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.738Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 25,
+        "timestamp": "2026-03-30T10:35:45.661Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de planificacion a factibilidad.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "plan",
+          "toPhase": "check"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.739Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 26,
+        "timestamp": "2026-03-30T10:35:45.661Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta chequeando la factibilidad del plan.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.739Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 27,
+        "timestamp": "2026-03-30T10:35:45.661Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El verificador de factibilidad esta chequeando horas, energia y restricciones.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.739Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 28,
+        "timestamp": "2026-03-30T10:35:45.661Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El verificador de factibilidad completo factibilidad con respuesta del modelo.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 0,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.740Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 29,
+        "timestamp": "2026-03-30T10:35:45.662Z",
+        "category": "phase",
+        "action": "check.summary",
+        "summary_es": "Factibilidad feasible: 18h disponibles vs 0h requeridas.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "feasibility",
+          "status": "feasible",
+          "availableHours": 18,
+          "requiredHours": 0,
+          "gap": 0,
+          "conflicts": [],
+          "adjustments": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.740Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 30,
+        "timestamp": "2026-03-30T10:35:45.662Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de factibilidad a calendarizacion.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "check",
+          "toPhase": "schedule"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.741Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 31,
+        "timestamp": "2026-03-30T10:35:45.662Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta resolviendo el calendario de actividades.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.741Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 32,
+        "timestamp": "2026-03-30T10:35:45.662Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El scheduler esta distribuyendo actividades en el calendario.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.828Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 33,
+        "timestamp": "2026-03-30T10:35:45.826Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El scheduler cerro calendarizacion por via deterministica.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 164,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.829Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 34,
+        "timestamp": "2026-03-30T10:35:45.826Z",
+        "category": "phase",
+        "action": "schedule.summary",
+        "summary_es": "Calendarizacion optimal con fill rate 100%.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "schedule",
+          "fillRate": 1,
+          "solverStatus": "optimal",
+          "solverTimeMs": 161,
+          "unscheduledCount": 0,
+          "tradeoffs": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.829Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 35,
+        "timestamp": "2026-03-30T10:35:45.826Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de calendarizacion a critica.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "schedule",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.830Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 36,
+        "timestamp": "2026-03-30T10:35:45.827Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:45.830Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 37,
+        "timestamp": "2026-03-30T10:35:45.827Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:50.176Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T10:35:50.176Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T10:35:45.827Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.475Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 38,
+        "timestamp": "2026-03-30T10:35:55.419Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 9592,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.475Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 39,
+        "timestamp": "2026-03-30T10:35:55.419Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict approve y score 78/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "approve",
+          "overallScore": 78,
+          "mustFix": [],
+          "shouldFix": [
+            {
+              "id": "f-1",
+              "severity": "warning",
+              "category": "progression",
+              "message": "Los primeros dos meses se centran únicamente en la bitácora; no hay acciones o experimentos pequeños que permitan probar cambios tempranos, lo que puede hacerte sentir que sigues estancada hasta el segundo trimestre.",
+              "suggestion": "Añade micro‑acciones derivadas de cada reflexión semanal (por ejemplo, probar un ajuste puntual en tu rutina laboral) para generar sensación de avance desde el primer mes.",
+              "affectedPhaseIds": [
+                "Bitácora semanal de dirección personal para romper el estancamiento (meses 1-2)"
+              ]
+            },
+            {
+              "id": "f-2",
+              "severity": "warning",
+              "category": "feasibility",
+              "message": "Las fases 2 y 3 asumen que ya cuentas con una persona disponible para charlas quincenales y espacios externos (taller, voluntariado) sin contemplar qué hacer si no encuentras esos recursos, lo que puede trabar el plan.",
+              "suggestion": "Define opciones específicas para conseguir un interlocutor (mentor, grupo online) y pre‑selecciona 2‑3 actividades realistas según tu agenda para asegurar que los experimentos puedan concretarse.",
+              "affectedPhaseIds": [
+                "Charlas quincenales y mapa de foco para sostener el cambio (meses 3-4)",
+                "Experimentos nuevos y revisión de avance para sentir progreso (meses 5-6)"
+              ]
+            }
+          ],
+          "reasoning": "La hoja de ruta está alineada con el horizonte de seis meses y toca los frentes clave (registro, conversaciones y experimentos), pero el arranque es pasivo y deja la sensación de progreso para demasiado tarde. Además, depende de recursos externos no garantizados. Con pequeños ajustes en la progresión temprana y en la planificación de apoyos, el plan sería más robusto.",
+          "scoreDelta": null,
+          "comparison": "sin_base"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.476Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 40,
+        "timestamp": "2026-03-30T10:35:55.420Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de critica a empaquetado.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "package"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.477Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 41,
+        "timestamp": "2026-03-30T10:35:55.420Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta empaquetando el resultado final.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.477Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 42,
+        "timestamp": "2026-03-30T10:35:55.420Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El empaquetador esta armando el resultado final publicable.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.478Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 43,
+        "timestamp": "2026-03-30T10:35:55.428Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El empaquetador cerro empaquetado por via deterministica.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 8,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.478Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 44,
+        "timestamp": "2026-03-30T10:35:55.428Z",
+        "category": "phase",
+        "action": "package.summary",
+        "summary_es": "Empaquetado listo con score base 100/100 y 0 advertencia(s).",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "package",
+          "packageReady": true,
+          "qualityScore": 100,
+          "summary": "Este plan convierte \"Quiero reinventarme y sentir que avanzo con mi vida.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "warnings": [],
+          "qualityIssues": [],
+          "requestDomain": null,
+          "packageDomain": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.479Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 45,
+        "timestamp": "2026-03-30T10:35:55.428Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El paquete final quedo listo para resolver la publicacion.",
+        "phase": "done",
+        "agent": null,
+        "iteration": 8,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "package",
+          "toPhase": "done"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.479Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 46,
+        "timestamp": "2026-03-30T10:35:55.429Z",
+        "category": "publication",
+        "action": "publication.evaluated",
+        "summary_es": "La publicacion quedo habilitada.",
+        "phase": "done",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": "ready",
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "publication",
+          "canPublish": true,
+          "degraded": false,
+          "blockingAgents": [],
+          "fallbackLedger": [],
+          "qualityIssues": [],
+          "criticVerdict": "approve",
+          "criticScore": 78,
+          "warnings": [],
+          "exactBlockers": [],
+          "misalignedGoal": false
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.550Z",
+      "type": "v6:progress",
+      "data": {
+        "score": 100,
+        "lastAction": "Packaging final plan"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T10:35:55.551Z",
+      "type": "v6:complete",
+      "data": {
+        "planId": "3cf44eda-5af7-4beb-84b6-1cc47edb86bc",
+        "score": 100,
+        "iterations": 8,
+        "package": {
+          "plan": {
+            "goalIds": [
+              "generated-goal"
+            ],
+            "timezone": "UTC",
+            "createdAt": "2026-03-30T10:35:45.825Z",
+            "updatedAt": "2026-03-30T10:35:45.825Z",
+            "skeleton": {
+              "horizonWeeks": 24,
+              "goalIds": [
+                "generated-goal"
+              ],
+              "phases": [
+                {
+                  "phaseId": "phase-1",
+                  "title": "Bitácora semanal de dirección personal para romper el estancamiento (meses 1-2)",
+                  "startWeek": 1,
+                  "endWeek": 8,
+                  "startDate": "2026-03-31",
+                  "endDate": "2026-05-25",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Reserva 45-60 minutos semanales para escribir qué te deja estancada en el trabajo y dónde sientes energía de cambio, generando un cuaderno con patrones concretos sobre tu dirección deseada."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task2-z1j0dyt",
+                      "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    },
+                    {
+                      "activityId": "act-task1-9ilvh2v",
+                      "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task3-fvefe2e",
+                      "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 90
+                    }
+                  ],
+                  "milestoneIds": []
+                },
+                {
+                  "phaseId": "phase-2",
+                  "title": "Charlas quincenales y mapa de foco para sostener el cambio (meses 3-4)",
+                  "startWeek": 9,
+                  "endWeek": 16,
+                  "startDate": "2026-05-26",
+                  "endDate": "2026-07-20",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Comparte tus hallazgos con una persona de confianza cada dos semanas y condensa lo aprendido en un mapa visual que indique 2-3 líneas de acción para redirigir tu trabajo y sostener el foco."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task2-z1j0dyt",
+                      "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    },
+                    {
+                      "activityId": "act-task1-9ilvh2v",
+                      "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task3-fvefe2e",
+                      "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 90
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-1"
+                  ]
+                },
+                {
+                  "phaseId": "phase-3",
+                  "title": "Experimentos nuevos y revisión de avance para sentir progreso (meses 5-6)",
+                  "startWeek": 17,
+                  "endWeek": 24,
+                  "startDate": "2026-07-21",
+                  "endDate": "2026-09-14",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Implementa al menos dos actividades fuera de la rutina laboral (taller, voluntariado, proyecto paralelo) y documenta antes-durante-después para evaluar si acercan la sensación de avance y reinvención."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-task2-z1j0dyt",
+                      "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 60
+                    },
+                    {
+                      "activityId": "act-task1-9ilvh2v",
+                      "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-task3-fvefe2e",
+                      "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 90
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-2"
+                  ]
+                }
+              ],
+              "milestones": [
+                {
+                  "id": "milestone-1",
+                  "kind": "milestone",
+                  "title": "Bitácora con 8 entradas y 3 patrones identificados",
+                  "notes": "Reserva 45-60 minutos semanales para escribir qué te deja estancada en el trabajo y dónde sientes energía de cambio, generando un cuaderno con patrones concretos sobre tu dirección deseada.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.825Z",
+                  "updatedAt": "2026-03-30T10:35:45.825Z",
+                  "dueDate": "2026-05-26"
+                },
+                {
+                  "id": "milestone-2",
+                  "kind": "milestone",
+                  "title": "Mapa de foco actualizado tras 4 charlas quincenales",
+                  "notes": "Comparte tus hallazgos con una persona de confianza cada dos semanas y condensa lo aprendido en un mapa visual que indique 2-3 líneas de acción para redirigir tu trabajo y sostener el foco.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.825Z",
+                  "updatedAt": "2026-03-30T10:35:45.825Z",
+                  "dueDate": "2026-07-21"
+                },
+                {
+                  "id": "milestone-3",
+                  "kind": "milestone",
+                  "title": "Dos experimentos completados y revisión final de reinvención",
+                  "notes": "Implementa al menos dos actividades fuera de la rutina laboral (taller, voluntariado, proyecto paralelo) y documenta antes-durante-después para evaluar si acercan la sensación de avance y reinvención.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.825Z",
+                  "updatedAt": "2026-03-30T10:35:45.825Z",
+                  "dueDate": "2026-09-15"
+                }
+              ]
+            },
+            "detail": {
+              "horizonWeeks": 2,
+              "startDate": "2026-03-31",
+              "endDate": "2026-04-13",
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-9ilvh2v_s84_c03df41c",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.825Z",
+                  "updatedAt": "2026-03-30T10:35:45.825Z",
+                  "startAt": "2026-03-31T18:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s86_11ddf403",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s133_777a4fb0",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-01T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s232_e83fbb84",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-03T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s281_55921319",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-04T20:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-9ilvh2v_s310_cde9e654",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-05T11:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-9ilvh2v_s84_c03df41c-w2",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.825Z",
+                  "updatedAt": "2026-03-30T10:35:45.825Z",
+                  "startAt": "2026-04-07T18:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s86_11ddf403-w2",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-07T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s133_777a4fb0-w2",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-08T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s232_e83fbb84-w2",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-10T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s281_55921319-w2",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-11T20:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-9ilvh2v_s310_cde9e654-w2",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-12T11:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "weeks": [
+                {
+                  "weekIndex": 1,
+                  "startDate": "2026-03-31",
+                  "endDate": "2026-04-06",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-9ilvh2v_s84_c03df41c",
+                      "kind": "time_event",
+                      "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.825Z",
+                      "updatedAt": "2026-03-30T10:35:45.825Z",
+                      "startAt": "2026-03-31T18:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-fvefe2e_s86_11ddf403",
+                      "kind": "time_event",
+                      "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-03-31T19:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-z1j0dyt_s133_777a4fb0",
+                      "kind": "time_event",
+                      "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-01T18:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-fvefe2e_s232_e83fbb84",
+                      "kind": "time_event",
+                      "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-03T20:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-z1j0dyt_s281_55921319",
+                      "kind": "time_event",
+                      "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-04T20:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-9ilvh2v_s310_cde9e654",
+                      "kind": "time_event",
+                      "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-05T11:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ]
+                },
+                {
+                  "weekIndex": 2,
+                  "startDate": "2026-04-07",
+                  "endDate": "2026-04-13",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-9ilvh2v_s84_c03df41c-w2",
+                      "kind": "time_event",
+                      "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.825Z",
+                      "updatedAt": "2026-03-30T10:35:45.825Z",
+                      "startAt": "2026-04-07T18:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-fvefe2e_s86_11ddf403-w2",
+                      "kind": "time_event",
+                      "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-07T19:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-z1j0dyt_s133_777a4fb0-w2",
+                      "kind": "time_event",
+                      "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-08T18:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-fvefe2e_s232_e83fbb84-w2",
+                      "kind": "time_event",
+                      "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-10T20:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task2-z1j0dyt_s281_55921319-w2",
+                      "kind": "time_event",
+                      "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-11T20:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task1-9ilvh2v_s310_cde9e654-w2",
+                      "kind": "time_event",
+                      "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-12T11:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ]
+                }
+              ]
+            },
+            "operational": {
+              "horizonDays": 7,
+              "startDate": "2026-03-31",
+              "endDate": "2026-04-06",
+              "frozen": true,
+              "scheduledEvents": [
+                {
+                  "id": "act-task1-9ilvh2v_s84_c03df41c",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.825Z",
+                  "updatedAt": "2026-03-30T10:35:45.825Z",
+                  "startAt": "2026-03-31T18:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s86_11ddf403",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s133_777a4fb0",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-01T18:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task3-fvefe2e_s232_e83fbb84",
+                  "kind": "time_event",
+                  "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-03T20:00:00.000Z",
+                  "durationMin": 90,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task2-z1j0dyt_s281_55921319",
+                  "kind": "time_event",
+                  "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-04T20:30:00.000Z",
+                  "durationMin": 60,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-task1-9ilvh2v_s310_cde9e654",
+                  "kind": "time_event",
+                  "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T10:35:45.826Z",
+                  "updatedAt": "2026-03-30T10:35:45.826Z",
+                  "startAt": "2026-04-05T11:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-03-31T20:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-03T21:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-5-1",
+                  "startAt": "2026-04-04T21:30:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ],
+              "days": [
+                {
+                  "date": "2026-03-31",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-9ilvh2v_s84_c03df41c",
+                      "kind": "time_event",
+                      "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.825Z",
+                      "updatedAt": "2026-03-30T10:35:45.825Z",
+                      "startAt": "2026-03-31T18:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-task3-fvefe2e_s86_11ddf403",
+                      "kind": "time_event",
+                      "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-03-31T19:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-1-1",
+                      "startAt": "2026-03-31T20:30:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-01",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task2-z1j0dyt_s133_777a4fb0",
+                      "kind": "time_event",
+                      "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-01T18:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-2-1",
+                      "startAt": "2026-04-01T19:30:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-02",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-03",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task3-fvefe2e_s232_e83fbb84",
+                      "kind": "time_event",
+                      "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-03T20:00:00.000Z",
+                      "durationMin": 90,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-4-1",
+                      "startAt": "2026-04-03T21:30:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-04",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task2-z1j0dyt_s281_55921319",
+                      "kind": "time_event",
+                      "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-04T20:30:00.000Z",
+                      "durationMin": 60,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-5-1",
+                      "startAt": "2026-04-04T21:30:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-05",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-task1-9ilvh2v_s310_cde9e654",
+                      "kind": "time_event",
+                      "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T10:35:45.826Z",
+                      "updatedAt": "2026-03-30T10:35:45.826Z",
+                      "startAt": "2026-04-05T11:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-06",
+                  "scheduledEvents": [],
+                  "buffers": []
+                }
+              ],
+              "totalBufferMin": 120
+            }
+          },
+          "items": [
+            {
+              "id": "act-task1-9ilvh2v_s84_c03df41c",
+              "kind": "time_event",
+              "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-03-31T18:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z"
+            },
+            {
+              "id": "act-task3-fvefe2e_s86_11ddf403",
+              "kind": "time_event",
+              "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-03-31T19:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z"
+            },
+            {
+              "id": "act-task2-z1j0dyt_s133_777a4fb0",
+              "kind": "time_event",
+              "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-01T18:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z"
+            },
+            {
+              "id": "act-task3-fvefe2e_s232_e83fbb84",
+              "kind": "time_event",
+              "title": "Probar una actividad fuera de tu rutina para ver que te despierta",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-03T20:00:00.000Z",
+              "durationMin": 90,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z"
+            },
+            {
+              "id": "act-task2-z1j0dyt_s281_55921319",
+              "kind": "time_event",
+              "title": "Charlar con alguien de confianza para probar nuevas miradas sobre vos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T20:30:00.000Z",
+              "durationMin": 60,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z"
+            },
+            {
+              "id": "act-task1-9ilvh2v_s310_cde9e654",
+              "kind": "time_event",
+              "title": "Escribir cada semana sobre lo que sentis y lo que queres cambiar",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-05T11:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T10:35:45.826Z",
+              "updatedAt": "2026-03-30T10:35:45.826Z"
+            },
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Bitácora con 8 entradas y 3 patrones identificados",
+              "notes": "Reserva 45-60 minutos semanales para escribir qué te deja estancada en el trabajo y dónde sientes energía de cambio, generando un cuaderno con patrones concretos sobre tu dirección deseada.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-05-26",
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Mapa de foco actualizado tras 4 charlas quincenales",
+              "notes": "Comparte tus hallazgos con una persona de confianza cada dos semanas y condensa lo aprendido en un mapa visual que indique 2-3 líneas de acción para redirigir tu trabajo y sostener el foco.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-07-21",
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Dos experimentos completados y revisión final de reinvención",
+              "notes": "Implementa al menos dos actividades fuera de la rutina laboral (taller, voluntariado, proyecto paralelo) y documenta antes-durante-después para evaluar si acercan la sensación de avance y reinvención.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-09-15",
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z"
+            },
+            {
+              "id": "metric-plan-quality",
+              "kind": "metric",
+              "title": "Calidad del plan",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "plan_quality_score",
+              "unit": "puntos",
+              "direction": "increase",
+              "target": {
+                "targetValue": 100
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "last"
+              },
+              "series": [
+                {
+                  "at": "2026-03-30T10:35:45.825Z",
+                  "value": 100
+                }
+              ],
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z"
+            },
+            {
+              "id": "metric-sessions-week",
+              "kind": "metric",
+              "title": "Sesiones completables por semana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "scheduled_sessions_per_week",
+              "unit": "sesiones",
+              "direction": "increase",
+              "target": {
+                "targetValue": 6
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "count"
+              },
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z"
+            },
+            {
+              "id": "trigger-low-adherence",
+              "kind": "trigger_rule",
+              "title": "Revisar plan si baja la adherencia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "enabled": true,
+              "conditions": [
+                {
+                  "left": {
+                    "type": "metric",
+                    "ref": "plan_quality_score"
+                  },
+                  "op": "lt",
+                  "right": {
+                    "value": 70
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "type": "create_task",
+                  "payload": {
+                    "title": "Revisar y reajustar el plan",
+                    "estimateMin": 30
+                  }
+                }
+              ],
+              "throttle": {
+                "minHoursBetweenRuns": 168
+              },
+              "createdAt": "2026-03-30T10:35:45.825Z",
+              "updatedAt": "2026-03-30T10:35:45.825Z"
+            }
+          ],
+          "habitStates": [],
+          "slackPolicy": {
+            "weeklyTimeBufferMin": 120,
+            "maxChurnMovesPerWeek": 3,
+            "frozenHorizonDays": 2
+          },
+          "timezone": "UTC",
+          "summary_esAR": "Este plan convierte \"Quiero reinventarme y sentir que avanzo con mi vida.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "qualityScore": 100,
+          "implementationIntentions": [
+            "Si llega martes a las 18:00, entonces hago Escribir cada semana sobre lo que sentis y lo que queres cambiar durante 45 minutos.",
+            "Si llega martes a las 19:00, entonces hago Probar una actividad fuera de tu rutina para ver que te despierta durante 90 minutos.",
+            "Si llega miércoles a las 18:30, entonces hago Charlar con alguien de confianza para probar nuevas miradas sobre vos durante 60 minutos.",
+            "Si llega viernes a las 20:00, entonces hago Probar una actividad fuera de tu rutina para ver que te despierta durante 90 minutos."
+          ],
+          "warnings": [],
+          "tradeoffs": [],
+          "publicationState": "publishable",
+          "qualityIssues": [],
+          "requestDomain": null,
+          "packageDomain": null,
+          "intakeCoverage": {
+            "requiredSignals": [],
+            "missingSignals": [],
+            "signalUsage": []
+          },
+          "degraded": false,
+          "reasoningTrace": [
+            {
+              "phase": "interpret",
+              "agent": "goal-interpreter",
+              "iteration": 1,
+              "action": "Executed interpret",
+              "reasoning": "Phase completed",
+              "result": "Goal: Reinvent myself and feel that I am moving forward in my life., confidence: 0.6",
+              "tokensUsed": 21,
+              "timestamp": "2026-03-30T10:21:53.157Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 2,
+              "action": "Executed clarify",
+              "reasoning": "Faltan las señales críticas de horizonte temporal y línea base para contextualizar el plan de reinvención personal.",
+              "result": "2 questions pending (confidence: 0.28)",
+              "tokensUsed": 10,
+              "timestamp": "2026-03-30T10:21:57.634Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 3,
+              "action": "Executed clarify",
+              "reasoning": "No faltan señales críticas para iniciar la planificación.",
+              "result": "Ready to advance (confidence: 0.68)",
+              "tokensUsed": 9,
+              "timestamp": "2026-03-30T10:35:21.558Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 4,
+              "action": "Executed plan",
+              "reasoning": "Phase completed",
+              "result": "3 phases generated",
+              "tokensUsed": 5,
+              "timestamp": "2026-03-30T10:35:45.660Z"
+            },
+            {
+              "phase": "check",
+              "agent": "feasibility-checker",
+              "iteration": 5,
+              "action": "Executed check",
+              "reasoning": "Status: feasible",
+              "result": "Feasibility: feasible",
+              "tokensUsed": 6,
+              "timestamp": "2026-03-30T10:35:45.662Z"
+            },
+            {
+              "phase": "schedule",
+              "agent": "scheduler",
+              "iteration": 6,
+              "action": "Executed schedule",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T10:35:45.826Z"
+            },
+            {
+              "phase": "critique",
+              "agent": "critic",
+              "iteration": 7,
+              "action": "Executed critique",
+              "reasoning": "La hoja de ruta está alineada con el horizonte de seis meses y toca los frentes clave (registro, conversaciones y experimentos), pero el arranque es pasivo y deja la sensación de progreso para demasiado tarde. Además, depende de recursos externos no garantizados. Con pequeños ajustes en la progresión temprana y en la planificación de apoyos, el plan sería más robusto.",
+              "result": "Score: 78, verdict: approve",
+              "tokensUsed": 7,
+              "timestamp": "2026-03-30T10:35:55.419Z"
+            },
+            {
+              "phase": "package",
+              "agent": "packager",
+              "iteration": 8,
+              "action": "Executed package",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T10:35:55.428Z"
+            }
+          ],
+          "agentOutcomes": [
+            {
+              "agent": "goal-interpreter",
+              "phase": "interpret",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 9172
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 4477
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 1399
+            },
+            {
+              "agent": "domain-expert",
+              "phase": "plan",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 9672
+            },
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 14428
+            },
+            {
+              "agent": "feasibility-checker",
+              "phase": "check",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 0
+            },
+            {
+              "agent": "scheduler",
+              "phase": "schedule",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 164
+            },
+            {
+              "agent": "critic",
+              "phase": "critique",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 9592
+            },
+            {
+              "agent": "packager",
+              "phase": "package",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 8
+            }
+          ]
+        },
+        "reasoningTrace": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Reinvent myself and feel that I am moving forward in my life., confidence: 0.6",
+            "tokensUsed": 21,
+            "timestamp": "2026-03-30T10:21:53.157Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Faltan las señales críticas de horizonte temporal y línea base para contextualizar el plan de reinvención personal.",
+            "result": "2 questions pending (confidence: 0.28)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T10:21:57.634Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "No faltan señales críticas para iniciar la planificación.",
+            "result": "Ready to advance (confidence: 0.68)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T10:35:21.558Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:35:45.660Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T10:35:45.662Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:35:45.826Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "La hoja de ruta está alineada con el horizonte de seis meses y toca los frentes clave (registro, conversaciones y experimentos), pero el arranque es pasivo y deja la sensación de progreso para demasiado tarde. Además, depende de recursos externos no garantizados. Con pequeños ajustes en la progresión temprana y en la planificación de apoyos, el plan sería más robusto.",
+            "result": "Score: 78, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T10:35:55.419Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 8,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:35:55.428Z"
+          }
+        ],
+        "scratchpad": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Reinvent myself and feel that I am moving forward in my life., confidence: 0.6",
+            "tokensUsed": 21,
+            "timestamp": "2026-03-30T10:21:53.157Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Faltan las señales críticas de horizonte temporal y línea base para contextualizar el plan de reinvención personal.",
+            "result": "2 questions pending (confidence: 0.28)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T10:21:57.634Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "No faltan señales críticas para iniciar la planificación.",
+            "result": "Ready to advance (confidence: 0.68)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T10:35:21.558Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T10:35:45.660Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T10:35:45.662Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:35:45.826Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "La hoja de ruta está alineada con el horizonte de seis meses y toca los frentes clave (registro, conversaciones y experimentos), pero el arranque es pasivo y deja la sensación de progreso para demasiado tarde. Además, depende de recursos externos no garantizados. Con pequeños ajustes en la progresión temprana y en la planificación de apoyos, el plan sería más robusto.",
+            "result": "Score: 78, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T10:35:55.419Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 8,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T10:35:55.428Z"
+          }
+        ],
+        "degraded": false,
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 9172
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 4477
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1399
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 9672
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 14428
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 0
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 164
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 9592
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 8
+          }
+        ]
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-073518-resume-6617c97c-4802-40ca-b1b6-866873799a88.json"
+}

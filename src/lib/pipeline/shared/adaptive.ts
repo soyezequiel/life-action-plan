@@ -50,6 +50,33 @@ const PlanPackageSchema = z.object({
   implementationIntentions: z.array(z.string()),
   warnings: z.array(z.string()),
   tradeoffs: z.array(TradeoffSchema).optional(),
+  publicationState: z.enum(['publishable', 'requires_regeneration', 'requires_supervision', 'failed_for_quality_review']).optional(),
+  qualityIssues: z.array(z.object({
+    code: z.string(),
+    severity: z.enum(['warning', 'blocking']),
+    message: z.string(),
+  })).optional(),
+  requestDomain: z.string().nullable().optional(),
+  packageDomain: z.string().nullable().optional(),
+  intakeCoverage: z.object({
+    requiredSignals: z.array(z.string()),
+    missingSignals: z.array(z.string()),
+    signalUsage: z.array(z.object({
+      signal: z.string(),
+      expectedValue: z.string(),
+      used: z.boolean(),
+      evidence: z.array(z.string()),
+    })),
+  }).nullable().optional(),
+  agentOutcomes: z.array(z.object({
+    agent: z.enum(['goal-interpreter', 'clarifier', 'planner', 'feasibility-checker', 'scheduler', 'critic', 'domain-expert', 'packager']),
+    phase: z.enum(['interpret', 'clarify', 'plan', 'check', 'schedule', 'critique', 'revise', 'package', 'done', 'failed']),
+    source: z.enum(['llm', 'fallback', 'deterministic']),
+    errorCode: z.string().nullable(),
+    errorMessage: z.string().nullable(),
+    durationMs: z.number(),
+  })).optional(),
+  degraded: z.boolean().optional(),
 }).strict();
 
 const AdaptiveInputSchema = z.object({

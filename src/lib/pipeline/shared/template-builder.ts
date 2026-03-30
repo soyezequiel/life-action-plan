@@ -25,6 +25,103 @@ function normalizeText(value: string | null | undefined): string {
   return value?.trim() || '';
 }
 
+const ACTION_PREFIX_PATTERN = /^(practicar|estudiar|leer|cocinar|preparar|hacer|repasar|ajustar|ver|escuchar|escribir|caminar|correr|nadar|registrar|medir|revisar|entrenar|trabajar|aplicar|pulir|negociar|cerrar|servir|realizar)\b/i;
+const LABEL_STOP_WORDS = new Set(['a', 'al', 'con', 'de', 'del', 'el', 'en', 'la', 'las', 'los', 'para', 'por', 'que', 'un', 'una', 'y', 'sin']);
+
+function normalizeComparableText(value: string): string {
+  return normalizeText(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function tokenizeComparableText(value: string): string[] {
+  return normalizeComparableText(value)
+    .split(' ')
+    .filter((token) => token.length >= 3 && !LABEL_STOP_WORDS.has(token));
+}
+
+function startsWithActionPrefix(label: string): boolean {
+  return ACTION_PREFIX_PATTERN.test(normalizeText(label));
+}
+
+function lowerCaseLeadingChar(label: string): string {
+  const trimmed = normalizeText(label);
+  if (!trimmed) {
+    return trimmed;
+  }
+
+  return `${trimmed.charAt(0).toLowerCase()}${trimmed.slice(1)}`;
+}
+
+function chooseConcreteActionVerb(label: string, tags: string[]): string {
+  const normalizedLabel = normalizeComparableText(label);
+  const normalizedTags = tags.map((tag) => normalizeComparableText(tag));
+
+  if (
+    normalizedTags.includes('reference')
+    || normalizedTags.includes('planning')
+    || normalizedLabel.includes('referencia')
+    || normalizedLabel.includes('lectura')
+    || normalizedLabel.includes('video')
+  ) {
+    return 'Estudiar';
+  }
+
+  if (
+    normalizedTags.includes('review')
+    || normalizedTags.includes('safety')
+    || normalizedLabel.includes('chequeo')
+    || normalizedLabel.includes('seguimiento')
+    || normalizedLabel.includes('supervision')
+  ) {
+    return 'Realizar';
+  }
+
+  return 'Practicar';
+}
+
+function phaseContainsTaskLabel(taskLabel: string, phaseName: string): boolean {
+  const normalizedTaskLabel = normalizeComparableText(taskLabel);
+  const normalizedPhaseName = normalizeComparableText(phaseName);
+  if (!normalizedTaskLabel || !normalizedPhaseName) {
+    return false;
+  }
+
+  if (normalizedPhaseName.includes(normalizedTaskLabel)) {
+    return true;
+  }
+
+  const taskTokens = tokenizeComparableText(taskLabel);
+  if (taskTokens.length < 3) {
+    return false;
+  }
+
+  const phaseTokens = new Set(tokenizeComparableText(phaseName));
+  return taskTokens.every((token) => phaseTokens.has(token));
+}
+
+function rewriteDomainTaskLabelIfNeeded(
+  task: { label: string; tags?: string[] },
+  phases: TemplateInput['roadmap']['phases'],
+): string {
+  const label = normalizeText(task.label);
+  if (!label || startsWithActionPrefix(label)) {
+    return label;
+  }
+
+  const collidesWithPhase = phases.some((phase) => phaseContainsTaskLabel(label, phase.name));
+  if (!collidesWithPhase) {
+    return label;
+  }
+
+  const verb = chooseConcreteActionVerb(label, task.tags ?? []);
+  return `${verb} ${lowerCaseLeadingChar(label)}`;
+}
+
 function stripGoalLead(text: string): string {
   return normalizeText(text)
     .replace(/^(quiero|quisiera|me gustaria|me gustaría|necesito|planeo|voy a|debo|tengo que)\s+/i, '')
@@ -288,7 +385,7 @@ export function buildTemplate(
     for (const task of augmentedDomainTasks) {
       activities.push({
         id: generateId(`act-${task.id}`),
-        label: task.label,
+        label: rewriteDomainTaskLabelIfNeeded(task, phases),
         equivalenceGroupId: task.equivalenceGroupId,
         durationMin: task.typicalDurationMin,
         frequencyPerWeek: baseFreq,

@@ -1,0 +1,4900 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T11:10:51.009Z",
+  "updatedAt": "2026-03-30T11:11:30.539Z",
+  "invocation": {
+    "goal": "",
+    "resumeSession": "897f181f-e03c-40b7-a6a6-d97037c36a94",
+    "profileId": null,
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": "7f037a86-5b54-4a60-bcd7-ffb83bed2239",
+    "score": null,
+    "iterations": 8,
+    "degraded": true,
+    "publicationState": "publishable",
+    "failureCode": null,
+    "sessionId": "897f181f-e03c-40b7-a6a6-d97037c36a94",
+    "provider": "resume",
+    "modelId": "openai:gpt-5-codex",
+    "status": "completed"
+  },
+  "pendingInput": null,
+  "finalPackage": {
+    "package": {
+      "plan": {
+        "goalIds": [
+          "generated-goal"
+        ],
+        "timezone": "UTC",
+        "createdAt": "2026-03-30T11:11:10.875Z",
+        "updatedAt": "2026-03-30T11:11:10.875Z",
+        "skeleton": {
+          "horizonWeeks": 12,
+          "goalIds": [
+            "generated-goal"
+          ],
+          "phases": [
+            {
+              "phaseId": "phase-1",
+              "title": "Primer repertorio de pastas italianas",
+              "startWeek": 1,
+              "endWeek": 5,
+              "startDate": "2026-04-03",
+              "endDate": "2026-05-07",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Construir una base repetible de pastas italianas. Tomar pasta al pomodoro como referencia concreta del repertorio. Fijar mise en place, punto de coccion y tecnica base alrededor de pasta al pomodoro. Partir desde he seguido algunas recetas simples pero sin mucha práctica sin reiniciar artificialmente."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-italian_plating-0elp3g9",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 20
+                },
+                {
+                  "activityId": "act-italian_reading-xirn0vn",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 25
+                },
+                {
+                  "activityId": "act-italian_mise_en_place-dxdacjl",
+                  "title": "Mise en place y tecnica base",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 20
+                },
+                {
+                  "activityId": "act-italian_pasta-uds5vnm",
+                  "title": "Practica de pastas italianas",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-italian_sauces-3nu98o1",
+                  "title": "Salsas base italianas",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 35
+                }
+              ],
+              "milestoneIds": []
+            },
+            {
+              "phaseId": "phase-2",
+              "title": "Recetas repetibles de pastas italianas",
+              "startWeek": 6,
+              "endWeek": 9,
+              "startDate": "2026-05-08",
+              "endDate": "2026-06-04",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Tomar cacio e pepe y aglio e olio como referencia concreta del repertorio. Repetir cacio e pepe y aglio e olio hasta que deje de depender del paso a paso. Priorizar he seguido algunas recetas simples pero sin mucha práctica dentro del repertorio principal."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-italian_plating-0elp3g9",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 20
+                },
+                {
+                  "activityId": "act-italian_reading-xirn0vn",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 25
+                },
+                {
+                  "activityId": "act-italian_mise_en_place-dxdacjl",
+                  "title": "Mise en place y tecnica base",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 20
+                },
+                {
+                  "activityId": "act-italian_pasta-uds5vnm",
+                  "title": "Practica de pastas italianas",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-italian_sauces-3nu98o1",
+                  "title": "Salsas base italianas",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 35
+                }
+              ],
+              "milestoneIds": [
+                "milestone-1"
+              ]
+            },
+            {
+              "phaseId": "phase-3",
+              "title": "Menu corto de pastas italianas para 3 meses",
+              "startWeek": 10,
+              "endWeek": 12,
+              "startDate": "2026-06-05",
+              "endDate": "2026-06-25",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Cerrar el horizonte con un menu corto que combine pasta al pomodoro y cacio e pepe. El horizonte de trabajo queda en 3 meses y no en una improvisacion corta. Mantener pastas como eje y no como detalle secundario."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-italian_plating-0elp3g9",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 20
+                },
+                {
+                  "activityId": "act-italian_reading-xirn0vn",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 25
+                },
+                {
+                  "activityId": "act-italian_mise_en_place-dxdacjl",
+                  "title": "Mise en place y tecnica base",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 20
+                },
+                {
+                  "activityId": "act-italian_pasta-uds5vnm",
+                  "title": "Practica de pastas italianas",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                },
+                {
+                  "activityId": "act-italian_sauces-3nu98o1",
+                  "title": "Salsas base italianas",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 35
+                }
+              ],
+              "milestoneIds": [
+                "milestone-2"
+              ]
+            }
+          ],
+          "milestones": [
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Completar una rutina base estable de pastas italianas con pasta al pomodoro",
+              "notes": "Construir una base repetible de pastas italianas. Tomar pasta al pomodoro como referencia concreta del repertorio. Fijar mise en place, punto de coccion y tecnica base alrededor de pasta al pomodoro. Partir desde he seguido algunas recetas simples pero sin mucha práctica sin reiniciar artificialmente.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "dueDate": "2026-05-08"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Resolver cacio e pepe y aglio e olio sin depender del paso a paso",
+              "notes": "Tomar cacio e pepe y aglio e olio como referencia concreta del repertorio. Repetir cacio e pepe y aglio e olio hasta que deje de depender del paso a paso. Priorizar he seguido algunas recetas simples pero sin mucha práctica dentro del repertorio principal.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "dueDate": "2026-06-05"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Preparar un menu corto de pastas italianas con calidad consistente y referencias concretas",
+              "notes": "Cerrar el horizonte con un menu corto que combine pasta al pomodoro y cacio e pepe. El horizonte de trabajo queda en 3 meses y no en una improvisacion corta. Mantener pastas como eje y no como detalle secundario.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "dueDate": "2026-06-26"
+            }
+          ]
+        },
+        "detail": {
+          "horizonWeeks": 2,
+          "startDate": "2026-04-03",
+          "endDate": "2026-04-16",
+          "scheduledEvents": [
+            {
+              "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2",
+              "kind": "time_event",
+              "title": "Practica de pastas italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-03-31T19:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_plating-0elp3g9_s139_f6b2c52c",
+              "kind": "time_event",
+              "title": "Emplatado, cata y ajuste de sabor",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-01T21:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6",
+              "kind": "time_event",
+              "title": "Practica de pastas italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-02T19:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+              "kind": "time_event",
+              "title": "Estudiar una referencia concreta de cocina italiana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "startAt": "2026-04-03T08:00:00.000Z",
+              "durationMin": 25,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+              "kind": "time_event",
+              "title": "Mise en place y tecnica base",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "startAt": "2026-04-04T08:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+              "kind": "time_event",
+              "title": "Emplatado, cata y ajuste de sabor",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-04T17:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+              "kind": "time_event",
+              "title": "Mise en place y tecnica base",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-04T19:00:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+              "kind": "time_event",
+              "title": "Salsas base italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-04T19:30:00.000Z",
+              "durationMin": 35,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+              "kind": "time_event",
+              "title": "Estudiar una referencia concreta de cocina italiana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "startAt": "2026-04-05T08:00:00.000Z",
+              "durationMin": 25,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+              "kind": "time_event",
+              "title": "Salsas base italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-05T19:00:00.000Z",
+              "durationMin": 35,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2-w2",
+              "kind": "time_event",
+              "title": "Practica de pastas italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-07T19:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_plating-0elp3g9_s139_f6b2c52c-w2",
+              "kind": "time_event",
+              "title": "Emplatado, cata y ajuste de sabor",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-08T21:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6-w2",
+              "kind": "time_event",
+              "title": "Practica de pastas italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-09T19:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd-w2",
+              "kind": "time_event",
+              "title": "Estudiar una referencia concreta de cocina italiana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "startAt": "2026-04-10T08:00:00.000Z",
+              "durationMin": 25,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1-w2",
+              "kind": "time_event",
+              "title": "Mise en place y tecnica base",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "startAt": "2026-04-11T08:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_plating-0elp3g9_s275_2e1b670e-w2",
+              "kind": "time_event",
+              "title": "Emplatado, cata y ajuste de sabor",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-11T17:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e-w2",
+              "kind": "time_event",
+              "title": "Mise en place y tecnica base",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-11T19:00:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7-w2",
+              "kind": "time_event",
+              "title": "Salsas base italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-11T19:30:00.000Z",
+              "durationMin": 35,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_reading-xirn0vn_s304_3878af4d-w2",
+              "kind": "time_event",
+              "title": "Estudiar una referencia concreta de cocina italiana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "startAt": "2026-04-12T08:00:00.000Z",
+              "durationMin": 25,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f-w2",
+              "kind": "time_event",
+              "title": "Salsas base italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-12T19:00:00.000Z",
+              "durationMin": 35,
+              "rigidity": "soft"
+            }
+          ],
+          "weeks": [
+            {
+              "weekIndex": 1,
+              "startDate": "2026-04-03",
+              "endDate": "2026-04-09",
+              "scheduledEvents": [
+                {
+                  "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s139_f6b2c52c",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-01T21:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-02T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-03T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-04T08:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T17:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T19:00:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T19:30:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-05T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-05T19:00:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                }
+              ]
+            },
+            {
+              "weekIndex": 2,
+              "startDate": "2026-04-10",
+              "endDate": "2026-04-16",
+              "scheduledEvents": [
+                {
+                  "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2-w2",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-07T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s139_f6b2c52c-w2",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-08T21:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6-w2",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-09T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd-w2",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-10T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1-w2",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-11T08:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s275_2e1b670e-w2",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-11T17:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e-w2",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-11T19:00:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7-w2",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-11T19:30:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s304_3878af4d-w2",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-12T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f-w2",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-12T19:00:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                }
+              ]
+            }
+          ]
+        },
+        "operational": {
+          "horizonDays": 7,
+          "startDate": "2026-04-03",
+          "endDate": "2026-04-09",
+          "frozen": true,
+          "scheduledEvents": [
+            {
+              "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2",
+              "kind": "time_event",
+              "title": "Practica de pastas italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-03-31T19:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_plating-0elp3g9_s139_f6b2c52c",
+              "kind": "time_event",
+              "title": "Emplatado, cata y ajuste de sabor",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-01T21:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6",
+              "kind": "time_event",
+              "title": "Practica de pastas italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-02T19:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+              "kind": "time_event",
+              "title": "Estudiar una referencia concreta de cocina italiana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "startAt": "2026-04-03T08:00:00.000Z",
+              "durationMin": 25,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+              "kind": "time_event",
+              "title": "Mise en place y tecnica base",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "startAt": "2026-04-04T08:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+              "kind": "time_event",
+              "title": "Emplatado, cata y ajuste de sabor",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-04T17:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+              "kind": "time_event",
+              "title": "Mise en place y tecnica base",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-04T19:00:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+              "kind": "time_event",
+              "title": "Salsas base italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-04T19:30:00.000Z",
+              "durationMin": 35,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+              "kind": "time_event",
+              "title": "Estudiar una referencia concreta de cocina italiana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z",
+              "startAt": "2026-04-05T08:00:00.000Z",
+              "durationMin": 25,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+              "kind": "time_event",
+              "title": "Salsas base italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z",
+              "startAt": "2026-04-05T19:00:00.000Z",
+              "durationMin": 35,
+              "rigidity": "soft"
+            }
+          ],
+          "buffers": [
+            {
+              "id": "buffer-slack-1-1",
+              "startAt": "2026-04-03T18:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-2-1",
+              "startAt": "2026-04-04T20:05:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-3-1",
+              "startAt": "2026-04-05T19:35:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-4-1",
+              "startAt": "2026-04-06T18:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            }
+          ],
+          "days": [
+            {
+              "date": "2026-04-03",
+              "scheduledEvents": [
+                {
+                  "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-03T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-04-03T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-04",
+              "scheduledEvents": [
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-04T08:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T17:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T19:00:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T19:30:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-04T20:05:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-05",
+              "scheduledEvents": [
+                {
+                  "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-05T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-05T19:00:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-3-1",
+                  "startAt": "2026-04-05T19:35:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-06",
+              "scheduledEvents": [],
+              "buffers": [
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-06T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-07",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-08",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-09",
+              "scheduledEvents": [],
+              "buffers": []
+            }
+          ],
+          "totalBufferMin": 120
+        }
+      },
+      "items": [
+        {
+          "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2",
+          "kind": "time_event",
+          "title": "Practica de pastas italianas",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-03-31T19:00:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.876Z",
+          "updatedAt": "2026-03-30T11:11:10.876Z"
+        },
+        {
+          "id": "act-italian_plating-0elp3g9_s139_f6b2c52c",
+          "kind": "time_event",
+          "title": "Emplatado, cata y ajuste de sabor",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-01T21:30:00.000Z",
+          "durationMin": 20,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.876Z",
+          "updatedAt": "2026-03-30T11:11:10.876Z"
+        },
+        {
+          "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6",
+          "kind": "time_event",
+          "title": "Practica de pastas italianas",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-02T19:00:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.876Z",
+          "updatedAt": "2026-03-30T11:11:10.876Z"
+        },
+        {
+          "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+          "kind": "time_event",
+          "title": "Estudiar una referencia concreta de cocina italiana",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-03T08:00:00.000Z",
+          "durationMin": 25,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.875Z",
+          "updatedAt": "2026-03-30T11:11:10.875Z"
+        },
+        {
+          "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+          "kind": "time_event",
+          "title": "Mise en place y tecnica base",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T08:30:00.000Z",
+          "durationMin": 20,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.875Z",
+          "updatedAt": "2026-03-30T11:11:10.875Z"
+        },
+        {
+          "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+          "kind": "time_event",
+          "title": "Emplatado, cata y ajuste de sabor",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T17:30:00.000Z",
+          "durationMin": 20,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.876Z",
+          "updatedAt": "2026-03-30T11:11:10.876Z"
+        },
+        {
+          "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+          "kind": "time_event",
+          "title": "Mise en place y tecnica base",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T19:00:00.000Z",
+          "durationMin": 20,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.876Z",
+          "updatedAt": "2026-03-30T11:11:10.876Z"
+        },
+        {
+          "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+          "kind": "time_event",
+          "title": "Salsas base italianas",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T19:30:00.000Z",
+          "durationMin": 35,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.876Z",
+          "updatedAt": "2026-03-30T11:11:10.876Z"
+        },
+        {
+          "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+          "kind": "time_event",
+          "title": "Estudiar una referencia concreta de cocina italiana",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-05T08:00:00.000Z",
+          "durationMin": 25,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.875Z",
+          "updatedAt": "2026-03-30T11:11:10.875Z"
+        },
+        {
+          "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+          "kind": "time_event",
+          "title": "Salsas base italianas",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-05T19:00:00.000Z",
+          "durationMin": 35,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T11:11:10.876Z",
+          "updatedAt": "2026-03-30T11:11:10.876Z"
+        },
+        {
+          "id": "milestone-1",
+          "kind": "milestone",
+          "title": "Completar una rutina base estable de pastas italianas con pasta al pomodoro",
+          "notes": "Construir una base repetible de pastas italianas. Tomar pasta al pomodoro como referencia concreta del repertorio. Fijar mise en place, punto de coccion y tecnica base alrededor de pasta al pomodoro. Partir desde he seguido algunas recetas simples pero sin mucha práctica sin reiniciar artificialmente.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-05-08",
+          "createdAt": "2026-03-30T11:11:10.875Z",
+          "updatedAt": "2026-03-30T11:11:10.875Z"
+        },
+        {
+          "id": "milestone-2",
+          "kind": "milestone",
+          "title": "Resolver cacio e pepe y aglio e olio sin depender del paso a paso",
+          "notes": "Tomar cacio e pepe y aglio e olio como referencia concreta del repertorio. Repetir cacio e pepe y aglio e olio hasta que deje de depender del paso a paso. Priorizar he seguido algunas recetas simples pero sin mucha práctica dentro del repertorio principal.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-06-05",
+          "createdAt": "2026-03-30T11:11:10.875Z",
+          "updatedAt": "2026-03-30T11:11:10.875Z"
+        },
+        {
+          "id": "milestone-3",
+          "kind": "milestone",
+          "title": "Preparar un menu corto de pastas italianas con calidad consistente y referencias concretas",
+          "notes": "Cerrar el horizonte con un menu corto que combine pasta al pomodoro y cacio e pepe. El horizonte de trabajo queda en 3 meses y no en una improvisacion corta. Mantener pastas como eje y no como detalle secundario.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-06-26",
+          "createdAt": "2026-03-30T11:11:10.875Z",
+          "updatedAt": "2026-03-30T11:11:10.875Z"
+        },
+        {
+          "id": "metric-plan-quality",
+          "kind": "metric",
+          "title": "Calidad del plan",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "plan_quality_score",
+          "unit": "puntos",
+          "direction": "increase",
+          "target": {
+            "targetValue": 100
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "last"
+          },
+          "series": [
+            {
+              "at": "2026-03-30T11:11:10.875Z",
+              "value": 100
+            }
+          ],
+          "createdAt": "2026-03-30T11:11:10.875Z",
+          "updatedAt": "2026-03-30T11:11:10.875Z"
+        },
+        {
+          "id": "metric-sessions-week",
+          "kind": "metric",
+          "title": "Sesiones completables por semana",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "scheduled_sessions_per_week",
+          "unit": "sesiones",
+          "direction": "increase",
+          "target": {
+            "targetValue": 10
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "count"
+          },
+          "createdAt": "2026-03-30T11:11:10.875Z",
+          "updatedAt": "2026-03-30T11:11:10.875Z"
+        },
+        {
+          "id": "trigger-low-adherence",
+          "kind": "trigger_rule",
+          "title": "Revisar plan si baja la adherencia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "enabled": true,
+          "conditions": [
+            {
+              "left": {
+                "type": "metric",
+                "ref": "plan_quality_score"
+              },
+              "op": "lt",
+              "right": {
+                "value": 70
+              }
+            }
+          ],
+          "actions": [
+            {
+              "type": "create_task",
+              "payload": {
+                "title": "Revisar y reajustar el plan",
+                "estimateMin": 30
+              }
+            }
+          ],
+          "throttle": {
+            "minHoursBetweenRuns": 168
+          },
+          "createdAt": "2026-03-30T11:11:10.875Z",
+          "updatedAt": "2026-03-30T11:11:10.875Z"
+        }
+      ],
+      "habitStates": [
+        {
+          "progressionKey": "generated-goal",
+          "weeksActive": 0,
+          "level": 0,
+          "currentDose": {
+            "sessionsPerWeek": 10,
+            "minimumViable": {
+              "minutes": 10,
+              "description": "Version minima de Emplatado, cata y ajuste de sabor"
+            }
+          },
+          "protectedFromReset": false
+        }
+      ],
+      "slackPolicy": {
+        "weeklyTimeBufferMin": 120,
+        "maxChurnMovesPerWeek": 3,
+        "frozenHorizonDays": 2
+      },
+      "timezone": "UTC",
+      "summary_esAR": "Este plan convierte \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\" en 10 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 12 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+      "qualityScore": 60,
+      "implementationIntentions": [
+        "Si llega martes a las 19:00, entonces hago Practica de pastas italianas durante 45 minutos.",
+        "Si llega miércoles a las 21:30, entonces hago Emplatado, cata y ajuste de sabor durante 20 minutos.",
+        "Si llega jueves a las 19:00, entonces hago Practica de pastas italianas durante 45 minutos.",
+        "Si llega viernes a las 08:00, entonces hago Estudiar una referencia concreta de cocina italiana durante 25 minutos."
+      ],
+      "warnings": [
+        "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+      ],
+      "tradeoffs": [],
+      "publicationState": "publishable",
+      "qualityIssues": [],
+      "requestDomain": "cocina-italiana",
+      "packageDomain": "cocina-italiana",
+      "intakeCoverage": {
+        "requiredSignals": [],
+        "missingSignals": [],
+        "signalUsage": []
+      },
+      "degraded": true,
+      "reasoningTrace": [
+        {
+          "phase": "interpret",
+          "agent": "goal-interpreter",
+          "iteration": 1,
+          "action": "Executed interpret",
+          "reasoning": "Phase completed",
+          "result": "Goal: Aprender cocina italiana, con énfasis en pastas y salsas, para preparar un menú sencillo en tres meses., confidence: 0.83",
+          "tokensUsed": 32,
+          "timestamp": "2026-03-30T11:07:51.396Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 2,
+          "action": "Executed clarify",
+          "reasoning": "Falta conocer tu punto de partida culinario para ajustar el plan a tu nivel actual.",
+          "result": "1 questions pending (confidence: 0.41)",
+          "tokensUsed": 10,
+          "timestamp": "2026-03-30T11:07:57.809Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 3,
+          "action": "Executed clarify",
+          "reasoning": "Se cuenta con las señales críticas necesarias para planificar.",
+          "result": "Ready to advance (confidence: 0.72)",
+          "tokensUsed": 9,
+          "timestamp": "2026-03-30T11:10:53.934Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 4,
+          "action": "FALLBACK: planner",
+          "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "result": "Using fallback strategic draft - NOT from LLM",
+          "tokensUsed": 12,
+          "timestamp": "2026-03-30T11:11:10.722Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 4,
+          "action": "Executed plan",
+          "reasoning": "Phase completed",
+          "result": "3 phases generated",
+          "tokensUsed": 5,
+          "timestamp": "2026-03-30T11:11:10.722Z"
+        },
+        {
+          "phase": "check",
+          "agent": "feasibility-checker",
+          "iteration": 5,
+          "action": "Executed check",
+          "reasoning": "Status: feasible",
+          "result": "Feasibility: feasible",
+          "tokensUsed": 6,
+          "timestamp": "2026-03-30T11:11:10.723Z"
+        },
+        {
+          "phase": "schedule",
+          "agent": "scheduler",
+          "iteration": 6,
+          "action": "Executed schedule",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T11:11:10.876Z"
+        },
+        {
+          "phase": "critique",
+          "agent": "critic",
+          "iteration": 7,
+          "action": "Executed critique",
+          "reasoning": "El plan respeta la meta y el cronograma y propone una progresión razonable de técnicas de pasta, pero carece de hitos cuantificables y de la estructura de referencia y cata indicada en las mejores prácticas de cocina italiana. Ajustar estos puntos mejoraría el control del progreso y la calidad final.",
+          "result": "Score: 80, verdict: approve",
+          "tokensUsed": 7,
+          "timestamp": "2026-03-30T11:11:29.020Z"
+        },
+        {
+          "phase": "package",
+          "agent": "packager",
+          "iteration": 8,
+          "action": "Executed package",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T11:11:29.033Z"
+        }
+      ],
+      "agentOutcomes": [
+        {
+          "agent": "goal-interpreter",
+          "phase": "interpret",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 2371
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 6411
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 1707
+        },
+        {
+          "agent": "domain-expert",
+          "phase": "plan",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 2594
+        },
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "source": "fallback",
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "durationMs": 14192
+        },
+        {
+          "agent": "feasibility-checker",
+          "phase": "check",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 1
+        },
+        {
+          "agent": "scheduler",
+          "phase": "schedule",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 153
+        },
+        {
+          "agent": "critic",
+          "phase": "critique",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 18143
+        },
+        {
+          "agent": "packager",
+          "phase": "package",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 12
+        }
+      ]
+    },
+    "meta": {
+      "modelId": "openai:gpt-5-codex"
+    }
+  },
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 46,
+    "timestamp": "2026-03-30T11:11:29.034Z",
+    "category": "publication",
+    "action": "publication.evaluated",
+    "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+    "phase": "done",
+    "agent": "critic",
+    "iteration": 8,
+    "revisionCycle": 0,
+    "clarifyRound": 2,
+    "progressScore": 100,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": "ready",
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "partialKind": "publication",
+      "canPublish": true,
+      "degraded": true,
+      "blockingAgents": [],
+      "fallbackLedger": [
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "count": 1,
+          "latestErrorCode": "Error",
+          "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+        }
+      ],
+      "qualityIssues": [],
+      "criticVerdict": "approve",
+      "criticScore": 80,
+      "warnings": [
+        "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+      ],
+      "exactBlockers": [],
+      "misalignedGoal": false
+    }
+  },
+  "latestDebugStatus": {
+    "lifecycle": "running",
+    "currentPhase": "critique",
+    "currentAgent": "critic",
+    "currentAction": "agent.start",
+    "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+    "iteration": 6,
+    "revisionCycles": 0,
+    "clarifyRounds": 2,
+    "progressScore": 80,
+    "degraded": true,
+    "fallbackCount": 1,
+    "publicationState": null,
+    "failureCode": null,
+    "lastEventSequence": 37,
+    "lastEventTimestamp": "2026-03-30T11:11:10.877Z",
+    "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+  },
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T11:10:51.010Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "",
+        "resumeSession": "897f181f-e03c-40b7-a6a6-d97037c36a94",
+        "explicitProvider": null,
+        "autoMode": false,
+        "pauseOnInput": true,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:51.013Z",
+      "type": "resume.explicit_request",
+      "data": {
+        "endpoint": "/api/plan/build/resume",
+        "sessionId": "897f181f-e03c-40b7-a6a6-d97037c36a94",
+        "answersCount": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.691Z",
+      "type": "package.fetch_requested",
+      "data": {
+        "planId": "7f037a86-5b54-4a60-bcd7-ffb83bed2239",
+        "provider": "resume"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:30.535Z",
+      "type": "package.fetched",
+      "data": {
+        "planId": "7f037a86-5b54-4a60-bcd7-ffb83bed2239",
+        "provider": "resume",
+        "modelId": "openai:gpt-5-codex",
+        "publicationState": "publishable",
+        "degraded": true
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T11:10:51.214Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "codex",
+        "requestedMode": "codex-cloud",
+        "resolvedModelId": "openai:gpt-5-codex",
+        "providerId": "openai",
+        "executionMode": "codex-cloud",
+        "resolutionSource": "requested-mode",
+        "authMode": "codex-oauth",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:52.229Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "clarify-resume",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:52.229Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 13,
+        "timestamp": "2026-03-30T11:10:52.227Z",
+        "category": "lifecycle",
+        "action": "session.resumed",
+        "summary_es": "Se retomó la sesión con 1 respuesta(s) nuevas.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "answersCount": 1,
+          "answeredQuestionIds": [
+            "clarify-r1-q1"
+          ],
+          "storedAnswerKeys": [
+            "¿Cuál describe mejor tu nivel actual preparando pastas y salsas de cocina italiana?"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Aprender cocina italiana, con énfasis en pastas y salsas, para preparar un menú sencillo en tres meses.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "cocina italiana",
+            "metric": null,
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "practica",
+              "algunas",
+              "recetas",
+              "seguido",
+              "simples",
+              "mucha"
+            ],
+            "informationGaps": [
+              "current_baseline"
+            ],
+            "clarifyConfidence": 0.41,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿Cuál describe mejor tu nivel actual preparando pastas y salsas de cocina italiana?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "current_baseline",
+                "question": "¿Cuál describe mejor tu nivel actual preparando pastas y salsas de cocina italiana?",
+                "answer": "He seguido algunas recetas simples pero sin mucha práctica"
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:52.230Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 14,
+        "timestamp": "2026-03-30T11:10:52.227Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan procesando las respuestas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:52.230Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 15,
+        "timestamp": "2026-03-30T11:10:52.227Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:53.940Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 16,
+        "timestamp": "2026-03-30T11:10:53.934Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 1707,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:53.940Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 17,
+        "timestamp": "2026-03-30T11:10:53.935Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion ya tiene contexto suficiente para avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": true,
+          "confidence": 0.72,
+          "questions": [],
+          "informationGaps": [],
+          "knownAnswers": [
+            {
+              "id": "¿Cuál describe mejor tu nivel actual preparando pastas y salsas de cocina italiana?",
+              "question": "¿Cuál describe mejor tu nivel actual preparando pastas y salsas de cocina italiana?",
+              "answer": "He seguido algunas recetas simples pero sin mucha práctica"
+            }
+          ],
+          "duplicateQuestions": [],
+          "reasoning": "Se cuenta con las señales críticas necesarias para planificar.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Aprender cocina italiana, con énfasis en pastas y salsas, para preparar un menú sencillo en tres meses.",
+            "goalType": "SKILL_ACQUISITION",
+            "riskFlags": [
+              "LOW"
+            ],
+            "suggestedDomain": "cocina italiana",
+            "metric": null,
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "practica",
+              "algunas",
+              "recetas",
+              "seguido",
+              "simples",
+              "mucha"
+            ],
+            "informationGaps": [],
+            "clarifyConfidence": 0.72,
+            "readyToAdvance": true,
+            "normalizedUserAnswers": [
+              {
+                "key": "¿Cuál describe mejor tu nivel actual preparando pastas y salsas de cocina italiana?",
+                "questionId": "clarify-r1-q1",
+                "signalKey": "current_baseline",
+                "question": "¿Cuál describe mejor tu nivel actual preparando pastas y salsas de cocina italiana?",
+                "answer": "He seguido algunas recetas simples pero sin mucha práctica"
+              }
+            ],
+            "missingCriticalSignals": [],
+            "hasSufficientSignalsForPlanning": true,
+            "clarificationMode": "sufficient",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 2
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:53.941Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 18,
+        "timestamp": "2026-03-30T11:10:53.935Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La aclaracion alcanzo contexto suficiente y el pipeline avanza a planificacion.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "plan"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:53.941Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 19,
+        "timestamp": "2026-03-30T11:10:53.935Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta armando el plan estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:53.941Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 20,
+        "timestamp": "2026-03-30T11:10:53.935Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta aportando contexto antes de planificar.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:56.544Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 21,
+        "timestamp": "2026-03-30T11:10:56.529Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo planificacion con respuesta del modelo.",
+        "phase": "plan",
+        "agent": "domain-expert",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 2594,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:10:56.544Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 22,
+        "timestamp": "2026-03-30T11:10:56.529Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo a generar el roadmap estrategico.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:02.228Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:11:02.228Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "plan",
+          "currentAgent": "planner",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El planificador empezo a generar el roadmap estrategico.",
+          "iteration": 3,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 40,
+          "degraded": false,
+          "fallbackCount": 0,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 22,
+          "lastEventTimestamp": "2026-03-30T11:10:56.529Z",
+          "lastEventSummary_es": "El planificador empezo a generar el roadmap estrategico."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.800Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 23,
+        "timestamp": "2026-03-30T11:11:10.721Z",
+        "category": "agent",
+        "action": "agent.fallback",
+        "summary_es": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable. Se uso un fallback del planificador.",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": "Error",
+        "details": {
+          "source": "fallback",
+          "durationMs": 14192,
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "practica",
+              "algunas",
+              "recetas",
+              "seguido",
+              "simples",
+              "mucha"
+            ],
+            "observedTexts": [
+              "Mise en place principiante de pastas italianas y salsas básicas en el mes 1 Durante el primer mes y desde tu nivel principiante, elige una referencia confiable, estudia mise en place italiana y replica dos veces una pasta seca con salsa de tomate documentando notas para sostener el aprendizaje de pastas y salsas.",
+              "Mes 2: práctica intensiva de masas frescas y salsas base italianas nivel principiante En el segundo mes dedicas la mayoría del tiempo a pastas frescas y salsas madre italianas, repitiendo laminado y cocciones hasta lograr textura constante y registrando ajustes para tu horizonte de 3 meses.",
+              "Mes 3: montaje de menú italiano simple con pastas y salsas dominadas En el tercer mes planificas, cocinas y presentas un menú simple de cocina italiana (entrada ligera y pasta principal) usando las pastas y salsas practicadas, cerrando el objetivo de 3 meses con cata y ajustes finales.",
+              "Pasta seca con salsa básica replicada y documentada",
+              "Pasta fresca y dos salsas base con textura uniforme",
+              "Menú italiano simple servido y evaluado"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.801Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 24,
+        "timestamp": "2026-03-30T11:11:10.722Z",
+        "category": "phase",
+        "action": "plan.summary",
+        "summary_es": "Roadmap generado con 3 fase(s) y 3 hito(s).",
+        "phase": "plan",
+        "agent": "planner",
+        "iteration": 3,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 40,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 12,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Primer repertorio de pastas italianas",
+              "focus": "Construir una base repetible de pastas italianas. Tomar pasta al pomodoro como referencia concreta del repertorio. Fijar mise en place, punto de coccion y tecnica base alrededor de pasta al pomodoro. Partir desde he seguido algunas recetas simples pero sin mucha práctica sin reiniciar artificialmente.",
+              "durationWeeks": 5
+            },
+            {
+              "index": 2,
+              "title": "Recetas repetibles de pastas italianas",
+              "focus": "Tomar cacio e pepe y aglio e olio como referencia concreta del repertorio. Repetir cacio e pepe y aglio e olio hasta que deje de depender del paso a paso. Priorizar he seguido algunas recetas simples pero sin mucha práctica dentro del repertorio principal.",
+              "durationWeeks": 4
+            },
+            {
+              "index": 3,
+              "title": "Menu corto de pastas italianas para 3 meses",
+              "focus": "Cerrar el horizonte con un menu corto que combine pasta al pomodoro y cacio e pepe. El horizonte de trabajo queda en 3 meses y no en una improvisacion corta. Mantener pastas como eje y no como detalle secundario.",
+              "durationWeeks": 3
+            }
+          ],
+          "milestones": [
+            "Completar una rutina base estable de pastas italianas con pasta al pomodoro",
+            "Resolver cacio e pepe y aglio e olio sin depender del paso a paso",
+            "Preparar un menu corto de pastas italianas con calidad consistente y referencias concretas"
+          ],
+          "fallbackUsed": true,
+          "failedCheck": "intake.anchor_coverage",
+          "validationSummaryEs": "El borrador no reutilizÃ³ suficientes seÃ±ales concretas del intake y quedÃ³ demasiado intercambiable.",
+          "validationEvidence": {
+            "expectedAnchors": [
+              "practica",
+              "algunas",
+              "recetas",
+              "seguido",
+              "simples",
+              "mucha"
+            ],
+            "observedTexts": [
+              "Mise en place principiante de pastas italianas y salsas básicas en el mes 1 Durante el primer mes y desde tu nivel principiante, elige una referencia confiable, estudia mise en place italiana y replica dos veces una pasta seca con salsa de tomate documentando notas para sostener el aprendizaje de pastas y salsas.",
+              "Mes 2: práctica intensiva de masas frescas y salsas base italianas nivel principiante En el segundo mes dedicas la mayoría del tiempo a pastas frescas y salsas madre italianas, repitiendo laminado y cocciones hasta lograr textura constante y registrando ajustes para tu horizonte de 3 meses.",
+              "Mes 3: montaje de menú italiano simple con pastas y salsas dominadas En el tercer mes planificas, cocinas y presentas un menú simple de cocina italiana (entrada ligera y pasta principal) usando las pastas y salsas practicadas, cerrando el objetivo de 3 meses con cata y ajustes finales.",
+              "Pasta seca con salsa básica replicada y documentada",
+              "Pasta fresca y dos salsas base con textura uniforme",
+              "Menú italiano simple servido y evaluado"
+            ]
+          },
+          "fallbackPublishability": "pendiente_de_critica"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.801Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 25,
+        "timestamp": "2026-03-30T11:11:10.722Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de planificacion a factibilidad.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "plan",
+          "toPhase": "check"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.802Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 26,
+        "timestamp": "2026-03-30T11:11:10.722Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta chequeando la factibilidad del plan.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.802Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 27,
+        "timestamp": "2026-03-30T11:11:10.722Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El verificador de factibilidad esta chequeando horas, energia y restricciones.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.802Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 28,
+        "timestamp": "2026-03-30T11:11:10.723Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El verificador de factibilidad completo factibilidad con respuesta del modelo.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 1,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.803Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 29,
+        "timestamp": "2026-03-30T11:11:10.723Z",
+        "category": "phase",
+        "action": "check.summary",
+        "summary_es": "Factibilidad feasible: 18h disponibles vs 0h requeridas.",
+        "phase": "check",
+        "agent": "feasibility-checker",
+        "iteration": 4,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 50,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "feasibility",
+          "status": "feasible",
+          "availableHours": 18,
+          "requiredHours": 0,
+          "gap": 0,
+          "conflicts": [],
+          "adjustments": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.803Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 30,
+        "timestamp": "2026-03-30T11:11:10.723Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de factibilidad a calendarizacion.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "check",
+          "toPhase": "schedule"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.804Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 31,
+        "timestamp": "2026-03-30T11:11:10.723Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta resolviendo el calendario de actividades.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.804Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 32,
+        "timestamp": "2026-03-30T11:11:10.723Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El scheduler esta distribuyendo actividades en el calendario.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.878Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 33,
+        "timestamp": "2026-03-30T11:11:10.876Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El scheduler cerro calendarizacion por via deterministica.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 153,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.879Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 34,
+        "timestamp": "2026-03-30T11:11:10.876Z",
+        "category": "phase",
+        "action": "schedule.summary",
+        "summary_es": "Calendarizacion optimal con fill rate 100%.",
+        "phase": "schedule",
+        "agent": "scheduler",
+        "iteration": 5,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 65,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "schedule",
+          "fillRate": 1,
+          "solverStatus": "optimal",
+          "solverTimeMs": 150,
+          "unscheduledCount": 0,
+          "tradeoffs": []
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.879Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 35,
+        "timestamp": "2026-03-30T11:11:10.876Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de calendarizacion a critica.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "schedule",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.880Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 36,
+        "timestamp": "2026-03-30T11:11:10.877Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:10.880Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 37,
+        "timestamp": "2026-03-30T11:11:10.877Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:12.233Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:11:12.233Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T11:11:10.877Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:22.234Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T11:11:22.234Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T11:11:10.877Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.069Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 38,
+        "timestamp": "2026-03-30T11:11:29.020Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 18143,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.070Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 39,
+        "timestamp": "2026-03-30T11:11:29.020Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict approve y score 80/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "approve",
+          "overallScore": 80,
+          "mustFix": [],
+          "shouldFix": [
+            {
+              "id": "f-1",
+              "severity": "warning",
+              "category": "specificity",
+              "message": "Los hitos y objetivos de fase (“rutina base estable”, “calidad consistente”) están formulados de forma cualitativa, por lo que no hay indicadores claros para saber cuándo avanzar o si el objetivo del trimestre se logró.",
+              "suggestion": "Vincular cada fase con criterios observables (p.ej., ejecutar la receta tres veces seguidas sin errores, obtener comentarios positivos en una degustación) antes de pasar a la siguiente.",
+              "affectedPhaseIds": [
+                "Primer repertorio de pastas italianas",
+                "Recetas repetibles de pastas italianas",
+                "Menu corto de pastas italianas para 3 meses"
+              ]
+            },
+            {
+              "id": "f-2",
+              "severity": "warning",
+              "category": "domain",
+              "message": "El plan menciona platos de referencia pero no exige seleccionar una guía paso a paso concreta ni incorporar una cata y ajuste al cierre de cada ciclo, prácticas recomendadas para evitar errores repetidos en cocina italiana.",
+              "suggestion": "Identificar desde el inicio un libro, curso o video técnico para cada receta clave y añadir sesiones de cata/ajuste al final de cada fase para asegurar que la técnica y el sabor evolucionen.",
+              "affectedPhaseIds": [
+                "Primer repertorio de pastas italianas",
+                "Recetas repetibles de pastas italianas",
+                "Menu corto de pastas italianas para 3 meses"
+              ]
+            }
+          ],
+          "reasoning": "El plan respeta la meta y el cronograma y propone una progresión razonable de técnicas de pasta, pero carece de hitos cuantificables y de la estructura de referencia y cata indicada en las mejores prácticas de cocina italiana. Ajustar estos puntos mejoraría el control del progreso y la calidad final.",
+          "scoreDelta": null,
+          "comparison": "sin_base"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.070Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 40,
+        "timestamp": "2026-03-30T11:11:29.021Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de critica a empaquetado.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "package"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.071Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 41,
+        "timestamp": "2026-03-30T11:11:29.021Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta empaquetando el resultado final.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.072Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 42,
+        "timestamp": "2026-03-30T11:11:29.021Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El empaquetador esta armando el resultado final publicable.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.072Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 43,
+        "timestamp": "2026-03-30T11:11:29.033Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El empaquetador cerro empaquetado por via deterministica.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 12,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.073Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 44,
+        "timestamp": "2026-03-30T11:11:29.033Z",
+        "category": "phase",
+        "action": "package.summary",
+        "summary_es": "Empaquetado listo con score base 100/100 y 0 advertencia(s).",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "package",
+          "packageReady": true,
+          "qualityScore": 100,
+          "summary": "Este plan convierte \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\" en 10 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 12 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "warnings": [],
+          "qualityIssues": [],
+          "requestDomain": "cocina-italiana",
+          "packageDomain": "cocina-italiana"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.073Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 45,
+        "timestamp": "2026-03-30T11:11:29.033Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El paquete final quedo listo para resolver la publicacion.",
+        "phase": "done",
+        "agent": null,
+        "iteration": 8,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "package",
+          "toPhase": "done"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.074Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 46,
+        "timestamp": "2026-03-30T11:11:29.034Z",
+        "category": "publication",
+        "action": "publication.evaluated",
+        "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+        "phase": "done",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": "ready",
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "publication",
+          "canPublish": true,
+          "degraded": true,
+          "blockingAgents": [],
+          "fallbackLedger": [
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "count": 1,
+              "latestErrorCode": "Error",
+              "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+            }
+          ],
+          "qualityIssues": [],
+          "criticVerdict": "approve",
+          "criticScore": 80,
+          "warnings": [
+            "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+          ],
+          "exactBlockers": [],
+          "misalignedGoal": false
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.683Z",
+      "type": "v6:progress",
+      "data": {
+        "score": 100,
+        "lastAction": "Packaging final plan"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.684Z",
+      "type": "v6:degraded",
+      "data": {
+        "message": "El plan se genero con datos parcialmente sinteticos porque 1 agente(s) no pudieron conectarse al LLM.",
+        "failedAgents": "planner: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 2371
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 6411
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1707
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 2594
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "fallback",
+            "errorCode": "Error",
+            "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "durationMs": 14192
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 153
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 18143
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 12
+          }
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:11:29.686Z",
+      "type": "v6:complete",
+      "data": {
+        "planId": "7f037a86-5b54-4a60-bcd7-ffb83bed2239",
+        "score": 60,
+        "iterations": 8,
+        "package": {
+          "plan": {
+            "goalIds": [
+              "generated-goal"
+            ],
+            "timezone": "UTC",
+            "createdAt": "2026-03-30T11:11:10.875Z",
+            "updatedAt": "2026-03-30T11:11:10.875Z",
+            "skeleton": {
+              "horizonWeeks": 12,
+              "goalIds": [
+                "generated-goal"
+              ],
+              "phases": [
+                {
+                  "phaseId": "phase-1",
+                  "title": "Primer repertorio de pastas italianas",
+                  "startWeek": 1,
+                  "endWeek": 5,
+                  "startDate": "2026-04-03",
+                  "endDate": "2026-05-07",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Construir una base repetible de pastas italianas. Tomar pasta al pomodoro como referencia concreta del repertorio. Fijar mise en place, punto de coccion y tecnica base alrededor de pasta al pomodoro. Partir desde he seguido algunas recetas simples pero sin mucha práctica sin reiniciar artificialmente."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-italian_plating-0elp3g9",
+                      "title": "Emplatado, cata y ajuste de sabor",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 20
+                    },
+                    {
+                      "activityId": "act-italian_reading-xirn0vn",
+                      "title": "Estudiar una referencia concreta de cocina italiana",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 25
+                    },
+                    {
+                      "activityId": "act-italian_mise_en_place-dxdacjl",
+                      "title": "Mise en place y tecnica base",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 20
+                    },
+                    {
+                      "activityId": "act-italian_pasta-uds5vnm",
+                      "title": "Practica de pastas italianas",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-italian_sauces-3nu98o1",
+                      "title": "Salsas base italianas",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 35
+                    }
+                  ],
+                  "milestoneIds": []
+                },
+                {
+                  "phaseId": "phase-2",
+                  "title": "Recetas repetibles de pastas italianas",
+                  "startWeek": 6,
+                  "endWeek": 9,
+                  "startDate": "2026-05-08",
+                  "endDate": "2026-06-04",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Tomar cacio e pepe y aglio e olio como referencia concreta del repertorio. Repetir cacio e pepe y aglio e olio hasta que deje de depender del paso a paso. Priorizar he seguido algunas recetas simples pero sin mucha práctica dentro del repertorio principal."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-italian_plating-0elp3g9",
+                      "title": "Emplatado, cata y ajuste de sabor",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 20
+                    },
+                    {
+                      "activityId": "act-italian_reading-xirn0vn",
+                      "title": "Estudiar una referencia concreta de cocina italiana",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 25
+                    },
+                    {
+                      "activityId": "act-italian_mise_en_place-dxdacjl",
+                      "title": "Mise en place y tecnica base",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 20
+                    },
+                    {
+                      "activityId": "act-italian_pasta-uds5vnm",
+                      "title": "Practica de pastas italianas",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-italian_sauces-3nu98o1",
+                      "title": "Salsas base italianas",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 35
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-1"
+                  ]
+                },
+                {
+                  "phaseId": "phase-3",
+                  "title": "Menu corto de pastas italianas para 3 meses",
+                  "startWeek": 10,
+                  "endWeek": 12,
+                  "startDate": "2026-06-05",
+                  "endDate": "2026-06-25",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Cerrar el horizonte con un menu corto que combine pasta al pomodoro y cacio e pepe. El horizonte de trabajo queda en 3 meses y no en una improvisacion corta. Mantener pastas como eje y no como detalle secundario."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-italian_plating-0elp3g9",
+                      "title": "Emplatado, cata y ajuste de sabor",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 20
+                    },
+                    {
+                      "activityId": "act-italian_reading-xirn0vn",
+                      "title": "Estudiar una referencia concreta de cocina italiana",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 25
+                    },
+                    {
+                      "activityId": "act-italian_mise_en_place-dxdacjl",
+                      "title": "Mise en place y tecnica base",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 20
+                    },
+                    {
+                      "activityId": "act-italian_pasta-uds5vnm",
+                      "title": "Practica de pastas italianas",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    },
+                    {
+                      "activityId": "act-italian_sauces-3nu98o1",
+                      "title": "Salsas base italianas",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 35
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-2"
+                  ]
+                }
+              ],
+              "milestones": [
+                {
+                  "id": "milestone-1",
+                  "kind": "milestone",
+                  "title": "Completar una rutina base estable de pastas italianas con pasta al pomodoro",
+                  "notes": "Construir una base repetible de pastas italianas. Tomar pasta al pomodoro como referencia concreta del repertorio. Fijar mise en place, punto de coccion y tecnica base alrededor de pasta al pomodoro. Partir desde he seguido algunas recetas simples pero sin mucha práctica sin reiniciar artificialmente.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "dueDate": "2026-05-08"
+                },
+                {
+                  "id": "milestone-2",
+                  "kind": "milestone",
+                  "title": "Resolver cacio e pepe y aglio e olio sin depender del paso a paso",
+                  "notes": "Tomar cacio e pepe y aglio e olio como referencia concreta del repertorio. Repetir cacio e pepe y aglio e olio hasta que deje de depender del paso a paso. Priorizar he seguido algunas recetas simples pero sin mucha práctica dentro del repertorio principal.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "dueDate": "2026-06-05"
+                },
+                {
+                  "id": "milestone-3",
+                  "kind": "milestone",
+                  "title": "Preparar un menu corto de pastas italianas con calidad consistente y referencias concretas",
+                  "notes": "Cerrar el horizonte con un menu corto que combine pasta al pomodoro y cacio e pepe. El horizonte de trabajo queda en 3 meses y no en una improvisacion corta. Mantener pastas como eje y no como detalle secundario.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "dueDate": "2026-06-26"
+                }
+              ]
+            },
+            "detail": {
+              "horizonWeeks": 2,
+              "startDate": "2026-04-03",
+              "endDate": "2026-04-16",
+              "scheduledEvents": [
+                {
+                  "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s139_f6b2c52c",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-01T21:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-02T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-03T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-04T08:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T17:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T19:00:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T19:30:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-05T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-05T19:00:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2-w2",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-07T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s139_f6b2c52c-w2",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-08T21:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6-w2",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-09T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd-w2",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-10T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1-w2",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-11T08:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s275_2e1b670e-w2",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-11T17:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e-w2",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-11T19:00:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7-w2",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-11T19:30:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s304_3878af4d-w2",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-12T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f-w2",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-12T19:00:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                }
+              ],
+              "weeks": [
+                {
+                  "weekIndex": 1,
+                  "startDate": "2026-04-03",
+                  "endDate": "2026-04-09",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2",
+                      "kind": "time_event",
+                      "title": "Practica de pastas italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-03-31T19:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_plating-0elp3g9_s139_f6b2c52c",
+                      "kind": "time_event",
+                      "title": "Emplatado, cata y ajuste de sabor",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-01T21:30:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6",
+                      "kind": "time_event",
+                      "title": "Practica de pastas italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-02T19:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+                      "kind": "time_event",
+                      "title": "Estudiar una referencia concreta de cocina italiana",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.875Z",
+                      "updatedAt": "2026-03-30T11:11:10.875Z",
+                      "startAt": "2026-04-03T08:00:00.000Z",
+                      "durationMin": 25,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+                      "kind": "time_event",
+                      "title": "Mise en place y tecnica base",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.875Z",
+                      "updatedAt": "2026-03-30T11:11:10.875Z",
+                      "startAt": "2026-04-04T08:30:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+                      "kind": "time_event",
+                      "title": "Emplatado, cata y ajuste de sabor",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-04T17:30:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+                      "kind": "time_event",
+                      "title": "Mise en place y tecnica base",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-04T19:00:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+                      "kind": "time_event",
+                      "title": "Salsas base italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-04T19:30:00.000Z",
+                      "durationMin": 35,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+                      "kind": "time_event",
+                      "title": "Estudiar una referencia concreta de cocina italiana",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.875Z",
+                      "updatedAt": "2026-03-30T11:11:10.875Z",
+                      "startAt": "2026-04-05T08:00:00.000Z",
+                      "durationMin": 25,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+                      "kind": "time_event",
+                      "title": "Salsas base italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-05T19:00:00.000Z",
+                      "durationMin": 35,
+                      "rigidity": "soft"
+                    }
+                  ]
+                },
+                {
+                  "weekIndex": 2,
+                  "startDate": "2026-04-10",
+                  "endDate": "2026-04-16",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2-w2",
+                      "kind": "time_event",
+                      "title": "Practica de pastas italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-07T19:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_plating-0elp3g9_s139_f6b2c52c-w2",
+                      "kind": "time_event",
+                      "title": "Emplatado, cata y ajuste de sabor",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-08T21:30:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6-w2",
+                      "kind": "time_event",
+                      "title": "Practica de pastas italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-09T19:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd-w2",
+                      "kind": "time_event",
+                      "title": "Estudiar una referencia concreta de cocina italiana",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.875Z",
+                      "updatedAt": "2026-03-30T11:11:10.875Z",
+                      "startAt": "2026-04-10T08:00:00.000Z",
+                      "durationMin": 25,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1-w2",
+                      "kind": "time_event",
+                      "title": "Mise en place y tecnica base",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.875Z",
+                      "updatedAt": "2026-03-30T11:11:10.875Z",
+                      "startAt": "2026-04-11T08:30:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_plating-0elp3g9_s275_2e1b670e-w2",
+                      "kind": "time_event",
+                      "title": "Emplatado, cata y ajuste de sabor",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-11T17:30:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e-w2",
+                      "kind": "time_event",
+                      "title": "Mise en place y tecnica base",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-11T19:00:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7-w2",
+                      "kind": "time_event",
+                      "title": "Salsas base italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-11T19:30:00.000Z",
+                      "durationMin": 35,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_reading-xirn0vn_s304_3878af4d-w2",
+                      "kind": "time_event",
+                      "title": "Estudiar una referencia concreta de cocina italiana",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.875Z",
+                      "updatedAt": "2026-03-30T11:11:10.875Z",
+                      "startAt": "2026-04-12T08:00:00.000Z",
+                      "durationMin": 25,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f-w2",
+                      "kind": "time_event",
+                      "title": "Salsas base italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-12T19:00:00.000Z",
+                      "durationMin": 35,
+                      "rigidity": "soft"
+                    }
+                  ]
+                }
+              ]
+            },
+            "operational": {
+              "horizonDays": 7,
+              "startDate": "2026-04-03",
+              "endDate": "2026-04-09",
+              "frozen": true,
+              "scheduledEvents": [
+                {
+                  "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-03-31T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s139_f6b2c52c",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-01T21:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6",
+                  "kind": "time_event",
+                  "title": "Practica de pastas italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-02T19:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-03T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-04T08:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+                  "kind": "time_event",
+                  "title": "Emplatado, cata y ajuste de sabor",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T17:30:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+                  "kind": "time_event",
+                  "title": "Mise en place y tecnica base",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T19:00:00.000Z",
+                  "durationMin": 20,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-04T19:30:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+                  "kind": "time_event",
+                  "title": "Estudiar una referencia concreta de cocina italiana",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.875Z",
+                  "updatedAt": "2026-03-30T11:11:10.875Z",
+                  "startAt": "2026-04-05T08:00:00.000Z",
+                  "durationMin": 25,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+                  "kind": "time_event",
+                  "title": "Salsas base italianas",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T11:11:10.876Z",
+                  "updatedAt": "2026-03-30T11:11:10.876Z",
+                  "startAt": "2026-04-05T19:00:00.000Z",
+                  "durationMin": 35,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-04-03T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-04T20:05:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-3-1",
+                  "startAt": "2026-04-05T19:35:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-06T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ],
+              "days": [
+                {
+                  "date": "2026-04-03",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+                      "kind": "time_event",
+                      "title": "Estudiar una referencia concreta de cocina italiana",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.875Z",
+                      "updatedAt": "2026-03-30T11:11:10.875Z",
+                      "startAt": "2026-04-03T08:00:00.000Z",
+                      "durationMin": 25,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-1-1",
+                      "startAt": "2026-04-03T18:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-04",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+                      "kind": "time_event",
+                      "title": "Mise en place y tecnica base",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.875Z",
+                      "updatedAt": "2026-03-30T11:11:10.875Z",
+                      "startAt": "2026-04-04T08:30:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+                      "kind": "time_event",
+                      "title": "Emplatado, cata y ajuste de sabor",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-04T17:30:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+                      "kind": "time_event",
+                      "title": "Mise en place y tecnica base",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-04T19:00:00.000Z",
+                      "durationMin": 20,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+                      "kind": "time_event",
+                      "title": "Salsas base italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-04T19:30:00.000Z",
+                      "durationMin": 35,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-2-1",
+                      "startAt": "2026-04-04T20:05:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-05",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+                      "kind": "time_event",
+                      "title": "Estudiar una referencia concreta de cocina italiana",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.875Z",
+                      "updatedAt": "2026-03-30T11:11:10.875Z",
+                      "startAt": "2026-04-05T08:00:00.000Z",
+                      "durationMin": 25,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+                      "kind": "time_event",
+                      "title": "Salsas base italianas",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T11:11:10.876Z",
+                      "updatedAt": "2026-03-30T11:11:10.876Z",
+                      "startAt": "2026-04-05T19:00:00.000Z",
+                      "durationMin": 35,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-3-1",
+                      "startAt": "2026-04-05T19:35:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-06",
+                  "scheduledEvents": [],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-4-1",
+                      "startAt": "2026-04-06T18:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-07",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-08",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-09",
+                  "scheduledEvents": [],
+                  "buffers": []
+                }
+              ],
+              "totalBufferMin": 120
+            }
+          },
+          "items": [
+            {
+              "id": "act-italian_pasta-uds5vnm_s86_9c9f59e2",
+              "kind": "time_event",
+              "title": "Practica de pastas italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-03-31T19:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z"
+            },
+            {
+              "id": "act-italian_plating-0elp3g9_s139_f6b2c52c",
+              "kind": "time_event",
+              "title": "Emplatado, cata y ajuste de sabor",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-01T21:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z"
+            },
+            {
+              "id": "act-italian_pasta-uds5vnm_s182_5ffb46c6",
+              "kind": "time_event",
+              "title": "Practica de pastas italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-02T19:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z"
+            },
+            {
+              "id": "act-italian_reading-xirn0vn_s208_b3fa9ffd",
+              "kind": "time_event",
+              "title": "Estudiar una referencia concreta de cocina italiana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-03T08:00:00.000Z",
+              "durationMin": 25,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z"
+            },
+            {
+              "id": "act-italian_mise_en_place-dxdacjl_s257_917618e1",
+              "kind": "time_event",
+              "title": "Mise en place y tecnica base",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T08:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z"
+            },
+            {
+              "id": "act-italian_plating-0elp3g9_s275_2e1b670e",
+              "kind": "time_event",
+              "title": "Emplatado, cata y ajuste de sabor",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T17:30:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z"
+            },
+            {
+              "id": "act-italian_mise_en_place-dxdacjl_s278_6561a77e",
+              "kind": "time_event",
+              "title": "Mise en place y tecnica base",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T19:00:00.000Z",
+              "durationMin": 20,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z"
+            },
+            {
+              "id": "act-italian_sauces-3nu98o1_s279_6f27b7a7",
+              "kind": "time_event",
+              "title": "Salsas base italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T19:30:00.000Z",
+              "durationMin": 35,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z"
+            },
+            {
+              "id": "act-italian_reading-xirn0vn_s304_3878af4d",
+              "kind": "time_event",
+              "title": "Estudiar una referencia concreta de cocina italiana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-05T08:00:00.000Z",
+              "durationMin": 25,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z"
+            },
+            {
+              "id": "act-italian_sauces-3nu98o1_s326_7bbafc1f",
+              "kind": "time_event",
+              "title": "Salsas base italianas",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-05T19:00:00.000Z",
+              "durationMin": 35,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T11:11:10.876Z",
+              "updatedAt": "2026-03-30T11:11:10.876Z"
+            },
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Completar una rutina base estable de pastas italianas con pasta al pomodoro",
+              "notes": "Construir una base repetible de pastas italianas. Tomar pasta al pomodoro como referencia concreta del repertorio. Fijar mise en place, punto de coccion y tecnica base alrededor de pasta al pomodoro. Partir desde he seguido algunas recetas simples pero sin mucha práctica sin reiniciar artificialmente.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-05-08",
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Resolver cacio e pepe y aglio e olio sin depender del paso a paso",
+              "notes": "Tomar cacio e pepe y aglio e olio como referencia concreta del repertorio. Repetir cacio e pepe y aglio e olio hasta que deje de depender del paso a paso. Priorizar he seguido algunas recetas simples pero sin mucha práctica dentro del repertorio principal.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-06-05",
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Preparar un menu corto de pastas italianas con calidad consistente y referencias concretas",
+              "notes": "Cerrar el horizonte con un menu corto que combine pasta al pomodoro y cacio e pepe. El horizonte de trabajo queda en 3 meses y no en una improvisacion corta. Mantener pastas como eje y no como detalle secundario.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-06-26",
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z"
+            },
+            {
+              "id": "metric-plan-quality",
+              "kind": "metric",
+              "title": "Calidad del plan",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "plan_quality_score",
+              "unit": "puntos",
+              "direction": "increase",
+              "target": {
+                "targetValue": 100
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "last"
+              },
+              "series": [
+                {
+                  "at": "2026-03-30T11:11:10.875Z",
+                  "value": 100
+                }
+              ],
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z"
+            },
+            {
+              "id": "metric-sessions-week",
+              "kind": "metric",
+              "title": "Sesiones completables por semana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "scheduled_sessions_per_week",
+              "unit": "sesiones",
+              "direction": "increase",
+              "target": {
+                "targetValue": 10
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "count"
+              },
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z"
+            },
+            {
+              "id": "trigger-low-adherence",
+              "kind": "trigger_rule",
+              "title": "Revisar plan si baja la adherencia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "enabled": true,
+              "conditions": [
+                {
+                  "left": {
+                    "type": "metric",
+                    "ref": "plan_quality_score"
+                  },
+                  "op": "lt",
+                  "right": {
+                    "value": 70
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "type": "create_task",
+                  "payload": {
+                    "title": "Revisar y reajustar el plan",
+                    "estimateMin": 30
+                  }
+                }
+              ],
+              "throttle": {
+                "minHoursBetweenRuns": 168
+              },
+              "createdAt": "2026-03-30T11:11:10.875Z",
+              "updatedAt": "2026-03-30T11:11:10.875Z"
+            }
+          ],
+          "habitStates": [
+            {
+              "progressionKey": "generated-goal",
+              "weeksActive": 0,
+              "level": 0,
+              "currentDose": {
+                "sessionsPerWeek": 10,
+                "minimumViable": {
+                  "minutes": 10,
+                  "description": "Version minima de Emplatado, cata y ajuste de sabor"
+                }
+              },
+              "protectedFromReset": false
+            }
+          ],
+          "slackPolicy": {
+            "weeklyTimeBufferMin": 120,
+            "maxChurnMovesPerWeek": 3,
+            "frozenHorizonDays": 2
+          },
+          "timezone": "UTC",
+          "summary_esAR": "Este plan convierte \"Quiero aprender cocina italiana, especialmente pastas y salsas, y poder cocinar un menu simple en 3 meses.\" en 10 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 12 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "qualityScore": 60,
+          "implementationIntentions": [
+            "Si llega martes a las 19:00, entonces hago Practica de pastas italianas durante 45 minutos.",
+            "Si llega miércoles a las 21:30, entonces hago Emplatado, cata y ajuste de sabor durante 20 minutos.",
+            "Si llega jueves a las 19:00, entonces hago Practica de pastas italianas durante 45 minutos.",
+            "Si llega viernes a las 08:00, entonces hago Estudiar una referencia concreta de cocina italiana durante 25 minutos."
+          ],
+          "warnings": [
+            "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+          ],
+          "tradeoffs": [],
+          "publicationState": "publishable",
+          "qualityIssues": [],
+          "requestDomain": "cocina-italiana",
+          "packageDomain": "cocina-italiana",
+          "intakeCoverage": {
+            "requiredSignals": [],
+            "missingSignals": [],
+            "signalUsage": []
+          },
+          "degraded": true,
+          "reasoningTrace": [
+            {
+              "phase": "interpret",
+              "agent": "goal-interpreter",
+              "iteration": 1,
+              "action": "Executed interpret",
+              "reasoning": "Phase completed",
+              "result": "Goal: Aprender cocina italiana, con énfasis en pastas y salsas, para preparar un menú sencillo en tres meses., confidence: 0.83",
+              "tokensUsed": 32,
+              "timestamp": "2026-03-30T11:07:51.396Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 2,
+              "action": "Executed clarify",
+              "reasoning": "Falta conocer tu punto de partida culinario para ajustar el plan a tu nivel actual.",
+              "result": "1 questions pending (confidence: 0.41)",
+              "tokensUsed": 10,
+              "timestamp": "2026-03-30T11:07:57.809Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 3,
+              "action": "Executed clarify",
+              "reasoning": "Se cuenta con las señales críticas necesarias para planificar.",
+              "result": "Ready to advance (confidence: 0.72)",
+              "tokensUsed": 9,
+              "timestamp": "2026-03-30T11:10:53.934Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 4,
+              "action": "FALLBACK: planner",
+              "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+              "result": "Using fallback strategic draft - NOT from LLM",
+              "tokensUsed": 12,
+              "timestamp": "2026-03-30T11:11:10.722Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 4,
+              "action": "Executed plan",
+              "reasoning": "Phase completed",
+              "result": "3 phases generated",
+              "tokensUsed": 5,
+              "timestamp": "2026-03-30T11:11:10.722Z"
+            },
+            {
+              "phase": "check",
+              "agent": "feasibility-checker",
+              "iteration": 5,
+              "action": "Executed check",
+              "reasoning": "Status: feasible",
+              "result": "Feasibility: feasible",
+              "tokensUsed": 6,
+              "timestamp": "2026-03-30T11:11:10.723Z"
+            },
+            {
+              "phase": "schedule",
+              "agent": "scheduler",
+              "iteration": 6,
+              "action": "Executed schedule",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T11:11:10.876Z"
+            },
+            {
+              "phase": "critique",
+              "agent": "critic",
+              "iteration": 7,
+              "action": "Executed critique",
+              "reasoning": "El plan respeta la meta y el cronograma y propone una progresión razonable de técnicas de pasta, pero carece de hitos cuantificables y de la estructura de referencia y cata indicada en las mejores prácticas de cocina italiana. Ajustar estos puntos mejoraría el control del progreso y la calidad final.",
+              "result": "Score: 80, verdict: approve",
+              "tokensUsed": 7,
+              "timestamp": "2026-03-30T11:11:29.020Z"
+            },
+            {
+              "phase": "package",
+              "agent": "packager",
+              "iteration": 8,
+              "action": "Executed package",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T11:11:29.033Z"
+            }
+          ],
+          "agentOutcomes": [
+            {
+              "agent": "goal-interpreter",
+              "phase": "interpret",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 2371
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 6411
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 1707
+            },
+            {
+              "agent": "domain-expert",
+              "phase": "plan",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 2594
+            },
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "source": "fallback",
+              "errorCode": "Error",
+              "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+              "durationMs": 14192
+            },
+            {
+              "agent": "feasibility-checker",
+              "phase": "check",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 1
+            },
+            {
+              "agent": "scheduler",
+              "phase": "schedule",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 153
+            },
+            {
+              "agent": "critic",
+              "phase": "critique",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 18143
+            },
+            {
+              "agent": "packager",
+              "phase": "package",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 12
+            }
+          ]
+        },
+        "reasoningTrace": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Aprender cocina italiana, con énfasis en pastas y salsas, para preparar un menú sencillo en tres meses., confidence: 0.83",
+            "tokensUsed": 32,
+            "timestamp": "2026-03-30T11:07:51.396Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Falta conocer tu punto de partida culinario para ajustar el plan a tu nivel actual.",
+            "result": "1 questions pending (confidence: 0.41)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T11:07:57.809Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "Se cuenta con las señales críticas necesarias para planificar.",
+            "result": "Ready to advance (confidence: 0.72)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T11:10:53.934Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "FALLBACK: planner",
+            "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "result": "Using fallback strategic draft - NOT from LLM",
+            "tokensUsed": 12,
+            "timestamp": "2026-03-30T11:11:10.722Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T11:11:10.722Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T11:11:10.723Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T11:11:10.876Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "El plan respeta la meta y el cronograma y propone una progresión razonable de técnicas de pasta, pero carece de hitos cuantificables y de la estructura de referencia y cata indicada en las mejores prácticas de cocina italiana. Ajustar estos puntos mejoraría el control del progreso y la calidad final.",
+            "result": "Score: 80, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T11:11:29.020Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 8,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T11:11:29.033Z"
+          }
+        ],
+        "scratchpad": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Aprender cocina italiana, con énfasis en pastas y salsas, para preparar un menú sencillo en tres meses., confidence: 0.83",
+            "tokensUsed": 32,
+            "timestamp": "2026-03-30T11:07:51.396Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Falta conocer tu punto de partida culinario para ajustar el plan a tu nivel actual.",
+            "result": "1 questions pending (confidence: 0.41)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T11:07:57.809Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "Se cuenta con las señales críticas necesarias para planificar.",
+            "result": "Ready to advance (confidence: 0.72)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T11:10:53.934Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "FALLBACK: planner",
+            "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "result": "Using fallback strategic draft - NOT from LLM",
+            "tokensUsed": 12,
+            "timestamp": "2026-03-30T11:11:10.722Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T11:11:10.722Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T11:11:10.723Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T11:11:10.876Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "El plan respeta la meta y el cronograma y propone una progresión razonable de técnicas de pasta, pero carece de hitos cuantificables y de la estructura de referencia y cata indicada en las mejores prácticas de cocina italiana. Ajustar estos puntos mejoraría el control del progreso y la calidad final.",
+            "result": "Score: 80, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T11:11:29.020Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 8,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T11:11:29.033Z"
+          }
+        ],
+        "degraded": true,
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 2371
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 6411
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1707
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 2594
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "fallback",
+            "errorCode": "Error",
+            "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "durationMs": 14192
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 153
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 18143
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 12
+          }
+        ]
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-081051-resume-897f181f-e03c-40b7-a6a6-d97037c36a94.json"
+}

@@ -37,7 +37,7 @@ export interface StrategyPromptInput {
   revisionContext?: string;
 }
 
-const METRIC_REFERENCE_PATTERN = /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i;
+const METRIC_REFERENCE_PATTERN = /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|ars|ar\$|peso(?:s)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i;
 const HORIZON_REFERENCE_PATTERNS = [
   /\b\d+\s*(?:a[nñ]o|a[nñ]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i,
   /\b(?:medio ano|medio a[nñ]o|half year|one year|a year|fin de ano|fin de a[nñ]o)\b/i,
@@ -491,6 +491,9 @@ Paso 0 - GATE DE INVARIANTES: comprueba que sigues respondiendo a la misma meta 
 Paso 1 - DESCOMPOSICION: Divide el objetivo en 3-6 fases distintas. Cada fase debe tener un enfoque claro, una salida observable y un criterio de salida medible.
 
 Paso 2 - SECUENCIACION: Ordena las fases considerando dependencias y motivacion. Pon las fases de fundamentos reales primero. Coloca las fases mas dificiles despues de que el usuario haya ganado impulso.
+Regla critica: el runtime materializa estas fases en SECUENCIA. No disenes fases que solo funcionen si se superponen o corren en paralelo.
+Si un hito exige repeticiones mensuales (por ejemplo, transferencias o ahorros consecutivos), la fase que las contiene debe durar lo suficiente para esas repeticiones dentro del horizonte real. No prometas "6 transferencias" si despues de la puesta en marcha solo quedan 4 o 5 meses efectivos.
+Si la revision final ocurre en el mismo ultimo mes, integrala en la fase de cierre o recorta el alcance. No dependas de una superposicion que el pipeline no representa.
 
 Paso 3 - ASIGNACION DE TIEMPO: Para cada fase, estima las horas/semana necesarias. El total de fases superpuestas no debe exceder ${totalAvailableHours}h/semana. ${timeStepOverflow}
 

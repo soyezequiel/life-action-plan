@@ -48,7 +48,7 @@ describe('operation charging domain', () => {
   it('no marca gratis un build local solo por el nombre del modelo', () => {
     const result = quoteOperationCharge({
       operation: 'plan_build',
-      model: 'ollama:qwen3:8b'
+      model: 'openai:gpt-4o-mini'
     })
 
     expect(result.chargeable).toBe(true)

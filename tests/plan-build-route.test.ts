@@ -4,7 +4,6 @@ const mocks = vi.hoisted(() => ({
   resolveUserIdMock: vi.fn(() => 'local-user'),
   resolvePlanBuildExecutionMock: vi.fn(),
   getDeploymentModeMock: vi.fn(() => 'local'),
-  resolveBuildModelMock: vi.fn(() => 'openai:gpt-5-codex'),
   createBuildAgentRuntimeMock: vi.fn(),
   getProfileMock: vi.fn(),
   parseStoredProfileMock: vi.fn(),
@@ -57,10 +56,6 @@ vi.mock('../src/lib/runtime/build-execution', () => ({
 
 vi.mock('../src/lib/env/deployment', () => ({
   getDeploymentMode: mocks.getDeploymentModeMock,
-}))
-
-vi.mock('../src/lib/providers/provider-metadata', () => ({
-  resolveBuildModel: mocks.resolveBuildModelMock,
 }))
 
 vi.mock('../src/lib/runtime/build-agent-runtime', () => ({
@@ -134,7 +129,6 @@ describe('plan build route failure surfacing', () => {
 
     mocks.resolveUserIdMock.mockReturnValue('local-user')
     mocks.getDeploymentModeMock.mockReturnValue('local')
-    mocks.resolveBuildModelMock.mockReturnValue('openai:gpt-5-codex')
     mocks.getProfileMock.mockResolvedValue({
       id: 'profile-1',
       data: '{}',
@@ -185,16 +179,30 @@ describe('plan build route failure surfacing', () => {
       newContext: vi.fn(),
     })
     mocks.resolvePlanBuildExecutionMock.mockResolvedValue({
+      requestedModelId: 'openai:gpt-5-codex',
       executionContext: {
         canExecute: true,
         mode: 'codex-cloud',
         resourceOwner: 'backend',
+        resolutionSource: 'requested-mode',
+        blockReasonCode: null,
+        blockReasonDetail: null,
+        provider: {
+          providerId: 'openai',
+          modelId: 'openai:gpt-5-codex',
+          providerKind: 'cloud',
+        },
       },
       runtime: {
         modelId: 'openai:gpt-5-codex',
         apiKey: 'chatgpt-oauth',
         baseURL: 'https://chatgpt.com/backend-api/codex',
         authMode: 'codex-oauth',
+      },
+      billingPolicy: {
+        chargeable: false,
+        skipReasonCode: 'internal_tooling',
+        skipReasonDetail: 'INTERNAL_TOOLING_MODE',
       },
     })
     mocks.runMock.mockResolvedValue({
@@ -317,7 +325,6 @@ describe('plan build route failure surfacing', () => {
     expect(mocks.resolveUserIdMock).toHaveBeenCalled()
     expect(mocks.getProfileMock).toHaveBeenCalled()
     expect(mocks.parseStoredProfileMock).toHaveBeenCalled()
-    expect(mocks.resolveBuildModelMock).toHaveBeenCalled()
     expect(mocks.getDeploymentModeMock).toHaveBeenCalled()
     expect(mocks.resolvePlanBuildExecutionMock).toHaveBeenCalled()
     const blockedPayload = payloads.find((payload) => payload.type === 'v6:blocked')
@@ -366,6 +373,97 @@ describe('plan build route failure surfacing', () => {
         failureCode: 'failed_for_quality_review',
       }))
     }
+  })
+
+  it('returns explicit provider diagnostics when the provider cannot execute', async () => {
+    mocks.resolvePlanBuildExecutionMock.mockResolvedValueOnce({
+      requestedModelId: 'openai:gpt-4o-mini',
+      executionContext: {
+        canExecute: false,
+        mode: 'user-cloud',
+        resourceOwner: 'user',
+        resolutionSource: 'requested-mode',
+        blockReasonCode: 'unsupported_provider',
+        blockReasonDetail: 'Model openai:gpt-4o-mini is not supported by the execution resolver.',
+        provider: {
+          providerId: 'unknown',
+          modelId: 'openai:gpt-4o-mini',
+          providerKind: 'cloud',
+        },
+      },
+      runtime: null,
+      billingPolicy: {
+        chargeable: false,
+        skipReasonCode: 'execution_blocked',
+        skipReasonDetail: 'Model openai:gpt-4o-mini is not supported by the execution resolver.',
+      },
+    })
+
+    const response = await POST(new Request('http://localhost/api/plan/build', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        goalText: 'Quiero aprender a cocinar platos italianos',
+        profileId: 'c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        provider: 'openai',
+      }),
+    }))
+
+    const payloads = extractSsePayloads(await response.text())
+    const providerPayload = payloads.find((payload) => payload.type === 'v6:provider')
+    const resultPayload = payloads.find((payload) => payload.type === 'result')
+
+    expect(providerPayload).toEqual(expect.objectContaining({
+      type: 'v6:provider',
+      data: expect.objectContaining({
+        requestedProvider: 'openai',
+        resolvedModelId: 'openai:gpt-4o-mini',
+        canExecute: false,
+        blockReasonCode: 'unsupported_provider',
+      }),
+    }))
+    expect(resultPayload?.result).toEqual(expect.objectContaining({
+      success: false,
+      providerErrorCode: 'provider_not_supported',
+      providerTrace: expect.objectContaining({
+        requestedProvider: 'openai',
+        resolvedModelId: 'openai:gpt-4o-mini',
+      }),
+      error: expect.stringContaining('provider_not_supported'),
+    }))
+    expect(mocks.createBuildAgentRuntimeMock).not.toHaveBeenCalled()
+  })
+
+  it('normalizes gpt-5-codex requests into the codex oauth path even without resourceMode', async () => {
+    const response = await POST(new Request('http://localhost/api/plan/build', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        goalText: 'Quiero aprender a cocinar platos italianos',
+        profileId: 'c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        provider: 'openai:gpt-5-codex',
+      }),
+    }))
+
+    const payloads = extractSsePayloads(await response.text())
+    const providerPayload = payloads.find((payload) => payload.type === 'v6:provider')
+
+    expect(mocks.resolvePlanBuildExecutionMock).toHaveBeenCalledWith(expect.objectContaining({
+      modelId: 'openai:gpt-5-codex',
+      requestedMode: 'codex-cloud',
+    }))
+    expect(providerPayload).toEqual(expect.objectContaining({
+      type: 'v6:provider',
+      data: expect.objectContaining({
+        requestedProvider: 'codex',
+        executionMode: 'codex-cloud',
+        authMode: 'codex-oauth',
+      }),
+    }))
   })
 
   it('emits structured debug events when the request enables debug mode', async () => {

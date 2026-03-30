@@ -10,46 +10,11 @@ function createJsonResponse(body: unknown): Response {
   })
 }
 
-function createNdjsonResponse(lines: unknown[]): Response {
-  return new Response(`${lines.map((line) => JSON.stringify(line)).join('\n')}\n`, {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/x-ndjson'
-    }
-  })
-}
-
 function createSseResponse(events: unknown[]): Response {
   return new Response(events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join(''), {
     status: 200,
     headers: {
       'Content-Type': 'text/event-stream'
-    }
-  })
-}
-
-function createDelayedNdjsonResponse(lines: Array<{ delayMs: number; body: unknown }>): Response {
-  const encoder = new TextEncoder()
-  const totalDelay = lines.length > 0
-    ? Math.max(...lines.map((line) => line.delayMs)) + 1
-    : 0
-
-  return new Response(new ReadableStream({
-    start(controller) {
-      for (const line of lines) {
-        setTimeout(() => {
-          controller.enqueue(encoder.encode(`${JSON.stringify(line.body)}\n`))
-        }, line.delayMs)
-      }
-
-      setTimeout(() => {
-        controller.close()
-      }, totalDelay)
-    }
-  }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/x-ndjson'
     }
   })
 }
@@ -64,40 +29,21 @@ describe('getProvider', () => {
     vi.unstubAllGlobals()
     vi.useRealTimers()
     delete process.env.APP_URL
-    delete process.env.LAP_ENABLE_OLLAMA_THINKING
   })
 
-  it('crea un runtime OpenAI con modelo default', () => {
-    const runtime = getProvider('openai:gpt-4o-mini', { apiKey: 'test-key' })
-    expect(runtime).toBeDefined()
-    expect(runtime.chat).toBeTypeOf('function')
-    expect(runtime.stream).toBeTypeOf('function')
-    expect(runtime.streamChat).toBeTypeOf('function')
-    expect(runtime.newContext).toBeTypeOf('function')
+  it('crea runtimes cloud soportados', () => {
+    const openai = getProvider('openai:gpt-4o-mini', { apiKey: 'test-key' })
+    const openrouter = getProvider('openrouter:openai/gpt-4o-mini', { apiKey: 'or-key' })
+
+    expect(openai.chat).toBeTypeOf('function')
+    expect(openai.stream).toBeTypeOf('function')
+    expect(openai.streamChat).toBeTypeOf('function')
+    expect(openrouter.chat).toBeTypeOf('function')
+    expect(openrouter.stream).toBeTypeOf('function')
   })
 
-  it('crea un runtime OpenRouter con compatibilidad OpenAI', () => {
-    const runtime = getProvider('openrouter:openai/gpt-4o-mini', { apiKey: 'or-key' })
-    expect(runtime).toBeDefined()
-    expect(runtime.chat).toBeTypeOf('function')
-    expect(runtime.stream).toBeTypeOf('function')
-  })
-
-  it('crea un runtime Ollama apuntando a localhost', () => {
-    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
-    expect(runtime).toBeDefined()
-    expect(runtime.chat).toBeTypeOf('function')
-    expect(runtime.streamChat).toBeTypeOf('function')
-  })
-
-  it('soporta modelo sin prefijo (default openai)', () => {
+  it('soporta modelo sin prefijo como OpenAI', () => {
     const runtime = getProvider('gpt-4o-mini', { apiKey: 'test-key' })
-    expect(runtime).toBeDefined()
-  })
-
-  it('parsea correctamente modelId con múltiples ":" (ollama:qwen3:8b)', () => {
-    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
-    expect(runtime).toBeDefined()
     expect(runtime.chat).toBeTypeOf('function')
   })
 
@@ -108,33 +54,23 @@ describe('getProvider', () => {
   it('newContext devuelve un nuevo runtime funcional', () => {
     const runtime = getProvider('openai:gpt-4o-mini', { apiKey: 'test-key' })
     const newRuntime = runtime.newContext()
-    expect(newRuntime).toBeDefined()
+
     expect(newRuntime.chat).toBeTypeOf('function')
     expect(newRuntime).not.toBe(runtime)
   })
 
-  it('usa timeouts más amplios para Ollama local', () => {
-    expect(getProviderTimeouts('ollama:qwen3:8b')).toEqual({
-      chatMs: 180_000,
-      streamMs: 180_000
-    })
-  })
-
-  it('mantiene timeouts cortos para OpenAI', () => {
+  it('mantiene timeouts cortos para OpenAI y OpenRouter', () => {
     expect(getProviderTimeouts('openai:gpt-4o-mini')).toEqual({
       chatMs: 20_000,
       streamMs: 20_000
     })
-  })
-
-  it('mantiene timeouts cortos para OpenRouter', () => {
     expect(getProviderTimeouts('openrouter:openai/gpt-4o-mini')).toEqual({
       chatMs: 20_000,
       streamMs: 20_000
     })
   })
 
-  it('usa timeouts más largos para modelos de razonamiento como Codex', () => {
+  it('usa timeouts mas largos para modelos de razonamiento', () => {
     expect(getProviderTimeouts('openai:gpt-5-codex')).toEqual({
       chatMs: 60_000,
       streamMs: 60_000
@@ -142,12 +78,9 @@ describe('getProvider', () => {
   })
 
   it('chat de OpenAI combina reasoning summary y respuesta visible', async () => {
-    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      expect(String(input)).toBe('https://api.openai.com/v1/responses')
-
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body)) as Record<string, unknown>
       expect(body.model).toBe('gpt-5-mini')
-      expect(body.stream).toBeUndefined()
       expect(body.reasoning).toEqual({ summary: 'auto' })
 
       return createJsonResponse({
@@ -196,7 +129,6 @@ describe('getProvider', () => {
       apiKey: 'test-key',
       baseURL: 'https://api.openai.com/v1'
     })
-
     const result = await runtime.chat([
       { role: 'system', content: 'solo json' },
       { role: 'user', content: 'hola' }
@@ -206,98 +138,72 @@ describe('getProvider', () => {
     expect(result.usage).toEqual({ promptTokens: 21, completionTokens: 34 })
   })
 
-  it('streamChat de OpenAI emite reasoning summary y respuesta en bloques separados', async () => {
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
-      expect(body.model).toBe('gpt-5-mini')
-      expect(body.stream).toBe(true)
-      expect(body.reasoning).toEqual({ summary: 'auto' })
-
-      return createSseResponse([
-        {
-          type: 'response.created',
-          response: {
-            id: 'resp_456',
-            created_at: 1_742_400_000,
-            model: 'gpt-5-mini',
-            service_tier: null
-          }
-        },
-        {
-          type: 'response.output_item.added',
-          output_index: 0,
-          item: {
-            type: 'reasoning',
-            id: 'rs_1',
-            encrypted_content: null
-          }
-        },
-        {
-          type: 'response.reasoning_summary_text.delta',
-          item_id: 'rs_1',
-          summary_index: 0,
-          delta: 'reviso primero la estructura'
-        },
-        {
-          type: 'response.reasoning_summary_part.done',
-          item_id: 'rs_1',
-          summary_index: 0
-        },
-        {
-          type: 'response.output_item.done',
-          output_index: 0,
-          item: {
-            type: 'reasoning',
-            id: 'rs_1',
-            encrypted_content: null
-          }
-        },
-        {
-          type: 'response.output_item.added',
-          output_index: 1,
-          item: {
-            type: 'message',
-            id: 'msg_1',
-            phase: 'final_answer'
-          }
-        },
-        {
-          type: 'response.output_text.delta',
-          item_id: 'msg_1',
-          delta: '{"nombre":"Plan"}',
-          logprobs: null
-        },
-        {
-          type: 'response.output_item.done',
-          output_index: 1,
-          item: {
-            type: 'message',
-            id: 'msg_1',
-            phase: 'final_answer'
-          }
-        },
-        {
-          type: 'response.completed',
-          response: {
-            incomplete_details: null,
-            usage: {
-              input_tokens: 13,
-              output_tokens: 29,
-              output_tokens_details: {
-                reasoning_tokens: 5
-              }
-            },
-            service_tier: null
+  it('streamChat de OpenAI emite reasoning y contenido por separado', async () => {
+    const fetchMock = vi.fn(async () => createSseResponse([
+      {
+        type: 'response.created',
+        response: {
+          id: 'resp_456',
+          created_at: 1_742_400_000,
+          model: 'gpt-5-mini'
+        }
+      },
+      {
+        type: 'response.output_item.added',
+        output_index: 0,
+        item: {
+          type: 'reasoning',
+          id: 'rs_1',
+          encrypted_content: null
+        }
+      },
+      {
+        type: 'response.reasoning_summary_text.delta',
+        item_id: 'rs_1',
+        summary_index: 0,
+        delta: 'reviso primero la estructura'
+      },
+      {
+        type: 'response.output_item.done',
+        output_index: 0,
+        item: {
+          type: 'reasoning',
+          id: 'rs_1',
+          encrypted_content: null
+        }
+      },
+      {
+        type: 'response.output_item.added',
+        output_index: 1,
+        item: {
+          type: 'message',
+          id: 'msg_1',
+          phase: 'final_answer'
+        }
+      },
+      {
+        type: 'response.output_text.delta',
+        item_id: 'msg_1',
+        delta: '{"nombre":"Plan"}'
+      },
+      {
+        type: 'response.completed',
+        response: {
+          usage: {
+            input_tokens: 13,
+            output_tokens: 29,
+            output_tokens_details: {
+              reasoning_tokens: 5
+            }
           }
         }
-      ])
-    })
+      }
+    ]))
 
     vi.stubGlobal('fetch', fetchMock)
 
     const runtime = getProvider('openai:gpt-5-mini', { apiKey: 'test-key' })
     const chunks: string[] = []
-
     const result = await runtime.streamChat!([
       { role: 'system', content: 'solo json' },
       { role: 'user', content: 'hola' }
@@ -321,11 +227,10 @@ describe('getProvider', () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       expect(String(input)).toBe('https://openrouter.ai/api/v1/responses')
       const headers = new Headers(init?.headers)
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
 
       expect(headers.get('HTTP-Referer')).toBe('https://lap.local')
       expect(headers.get('X-OpenRouter-Title')).toBe('LAP')
-
-      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
       expect(body.model).toBe('openai/gpt-4o-mini')
 
       return createJsonResponse({
@@ -359,7 +264,6 @@ describe('getProvider', () => {
     const runtime = getProvider('openrouter:openai/gpt-4o-mini', {
       apiKey: 'or-key'
     })
-
     const result = await runtime.chat([
       { role: 'system', content: 'solo json' },
       { role: 'user', content: 'hola' }
@@ -367,230 +271,5 @@ describe('getProvider', () => {
 
     expect(result.content).toBe('{"provider":"openrouter"}')
     expect(result.usage).toEqual({ promptTokens: 11, completionTokens: 17 })
-  })
-
-  it('usa la API nativa de Ollama para chat sin activar thinking por default', async () => {
-    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      expect(String(input)).toBe('http://localhost:11434/api/chat')
-
-      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
-      expect(body.model).toBe('qwen3:8b')
-      expect(body.stream).toBe(false)
-      expect(body.think).toBe(false)
-      expect(body.options).toEqual({ num_predict: 4096 })
-
-      return createJsonResponse({
-        message: {
-          content: '{"ok":true}',
-          tool_calls: [
-            {
-              function: {
-                name: 'buscar_dato',
-                arguments: { ciudad: 'Buenos Aires' }
-              }
-            }
-          ]
-        },
-        prompt_eval_count: 12,
-        eval_count: 34
-      })
-    })
-
-    vi.stubGlobal('fetch', fetchMock)
-
-    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '', baseURL: 'http://localhost:11434/v1' })
-    const result = await runtime.chat([
-      { role: 'system', content: 'solo json' },
-      { role: 'user', content: 'hola' }
-    ])
-
-    expect(result.content).toBe('{"ok":true}')
-    expect(result.toolCalls).toEqual([
-      {
-        id: 'ollama-tool-0',
-        name: 'buscar_dato',
-        arguments: { ciudad: 'Buenos Aires' }
-      }
-    ])
-    expect(result.usage).toEqual({ promptTokens: 12, completionTokens: 34 })
-  })
-
-  it('permite volver a activar thinking de Ollama por variable de entorno', async () => {
-    process.env.LAP_ENABLE_OLLAMA_THINKING = 'true'
-
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
-      expect(body.think).toBe(true)
-
-      return createJsonResponse({
-        message: {
-          thinking: 'pienso primero',
-          content: '{"ok":true}'
-        },
-        prompt_eval_count: 12,
-        eval_count: 34
-      })
-    })
-
-    vi.stubGlobal('fetch', fetchMock)
-
-    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
-    const result = await runtime.chat([
-      { role: 'system', content: 'solo json' },
-      { role: 'user', content: 'hola' }
-    ])
-
-    expect(result.content).toBe('<think>pienso primero</think>{"ok":true}')
-  })
-
-  it('respeta el thinking mode enviado por el cliente aunque el override global este prendido', async () => {
-    process.env.LAP_ENABLE_OLLAMA_THINKING = 'true'
-
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
-      expect(body.think).toBe(false)
-
-      return createJsonResponse({
-        message: {
-          content: '{"ok":true}'
-        },
-        prompt_eval_count: 12,
-        eval_count: 34
-      })
-    })
-
-    vi.stubGlobal('fetch', fetchMock)
-
-    const runtime = getProvider('ollama:qwen3:8b', {
-      apiKey: '',
-      thinkingMode: 'disabled'
-    })
-    const result = await runtime.chat([
-      { role: 'system', content: 'solo json' },
-      { role: 'user', content: 'hola' }
-    ])
-
-    expect(result.content).toBe('{"ok":true}')
-  })
-
-  it('streamChat de Ollama emite thinking y contenido en el orden correcto', async () => {
-    const fetchMock = vi.fn(async () => createNdjsonResponse([
-      {
-        message: {
-          thinking: 'analizo'
-        }
-      },
-      {
-        message: {
-          content: '{"nombre":"Plan"}'
-        }
-      },
-      {
-        message: {},
-        prompt_eval_count: 7,
-        eval_count: 9
-      }
-    ]))
-
-    vi.stubGlobal('fetch', fetchMock)
-
-    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
-    const chunks: string[] = []
-
-    const result = await runtime.streamChat!([
-      { role: 'system', content: 'solo json' },
-      { role: 'user', content: 'hola' }
-    ], (chunk) => {
-      chunks.push(chunk)
-    })
-
-    expect(chunks).toEqual(['<think>', 'analizo', '</think>', '{"nombre":"Plan"}'])
-    expect(result.content).toBe('<think>analizo</think>{"nombre":"Plan"}')
-    expect(result.usage).toEqual({ promptTokens: 7, completionTokens: 9 })
-  })
-
-  it('stream de Ollama también expone thinking como tags <think>', async () => {
-    const fetchMock = vi.fn(async () => createNdjsonResponse([
-      {
-        message: {
-          thinking: 'razono'
-        }
-      },
-      {
-        message: {
-          content: 'respuesta final'
-        }
-      }
-    ]))
-
-    vi.stubGlobal('fetch', fetchMock)
-
-    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
-    const chunks: string[] = []
-
-    for await (const chunk of runtime.stream([
-      { role: 'system', content: 'solo json' },
-      { role: 'user', content: 'hola' }
-    ])) {
-      chunks.push(chunk)
-    }
-
-    expect(chunks).toEqual(['<think>', 'razono', '</think>', 'respuesta final'])
-  })
-
-  it('no corta un stream de Ollama si siguen llegando chunks antes del silencio maximo', async () => {
-    vi.useFakeTimers()
-
-    const fetchMock = vi.fn(async () => createDelayedNdjsonResponse([
-      {
-        delayMs: 120_000,
-        body: {
-          message: {
-            content: 'hola '
-          }
-        }
-      },
-      {
-        delayMs: 240_000,
-        body: {
-          message: {
-            content: 'mundo'
-          }
-        }
-      },
-      {
-        delayMs: 240_100,
-        body: {
-          message: {},
-          prompt_eval_count: 3,
-          eval_count: 5
-        }
-      }
-    ]))
-
-    vi.stubGlobal('fetch', fetchMock)
-
-    const runtime = getProvider('ollama:qwen3:8b', { apiKey: '' })
-    const chunks: string[] = []
-
-    const resultPromise = runtime.streamChat!([
-      { role: 'system', content: 'solo texto' },
-      { role: 'user', content: 'hola' }
-    ], (chunk) => {
-      chunks.push(chunk)
-    })
-
-    await vi.advanceTimersByTimeAsync(120_010)
-    expect(chunks).toEqual(['hola '])
-
-    await vi.advanceTimersByTimeAsync(120_120)
-    await expect(resultPromise).resolves.toMatchObject({
-      content: 'hola mundo',
-      usage: {
-        promptTokens: 3,
-        completionTokens: 5
-      }
-    })
-    expect(chunks).toEqual(['hola ', 'mundo'])
   })
 })

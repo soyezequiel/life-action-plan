@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T03:34:07.095Z",
+  "updatedAt": "2026-03-30T03:34:08.877Z",
+  "invocation": {
+    "goal": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": "failed",
+    "failureCode": null,
+    "sessionId": null,
+    "provider": "openrouter",
+    "modelId": null,
+    "status": "failed"
+  },
+  "pendingInput": null,
+  "finalPackage": null,
+  "finalResult": {
+    "success": false,
+    "error": "Provider error [provider_auth_failed]. La autenticacion del provider fallo o no esta lista para esta ruta. Raw: Missing Authentication header. Trace: requested=openrouter, provider=openrouter, model=openrouter:openai/gpt-4o-mini, mode=user-cloud, auth=unknown.",
+    "providerErrorCode": "provider_auth_failed",
+    "providerTrace": {
+      "requestedProvider": "openrouter",
+      "requestedMode": "auto",
+      "resolvedModelId": "openrouter:openai/gpt-4o-mini",
+      "providerId": "openrouter",
+      "executionMode": "user-cloud",
+      "resolutionSource": "auto-user-stored",
+      "authMode": "unknown",
+      "canExecute": true,
+      "blockReasonCode": null,
+      "blockReasonDetail": null
+    }
+  },
+  "latestDebugEvent": null,
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T03:34:07.095Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+        "resumeSession": null,
+        "explicitProvider": "openrouter",
+        "autoMode": true,
+        "pauseOnInput": false,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T03:34:07.098Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "openrouter",
+        "label": "openrouter",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-30T03:34:07.099Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "openrouter",
+        "goalText": "Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T03:34:08.876Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "openrouter",
+        "message": "Provider error [provider_auth_failed]. La autenticacion del provider fallo o no esta lista para esta ruta. Raw: Missing Authentication header. Trace: requested=openrouter, provider=openrouter, model=openrouter:openai/gpt-4o-mini, mode=user-cloud, auth=unknown.",
+        "failureCode": null,
+        "providerErrorCode": "provider_auth_failed"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T03:34:08.877Z",
+      "type": "cli.failed",
+      "data": {
+        "message": "Provider error [provider_auth_failed]. La autenticacion del provider fallo o no esta lista para esta ruta. Raw: Missing Authentication header. Trace: requested=openrouter, provider=openrouter, model=openrouter:openai/gpt-4o-mini, mode=user-cloud, auth=unknown.",
+        "failureCode": null,
+        "publicationState": "failed"
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T03:34:08.795Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "openrouter",
+        "requestedMode": "auto",
+        "resolvedModelId": "openrouter:openai/gpt-4o-mini",
+        "providerId": "openrouter",
+        "executionMode": "user-cloud",
+        "resolutionSource": "auto-user-stored",
+        "authMode": "unknown",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T03:34:08.875Z",
+      "type": "result",
+      "data": {
+        "type": "result",
+        "result": {
+          "success": false,
+          "error": "Provider error [provider_auth_failed]. La autenticacion del provider fallo o no esta lista para esta ruta. Raw: Missing Authentication header. Trace: requested=openrouter, provider=openrouter, model=openrouter:openai/gpt-4o-mini, mode=user-cloud, auth=unknown.",
+          "providerErrorCode": "provider_auth_failed",
+          "providerTrace": {
+            "requestedProvider": "openrouter",
+            "requestedMode": "auto",
+            "resolvedModelId": "openrouter:openai/gpt-4o-mini",
+            "providerId": "openrouter",
+            "executionMode": "user-cloud",
+            "resolutionSource": "auto-user-stored",
+            "authMode": "unknown",
+            "canExecute": true,
+            "blockReasonCode": null,
+            "blockReasonDetail": null
+          }
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-003407-quiero-ordenar-mis-finanzas-personales-y-empezar.json"
+}

@@ -104,9 +104,9 @@ describe('billing policy', () => {
         executionTarget: 'backend-local',
         credentialSource: 'none',
         provider: {
-          providerId: 'ollama',
-          modelId: 'ollama:qwen3:8b',
-          providerKind: 'local'
+          providerId: 'openai',
+          modelId: 'openai:gpt-4o-mini',
+          providerKind: 'cloud'
         },
         credentialId: null,
         resolutionSource: 'auto-backend-local'
@@ -165,9 +165,9 @@ describe('billing policy', () => {
         executionTarget: 'user-local',
         credentialSource: 'none',
         provider: {
-          providerId: 'ollama',
-          modelId: 'ollama:qwen3:8b',
-          providerKind: 'local'
+          providerId: 'openai',
+          modelId: 'openai:gpt-4o-mini',
+          providerKind: 'cloud'
         },
         chargePolicy: 'skip',
         chargeReason: 'user_resource',

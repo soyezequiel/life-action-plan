@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   canChargeOperationMock: vi.fn(),
   chargeOperationMock: vi.fn(),
   createInstrumentedRuntimeMock: vi.fn(() => ({})),
-  buildWithOllamaFallbackMock: vi.fn(),
+  buildWithFallbackMock: vi.fn(),
   generatePlanMock: vi.fn(),
   getProviderMock: vi.fn(() => ({})),
   recordChargeResultMock: vi.fn(),
@@ -44,8 +44,8 @@ vi.mock('../src/lib/runtime/build-execution', () => ({
 }))
 
 vi.mock('../src/utils/plan-build-fallback', () => ({
-  DEFAULT_OLLAMA_FALLBACK_MODEL: 'ollama:qwen3:8b',
-  buildWithOllamaFallback: mocks.buildWithOllamaFallbackMock
+  DEFAULT_FALLBACK_MODEL: 'openai:gpt-4o-mini',
+  buildWithFallback: mocks.buildWithFallbackMock
 }))
 
 vi.mock('../src/lib/payments/operation-charging', () => ({
@@ -282,7 +282,7 @@ describe('plan build charge route', () => {
 
     const result = extractResultPayload(await response.text())
 
-    expect(mocks.buildWithOllamaFallbackMock).not.toHaveBeenCalled()
+    expect(mocks.buildWithFallbackMock).not.toHaveBeenCalled()
     expect(result).toEqual(expect.objectContaining({
       success: false,
       error: 'Necesitas configurar tu conexion primero.',
@@ -346,7 +346,7 @@ describe('plan build charge route', () => {
       reasonDetail: 'RESOURCE_OWNER_USER',
       paymentProvider: null
     })
-    mocks.buildWithOllamaFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
+    mocks.buildWithFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
       fallbackUsed: false,
       modelId,
       result: await buildPlan(modelId)
@@ -491,7 +491,7 @@ describe('plan build charge route', () => {
       reasonDetail: 'INTERNAL_TOOLING_MODE',
       paymentProvider: null
     })
-    mocks.buildWithOllamaFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
+    mocks.buildWithFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
       fallbackUsed: false,
       modelId,
       result: await buildPlan(modelId)
@@ -592,7 +592,7 @@ describe('plan build charge route', () => {
       reasonDetail: null,
       paymentProvider: null
     })
-    mocks.buildWithOllamaFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
+    mocks.buildWithFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
       fallbackUsed: false,
       modelId,
       result: await buildPlan(modelId)
@@ -688,17 +688,17 @@ describe('plan build charge route', () => {
     }))
   })
 
-  it('cobra tambien cuando el build usa backend-local aunque el modelo sea local', async () => {
+  it('cobra tambien cuando el build usa backend-local aunque el modelo sea gratuito', async () => {
     mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution({
-      requestedModelId: 'ollama:qwen3:8b',
+      requestedModelId: 'openai:gpt-4o-mini',
       executionContext: {
         mode: 'backend-local',
         resourceOwner: 'backend',
         executionTarget: 'backend-local',
         credentialSource: 'none',
         provider: {
-          providerId: 'ollama',
-          modelId: 'ollama:qwen3:8b',
+          providerId: 'openai',
+          modelId: 'openai:gpt-4o-mini',
           providerKind: 'local'
         },
         chargePolicy: 'charge',
@@ -725,7 +725,7 @@ describe('plan build charge route', () => {
         skipReasonDetail: null
       },
       runtime: {
-        modelId: 'ollama:qwen3:8b',
+        modelId: 'openai:gpt-4o-mini',
         apiKey: '',
         baseURL: 'http://localhost:11434'
       }
@@ -752,7 +752,7 @@ describe('plan build charge route', () => {
       reasonDetail: null,
       paymentProvider: null
     })
-    mocks.buildWithOllamaFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
+    mocks.buildWithFallbackMock.mockImplementation(async (modelId, buildPlan) => ({
       fallbackUsed: false,
       modelId,
       result: await buildPlan(modelId)
@@ -810,14 +810,14 @@ describe('plan build charge route', () => {
     const response = await POST(new Request('http://localhost/api/plan/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: buildRequestBody({ provider: 'ollama:qwen3:8b', thinkingMode: 'enabled' })
+      body: buildRequestBody({ provider: 'openai:gpt-4o-mini', thinkingMode: 'enabled' })
     }))
 
     const result = extractResultPayload(await response.text())
 
     expect(mocks.canChargeOperationMock).toHaveBeenCalledWith({
       operation: 'plan_build',
-      model: 'ollama:qwen3:8b',
+      model: 'openai:gpt-4o-mini',
       userId: 'local-user',
       estimatedCostUsd: 0.005,
       estimatedCostSats: 5,
@@ -829,7 +829,7 @@ describe('plan build charge route', () => {
       userId: 'local-user',
       description: 'LAP plan build 11111111-1111-4111-8111-111111111111'
     })
-    expect(mocks.getProviderMock).toHaveBeenCalledWith('ollama:qwen3:8b', {
+    expect(mocks.getProviderMock).toHaveBeenCalledWith('openai:gpt-4o-mini', {
       apiKey: '',
       baseURL: 'http://localhost:11434',
       thinkingMode: 'enabled'
@@ -837,7 +837,7 @@ describe('plan build charge route', () => {
     expect(mocks.trackCostMock).toHaveBeenCalledWith(
       'plan-local-1',
       'plan_build',
-      'ollama:qwen3:8b',
+      'openai:gpt-4o-mini',
       450,
       900,
       'charge-local-1'
@@ -855,15 +855,15 @@ describe('plan build charge route', () => {
 
   it('bloquea de forma explicita un user-local que el backend no puede ejecutar', async () => {
     mocks.resolvePlanBuildExecutionMock.mockResolvedValue(makeExecutionResolution({
-      requestedModelId: 'ollama:qwen3:8b',
+      requestedModelId: 'openai:gpt-4o-mini',
       executionContext: {
         mode: 'user-local',
         resourceOwner: 'user',
         executionTarget: 'user-local',
         credentialSource: 'none',
         provider: {
-          providerId: 'ollama',
-          modelId: 'ollama:qwen3:8b',
+          providerId: 'openai',
+          modelId: 'openai:gpt-4o-mini',
           providerKind: 'local'
         },
         chargePolicy: 'skip',
@@ -911,12 +911,12 @@ describe('plan build charge route', () => {
     const response = await POST(new Request('http://localhost/api/plan/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: buildRequestBody({ provider: 'ollama:qwen3:8b' })
+      body: buildRequestBody({ provider: 'openai:gpt-4o-mini' })
     }))
 
     const result = extractResultPayload(await response.text())
 
-    expect(mocks.buildWithOllamaFallbackMock).not.toHaveBeenCalled()
+    expect(mocks.buildWithFallbackMock).not.toHaveBeenCalled()
     expect(mocks.chargeOperationMock).not.toHaveBeenCalled()
     expect(result).toEqual(expect.objectContaining({
       success: false,

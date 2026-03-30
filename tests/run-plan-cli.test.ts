@@ -477,15 +477,6 @@ async function startServer() {
             res.end(createUsageLimitBlockedResponseBody())
             return
           }
-          if (payload.provider === 'ollama') {
-            res.end(createCompleteResponseBody({
-              planId: 'plan-ollama-123',
-              score: 88,
-              iterations: 1,
-              degraded: false,
-            }))
-            return
-          }
         }
         if (payload.goalText === 'Objetivo debug completo') {
           res.end(createDebugCompleteResponseBody())
@@ -547,25 +538,6 @@ async function startServer() {
               agentOutcomes: [],
             },
             meta: { modelId: 'openai:gpt-5-codex' },
-          }))
-          return
-        }
-        if (parsedUrl.searchParams.get('planId') === 'plan-ollama-123') {
-          res.writeHead(200, { 'Content-Type': 'application/json' })
-          res.end(JSON.stringify({
-            ok: true,
-            data: {
-              items: [],
-              plan: {
-                title: 'Plan con fallback a ollama',
-                description: 'Plan generado tras usage limit en codex',
-                skeleton: { phases: [], milestones: [] },
-                detail: { weeks: [], scheduledEvents: [] },
-              },
-              degraded: false,
-              agentOutcomes: [],
-            },
-            meta: { modelId: 'ollama:llama3' },
           }))
           return
         }
@@ -654,7 +626,7 @@ describe('run-plan CLI failure surfacing', () => {
     expect(requests.some((request) => new URL(`http://127.0.0.1${request.url}`).pathname === '/api/plan/package')).toBe(false)
   })
 
-  it('falls back to ollama when codex hits a recoverable usage-limit failure', async () => {
+  it('fails fast without retrying another provider when the requested provider is blocked', async () => {
     const result = await new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
       const child = spawn(process.execPath, [
         runPlanScript,
@@ -689,20 +661,102 @@ describe('run-plan CLI failure surfacing', () => {
       })
     })
 
-    expect(result.status).toBe(0)
-    expect(result.stderr).toContain('Reintentando con Ollama (local)')
-    expect(result.stderr).toContain('Plan ID: plan-ollama-123')
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('requires_regeneration')
+    expect(result.stderr).not.toContain('Reintentando con')
+    expect(result.stderr).not.toContain('Plan ID: plan-ollama-123')
 
     const buildRequests = requests.filter((request) => new URL(`http://127.0.0.1${request.url}`).pathname === '/api/plan/build')
-    expect(buildRequests).toHaveLength(2)
+    expect(buildRequests).toHaveLength(1)
     expect(JSON.parse(buildRequests[0]?.body ?? '{}')).toMatchObject({
       goalText: 'Objetivo con usage limit',
+      provider: 'codex',
       resourceMode: 'codex',
     })
-    expect(JSON.parse(buildRequests[1]?.body ?? '{}')).toMatchObject({
-      goalText: 'Objetivo con usage limit',
-      provider: 'ollama',
+    expect(requests.some((request) => new URL(`http://127.0.0.1${request.url}`).pathname === '/api/plan/package')).toBe(false)
+  })
+
+  it('canonicalizes explicit gpt-5-codex provider requests to codex oauth before calling the API', async () => {
+    const result = await new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+      const child = spawn(process.execPath, [
+        runPlanScript,
+        'Objetivo con provider gpt-5-codex',
+        '--profile=c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        '--provider=openai:gpt-5-codex',
+        `--base=${baseUrl}`,
+      ], {
+        cwd: repoRoot,
+        env: {
+          ...process.env,
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+      })
+
+      let stdout = ''
+      let stderr = ''
+
+      child.stdout?.setEncoding('utf8')
+      child.stderr?.setEncoding('utf8')
+      child.stdout?.on('data', (chunk) => {
+        stdout += chunk
+      })
+      child.stderr?.on('data', (chunk) => {
+        stderr += chunk
+      })
+      child.on('error', reject)
+      child.on('close', (status) => {
+        resolve({ status, stdout, stderr })
+      })
     })
+
+    expect(result.status).toBe(1)
+    const buildRequest = requests.find((request) => new URL(`http://127.0.0.1${request.url}`).pathname === '/api/plan/build')
+    expect(buildRequest).toBeTruthy()
+    expect(JSON.parse(buildRequest?.body ?? '{}')).toMatchObject({
+      goalText: 'Objetivo con provider gpt-5-codex',
+      provider: 'codex',
+      resourceMode: 'codex',
+    })
+  })
+
+  it('rejects ollama as an explicit provider before calling the API', async () => {
+    const result = await new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+      const child = spawn(process.execPath, [
+        runPlanScript,
+        'Objetivo con provider invalido',
+        '--profile=c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        '--provider=ollama',
+        `--base=${baseUrl}`,
+      ], {
+        cwd: repoRoot,
+        env: {
+          ...process.env,
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+      })
+
+      let stdout = ''
+      let stderr = ''
+
+      child.stdout?.setEncoding('utf8')
+      child.stderr?.setEncoding('utf8')
+      child.stdout?.on('data', (chunk) => {
+        stdout += chunk
+      })
+      child.stderr?.on('data', (chunk) => {
+        stderr += chunk
+      })
+      child.on('error', reject)
+      child.on('close', (status) => {
+        resolve({ status, stdout, stderr })
+      })
+    })
+
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('Ollama fue removido del camino real')
+    expect(requests).toHaveLength(0)
   })
 
   it('resumes an interactive session with preloaded answers from --answers-json', async () => {

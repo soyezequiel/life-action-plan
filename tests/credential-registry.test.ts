@@ -120,7 +120,7 @@ describe('credential registry', () => {
         id: 'cred-2',
         owner: 'backend',
         ownerId: 'system',
-        providerId: 'ollama',
+        providerId: 'openai',
         secretType: 'custom',
         label: 'runtime',
         encryptedValue: encryptSecret('local-runtime'),
@@ -140,7 +140,7 @@ describe('credential registry', () => {
 
     expect(records).toHaveLength(1)
     expect(records[0]).toMatchObject({
-      providerId: 'ollama',
+      providerId: 'openai',
       status: 'inactive',
       metadata: JSON.stringify({ executionTarget: 'backend-local' })
     })

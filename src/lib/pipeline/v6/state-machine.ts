@@ -53,12 +53,8 @@ export function nextPhase(
       const hasPendingQuestions = (clarifyResult?.questions?.length ?? 0) > 0;
       const hasSufficientSignalsForPlanning = signalSnapshot?.hasSufficientSignalsForPlanning
         ?? (readyToAdvance && !hasPendingQuestions);
-      const clarificationMode = signalSnapshot?.clarificationMode ?? 'needs_input';
 
       if (hasSufficientSignalsForPlanning && readyToAdvance && !hasPendingQuestions) {
-        return 'plan';
-      }
-      if (clarificationMode === 'degraded_skip') {
         return 'plan';
       }
       if (state.clarifyRounds >= state.maxClarifyRounds && hasPendingQuestions) {

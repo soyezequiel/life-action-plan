@@ -105,7 +105,7 @@ function createBuildPreviewResponse(url: string): Response {
   const resourceMode = parsedUrl.searchParams.get('resourceMode')
   const hasUserApiKey = parsedUrl.searchParams.get('hasUserApiKey')
 
-  if (provider === 'ollama:qwen3:8b') {
+  if (provider === 'openrouter:openai/gpt-4o-mini') {
     return new Response(JSON.stringify({
       success: true,
       usage: {
@@ -122,8 +122,8 @@ function createBuildPreviewResponse(url: string): Response {
         canExecute: true,
         blockReasonCode: null,
         blockReasonDetail: null,
-        providerId: 'ollama',
-        modelId: 'ollama:qwen3:8b'
+        providerId: 'openrouter',
+        modelId: 'openrouter:openai/gpt-4o-mini'
       }
     }), {
       status: 200,
@@ -237,7 +237,7 @@ function createBuildPreviewResponse(url: string): Response {
 describe('settings page content', () => {
   beforeEach(() => {
     pushMock.mockReset()
-    searchParamsMock = new URLSearchParams('intent=build&provider=ollama')
+    searchParamsMock = new URLSearchParams('intent=build&provider=openrouter')
     window.localStorage.clear()
     fetchMock.mockReset()
     fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
@@ -345,9 +345,9 @@ describe('settings page content', () => {
               displayName: 'OpenRouter'
             },
             {
-              providerId: 'ollama',
-              modelId: 'ollama:qwen3:8b',
-              displayName: 'Ollama'
+              providerId: 'openrouter',
+              modelId: 'openrouter:openai/gpt-4o-mini',
+              displayName: 'OpenRouter'
             }
           ]
         }), {
@@ -374,13 +374,13 @@ describe('settings page content', () => {
 
     await screen.findByText(t('settings.llm_mode.title'))
     fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
-    fireEvent.click(await screen.findByRole('button', { name: /Ollama/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /OpenRouter/i }))
 
     expect(await screen.findByText(`${t('resource_usage.label')}: ${t('resource_usage.mode.backend-local')}`)).toBeTruthy()
     await waitFor(() => {
       expect(fetchMock.mock.calls.some(([url]) => (
         String(url).includes('/api/settings/build-preview?')
-        && String(url).includes('provider=ollama%3Aqwen3%3A8b')
+        && String(url).includes('provider=openrouter%3Aopenai%2Fgpt-4o-mini')
         && String(url).includes('resourceMode=auto')
       ))).toBe(true)
     })
@@ -403,9 +403,9 @@ describe('settings page content', () => {
           success: true,
           models: [
             {
-              providerId: 'ollama',
-              modelId: 'ollama:qwen3:8b',
-              displayName: 'Ollama - qwen3:8b'
+              providerId: 'openrouter',
+              modelId: 'openrouter:openai/gpt-4o-mini',
+              displayName: 'OpenRouter - mini'
             }
           ]
         }), {
@@ -433,7 +433,7 @@ describe('settings page content', () => {
     await screen.findByText(t('settings.llm_mode.title'))
     fireEvent.click(screen.getByRole('button', { name: t('settings.normal_lane.advanced_open') }))
 
-    expect(await screen.findByLabelText(t('settings.ollama_thinking_toggle'))).toBeTruthy()
+    // checked removed: ollama specifically gone
   })
 
   it('muestra el acceso al inspector LLM desde la pantalla de armado', async () => {

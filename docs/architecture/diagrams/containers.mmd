@@ -1,0 +1,35 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a73e8', 'primaryTextColor': '#fff', 'lineColor': '#5f6368', 'secondaryColor': '#e8f0fe', 'tertiaryColor': '#f1f3f4'}}}%%
+
+C4Container
+    title LAP — Componentes Internos
+
+    Person(user, "Usuario", "Interactúa con la aplicación desde el navegador")
+
+    System_Boundary(lap, "LAP — Planificador de Vida") {
+
+        Container(frontend, "Interfaz de usuario", "React 19", "Páginas: Flujo principal, Cuestionario, Vista del plan, Configuración, Panel de progreso")
+
+        Container(api, "Servicios del servidor", "Next.js", "Recibe pedidos del navegador, genera planes en tiempo real con actualizaciones en vivo")
+
+        Container(pipeline, "Motor de generación de planes", "Pipeline v6", "Orquestador con 10 fases: interpreta la meta, pregunta, planifica, verifica viabilidad, agenda, critica, revisa, empaqueta")
+
+        Container(providers, "Conector de IA", "Fábrica de proveedores", "Elige automáticamente qué servicio de IA usar según disponibilidad y configuración")
+
+        Container(domain, "Lógica de negocio", "Módulos de dominio", "Generación de plan, simulación semanal, activación y persistencia")
+
+        Container(db_layer, "Capa de datos", "Drizzle ORM", "Gestiona: usuarios, perfiles, planes, paquetes, progreso, sesiones interactivas, credenciales")
+    }
+
+    System_Ext(postgres, "Base de datos", "PostgreSQL")
+    System_Ext(llm, "Servicio de IA", "OpenAI / Ollama")
+    System_Ext(lightning, "Red de pagos", "Lightning Network")
+
+    Rel(user, frontend, "Navega, ingresa metas, responde preguntas", "Navegador web")
+    Rel(frontend, api, "Envía pedidos y recibe actualizaciones en vivo", "HTTP")
+    Rel(api, pipeline, "Inicia generación de plan o retoma sesión pausada", "Interno")
+    Rel(pipeline, providers, "Solicita respuestas de IA por cada fase", "Interno")
+    Rel(providers, llm, "Envía instrucciones al modelo de IA", "Conexión segura")
+    Rel(api, domain, "Guarda planes y calcula simulación", "Interno")
+    Rel(domain, db_layer, "Lee y escribe entidades del sistema", "Interno")
+    Rel(db_layer, postgres, "Consultas a la base de datos", "TCP")
+    Rel(api, lightning, "Valida cobro antes de generar plan", "Protocolo de pago")

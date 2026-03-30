@@ -1,0 +1,681 @@
+{
+  "schemaVersion": 1,
+  "mode": "lap-cli-debug",
+  "startedAt": "2026-03-30T11:07:57.925Z",
+  "updatedAt": "2026-03-30T11:08:06.405Z",
+  "invocation": {
+    "goal": "Quiero bajar 15 kilos en 3 meses.",
+    "resumeSession": null,
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "baseUrl": "http://localhost:3000",
+    "detailStartWeek": null,
+    "detailWeeks": null,
+    "debug": true
+  },
+  "summary": {
+    "planId": null,
+    "score": null,
+    "iterations": null,
+    "degraded": false,
+    "publicationState": null,
+    "failureCode": null,
+    "sessionId": "adefec7b-a3bc-423b-a51a-2cee3d937c21",
+    "provider": "codex-oauth",
+    "modelId": null,
+    "status": "paused_for_input"
+  },
+  "pendingInput": {
+    "sessionId": "adefec7b-a3bc-423b-a51a-2cee3d937c21",
+    "goal": "Quiero bajar 15 kilos en 3 meses.",
+    "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d",
+    "questions": [
+      {
+        "id": "clarify-r1-q1",
+        "text": "¿Cuál es tu peso actual en kilogramos?",
+        "type": "number",
+        "options": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "id": "clarify-r1-q2",
+        "text": "¿Hay alguna condición médica relevante o indicación profesional que debamos respetar al planificar esta pérdida de peso?",
+        "type": "text",
+        "options": null,
+        "min": null,
+        "max": null
+      }
+    ],
+    "createdAt": "2026-03-30T11:08:06.404Z",
+    "pendingFilePath": "F:\\proyectos\\planificador-vida\\.lap-pending-input.json",
+    "resumeCommand": "node scripts/run-plan.mjs --resume-session=adefec7b-a3bc-423b-a51a-2cee3d937c21 --answers-json='{\"id\":\"respuesta\",...}' --debug"
+  },
+  "finalPackage": null,
+  "finalResult": null,
+  "latestDebugEvent": {
+    "sequence": 12,
+    "timestamp": "2026-03-30T11:08:06.391Z",
+    "category": "lifecycle",
+    "action": "session.paused",
+    "summary_es": "El pipeline quedó pausado esperando 2 respuesta(s) de aclaración.",
+    "phase": "clarify",
+    "agent": "clarifier",
+    "iteration": 2,
+    "revisionCycle": 0,
+    "clarifyRound": 1,
+    "progressScore": 25,
+    "degraded": false,
+    "fallbackCount": 0,
+    "publicationState": null,
+    "failureCode": null,
+    "errorCode": null,
+    "details": {
+      "questionCount": 2,
+      "questions": [
+        {
+          "id": "clarify-r1-q1",
+          "text": "¿Cuál es tu peso actual en kilogramos?",
+          "purpose": "Conocer el punto de partida para evaluar la factibilidad del objetivo",
+          "type": "number"
+        },
+        {
+          "id": "clarify-r1-q2",
+          "text": "¿Hay alguna condición médica relevante o indicación profesional que debamos respetar al planificar esta pérdida de peso?",
+          "purpose": "Asegurar que el plan propuesto sea seguro según tu situación de salud",
+          "type": "text"
+        }
+      ],
+      "informationGaps": [
+        "current_baseline",
+        "safety_context"
+      ],
+      "goalSignalsSnapshot": {
+        "parsedGoal": "Lose 15 kilograms within 3 months.",
+        "goalType": "QUANT_TARGET_TRACKING",
+        "riskFlags": [
+          "HIGH_HEALTH"
+        ],
+        "suggestedDomain": "safe weight-loss planning",
+        "metric": "15 kilos",
+        "timeframe": "3 meses",
+        "anchorTokens": [
+          "bajar",
+          "meses."
+        ],
+        "informationGaps": [
+          "current_baseline",
+          "safety_context"
+        ],
+        "clarifyConfidence": 0.55,
+        "readyToAdvance": false,
+        "normalizedUserAnswers": [],
+        "missingCriticalSignals": [
+          "current_baseline",
+          "safety_context"
+        ],
+        "hasSufficientSignalsForPlanning": false,
+        "clarificationMode": "needs_input",
+        "degraded": false,
+        "fallbackCount": 0,
+        "phase": "clarify",
+        "clarifyRounds": 1
+      }
+    }
+  },
+  "latestDebugStatus": null,
+  "localEvents": [
+    {
+      "timestamp": "2026-03-30T11:07:57.926Z",
+      "type": "cli.started",
+      "data": {
+        "goal": "Quiero bajar 15 kilos en 3 meses.",
+        "resumeSession": null,
+        "explicitProvider": "codex",
+        "autoMode": false,
+        "pauseOnInput": true,
+        "noCodex": false
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:07:57.928Z",
+      "type": "attempt.started",
+      "data": {
+        "provider": "codex-oauth",
+        "label": "OpenAI (sesion iniciada)",
+        "attemptIndex": 1,
+        "totalAttempts": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:07:57.929Z",
+      "type": "build.requested",
+      "data": {
+        "endpoint": "/api/plan/build",
+        "provider": "codex",
+        "goalText": "Quiero bajar 15 kilos en 3 meses.",
+        "profileId": "4380416e-b0a6-402a-bb80-e968b5f46d0d"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:06.405Z",
+      "type": "attempt.failed",
+      "data": {
+        "provider": "codex-oauth",
+        "message": "Pipeline pausado esperando respuestas.",
+        "failureCode": null,
+        "providerErrorCode": null
+      }
+    }
+  ],
+  "sseEvents": [
+    {
+      "timestamp": "2026-03-30T11:07:58.113Z",
+      "type": "v6:provider",
+      "data": {
+        "requestedProvider": "codex",
+        "requestedMode": "codex-cloud",
+        "resolvedModelId": "openai:gpt-5-codex",
+        "providerId": "openai",
+        "executionMode": "codex-cloud",
+        "resolutionSource": "requested-mode",
+        "authMode": "codex-oauth",
+        "canExecute": true,
+        "blockReasonCode": null,
+        "blockReasonDetail": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:00.578Z",
+      "type": "v6:phase",
+      "data": {
+        "phase": "interpret",
+        "iteration": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:00.578Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 1,
+        "timestamp": "2026-03-30T11:08:00.575Z",
+        "category": "lifecycle",
+        "action": "run.started",
+        "summary_es": "Inicio de corrida para el objetivo \"Quiero bajar 15 kilos en 3 meses.\".",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "runtimeLabel": "openai:gpt-5-codex",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "locale": "es-AR"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:00.579Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 2,
+        "timestamp": "2026-03-30T11:08:00.575Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Arranca la interpretacion del objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:00.579Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 3,
+        "timestamp": "2026-03-30T11:08:00.575Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El interprete empezo a desambiguar el objetivo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:03.112Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 4,
+        "timestamp": "2026-03-30T11:08:03.102Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El interprete completo interpretacion con respuesta del modelo.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 2527,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:03.113Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 5,
+        "timestamp": "2026-03-30T11:08:03.102Z",
+        "category": "phase",
+        "action": "interpret.summary",
+        "summary_es": "Objetivo interpretado como QUANT_TARGET_TRACKING con confianza 74%.",
+        "phase": "interpret",
+        "agent": "goal-interpreter",
+        "iteration": 0,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 0,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "interpretation",
+          "normalizedGoal": "Lose 15 kilograms within 3 months.",
+          "goalType": "QUANT_TARGET_TRACKING",
+          "suggestedDomain": "safe weight-loss planning",
+          "confidence": 0.74,
+          "ambiguities": [
+            "Current health status and whether professional medical guidance is involved",
+            "Specific methods (diet, exercise, medication) they intend to use",
+            "Current weight and body composition, which affect the feasibility of the goal",
+            "Availability of time and resources to implement a structured plan"
+          ],
+          "assumptions": [
+            "Losing 15 kilos in 3 months is achievable and safe for their body",
+            "They can follow a diet and activity plan consistently for the entire period",
+            "No medical conditions or constraints will prevent rapid weight loss"
+          ],
+          "riskFlags": [
+            "HIGH_HEALTH"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Lose 15 kilograms within 3 months.",
+            "goalType": "QUANT_TARGET_TRACKING",
+            "riskFlags": [
+              "HIGH_HEALTH"
+            ],
+            "suggestedDomain": "safe weight-loss planning",
+            "metric": "15 kilos",
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "bajar",
+              "meses."
+            ],
+            "informationGaps": [
+              "current_baseline",
+              "safety_context"
+            ],
+            "clarifyConfidence": null,
+            "readyToAdvance": null,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "current_baseline",
+              "safety_context"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "interpret",
+            "clarifyRounds": 0
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:03.113Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 6,
+        "timestamp": "2026-03-30T11:08:03.102Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de interpretacion a aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "interpret",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:03.114Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 7,
+        "timestamp": "2026-03-30T11:08:03.102Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se estan preparando preguntas de aclaracion.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 0,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:03.114Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 8,
+        "timestamp": "2026-03-30T11:08:03.102Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El clarificador esta evaluando si faltan datos antes de avanzar.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:06.400Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 9,
+        "timestamp": "2026-03-30T11:08:06.390Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El clarificador completo aclaracion con respuesta del modelo.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 3288,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:06.400Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 10,
+        "timestamp": "2026-03-30T11:08:06.391Z",
+        "category": "phase",
+        "action": "clarify.summary",
+        "summary_es": "La aclaracion deja 2 pregunta(s) pendiente(s).",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 1,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "clarification",
+          "readyToAdvance": false,
+          "confidence": 0.55,
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿Cuál es tu peso actual en kilogramos?",
+              "purpose": "Conocer el punto de partida para evaluar la factibilidad del objetivo",
+              "type": "number"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Hay alguna condición médica relevante o indicación profesional que debamos respetar al planificar esta pérdida de peso?",
+              "purpose": "Asegurar que el plan propuesto sea seguro según tu situación de salud",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "current_baseline",
+            "safety_context"
+          ],
+          "knownAnswers": [],
+          "duplicateQuestions": [],
+          "reasoning": "Faltan el peso de partida y entender si existen condiciones médicas o indicaciones profesionales para asegurar un plan seguro.",
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Lose 15 kilograms within 3 months.",
+            "goalType": "QUANT_TARGET_TRACKING",
+            "riskFlags": [
+              "HIGH_HEALTH"
+            ],
+            "suggestedDomain": "safe weight-loss planning",
+            "metric": "15 kilos",
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "bajar",
+              "meses."
+            ],
+            "informationGaps": [
+              "current_baseline",
+              "safety_context"
+            ],
+            "clarifyConfidence": 0.55,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "current_baseline",
+              "safety_context"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:06.401Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 11,
+        "timestamp": "2026-03-30T11:08:06.391Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "Todavia faltan respuestas; se mantiene la aclaracion con 2 pregunta(s) pendientes.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "clarify",
+          "toPhase": "clarify"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:06.401Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 12,
+        "timestamp": "2026-03-30T11:08:06.391Z",
+        "category": "lifecycle",
+        "action": "session.paused",
+        "summary_es": "El pipeline quedó pausado esperando 2 respuesta(s) de aclaración.",
+        "phase": "clarify",
+        "agent": "clarifier",
+        "iteration": 2,
+        "revisionCycle": 0,
+        "clarifyRound": 1,
+        "progressScore": 25,
+        "degraded": false,
+        "fallbackCount": 0,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "questionCount": 2,
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿Cuál es tu peso actual en kilogramos?",
+              "purpose": "Conocer el punto de partida para evaluar la factibilidad del objetivo",
+              "type": "number"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Hay alguna condición médica relevante o indicación profesional que debamos respetar al planificar esta pérdida de peso?",
+              "purpose": "Asegurar que el plan propuesto sea seguro según tu situación de salud",
+              "type": "text"
+            }
+          ],
+          "informationGaps": [
+            "current_baseline",
+            "safety_context"
+          ],
+          "goalSignalsSnapshot": {
+            "parsedGoal": "Lose 15 kilograms within 3 months.",
+            "goalType": "QUANT_TARGET_TRACKING",
+            "riskFlags": [
+              "HIGH_HEALTH"
+            ],
+            "suggestedDomain": "safe weight-loss planning",
+            "metric": "15 kilos",
+            "timeframe": "3 meses",
+            "anchorTokens": [
+              "bajar",
+              "meses."
+            ],
+            "informationGaps": [
+              "current_baseline",
+              "safety_context"
+            ],
+            "clarifyConfidence": 0.55,
+            "readyToAdvance": false,
+            "normalizedUserAnswers": [],
+            "missingCriticalSignals": [
+              "current_baseline",
+              "safety_context"
+            ],
+            "hasSufficientSignalsForPlanning": false,
+            "clarificationMode": "needs_input",
+            "degraded": false,
+            "fallbackCount": 0,
+            "phase": "clarify",
+            "clarifyRounds": 1
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T11:08:06.404Z",
+      "type": "v6:needs_input",
+      "data": {
+        "sessionId": "adefec7b-a3bc-423b-a51a-2cee3d937c21",
+        "questions": {
+          "questions": [
+            {
+              "id": "clarify-r1-q1",
+              "text": "¿Cuál es tu peso actual en kilogramos?",
+              "purpose": "Conocer el punto de partida para evaluar la factibilidad del objetivo",
+              "type": "number"
+            },
+            {
+              "id": "clarify-r1-q2",
+              "text": "¿Hay alguna condición médica relevante o indicación profesional que debamos respetar al planificar esta pérdida de peso?",
+              "purpose": "Asegurar que el plan propuesto sea seguro según tu situación de salud",
+              "type": "text"
+            }
+          ],
+          "reasoning": "Faltan el peso de partida y entender si existen condiciones médicas o indicaciones profesionales para asegurar un plan seguro.",
+          "informationGaps": [
+            "current_baseline",
+            "safety_context"
+          ],
+          "confidence": 0.55,
+          "readyToAdvance": false
+        }
+      }
+    }
+  ],
+  "artifactPath": "F:\\proyectos\\planificador-vida\\.lap-debug\\20260330-080757-quiero-bajar-15-kilos-en-3-meses.json"
+}

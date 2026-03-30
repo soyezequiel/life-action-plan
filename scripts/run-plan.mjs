@@ -4,7 +4,7 @@
  *
  * Usage:
  *   node scripts/run-plan.mjs "Tu objetivo"
- *   node scripts/run-plan.mjs "Tu objetivo" --profile=<uuid> --provider=ollama --base=http://localhost:3000
+ *   node scripts/run-plan.mjs "Tu objetivo" --profile=<uuid> --provider=openai --base=http://localhost:3000
  *   node scripts/run-plan.mjs "Tu objetivo" --json          # salida JSON cruda
  *   node scripts/run-plan.mjs "Tu objetivo" --debug         # modo debug con artefacto JSON
  *   node scripts/run-plan.mjs "Tu objetivo" --auto          # no pregunta, avanza solo
@@ -110,11 +110,10 @@ function parseArgs() {
   const resumeSession = flag('resume-session')
   if (!goal && !existingPlanId && !resumeSession) {
     log(c('red', 'Error: se requiere un objetivo, --plan-id o --resume-session.'))
-    log('Uso: node scripts/run-plan.mjs "Tu objetivo" [--profile=uuid] [--provider=ollama] [--base=http://localhost:3000]')
+    log('Uso: node scripts/run-plan.mjs "Tu objetivo" [--profile=uuid] [--provider=openai] [--base=http://localhost:3000]')
     log('  o:  node scripts/run-plan.mjs --plan-id=<uuid> [--detail-start-week=3] [--detail-weeks=2]')
     log('  o:  node scripts/run-plan.mjs --resume-session=<id> --answers-json=\'{"id":"respuesta"}\'')
     log('  --provider=codex    Fuerza sesión OpenAI (sin API key)')
-    log('  --provider=ollama   Fuerza Ollama local')
     log('  --no-codex          Saltea el intento con sesión OpenAI')
     log('  --auto              No hace preguntas, avanza directo')
     log('  --pause-on-input    Pausa en preguntas: escribe .lap-pending-input.json y sale con código 42')
@@ -133,7 +132,7 @@ function parseArgs() {
     existingPlanId,
     resumeSession,
     profileId:       flag('profile') || process.env.PROFILE_ID || '',
-    explicitProvider,                        // null = auto (codex primero, fallback ollama)
+    explicitProvider,                        // null = un solo intento segun preferencia local
     baseUrl:         flag('base') || process.env.BASE_URL || 'http://localhost:3000',
     outputJson:      raw.includes('--json'),
     noCodex:         raw.includes('--no-codex'),
@@ -729,17 +728,6 @@ function renderDebugFailureDiagnosis(details, debugSession, elapsedSeconds) {
   formatFailureDetails(details).forEach((line) => log(line))
 }
 
-const RECOVERABLE_ERRORS = [
-  'codex_auth_missing', 'codex_mode_unavailable', 'cloud_credential_missing',
-  'user_credential_missing', 'backend_credential_missing', 'authentication',
-  'unauthorized', 'api key', 'no se encontró una clave', 'local assistant',
-  'usage limit', 'quota', 'rate limit', 'too many requests', '429',
-]
-function isRecoverableError(msg) {
-  const low = (msg || '').toLowerCase()
-  return RECOVERABLE_ERRORS.some(k => low.includes(k))
-}
-
 function normalizeStringList(values) {
   if (!Array.isArray(values)) return []
   return Array.from(new Set(values.map((value) => typeof value === 'string' ? value.trim() : '').filter(Boolean)))
@@ -777,6 +765,17 @@ function extractFailureDetails(payload) {
     message: source?.error || source?.message || 'Error del pipeline',
     failureCode: source?.failureCode ?? null,
     publicationState: source?.publicationState ?? 'failed',
+    providerErrorCode: typeof source?.providerErrorCode === 'string' ? source.providerErrorCode : null,
+    providerTrace: source?.providerTrace && typeof source.providerTrace === 'object' ? {
+      requestedProvider: typeof source.providerTrace.requestedProvider === 'string' ? source.providerTrace.requestedProvider : null,
+      requestedMode: typeof source.providerTrace.requestedMode === 'string' ? source.providerTrace.requestedMode : null,
+      resolvedModelId: typeof source.providerTrace.resolvedModelId === 'string' ? source.providerTrace.resolvedModelId : null,
+      providerId: typeof source.providerTrace.providerId === 'string' ? source.providerTrace.providerId : null,
+      executionMode: typeof source.providerTrace.executionMode === 'string' ? source.providerTrace.executionMode : null,
+      authMode: typeof source.providerTrace.authMode === 'string' ? source.providerTrace.authMode : null,
+      blockReasonCode: typeof source.providerTrace.blockReasonCode === 'string' ? source.providerTrace.blockReasonCode : null,
+      blockReasonDetail: typeof source.providerTrace.blockReasonDetail === 'string' ? source.providerTrace.blockReasonDetail : null,
+    } : null,
     agentOutcomes: normalizeFailureOutcomeList(source?.agentOutcomes),
     blockingAgents: normalizeFailureOutcomeList(source?.blockingAgents),
     qualityIssues: normalizeFailureIssues(source?.qualityIssues ?? planPackage?.qualityIssues),
@@ -785,26 +784,32 @@ function extractFailureDetails(payload) {
   }
 }
 
-function isRecoverableFailureDetails(details) {
-  const fragments = [
-    details?.message,
-    details?.failureCode,
-    ...(details?.warnings ?? []),
-    ...(details?.blockingAgents ?? []).flatMap((agent) => [agent.errorCode, agent.errorMessage]),
-    ...(details?.agentOutcomes ?? []).flatMap((agent) => [agent.errorCode, agent.errorMessage]),
-    ...(details?.qualityIssues ?? []).flatMap((issue) => [issue.code, issue.message]),
-  ]
-
-  return isRecoverableError(fragments.filter(Boolean).join(' | '))
-}
-
 function formatFailureDetails(details) {
   const lines = []
   if (details.failureCode) {
     lines.push(c('red', `  failureCode: ${details.failureCode}`))
   }
+  if (details.providerErrorCode) {
+    lines.push(c('red', `  providerErrorCode: ${details.providerErrorCode}`))
+  }
   if (details.publicationState) {
     lines.push(c('red', `  publicationState: ${details.publicationState}`))
+  }
+  if (details.providerTrace) {
+    const traceParts = [
+      details.providerTrace.requestedProvider ? `requested=${details.providerTrace.requestedProvider}` : null,
+      details.providerTrace.providerId ? `provider=${details.providerTrace.providerId}` : null,
+      details.providerTrace.resolvedModelId ? `model=${details.providerTrace.resolvedModelId}` : null,
+      details.providerTrace.executionMode ? `mode=${details.providerTrace.executionMode}` : null,
+      details.providerTrace.authMode ? `auth=${details.providerTrace.authMode}` : null,
+      details.providerTrace.blockReasonCode ? `block=${details.providerTrace.blockReasonCode}` : null,
+    ].filter(Boolean)
+    if (traceParts.length > 0) {
+      lines.push(c('red', `  providerTrace: ${traceParts.join(' | ')}`))
+    }
+    if (details.providerTrace.blockReasonDetail) {
+      lines.push(c('red', `  providerDetail: ${details.providerTrace.blockReasonDetail}`))
+    }
   }
   if (details.blockingAgents.length > 0) {
     lines.push(c('red', `  blockingAgents: ${details.blockingAgents.map((agent) => `${agent.agent}${agent.errorCode ? ` [${agent.errorCode}]` : ''}: ${agent.errorMessage ?? 'unknown'}`).join('; ')}`))
@@ -822,6 +827,55 @@ function formatFailureDetails(details) {
     lines.push(c('red', `  warnings: ${details.warnings.join(' | ')}`))
   }
   return lines
+}
+
+function isUnsupportedProvider(value) {
+  return /^ollama(?::|$)/i.test((value || '').trim())
+}
+
+function isCodexProvider(value) {
+  const normalized = String(value || '').trim().toLowerCase()
+  if (!normalized) return false
+  if (normalized === 'codex' || normalized === 'codex-cloud' || normalized === 'gpt-5-codex') {
+    return true
+  }
+  return normalized.startsWith('openai:') && normalized.includes('codex')
+}
+
+function resolveSingleBuildAttempt({ explicitProvider, noCodex, goalText, profileId }) {
+  if (explicitProvider) {
+    if (isUnsupportedProvider(explicitProvider)) {
+      throw new Error(`Provider no soportado para este flujo: ${explicitProvider}. Ollama fue removido del camino real.`)
+    }
+
+    if (isCodexProvider(explicitProvider)) {
+      return {
+        label: 'OpenAI (sesion iniciada)',
+        body: { goalText, profileId, provider: 'codex', resourceMode: 'codex' },
+        providerLabel: 'codex-oauth',
+      }
+    }
+
+    return {
+      label: explicitProvider,
+      body: { goalText, profileId, provider: explicitProvider },
+      providerLabel: explicitProvider,
+    }
+  }
+
+  if (!noCodex) {
+    return {
+      label: 'OpenAI (sesion iniciada)',
+      body: { goalText, profileId, provider: 'codex', resourceMode: 'codex' },
+      providerLabel: 'codex-oauth',
+    }
+  }
+
+  return {
+    label: 'OpenAI',
+    body: { goalText, profileId, provider: 'openai' },
+    providerLabel: 'openai',
+  }
 }
 
 function normalizeAnswerKey(value) {
@@ -1116,7 +1170,6 @@ async function runPipeline(baseUrl, body, {
               formatFailureDetails(failureDetails).forEach((line) => log(line))
             }
             const err = new Error(failureDetails.message)
-            err.recoverable = isRecoverableFailureDetails(failureDetails)
             err.failureDetails = failureDetails
             debugSession?.setSummary?.({
               failureCode: failureDetails.failureCode,
@@ -1698,7 +1751,6 @@ async function main() {
       return
     }
 
-    let attempts = []
     let result = existingPlanId
       ? { planId: existingPlanId, score: null, iterations: null, providerLabel: 'existing-plan', degraded: false, agentOutcomes: [] }
       : null
@@ -1710,46 +1762,18 @@ async function main() {
       })
     }
 
-    if (!existingPlanId && explicitProvider) {
-      const isCodex = explicitProvider === 'codex'
-      attempts = [
-        {
-          label: isCodex ? 'OpenAI (sesion)' : explicitProvider,
-          body: isCodex
-            ? { goalText: goal, profileId, resourceMode: 'codex' }
-            : { goalText: goal, profileId, provider: explicitProvider },
-          providerLabel: isCodex ? 'codex-oauth' : explicitProvider,
-        },
-        ...(isCodex ? [{
-          label: 'Ollama (local)',
-          body: { goalText: goal, profileId, provider: 'ollama' },
-          providerLabel: 'ollama',
-        }] : []),
-      ]
-    } else if (!existingPlanId) {
-      attempts = [
-        ...(!noCodex ? [{
-          label: 'OpenAI (sesion iniciada)',
-          body: { goalText: goal, profileId, resourceMode: 'codex' },
-          providerLabel: 'codex-oauth',
-        }] : []),
-        {
-          label: 'Ollama (local)',
-          body: { goalText: goal, profileId, provider: 'ollama' },
-          providerLabel: 'ollama',
-        },
-      ]
-    }
-
-    for (let i = 0; i < attempts.length; i++) {
-      const attempt = attempts[i]
-      const isLast = i === attempts.length - 1
-
+    if (!existingPlanId) {
+      const attempt = resolveSingleBuildAttempt({
+        explicitProvider,
+        noCodex,
+        goalText: goal,
+        profileId,
+      })
       debugSession.recordLocal('attempt.started', {
         provider: attempt.providerLabel,
         label: attempt.label,
-        attemptIndex: i + 1,
-        totalAttempts: attempts.length,
+        attemptIndex: 1,
+        totalAttempts: 1,
       })
 
       log(c('blue', `Intentando con ${attempt.label}...`))
@@ -1769,25 +1793,18 @@ async function main() {
           planId: result.planId,
           degraded: result.degraded === true,
         })
-        break
       } catch (err) {
         debugSession.recordLocal('attempt.failed', {
           provider: attempt.providerLabel,
-          recoverable: err?.recoverable !== false,
           message: err instanceof Error ? err.message : String(err),
           failureCode: err?.failureDetails?.failureCode ?? null,
+          providerErrorCode: err?.failureDetails?.providerErrorCode ?? null,
         })
-        if (!isLast && err.recoverable !== false) {
-          log(c('yellow', `  ${attempt.label} no disponible: ${err.message}`))
-          log(c('gray', `  Reintentando con ${attempts[i + 1].label}...`))
-          log('')
-        } else {
-          throw err
-        }
+        throw err
       }
     }
 
-    if (!result) throw new Error('No se pudo ejecutar el pipeline con ningun proveedor.')
+    if (!result) throw new Error('No se pudo ejecutar el pipeline con el provider solicitado.')
 
     const { planId, score, iterations, providerLabel, degraded, agentOutcomes } = result
 

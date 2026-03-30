@@ -99,8 +99,8 @@ describe('build preview route', () => {
         executionTarget: 'backend-local',
         credentialSource: 'none',
         provider: {
-          providerId: 'ollama',
-          modelId: 'ollama:qwen3:8b',
+          providerId: 'openrouter',
+          modelId: 'openai:gpt-4o-mini',
           providerKind: 'local'
         },
         chargePolicy: 'charge',
@@ -127,13 +127,13 @@ describe('build preview route', () => {
         skipReasonDetail: null
       },
       runtime: {
-        modelId: 'ollama:qwen3:8b',
+        modelId: 'openrouter:openai/gpt-4o-mini',
         apiKey: '',
         baseURL: 'http://localhost:11434'
       }
     })
 
-    const response = await GET(new Request('http://localhost/api/settings/build-preview?provider=ollama:qwen3:8b&hasUserApiKey=0'))
+    const response = await GET(new Request('http://localhost/api/settings/build-preview?provider=openrouter:openai/gpt-4o-mini&hasUserApiKey=0'))
     const payload = await response.json() as {
       success: boolean
       usage: {
