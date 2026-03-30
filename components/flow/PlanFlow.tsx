@@ -521,7 +521,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
   const [step, setStep] = useState<FlowStep>('input')
   const [goalText, setGoalText] = useState('')
   const [currentPhase, setCurrentPhase] = useState('')
-  const [progressScore, setProgressScore] = useState(0)
+  const [, setProgressScore] = useState(0)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [questions, setQuestions] = useState<ClarificationRound | null>(null)
   const [answers, setAnswers] = useState<Record<string, string>>({})

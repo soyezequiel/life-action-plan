@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -5,31 +6,34 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  color-scheme: dark;
-  --bg-base: #0e0e0e;
-  --bg-surface: rgba(19, 19, 19, 0.82);
-  --bg-surface-strong: rgba(26, 25, 25, 0.94);
-  --bg-input: rgba(19, 19, 19, 0.92);
-  --text-primary: #ffffff;
-  --text-secondary: #b9b5b2;
-  --text-soft: #e4e0db;
-  --text-muted: #8f8a86;
-  --border-soft: rgba(255, 255, 255, 0.05);
-  --border-strong: rgba(255, 255, 255, 0.1);
-  --shadow-soft: 0 24px 48px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 18px 36px rgba(0, 0, 0, 0.34);
-  --brand: #69a7ff;
-  --brand-strong: #14e6be;
-  --success: #6ed7a5;
-  --warning: #f2bf82;
+  color-scheme: light;
+  --bg-base: #fafaf9;
+  --bg-surface: rgba(255, 255, 255, 0.76);
+  --bg-surface-strong: rgba(255, 255, 255, 0.96);
+  --bg-input: rgba(250, 250, 249, 0.98);
+  --text-primary: #334155;
+  --text-secondary: #475569;
+  --text-soft: #64748b;
+  --text-muted: #94a3b8;
+  --border-soft: rgba(30, 41, 59, 0.08);
+  --border-strong: rgba(30, 41, 59, 0.14);
+  --shadow-soft: 0 20px 40px -10px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 20px 40px -10px rgba(0, 0, 0, 0.03);
+  --brand: #1e293b;
+  --brand-strong: #14b8a6;
+  --brand-accent: #b7a7ff;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --lavender: #e9d5ff;
+  --mint: #a7f3d0;
   --radius-xl: 32px;
   --radius-lg: 24px;
   --radius-md: 20px;
   --radius-sm: 14px;
   --transition-fast: 160ms ease;
   --transition-base: 240ms ease;
-  --font-ui: "Inter", "Segoe UI", sans-serif;
-  --font-display: "Plus Jakarta Sans", "Inter", "Segoe UI", sans-serif;
+  --font-ui: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Plus Jakarta Sans", "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", "Fira Code", "Consolas", monospace;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -84,9 +88,9 @@ body {
   color: var(--text-primary);
   font-family: var(--font-ui, "Inter", "Segoe UI", sans-serif);
   background:
-    radial-gradient(circle at top left, rgba(105, 167, 255, 0.14), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(20, 230, 190, 0.1), transparent 20%),
-    linear-gradient(180deg, #0f0f10 0%, #0c0c0d 48%, #0a0a0a 100%);
+    radial-gradient(circle at top right, rgba(233, 213, 255, 0.24), transparent 26%),
+    radial-gradient(circle at bottom left, rgba(167, 243, 208, 0.22), transparent 22%),
+    linear-gradient(180deg, #fafaf9 0%, #fbfbfa 100%);
 }
 
 body::before {
@@ -95,9 +99,9 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.025), transparent 32%),
-    linear-gradient(315deg, rgba(255, 255, 255, 0.01), transparent 24%);
-  opacity: 0.5;
+    radial-gradient(circle at 15% 20%, rgba(233, 213, 255, 0.12), transparent 22%),
+    radial-gradient(circle at 82% 16%, rgba(167, 243, 208, 0.12), transparent 20%);
+  opacity: 0.8;
 }
 
 body::after {
@@ -106,11 +110,18 @@ body::after {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    linear-gradient(rgba(30, 41, 59, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 41, 59, 0.02) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.34), transparent 78%);
-  opacity: 0.08;
+  opacity: 0.12;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-family: "Material Symbols Outlined";
+  line-height: 1;
+  user-select: none;
 }
 
 button,

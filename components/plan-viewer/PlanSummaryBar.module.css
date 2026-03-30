@@ -5,7 +5,7 @@
   padding: 1.2rem 1.3rem;
   border-radius: 28px;
   border: 1px solid var(--border-soft);
-  background: linear-gradient(180deg, rgba(19, 19, 19, 0.96) 0%, rgba(26, 25, 25, 0.98) 100%);
+  background: linear-gradient(180deg, var(--bg-surface-strong) 0%, var(--bg-surface) 100%);
   box-shadow: var(--shadow-card);
 }
 
@@ -81,7 +81,7 @@
   padding: 0.65rem 0.95rem;
   border-radius: 999px;
   border: 1px solid var(--border-strong);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.74);
   color: var(--text-primary);
   cursor: pointer;
 }

@@ -27,6 +27,7 @@ export default async function FlowPage({ searchParams }: FlowPageProps) {
   const params = await resolveSearchParams(searchParams)
   const profileId = readParam(params.profileId) ?? readParam(params.id) ?? ''
   const provider = readParam(params.provider) ?? (getDeploymentMode() === 'local' ? 'codex' : 'openai')
+  const variant = readParam(params.variant) ?? 'refinement'
 
-  return <PlanFlowPage initialProfileId={profileId} provider={provider} />
+  return <PlanFlowPage variant={variant as 'refinement' | 'spatial' | 'conflict' | 'simulation' | 'tasks'} initialProfileId={profileId} provider={provider} />
 }

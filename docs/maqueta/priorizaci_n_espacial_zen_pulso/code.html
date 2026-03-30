@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pulso - Priorización Espacial</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,FILL@0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-container": "#334155",
+              "on-surface-variant": "#64748B",
+              "error-container": "#FEE2E2",
+              "on-tertiary-fixed-variant": "#065F46",
+              "on-secondary-container": "#581C87",
+              "primary-fixed-dim": "#CBD5E1",
+              "primary-fixed": "#E2E8F0",
+              "background": "#FAFAF9",
+              "secondary-container": "#F3E8FF",
+              "on-secondary-fixed": "#2E1065",
+              "tertiary": "#A7F3D0",
+              "surface-container-low": "#FAFAF9",
+              "secondary-fixed-dim": "#E9D5FF",
+              "on-tertiary-container": "#065F46",
+              "surface-container": "#F8FAFC",
+              "on-error-container": "#991B1B",
+              "inverse-surface": "#1E293B",
+              "surface": "#FFFFFF",
+              "secondary-fixed": "#F3E8FF",
+              "on-surface": "#334155",
+              "surface-bright": "#FFFFFF",
+              "on-error": "#FFFFFF",
+              "error": "#EF4444",
+              "surface-dim": "#F1F5F9",
+              "on-primary-fixed": "#0F172A",
+              "surface-variant": "#F1F5F9",
+              "primary": "#1E293B",
+              "on-tertiary-fixed": "#064E3B",
+              "on-secondary": "#1E293B",
+              "on-background": "#334155",
+              "inverse-on-surface": "#F8FAFC",
+              "on-primary": "#FFFFFF",
+              "tertiary-fixed-dim": "#A7F3D0",
+              "secondary": "#E9D5FF",
+              "on-secondary-fixed-variant": "#581C87",
+              "on-tertiary": "#064E3B",
+              "surface-container-high": "#F1F5F9",
+              "on-primary-fixed-variant": "#334155",
+              "tertiary-fixed": "#D1FAE5",
+              "surface-container-lowest": "#FFFFFF",
+              "outline": "#94A3B8",
+              "surface-container-highest": "#E2E8F0",
+              "tertiary-container": "#D1FAE5",
+              "surface-tint": "#1E293B",
+              "outline-variant": "#CBD5E1",
+              "on-primary-container": "#E2E8F0",
+              "inverse-primary": "#94A3B8"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .atmospheric-blur-mint {
+            background: radial-gradient(circle, rgba(167, 243, 208, 0.15) 0%, rgba(167, 243, 208, 0) 70%);
+        }
+        .atmospheric-blur-lavender {
+            background: radial-gradient(circle, rgba(233, 213, 255, 0.15) 0%, rgba(233, 213, 255, 0) 70%);
+        }
+        .organic-grid {
+            background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-low font-body text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/30 dark:border-slate-800/30 shadow-sm flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<img alt="Pulso Logo" class="h-8 w-8 object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ujtH1xfO9qaLDg476U29T6VAGEuWDoVpIvBcbTPPmnEao8trXM8_H9i8gvVuczgZpkbWXWtgFX0WUFBxaaRFopjub1yApJ-Rekhc-pDT6wbhAOBfzSaJspfR9H6juGbvf1Vds028NDB0EEUGq-UgGMkhC7eRTzmt8OGgOrYFthP32-lHrN1ncHQQUDWXFIaUleTeipR9AyCuGbmwxLZPtYWjedZKgjr77jerA63OZl08p7Ou-wK-p_BAwObgCXUAjFH99s6Sr2lyA"/>
+<span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white font-headline">Pulso</span>
+</div>
+</div>
+<div class="flex-1 max-w-md mx-8">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary-container" placeholder="Buscar objetivos..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center border border-outline-variant overflow-hidden cursor-pointer">
+<img alt="Avatar de usuario" class="w-full h-full object-cover" data-alt="minimalist 3d avatar of a professional man with glasses and short dark hair on a clean pastel background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt62eK7lMtE8OBcvPDGQJxGIAwIAJlg-HjTCND5fWvqlJcqVvWktN--4LJl4HVhXTogwIpUng1EMkKkTgICr14DE42k5xslVBYPNm8tDO6A312IPS7m_UF5JeXTq0sUF5PAlFEZN8qjM17PF3bWWK347AXRdglGUH6mECUhaIa8bFLsPOC1TDIraZ0SxYp7bZiRWOjGbnYbgJcZ9VSEASflI6UOx7dvRNiuVVOmO8S1XbUyCsocqaLXBaf9V5qIUDXh8XhzCeKJ5k"/>
+</div>
+</div>
+</header>
+<div class="flex pt-16 h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-950 flex flex-col p-4 gap-2">
+<div class="mb-6 px-2">
+<div class="text-[11px] uppercase tracking-wider font-headline font-semibold text-slate-500 mb-1">Santuario Digital</div>
+<div class="flex items-center gap-2">
+<img alt="Pulso" class="h-6 w-6 object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ujtH1xfO9qaLDg476U29T6VAGEuWDoVpIvBcbTPPmnEao8trXM8_H9i8gvVuczgZpkbWXWtgFX0WUFBxaaRFopjub1yApJ-Rekhc-pDT6wbhAOBfzSaJspfR9H6juGbvf1Vds028NDB0EEUGq-UgGMkhC7eRTzmt8OGgOrYFthP32-lHrN1ncHQQUDWXFIaUleTeipR9AyCuGbmwxLZPtYWjedZKgjr77jerA63OZl08p7Ou-wK-p_BAwObgCXUAjFH99s6Sr2lyA"/>
+<div class="font-bold text-slate-900 dark:text-white font-headline text-lg">Pulso</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[11px] uppercase tracking-wider font-headline">Panel</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-900 dark:text-white bg-slate-200/50 dark:bg-slate-800/50 rounded-lg font-bold transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="text-[11px] uppercase tracking-wider font-headline">Planificador</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="checklist">checklist</span>
+<span class="text-[11px] uppercase tracking-wider font-headline">Tareas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="text-[11px] uppercase tracking-wider font-headline">Notas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="center_focus_strong">center_focus_strong</span>
+<span class="text-[11px] uppercase tracking-wider font-headline">Enfoque</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[11px] uppercase tracking-wider font-headline">Configuración</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
+<button class="w-full bg-primary text-surface py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity mb-4">
+<span class="material-symbols-outlined">add</span>
+<span>Nueva Tarea</span>
+</button>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 text-[11px] uppercase tracking-wider font-headline hover:text-slate-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-base" data-icon="help">help</span>
+<span>Ayuda</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 text-[11px] uppercase tracking-wider font-headline hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-base" data-icon="logout">logout</span>
+<span>Salir</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area: Spatial Prioritization -->
+<main class="flex-1 flex overflow-hidden relative">
+<!-- Decorative atmospheric blurs -->
+<div class="absolute top-0 right-0 w-96 h-96 atmospheric-blur-mint pointer-events-none blur-3xl opacity-40"></div>
+<div class="absolute bottom-0 left-64 w-96 h-96 atmospheric-blur-lavender pointer-events-none blur-3xl opacity-40"></div>
+<!-- Left: Objective Cards Column -->
+<section class="w-80 bg-surface border-r border-slate-200/50 p-6 flex flex-col gap-6 z-10 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+<div>
+<h2 class="font-headline font-bold text-xl text-primary mb-1">Pendientes</h2>
+<p class="text-xs text-on-surface-variant font-body">Arrastra los objetivos al lienzo para priorizar.</p>
+</div>
+<div class="flex-1 overflow-y-auto space-y-4 pr-2">
+<!-- Card 1 -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant/30 hover:border-primary/20 transition-all cursor-grab active:cursor-grabbing group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-headline font-bold uppercase tracking-wider text-on-secondary-container bg-secondary-container px-2 py-0.5 rounded-full">Diseño</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-400 transition-colors">drag_indicator</span>
+</div>
+<h3 class="font-semibold text-sm mb-1">Revisión UI del Dashboard</h3>
+<p class="text-xs text-on-surface-variant leading-relaxed">Ajustar los tokens de color según el nuevo DS Midnight Mint.</p>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant/30 hover:border-primary/20 transition-all cursor-grab active:cursor-grabbing group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-headline font-bold uppercase tracking-wider text-on-tertiary-fixed-variant bg-tertiary-fixed px-2 py-0.5 rounded-full">Marketing</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-400 transition-colors">drag_indicator</span>
+</div>
+<h3 class="font-semibold text-sm mb-1">Campaña Q3 Launch</h3>
+<p class="text-xs text-on-surface-variant leading-relaxed">Preparar los activos visuales para el lanzamiento en redes sociales.</p>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant/30 hover:border-primary/20 transition-all cursor-grab active:cursor-grabbing group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-headline font-bold uppercase tracking-wider text-on-primary-fixed-variant bg-primary-fixed px-2 py-0.5 rounded-full">Dev</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-400 transition-colors">drag_indicator</span>
+</div>
+<h3 class="font-semibold text-sm mb-1">Refactor Pulso Core</h3>
+<p class="text-xs text-on-surface-variant leading-relaxed">Optimizar la gestión de estados en el componente de navegación.</p>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant/30 hover:border-primary/20 transition-all cursor-grab active:cursor-grabbing group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-headline font-bold uppercase tracking-wider text-on-secondary-container bg-secondary-container px-2 py-0.5 rounded-full">Diseño</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-400 transition-colors">drag_indicator</span>
+</div>
+<h3 class="font-semibold text-sm mb-1">Documentar Accesibilidad</h3>
+<p class="text-xs text-on-surface-variant leading-relaxed">Verificar contrastes y navegación por teclado en vistas principales.</p>
+</div>
+</div>
+<div class="mt-auto">
+<div class="p-4 bg-primary-container text-surface rounded-xl flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary">lightbulb</span>
+</div>
+<div>
+<p class="text-[11px] font-headline font-bold uppercase tracking-wider text-primary-fixed-dim">Tip Pro</p>
+<p class="text-xs font-body">Lo más cercano a la esquina superior derecha es tu prioridad 0.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Right: Organic Canvas Grid -->
+<section class="flex-1 organic-grid relative p-10 flex flex-col items-center justify-center">
+<!-- Canvas Labels (Axes) -->
+<div class="absolute top-10 left-1/2 -translate-x-1/2 flex flex-col items-center">
+<span class="bg-error-container text-on-error-container text-[11px] font-headline font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm border border-error/20">Urgente</span>
+<div class="w-px h-8 bg-gradient-to-b from-error/40 to-transparent"></div>
+</div>
+<div class="absolute right-10 top-1/2 -translate-y-1/2 flex items-center">
+<div class="h-px w-8 bg-gradient-to-r from-transparent to-primary/40"></div>
+<span class="bg-primary-container text-surface text-[11px] font-headline font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg transform rotate-90">Muy Importante</span>
+</div>
+<!-- Placed Objectives on Grid -->
+<div class="relative w-full h-full">
+<!-- Objective Placed 1 -->
+<div class="absolute top-[15%] left-[25%] group">
+<div class="bg-surface p-5 rounded-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.06)] border border-slate-100 w-56 transform transition-transform group-hover:scale-105 group-hover:-rotate-1">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+<span class="text-[10px] font-headline font-bold uppercase text-on-surface-variant tracking-widest">En Proceso</span>
+</div>
+<h4 class="font-headline font-bold text-sm text-primary">Finalizar Sprint Planning</h4>
+<p class="text-[11px] text-on-surface-variant mt-2">Cierre de tiquetes antes de las 5:00 PM.</p>
+<div class="mt-4 flex -space-x-2">
+<img alt="Team member" class="w-6 h-6 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsoerUqh-KAyQYBq2p_heVbQFzhQkEYkyWxqGS2PZRPIZ9JEXw9geTjZOIhMAaNChoA0WLU35KbJ6D999uu2WTn5Ye7zgnWb4lfn4hWSVmEiNdW4djSK4g7MuAgjs-cBkAkHrnKX3FB3bWobgDeAYI07nMz2mcfjWfgXOQYeF0y6eqwJtUwWylMl8sPJM9ESGFxZ_quECrLrtdZDYz2XdmnzSU8MWQlpNibMp_w0RO3qYpY17yBuUGBwtkKjBkwBaQZAPNLxRqb74"/>
+<img alt="Team member" class="w-6 h-6 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjE1s7nWJ5-5H24J25DfkkbMJswlpbdrbqkENBL3Z4GbPvDFkKzu5P45oqv9uMMJ9KS8evhXZLkRk86E2XusDFvPL7y1qb5kC5XoESBM-EW1EqwON5qxSk8K3HXhQRQzjdgC-APCIEB9U-vg3MFo4WnQc0NAH0_C7qwdw99-h8PpFLsjQxop9DhywIjmElMtLfIeMfIH4GGIXO7Iwwte3O7eK7lXFIqtmxRaoc04DDZ-Skp20QezLX4zRyIDbmFSG7i5vflZYYI8o"/>
+</div>
+</div>
+</div>
+<!-- Objective Placed 2 -->
+<div class="absolute bottom-[20%] right-[15%] group">
+<div class="bg-surface/90 backdrop-blur-sm p-5 rounded-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.06)] border border-slate-100 w-64 transform transition-transform group-hover:scale-105 group-hover:rotate-1">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="text-[10px] font-headline font-bold uppercase text-on-surface-variant tracking-widest">Estratégico</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-base">push_pin</span>
+</div>
+<h4 class="font-headline font-bold text-sm text-primary">Visión de Producto 2025</h4>
+<p class="text-[11px] text-on-surface-variant mt-2">Definición de los pilares de IA para el próximo ciclo anual.</p>
+</div>
+</div>
+<!-- Objective Placed 3 (High Priority) -->
+<div class="absolute top-[10%] right-[10%] group">
+<div class="bg-primary text-surface p-6 rounded-2xl shadow-xl w-60 transform transition-transform group-hover:scale-110">
+<div class="absolute -top-3 -right-3 w-10 h-10 bg-tertiary rounded-full flex items-center justify-center shadow-lg transform rotate-12">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<h4 class="font-headline font-bold text-base">Hito de Inversores</h4>
+<p class="text-xs text-primary-fixed-dim mt-2 leading-relaxed opacity-90">Presentación crítica para la ronda de financiamiento Serie B.</p>
+<div class="mt-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-sm">event</span>
+<span class="text-[10px] font-headline font-bold uppercase tracking-wider">Mañana, 09:00 AM</span>
+</div>
+</div>
+</div>
+<!-- Placeholder Dropzone -->
+<div class="absolute bottom-[40%] left-[45%] w-48 h-32 border-2 border-dashed border-outline-variant/30 rounded-3xl flex flex-col items-center justify-center text-on-surface-variant/40 hover:bg-surface-container/50 transition-colors">
+<span class="material-symbols-outlined text-3xl mb-1">add_circle</span>
+<span class="text-[10px] font-headline font-bold uppercase tracking-wider">Soltar aquí</span>
+</div>
+</div>
+<!-- Canvas Controls -->
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-surface p-2 rounded-full shadow-lg border border-slate-200/50">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface">
+<span class="material-symbols-outlined">zoom_in</span>
+</button>
+<div class="h-4 w-px bg-slate-200"></div>
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface">
+<span class="material-symbols-outlined">zoom_out</span>
+</button>
+<div class="h-4 w-px bg-slate-200"></div>
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface">
+<span class="material-symbols-outlined">center_focus_weak</span>
+</button>
+<div class="h-4 w-px bg-slate-200"></div>
+<button class="flex items-center gap-2 px-4 py-1.5 bg-slate-900 text-white rounded-full text-xs font-headline font-bold uppercase tracking-wider hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">save</span>
+                        Guardar Vista
+                    </button>
+</div>
+</section>
+</main>
+</div>
+</body></html>

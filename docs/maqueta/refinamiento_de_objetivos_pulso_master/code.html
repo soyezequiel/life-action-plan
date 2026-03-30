@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-container": "#334155",
+              "on-surface-variant": "#64748B",
+              "error-container": "#FEE2E2",
+              "on-tertiary-fixed-variant": "#065F46",
+              "on-secondary-container": "#581C87",
+              "primary-fixed-dim": "#CBD5E1",
+              "primary-fixed": "#E2E8F0",
+              "background": "#FAFAF9",
+              "secondary-container": "#F3E8FF",
+              "on-secondary-fixed": "#2E1065",
+              "tertiary": "#A7F3D0",
+              "surface-container-low": "#FAFAF9",
+              "secondary-fixed-dim": "#E9D5FF",
+              "on-tertiary-container": "#065F46",
+              "surface-container": "#F8FAFC",
+              "on-error-container": "#991B1B",
+              "inverse-surface": "#1E293B",
+              "surface": "#FFFFFF",
+              "secondary-fixed": "#F3E8FF",
+              "on-surface": "#334155",
+              "surface-bright": "#FFFFFF",
+              "on-error": "#FFFFFF",
+              "error": "#EF4444",
+              "surface-dim": "#F1F5F9",
+              "on-primary-fixed": "#0F172A",
+              "surface-variant": "#F1F5F9",
+              "primary": "#1E293B",
+              "on-tertiary-fixed": "#064E3B",
+              "on-secondary": "#1E293B",
+              "on-background": "#334155",
+              "inverse-on-surface": "#F8FAFC",
+              "on-primary": "#FFFFFF",
+              "tertiary-fixed-dim": "#A7F3D0",
+              "secondary": "#E9D5FF",
+              "on-secondary-fixed-variant": "#581C87",
+              "on-tertiary": "#064E3B",
+              "surface-container-high": "#F1F5F9",
+              "on-primary-fixed-variant": "#334155",
+              "tertiary-fixed": "#D1FAE5",
+              "surface-container-lowest": "#FFFFFF",
+              "outline": "#94A3B8",
+              "outline-variant": "#CBD5E1",
+              "on-primary-container": "#E2E8F0",
+              "inverse-primary": "#94A3B8"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {
+              "DEFAULT": "1rem", 
+              "lg": "1rem", 
+              "xl": "1rem", 
+              "2xl": "1rem", 
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .float-shadow {
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.03);
+      }
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        position: absolute;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+    </style>
+</head>
+<body class="bg-[#F8F9FB] font-body text-on-surface">
+<!-- SideNavBar Component Shell -->
+<aside class="fixed left-0 top-0 h-screen w-64 flex flex-col p-4 z-40 bg-slate-50 dark:bg-slate-950 border-r border-slate-200/50 dark:border-slate-800/50">
+<div class="flex items-center gap-3 px-4 mb-8">
+<img alt="Pulso Isotype Symbol" class="w-8 h-8" src="https://lh3.googleusercontent.com/aida/ADBb0ujvZNXxSOT4vZ9hT4PqPfgqUyYPUSJ-LCnJcaEd3ZqOa4IKlRL4OA-ljva3H0l7x_uDyRmqHa0eIF7kmhWApoiBX8B5VV7grnd79ztCb9gNizuxXvifPZOFOy-I3D0dSY_2NKZkMfab_u-YYCMV85uR3ssmf82YtSZQhoSeLuhoopB1gsc6H4tFHkA3fK0ZfRO5AqS6sUbBi0A0XpBvLuNkwFfzxmzusnRmRxoYkwpOcc4son6rS-ci892kZ20RRdK8n2tuAJFqkg"/>
+<div class="flex flex-col">
+<span class="text-xl font-bold text-slate-900 dark:text-white tracking-tighter font-headline">Pulso</span>
+<span class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Digital Sanctuary</span>
+</div>
+</div>
+<div class="mb-4 px-4">
+<p class="font-headline text-[11px] uppercase tracking-wider text-slate-400 font-bold">Gestión Principal</p>
+</div>
+<nav class="flex flex-col gap-1 flex-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-800 rounded-lg shadow-sm font-semibold active:scale-[0.98] transition-all font-['Space_Grotesk'] text-[15px] tracking-tight" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Planificador</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">check_circle</span>
+<span>Tareas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Notas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">center_focus_strong</span>
+<span>Enfoque</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Configuración</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1 pt-4 border-t border-slate-200/50">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-700 transition-colors font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Ayuda</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Salir</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar Component Shell -->
+<header class="flex justify-between items-center px-8 w-full ml-64 max-w-[calc(100%-16rem)] h-16 sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/50 z-30">
+<nav class="flex gap-8">
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all font-headline uppercase text-[11px] tracking-wider font-bold" href="#">Explorar</a>
+<a class="text-slate-900 dark:text-white border-b-2 border-slate-900 transition-all font-headline uppercase text-[11px] tracking-wider font-bold" href="#">Proyectos</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all font-headline uppercase text-[11px] tracking-wider font-bold" href="#">Equipo</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-slate-200 border border-slate-200">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjaeInciwhUSBjS4aiL_Yn2vpdUVshKNT7WvNpZm7BnojklI2_vnxgNr0gAn_Er5Bh0d5Rd0Phu1NW9naqZjwhUYrM5HSYCJgizwpU5MgGF1HIxLZvV4Xuum_B-QhPT0mvcdleLBhXnk3jzdEsQSL6qEKIkOtKlA5e9S-p9wbOqoWybWALK7rrwQnWumkPsMAo_gJ0kb4XsrB35wefq6TQSGjbPEhoJm4Dz7crteaaTHRnM1rufGhAuyyWiTvlHJO84hBoEl0tN8E"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 p-8 lg:p-12 min-h-[calc(100vh-64px)]">
+<div class="max-w-4xl mx-auto space-y-12">
+<!-- Header Section -->
+<header class="space-y-4">
+<div class="flex items-center gap-2">
+<span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider border border-emerald-100">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        Refinamiento en proceso
+                    </span>
+</div>
+<h1 class="text-[32px] font-bold font-headline text-slate-900 tracking-tight leading-tight">Refinamiento de Objetivo</h1>
+<p class="text-slate-500 max-w-2xl text-base">Definamos los parámetros críticos para asegurar que tu objetivo sea accionable y medible dentro de tu santuario digital.</p>
+</header>
+<!-- Stepper Progress -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-bold font-headline uppercase tracking-widest text-slate-400">Progreso del Refinamiento</span>
+<span class="text-[11px] font-bold font-headline text-slate-900">50% COMPLETADO</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-slate-900 w-1/2 transition-all duration-700"></div>
+</div>
+</div>
+<!-- Form Card -->
+<div class="bg-white rounded-2xl p-8 lg:p-10 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)]">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<!-- Left Column -->
+<div class="space-y-10">
+<!-- Select Field -->
+<section class="space-y-4">
+<label class="block">
+<span class="text-[14px] font-semibold text-slate-900 mb-3 block font-body tracking-tight">Temporalidad</span>
+<span class="text-xl font-bold text-slate-900 block mb-6 leading-tight">¿Cuál es la duración estimada para alcanzar este hito?</span>
+<div class="relative group">
+<select class="w-full h-[52px] bg-slate-50 border border-slate-100 rounded-xl px-4 text-slate-700 focus:ring-0 focus:border-slate-300 appearance-none font-body transition-all cursor-pointer">
+<option>Corto Plazo (1-3 meses)</option>
+<option selected="">Mediano Plazo (3-12 meses)</option>
+<option>Largo Plazo (1-3 años)</option>
+<option>Estratégico (3+ años)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+</div>
+</label>
+<p class="text-xs text-slate-400 italic">Este dato nos ayuda a priorizar tareas en tu flujo diario.</p>
+</section>
+<!-- Date Field -->
+<section class="space-y-4">
+<label class="block">
+<span class="text-[14px] font-semibold text-slate-900 mb-3 block font-body tracking-tight">Fecha Crítica</span>
+<span class="text-xl font-bold text-slate-900 block mb-6 leading-tight">Fecha límite deseada</span>
+<div class="relative group">
+<input class="w-full h-[52px] bg-slate-50 border border-slate-100 rounded-xl px-4 text-slate-700 focus:ring-0 focus:border-slate-300 font-body transition-all" type="date" value="2024-12-31"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">calendar_today</span>
+</div>
+</label>
+</section>
+</div>
+<!-- Right Column -->
+<div class="space-y-10">
+<!-- Textarea Field -->
+<section class="space-y-4">
+<label class="block">
+<span class="text-[14px] font-semibold text-slate-900 mb-3 block font-body tracking-tight">Motivación</span>
+<span class="text-xl font-bold text-slate-900 block mb-6 leading-tight">¿Cuál es la intención principal detrás de este objetivo?</span>
+<textarea class="w-full bg-slate-50 border border-slate-100 rounded-xl p-5 text-slate-700 focus:ring-0 focus:border-slate-300 font-body transition-all resize-none min-h-[160px]" placeholder="Describe el 'por qué' de este proyecto..."></textarea>
+</label>
+</section>
+<!-- Tip Box -->
+<div class="p-5 bg-indigo-50/50 rounded-2xl border border-indigo-100 flex gap-4 items-start">
+<div class="w-10 h-10 rounded-full bg-white flex-shrink-0 flex items-center justify-center text-indigo-600 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">lightbulb</span>
+</div>
+<div>
+<p class="text-[13px] font-bold text-indigo-900">Consejo Editorial</p>
+<p class="text-[12px] text-indigo-700/80 mt-1 leading-relaxed">Definir claramente tu intención aumenta la probabilidad de éxito en un 42%.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Action -->
+<div class="mt-12 pt-10 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+<button class="flex items-center gap-2 text-slate-400 hover:text-slate-900 font-bold text-sm transition-colors group">
+<span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                        Anterior
+                    </button>
+<div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+<button class="w-full sm:w-auto px-8 h-[52px] bg-slate-100 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-200 transition-colors">
+                            Guardar borrador
+                        </button>
+<button class="w-full sm:w-auto px-10 h-[52px] bg-slate-900 text-white font-bold text-sm rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-3 group">
+<span>Continuar refinamiento</span>
+<span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Footer Lock -->
+<div class="flex justify-center pt-4">
+<p class="text-[11px] text-slate-400 font-bold tracking-widest uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">lock</span> 
+                    Seguridad de Datos Pulso
+                </p>
+</div>
+</div>
+</main>
+<!-- Mobile Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex justify-around items-center h-16 z-50 px-4">
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-[9px] font-headline font-bold uppercase tracking-tighter">Panel</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-900" href="#">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+<span class="text-[9px] font-headline font-bold uppercase tracking-tighter">Plan</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined text-[22px]">checklist</span>
+<span class="text-[9px] font-headline font-bold uppercase tracking-tighter">Tareas</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined text-[22px]">settings</span>
+<span class="text-[9px] font-headline font-bold uppercase tracking-tighter">Config</span>
+</a>
+</nav>
+</body></html>

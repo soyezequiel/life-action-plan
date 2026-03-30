@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#FFFFFF",
+                        "surface-container": "#F8FAFC",
+                        "on-primary": "#FFFFFF",
+                        "surface": "#FFFFFF",
+                        "inverse-surface": "#1E293B",
+                        "on-background": "#334155",
+                        "secondary-container": "#F3E8FF",
+                        "tertiary-fixed-dim": "#A7F3D0",
+                        "on-primary-fixed-variant": "#334155",
+                        "on-surface-variant": "#64748B",
+                        "surface-tint": "#1E293B",
+                        "outline-variant": "#CBD5E1",
+                        "on-tertiary-fixed": "#064E3B",
+                        "outline": "#94A3B8",
+                        "on-primary-fixed": "#0F172A",
+                        "on-primary-container": "#E2E8F0",
+                        "on-tertiary-fixed-variant": "#065F46",
+                        "tertiary-container": "#D1FAE5",
+                        "surface-dim": "#F1F5F9",
+                        "surface-bright": "#FFFFFF",
+                        "on-secondary-container": "#581C87",
+                        "surface-container-high": "#F1F5F9",
+                        "secondary": "#E9D5FF",
+                        "primary-container": "#334155",
+                        "primary-fixed": "#E2E8F0",
+                        "primary-fixed-dim": "#CBD5E1",
+                        "on-secondary-fixed-variant": "#581C87",
+                        "background": "#FAFAF9",
+                        "tertiary": "#A7F3D0",
+                        "surface-variant": "#F1F5F9",
+                        "surface-container-low": "#FAFAF9",
+                        "secondary-fixed": "#F3E8FF",
+                        "on-error-container": "#991B1B",
+                        "error-container": "#FEE2E2",
+                        "on-error": "#FFFFFF",
+                        "inverse-primary": "#94A3B8",
+                        "on-tertiary": "#064E3B",
+                        "secondary-fixed-dim": "#E9D5FF",
+                        "on-surface": "#334155",
+                        "primary": "#1E293B",
+                        "error": "#EF4444",
+                        "on-tertiary-container": "#065F46",
+                        "tertiary-fixed": "#D1FAE5",
+                        "on-secondary-fixed": "#2E1065",
+                        "on-secondary": "#1E293B",
+                        "inverse-on-surface": "#F8FAFC"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface min-h-screen">
+<!-- Sidebar Navigation (Mapping from Shared Components) -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-slate-100 bg-slate-50 dark:bg-slate-950 flex flex-col p-6 gap-8 z-40">
+<div class="flex flex-col gap-1">
+<span class="font-['Space_Grotesk'] uppercase text-[11px] tracking-wider text-slate-500">Pulso</span>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">spa</span>
+</div>
+<h2 class="text-xl font-headline font-bold text-slate-900 dark:text-slate-100">Pulso</h2>
+</div>
+<p class="text-xs text-slate-400 font-body">Digital Sanctuary</p>
+</div>
+<nav class="flex flex-col gap-2">
+<!-- Calendar Active -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[15px] font-medium">Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[15px] font-medium">Events</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[15px] font-medium">Tasks</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[15px] font-medium">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="spa">spa</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[15px] font-medium">Sanctuary</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-2 border-t border-slate-200 pt-6">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help_outline">help_outline</span>
+<span class="text-sm font-medium">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="logout">logout</span>
+<span class="text-sm font-medium">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar (Mapping from Shared Components) -->
+<header class="sticky top-0 z-50 flex justify-between items-center w-full px-8 h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+<div class="flex items-center gap-8">
+<h1 class="font-['Space_Grotesk'] font-semibold text-2xl tracking-tight text-slate-900 dark:text-slate-100">2024</h1>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-600 transition-all duration-300" href="#">Day</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-600 transition-all duration-300" href="#">Week</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-600 transition-all duration-300" href="#">Month</a>
+<a class="text-slate-900 dark:text-white border-b-2 border-emerald-400 dark:border-emerald-500 pb-1 transition-all duration-300" href="#">Year</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 mr-4">
+<button class="p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300">
+<span class="material-symbols-outlined text-slate-600" data-icon="search">search</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300">
+<span class="material-symbols-outlined text-slate-600" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300">
+<span class="material-symbols-outlined text-slate-600" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-100">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional woman with a calm expression in a minimalist studio setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg90s5lBzdfLkb1nvzlptu7tjAn9H3HkVu0ZGiZlJkJqV87D97c7_ViNFkTtmM-xt5sf0uXNmDjtdiebrM0wclCWCmMA_Ffsj2opLX09wa3ZYeXB-tnktjxpCpKh8GQUP9I9f3AgK0fWH_TC9hAqBUtwbMczEfQHbEy42cyxxCWwK2M6QueMxEHLD5nQ9waif02IEi3N7HuCn2dYKfyz9zSoO7ndq6ROfaKzhyfIb-60uHt1is2RopXmfgRDrOu2P_eWdXysrlFQA"/>
+</div>
+</div>
+</header>
+<!-- Calendar Canvas -->
+<section class="p-12 relative overflow-hidden">
+<!-- Decorative atmospheric blurs -->
+<div class="absolute -top-24 -right-24 w-96 h-96 bg-tertiary/20 rounded-full blur-[100px] -z-10"></div>
+<div class="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary/20 rounded-full blur-[100px] -z-10"></div>
+<!-- Bento Layout for the Year -->
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-12 gap-y-16">
+<!-- Month Macro: Repeat 12 times with specific labels -->
+<script>
+                    const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                    const days = ["L", "M", "M", "J", "V", "S", "D"];
+                    
+                    // Small utility to render months with simulated highlights
+                    function renderYear() {
+                        const container = document.querySelector('.max-w-7xl');
+                        months.forEach((month, idx) => {
+                            const monthCard = document.createElement('div');
+                            monthCard.className = 'flex flex-col gap-4';
+                            
+                            // Milestone logic: Simple simulation for demo
+                            const milestones = [5, 12, 22]; // Random days to highlight
+                            const milestoneColors = idx % 2 === 0 ? 'bg-tertiary/40' : 'bg-secondary/40';
+
+                            let daysHtml = '';
+                            // Prepend empty slots for alignment (simplified)
+                            const offset = (idx * 2) % 7;
+                            for(let i=0; i<offset; i++) daysHtml += '<span class="w-6 h-6"></span>';
+                            
+                            for(let d=1; d<=30; d++) {
+                                const isMilestone = milestones.includes(d) && (idx % 3 === 0);
+                                daysHtml += `
+                                    <span class="w-6 h-6 flex items-center justify-center text-[11px] font-body rounded-full transition-colors hover:bg-slate-100 cursor-pointer ${isMilestone ? milestoneColors + ' font-bold text-on-surface' : 'text-slate-400'}">
+                                        ${d}
+                                    </span>
+                                `;
+                            }
+
+                            monthCard.innerHTML = `
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <h3 class="text-sm font-headline font-bold uppercase tracking-widest text-primary">${month}</h3>
+                                    ${idx === 0 ? '<span class="w-2 h-2 rounded-full bg-emerald-400"></span>' : ''}
+                                </div>
+                                <div class="grid grid-cols-7 gap-y-2 text-center">
+                                    ${days.map(d => `<span class="text-[9px] font-headline font-bold text-slate-300 uppercase">${d}</span>`).join('')}
+                                    ${daysHtml}
+                                </div>
+                            `;
+                            container.appendChild(monthCard);
+                        });
+                    }
+                    window.onload = renderYear;
+                </script>
+</div>
+<!-- Dashboard Bottom Utility -->
+<div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Milestone Legend Card -->
+<div class="bg-white p-8 rounded-[32px] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] flex flex-col gap-6 border border-slate-50">
+<span class="text-[11px] font-headline font-bold uppercase tracking-wider text-slate-400">Leyenda de Hitos</span>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary" data-icon="energy_savings_leaf">energy_savings_leaf</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-primary">Crecimiento</p>
+<p class="text-xs text-slate-400">Proyectos de renovación</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="self_improvement">self_improvement</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-primary">Sanctuary</p>
+<p class="text-xs text-slate-400">Retiros de bienestar</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Statistics Card -->
+<div class="bg-primary p-8 rounded-[32px] shadow-xl flex flex-col justify-between text-white md:col-span-2 overflow-hidden relative">
+<div class="relative z-10">
+<span class="text-[11px] font-headline font-bold uppercase tracking-wider text-slate-400">Resumen Anual</span>
+<div class="mt-4 flex items-end gap-12">
+<div>
+<p class="text-4xl font-headline font-bold">124</p>
+<p class="text-sm text-slate-400">Eventos Programados</p>
+</div>
+<div>
+<p class="text-4xl font-headline font-bold">18</p>
+<p class="text-sm text-slate-400">Hitos de Impacto</p>
+</div>
+<div class="ml-auto text-right">
+<button class="h-12 px-6 bg-white text-primary rounded-full font-headline font-bold text-sm flex items-center gap-2 hover:bg-slate-100 transition-all">
+<span>Exportar PDF</span>
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Abstract graphic decoration -->
+<div class="absolute right-0 bottom-0 opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[240px]" data-icon="calendar_month">calendar_month</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Floating Action Button (Contextual for Calendar) -->
+<button class="fixed bottom-10 right-10 w-16 h-16 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 group">
+<span class="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform duration-300" data-icon="add">add</span>
+</button>
+</main>
+</body></html>

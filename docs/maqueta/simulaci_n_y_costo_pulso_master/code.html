@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-container": "#334155",
+              "on-surface-variant": "#64748B",
+              "error-container": "#FEE2E2",
+              "on-tertiary-fixed-variant": "#065F46",
+              "on-secondary-container": "#581C87",
+              "primary-fixed-dim": "#CBD5E1",
+              "primary-fixed": "#E2E8F0",
+              "background": "#FAFAF9",
+              "secondary-container": "#F3E8FF",
+              "on-secondary-fixed": "#2E1065",
+              "tertiary": "#A7F3D0",
+              "surface-container-low": "#FAFAF9",
+              "secondary-fixed-dim": "#E9D5FF",
+              "on-tertiary-container": "#065F46",
+              "surface-container": "#F8FAFC",
+              "on-error-container": "#991B1B",
+              "inverse-surface": "#1E293B",
+              "surface": "#FFFFFF",
+              "secondary-fixed": "#F3E8FF",
+              "on-surface": "#334155",
+              "surface-bright": "#FFFFFF",
+              "on-error": "#FFFFFF",
+              "error": "#EF4444",
+              "surface-dim": "#F1F5F9",
+              "on-primary-fixed": "#0F172A",
+              "surface-variant": "#F1F5F9",
+              "primary": "#1E293B",
+              "on-tertiary-fixed": "#064E3B",
+              "on-secondary": "#1E293B",
+              "on-background": "#334155",
+              "inverse-on-surface": "#F8FAFC",
+              "on-primary": "#FFFFFF",
+              "tertiary-fixed-dim": "#A7F3D0",
+              "secondary": "#E9D5FF",
+              "on-secondary-fixed-variant": "#581C87",
+              "on-tertiary": "#064E3B",
+              "surface-container-high": "#F1F5F9",
+              "on-primary-fixed-variant": "#334155",
+              "tertiary-fixed": "#D1FAE5",
+              "surface-container-lowest": "#FFFFFF",
+              "outline": "#94A3B8",
+              "surface-tint": "#1E293B",
+              "outline-variant": "#CBD5E1",
+              "on-primary-container": "#E2E8F0",
+              "inverse-primary": "#94A3B8"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            boxShadow: {
+              'float': '0 20px 40px -10px rgba(0,0,0,0.03)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+        @keyframes shimmer {
+            from { background-position: -200% 0; }
+            to { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface">
+<!-- Shared TopAppBar Component -->
+<header class="w-full h-16 sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center px-8 z-50 ml-64 max-w-[calc(100%-16rem)]">
+<div class="flex items-center gap-8">
+<span class="font-['Space_Grotesk'] uppercase text-[11px] tracking-wider font-bold text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all cursor-pointer">Panel</span>
+<span class="font-['Space_Grotesk'] uppercase text-[11px] tracking-wider font-bold text-slate-900 dark:text-white border-b-2 border-slate-900 transition-all cursor-pointer">Planificador</span>
+<span class="font-['Space_Grotesk'] uppercase text-[11px] tracking-wider font-bold text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all cursor-pointer">Tareas</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-slate-100 transition-colors">
+<span class="material-symbols-outlined text-slate-800 dark:text-slate-100">notifications</span>
+</button>
+<button class="p-1 rounded-full border border-slate-200">
+<img alt="User Avatar" class="w-7 h-7 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1luLC8ALEICqeghT-RkN2-qw2bnOA94mtHHAO_w0m5E9nJkJifWJvs1HfhiVsONLEH6PUdEyyOzPRq_pl4VTf5ydumEG7CVbNKrwXXSvxB2hQt4zXqQNHO53bSxTbvX8xjXRREzjPoAa68_kB2a9kr-2rsgdjyGuTy0yRfB2lifNrmxwZSnUbFVpGo0_rGveVxBDlQlVaKYFK5PE6_Jtbahb560wZ1OI1MO8VrG09z6yNxuCEXsQVCci55fnD0OnuVdt3WTRPlSw"/>
+</button>
+</div>
+</header>
+<div class="flex">
+<!-- Shared SideNavBar Component -->
+<aside class="fixed left-0 top-0 h-full w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-950 flex flex-col p-4 z-40">
+<div class="px-4 py-8 mb-4">
+<div class="flex items-center gap-3 mb-2">
+<img alt="Pulso Isotype" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/ADBb0ujvZNXxSOT4vZ9hT4PqPfgqUyYPUSJ-LCnJcaEd3ZqOa4IKlRL4OA-ljva3H0l7x_uDyRmqHa0eIF7kmhWApoiBX8B5VV7grnd79ztCb9gNizuxXvifPZOFOy-I3D0dSY_2NKZkMfab_u-YYCMV85uR3ssmf82YtSZQhoSeLuhoopB1gsc6H4tFHkA3fK0ZfRO5AqS6sUbBi0A0XpBvLuNkwFfzxmzusnRmRxoYkwpOcc4son6rS-ci892kZ20RRdK8n2tuAJFqkg"/>
+<span class="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">Pulso</span>
+</div>
+<p class="font-['Space_Grotesk'] text-[10px] uppercase tracking-[0.2em] text-on-surface-variant opacity-60">Digital Sanctuary</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-800 rounded-lg shadow-sm font-semibold font-['Space_Grotesk'] text-[15px] tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+<span>Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span>Tasks</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span>Notes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">center_focus_strong</span>
+<span>Focus Mode</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all rounded-lg font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-slate-200/50 pt-6 space-y-4">
+<button class="w-full bg-primary text-white py-3.5 rounded-xl font-headline font-bold text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-[0.98] transition-transform hover:shadow-lg hover:shadow-primary/20">
+<span class="material-symbols-outlined text-sm">add</span> New Entry
+            </button>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:text-slate-600 transition-colors text-[13px] font-medium" href="#">
+<span class="material-symbols-outlined text-lg">help</span> Ayuda
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 ml-64 p-12 min-h-screen relative overflow-hidden bg-slate-50/30">
+<!-- Background Elements -->
+<div class="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-tertiary/5 blur-[120px] rounded-full pointer-events-none"></div>
+<div class="absolute bottom-[-5%] left-[10%] w-[30rem] h-[30rem] bg-secondary/5 blur-[100px] rounded-full pointer-events-none"></div>
+<div class="max-w-6xl mx-auto relative z-10">
+<header class="mb-14">
+<span class="font-label text-[11px] uppercase tracking-[0.25em] text-slate-400 font-bold mb-3 block">Módulo de Simulación</span>
+<h1 class="text-5xl font-bold text-slate-900 tracking-tight">Planificador Maestro</h1>
+<p class="text-slate-500 mt-4 text-lg max-w-2xl leading-relaxed">Optimiza tu flujo de trabajo digital mediante nuestra infraestructura de procesamiento distribuido y balanceo de carga en tiempo real.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- Config & Task List -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Config Bento -->
+<div class="bg-white rounded-[2rem] p-8 shadow-float border border-slate-100">
+<div class="flex items-center gap-3 mb-8">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+<h3 class="font-headline text-xl font-bold text-slate-800">Parámetros de Ejecución</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-2">
+<label class="font-label text-[11px] uppercase tracking-widest text-slate-400 font-bold ml-1">Prioridad de Carga</label>
+<div class="relative group">
+<select class="w-full h-14 rounded-2xl border-slate-100 bg-slate-50/50 px-5 text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none appearance-none cursor-pointer transition-all hover:bg-slate-100/50">
+<option>Baja (Eco-Mode)</option>
+<option selected="">Estándar (Recomendado)</option>
+<option>Alta (Instantánea)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label text-[11px] uppercase tracking-widest text-slate-400 font-bold ml-1">Nodo de Destino</label>
+<div class="relative group">
+<select class="w-full h-14 rounded-2xl border-slate-100 bg-slate-50/50 px-5 text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none appearance-none cursor-pointer transition-all hover:bg-slate-100/50">
+<option>Santuario Central (Cluster A)</option>
+<option>Nodo Periférico (Edge Node)</option>
+<option>Distribución Global</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Task List -->
+<div class="bg-white rounded-[2rem] p-8 shadow-float border border-slate-100">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<h3 class="font-headline text-xl font-bold text-slate-800">Monitor de Procesos</h3>
+</div>
+<span class="text-xs font-bold font-label text-slate-400 uppercase tracking-widest">3 Activos</span>
+</div>
+<div class="space-y-4">
+<!-- Ready Task -->
+<div class="group flex items-center justify-between p-5 bg-tertiary/5 rounded-2xl border border-tertiary/10 transition-all hover:border-tertiary/30">
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-tertiary text-2xl" data-weight="fill">check_circle</span>
+</div>
+<div>
+<p class="font-bold text-slate-800">Validación de Esquema</p>
+<p class="text-xs text-on-tertiary-fixed-variant opacity-80">Protocolo verificado • Integridad 100%</p>
+</div>
+</div>
+<span class="text-[10px] bg-tertiary/20 px-3 py-1.5 rounded-full text-on-tertiary font-bold uppercase tracking-widest">Listo</span>
+</div>
+<!-- Processing Task -->
+<div class="flex items-center justify-between p-5 bg-secondary-container/10 rounded-2xl border border-secondary-container/20 overflow-hidden relative">
+<div class="absolute inset-0 shimmer opacity-20 pointer-events-none"></div>
+<div class="flex items-center gap-5 relative z-10">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm animate-pulse">
+<span class="material-symbols-outlined text-on-secondary-container text-2xl">memory</span>
+</div>
+<div>
+<p class="font-bold text-slate-800">Cálculo de Rutas Críticas</p>
+<p class="text-xs text-on-secondary-container opacity-80">Analizando 1.2M de variables...</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-2 relative z-10">
+<span class="text-[10px] font-bold text-on-secondary-container uppercase tracking-widest">68%</span>
+<div class="w-32 h-2 bg-white/50 rounded-full overflow-hidden border border-secondary-container/10">
+<div class="h-full bg-secondary w-[68%] rounded-full shadow-[0_0_8px_rgba(233,213,255,1)]"></div>
+</div>
+</div>
+</div>
+<!-- Pending Task -->
+<div class="flex items-center justify-between p-5 bg-slate-50/50 rounded-2xl border border-slate-100">
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-slate-400 text-2xl">pending</span>
+</div>
+<div>
+<p class="font-bold text-slate-400">Distribución de Recursos</p>
+<p class="text-xs text-slate-400/70">En cola • Prioridad estándar</p>
+</div>
+</div>
+<span class="text-[10px] bg-slate-200/50 px-3 py-1.5 rounded-full text-slate-500 font-bold uppercase tracking-widest">Pendiente</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Summary & Action Side -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Master Cost Card -->
+<div class="glass-card border border-white rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col p-8 bg-white/80">
+<div class="absolute -top-12 -right-12 w-48 h-48 bg-primary/5 blur-3xl rounded-full"></div>
+<div class="flex flex-col items-center text-center mb-8">
+<div class="w-16 h-16 rounded-[1.25rem] bg-slate-900 text-white flex items-center justify-center mb-6 shadow-xl shadow-slate-900/10">
+<span class="material-symbols-outlined text-3xl">token</span>
+</div>
+<span class="font-label text-[10px] uppercase tracking-[0.3em] text-slate-400 font-bold mb-2">Presupuesto de Ejecución</span>
+<h2 class="font-bold text-slate-900 text-2xl flex flex-wrap justify-center items-center gap-2">
+                                Costo estimado
+                            </h2>
+<!-- Legible Stat Block -->
+<div class="mt-4 bg-slate-900 text-white px-8 py-3.5 rounded-2xl shadow-xl shadow-slate-900/20 inline-flex items-center gap-3">
+<span class="text-4xl font-bold tracking-tighter">45</span>
+<span class="text-xs uppercase tracking-widest font-headline font-bold text-slate-400">sats</span>
+</div>
+</div>
+<div class="w-full space-y-4 mb-8">
+<div class="flex justify-between items-center py-3 border-b border-slate-100">
+<span class="text-sm font-medium text-slate-500">Fee de Red</span>
+<span class="text-sm font-bold text-slate-800">12 sats</span>
+</div>
+<div class="flex justify-between items-center py-3 border-b border-slate-100">
+<span class="text-sm font-medium text-slate-500">Procesamiento AI</span>
+<span class="text-sm font-bold text-slate-800">33 sats</span>
+</div>
+<div class="flex justify-between items-center py-4 text-slate-900">
+<span class="font-bold text-lg">Total</span>
+<span class="font-bold text-lg">45 sats</span>
+</div>
+</div>
+<button class="w-full h-16 bg-primary text-white rounded-2xl flex items-center justify-center gap-4 font-headline font-bold text-lg group hover:shadow-2xl hover:shadow-primary/30 transition-all active:scale-[0.97] relative overflow-hidden">
+<span class="relative z-10">Generar Plan</span>
+<span class="material-symbols-outlined relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">rocket_launch</span>
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+<p class="mt-6 text-[10px] text-slate-400 text-center italic px-4 leading-normal">Liquidación instantánea vía Lightning Network. No reembolsable una vez procesada la carga.</p>
+</div>
+<!-- Network Health Widget -->
+<div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-5 transition-transform hover:translate-y-[-2px]">
+<div class="w-14 h-14 rounded-2xl bg-tertiary/15 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-fixed-variant text-2xl" data-weight="fill">bolt</span>
+</div>
+<div>
+<p class="font-headline font-bold text-slate-800">Estado de Red</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="text-xs font-medium text-slate-500">Latencia Óptima (12ms)</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 ml-auto">trending_up</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

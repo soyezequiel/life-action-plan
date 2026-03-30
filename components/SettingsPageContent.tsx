@@ -32,6 +32,7 @@ import OwnKeyManager from './settings/OwnKeyManager'
 import ServiceAiSelector from './settings/ServiceAiSelector'
 import type { AuthState, AuthUser, LlmMode, ServiceModelOption } from './settings/types'
 import WalletSection from './settings/WalletSection'
+import { AppShell } from './layout/AppShell'
 
 const settingsTransition = {
   type: 'spring' as const,
@@ -76,11 +77,11 @@ function resolveRequestedBuildResourceMode(input: {
 export default function SettingsPageContent({ deploymentMode }: SettingsPageContentProps) {
   return (
     <Suspense fallback={(
-      <div className="app-shell app-shell--centered">
-        <div className="app-screen app-screen--card app-screen--compact">
+      <AppShell eyebrow={t('dashboard.shell_nav.system')} title={t('settings.apikey_title')} copy={t('settings.apikey_hint')} compact>
+        <div className={styles.settingsFrame}>
           <p className="app-copy">{t('ui.loading')}</p>
         </div>
-      </div>
+      </AppShell>
     )}
     >
       <SettingsPageClient deploymentMode={deploymentMode} />
@@ -493,22 +494,27 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="app-shell app-shell--centered">
-        <motion.div
-          className={styles.settingsFrame}
-          initial={{ opacity: 0, y: 16, scale: 0.985 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={settingsTransition}
-        >
-          <div className={styles.topbar}>
+      <AppShell
+        eyebrow={t('dashboard.shell_nav.system')}
+        title={t('settings.apikey_title')}
+        copy={t('settings.apikey_hint')}
+        actions={(
+          <>
             <button className="app-button app-button--secondary" onClick={() => router.push('/')}>
               {t('ui.cancel')}
             </button>
             <button className="app-button app-button--secondary" onClick={() => router.push('/flow?entry=redo-profile')}>
               {t('dashboard.redo_intake')}
             </button>
-          </div>
-
+          </>
+        )}
+      >
+        <motion.div
+          className={styles.settingsFrame}
+          initial={{ opacity: 0, y: 16, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={settingsTransition}
+        >
           <div className={styles.hero}>
             <div className={styles.heroCopy}>
               <span className="app-status app-status--eyebrow">{t('dashboard.actions_title')}</span>
@@ -587,7 +593,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
             <AccountSection authState={authState} onAuthChange={refreshAuthState} />
           </div>
         </motion.div>
-      </div>
+      </AppShell>
 
       <AnimatePresence>
         {debugPanelVisible && (

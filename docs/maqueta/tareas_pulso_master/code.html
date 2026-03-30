@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pulse Master - FlexTasks</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1E293B",
+                        "on-surface": "#334155",
+                        "on-surface-variant": "#64748B",
+                        "surface": "#FFFFFF",
+                        "surface-container-low": "#FAFAF9",
+                        "surface-container": "#F8FAFC",
+                        "outline-variant": "#CBD5E1",
+                        "tertiary": "#A7F3D0",
+                        "error": "#EF4444",
+                        "error-container": "#FEE2E2",
+                        "on-error-container": "#991B1B",
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "label": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .atmospheric-blur-mint {
+            background: radial-gradient(circle, rgba(167, 243, 208, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+        .atmospheric-blur-lavender {
+            background: radial-gradient(circle, rgba(233, 213, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+        .soft-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface font-body antialiased min-h-screen flex">
+<!-- SideNavBar: Using shared component logic -->
+<aside class="fixed left-0 top-0 h-full w-64 flex flex-col p-4 z-40 bg-slate-50 dark:bg-slate-950 border-r border-slate-200/50 dark:border-slate-800/50 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] hidden md:flex">
+<div class="flex flex-col h-full gap-2">
+<!-- Header Section with Isotype -->
+<div class="px-4 py-6 mb-4">
+<div class="flex items-center gap-3">
+<img alt="Pulso Isotype Symbol" class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ujvZNXxSOT4vZ9hT4PqPfgqUyYPUSJ-LCnJcaEd3ZqOa4IKlRL4OA-ljva3H0l7x_uDyRmqHa0eIF7kmhWApoiBX8B5VV7grnd79ztCb9gNizuxXvifPZOFOy-I3D0dSY_2NKZkMfab_u-YYCMV85uR3ssmf82YtSZQhoSeLuhoopB1gsc6H4tFHkA3fK0ZfRO5AqS6sUbBi0A0XpBvLuNkwFfzxmzusnRmRxoYkwpOcc4son6rS-ci892kZ20RRdK8n2tuAJFqkg"/>
+<div>
+<h1 class="font-headline font-bold text-xl text-slate-900 dark:text-white tracking-tighter leading-tight">Pulso</h1>
+<p class="font-headline text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">Digital Sanctuary</p>
+</div>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-headline text-[15px] font-medium tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-headline text-[15px] font-medium tracking-tight">Calendar</span>
+</a>
+<!-- ACTIVE TAB: Tasks -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-800 rounded-lg shadow-sm font-semibold transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+<span class="font-headline text-[15px] font-medium tracking-tight">Tasks</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-headline text-[15px] font-medium tracking-tight">Notes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="center_focus_strong">center_focus_strong</span>
+<span class="font-headline text-[15px] font-medium tracking-tight">Focus Mode</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-headline text-[15px] font-medium tracking-tight">Settings</span>
+</a>
+</nav>
+<!-- CTA Button -->
+<div class="px-2 mt-4">
+<button class="w-full h-12 bg-primary text-white rounded-xl font-headline font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Entry
+            </button>
+</div>
+<!-- Footer -->
+<div class="mt-auto border-t border-slate-200/50 dark:border-slate-800/50 pt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-headline text-[15px] font-medium tracking-tight">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-error hover:bg-error-container rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-headline text-[15px] font-medium tracking-tight">Log Out</span>
+</a>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col min-w-0 md:ml-64">
+<!-- TopAppBar -->
+<header class="sticky top-0 w-full h-16 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center px-8">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<span class="font-headline uppercase text-[11px] tracking-wider font-bold text-slate-800 dark:text-slate-100">Tasks / FlexTasks</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden sm:flex items-center bg-slate-100/50 dark:bg-slate-800/50 rounded-full px-4 py-1.5 border border-slate-200/50">
+<span class="material-symbols-outlined text-slate-400 text-lg mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-body placeholder-slate-400" placeholder="Search tasks..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<img alt="Avatar de usuario" class="w-8 h-8 rounded-full border border-slate-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJEYfMhmpZ2v7QeEVLDeVsrf18Z1W9sgmV2UkI_ShYXOX3jjWFltUyKNVm3xEgorBBMh46X0Z-mqlKQvXCaJLC9WUtGJUaasHgQlPQkb9V75K5fKysrSRoUWMxNkZYW07gP0lD5wo35qP5DIQUsGk-a9WgKfZZoCwQDTIlymYS2nDHABcPrUkW8tCS9VUGpaifcTA89rWw9x3GjRWTreh5BBRBErrJUbLtLmMEgr4ERlA_IQjP6-NTx3jjOgvMQbSXJ2r5Ga60up0"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="py-12 px-8 max-w-7xl mx-auto w-full relative">
+<!-- Atmospheric Blurs -->
+<div class="fixed top-24 right-0 w-[500px] h-[500px] atmospheric-blur-mint -z-10 pointer-events-none opacity-60"></div>
+<div class="fixed bottom-0 left-0 w-[600px] h-[600px] atmospheric-blur-lavender -z-10 pointer-events-none opacity-60"></div>
+<!-- Page Header -->
+<div class="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+<div class="max-w-xl">
+<h2 class="text-4xl font-bold font-headline text-slate-900 tracking-tight mb-4">FlexTasks</h2>
+<p class="text-on-surface-variant text-lg leading-relaxed">Organize your workflow without the rigidity of fixed schedules. Pulse Master helps you focus on what truly matters today.</p>
+</div>
+<!-- Progress Widget -->
+<div class="flex items-center gap-6 bg-white soft-shadow p-6 rounded-2xl border border-slate-100">
+<div class="relative w-16 h-16 flex items-center justify-center">
+<svg class="w-16 h-16 transform -rotate-90">
+<circle class="text-slate-100" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-emerald-400" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="176" stroke-dashoffset="44" stroke-width="6"></circle>
+</svg>
+<span class="absolute text-sm font-headline font-bold">75%</span>
+</div>
+<div>
+<h4 class="font-headline text-[11px] uppercase tracking-wider text-on-surface-variant font-bold mb-1">Ritmo de Hoy</h4>
+<p class="font-headline font-semibold text-lg">9 / 12 Completado</p>
+</div>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Main Tasks Column -->
+<div class="lg:col-span-8 space-y-12">
+<!-- Section: High Priority (Checklist Style) -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</div>
+<h3 class="font-headline font-bold text-2xl tracking-tight text-slate-900">Prioridad Espacial</h3>
+</div>
+<button class="text-slate-400 hover:text-slate-900 transition-colors">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+<div class="space-y-4">
+<!-- Task Card 1 (Inminente) -->
+<div class="group bg-white p-6 rounded-2xl soft-shadow border border-slate-100 hover:border-slate-300 transition-all cursor-pointer">
+<div class="flex items-start gap-4">
+<div class="mt-1 w-6 h-6 rounded-lg border-2 border-slate-200 flex items-center justify-center group-hover:border-slate-400 transition-colors">
+<div class="w-2.5 h-2.5 bg-slate-900 rounded-sm opacity-0 group-hover:opacity-10"></div>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-[10px] font-bold uppercase tracking-widest">Inminente</span>
+<span class="text-slate-400 text-[10px] font-bold tracking-widest uppercase">ID-8923</span>
+</div>
+<h4 class="text-lg font-bold text-slate-900 font-headline mb-2">Revisión Final: Arquitectura V5.1</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">Verificar todos los hooks de navegación y el sistema de resolución de conflictos de tokens de diseño.</p>
+<div class="flex items-center justify-between pt-4 border-t border-slate-50">
+<div class="flex items-center gap-4">
+<div class="flex items-center text-xs font-medium text-slate-500">
+<span class="material-symbols-outlined text-sm mr-1" data-icon="schedule">schedule</span>
+                                                Hoy, 18:00
+                                            </div>
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9CbMu-CIME-30ys_9WkE7iIm3XocvZ30wJKCL8KdOxbpfxu3vrnjTRf9Nzm4txy56umtoILIFZgTGs9vGVFQhVe4R8jqdYdYO0I3PYb12K9Ux0NKYUQtQ1LN5i3jHt0Uby8rVwB6DDJXprp2_obstIjQpjbIwF96AB6k2KI6fNLmq54UYEn8azCHk5wBaQn2-Vxw8tw7Sd352GjMa7q0DR-OawLCAS4HSz5tLm1svRkwtsovG6fVjagIQFKct-nT5TuN83NJIa4Q"/>
+<img class="w-6 h-6 rounded-full border-2 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpfmBDd0ceshp_6_V2UyVJW78EM73XX3hJm_ERwrnsKGgGdRU32_juBhX2TiPSElXG5BeUudi8Xcwy6AxXVorjoBCy7L1Ju85ht5nFC793wQpg1yCSIzD1Qtw7m5dPtJio6r-icKM31717ZSfKi1wAFkqe_T264QpH6LOnQASfsdJ9vlVljIZ0MwhVLO7FdYo2jbkemf6UhTL0mpYeHkkkrUvgXoIUB2mHIlS9_BlmPr6kha9ujuAcAGXG3KMWbGP6y7eC0XiKouU"/>
+</div>
+</div>
+<button class="px-4 py-2 rounded-xl bg-slate-900 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-colors">
+                                            Comenzar
+                                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Task Card 2 (Importante) -->
+<div class="group bg-white p-6 rounded-2xl soft-shadow border border-slate-100 hover:border-slate-300 transition-all cursor-pointer">
+<div class="flex items-start gap-4">
+<div class="mt-1 w-6 h-6 rounded-lg border-2 border-slate-200 flex items-center justify-center group-hover:border-slate-400">
+<div class="w-2.5 h-2.5 bg-slate-900 rounded-sm opacity-0"></div>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-widest">Importante</span>
+</div>
+<div class="flex justify-between items-center">
+<h4 class="text-lg font-bold text-slate-900 font-headline">Sync con Stakeholders - Sprint 3</h4>
+<div class="flex items-center text-xs font-medium text-slate-500">
+<span class="material-symbols-outlined text-sm mr-1" data-icon="calendar_today">calendar_today</span>
+                                            Mañana
+                                        </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Maintenance (Dashboard Grid Style) -->
+<section>
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined" data-icon="waves">waves</span>
+</div>
+<h3 class="font-headline font-bold text-2xl tracking-tight text-slate-900">Mantenimiento Fluido</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Compact Task Card -->
+<div class="bg-white p-5 rounded-2xl border border-slate-100 soft-shadow hover:bg-slate-50 transition-colors cursor-pointer flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-5 h-5 rounded border-2 border-slate-200 flex items-center justify-center"></div>
+<span class="font-semibold text-slate-900">Limpieza de DB Legacy</span>
+</div>
+<span class="text-[10px] px-2 py-0.5 bg-slate-100 rounded-full text-slate-400 font-bold uppercase">Sistema</span>
+</div>
+<!-- Compact Task Card -->
+<div class="bg-white p-5 rounded-2xl border border-slate-100 soft-shadow hover:bg-slate-50 transition-colors cursor-pointer flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-5 h-5 rounded border-2 border-slate-200 flex items-center justify-center"></div>
+<span class="font-semibold text-slate-900">Documentación de API</span>
+</div>
+<span class="text-[10px] px-2 py-0.5 bg-slate-100 rounded-full text-slate-400 font-bold uppercase">DevDocs</span>
+</div>
+<!-- Completed Task Card -->
+<div class="bg-white/50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between opacity-60">
+<div class="flex items-center gap-3">
+<div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xs" data-icon="check">check</span>
+</div>
+<span class="font-semibold text-slate-900 line-through">Backlog Triage</span>
+</div>
+<span class="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Done</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Side Sidebar Column -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Section: Exploración Libre -->
+<section class="bg-slate-900 text-white rounded-[2rem] p-8 relative overflow-hidden h-fit soft-shadow">
+<div class="absolute top-0 right-0 w-32 h-32 atmospheric-blur-lavender opacity-20 -mr-10 -mt-10"></div>
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-emerald-400" data-icon="explore">explore</span>
+<h3 class="font-headline font-bold text-xl tracking-tight">Exploración Libre</h3>
+</div>
+<p class="text-slate-400 text-sm leading-relaxed mb-8">Proyectos sin fecha límite para cuando tu creatividad fluya sin presiones.</p>
+<div class="space-y-6">
+<div class="group cursor-pointer">
+<div class="flex justify-between items-center mb-2">
+<h5 class="font-bold text-sm group-hover:text-emerald-400 transition-colors">Investigación: IA Adaptativa</h5>
+<span class="text-[10px] text-slate-500">35%</span>
+</div>
+<div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-400 h-full w-[35%]"></div>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex justify-between items-center mb-2">
+<h5 class="font-bold text-sm group-hover:text-emerald-400 transition-colors">Refactor Animaciones</h5>
+<span class="text-[10px] text-slate-500">12%</span>
+</div>
+<div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-400 h-full w-[12%]"></div>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex justify-between items-center mb-2">
+<h5 class="font-bold text-sm group-hover:text-emerald-400 transition-colors">Prototipo Modo Focus</h5>
+<span class="text-[10px] text-slate-500">65%</span>
+</div>
+<div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-400 h-full w-[65%]"></div>
+</div>
+</div>
+</div>
+<button class="mt-10 w-full py-4 rounded-2xl border border-white/10 hover:bg-white/5 transition-colors font-headline text-[11px] font-bold uppercase tracking-widest">
+                        Biblioteca de Ideas
+                    </button>
+</section>
+<!-- Wisdom Card -->
+<div class="bg-white border border-slate-100 p-6 rounded-2xl soft-shadow">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-emerald-500" data-icon="lightbulb">lightbulb</span>
+<h4 class="font-headline font-bold text-[11px] uppercase tracking-wider text-slate-900">Sabiduría de Enfoque</h4>
+</div>
+<p class="text-xs italic text-on-surface-variant leading-relaxed">"La multitarea es el enemigo de la excelencia. Elige una Prioridad Espacial y deja que las demás esperen su turno."</p>
+</div>
+<!-- Visual Milestone -->
+<div class="rounded-2xl overflow-hidden relative aspect-video soft-shadow group">
+<img alt="Digital Sanctuary Workspace" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7c1UzELLDdbMz1DnDtF0Fij65PHsYdlEFJLene7utrX8JO965jbw8vXt6LaNAglw6Fi7-LWDRzYsOf7VmPfiGj5BycS9kIGIZ2ikygpEeo9RMi-k_qedRyzeohFfSihCgkJm3TygnuILnoac78VQ1kl-6Fn9v5SytFVmucwSZjirEg5B6-2ICVKmXdQxq4qBufsgAZ7zM1z_yp8570lUFdR3PvNHLaW6gA4033Rw7zAQaFLBVfuCkaSA3ZaYVS0M9_ggrmh-AI6c"/>
+<div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent flex flex-col justify-end p-6">
+<span class="text-emerald-400 font-headline font-bold text-[10px] uppercase tracking-widest mb-1">Próximo Hito</span>
+<p class="text-white font-headline font-bold text-sm tracking-tight">Pipeline V5 Global Launch • Q4</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Floating Action Button -->
+<div class="fixed bottom-8 right-8 z-[60] md:bottom-12 md:right-12">
+<button class="w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</button>
+</div>
+</body></html>

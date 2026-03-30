@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#1E293B",
+              "surface": "#FFFFFF",
+              "background": "#FAFAF9",
+              "tertiary": "#A7F3D0", // Mint
+              "secondary": "#E9D5FF", // Lavender
+              "on-surface-variant": "#64748B",
+              "surface-container-low": "#FAFAF9",
+              "surface-container": "#F8FAFC",
+              "error-container": "#FEE2E2",
+              "error": "#EF4444",
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk", "sans-serif"],
+              "body": ["Plus Jakarta Sans", "sans-serif"],
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "16px", // Updated to 16px as requested
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .custom-blur-lavender { background: radial-gradient(circle at top right, rgba(233, 213, 255, 0.3), transparent 60%); }
+        .custom-blur-mint { background: radial-gradient(circle at bottom left, rgba(167, 243, 208, 0.3), transparent 60%); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-surface-container-low text-slate-900 antialiased selection:bg-tertiary">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-screen w-64 flex flex-col p-4 z-40 bg-slate-50 dark:bg-slate-950 border-r border-slate-200/50 dark:border-slate-800/50 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+<div class="px-2 py-6 mb-4">
+<div class="flex items-center gap-3">
+<img alt="Pulso Isotype Symbol" class="h-10 w-10 object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ujvZNXxSOT4vZ9hT4PqPfgqUyYPUSJ-LCnJcaEd3ZqOa4IKlRL4OA-ljva3H0l7x_uDyRmqHa0eIF7kmhWApoiBX8B5VV7grnd79ztCb9gNizuxXvifPZOFOy-I3D0dSY_2NKZkMfab_u-YYCMV85uR3ssmf82YtSZQhoSeLuhoopB1gsc6H4tFHkA3fK0ZfRO5AqS6sUbBi0A0XpBvLuNkwFfzxmzusnRmRxoYkwpOcc4son6rS-ci892kZ20RRdK8n2tuAJFqkg"/>
+<div>
+<h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tighter font-headline">Pulso</h1>
+<p class="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-bold font-headline">Santuario Digital</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-800 rounded-lg shadow-sm font-semibold font-headline text-[15px] tracking-tight active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-headline text-[15px] tracking-tight active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span>Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-headline text-[15px] tracking-tight active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+<span>Tasks</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-headline text-[15px] tracking-tight active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span>Notes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-headline text-[15px] tracking-tight active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="center_focus_strong">center_focus_strong</span>
+<span>Focus Mode</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-headline text-[15px] tracking-tight active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<button class="w-full h-12 bg-primary text-white rounded-lg flex items-center justify-center gap-3 mt-6 active:scale-[0.98] transition-transform shadow-lg">
+<span class="font-headline font-bold text-sm">New Entry</span>
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+<div class="mt-auto border-t border-slate-200/50 dark:border-slate-800/50 pt-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-headline text-[11px] uppercase tracking-wider">Ayuda</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-headline text-[11px] uppercase tracking-wider">Salir</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-8 w-full ml-64 max-w-[calc(100%-16rem)] h-16 sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/50 z-30">
+<div class="flex items-center gap-8">
+<nav class="flex gap-6 font-headline uppercase text-[11px] tracking-wider font-bold">
+<a class="text-slate-900 dark:text-white border-b-2 border-slate-900 transition-all duration-300 ease-in-out" href="#">Panel</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all duration-300 ease-in-out" href="#">Proyectos</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all duration-300 ease-in-out" href="#">Equipo</a>
+</nav>
+</div>
+<div class="flex items-center gap-4 text-slate-800 dark:text-slate-100">
+<div class="relative">
+<input class="bg-slate-100 dark:bg-slate-800 border-none rounded-full px-4 py-1 text-sm focus:ring-2 focus:ring-primary/20 w-48 transition-all" placeholder="Buscar..." type="text"/>
+</div>
+<button class="material-symbols-outlined">notifications</button>
+<button class="material-symbols-outlined">account_circle</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 p-8 relative min-h-screen">
+<!-- Atmospheric Decorative Blurs -->
+<div class="fixed top-0 right-0 w-[500px] h-[500px] custom-blur-lavender pointer-events-none -z-10"></div>
+<div class="fixed bottom-0 left-0 w-[500px] h-[500px] custom-blur-mint pointer-events-none -z-10"></div>
+<div class="max-w-7xl mx-auto">
+<header class="mb-10">
+<h1 class="font-headline text-[32px] font-bold text-primary tracking-tight">Panel de Control Zen</h1>
+<p class="text-on-surface-variant font-body mt-2">Bienvenido al Pulse Master. Tu santuario digital está en equilibrio.</p>
+</header>
+<!-- Unified 4-Pane Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- 1. Calendar (Flujo Diario) -->
+<section class="md:col-span-4 bg-surface rounded-xl p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] border border-white/50 backdrop-blur-sm">
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline text-[18px] font-bold text-primary">Flujo Diario</h2>
+<span class="material-symbols-outlined text-primary/40" data-icon="today">today</span>
+</div>
+<div class="space-y-6">
+<div class="border-l-4 border-tertiary pl-4 py-1">
+<h3 class="font-body text-[16px] font-semibold text-primary">Revisión de Producto</h3>
+<p class="text-xs text-on-surface-variant font-headline">09:00 — 10:30 · Sala de Enfoque A</p>
+</div>
+<div class="border-l-4 border-secondary pl-4 py-1 opacity-60">
+<h3 class="font-body text-[16px] font-semibold text-primary">Deep Work: Pulse</h3>
+<p class="text-xs text-on-surface-variant font-headline">11:00 — 12:00</p>
+</div>
+<div class="border-l-4 border-primary/10 pl-4 py-1">
+<h3 class="font-body text-[16px] font-semibold text-primary">Almuerzo Meditativo</h3>
+<p class="text-xs text-on-surface-variant font-headline">13:30 — 14:30</p>
+</div>
+<div class="mt-8 pt-6 border-t border-slate-100">
+<div class="bg-surface-container-high rounded-xl p-4 flex items-center gap-4 bg-slate-50">
+<div class="w-12 h-12 bg-tertiary rounded-full flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="timer">timer</span>
+</div>
+<div>
+<p class="text-[11px] font-headline uppercase tracking-wider text-on-surface-variant font-bold">Modo Enfoque</p>
+<p class="font-headline font-bold text-primary">24:15 restante</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column for the other 3 panes -->
+<div class="md:col-span-8 flex flex-col gap-8">
+<!-- 2. Checklist (Lista de Tareas) -->
+<section class="bg-surface rounded-xl p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] border border-white/50">
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline text-[18px] font-bold text-primary">Checklist</h2>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-secondary text-on-secondary-container rounded text-[10px] font-headline font-bold">ALTA</span>
+<span class="px-2 py-1 bg-slate-100 text-slate-500 rounded text-[10px] font-headline font-bold">4 ACTIVAS</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-xl transition-colors group cursor-pointer border border-transparent hover:border-slate-100">
+<div class="w-6 h-6 border-2 border-slate-200 rounded-md flex items-center justify-center group-hover:border-primary">
+<span class="material-symbols-outlined text-transparent group-hover:text-primary text-sm" data-icon="check">check</span>
+</div>
+<h3 class="font-body text-[16px] text-primary flex-1">Actualizar documentación del sistema de diseño</h3>
+<span class="material-symbols-outlined text-slate-300" data-icon="drag_indicator">drag_indicator</span>
+</div>
+<div class="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-xl transition-colors group cursor-pointer border border-transparent hover:border-slate-100">
+<div class="w-6 h-6 border-2 border-slate-200 rounded-md flex items-center justify-center"></div>
+<h3 class="font-body text-[16px] text-primary flex-1">Refactorizar componentes de navegación lateral</h3>
+<span class="material-symbols-outlined text-slate-300" data-icon="drag_indicator">drag_indicator</span>
+</div>
+<div class="flex items-center gap-4 p-4 bg-tertiary/10 rounded-xl transition-colors border border-tertiary/20">
+<div class="w-6 h-6 bg-primary text-white rounded-md flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="check">check</span>
+</div>
+<h3 class="font-body text-[16px] text-primary flex-1 line-through opacity-50">Llamada de sincronización semanal</h3>
+<span class="material-symbols-outlined text-tertiary" data-icon="verified">verified</span>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- 3. Metrics (Hábitos/Estadísticas) -->
+<section class="bg-surface rounded-xl p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] border border-white/50">
+<h2 class="font-headline text-[18px] font-bold text-primary mb-8">Métricas</h2>
+<div class="space-y-6">
+<div>
+<div class="flex justify-between mb-2">
+<h3 class="text-[16px] font-body font-medium text-on-surface">Hidratación</h3>
+<span class="text-xs font-headline font-bold text-primary">80%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[80%] rounded-full"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-2">
+<h3 class="text-[16px] font-body font-medium text-on-surface">Lectura Técnica</h3>
+<span class="text-xs font-headline font-bold text-primary">45%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[45%] rounded-full"></div>
+</div>
+</div>
+<div class="flex justify-around pt-4">
+<div class="w-9 h-9 rounded-full border-2 border-tertiary flex items-center justify-center text-[10px] font-bold">L</div>
+<div class="w-9 h-9 rounded-full border-2 border-tertiary flex items-center justify-center text-[10px] font-bold">M</div>
+<div class="w-9 h-9 rounded-full border-2 border-tertiary flex items-center justify-center text-[10px] font-bold">M</div>
+<div class="w-9 h-9 rounded-full border-2 border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400">J</div>
+<div class="w-9 h-9 rounded-full border-2 border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400">V</div>
+</div>
+</div>
+</section>
+<!-- 4. Risk (Semáforo de Riesgo) -->
+<section class="bg-surface rounded-xl p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] border border-white/50 relative overflow-hidden">
+<h2 class="font-headline text-[18px] font-bold text-primary mb-8">Riesgo</h2>
+<div class="flex flex-col items-center justify-center gap-4 py-2">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-error-container/30 flex items-center justify-center">
+<div class="w-6 h-6 rounded-full bg-error/20"></div>
+</div>
+<div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-pulse"></div>
+</div>
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center">
+<div class="w-6 h-6 rounded-full bg-tertiary/30"></div>
+</div>
+</div>
+<div class="text-center mt-4">
+<h3 class="font-body font-bold text-[16px] text-primary">Atención Moderada</h3>
+<p class="text-xs font-body text-on-surface-variant mt-1">3 proyectos requieren revisión de plazos hoy.</p>
+</div>
+</div>
+<div class="absolute -bottom-10 -right-10 w-24 h-24 bg-amber-400/5 blur-2xl rounded-full"></div>
+</section>
+</div>
+</div>
+</div>
+<!-- Footer Summary -->
+<footer class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="p-6 bg-white/50 rounded-xl flex items-center gap-4 border border-slate-200/50">
+<div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="task_alt">task_alt</span>
+</div>
+<div>
+<p class="font-headline text-2xl font-bold text-primary">12</p>
+<p class="text-[10px] font-headline uppercase tracking-wider text-on-surface-variant font-bold">Tareas</p>
+</div>
+</div>
+<div class="p-6 bg-white/50 rounded-xl flex items-center gap-4 border border-slate-200/50">
+<div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="bolt">bolt</span>
+</div>
+<div>
+<p class="font-headline text-2xl font-bold text-primary">85%</p>
+<p class="text-[10px] font-headline uppercase tracking-wider text-on-surface-variant font-bold">Productividad</p>
+</div>
+</div>
+<div class="p-6 bg-white/50 rounded-xl flex items-center gap-4 border border-slate-200/50">
+<div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-tertiary" data-icon="psychology">psychology</span>
+</div>
+<div>
+<p class="font-headline text-2xl font-bold text-primary">04:12</p>
+<p class="text-[10px] font-headline uppercase tracking-wider text-on-surface-variant font-bold">Enfoque</p>
+</div>
+</div>
+<div class="p-6 bg-white/50 rounded-xl flex items-center gap-4 border border-slate-200/50">
+<div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary/40" data-icon="trending_up">trending_up</span>
+</div>
+<div>
+<p class="font-headline text-2xl font-bold text-primary">+14%</p>
+<p class="text-[10px] font-headline uppercase tracking-wider text-on-surface-variant font-bold">Variación</p>
+</div>
+</div>
+</footer>
+</div>
+</main>
+<!-- Mobile Navigation Bar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-100 flex justify-around py-3 px-6 z-50">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-headline font-bold">Panel</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-[10px] font-headline font-bold">Plan</span>
+</a>
+<div class="relative -top-8">
+<button class="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-xl border-4 border-background">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">check_circle</span>
+<span class="text-[10px] font-headline font-bold">Tareas</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-headline font-bold">Ajustes</span>
+</a>
+</nav>
+</body></html>

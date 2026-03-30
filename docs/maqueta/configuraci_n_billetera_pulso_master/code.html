@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pulse - Configuración NWC</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#334155",
+                        "on-surface-variant": "#64748B",
+                        "error-container": "#FEE2E2",
+                        "on-tertiary-fixed-variant": "#065F46",
+                        "on-secondary-container": "#581C87",
+                        "primary-fixed-dim": "#CBD5E1",
+                        "primary-fixed": "#E2E8F0",
+                        "background": "#FAFAF9",
+                        "secondary-container": "#F3E8FF",
+                        "on-secondary-fixed": "#2E1065",
+                        "tertiary": "#A7F3D0",
+                        "surface-container-low": "#FAFAF9",
+                        "secondary-fixed-dim": "#E9D5FF",
+                        "on-tertiary-container": "#065F46",
+                        "surface-container": "#F8FAFC",
+                        "on-error-container": "#991B1B",
+                        "inverse-surface": "#1E293B",
+                        "surface": "#FFFFFF",
+                        "secondary-fixed": "#F3E8FF",
+                        "on-surface": "#334155",
+                        "surface-bright": "#FFFFFF",
+                        "on-error": "#FFFFFF",
+                        "error": "#EF4444",
+                        "surface-dim": "#F1F5F9",
+                        "on-primary-fixed": "#0F172A",
+                        "surface-variant": "#F1F5F9",
+                        "primary": "#1E293B",
+                        "on-tertiary-fixed": "#064E3B",
+                        "on-secondary": "#1E293B",
+                        "on-background": "#334155",
+                        "inverse-on-surface": "#F8FAFC",
+                        "on-primary": "#FFFFFF",
+                        "tertiary-fixed-dim": "#A7F3D0",
+                        "secondary": "#E9D5FF",
+                        "on-secondary-fixed-variant": "#581C87",
+                        "on-tertiary": "#064E3B",
+                        "surface-container-high": "#F1F5F9",
+                        "on-primary-fixed-variant": "#334155",
+                        "tertiary-fixed": "#D1FAE5",
+                        "surface-container-lowest": "#FFFFFF",
+                        "outline": "#94A3B8",
+                        "outline-variant": "#CBD5E1",
+                        "on-primary-container": "#E2E8F0",
+                        "inverse-primary": "#94A3B8"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .atmospheric-blur-mint {
+            background: radial-gradient(circle, rgba(167, 243, 208, 0.15) 0%, rgba(167, 243, 208, 0) 70%);
+        }
+        .atmospheric-blur-lavender {
+            background: radial-gradient(circle, rgba(233, 213, 255, 0.15) 0%, rgba(233, 213, 255, 0) 70%);
+        }
+        .float-shadow {
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.03);
+        }
+        input::placeholder {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: normal;
+        }
+        .masked-font {
+            font-family: 'password';
+            letter-spacing: 0.25em;
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased min-h-screen">
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 ml-64 max-w-[calc(100%-16rem)] w-full h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/50 z-40 flex justify-between items-center px-8">
+<div class="flex items-center gap-6">
+<nav class="flex gap-8">
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all duration-300 ease-in-out font-headline uppercase text-[11px] tracking-wider font-bold" href="#">Dashboard</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all duration-300 ease-in-out font-headline uppercase text-[11px] tracking-wider font-bold" href="#">Calendario</a>
+<a class="text-slate-900 dark:text-white border-b-2 border-slate-900 font-headline uppercase text-[11px] tracking-wider font-bold h-16 flex items-center" href="#">Configuración</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="bg-slate-100 dark:bg-slate-800 border-none rounded-full py-2 pl-9 pr-4 text-[13px] w-64 focus:ring-1 focus:ring-slate-300 transition-all" placeholder="Buscar..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-slate-500 hover:text-slate-900 transition-colors">notifications</button>
+<button class="material-symbols-outlined text-slate-500 hover:text-slate-900 transition-colors">account_circle</button>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar (Shared Component) -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-slate-50 dark:bg-slate-950 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col p-4 z-40">
+<div class="mb-10 px-4 pt-4 flex flex-col items-start gap-4">
+<div class="w-12 h-12 flex items-center justify-center rounded-xl overflow-hidden bg-white/50 backdrop-blur-sm p-2 shadow-sm border border-white/20">
+<img alt="Pulso Isotype Symbol" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ujvZNXxSOT4vZ9hT4PqPfgqUyYPUSJ-LCnJcaEd3ZqOa4IKlRL4OA-ljva3H0l7x_uDyRmqHa0eIF7kmhWApoiBX8B5VV7grnd79ztCb9gNizuxXvifPZOFOy-I3D0dSY_2NKZkMfab_u-YYCMV85uR3ssmf82YtSZQhoSeLuhoopB1gsc6H4tFHkA3fK0ZfRO5AqS6sUbBi0A0XpBvLuNkwFfzxmzusnRmRxoYkwpOcc4son6rS-ci892kZ20RRdK8n2tuAJFqkg"/>
+</div>
+<div>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tighter font-headline">Pulso</h2>
+<p class="font-headline text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/70 font-medium">Digital Sanctuary</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Space_Grotesk'] text-[15px] font-medium tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-['Space_Grotesk'] text-[15px] font-medium tracking-tight">Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">check_circle</span>
+<span class="font-['Space_Grotesk'] text-[15px] font-medium tracking-tight">Tasks</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-['Space_Grotesk'] text-[15px] font-medium tracking-tight">Notes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">center_focus_strong</span>
+<span class="font-['Space_Grotesk'] text-[15px] font-medium tracking-tight">Focus Mode</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-800 rounded-lg shadow-sm font-semibold active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Space_Grotesk'] text-[15px] font-medium tracking-tight">Settings</span>
+</a>
+</nav>
+<button class="mt-4 flex items-center justify-center gap-2 bg-primary text-surface py-3 rounded-xl font-headline font-bold text-sm tracking-wide hover:opacity-90 transition-all active:scale-[0.98] group">
+                New Entry
+                <span class="material-symbols-outlined text-sm transition-transform group-hover:rotate-90">add</span>
+</button>
+<div class="mt-auto pt-4 flex flex-col gap-1 border-t border-slate-200/50">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-700 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-headline text-[11px] uppercase tracking-wider">Ayuda</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-700 transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-headline text-[11px] uppercase tracking-wider">Salir</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 ml-64 pt-16 min-h-screen relative overflow-hidden bg-slate-50/50">
+<!-- Decorative Atmospheric Blurs -->
+<div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] atmospheric-blur-mint rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] atmospheric-blur-lavender rounded-full blur-3xl pointer-events-none"></div>
+<div class="max-w-6xl mx-auto px-12 py-12 relative z-10">
+<!-- Page Header -->
+<div class="mb-10">
+<h1 class="font-headline text-3xl font-bold text-slate-900 mb-2">Billetera Lightning</h1>
+<p class="text-slate-500">Administra tus conexiones y flujos financieros inteligentes.</p>
+</div>
+<!-- Dashboard Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left: Wallet Card & Balance -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Stat Tile Style Balance -->
+<div class="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between h-[180px]">
+<div class="flex justify-between items-start">
+<div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-600">account_balance_wallet</span>
+</div>
+<span class="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">En Línea</span>
+</div>
+<div>
+<p class="text-[11px] font-headline uppercase tracking-widest text-slate-400 mb-1">Saldo Disponible</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-3xl font-bold text-slate-900 font-headline">1.240.500</h3>
+<span class="text-slate-400 font-medium text-sm">sats</span>
+</div>
+<p class="text-xs text-slate-400 mt-1">≈ $312.45 USD</p>
+</div>
+</div>
+<!-- Secondary Stat Tile -->
+<div class="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between h-[140px]">
+<div class="flex justify-between items-center">
+<p class="text-[11px] font-headline uppercase tracking-widest text-slate-400">Transacciones (Mes)</p>
+<span class="material-symbols-outlined text-slate-300">query_stats</span>
+</div>
+<div>
+<h3 class="text-2xl font-bold text-slate-900 font-headline">42</h3>
+<div class="flex items-center gap-1 text-emerald-500 text-xs mt-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+12% vs mes pasado</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Connection Settings -->
+<div class="lg:col-span-8">
+<div class="bg-white rounded-[32px] p-8 md:p-10 border border-slate-100 shadow-sm">
+<div class="flex items-start justify-between mb-10">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 bg-indigo-50 flex items-center justify-center rounded-2xl">
+<span class="material-symbols-outlined text-indigo-600 text-3xl">bolt</span>
+</div>
+<div>
+<h2 class="font-headline text-xl font-bold text-slate-900">Conectar Nostr Wallet Connect</h2>
+<p class="text-slate-500 text-sm mt-1">Automatiza pagos mediante el protocolo NWC.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-200 text-4xl">security</span>
+</div>
+<div class="space-y-8">
+<div>
+<div class="flex justify-between items-end mb-3 px-1">
+<label class="font-headline text-[11px] uppercase tracking-wider text-slate-500 font-bold">Cadena de Conexión Secreta</label>
+<span class="text-[10px] text-slate-400 font-medium">Requerido</span>
+</div>
+<div class="relative group">
+<input class="w-full h-14 bg-slate-50 border border-slate-100 rounded-xl px-5 font-mono text-slate-600 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:border-transparent transition-all text-sm pr-14" placeholder="nwc://tu-secreto-aqui..." type="password" value="nwc://34890234890234890234890234890234890234890234890234890234"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 hover:text-slate-900 transition-colors">
+                                            visibility
+                                        </button>
+</div>
+<div class="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-100/50 flex gap-3 items-start">
+<span class="material-symbols-outlined text-amber-600 text-lg">info</span>
+<p class="text-[12px] text-amber-800 leading-relaxed">
+<b>Seguridad Nivel Pulse:</b> Tu clave se cifra localmente con AES-256 antes de guardarse. Nunca enviamos este secreto a nuestros servidores.
+                                        </p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 pt-2">
+<button class="flex-1 h-14 bg-slate-900 text-white rounded-xl font-headline font-bold text-sm tracking-wide flex items-center justify-center gap-3 hover:bg-slate-800 transition-all active:scale-[0.98] group shadow-lg shadow-slate-200">
+                                        Guardar y Vincular
+                                        <span class="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+<button class="px-8 h-14 bg-white border border-slate-200 text-slate-600 rounded-xl font-headline font-bold text-sm hover:bg-slate-50 transition-all active:scale-[0.98]">
+                                        Cancelar
+                                    </button>
+</div>
+<div class="pt-8 border-t border-slate-100">
+<div class="flex items-center justify-between p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+<div class="flex items-center gap-4">
+<div class="relative">
+<div class="w-3 h-3 bg-emerald-500 rounded-full animate-ping absolute opacity-75"></div>
+<div class="w-3 h-3 bg-emerald-500 rounded-full relative"></div>
+</div>
+<div>
+<span class="text-sm font-bold text-slate-900 block">Red Lightning Activa</span>
+<span class="text-[11px] text-emerald-600 font-medium uppercase tracking-tight">Nodo Alby • Latencia 42ms</span>
+</div>
+</div>
+<button class="text-[11px] font-headline font-bold uppercase tracking-wider text-slate-400 hover:text-slate-600 transition-colors">Ver Detalles</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Brand Footer -->
+<div class="mt-12 flex justify-between items-center px-4 opacity-40">
+<div class="flex items-center gap-3">
+<img alt="Logo Pulse" class="h-5 grayscale" src="https://lh3.googleusercontent.com/aida/ADBb0ujvZNXxSOT4vZ9hT4PqPfgqUyYPUSJ-LCnJcaEd3ZqOa4IKlRL4OA-ljva3H0l7x_uDyRmqHa0eIF7kmhWApoiBX8B5VV7grnd79ztCb9gNizuxXvifPZOFOy-I3D0dSY_2NKZkMfab_u-YYCMV85uR3ssmf82YtSZQhoSeLuhoopB1gsc6H4tFHkA3fK0ZfRO5AqS6sUbBi0A0XpBvLuNkwFfzxmzusnRmRxoYkwpOcc4son6rS-ci892kZ20RRdK8n2tuAJFqkg"/>
+<span class="font-headline text-[10px] uppercase tracking-[0.3em] font-bold">Pulse Master Config</span>
+</div>
+<span class="text-[10px] font-medium">v2.4.0-stable</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-100 flex items-center justify-around px-6 z-50">
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-headline uppercase tracking-tight">Dashboard</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">bolt</span>
+<span class="text-[10px] font-headline uppercase tracking-tight">Wallet</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-900">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="text-[10px] font-headline uppercase tracking-tight">Settings</span>
+</button>
+</nav>
+</body></html>

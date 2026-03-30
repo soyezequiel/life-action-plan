@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pulse - Configuración de Backend</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#334155",
+                        "on-surface-variant": "#64748B",
+                        "error-container": "#FEE2E2",
+                        "on-tertiary-fixed-variant": "#065F46",
+                        "on-secondary-container": "#581C87",
+                        "primary-fixed-dim": "#CBD5E1",
+                        "primary-fixed": "#E2E8F0",
+                        "background": "#FAFAF9",
+                        "secondary-container": "#F3E8FF",
+                        "on-secondary-fixed": "#2E1065",
+                        "tertiary": "#A7F3D0",
+                        "surface-container-low": "#FAFAF9",
+                        "secondary-fixed-dim": "#E9D5FF",
+                        "on-tertiary-container": "#065F46",
+                        "surface-container": "#F8FAFC",
+                        "on-error-container": "#991B1B",
+                        "inverse-surface": "#1E293B",
+                        "surface": "#FFFFFF",
+                        "secondary-fixed": "#F3E8FF",
+                        "on-surface": "#334155",
+                        "surface-bright": "#FFFFFF",
+                        "on-error": "#FFFFFF",
+                        "error": "#EF4444",
+                        "surface-dim": "#F1F5F9",
+                        "on-primary-fixed": "#0F172A",
+                        "surface-variant": "#F1F5F9",
+                        "primary": "#1E293B",
+                        "on-tertiary-fixed": "#064E3B",
+                        "on-secondary": "#1E293B",
+                        "on-background": "#334155",
+                        "inverse-on-surface": "#F8FAFC",
+                        "on-primary": "#FFFFFF",
+                        "tertiary-fixed-dim": "#A7F3D0",
+                        "secondary": "#E9D5FF",
+                        "on-secondary-fixed-variant": "#581C87",
+                        "on-tertiary": "#064E3B",
+                        "surface-container-high": "#F1F5F9",
+                        "on-primary-fixed-variant": "#334155",
+                        "tertiary-fixed": "#D1FAE5",
+                        "surface-container-lowest": "#FFFFFF",
+                        "outline": "#94A3B8",
+                        "outline-variant": "#CBD5E1",
+                        "on-primary-container": "#E2E8F0",
+                        "inverse-primary": "#94A3B8"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .float-shadow {
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.03);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-low font-body text-on-surface antialiased overflow-hidden h-screen flex">
+<!-- Decorative Blurs -->
+<div class="fixed -top-24 -left-24 w-96 h-96 bg-tertiary/20 blur-3xl rounded-full z-0 pointer-events-none"></div>
+<div class="fixed -bottom-24 -right-24 w-96 h-96 bg-secondary/20 blur-3xl rounded-full z-0 pointer-events-none"></div>
+<!-- SideNavBar (Shared Component) -->
+<aside class="fixed left-0 top-0 h-full w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-950 flex flex-col p-4 z-40">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden">
+<img alt="Pulso Isotype Symbol" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0ujvZNXxSOT4vZ9hT4PqPfgqUyYPUSJ-LCnJcaEd3ZqOa4IKlRL4OA-ljva3H0l7x_uDyRmqHa0eIF7kmhWApoiBX8B5VV7grnd79ztCb9gNizuxXvifPZOFOy-I3D0dSY_2NKZkMfab_u-YYCMV85uR3ssmf82YtSZQhoSeLuhoopB1gsc6H4tFHkA3fK0ZfRO5AqS6sUbBi0A0XpBvLuNkwFfzxmzusnRmRxoYkwpOcc4son6rS-ci892kZ20RRdK8n2tuAJFqkg"/>
+</div>
+<div>
+<h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tighter font-headline">Pulso</h1>
+<p class="font-headline text-[10px] uppercase tracking-wider text-on-surface-variant">Santuario Digital</p>
+</div>
+</div>
+<nav class="flex-grow space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">check_circle</span>
+<span>Tasks</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Notes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 font-['Space_Grotesk'] text-[15px] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">center_focus_strong</span>
+<span>Focus Mode</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-800 rounded-lg shadow-sm font-semibold font-['Space_Grotesk'] text-[15px] tracking-tight active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-slate-200/30">
+<button class="w-full h-12 bg-primary text-surface rounded-lg font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="text-sm">New Entry</span>
+</button>
+<div class="mt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 text-[11px] font-['Space_Grotesk'] uppercase tracking-wider hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">help</span>
+<span>Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 text-[11px] font-['Space_Grotesk'] uppercase tracking-wider hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-grow flex flex-col ml-64 relative overflow-hidden">
+<!-- TopAppBar (Shared Component) -->
+<header class="w-full h-16 sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center px-8 z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">settings_suggest</span>
+<span class="font-['Space_Grotesk'] uppercase text-[11px] tracking-wider font-bold text-slate-800 dark:text-slate-100">Configuración de Backend</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center bg-slate-100/50 dark:bg-slate-800/50 rounded-full px-4 py-1.5 border border-slate-200/50 dark:border-slate-700/50">
+<span class="material-symbols-outlined text-slate-400 text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-[13px] w-48 text-slate-600 dark:text-slate-300" placeholder="Search..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-500 hover:text-slate-900 cursor-pointer transition-all duration-300 ease-in-out">notifications</span>
+<span class="material-symbols-outlined text-slate-500 hover:text-slate-900 cursor-pointer transition-all duration-300 ease-in-out">account_circle</span>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-slate-200">
+<img alt="User Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfzd9bXyVtBE-XW5TIcSeLszHAZwEDKYXLx-aC76SCLCnCDCZ7psOc8rA_7h86SO-hnwxFHJeBq65lXpLeueFQvaC0LuJvVDjyG6EzMKyXe-YdpozVz68YwsRM5G9UPN5QvcoWzNqZxYXTl1T8yOwaJlpvB5TlDx9we-RioHqoMvLnVlkUsTi6LGNdn4L1XKaN8fS9kOP0fKrdXbs2ziZTr7guryo_tgWsqWekKAGWr0MYE3JVD2syIB_U6uOIdn1Tq-FBgNasyoE"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<section class="flex-grow flex items-center justify-center p-8 relative overflow-y-auto">
+<div class="w-full max-w-xl bg-surface rounded-[2rem] float-shadow p-12 border border-slate-100 relative z-10">
+<!-- Card Header -->
+<div class="mb-10 text-center">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-secondary-container mb-6">
+<span class="material-symbols-outlined text-on-secondary-container text-3xl">terminal</span>
+</div>
+<h2 class="font-headline text-3xl font-bold text-primary mb-2 tracking-tight">Conectar Backend</h2>
+<p class="text-on-surface-variant text-sm max-w-sm mx-auto">Configura los parámetros de conexión para la orquestación de tus flujos de datos.</p>
+</div>
+<!-- Form Section -->
+<form class="space-y-8">
+<!-- Service Endpoint -->
+<div class="space-y-3">
+<label class="font-headline text-[11px] uppercase tracking-widest text-on-surface-variant font-bold ml-1">Endpoint del servicio</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-outline/60">dns</span>
+<input class="w-full h-16 pl-12 pr-4 bg-slate-50 border-none rounded-2xl font-body text-[15px] focus:ring-2 focus:ring-primary/10 transition-all outline-none" placeholder="https://api.ejemplo.com" type="text" value="https://api.openai.com/v1"/>
+</div>
+</div>
+<!-- Model & API Key Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-3">
+<label class="font-headline text-[11px] uppercase tracking-widest text-on-surface-variant font-bold ml-1">Modelo seleccionado</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-outline/60">model_training</span>
+<select class="w-full h-16 pl-12 pr-10 bg-slate-50 border-none rounded-2xl font-body text-[15px] appearance-none focus:ring-2 focus:ring-primary/10 transition-all outline-none cursor-pointer">
+<option>GPT-4o</option>
+<option>Claude 3.5 Sonnet</option>
+<option>Llama 3 (Self-Hosted)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 text-outline/60 pointer-events-none text-sm">expand_more</span>
+</div>
+</div>
+<div class="space-y-3">
+<label class="font-headline text-[11px] uppercase tracking-widest text-on-surface-variant font-bold ml-1">Clave de API</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-outline/60">key</span>
+<input class="w-full h-16 pl-12 pr-4 bg-slate-50 border-none rounded-2xl font-body text-[15px] focus:ring-2 focus:ring-primary/10 transition-all outline-none" placeholder="••••••••••••••••" type="password" value=""/>
+</div>
+</div>
+</div>
+<!-- Options Toggle -->
+<div class="py-6 border-t border-b border-slate-50 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[14px] font-semibold text-primary">Cifrar credenciales localmente</span>
+<span class="text-[11px] text-on-surface-variant font-medium">Mayor seguridad para tus llaves</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Primary CTA -->
+<button class="w-full h-16 bg-[#1E293B] text-white rounded-2xl font-bold flex items-center justify-center gap-3 group hover:bg-slate-800 transition-all active:scale-[0.98] shadow-lg shadow-slate-200">
+<span>Validar y Conectar</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+<!-- Footer Support -->
+<div class="mt-8 text-center">
+<p class="text-[12px] text-on-surface-variant">
+                        ¿Necesitas ayuda con los endpoints? <a class="text-primary font-bold hover:underline" href="#">Revisar Documentación</a>
+</p>
+</div>
+</div>
+<!-- Bento Decor Assets (Pulse Master Style) -->
+<div class="absolute top-20 right-20 w-32 h-32 bg-secondary/10 rounded-[2rem] -rotate-12 border border-secondary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-on-secondary-container/30">api</span>
+</div>
+<div class="absolute bottom-20 left-20 w-48 h-48 bg-tertiary/5 rounded-[3rem] rotate-6 border border-tertiary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-6xl text-on-tertiary-container/20">security</span>
+</div>
+</section>
+</main>
+</body></html>

@@ -193,6 +193,8 @@
       "label": "Sistema"
     },
     "shell_nav": {
+      "dashboard": "Dashboard",
+      "flow": "Flujo",
       "today": "Hoy",
       "calendar": "Calendario",
       "plan": "Plan",
@@ -781,7 +783,8 @@
   },
   "planV5": {
     "page": {
-      "title": "Mi plan semanal"
+      "title": "Mi plan semanal",
+      "copy": "Revisá el estado general, el calendario y el progreso sin ruido."
     },
     "preview": {
       "page": {
@@ -826,9 +829,9 @@
       "falseValue": "No"
     },
     "tabs": {
-      "week": "Mi semana",
+      "overview": "Panorama",
       "calendar": "Calendario",
-      "habits": "Mis habitos",
+      "tasks": "Tareas",
       "progress": "Mi progreso"
     },
     "loading": "Cargando tu plan...",
@@ -849,6 +852,7 @@
       "pendingDetail": "La fase de adaptacion corre por separado y todavia no se calculo.",
       "adaptiveAvailable": "Hay ajustes sugeridos para esta semana.",
       "adaptiveUnavailable": "Tu plan esta estable por ahora.",
+      "caption": "Resumen breve del plan actual.",
       "mode": {
         "ABSORB": "Todo bajo control",
         "PARTIAL_REPAIR": "Ajustando algunas cosas",
@@ -879,7 +883,13 @@
       "subtitle": "Revisa tu plan por mes o por semana sin perder de vista los hitos.",
       "legendEvents": "Bloques programados",
       "legendMilestones": "Hitos",
-      "milestonePrefix": "Hito"
+      "milestonePrefix": "Hito",
+      "view": {
+        "day": "Día",
+        "week": "Semana",
+        "month": "Mes",
+        "year": "Año"
+      }
     },
     "habits": {
       "title": "Mis habitos",
@@ -1021,5 +1031,493 @@
     },
     "progress": "Progreso: {{score}}%",
     "last_action": "{{action}}"
+  },
+  "mockups": {
+    "common": {
+      "santuario_digital": "Santuario Digital",
+      "digital_sanctuary": "Digital Sanctuary",
+      "search": "Buscar...",
+      "new_entry": "New Entry",
+      "new_flow": "Nuevo flujo",
+      "help": "Ayuda",
+      "exit": "Salir",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "auth": {
+      "title": "Bienvenido a Pulse",
+      "edition": "Master Edition",
+      "copy": "Ingresa tus credenciales para acceder a tu entorno profesional de alta precisión.",
+      "email_label": "Correo Electrónico",
+      "email_placeholder": "nombre@ejemplo.com",
+      "password_label": "Contraseña",
+      "password_placeholder": "••••••••",
+      "forgot": "¿Olvidaste tu contraseña?",
+      "remember": "Mantener sesión iniciada",
+      "login": "Iniciar Sesión",
+      "register": "Crear cuenta",
+      "no_account": "¿No tienes una cuenta?",
+      "create_account": "Crear una ahora",
+      "system_status": "Sistemas Operativos",
+      "support": "Soporte",
+      "privacy": "Privacidad"
+    },
+    "dashboard": {
+      "title": "Panel de Control Zen",
+      "copy": "Bienvenido al Pulse Master. Tu santuario digital está en equilibrio.",
+      "top_tabs": {
+        "panel": "Panel",
+        "projects": "Proyectos",
+        "team": "Equipo"
+      },
+      "daily": {
+        "title": "Flujo Diario",
+        "review": "Revisión de Producto",
+        "review_meta": "09:00 — 10:30 · Sala de Enfoque A",
+        "deep_work": "Deep Work: Pulse",
+        "deep_work_meta": "11:00 — 12:00",
+        "lunch": "Almuerzo Meditativo",
+        "lunch_meta": "13:30 — 14:30",
+        "focus_mode": "Modo Enfoque",
+        "remaining": "24:15 restante"
+      },
+      "checklist": {
+        "title": "Checklist",
+        "priority": "ALTA",
+        "active": "4 ACTIVAS",
+        "task_1": "Actualizar documentación del sistema de diseño",
+        "task_2": "Refactorizar componentes de navegación lateral",
+        "task_3": "Llamada de sincronización semanal"
+      },
+      "metrics": {
+        "title": "Métricas",
+        "hydration": "Hidratación",
+        "technical_reading": "Lectura Técnica"
+      },
+      "risk": {
+        "title": "Riesgo",
+        "status": "Atención Moderada",
+        "copy": "3 proyectos requieren revisión de plazos hoy."
+      },
+      "footer": {
+        "tasks": "Tareas",
+        "productivity": "Productividad",
+        "focus": "Enfoque",
+        "variation": "Variación"
+      }
+    },
+    "intake": {
+      "nav": {
+        "goals": "Objetivos",
+        "spatial": "Lienzo Espacial",
+        "refinement": "Refinamiento",
+        "costs": "Análisis de Costos",
+        "balances": "Balances"
+      },
+      "top_tabs": {
+        "flow": "Flujo",
+        "canvas": "Lienzo",
+        "analysis": "Análisis",
+        "archive": "Archivo"
+      },
+      "eyebrow": "FASE DE CAPTURA",
+      "title": "¿Qué deseas lograr hoy?",
+      "placeholder": "Escribe tu objetivo aquí...",
+      "submit_hint": "CMD + ENTER",
+      "recent": "Capturados recientemente",
+      "pending": "3 objetivos pendientes de priorización",
+      "draft": "BORRADOR...",
+      "draft_copy": "Continuar explorando el objetivo “Sostenibilidad SaaS” de ayer.",
+      "continue": "Continuar a Priorización",
+      "help": "Ayúdame a articular mis ideas",
+      "card_1_time": "Hace 2 min",
+      "card_1_title": "Escalar la infraestructura del Q3 para soportar 50k usuarios concurrentes en regiones EMEA.",
+      "card_1_tag": "Infraestructura",
+      "card_2_time": "Hace 1 hora",
+      "card_2_title": "Rediseñar la documentación del sistema de diseño para una mejor entrega a desarrollo.",
+      "card_2_tag": "Producto"
+    },
+    "refinement": {
+      "nav": {
+        "dashboard": "Dashboard",
+        "planner": "Planificador",
+        "tasks": "Tareas",
+        "notes": "Notas",
+        "focus": "Enfoque",
+        "settings": "Configuración"
+      },
+      "top_tabs": {
+        "explore": "Explorar",
+        "projects": "Proyectos",
+        "team": "Equipo"
+      },
+      "badge": "Refinamiento en proceso",
+      "title": "Refinamiento de Objetivo",
+      "copy": "Definamos los parámetros críticos para asegurar que tu objetivo sea accionable y medible dentro de tu santuario digital.",
+      "progress_label": "Progreso del refinamiento",
+      "progress_value": "50% completado",
+      "temporality": "Temporalidad",
+      "temporality_question": "¿Cuál es la duración estimada para alcanzar este hito?",
+      "temporality_option": "Mediano Plazo (3–12 meses)",
+      "temporality_hint": "Este dato nos ayuda a priorizar tareas en tu flujo diario.",
+      "deadline_label": "Fecha Crítica",
+      "deadline_title": "Fecha límite deseada",
+      "motivation_label": "Motivación",
+      "motivation_question": "¿Cuál es la intención principal detrás de este objetivo?",
+      "motivation_placeholder": "Describe el 'por qué' de este proyecto...",
+      "advice_title": "Consejo Editorial",
+      "advice_copy": "Definir claramente tu intención aumenta la probabilidad de éxito en un 42%.",
+      "previous": "Anterior",
+      "save": "Guardar borrador",
+      "continue": "Continuar refinamiento",
+      "footer": "Seguridad de datos Pulse"
+    },
+    "flow": {
+      "prioritization": {
+        "nav": {
+          "dashboard": "Dashboard",
+          "calendar": "Calendario",
+          "tasks": "Tareas",
+          "notes": "Notas",
+          "focus": "Enfoque",
+          "settings": "Configuración"
+        },
+        "brand": "Lienzo espacial",
+        "search": "Buscar",
+        "new_task": "Nueva tarea",
+        "title": "Priorización Espacial",
+        "copy": "Mové lo importante hacia arriba y dejá el resto visible sin ruido.",
+        "pending": "Pendientes",
+        "card_1_title": "Revisar el bloque de foco de la mañana",
+        "card_1_copy": "Ese bloque concentra el mejor margen de energía y conviene dejarlo primero.",
+        "card_1_category": "Foco",
+        "card_2_title": "Ordenar las tareas de revisión rápida",
+        "card_2_copy": "Agrupá lo liviano en una sola pasada para liberar atención.",
+        "card_2_category": "Rutina",
+        "card_3_title": "Separar decisiones de diseño de seguimiento",
+        "card_3_copy": "Así el trabajo complejo no compite con el trabajo mecánico.",
+        "card_3_category": "Diseño",
+        "card_4_title": "Reservar espacio para imprevistos",
+        "card_4_copy": "La zona libre ayuda a sostener el ritmo sin apretar de más.",
+        "card_4_category": "Reserva",
+        "tip_title": "Regla rápida",
+        "tip_copy": "Si algo te drena, no lo pongas arriba. Si algo te empuja, dejalo cerca del foco.",
+        "urgent": "Urgente",
+        "in_progress": "En progreso",
+        "side_title": "Zona prioritaria",
+        "side_copy": "Acá queda lo que más impacto tiene en tu semana.",
+        "side_meta": "3 bloques activos",
+        "big_title": "Bloque principal",
+        "big_copy": "Este es el espacio que no querés perder de vista durante la jornada.",
+        "big_meta": "Arrastre vertical habilitado",
+        "dropzone": "Soltá acá lo que querés destacar.",
+        "bottom_category": "Rutina",
+        "bottom_title": "Trabajo de baja fricción",
+        "bottom_copy": "Lo simple entra abajo para no contaminar lo importante.",
+        "vertical_label": "Eje vertical",
+        "zoom_in": "Acercar",
+        "zoom_out": "Alejar",
+        "center": "Centrar",
+        "save_view": "Guardar vista"
+      },
+      "conflict": {
+        "nav": {
+          "dashboard": "Dashboard",
+          "calendar": "Calendario",
+          "tasks": "Tareas",
+          "notes": "Notas",
+          "focus": "Enfoque",
+          "settings": "Configuración"
+        },
+        "top_tabs": {
+          "dashboard": "Dashboard",
+          "planner": "Planificador",
+          "tasks": "Tareas"
+        },
+        "eyebrow": "RESOLUCIÓN DE CONFLICTOS",
+        "title": "Elegí una versión del plan",
+        "copy": "Las dos opciones tienen sentido. Una te exige más y la otra te deja aire.",
+        "recommended": "Recomendada",
+        "ambitious": {
+          "title": "Versión ambiciosa",
+          "subtitle": "Más avance, menos margen.",
+          "quote": "Vas a empujar fuerte durante la semana.",
+          "rest": "Descanso",
+          "rest_hint": "5.5h promedio",
+          "completed_tasks": "Tareas resueltas",
+          "completed_hint": "12 entregas",
+          "load": "Carga",
+          "load_critical": "Muy alta"
+        },
+        "realistic": {
+          "title": "Versión realista",
+          "subtitle": "Menos presión, mejor ritmo.",
+          "quote": "Vas a sostener el plan con más aire para corregir sobre la marcha.",
+          "rest": "Descanso",
+          "rest_optimal": "7.5h promedio",
+          "completed_tasks": "Tareas resueltas",
+          "completed_proposals": "8 entregas",
+          "load": "Carga",
+          "load_healthy": "Equilibrada"
+        },
+        "choose_ambitious": "Quedarse con la ambiciosa",
+        "choose_realistic": "Quedarse con la realista"
+      },
+      "simulation": {
+        "nav": {
+          "dashboard": "Dashboard",
+          "calendar": "Calendario",
+          "tasks": "Tareas",
+          "notes": "Notas",
+          "focus": "Enfoque",
+          "settings": "Configuración"
+        },
+        "top_tabs": {
+          "panel": "Panel",
+          "planner": "Planificador",
+          "tasks": "Tareas"
+        },
+        "eyebrow": "SIMULACIÓN Y COSTO",
+        "title": "Revisión de viabilidad",
+        "copy": "Medimos carga, costo y continuidad antes de dejar avanzar el plan.",
+        "parameters": "Parámetros",
+        "priority": "Prioridad",
+        "priority_value": "Alta",
+        "destination": "Destino",
+        "destination_value": "Borrador final",
+        "monitor": "Monitor de avance",
+        "active_count": "3 bloques activos",
+        "monitor_1_title": "Bloque de estudio",
+        "monitor_1_copy": "Entra en la ventana más estable del día.",
+        "monitor_2_title": "Revisión de equipo",
+        "monitor_2_copy": "Todavía tiene margen para moverse.",
+        "monitor_3_title": "Reserva táctica",
+        "monitor_3_copy": "Queda abierta para imprevistos.",
+        "ready": "Listo",
+        "pending": "Pendiente",
+        "budget_label": "Presupuesto",
+        "cost_title": "Costo estimado",
+        "fee": "Armado",
+        "ai_processing": "Procesamiento",
+        "total": "Total",
+        "generate": "Generar simulación",
+        "note": "Usamos esta vista para evitar choques antes de comprometer tiempo real.",
+        "network": "Red",
+        "network_value": "Conexión estable"
+      },
+      "tasks": {
+        "nav": {
+          "dashboard": "Dashboard",
+          "calendar": "Calendario",
+          "tasks": "Tareas",
+          "notes": "Notas",
+          "focus": "Enfoque",
+          "settings": "Configuración"
+        },
+        "eyebrow": "TAREAS",
+        "search": "Buscar tareas",
+        "title": "Administración de tareas",
+        "copy": "Separá lo urgente, lo importante y lo que puede esperar sin perder contexto.",
+        "priority_title": "Prioridad alta",
+        "urgent": "Urgente",
+        "important": "Importante",
+        "id": "ID",
+        "task_1_title": "Revisar documentación del sistema de diseño",
+        "task_1_copy": "Hay que ajustar la guía antes de compartirla con el equipo.",
+        "task_1_meta": "Hoy · 45 min",
+        "begin": "Empezar",
+        "task_2_title": "Alinear seguimiento semanal",
+        "task_2_meta": "Mañana · 30 min",
+        "fluid_title": "Trabajo fluido",
+        "fluid_1_title": "Actualizar checklist de entrega",
+        "fluid_1_tag": "Sin bloqueo",
+        "fluid_2_title": "Ordenar notas de revisión",
+        "fluid_2_tag": "Baja fricción",
+        "fluid_done": "Ya quedó listo",
+        "explore_title": "Explorar más tarde",
+        "explore_copy": "Lo que no entra hoy queda visible para no perderlo de vista.",
+        "explore_1": "Optimizar onboarding",
+        "explore_2": "Revisar métricas",
+        "explore_3": "Hacer limpieza semanal",
+        "library": "Biblioteca",
+        "wisdom_title": "Idea útil",
+        "wisdom_copy": "Si todo importa igual, nada queda claro. Separar niveles ayuda a decidir.",
+        "next_milestone_label": "Próximo hito",
+        "next_milestone_title": "Cerrar la versión base del flujo"
+      }
+    },
+    "calendarAnnual": {
+      "nav": {
+        "calendar": "Calendario",
+        "events": "Eventos",
+        "tasks": "Tareas",
+        "analytics": "Análisis",
+        "sanctuary": "Santuario"
+      },
+      "create_event": "Crear evento",
+      "tabs": {
+        "day": "Día",
+        "week": "Semana",
+        "month": "Mes",
+        "year": "Año"
+      },
+      "eyebrow": "Vista anual",
+      "legend_title": "Leyenda",
+      "legend_growth_title": "Crecimiento",
+      "legend_growth_copy": "Bloques que empujan el avance del año.",
+      "legend_sanctuary_title": "Santuario",
+      "legend_sanctuary_copy": "Espacios para bajar el ritmo y recuperar foco.",
+      "summary_title": "Resumen anual",
+      "summary_events": "Eventos",
+      "summary_milestones": "Hitos",
+      "export": "Exportar"
+    },
+    "calendarMonthly": {
+      "nav": {
+        "calendar": "Calendario",
+        "events": "Eventos",
+        "tasks": "Tareas",
+        "analytics": "Análisis",
+        "sanctuary": "Santuario"
+      },
+      "create_event": "Crear evento",
+      "tabs": {
+        "day": "Día",
+        "week": "Semana",
+        "month": "Mes",
+        "year": "Año"
+      },
+      "next_event_label": "Próximo evento",
+      "next_event_title": "Revisión general",
+      "next_event_subtitle": "Martes 09:00 · Sala principal",
+      "pending_label": "Pendientes",
+      "pending_copy": "Tareas todavía sin fecha firme.",
+      "focus_label": "Enfoque",
+      "focus_title": "Mes en equilibrio"
+    },
+    "calendarWeekly": {
+      "nav": {
+        "dashboard": "Dashboard",
+        "calendar": "Calendario",
+        "tasks": "Tareas",
+        "analytics": "Análisis",
+        "sanctuary": "Santuario"
+      },
+      "create_event": "Crear evento",
+      "tabs": {
+        "overview": "Resumen",
+        "calendar": "Calendario",
+        "reports": "Informes"
+      },
+      "eyebrow": "Semana activa",
+      "title": "Plan semanal",
+      "heading": "Vista de agenda semanal",
+      "event_1_title": "Planificación",
+      "event_1_time": "09:00 — 10:30",
+      "event_2_title": "Bloque de foco",
+      "event_2_time": "10:30 — 11:45",
+      "event_3_title": "Almuerzo",
+      "event_3_time": "12:00 — 13:00",
+      "event_4_title": "Revisión creativa",
+      "event_4_copy": "Espacio largo para decisiones de diseño.",
+      "event_5_title": "Cierre",
+      "event_5_tag": "15 min",
+      "focus_label": "Enfoque semanal",
+      "next_task_label": "Siguiente tarea",
+      "next_task_title": "Cerrar entregables de la mañana",
+      "join": "Sumarme",
+      "notes_label": "Notas",
+      "note_1": "La carga se ve pareja.",
+      "note_2": "Quedan huecos para respirar."
+    },
+    "calendarDaily": {
+      "nav": {
+        "calendar": "Calendario",
+        "events": "Eventos",
+        "tasks": "Tareas",
+        "analytics": "Análisis",
+        "sanctuary": "Santuario"
+      },
+      "create_event": "Crear evento",
+      "tabs": {
+        "day": "Día",
+        "week": "Semana",
+        "month": "Mes",
+        "year": "Año"
+      },
+      "today": "Hoy",
+      "event_1_title": "Revisión de producto",
+      "event_1_place": "Sala de enfoque A",
+      "event_2_title": "Trabajo profundo",
+      "event_2_place": "Mesa principal",
+      "event_3_title": "Descanso",
+      "event_3_place": "Espacio libre",
+      "month_title": "Octubre 2023",
+      "quick_actions_title": "Acciones rápidas",
+      "quick_1": "Repetir agenda",
+      "quick_2": "Archivar día",
+      "quick_3": "Cancelar bloque",
+      "vital_label": "Estado vital",
+      "vital_title": "Energía sostenida",
+      "vital_copy": "La carga de hoy quedó controlada y todavía hay margen útil."
+    },
+    "settingsBackend": {
+      "nav": {
+        "dashboard": "Dashboard",
+        "calendar": "Calendario",
+        "tasks": "Tareas",
+        "notes": "Notas",
+        "focus": "Enfoque",
+        "settings": "Configuración"
+      },
+      "sidebar_action": "Nuevo flujo",
+      "tabs": {
+        "dashboard": "Dashboard",
+        "calendar": "Calendario",
+        "settings": "Configuración"
+      },
+      "title": "Configuración del sistema",
+      "copy": "Dejá ordenadas las conexiones técnicas sin mezclarlo con tu trabajo diario.",
+      "endpoint_label": "Endpoint",
+      "model_label": "Modelo",
+      "api_label": "Clave",
+      "toggle_title": "Modo seguro",
+      "toggle_copy": "Protege la configuración antes de usarla.",
+      "primary": "Guardar cambios",
+      "footer_prefix": "Los ajustes quedan guardados en tu entorno.",
+      "footer_link": "Ver documentación"
+    },
+    "wallet": {
+      "nav": {
+        "dashboard": "Dashboard",
+        "calendar": "Calendario",
+        "tasks": "Tareas",
+        "notes": "Notas",
+        "focus": "Enfoque",
+        "settings": "Configuración"
+      },
+      "sidebar_action": "Nuevo flujo",
+      "tabs": {
+        "dashboard": "Dashboard",
+        "calendar": "Calendario",
+        "settings": "Configuración"
+      },
+      "title": "Billetera",
+      "copy": "Conectá tu billetera y revisá cuánto podés mover sin salirte del presupuesto.",
+      "online": "En línea",
+      "balance_label": "Saldo",
+      "transactions_label": "Movimientos",
+      "month_hint": "respecto al mes pasado",
+      "connect_title": "Conectar billetera",
+      "connect_copy": "Pegá la clave de conexión para usar pagos y presupuesto.",
+      "required": "Requerida",
+      "secret_label": "Clave secreta",
+      "warning": "La conexión queda protegida y solo se usa para operaciones autorizadas.",
+      "primary": "Conectar ahora",
+      "secondary": "Usar después",
+      "status_title": "Estado correcto",
+      "status_copy": "Listo para usar",
+      "details": "Detalles"
+    }
   }
 }

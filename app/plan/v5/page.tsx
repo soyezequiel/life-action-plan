@@ -10,12 +10,8 @@ export const metadata: Metadata = {
 
 export default function PlanV5Page() {
   return (
-    <main className="app-shell dashboard-shell">
-      <div className="view-layer">
-        <Suspense fallback={<p className="app-status app-status--busy">{esAR.planV5.loading}</p>}>
-          <PlanDashboardV5 />
-        </Suspense>
-      </div>
-    </main>
+    <Suspense fallback={<p className="app-status app-status--busy">{esAR.planV5.loading}</p>}>
+      <PlanDashboardV5 />
+    </Suspense>
   );
 }

@@ -1,17 +1,17 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
-import { Inter, Plus_Jakarta_Sans, Geist_Mono } from 'next/font/google'
+import { Geist_Mono, Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google'
 import ClientProviders from '../src/lib/client/providers'
 import esAR from '../src/i18n/locales/es-AR.json'
 import './globals.css'
 
-const inter = Inter({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-ui',
   display: 'swap'
 })
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-display',
   display: 'swap'
@@ -45,7 +45,7 @@ export default function RootLayout({
   children: ReactNode
 }>) {
   return (
-    <html lang="es-AR" className={`${inter.variable} ${plusJakartaSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html lang="es-AR" className={`${plusJakartaSans.variable} ${spaceGrotesk.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body>
         <ClientProviders>{children}</ClientProviders>
       </body>
