@@ -3,11 +3,12 @@ import { describe, it, expect } from 'vitest';
 import { CANONICALS, evaluateExpectations, parseRun } from '../scripts/eval-v6-canaries.mjs';
 
 describe('V6 Canaries Evaluator', () => {
-  it('should have 4 canonical categories', () => {
-    expect(Object.keys(CANONICALS)).toHaveLength(4);
+  it('should have 5 canonical categories', () => {
+    expect(Object.keys(CANONICALS)).toHaveLength(5);
     expect(CANONICALS.finance).toBeDefined();
     expect(CANONICALS.cooking).toBeDefined();
     expect(CANONICALS.health).toBeDefined();
+    expect(CANONICALS.health_risky).toBeDefined();
     expect(CANONICALS.ambiguous).toBeDefined();
   });
 

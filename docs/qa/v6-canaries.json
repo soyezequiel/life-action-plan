@@ -27,12 +27,25 @@
   },
   "health": {
     "id": "health",
-    "name": "Bajar de Peso",
-    "patterns": ["(bajar.*?kilos|salud)"],
+    "name": "Mejorar Alimentación",
+    "patterns": ["(alimentacion|alimentación|dieta equilibrada)"],
     "flags": "i",
     "expected": {
       "publicationState": "publishable",
       "failureCode": "none",
+      "mustContain": [],
+      "mustNotContain": [],
+      "allowPaused": false
+    }
+  },
+  "health_risky": {
+    "id": "health_risky",
+    "name": "Bajar de Peso (Alto Riesgo)",
+    "patterns": ["(bajar.*?kilos|perder.*?peso)"],
+    "flags": "i",
+    "expected": {
+      "publicationState": "blocked",
+      "failureCode": "requires_supervision",
       "mustContain": [],
       "mustNotContain": [],
       "allowPaused": false

@@ -2710,11 +2710,19 @@ export class PlanOrchestrator {
     }
 
     if (this.context.criticReport && this.context.criticReport.verdict !== 'approve') {
-      return {
-        publicationState: 'failed',
-        failureCode: 'failed_for_quality_review',
-        blockingAgents: [],
-      };
+      const revisionsExhausted = this.state.revisionCycles >= this.state.maxRevisionCycles;
+      const hasCriticalFindings = (this.context.criticReport.mustFix ?? []).some(
+        (finding) => finding.severity === 'critical',
+      );
+      const scoreAboveDegradedThreshold = (this.context.criticReport.overallScore ?? 0) >= 60;
+
+      if (!(revisionsExhausted && scoreAboveDegradedThreshold && !hasCriticalFindings)) {
+        return {
+          publicationState: 'failed',
+          failureCode: 'failed_for_quality_review',
+          blockingAgents: [],
+        };
+      }
     }
 
     if (!this.context.finalPackage) {
@@ -2982,6 +2990,11 @@ export class PlanOrchestrator {
     const fallbackOutcomes = this.getFallbackOutcomes();
     const hasFallbacks = fallbackOutcomes.length > 0;
     const publicationGate = this.getPublicationGate();
+    const revisionsExhausted = this.state.revisionCycles >= this.state.maxRevisionCycles;
+    const criticScore = this.context.criticReport?.overallScore ?? null;
+    const criticHasCriticalFindings = (this.context.criticReport?.mustFix ?? []).some(
+      (finding) => finding.severity === 'critical',
+    );
     const packagePublicationState: NonNullable<PlanPackage['publicationState']> = publicationGate.publicationState === 'ready'
       ? 'publishable'
       : publicationGate.failureCode === 'requires_regeneration'
@@ -3021,6 +3034,20 @@ export class PlanOrchestrator {
               },
             ]
           : [];
+    const bestEffortPublication = publicationGate.publicationState === 'ready'
+      && this.context.criticReport
+      && this.context.criticReport.verdict !== 'approve'
+      && revisionsExhausted
+      && (this.context.criticReport.overallScore ?? 0) >= 60
+      && (this.context.criticReport.overallScore ?? 0) < this.config.criticApprovalThreshold
+      && !criticHasCriticalFindings;
+    const bestEffortQualityIssues = bestEffortPublication
+      ? [{
+          code: 'BEST_EFFORT_PUBLICATION',
+          severity: 'warning' as const,
+          message: `Plan publicado en modo best-effort (score: ${criticScore ?? '?'}/100, ciclos de revision agotados).`,
+        }]
+      : [];
     const finalPackage = this.context.finalPackage
       ? {
           ...this.withLatestReasoningTrace(this.context.finalPackage),
@@ -3036,6 +3063,9 @@ export class PlanOrchestrator {
           qualityIssues: [
             ...(this.context.finalPackage.qualityIssues ?? []),
             ...gateQualityIssues.filter((issue) =>
+              !(this.context.finalPackage?.qualityIssues ?? []).some((existing) => existing.code === issue.code),
+            ),
+            ...bestEffortQualityIssues.filter((issue) =>
               !(this.context.finalPackage?.qualityIssues ?? []).some((existing) => existing.code === issue.code),
             ),
           ],
