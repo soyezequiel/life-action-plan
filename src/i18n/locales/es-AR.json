@@ -1,4 +1,4 @@
-{
+﻿{
   "app": {
     "name": "Pulso",
     "tagline": "Tu plan de vida, paso a paso"
@@ -976,5 +976,50 @@
   },
   "flow": {
     "loading": "Cargando..."
+  },
+  "visualizer": {
+    "title": "Estado de la generacion",
+    "section_user": "Usuario",
+    "section_engine": "Motor de generacion",
+    "section_notifications": "Notificaciones",
+    "section_storage": "Datos",
+    "user_define_goal": "Define meta de vida",
+    "user_answer_questions": "Responde preguntas",
+    "user_review_plan": "Revisa y acepta plan",
+    "phase": {
+      "interpret": "Interpretar meta",
+      "clarify": "Clarificar",
+      "plan": "Planificar estrategia",
+      "check": "Verificar viabilidad",
+      "schedule": "Armar agenda",
+      "critique": "Criticar plan",
+      "revise": "Revisar y mejorar",
+      "package": "Empaquetar resultado",
+      "done": "Listo",
+      "failed": "Fallo"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "active": "En curso",
+      "waiting": "Esperando respuestas",
+      "completed": "Completado",
+      "failed": "Fallo",
+      "skipped": "Omitido",
+      "degraded": "Con limitaciones"
+    },
+    "notification": {
+      "needs_input": "Necesito tus respuestas para continuar",
+      "degraded": "Plan generado con limitaciones",
+      "completed": "Plan completado!",
+      "failed": "La generacion fallo"
+    },
+    "storage": {
+      "session_label": "Sesion",
+      "plan_label": "Plan",
+      "saved": "guardado",
+      "pending": "pendiente"
+    },
+    "progress": "Progreso: {{score}}%",
+    "last_action": "{{action}}"
   }
 }

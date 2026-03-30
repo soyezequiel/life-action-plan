@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "mode": "lap-cli-debug",
   "startedAt": "2026-03-30T13:52:56.830Z",
-  "updatedAt": "2026-03-30T13:54:40.548Z",
+  "updatedAt": "2026-03-30T13:57:02.297Z",
   "invocation": {
     "goal": "",
     "resumeSession": "ed4f05c9-0e35-4fcb-baa5-3d027638b80a",
@@ -13,38 +13,1318 @@
     "debug": true
   },
   "summary": {
-    "planId": null,
+    "planId": "aff4b18f-acc3-430a-9c20-8efb758f4d08",
     "score": null,
-    "iterations": null,
-    "degraded": false,
-    "publicationState": null,
+    "iterations": 10,
+    "degraded": true,
+    "publicationState": "publishable",
     "failureCode": null,
     "sessionId": "ed4f05c9-0e35-4fcb-baa5-3d027638b80a",
-    "provider": null,
-    "modelId": null,
-    "status": "running"
+    "provider": "resume",
+    "modelId": "openai:gpt-5-codex",
+    "status": "completed"
   },
   "pendingInput": null,
-  "finalPackage": null,
+  "finalPackage": {
+    "package": {
+      "plan": {
+        "goalIds": [
+          "generated-goal"
+        ],
+        "timezone": "UTC",
+        "createdAt": "2026-03-30T13:53:50.024Z",
+        "updatedAt": "2026-03-30T13:53:50.024Z",
+        "skeleton": {
+          "horizonWeeks": 24,
+          "goalIds": [
+            "generated-goal"
+          ],
+          "phases": [
+            {
+              "phaseId": "phase-1",
+              "title": "Rutina creativa y energía de arranque rumbo a los 6 meses",
+              "startWeek": 1,
+              "endWeek": 8,
+              "startDate": "2026-04-01",
+              "endDate": "2026-05-26",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Durante los meses 1-2 dedicas 5h/sem a medir tu energía diaria, escribir diario de autoconocimiento dos veces por semana, sostener una conversación honesta semanal, programar dos bloques sin interrupciones (uno creativo y una caminata consciente de 30 minutos) y ordenar hábitos básicos para salir del estancado laboral."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-t1-ht4d849",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 30
+                },
+                {
+                  "activityId": "act-t2-1k02i73",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 40
+                },
+                {
+                  "activityId": "act-t3-x52v2xu",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                }
+              ],
+              "milestoneIds": []
+            },
+            {
+              "phaseId": "phase-2",
+              "title": "Mini experimentos creativos con feedback externo hacia el mes 4 de los 6 meses",
+              "startWeek": 9,
+              "endWeek": 16,
+              "startDate": "2026-05-27",
+              "endDate": "2026-07-21",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "En los meses 3-4 usas 5h/sem para diseñar y ejecutar al menos dos mini experimentos creativos basados en tu diario, compartirlos con al menos tres personas (incluida la conversación semanal), documentar feedback y ajustar tu rutina para reenfocarte laboralmente."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-t1-ht4d849",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 30
+                },
+                {
+                  "activityId": "act-t2-1k02i73",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 40
+                },
+                {
+                  "activityId": "act-t3-x52v2xu",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                }
+              ],
+              "milestoneIds": [
+                "milestone-1"
+              ]
+            },
+            {
+              "phaseId": "phase-3",
+              "title": "Cierre verificable y evidencia de avance reinventado al mes 6",
+              "startWeek": 17,
+              "endWeek": 24,
+              "startDate": "2026-07-22",
+              "endDate": "2026-09-15",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "objectives": [
+                "Durante los meses 5-6 dedicas 5h/sem a pulir la pieza creativa que mejor funcionó, consolidar un registro de hábitos ordenados para las próximas 8 semanas, mantener las conversaciones y caminatas conscientes y preparar la evidencia de tus avances claros."
+              ],
+              "frequencies": [
+                {
+                  "activityId": "act-t1-ht4d849",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 30
+                },
+                {
+                  "activityId": "act-t2-1k02i73",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 40
+                },
+                {
+                  "activityId": "act-t3-x52v2xu",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "sessionsPerWeek": 2,
+                  "minutesPerSession": 45
+                }
+              ],
+              "milestoneIds": [
+                "milestone-2"
+              ]
+            }
+          ],
+          "milestones": [
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Rutina semanal con energía registrada y bloques sin interrupciones establecida",
+              "notes": "Durante los meses 1-2 dedicas 5h/sem a medir tu energía diaria, escribir diario de autoconocimiento dos veces por semana, sostener una conversación honesta semanal, programar dos bloques sin interrupciones (uno creativo y una caminata consciente de 30 minutos) y ordenar hábitos básicos para salir del estancado laboral.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "dueDate": "2026-05-27"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Dos mini experimentos creativos con feedback documentado",
+              "notes": "En los meses 3-4 usas 5h/sem para diseñar y ejecutar al menos dos mini experimentos creativos basados en tu diario, compartirlos con al menos tres personas (incluida la conversación semanal), documentar feedback y ajustar tu rutina para reenfocarte laboralmente.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "dueDate": "2026-07-22"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Pieza creativa final y plan de hábitos validados a los 6 meses",
+              "notes": "Durante los meses 5-6 dedicas 5h/sem a pulir la pieza creativa que mejor funcionó, consolidar un registro de hábitos ordenados para las próximas 8 semanas, mantener las conversaciones y caminatas conscientes y preparar la evidencia de tus avances claros.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "dueDate": "2026-09-16"
+            }
+          ]
+        },
+        "detail": {
+          "horizonWeeks": 2,
+          "startDate": "2026-04-01",
+          "endDate": "2026-04-14",
+          "scheduledEvents": [
+            {
+              "id": "act-t1-ht4d849_s112_83164b25",
+              "kind": "time_event",
+              "title": "Escribir un diario breve sobre emociones y logros del dia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-01T08:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t3-x52v2xu_s135_22438abb",
+              "kind": "time_event",
+              "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-01T19:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t3-x52v2xu_s266_e08f42ab",
+              "kind": "time_event",
+              "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-04T13:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t2-1k02i73_s279_f9558c10",
+              "kind": "time_event",
+              "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-04T19:30:00.000Z",
+              "durationMin": 40,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t2-1k02i73_s323_39a748b1",
+              "kind": "time_event",
+              "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-05T17:30:00.000Z",
+              "durationMin": 40,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t1-ht4d849_s325_17a2ea2a",
+              "kind": "time_event",
+              "title": "Escribir un diario breve sobre emociones y logros del dia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-05T18:30:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t1-ht4d849_s112_83164b25-w2",
+              "kind": "time_event",
+              "title": "Escribir un diario breve sobre emociones y logros del dia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-08T08:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t3-x52v2xu_s135_22438abb-w2",
+              "kind": "time_event",
+              "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-08T19:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t3-x52v2xu_s266_e08f42ab-w2",
+              "kind": "time_event",
+              "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-11T13:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t2-1k02i73_s279_f9558c10-w2",
+              "kind": "time_event",
+              "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-11T19:30:00.000Z",
+              "durationMin": 40,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t2-1k02i73_s323_39a748b1-w2",
+              "kind": "time_event",
+              "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-12T17:30:00.000Z",
+              "durationMin": 40,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t1-ht4d849_s325_17a2ea2a-w2",
+              "kind": "time_event",
+              "title": "Escribir un diario breve sobre emociones y logros del dia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-12T18:30:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            }
+          ],
+          "weeks": [
+            {
+              "weekIndex": 1,
+              "startDate": "2026-04-01",
+              "endDate": "2026-04-07",
+              "scheduledEvents": [
+                {
+                  "id": "act-t1-ht4d849_s112_83164b25",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-01T08:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s135_22438abb",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s266_e08f42ab",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-04T13:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s279_f9558c10",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-04T19:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s323_39a748b1",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-05T17:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t1-ht4d849_s325_17a2ea2a",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-05T18:30:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                }
+              ]
+            },
+            {
+              "weekIndex": 2,
+              "startDate": "2026-04-08",
+              "endDate": "2026-04-14",
+              "scheduledEvents": [
+                {
+                  "id": "act-t1-ht4d849_s112_83164b25-w2",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-08T08:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s135_22438abb-w2",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-08T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s266_e08f42ab-w2",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-11T13:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s279_f9558c10-w2",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-11T19:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s323_39a748b1-w2",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-12T17:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t1-ht4d849_s325_17a2ea2a-w2",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-12T18:30:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                }
+              ]
+            }
+          ]
+        },
+        "operational": {
+          "horizonDays": 7,
+          "startDate": "2026-04-01",
+          "endDate": "2026-04-07",
+          "frozen": true,
+          "scheduledEvents": [
+            {
+              "id": "act-t1-ht4d849_s112_83164b25",
+              "kind": "time_event",
+              "title": "Escribir un diario breve sobre emociones y logros del dia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-01T08:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t3-x52v2xu_s135_22438abb",
+              "kind": "time_event",
+              "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-01T19:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t3-x52v2xu_s266_e08f42ab",
+              "kind": "time_event",
+              "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-04T13:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t2-1k02i73_s279_f9558c10",
+              "kind": "time_event",
+              "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-04T19:30:00.000Z",
+              "durationMin": 40,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t2-1k02i73_s323_39a748b1",
+              "kind": "time_event",
+              "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-05T17:30:00.000Z",
+              "durationMin": 40,
+              "rigidity": "soft"
+            },
+            {
+              "id": "act-t1-ht4d849_s325_17a2ea2a",
+              "kind": "time_event",
+              "title": "Escribir un diario breve sobre emociones y logros del dia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z",
+              "startAt": "2026-04-05T18:30:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft"
+            }
+          ],
+          "buffers": [
+            {
+              "id": "buffer-slack-1-1",
+              "startAt": "2026-04-01T20:15:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-2-1",
+              "startAt": "2026-04-02T18:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-4-1",
+              "startAt": "2026-04-04T20:10:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            },
+            {
+              "id": "buffer-slack-5-1",
+              "startAt": "2026-04-05T19:00:00.000Z",
+              "durationMin": 30,
+              "kind": "slack",
+              "label": "Margen libre para absorber imprevistos"
+            }
+          ],
+          "days": [
+            {
+              "date": "2026-04-01",
+              "scheduledEvents": [
+                {
+                  "id": "act-t1-ht4d849_s112_83164b25",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-01T08:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s135_22438abb",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-04-01T20:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-02",
+              "scheduledEvents": [],
+              "buffers": [
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-02T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-03",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-04",
+              "scheduledEvents": [
+                {
+                  "id": "act-t3-x52v2xu_s266_e08f42ab",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-04T13:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s279_f9558c10",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-04T19:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-04T20:10:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-05",
+              "scheduledEvents": [
+                {
+                  "id": "act-t2-1k02i73_s323_39a748b1",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-05T17:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t1-ht4d849_s325_17a2ea2a",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-05T18:30:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-5-1",
+                  "startAt": "2026-04-05T19:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ]
+            },
+            {
+              "date": "2026-04-06",
+              "scheduledEvents": [],
+              "buffers": []
+            },
+            {
+              "date": "2026-04-07",
+              "scheduledEvents": [],
+              "buffers": []
+            }
+          ],
+          "totalBufferMin": 120
+        }
+      },
+      "items": [
+        {
+          "id": "act-t1-ht4d849_s112_83164b25",
+          "kind": "time_event",
+          "title": "Escribir un diario breve sobre emociones y logros del dia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-01T08:00:00.000Z",
+          "durationMin": 30,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "act-t3-x52v2xu_s135_22438abb",
+          "kind": "time_event",
+          "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-01T19:30:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "act-t3-x52v2xu_s266_e08f42ab",
+          "kind": "time_event",
+          "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T13:00:00.000Z",
+          "durationMin": 45,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "act-t2-1k02i73_s279_f9558c10",
+          "kind": "time_event",
+          "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-04T19:30:00.000Z",
+          "durationMin": 40,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "act-t2-1k02i73_s323_39a748b1",
+          "kind": "time_event",
+          "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-05T17:30:00.000Z",
+          "durationMin": 40,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "act-t1-ht4d849_s325_17a2ea2a",
+          "kind": "time_event",
+          "title": "Escribir un diario breve sobre emociones y logros del dia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "startAt": "2026-04-05T18:30:00.000Z",
+          "durationMin": 30,
+          "rigidity": "soft",
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "milestone-1",
+          "kind": "milestone",
+          "title": "Rutina semanal con energía registrada y bloques sin interrupciones establecida",
+          "notes": "Durante los meses 1-2 dedicas 5h/sem a medir tu energía diaria, escribir diario de autoconocimiento dos veces por semana, sostener una conversación honesta semanal, programar dos bloques sin interrupciones (uno creativo y una caminata consciente de 30 minutos) y ordenar hábitos básicos para salir del estancado laboral.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-05-27",
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "milestone-2",
+          "kind": "milestone",
+          "title": "Dos mini experimentos creativos con feedback documentado",
+          "notes": "En los meses 3-4 usas 5h/sem para diseñar y ejecutar al menos dos mini experimentos creativos basados en tu diario, compartirlos con al menos tres personas (incluida la conversación semanal), documentar feedback y ajustar tu rutina para reenfocarte laboralmente.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-07-22",
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "milestone-3",
+          "kind": "milestone",
+          "title": "Pieza creativa final y plan de hábitos validados a los 6 meses",
+          "notes": "Durante los meses 5-6 dedicas 5h/sem a pulir la pieza creativa que mejor funcionó, consolidar un registro de hábitos ordenados para las próximas 8 semanas, mantener las conversaciones y caminatas conscientes y preparar la evidencia de tus avances claros.",
+          "status": "draft",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "dueDate": "2026-09-16",
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "metric-plan-quality",
+          "kind": "metric",
+          "title": "Calidad del plan",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "plan_quality_score",
+          "unit": "puntos",
+          "direction": "increase",
+          "target": {
+            "targetValue": 100
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "last"
+          },
+          "series": [
+            {
+              "at": "2026-03-30T13:53:50.024Z",
+              "value": 100
+            }
+          ],
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "metric-sessions-week",
+          "kind": "metric",
+          "title": "Sesiones completables por semana",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "metricKey": "scheduled_sessions_per_week",
+          "unit": "sesiones",
+          "direction": "increase",
+          "target": {
+            "targetValue": 6
+          },
+          "cadence": {
+            "freq": "weekly",
+            "aggregation": "count"
+          },
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        },
+        {
+          "id": "trigger-low-adherence",
+          "kind": "trigger_rule",
+          "title": "Revisar plan si baja la adherencia",
+          "status": "active",
+          "goalIds": [
+            "generated-goal"
+          ],
+          "enabled": true,
+          "conditions": [
+            {
+              "left": {
+                "type": "metric",
+                "ref": "plan_quality_score"
+              },
+              "op": "lt",
+              "right": {
+                "value": 70
+              }
+            }
+          ],
+          "actions": [
+            {
+              "type": "create_task",
+              "payload": {
+                "title": "Revisar y reajustar el plan",
+                "estimateMin": 30
+              }
+            }
+          ],
+          "throttle": {
+            "minHoursBetweenRuns": 168
+          },
+          "createdAt": "2026-03-30T13:53:50.024Z",
+          "updatedAt": "2026-03-30T13:53:50.024Z"
+        }
+      ],
+      "habitStates": [],
+      "slackPolicy": {
+        "weeklyTimeBufferMin": 120,
+        "maxChurnMovesPerWeek": 3,
+        "frozenHorizonDays": 2
+      },
+      "timezone": "UTC",
+      "summary_esAR": "Este plan convierte \"Quiero reinventarme y sentir que avanzo con mi vida.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+      "qualityScore": 60,
+      "implementationIntentions": [
+        "Si llega miércoles a las 08:00, entonces hago Escribir un diario breve sobre emociones y logros del dia durante 30 minutos.",
+        "Si llega miércoles a las 19:30, entonces hago Tener una charla sincera con alguien de confianza sobre avances y miedos durante 45 minutos.",
+        "Si llega sábado a las 13:00, entonces hago Tener una charla sincera con alguien de confianza sobre avances y miedos durante 45 minutos.",
+        "Si llega sábado a las 19:30, entonces hago Realizar una caminata consciente para observar pensamientos y cuerpo durante 40 minutos."
+      ],
+      "warnings": [
+        "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+      ],
+      "tradeoffs": [],
+      "publicationState": "publishable",
+      "qualityIssues": [],
+      "requestDomain": null,
+      "packageDomain": null,
+      "intakeCoverage": {
+        "requiredSignals": [],
+        "missingSignals": [],
+        "signalUsage": []
+      },
+      "degraded": true,
+      "reasoningTrace": [
+        {
+          "phase": "interpret",
+          "agent": "goal-interpreter",
+          "iteration": 1,
+          "action": "Executed interpret",
+          "reasoning": "Phase completed",
+          "result": "Goal: Reinventarme y percibir que avanzo en mi vida personal, confidence: 0.63",
+          "tokensUsed": 20,
+          "timestamp": "2026-03-30T13:52:46.949Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 2,
+          "action": "Executed clarify",
+          "reasoning": "Faltan el plazo deseado y la línea base actual para poder estructurar el plan.",
+          "result": "2 questions pending (confidence: 0.46)",
+          "tokensUsed": 10,
+          "timestamp": "2026-03-30T13:52:50.973Z"
+        },
+        {
+          "phase": "clarify",
+          "agent": "clarifier",
+          "iteration": 3,
+          "action": "Executed clarify",
+          "reasoning": "No faltan señales críticas para planificar.",
+          "result": "Ready to advance (confidence: 0.62)",
+          "tokensUsed": 9,
+          "timestamp": "2026-03-30T13:53:04.271Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 4,
+          "action": "FALLBACK: planner",
+          "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "result": "Using fallback strategic draft - NOT from LLM",
+          "tokensUsed": 12,
+          "timestamp": "2026-03-30T13:53:49.874Z"
+        },
+        {
+          "phase": "plan",
+          "agent": "planner",
+          "iteration": 4,
+          "action": "Executed plan",
+          "reasoning": "Phase completed",
+          "result": "3 phases generated",
+          "tokensUsed": 5,
+          "timestamp": "2026-03-30T13:53:49.875Z"
+        },
+        {
+          "phase": "check",
+          "agent": "feasibility-checker",
+          "iteration": 5,
+          "action": "Executed check",
+          "reasoning": "Status: feasible",
+          "result": "Feasibility: feasible",
+          "tokensUsed": 6,
+          "timestamp": "2026-03-30T13:53:49.876Z"
+        },
+        {
+          "phase": "schedule",
+          "agent": "scheduler",
+          "iteration": 6,
+          "action": "Executed schedule",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T13:53:50.025Z"
+        },
+        {
+          "phase": "critique",
+          "agent": "critic",
+          "iteration": 7,
+          "action": "Executed critique",
+          "reasoning": "Las fases reproducen el mismo enunciado sin resultados observables, impidiendo saber si el usuario avanza hacia su reinvención. Tampoco se escalona la dificultad ni se integran las prácticas claves del dominio, por lo que el plan carece de guía práctica y de alineación con los requisitos establecidos. Es necesario revisar la estrategia antes de ejecutarla.",
+          "result": "Score: 55, verdict: revise",
+          "tokensUsed": 7,
+          "timestamp": "2026-03-30T13:54:58.095Z"
+        },
+        {
+          "phase": "revise",
+          "agent": "planner",
+          "iteration": 8,
+          "action": "Executed revise",
+          "reasoning": "Phase completed",
+          "result": "3 phases generated",
+          "tokensUsed": 5,
+          "timestamp": "2026-03-30T13:56:39.004Z"
+        },
+        {
+          "phase": "critique",
+          "agent": "critic",
+          "iteration": 9,
+          "action": "Executed critique",
+          "reasoning": "La secuencia de fases ahora es clara y específica respecto a diario, conversaciones y bloques creativos, y los recursos semanales son realistas para la energía disponible. Solo falta alinear la cantidad de experimentos creativos con las mejores prácticas del dominio para contar con evidencia suficiente antes del cierre, pero el resto del plan está en buen camino.",
+          "result": "Score: 77, verdict: approve",
+          "tokensUsed": 7,
+          "timestamp": "2026-03-30T13:57:01.192Z"
+        },
+        {
+          "phase": "package",
+          "agent": "packager",
+          "iteration": 10,
+          "action": "Executed package",
+          "reasoning": "Phase completed",
+          "result": "Phase completed",
+          "tokensUsed": 4,
+          "timestamp": "2026-03-30T13:57:01.701Z"
+        }
+      ],
+      "agentOutcomes": [
+        {
+          "agent": "goal-interpreter",
+          "phase": "interpret",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 8267
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 4023
+        },
+        {
+          "agent": "clarifier",
+          "phase": "clarify",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 3792
+        },
+        {
+          "agent": "domain-expert",
+          "phase": "plan",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 27795
+        },
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "source": "fallback",
+          "errorCode": "Error",
+          "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+          "durationMs": 17806
+        },
+        {
+          "agent": "feasibility-checker",
+          "phase": "check",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 1
+        },
+        {
+          "agent": "scheduler",
+          "phase": "schedule",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 148
+        },
+        {
+          "agent": "critic",
+          "phase": "critique",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 68069
+        },
+        {
+          "agent": "domain-expert",
+          "phase": "revise",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 27861
+        },
+        {
+          "agent": "planner",
+          "phase": "revise",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 100908
+        },
+        {
+          "agent": "critic",
+          "phase": "critique",
+          "source": "llm",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 22187
+        },
+        {
+          "agent": "packager",
+          "phase": "package",
+          "source": "deterministic",
+          "errorCode": null,
+          "errorMessage": null,
+          "durationMs": 492
+        }
+      ]
+    },
+    "meta": {
+      "modelId": "openai:gpt-5-codex"
+    }
+  },
   "finalResult": null,
   "latestDebugEvent": {
-    "sequence": 37,
-    "timestamp": "2026-03-30T13:53:50.025Z",
-    "category": "agent",
-    "action": "agent.start",
-    "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
-    "phase": "critique",
+    "sequence": 58,
+    "timestamp": "2026-03-30T13:57:01.705Z",
+    "category": "publication",
+    "action": "publication.evaluated",
+    "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+    "phase": "done",
     "agent": "critic",
-    "iteration": 6,
-    "revisionCycle": 0,
+    "iteration": 10,
+    "revisionCycle": 1,
     "clarifyRound": 2,
-    "progressScore": 80,
+    "progressScore": 100,
     "degraded": true,
     "fallbackCount": 1,
-    "publicationState": null,
+    "publicationState": "ready",
     "failureCode": null,
     "errorCode": null,
-    "details": null
+    "details": {
+      "partialKind": "publication",
+      "canPublish": true,
+      "degraded": true,
+      "blockingAgents": [],
+      "fallbackLedger": [
+        {
+          "agent": "planner",
+          "phase": "plan",
+          "count": 1,
+          "latestErrorCode": "Error",
+          "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+        }
+      ],
+      "qualityIssues": [],
+      "criticVerdict": "approve",
+      "criticScore": 77,
+      "warnings": [
+        "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+      ],
+      "exactBlockers": [],
+      "misalignedGoal": false
+    }
   },
   "latestDebugStatus": {
     "lifecycle": "running",
@@ -52,16 +1332,16 @@
     "currentAgent": "critic",
     "currentAction": "agent.start",
     "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
-    "iteration": 6,
-    "revisionCycles": 0,
+    "iteration": 8,
+    "revisionCycles": 1,
     "clarifyRounds": 2,
     "progressScore": 80,
     "degraded": true,
     "fallbackCount": 1,
     "publicationState": null,
     "failureCode": null,
-    "lastEventSequence": 37,
-    "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
+    "lastEventSequence": 49,
+    "lastEventTimestamp": "2026-03-30T13:56:39.005Z",
     "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
   },
   "localEvents": [
@@ -84,6 +1364,25 @@
         "endpoint": "/api/plan/build/resume",
         "sessionId": "ed4f05c9-0e35-4fcb-baa5-3d027638b80a",
         "answersCount": 2
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:02.108Z",
+      "type": "package.fetch_requested",
+      "data": {
+        "planId": "aff4b18f-acc3-430a-9c20-8efb758f4d08",
+        "provider": "resume"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:02.291Z",
+      "type": "package.fetched",
+      "data": {
+        "planId": "aff4b18f-acc3-430a-9c20-8efb758f4d08",
+        "provider": "resume",
+        "modelId": "openai:gpt-5-codex",
+        "publicationState": "publishable",
+        "degraded": true
       }
     }
   ],
@@ -1179,6 +2478,2709 @@
           "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
           "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
         }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:50.552Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:54:50.551Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 6,
+          "revisionCycles": 0,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 37,
+          "lastEventTimestamp": "2026-03-30T13:53:50.025Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:58.132Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 38,
+        "timestamp": "2026-03-30T13:54:58.095Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 68069,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:58.132Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 39,
+        "timestamp": "2026-03-30T13:54:58.095Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict revise y score 55/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 6,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "revise",
+          "overallScore": 55,
+          "mustFix": [
+            {
+              "id": "f-1",
+              "severity": "critical",
+              "category": "specificity",
+              "message": "Cada fase repite la consigna “avances, claros. y notar” sin traducirla en entregables estratégicos concretos (por ejemplo, qué hábitos reordenar, cómo medir el reenfoque creativo, qué evidencia definirá el avance). Sin un plan verificable, el objetivo de reinventarse queda abstracto e imposible de evaluar.",
+              "suggestion": "Definir para cada fase resultados tangibles (p.ej., “fase 1: establecer una rutina semanal con 2 bloques creativos y 2 registros de energía”; “fase 2: producir y presentar un proyecto creativo a X personas”) que permitan medir si se avanza.",
+              "affectedPhaseIds": [
+                "Punto de partida y activos utiles de avances, claros. y notar",
+                "Pruebas visibles y feedback externo para avances, claros. y notar",
+                "Cierre verificable de avances, claros. y notar"
+              ]
+            }
+          ],
+          "shouldFix": [
+            {
+              "id": "f-2",
+              "severity": "warning",
+              "category": "progression",
+              "message": "Las tres fases proponen prácticamente la misma actividad (“mantener avances claros y notar”) sin un cambio real de alcance o dificultad, lo cual no guía cómo pasar de ordenar hábitos a recibir feedback y cerrar una demostración.",
+              "suggestion": "Escalar las fases: 1) diagnóstico y rutinas básicas de energía, 2) experimentos creativos con validación externa, 3) consolidación y demostración final. Indicar qué nuevas capacidades o exigencias aparecen en cada etapa.",
+              "affectedPhaseIds": [
+                "Punto de partida y activos utiles de avances, claros. y notar",
+                "Pruebas visibles y feedback externo para avances, claros. y notar",
+                "Cierre verificable de avances, claros. y notar"
+              ]
+            },
+            {
+              "id": "f-3",
+              "severity": "warning",
+              "category": "domain",
+              "message": "El overlay del dominio desarrollo-personal exige prácticas concretas (diario, caminata consciente, charla sincera y reservar dos momentos sin interrupciones). El plan estratégico no hace ninguna referencia a estas actividades ni a la necesidad de reservar esos espacios, por lo que corre el riesgo de incumplir los requisitos mínimos del dominio.",
+              "suggestion": "Integrar explícitamente en las fases cómo se usarán las prácticas recomendadas (por ejemplo, registrar emociones en el diario durante la fase 1, programar caminatas y conversaciones en la fase 2) y asegurar los dos momentos sin interrupciones por semana.",
+              "affectedPhaseIds": [
+                "Punto de partida y activos utiles de avances, claros. y notar",
+                "Pruebas visibles y feedback externo para avances, claros. y notar",
+                "Cierre verificable de avances, claros. y notar"
+              ]
+            }
+          ],
+          "reasoning": "Las fases reproducen el mismo enunciado sin resultados observables, impidiendo saber si el usuario avanza hacia su reinvención. Tampoco se escalona la dificultad ni se integran las prácticas claves del dominio, por lo que el plan carece de guía práctica y de alineación con los requisitos establecidos. Es necesario revisar la estrategia antes de ejecutarla.",
+          "scoreDelta": null,
+          "comparison": "sin_base"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:58.133Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 40,
+        "timestamp": "2026-03-30T13:54:58.095Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El critico pidio otra vuelta (score 55/100, must-fix 1).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "revise"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:58.134Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 41,
+        "timestamp": "2026-03-30T13:54:58.096Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta corrigiendo el plan a partir de la critica.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 0,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:58.134Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 42,
+        "timestamp": "2026-03-30T13:54:58.096Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El planificador empezo una nueva vuelta de revision.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:54:58.135Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 43,
+        "timestamp": "2026-03-30T13:54:58.096Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:55:00.555Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:55:00.555Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 43,
+          "lastEventTimestamp": "2026-03-30T13:54:58.096Z",
+          "lastEventSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:55:10.555Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:55:10.555Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 43,
+          "lastEventTimestamp": "2026-03-30T13:54:58.096Z",
+          "lastEventSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:55:20.560Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:55:20.560Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 43,
+          "lastEventTimestamp": "2026-03-30T13:54:58.096Z",
+          "lastEventSummary_es": "El experto de dominio esta buscando criterios para corregir la nueva vuelta."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:55:25.968Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 44,
+        "timestamp": "2026-03-30T13:55:25.957Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El experto de dominio completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "domain-expert",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 27861,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:55:30.565Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:55:30.564Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T13:55:25.957Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:55:40.570Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:55:40.569Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T13:55:25.957Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:55:50.569Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:55:50.569Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T13:55:25.957Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:00.574Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:56:00.573Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T13:55:25.957Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:10.582Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:56:10.581Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T13:55:25.957Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:20.587Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:56:20.586Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T13:55:25.957Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:30.598Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:56:30.596Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "revise",
+          "currentAgent": "domain-expert",
+          "currentAction": "agent.completed",
+          "currentSummary_es": "El experto de dominio completo revision con respuesta del modelo.",
+          "iteration": 7,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 44,
+          "lastEventTimestamp": "2026-03-30T13:55:25.957Z",
+          "lastEventSummary_es": "El experto de dominio completo revision con respuesta del modelo."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:39.078Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 45,
+        "timestamp": "2026-03-30T13:56:39.004Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El planificador completo revision con respuesta del modelo.",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 100908,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:39.079Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 46,
+        "timestamp": "2026-03-30T13:56:39.004Z",
+        "category": "phase",
+        "action": "revise.summary",
+        "summary_es": "Revision lista con 3 fase(s) y 3 hito(s).",
+        "phase": "revise",
+        "agent": "planner",
+        "iteration": 7,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "roadmap",
+          "horizonWeeks": 24,
+          "phaseCount": 3,
+          "phases": [
+            {
+              "index": 1,
+              "title": "Rutina creativa y energía de arranque rumbo a los 6 meses",
+              "focus": "Durante los meses 1-2 dedicas 5h/sem a medir tu energía diaria, escribir diario de autoconocimiento dos veces por semana, sostener una conversación honesta semanal, programar dos bloques sin interrupciones (uno creativo y una caminata consciente de 30 minutos) y ordenar hábitos básicos para salir del estancado laboral.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 2,
+              "title": "Mini experimentos creativos con feedback externo hacia el mes 4 de los 6 meses",
+              "focus": "En los meses 3-4 usas 5h/sem para diseñar y ejecutar al menos dos mini experimentos creativos basados en tu diario, compartirlos con al menos tres personas (incluida la conversación semanal), documentar feedback y ajustar tu rutina para reenfocarte laboralmente.",
+              "durationWeeks": 8
+            },
+            {
+              "index": 3,
+              "title": "Cierre verificable y evidencia de avance reinventado al mes 6",
+              "focus": "Durante los meses 5-6 dedicas 5h/sem a pulir la pieza creativa que mejor funcionó, consolidar un registro de hábitos ordenados para las próximas 8 semanas, mantener las conversaciones y caminatas conscientes y preparar la evidencia de tus avances claros.",
+              "durationWeeks": 8
+            }
+          ],
+          "milestones": [
+            "Rutina semanal con energía registrada y bloques sin interrupciones establecida",
+            "Dos mini experimentos creativos con feedback documentado",
+            "Pieza creativa final y plan de hábitos validados a los 6 meses"
+          ],
+          "fallbackUsed": false,
+          "failedCheck": null,
+          "validationSummaryEs": null,
+          "validationEvidence": null,
+          "fallbackPublishability": "sin_fallback"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:39.080Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 47,
+        "timestamp": "2026-03-30T13:56:39.005Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "La revision volvio a critica para validar la nueva version del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "revise",
+          "toPhase": "critique"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:39.081Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 48,
+        "timestamp": "2026-03-30T13:56:39.005Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta ejecutando la revision critica del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:39.082Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 49,
+        "timestamp": "2026-03-30T13:56:39.005Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:40.601Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:56:40.600Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 8,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 49,
+          "lastEventTimestamp": "2026-03-30T13:56:39.005Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:56:50.609Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:56:50.608Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 8,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 49,
+          "lastEventTimestamp": "2026-03-30T13:56:39.005Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:00.615Z",
+      "type": "v6:heartbeat",
+      "data": {
+        "timestamp": "2026-03-30T13:57:00.615Z",
+        "status": {
+          "lifecycle": "running",
+          "currentPhase": "critique",
+          "currentAgent": "critic",
+          "currentAction": "agent.start",
+          "currentSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan.",
+          "iteration": 8,
+          "revisionCycles": 1,
+          "clarifyRounds": 2,
+          "progressScore": 80,
+          "degraded": true,
+          "fallbackCount": 1,
+          "publicationState": null,
+          "failureCode": null,
+          "lastEventSequence": 49,
+          "lastEventTimestamp": "2026-03-30T13:56:39.005Z",
+          "lastEventSummary_es": "El critico esta revisando calidad, factibilidad y especificidad del plan."
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:01.748Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 50,
+        "timestamp": "2026-03-30T13:57:01.192Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El critico completo critica con respuesta del modelo.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "llm",
+          "durationMs": 22187,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:01.749Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 51,
+        "timestamp": "2026-03-30T13:57:01.203Z",
+        "category": "critic",
+        "action": "critic.report",
+        "summary_es": "El critico cerro la vuelta con verdict approve y score 77/100.",
+        "phase": "critique",
+        "agent": "critic",
+        "iteration": 8,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 80,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "critic_round",
+          "verdict": "approve",
+          "overallScore": 77,
+          "mustFix": [],
+          "shouldFix": [
+            {
+              "id": "f-1",
+              "severity": "warning",
+              "category": "domain",
+              "message": "El plan solo contempla ejecutar dos mini experimentos creativos antes de elegir la pieza final, cuando el overlay del dominio pide al menos tres experimentos documentados con notas de lo que funcionó o no. Con tan poco muestreo es fácil sacar conclusiones erróneas y terminar puliendo una idea insuficientemente probada.",
+              "suggestion": "Añadí un tercer experimento creativo (idealmente con una temática o formato diferente) y registra qué funcionó y qué no para poder comparar opciones con evidencia antes de pasar a la fase final.",
+              "affectedPhaseIds": [
+                "phase-2",
+                "phase-3"
+              ]
+            }
+          ],
+          "reasoning": "La secuencia de fases ahora es clara y específica respecto a diario, conversaciones y bloques creativos, y los recursos semanales son realistas para la energía disponible. Solo falta alinear la cantidad de experimentos creativos con las mejores prácticas del dominio para contar con evidencia suficiente antes del cierre, pero el resto del plan está en buen camino.",
+          "scoreDelta": 22,
+          "comparison": "mejor"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:01.750Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 52,
+        "timestamp": "2026-03-30T13:57:01.208Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El pipeline avanzo de critica a empaquetado.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "critique",
+          "toPhase": "package"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:01.751Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 53,
+        "timestamp": "2026-03-30T13:57:01.208Z",
+        "category": "phase",
+        "action": "phase.enter",
+        "summary_es": "Se esta empaquetando el resultado final.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:01.752Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 54,
+        "timestamp": "2026-03-30T13:57:01.208Z",
+        "category": "agent",
+        "action": "agent.start",
+        "summary_es": "El empaquetador esta armando el resultado final publicable.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": null
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:01.753Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 55,
+        "timestamp": "2026-03-30T13:57:01.700Z",
+        "category": "agent",
+        "action": "agent.completed",
+        "summary_es": "El empaquetador cerro empaquetado por via deterministica.",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "source": "deterministic",
+          "durationMs": 492,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:01.756Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 56,
+        "timestamp": "2026-03-30T13:57:01.703Z",
+        "category": "phase",
+        "action": "package.summary",
+        "summary_es": "Empaquetado listo con score base 100/100 y 0 advertencia(s).",
+        "phase": "package",
+        "agent": "packager",
+        "iteration": 9,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 95,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "package",
+          "packageReady": true,
+          "qualityScore": 100,
+          "summary": "Este plan convierte \"Quiero reinventarme y sentir que avanzo con mi vida.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "warnings": [],
+          "qualityIssues": [],
+          "requestDomain": null,
+          "packageDomain": null
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:01.757Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 57,
+        "timestamp": "2026-03-30T13:57:01.704Z",
+        "category": "phase",
+        "action": "phase.transition",
+        "summary_es": "El paquete final quedo listo para resolver la publicacion.",
+        "phase": "done",
+        "agent": null,
+        "iteration": 10,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": null,
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "fromPhase": "package",
+          "toPhase": "done"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:01.758Z",
+      "type": "v6:debug",
+      "data": {
+        "sequence": 58,
+        "timestamp": "2026-03-30T13:57:01.705Z",
+        "category": "publication",
+        "action": "publication.evaluated",
+        "summary_es": "La publicacion quedo permitida, aunque el run termino degradado por fallbacks.",
+        "phase": "done",
+        "agent": "critic",
+        "iteration": 10,
+        "revisionCycle": 1,
+        "clarifyRound": 2,
+        "progressScore": 100,
+        "degraded": true,
+        "fallbackCount": 1,
+        "publicationState": "ready",
+        "failureCode": null,
+        "errorCode": null,
+        "details": {
+          "partialKind": "publication",
+          "canPublish": true,
+          "degraded": true,
+          "blockingAgents": [],
+          "fallbackLedger": [
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "count": 1,
+              "latestErrorCode": "Error",
+              "latestErrorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used."
+            }
+          ],
+          "qualityIssues": [],
+          "criticVerdict": "approve",
+          "criticScore": 77,
+          "warnings": [
+            "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+          ],
+          "exactBlockers": [],
+          "misalignedGoal": false
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:02.098Z",
+      "type": "v6:progress",
+      "data": {
+        "score": 100,
+        "lastAction": "Packaging final plan"
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:02.099Z",
+      "type": "v6:degraded",
+      "data": {
+        "message": "El plan se genero con datos parcialmente sinteticos porque 1 agente(s) no pudieron conectarse al LLM.",
+        "failedAgents": "planner: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 8267
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 4023
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 3792
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 27795
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "fallback",
+            "errorCode": "Error",
+            "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "durationMs": 17806
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 148
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 68069
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 27861
+          },
+          {
+            "agent": "planner",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 100908
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 22187
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 492
+          }
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-03-30T13:57:02.101Z",
+      "type": "v6:complete",
+      "data": {
+        "planId": "aff4b18f-acc3-430a-9c20-8efb758f4d08",
+        "score": 60,
+        "iterations": 10,
+        "package": {
+          "plan": {
+            "goalIds": [
+              "generated-goal"
+            ],
+            "timezone": "UTC",
+            "createdAt": "2026-03-30T13:53:50.024Z",
+            "updatedAt": "2026-03-30T13:53:50.024Z",
+            "skeleton": {
+              "horizonWeeks": 24,
+              "goalIds": [
+                "generated-goal"
+              ],
+              "phases": [
+                {
+                  "phaseId": "phase-1",
+                  "title": "Rutina creativa y energía de arranque rumbo a los 6 meses",
+                  "startWeek": 1,
+                  "endWeek": 8,
+                  "startDate": "2026-04-01",
+                  "endDate": "2026-05-26",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Durante los meses 1-2 dedicas 5h/sem a medir tu energía diaria, escribir diario de autoconocimiento dos veces por semana, sostener una conversación honesta semanal, programar dos bloques sin interrupciones (uno creativo y una caminata consciente de 30 minutos) y ordenar hábitos básicos para salir del estancado laboral."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-t1-ht4d849",
+                      "title": "Escribir un diario breve sobre emociones y logros del dia",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 30
+                    },
+                    {
+                      "activityId": "act-t2-1k02i73",
+                      "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 40
+                    },
+                    {
+                      "activityId": "act-t3-x52v2xu",
+                      "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    }
+                  ],
+                  "milestoneIds": []
+                },
+                {
+                  "phaseId": "phase-2",
+                  "title": "Mini experimentos creativos con feedback externo hacia el mes 4 de los 6 meses",
+                  "startWeek": 9,
+                  "endWeek": 16,
+                  "startDate": "2026-05-27",
+                  "endDate": "2026-07-21",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "En los meses 3-4 usas 5h/sem para diseñar y ejecutar al menos dos mini experimentos creativos basados en tu diario, compartirlos con al menos tres personas (incluida la conversación semanal), documentar feedback y ajustar tu rutina para reenfocarte laboralmente."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-t1-ht4d849",
+                      "title": "Escribir un diario breve sobre emociones y logros del dia",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 30
+                    },
+                    {
+                      "activityId": "act-t2-1k02i73",
+                      "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 40
+                    },
+                    {
+                      "activityId": "act-t3-x52v2xu",
+                      "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-1"
+                  ]
+                },
+                {
+                  "phaseId": "phase-3",
+                  "title": "Cierre verificable y evidencia de avance reinventado al mes 6",
+                  "startWeek": 17,
+                  "endWeek": 24,
+                  "startDate": "2026-07-22",
+                  "endDate": "2026-09-15",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "objectives": [
+                    "Durante los meses 5-6 dedicas 5h/sem a pulir la pieza creativa que mejor funcionó, consolidar un registro de hábitos ordenados para las próximas 8 semanas, mantener las conversaciones y caminatas conscientes y preparar la evidencia de tus avances claros."
+                  ],
+                  "frequencies": [
+                    {
+                      "activityId": "act-t1-ht4d849",
+                      "title": "Escribir un diario breve sobre emociones y logros del dia",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 30
+                    },
+                    {
+                      "activityId": "act-t2-1k02i73",
+                      "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 40
+                    },
+                    {
+                      "activityId": "act-t3-x52v2xu",
+                      "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                      "sessionsPerWeek": 2,
+                      "minutesPerSession": 45
+                    }
+                  ],
+                  "milestoneIds": [
+                    "milestone-2"
+                  ]
+                }
+              ],
+              "milestones": [
+                {
+                  "id": "milestone-1",
+                  "kind": "milestone",
+                  "title": "Rutina semanal con energía registrada y bloques sin interrupciones establecida",
+                  "notes": "Durante los meses 1-2 dedicas 5h/sem a medir tu energía diaria, escribir diario de autoconocimiento dos veces por semana, sostener una conversación honesta semanal, programar dos bloques sin interrupciones (uno creativo y una caminata consciente de 30 minutos) y ordenar hábitos básicos para salir del estancado laboral.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "dueDate": "2026-05-27"
+                },
+                {
+                  "id": "milestone-2",
+                  "kind": "milestone",
+                  "title": "Dos mini experimentos creativos con feedback documentado",
+                  "notes": "En los meses 3-4 usas 5h/sem para diseñar y ejecutar al menos dos mini experimentos creativos basados en tu diario, compartirlos con al menos tres personas (incluida la conversación semanal), documentar feedback y ajustar tu rutina para reenfocarte laboralmente.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "dueDate": "2026-07-22"
+                },
+                {
+                  "id": "milestone-3",
+                  "kind": "milestone",
+                  "title": "Pieza creativa final y plan de hábitos validados a los 6 meses",
+                  "notes": "Durante los meses 5-6 dedicas 5h/sem a pulir la pieza creativa que mejor funcionó, consolidar un registro de hábitos ordenados para las próximas 8 semanas, mantener las conversaciones y caminatas conscientes y preparar la evidencia de tus avances claros.",
+                  "status": "draft",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "dueDate": "2026-09-16"
+                }
+              ]
+            },
+            "detail": {
+              "horizonWeeks": 2,
+              "startDate": "2026-04-01",
+              "endDate": "2026-04-14",
+              "scheduledEvents": [
+                {
+                  "id": "act-t1-ht4d849_s112_83164b25",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-01T08:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s135_22438abb",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s266_e08f42ab",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-04T13:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s279_f9558c10",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-04T19:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s323_39a748b1",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-05T17:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t1-ht4d849_s325_17a2ea2a",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-05T18:30:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t1-ht4d849_s112_83164b25-w2",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-08T08:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s135_22438abb-w2",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-08T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s266_e08f42ab-w2",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-11T13:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s279_f9558c10-w2",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-11T19:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s323_39a748b1-w2",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-12T17:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t1-ht4d849_s325_17a2ea2a-w2",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-12T18:30:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                }
+              ],
+              "weeks": [
+                {
+                  "weekIndex": 1,
+                  "startDate": "2026-04-01",
+                  "endDate": "2026-04-07",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-t1-ht4d849_s112_83164b25",
+                      "kind": "time_event",
+                      "title": "Escribir un diario breve sobre emociones y logros del dia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-01T08:00:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t3-x52v2xu_s135_22438abb",
+                      "kind": "time_event",
+                      "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-01T19:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t3-x52v2xu_s266_e08f42ab",
+                      "kind": "time_event",
+                      "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-04T13:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t2-1k02i73_s279_f9558c10",
+                      "kind": "time_event",
+                      "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-04T19:30:00.000Z",
+                      "durationMin": 40,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t2-1k02i73_s323_39a748b1",
+                      "kind": "time_event",
+                      "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-05T17:30:00.000Z",
+                      "durationMin": 40,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t1-ht4d849_s325_17a2ea2a",
+                      "kind": "time_event",
+                      "title": "Escribir un diario breve sobre emociones y logros del dia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-05T18:30:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    }
+                  ]
+                },
+                {
+                  "weekIndex": 2,
+                  "startDate": "2026-04-08",
+                  "endDate": "2026-04-14",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-t1-ht4d849_s112_83164b25-w2",
+                      "kind": "time_event",
+                      "title": "Escribir un diario breve sobre emociones y logros del dia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-08T08:00:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t3-x52v2xu_s135_22438abb-w2",
+                      "kind": "time_event",
+                      "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-08T19:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t3-x52v2xu_s266_e08f42ab-w2",
+                      "kind": "time_event",
+                      "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-11T13:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t2-1k02i73_s279_f9558c10-w2",
+                      "kind": "time_event",
+                      "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-11T19:30:00.000Z",
+                      "durationMin": 40,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t2-1k02i73_s323_39a748b1-w2",
+                      "kind": "time_event",
+                      "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-12T17:30:00.000Z",
+                      "durationMin": 40,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t1-ht4d849_s325_17a2ea2a-w2",
+                      "kind": "time_event",
+                      "title": "Escribir un diario breve sobre emociones y logros del dia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-12T18:30:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    }
+                  ]
+                }
+              ]
+            },
+            "operational": {
+              "horizonDays": 7,
+              "startDate": "2026-04-01",
+              "endDate": "2026-04-07",
+              "frozen": true,
+              "scheduledEvents": [
+                {
+                  "id": "act-t1-ht4d849_s112_83164b25",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-01T08:00:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s135_22438abb",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-01T19:30:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t3-x52v2xu_s266_e08f42ab",
+                  "kind": "time_event",
+                  "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-04T13:00:00.000Z",
+                  "durationMin": 45,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s279_f9558c10",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-04T19:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t2-1k02i73_s323_39a748b1",
+                  "kind": "time_event",
+                  "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-05T17:30:00.000Z",
+                  "durationMin": 40,
+                  "rigidity": "soft"
+                },
+                {
+                  "id": "act-t1-ht4d849_s325_17a2ea2a",
+                  "kind": "time_event",
+                  "title": "Escribir un diario breve sobre emociones y logros del dia",
+                  "status": "active",
+                  "goalIds": [
+                    "generated-goal"
+                  ],
+                  "createdAt": "2026-03-30T13:53:50.024Z",
+                  "updatedAt": "2026-03-30T13:53:50.024Z",
+                  "startAt": "2026-04-05T18:30:00.000Z",
+                  "durationMin": 30,
+                  "rigidity": "soft"
+                }
+              ],
+              "buffers": [
+                {
+                  "id": "buffer-slack-1-1",
+                  "startAt": "2026-04-01T20:15:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-2-1",
+                  "startAt": "2026-04-02T18:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-4-1",
+                  "startAt": "2026-04-04T20:10:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                },
+                {
+                  "id": "buffer-slack-5-1",
+                  "startAt": "2026-04-05T19:00:00.000Z",
+                  "durationMin": 30,
+                  "kind": "slack",
+                  "label": "Margen libre para absorber imprevistos"
+                }
+              ],
+              "days": [
+                {
+                  "date": "2026-04-01",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-t1-ht4d849_s112_83164b25",
+                      "kind": "time_event",
+                      "title": "Escribir un diario breve sobre emociones y logros del dia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-01T08:00:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t3-x52v2xu_s135_22438abb",
+                      "kind": "time_event",
+                      "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-01T19:30:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-1-1",
+                      "startAt": "2026-04-01T20:15:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-02",
+                  "scheduledEvents": [],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-2-1",
+                      "startAt": "2026-04-02T18:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-03",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-04",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-t3-x52v2xu_s266_e08f42ab",
+                      "kind": "time_event",
+                      "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-04T13:00:00.000Z",
+                      "durationMin": 45,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t2-1k02i73_s279_f9558c10",
+                      "kind": "time_event",
+                      "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-04T19:30:00.000Z",
+                      "durationMin": 40,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-4-1",
+                      "startAt": "2026-04-04T20:10:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-05",
+                  "scheduledEvents": [
+                    {
+                      "id": "act-t2-1k02i73_s323_39a748b1",
+                      "kind": "time_event",
+                      "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-05T17:30:00.000Z",
+                      "durationMin": 40,
+                      "rigidity": "soft"
+                    },
+                    {
+                      "id": "act-t1-ht4d849_s325_17a2ea2a",
+                      "kind": "time_event",
+                      "title": "Escribir un diario breve sobre emociones y logros del dia",
+                      "status": "active",
+                      "goalIds": [
+                        "generated-goal"
+                      ],
+                      "createdAt": "2026-03-30T13:53:50.024Z",
+                      "updatedAt": "2026-03-30T13:53:50.024Z",
+                      "startAt": "2026-04-05T18:30:00.000Z",
+                      "durationMin": 30,
+                      "rigidity": "soft"
+                    }
+                  ],
+                  "buffers": [
+                    {
+                      "id": "buffer-slack-5-1",
+                      "startAt": "2026-04-05T19:00:00.000Z",
+                      "durationMin": 30,
+                      "kind": "slack",
+                      "label": "Margen libre para absorber imprevistos"
+                    }
+                  ]
+                },
+                {
+                  "date": "2026-04-06",
+                  "scheduledEvents": [],
+                  "buffers": []
+                },
+                {
+                  "date": "2026-04-07",
+                  "scheduledEvents": [],
+                  "buffers": []
+                }
+              ],
+              "totalBufferMin": 120
+            }
+          },
+          "items": [
+            {
+              "id": "act-t1-ht4d849_s112_83164b25",
+              "kind": "time_event",
+              "title": "Escribir un diario breve sobre emociones y logros del dia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-01T08:00:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "act-t3-x52v2xu_s135_22438abb",
+              "kind": "time_event",
+              "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-01T19:30:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "act-t3-x52v2xu_s266_e08f42ab",
+              "kind": "time_event",
+              "title": "Tener una charla sincera con alguien de confianza sobre avances y miedos",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T13:00:00.000Z",
+              "durationMin": 45,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "act-t2-1k02i73_s279_f9558c10",
+              "kind": "time_event",
+              "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-04T19:30:00.000Z",
+              "durationMin": 40,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "act-t2-1k02i73_s323_39a748b1",
+              "kind": "time_event",
+              "title": "Realizar una caminata consciente para observar pensamientos y cuerpo",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-05T17:30:00.000Z",
+              "durationMin": 40,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "act-t1-ht4d849_s325_17a2ea2a",
+              "kind": "time_event",
+              "title": "Escribir un diario breve sobre emociones y logros del dia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "startAt": "2026-04-05T18:30:00.000Z",
+              "durationMin": 30,
+              "rigidity": "soft",
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "milestone-1",
+              "kind": "milestone",
+              "title": "Rutina semanal con energía registrada y bloques sin interrupciones establecida",
+              "notes": "Durante los meses 1-2 dedicas 5h/sem a medir tu energía diaria, escribir diario de autoconocimiento dos veces por semana, sostener una conversación honesta semanal, programar dos bloques sin interrupciones (uno creativo y una caminata consciente de 30 minutos) y ordenar hábitos básicos para salir del estancado laboral.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-05-27",
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "milestone-2",
+              "kind": "milestone",
+              "title": "Dos mini experimentos creativos con feedback documentado",
+              "notes": "En los meses 3-4 usas 5h/sem para diseñar y ejecutar al menos dos mini experimentos creativos basados en tu diario, compartirlos con al menos tres personas (incluida la conversación semanal), documentar feedback y ajustar tu rutina para reenfocarte laboralmente.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-07-22",
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "milestone-3",
+              "kind": "milestone",
+              "title": "Pieza creativa final y plan de hábitos validados a los 6 meses",
+              "notes": "Durante los meses 5-6 dedicas 5h/sem a pulir la pieza creativa que mejor funcionó, consolidar un registro de hábitos ordenados para las próximas 8 semanas, mantener las conversaciones y caminatas conscientes y preparar la evidencia de tus avances claros.",
+              "status": "draft",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "dueDate": "2026-09-16",
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "metric-plan-quality",
+              "kind": "metric",
+              "title": "Calidad del plan",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "plan_quality_score",
+              "unit": "puntos",
+              "direction": "increase",
+              "target": {
+                "targetValue": 100
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "last"
+              },
+              "series": [
+                {
+                  "at": "2026-03-30T13:53:50.024Z",
+                  "value": 100
+                }
+              ],
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "metric-sessions-week",
+              "kind": "metric",
+              "title": "Sesiones completables por semana",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "metricKey": "scheduled_sessions_per_week",
+              "unit": "sesiones",
+              "direction": "increase",
+              "target": {
+                "targetValue": 6
+              },
+              "cadence": {
+                "freq": "weekly",
+                "aggregation": "count"
+              },
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            },
+            {
+              "id": "trigger-low-adherence",
+              "kind": "trigger_rule",
+              "title": "Revisar plan si baja la adherencia",
+              "status": "active",
+              "goalIds": [
+                "generated-goal"
+              ],
+              "enabled": true,
+              "conditions": [
+                {
+                  "left": {
+                    "type": "metric",
+                    "ref": "plan_quality_score"
+                  },
+                  "op": "lt",
+                  "right": {
+                    "value": 70
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "type": "create_task",
+                  "payload": {
+                    "title": "Revisar y reajustar el plan",
+                    "estimateMin": 30
+                  }
+                }
+              ],
+              "throttle": {
+                "minHoursBetweenRuns": 168
+              },
+              "createdAt": "2026-03-30T13:53:50.024Z",
+              "updatedAt": "2026-03-30T13:53:50.024Z"
+            }
+          ],
+          "habitStates": [],
+          "slackPolicy": {
+            "weeklyTimeBufferMin": 120,
+            "maxChurnMovesPerWeek": 3,
+            "frozenHorizonDays": 2
+          },
+          "timezone": "UTC",
+          "summary_esAR": "Este plan convierte \"Quiero reinventarme y sentir que avanzo con mi vida.\" en 6 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 24 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.",
+          "qualityScore": 60,
+          "implementationIntentions": [
+            "Si llega miércoles a las 08:00, entonces hago Escribir un diario breve sobre emociones y logros del dia durante 30 minutos.",
+            "Si llega miércoles a las 19:30, entonces hago Tener una charla sincera con alguien de confianza sobre avances y miedos durante 45 minutos.",
+            "Si llega sábado a las 13:00, entonces hago Tener una charla sincera con alguien de confianza sobre avances y miedos durante 45 minutos.",
+            "Si llega sábado a las 19:30, entonces hago Realizar una caminata consciente para observar pensamientos y cuerpo durante 40 minutos."
+          ],
+          "warnings": [
+            "Este plan se genero parcialmente con datos de respaldo y requiere revision antes de tomarlo como valido."
+          ],
+          "tradeoffs": [],
+          "publicationState": "publishable",
+          "qualityIssues": [],
+          "requestDomain": null,
+          "packageDomain": null,
+          "intakeCoverage": {
+            "requiredSignals": [],
+            "missingSignals": [],
+            "signalUsage": []
+          },
+          "degraded": true,
+          "reasoningTrace": [
+            {
+              "phase": "interpret",
+              "agent": "goal-interpreter",
+              "iteration": 1,
+              "action": "Executed interpret",
+              "reasoning": "Phase completed",
+              "result": "Goal: Reinventarme y percibir que avanzo en mi vida personal, confidence: 0.63",
+              "tokensUsed": 20,
+              "timestamp": "2026-03-30T13:52:46.949Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 2,
+              "action": "Executed clarify",
+              "reasoning": "Faltan el plazo deseado y la línea base actual para poder estructurar el plan.",
+              "result": "2 questions pending (confidence: 0.46)",
+              "tokensUsed": 10,
+              "timestamp": "2026-03-30T13:52:50.973Z"
+            },
+            {
+              "phase": "clarify",
+              "agent": "clarifier",
+              "iteration": 3,
+              "action": "Executed clarify",
+              "reasoning": "No faltan señales críticas para planificar.",
+              "result": "Ready to advance (confidence: 0.62)",
+              "tokensUsed": 9,
+              "timestamp": "2026-03-30T13:53:04.271Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 4,
+              "action": "FALLBACK: planner",
+              "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+              "result": "Using fallback strategic draft - NOT from LLM",
+              "tokensUsed": 12,
+              "timestamp": "2026-03-30T13:53:49.874Z"
+            },
+            {
+              "phase": "plan",
+              "agent": "planner",
+              "iteration": 4,
+              "action": "Executed plan",
+              "reasoning": "Phase completed",
+              "result": "3 phases generated",
+              "tokensUsed": 5,
+              "timestamp": "2026-03-30T13:53:49.875Z"
+            },
+            {
+              "phase": "check",
+              "agent": "feasibility-checker",
+              "iteration": 5,
+              "action": "Executed check",
+              "reasoning": "Status: feasible",
+              "result": "Feasibility: feasible",
+              "tokensUsed": 6,
+              "timestamp": "2026-03-30T13:53:49.876Z"
+            },
+            {
+              "phase": "schedule",
+              "agent": "scheduler",
+              "iteration": 6,
+              "action": "Executed schedule",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T13:53:50.025Z"
+            },
+            {
+              "phase": "critique",
+              "agent": "critic",
+              "iteration": 7,
+              "action": "Executed critique",
+              "reasoning": "Las fases reproducen el mismo enunciado sin resultados observables, impidiendo saber si el usuario avanza hacia su reinvención. Tampoco se escalona la dificultad ni se integran las prácticas claves del dominio, por lo que el plan carece de guía práctica y de alineación con los requisitos establecidos. Es necesario revisar la estrategia antes de ejecutarla.",
+              "result": "Score: 55, verdict: revise",
+              "tokensUsed": 7,
+              "timestamp": "2026-03-30T13:54:58.095Z"
+            },
+            {
+              "phase": "revise",
+              "agent": "planner",
+              "iteration": 8,
+              "action": "Executed revise",
+              "reasoning": "Phase completed",
+              "result": "3 phases generated",
+              "tokensUsed": 5,
+              "timestamp": "2026-03-30T13:56:39.004Z"
+            },
+            {
+              "phase": "critique",
+              "agent": "critic",
+              "iteration": 9,
+              "action": "Executed critique",
+              "reasoning": "La secuencia de fases ahora es clara y específica respecto a diario, conversaciones y bloques creativos, y los recursos semanales son realistas para la energía disponible. Solo falta alinear la cantidad de experimentos creativos con las mejores prácticas del dominio para contar con evidencia suficiente antes del cierre, pero el resto del plan está en buen camino.",
+              "result": "Score: 77, verdict: approve",
+              "tokensUsed": 7,
+              "timestamp": "2026-03-30T13:57:01.192Z"
+            },
+            {
+              "phase": "package",
+              "agent": "packager",
+              "iteration": 10,
+              "action": "Executed package",
+              "reasoning": "Phase completed",
+              "result": "Phase completed",
+              "tokensUsed": 4,
+              "timestamp": "2026-03-30T13:57:01.701Z"
+            }
+          ],
+          "agentOutcomes": [
+            {
+              "agent": "goal-interpreter",
+              "phase": "interpret",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 8267
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 4023
+            },
+            {
+              "agent": "clarifier",
+              "phase": "clarify",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 3792
+            },
+            {
+              "agent": "domain-expert",
+              "phase": "plan",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 27795
+            },
+            {
+              "agent": "planner",
+              "phase": "plan",
+              "source": "fallback",
+              "errorCode": "Error",
+              "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+              "durationMs": 17806
+            },
+            {
+              "agent": "feasibility-checker",
+              "phase": "check",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 1
+            },
+            {
+              "agent": "scheduler",
+              "phase": "schedule",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 148
+            },
+            {
+              "agent": "critic",
+              "phase": "critique",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 68069
+            },
+            {
+              "agent": "domain-expert",
+              "phase": "revise",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 27861
+            },
+            {
+              "agent": "planner",
+              "phase": "revise",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 100908
+            },
+            {
+              "agent": "critic",
+              "phase": "critique",
+              "source": "llm",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 22187
+            },
+            {
+              "agent": "packager",
+              "phase": "package",
+              "source": "deterministic",
+              "errorCode": null,
+              "errorMessage": null,
+              "durationMs": 492
+            }
+          ]
+        },
+        "reasoningTrace": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Reinventarme y percibir que avanzo en mi vida personal, confidence: 0.63",
+            "tokensUsed": 20,
+            "timestamp": "2026-03-30T13:52:46.949Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Faltan el plazo deseado y la línea base actual para poder estructurar el plan.",
+            "result": "2 questions pending (confidence: 0.46)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T13:52:50.973Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "No faltan señales críticas para planificar.",
+            "result": "Ready to advance (confidence: 0.62)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T13:53:04.271Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "FALLBACK: planner",
+            "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "result": "Using fallback strategic draft - NOT from LLM",
+            "tokensUsed": 12,
+            "timestamp": "2026-03-30T13:53:49.874Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T13:53:49.875Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T13:53:49.876Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T13:53:50.025Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "Las fases reproducen el mismo enunciado sin resultados observables, impidiendo saber si el usuario avanza hacia su reinvención. Tampoco se escalona la dificultad ni se integran las prácticas claves del dominio, por lo que el plan carece de guía práctica y de alineación con los requisitos establecidos. Es necesario revisar la estrategia antes de ejecutarla.",
+            "result": "Score: 55, verdict: revise",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T13:54:58.095Z"
+          },
+          {
+            "phase": "revise",
+            "agent": "planner",
+            "iteration": 8,
+            "action": "Executed revise",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T13:56:39.004Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 9,
+            "action": "Executed critique",
+            "reasoning": "La secuencia de fases ahora es clara y específica respecto a diario, conversaciones y bloques creativos, y los recursos semanales son realistas para la energía disponible. Solo falta alinear la cantidad de experimentos creativos con las mejores prácticas del dominio para contar con evidencia suficiente antes del cierre, pero el resto del plan está en buen camino.",
+            "result": "Score: 77, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T13:57:01.192Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 10,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T13:57:01.701Z"
+          }
+        ],
+        "scratchpad": [
+          {
+            "phase": "interpret",
+            "agent": "goal-interpreter",
+            "iteration": 1,
+            "action": "Executed interpret",
+            "reasoning": "Phase completed",
+            "result": "Goal: Reinventarme y percibir que avanzo en mi vida personal, confidence: 0.63",
+            "tokensUsed": 20,
+            "timestamp": "2026-03-30T13:52:46.949Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 2,
+            "action": "Executed clarify",
+            "reasoning": "Faltan el plazo deseado y la línea base actual para poder estructurar el plan.",
+            "result": "2 questions pending (confidence: 0.46)",
+            "tokensUsed": 10,
+            "timestamp": "2026-03-30T13:52:50.973Z"
+          },
+          {
+            "phase": "clarify",
+            "agent": "clarifier",
+            "iteration": 3,
+            "action": "Executed clarify",
+            "reasoning": "No faltan señales críticas para planificar.",
+            "result": "Ready to advance (confidence: 0.62)",
+            "tokensUsed": 9,
+            "timestamp": "2026-03-30T13:53:04.271Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "FALLBACK: planner",
+            "reasoning": "[provider=openai:gpt-5-codex] Agent failed [Error]: Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "result": "Using fallback strategic draft - NOT from LLM",
+            "tokensUsed": 12,
+            "timestamp": "2026-03-30T13:53:49.874Z"
+          },
+          {
+            "phase": "plan",
+            "agent": "planner",
+            "iteration": 4,
+            "action": "Executed plan",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T13:53:49.875Z"
+          },
+          {
+            "phase": "check",
+            "agent": "feasibility-checker",
+            "iteration": 5,
+            "action": "Executed check",
+            "reasoning": "Status: feasible",
+            "result": "Feasibility: feasible",
+            "tokensUsed": 6,
+            "timestamp": "2026-03-30T13:53:49.876Z"
+          },
+          {
+            "phase": "schedule",
+            "agent": "scheduler",
+            "iteration": 6,
+            "action": "Executed schedule",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T13:53:50.025Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 7,
+            "action": "Executed critique",
+            "reasoning": "Las fases reproducen el mismo enunciado sin resultados observables, impidiendo saber si el usuario avanza hacia su reinvención. Tampoco se escalona la dificultad ni se integran las prácticas claves del dominio, por lo que el plan carece de guía práctica y de alineación con los requisitos establecidos. Es necesario revisar la estrategia antes de ejecutarla.",
+            "result": "Score: 55, verdict: revise",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T13:54:58.095Z"
+          },
+          {
+            "phase": "revise",
+            "agent": "planner",
+            "iteration": 8,
+            "action": "Executed revise",
+            "reasoning": "Phase completed",
+            "result": "3 phases generated",
+            "tokensUsed": 5,
+            "timestamp": "2026-03-30T13:56:39.004Z"
+          },
+          {
+            "phase": "critique",
+            "agent": "critic",
+            "iteration": 9,
+            "action": "Executed critique",
+            "reasoning": "La secuencia de fases ahora es clara y específica respecto a diario, conversaciones y bloques creativos, y los recursos semanales son realistas para la energía disponible. Solo falta alinear la cantidad de experimentos creativos con las mejores prácticas del dominio para contar con evidencia suficiente antes del cierre, pero el resto del plan está en buen camino.",
+            "result": "Score: 77, verdict: approve",
+            "tokensUsed": 7,
+            "timestamp": "2026-03-30T13:57:01.192Z"
+          },
+          {
+            "phase": "package",
+            "agent": "packager",
+            "iteration": 10,
+            "action": "Executed package",
+            "reasoning": "Phase completed",
+            "result": "Phase completed",
+            "tokensUsed": 4,
+            "timestamp": "2026-03-30T13:57:01.701Z"
+          }
+        ],
+        "degraded": true,
+        "agentOutcomes": [
+          {
+            "agent": "goal-interpreter",
+            "phase": "interpret",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 8267
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 4023
+          },
+          {
+            "agent": "clarifier",
+            "phase": "clarify",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 3792
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "plan",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 27795
+          },
+          {
+            "agent": "planner",
+            "phase": "plan",
+            "source": "fallback",
+            "errorCode": "Error",
+            "errorMessage": "Planner output failed validation: check \"intake.anchor_coverage\" did not pass. Fallback strategy was used.",
+            "durationMs": 17806
+          },
+          {
+            "agent": "feasibility-checker",
+            "phase": "check",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 1
+          },
+          {
+            "agent": "scheduler",
+            "phase": "schedule",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 148
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 68069
+          },
+          {
+            "agent": "domain-expert",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 27861
+          },
+          {
+            "agent": "planner",
+            "phase": "revise",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 100908
+          },
+          {
+            "agent": "critic",
+            "phase": "critique",
+            "source": "llm",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 22187
+          },
+          {
+            "agent": "packager",
+            "phase": "package",
+            "source": "deterministic",
+            "errorCode": null,
+            "errorMessage": null,
+            "durationMs": 492
+          }
+        ]
       }
     }
   ],

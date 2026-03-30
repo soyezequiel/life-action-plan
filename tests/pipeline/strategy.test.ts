@@ -1,3 +1,4 @@
+import { DateTime, Settings } from 'luxon';
 import { describe, expect, it } from 'vitest';
 
 import type { DomainKnowledgeCard } from '../../src/lib/domain/domain-knowledge/bank';
@@ -1174,6 +1175,112 @@ describe('generateStrategyWithSource validation', () => {
     expect(result.fallbackCode).toBeUndefined();
   });
 
+  it('acepta deadlines por mes y anio cuando la duracion del plan coincide aunque no repita la fecha literal', async () => {
+    const originalNow = Settings.now;
+    const frozenNow = DateTime.fromISO('2026-03-30T12:00:00.000Z').toMillis();
+    Settings.now = () => frozenNow;
+
+    try {
+      const baseInput = createFinanceSavingsInput({
+        metrica: '200000',
+        plazo: 'Para julio de 2026.',
+        baseline: '20000',
+        modalidad: 'transferencia automatica',
+      });
+      const goalSignalsSnapshot = baseInput.planningContext?.goalSignalsSnapshot
+        ? GoalSignalsSnapshotSchema.parse({
+          ...baseInput.planningContext.goalSignalsSnapshot,
+          metric: '200000',
+          timeframe: 'julio de 2026',
+          normalizedUserAnswers: [
+            {
+              key: 'metrica',
+              questionId: 'clarify-r1-q1',
+              signalKey: 'metric',
+              question: 'Cual es la cantidad especifica que queres ahorrar?',
+              answer: '200000',
+            },
+            {
+              key: 'plazo',
+              questionId: 'clarify-r1-q2',
+              signalKey: 'timeframe',
+              question: 'Para cuando queres llegar?',
+              answer: 'Para julio de 2026.',
+            },
+            {
+              key: 'baseline',
+              questionId: 'clarify-r1-q3',
+              signalKey: 'current_baseline',
+              question: 'Cuanto ahorras hoy?',
+              answer: '20000',
+            },
+            {
+              key: 'modalidad',
+              questionId: 'clarify-r1-q4',
+              signalKey: 'modality',
+              question: 'Que mecanismo queres usar?',
+              answer: 'transferencia automatica',
+            },
+          ],
+        })
+        : undefined;
+
+      const result = await generateStrategyWithSource(
+        createReasoningRuntime({
+          title: 'Plan financiero de 4 meses',
+          summary: 'Roadmap para ordenar finanzas y llegar a un ahorro de 200000 con transferencia automatica.',
+          totalMonths: 4,
+          estimatedWeeklyHours: 3,
+          phases: [
+            {
+              id: 'phase-1',
+              title: 'Baseline financiero y transferencia del mes 1',
+              summary: 'Registrar gastos, fijar un baseline real de 20000 y dejar lista la transferencia automatica.',
+              startMonth: 1,
+              endMonth: 1,
+            },
+            {
+              id: 'phase-2',
+              title: 'Presupuesto y ahorro objetivo en meses 2 y 3',
+              summary: 'Ordenar finanzas personales, ajustar categorias y sostener un ahorro de 200000 con control visible.',
+              startMonth: 2,
+              endMonth: 3,
+            },
+            {
+              id: 'phase-3',
+              title: 'Cierre financiero del mes 4',
+              summary: 'Cerrar el plan con transferencia automatica sostenida y evidencia del ahorro objetivo de 200000.',
+              startMonth: 4,
+              endMonth: 4,
+            },
+          ],
+          milestones: [
+            { id: 'm-1', label: 'Baseline de 20000 confirmado', targetMonth: 1, phaseId: 'phase-1' },
+            { id: 'm-2', label: 'Presupuesto ajustado para sostener 200000', targetMonth: 3, phaseId: 'phase-2' },
+            { id: 'm-3', label: 'Transferencia automatica y ahorro objetivo verificados', targetMonth: 4, phaseId: 'phase-3' },
+          ],
+          conflicts: [],
+        }),
+        {
+          ...baseInput,
+          planningContext: {
+            ...baseInput.planningContext,
+            clarificationAnswers: {
+              ...baseInput.planningContext?.clarificationAnswers,
+              plazo: 'Para julio de 2026.',
+            },
+            goalSignalsSnapshot,
+          },
+        },
+      );
+
+      expect(result.source).toBe('llm');
+      expect(result.fallbackCode).toBeUndefined();
+    } finally {
+      Settings.now = originalNow;
+    }
+  });
+
   it('rechaza una cadencia mensual financiera que no entra en la duracion real de la fase', async () => {
     const result = await generateStrategyWithSource(
       createReasoningRuntime(createFinanceSavingsReasoningPayload()),
@@ -1531,6 +1638,42 @@ describe('buildStrategyPrompt domain alignment', () => {
     expect(prompt).toContain('el runtime materializa estas fases en SECUENCIA');
     expect(prompt).toContain('No disenes fases que solo funcionen si se superponen');
     expect(prompt).toContain('No prometas "6 transferencias"');
+  });
+
+  it('convierte un deadline por mes y anio en una restriccion numerica de horizonte para el planner', () => {
+    const originalNow = Settings.now;
+    const frozenNow = DateTime.fromISO('2026-03-30T12:00:00.000Z').toMillis();
+    Settings.now = () => frozenNow;
+
+    try {
+      const prompt = buildStrategyPrompt({
+        goalText: 'Quiero ordenar mis finanzas personales y empezar a ahorrar de forma sostenible.',
+        goalType: 'QUANT_TARGET_TRACKING',
+        interpretation: {
+          parsedGoal: 'Ordenar finanzas y ahorrar 200000 antes de julio de 2026',
+          implicitAssumptions: [],
+        },
+        userProfile: {
+          freeHoursWeekday: 1,
+          freeHoursWeekend: 4,
+          energyLevel: 'medium',
+          fixedCommitments: [],
+        },
+        domainContext: null,
+        clarificationAnswers: {
+          'senal tipada - general: plazo': 'Para julio de 2026.',
+          metrica: '200000',
+          modalidad: 'transferencia automatica',
+        },
+      });
+
+      expect(prompt).toContain('El usuario pidio un plazo de 4 mes(es)');
+      expect(prompt).toContain('totalMonths debe ser <= 4');
+      expect(prompt).toContain('MAXIMO 4');
+      expect(prompt).toContain('Horizonte literal a preservar: "Para julio de 2026."');
+    } finally {
+      Settings.now = originalNow;
+    }
   });
 
   it('prioriza el plazo tipado frente a una duracion incidental en otra respuesta', () => {

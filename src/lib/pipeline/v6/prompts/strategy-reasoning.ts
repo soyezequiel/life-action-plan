@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import type { DomainKnowledgeCard } from '../../../domain/domain-knowledge/bank';
 import type { GoalSignalKey, GoalSignalsSnapshot } from '../types';
 
@@ -38,6 +39,34 @@ export interface StrategyPromptInput {
 }
 
 const METRIC_REFERENCE_PATTERN = /\b\d+(?:[.,]\d+)?k?\s*(?:usd|us\$|dolar(?:es)?|ars|ar\$|peso(?:s)?|kg|kilos?|lb|lbs|cm|m|%|por ciento|paginas?|libros?|veces?|clientes?|entrevistas?)\b/i;
+const MONTH_NAME_TO_NUMBER: Record<string, number> = {
+  enero: 1,
+  febrero: 2,
+  marzo: 3,
+  abril: 4,
+  mayo: 5,
+  junio: 6,
+  julio: 7,
+  agosto: 8,
+  septiembre: 9,
+  setiembre: 9,
+  octubre: 10,
+  noviembre: 11,
+  diciembre: 12,
+  january: 1,
+  february: 2,
+  march: 3,
+  april: 4,
+  may: 5,
+  june: 6,
+  july: 7,
+  august: 8,
+  september: 9,
+  october: 10,
+  november: 11,
+  december: 12,
+};
+
 const HORIZON_REFERENCE_PATTERNS = [
   /\b\d+\s*(?:a[nñ]o|a[nñ]os|ano|anos|mes|meses|semana|semanas|year|years|month|months|week|weeks)\b/i,
   /\b(?:medio ano|medio a[nñ]o|half year|one year|a year|fin de ano|fin de a[nñ]o)\b/i,
@@ -225,9 +254,12 @@ function formatCriticFindings(findings: StrategyCriticFinding[]): string {
 }
 
 function parseHorizonMonths(text: string): number | null {
-  const normalizedText = text.toLowerCase();
+  const normalizedText = text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
-  const yearMatch = normalizedText.match(/(\d+)\s*(año|años|ano|anos|year|years)\b/);
+  const yearMatch = normalizedText.match(/(\d+)\s*(ano|anos|year|years)\b/);
   if (yearMatch) return Math.min(Number(yearMatch[1]) * 12, 24);
 
   const monthMatch = normalizedText.match(/(\d+)\s*(mes|meses|month|months)\b/);
@@ -235,6 +267,19 @@ function parseHorizonMonths(text: string): number | null {
 
   const weekMatch = normalizedText.match(/(\d+)\s*(semana|semanas|week|weeks)\b/);
   if (weekMatch) return Math.max(1, Math.ceil(Number(weekMatch[1]) / 4));
+
+  const monthYearMatch = normalizedText.match(/\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|january|february|march|april|may|june|july|august|september|october|november|december)\s*(?:de\s*|del?\s*)?(20\d{2})\b/);
+  if (monthYearMatch) {
+    const month = MONTH_NAME_TO_NUMBER[monthYearMatch[1] ?? ''];
+    const year = Number(monthYearMatch[2]);
+    if (month && Number.isFinite(year)) {
+      const currentMonth = DateTime.local().startOf('month');
+      const targetMonth = currentMonth.set({ year, month }).startOf('month');
+      if (targetMonth.isValid && targetMonth >= currentMonth) {
+        return Math.min(Math.max(Math.ceil(targetMonth.diff(currentMonth, 'months').months), 1), 24);
+      }
+    }
+  }
 
   return null;
 }

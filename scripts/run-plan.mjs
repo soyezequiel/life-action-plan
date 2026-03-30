@@ -1092,12 +1092,17 @@ async function runPipeline(baseUrl, body, {
               })
               log(c('blue', `  ↻ Continuando con ${Object.keys(answers).length}/${questions.length} respuestas predefinidas...`))
             } else if (autoMode) {
-              debugSession?.recordLocal?.('input.answers_skipped_auto', {
+              debugSession?.recordLocal?.('input.answers_missing_auto', {
                 sessionId,
                 questionsCount: questions.length,
               })
               questions.forEach((q, i) => log(c('yellow', `    ${i + 1}. ${q.text}`)))
-              log(c('blue', '  ↻ Modo auto: avanzando sin respuestas...'))
+              writeFileSync(PENDING_INPUT_FILE, JSON.stringify(pendingData, null, 2), 'utf8')
+              log(c('yellow', '  Modo auto no puede continuar sin respuestas predefinidas.'))
+              log(c('cyan', `  Preguntas escritas en ${PENDING_INPUT_FILE}`))
+              log(c('cyan', '  Reanuda con respuestas via --answers-json o --answers-file:'))
+              log(c('cyan', `    ${resumeCommand}`))
+              throw new ControlledExit('Modo auto requiere respuestas predefinidas para continuar.', 42, pendingData)
             } else {
               const promptedAnswers = await askClarificationQuestions(questions)
               if (promptedAnswers == null) {
@@ -1754,6 +1759,10 @@ async function main() {
     let result = existingPlanId
       ? { planId: existingPlanId, score: null, iterations: null, providerLabel: 'existing-plan', degraded: false, agentOutcomes: [] }
       : null
+
+    if (!existingPlanId && !profileId) {
+      throw new Error('Falta --profile (UUID). El build de planes requiere un perfil valido.')
+    }
 
     if (existingPlanId) {
       debugSession.recordLocal('plan.existing_selected', {

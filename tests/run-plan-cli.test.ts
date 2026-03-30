@@ -811,6 +811,54 @@ describe('run-plan CLI failure surfacing', () => {
     })
   })
 
+  it('pauses in auto mode instead of resuming with empty answers when clarification is required', async () => {
+    const pendingFile = path.join(repoRoot, '.lap-pending-input.json')
+    try { fs.unlinkSync(pendingFile) } catch {}
+
+    const result = await new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+      const child = spawn(process.execPath, [
+        runPlanScript,
+        'Objetivo con respuestas predefinidas',
+        '--profile=c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        '--provider=codex',
+        `--base=${baseUrl}`,
+        '--auto',
+      ], {
+        cwd: repoRoot,
+        env: {
+          ...process.env,
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+      })
+
+      let stdout = ''
+      let stderr = ''
+
+      child.stdout?.setEncoding('utf8')
+      child.stderr?.setEncoding('utf8')
+      child.stdout?.on('data', (chunk) => { stdout += chunk })
+      child.stderr?.on('data', (chunk) => { stderr += chunk })
+      child.on('error', reject)
+      child.on('close', (status) => {
+        resolve({ status, stdout, stderr })
+      })
+    })
+
+    expect(result.status).toBe(42)
+    expect(result.stderr).toContain('Modo auto no puede continuar sin respuestas predefinidas')
+    expect(result.stderr).toContain('Preguntas escritas en')
+    expect(requests.map((request) => new URL(`http://127.0.0.1${request.url}`).pathname)).toEqual([
+      '/api/plan/build',
+    ])
+
+    const pendingData = JSON.parse(fs.readFileSync(pendingFile, 'utf8'))
+    expect(pendingData.sessionId).toBe('session-test-123')
+    expect(pendingData.questions).toHaveLength(2)
+
+    try { fs.unlinkSync(pendingFile) } catch {}
+  })
+
   it('pauses on v6:needs_input with --pause-on-input and writes .lap-pending-input.json', async () => {
     const pendingFile = path.join(repoRoot, '.lap-pending-input.json')
     // Clean up any leftover file

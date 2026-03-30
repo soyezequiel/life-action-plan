@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { z } from 'zod';
 
 import type { DomainKnowledgeCard } from '../../domain/domain-knowledge/bank';
@@ -149,6 +150,34 @@ const VALID_STRATEGY_OUTPUT: StrategyValidationResult = {
 };
 
 const COOKING_SUBTOPIC_PATTERN = /\b(pasta|pastas|salsa|salsas|risotto|pizza|pizzas|gnocchi|lasagna|lasa[Ã±n]a|focaccia|pesto|ravioli)\b/i;
+
+const MONTH_NAME_TO_NUMBER: Record<string, number> = {
+  enero: 1,
+  febrero: 2,
+  marzo: 3,
+  abril: 4,
+  mayo: 5,
+  junio: 6,
+  julio: 7,
+  agosto: 8,
+  septiembre: 9,
+  setiembre: 9,
+  octubre: 10,
+  noviembre: 11,
+  diciembre: 12,
+  january: 1,
+  february: 2,
+  march: 3,
+  april: 4,
+  may: 5,
+  june: 6,
+  july: 7,
+  august: 8,
+  september: 9,
+  october: 10,
+  november: 11,
+  december: 12,
+};
 
 function normalizeSignalText(value: string): string {
   return value
@@ -411,6 +440,10 @@ const GENERIC_ANCHOR_STOPWORDS = new Set([
   'hacer',
   'ingreso',
   'ingresos',
+  'herramienta',
+  'herramientas',
+  'inconsistente',
+  'inconsistentes',
   'la',
   'las',
   'lograr',
@@ -702,6 +735,11 @@ const LOW_SIGNAL_ANCHOR_TOKENS = new Set([
   'ordenar',
   'personales',
   'sostenible',
+  'total',
+  'herramienta',
+  'herramientas',
+  'inconsistente',
+  'inconsistentes',
 ]);
 
 function getMeaningfulAnchorTokens(anchorTokens: string[]): string[] {
@@ -744,7 +782,7 @@ function extractClarificationSignals(answers: Record<string, string>) {
   const lower = values.map((value) => value.toLowerCase());
 
   const mastery = values.find((_, index) => /\b(principiante|basico|básico|intermedio|avanzado|profesional|experto)\b/.test(lower[index])) ?? null;
-  const deadline = values.find((_, index) => /\b(fin de ano|fin de año|antes de|mes|meses|semana|semanas|ano|año|year|years|month|months|week|weeks)\b/.test(lower[index])) ?? null;
+  const deadline = values.find((_, index) => /\b(fin de ano|fin de año|antes de|mes|meses|semana|semanas|ano|año|year|years|month|months|week|weeks|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|january|february|march|april|may|june|july|august|september|october|november|december)\b/.test(lower[index])) ?? null;
   const learningMode = values.find((_, index) => /\b(curso|clase|mentor|tutor|autodidact|por mi cuenta|combinacion)\b/.test(lower[index])) ?? null;
   const constraints = values.find((_, index) =>
     !/\b(no|ninguna|ninguno|sin restricciones?)\b/.test(lower[index])
@@ -1274,9 +1312,9 @@ function resolveDurations(mastery: string | null): number[] {
 }
 
 function extractTargetHorizonWeeks(goalText: string, deadline: string | null): number | null {
-  const text = `${goalText} ${deadline ?? ''}`.toLowerCase();
+  const text = normalizeSignalText(`${goalText} ${deadline ?? ''}`);
 
-  const yearMatch = text.match(/(\d+)\s*(año|años|ano|anos|year|years)\b/);
+  const yearMatch = text.match(/(\d+)\s*(ano|anos|year|years)\b/);
   if (yearMatch) {
     return Math.max(1, Math.min(Number(yearMatch[1]) * 52, 104));
   }
@@ -1291,7 +1329,36 @@ function extractTargetHorizonWeeks(goalText: string, deadline: string | null): n
     return Math.max(1, Math.min(Number(weekMatch[1]), 104));
   }
 
+  const calendarDeadlineWeeks = extractCalendarDeadlineWeeks(text);
+  if (calendarDeadlineWeeks) {
+    return calendarDeadlineWeeks;
+  }
+
   return null;
+}
+
+function extractCalendarDeadlineWeeks(text: string): number | null {
+  const normalized = normalizeSignalText(text);
+  const monthYearMatch = normalized.match(/\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|january|february|march|april|may|june|july|august|september|october|november|december)\s*(?:de\s*|del?\s*)?(20\d{2})\b/);
+
+  if (!monthYearMatch) {
+    return null;
+  }
+
+  const month = MONTH_NAME_TO_NUMBER[monthYearMatch[1] ?? ''];
+  const year = Number(monthYearMatch[2]);
+  if (!month || !Number.isFinite(year)) {
+    return null;
+  }
+
+  const currentMonth = DateTime.local().startOf('month');
+  const targetMonth = currentMonth.set({ year, month }).startOf('month');
+  if (!targetMonth.isValid || targetMonth < currentMonth) {
+    return null;
+  }
+
+  const diffMonths = Math.ceil(targetMonth.diff(currentMonth, 'months').months);
+  return Math.max(1, Math.min(Math.max(diffMonths, 1) * 4, 104));
 }
 
 function stretchDurationsToTarget(baseDurations: number[], targetWeeks: number | null): number[] {
