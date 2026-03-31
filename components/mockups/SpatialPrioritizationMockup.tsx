@@ -1,12 +1,14 @@
 'use client'
 
 import { t } from '@/src/i18n'
+import { useRouter } from 'next/navigation'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
 import { usePlanV5 } from '@/src/lib/client/use-plan-v5'
 
 export default function SpatialPrioritizationMockup() {
   const { package: planPackage, loading } = usePlanV5()
+  const router = useRouter()
   const allTasks = planPackage?.plan.detail.weeks.flatMap(w => w.scheduledEvents ?? []) ?? []
 
   const sidebar = [
@@ -37,10 +39,10 @@ export default function SpatialPrioritizationMockup() {
             <MaterialIcon name="search" className="mr-2 text-[18px]" />
             <span>{t('mockups.flow.prioritization.search')}</span>
           </div>
-          <button type="button" className="text-slate-500">
+          <button type="button" onClick={() => router.push('/settings?section=wallet')} className="text-slate-500 transition hover:text-[#334155]">
             <MaterialIcon name="account_balance_wallet" className="text-[20px]" />
           </button>
-          <button type="button" className="text-slate-500">
+          <button type="button" onClick={() => router.push('/settings')} className="text-slate-500 transition hover:text-[#334155]">
             <MaterialIcon name="notifications" className="text-[20px]" />
           </button>
           <div className="h-8 w-8 rounded-full bg-[linear-gradient(135deg,#C4B5FD,#F472B6)]" />

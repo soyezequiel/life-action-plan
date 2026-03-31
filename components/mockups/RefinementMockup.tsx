@@ -1,9 +1,22 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
+import { usePlanV5 } from '@/src/lib/client/use-plan-v5'
 
 export default function RefinementMockup() {
+  const router = useRouter()
+  const { package: planPackage } = usePlanV5()
+  const [motivation, setMotivation] = useState('')
+  const [showTooltip, setShowTooltip] = useState(false)
+
+  const allEvents = planPackage?.plan.detail.weeks.flatMap(w => w.scheduledEvents ?? []) ?? []
+  const completedCount = allEvents.filter(e => e.status === 'done').length
+  const totalCount = allEvents.length
+  const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
   return (
     <MockupShell
       sidebarLabel={t('mockups.common.digital_sanctuary')}
@@ -48,10 +61,10 @@ export default function RefinementMockup() {
           <span className="font-display text-[11px] font-bold uppercase tracking-[0.26em] text-slate-400">
             {t('mockups.refinement.progress_label')}
           </span>
-          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#334155]"><MockData>{t('mockups.refinement.progress_value')}</MockData></span>
+          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#334155]">{progressPct}%</span>
         </div>
         <div className="mb-10 h-1.5 overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full w-1/2 rounded-full bg-[#1E293B]" />
+          <div className="h-full rounded-full bg-[#1E293B]" style={{ width: `${progressPct}%` }} />
         </div>
 
         <section className="rounded-[24px] bg-white p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
@@ -61,7 +74,7 @@ export default function RefinementMockup() {
                 <p className="text-[14px] font-medium text-slate-600">{t('mockups.refinement.temporality')}</p>
                 <h2 className="font-display text-[20px] font-bold leading-tight text-[#334155]">{t('mockups.refinement.temporality_question')}</h2>
                 <div className="flex h-14 items-center justify-between rounded-[16px] bg-[#FAFAF9] px-4 text-[15px] text-slate-500">
-                  <span><MockData>{t('mockups.refinement.temporality_option')}</MockData></span>
+                  <span>{t('mockups.refinement.temporality_option')}</span>
                   <MaterialIcon name="expand_more" className="text-[20px] text-slate-400" />
                 </div>
                 <p className="text-[12px] italic text-slate-400">{t('mockups.refinement.temporality_hint')}</p>
@@ -71,7 +84,7 @@ export default function RefinementMockup() {
                 <p className="text-[14px] font-medium text-slate-600">{t('mockups.refinement.deadline_label')}</p>
                 <h2 className="font-display text-[20px] font-bold leading-tight text-[#334155]">{t('mockups.refinement.deadline_title')}</h2>
                 <div className="flex h-14 items-center rounded-[16px] bg-[#FAFAF9] px-4 text-[15px] text-slate-500">
-                  <span><MockData>12/31/2024</MockData></span>
+                  <span>{planPackage?.plan.detail.endDate ?? 'Calculado automáticamente'}</span>
                   <MaterialIcon name="calendar_today" className="ml-auto text-[18px] text-slate-400" />
                 </div>
               </div>
@@ -81,10 +94,15 @@ export default function RefinementMockup() {
               <div className="space-y-3">
                 <p className="text-[14px] font-medium text-slate-600">{t('mockups.refinement.motivation_label')}</p>
                 <h2 className="font-display text-[20px] font-bold leading-tight text-[#334155]">{t('mockups.refinement.motivation_question')}</h2>
-                <textarea
-                  className="min-h-[164px] w-full rounded-[20px] bg-[#FAFAF9] p-4 text-[15px] text-slate-500 outline-none placeholder:text-slate-300"
-                  placeholder={t('mockups.refinement.motivation_placeholder')}
-                />
+                  <textarea
+                    className="min-h-[164px] w-full rounded-[20px] bg-[#FAFAF9] p-4 text-[15px] text-slate-500 outline-none placeholder:text-slate-300"
+                    placeholder={t('mockups.refinement.motivation_placeholder')}
+                    value={motivation}
+                    onChange={(e) => setMotivation(e.target.value)}
+                    onFocus={() => setShowTooltip(true)}
+                    onBlur={() => setShowTooltip(false)}
+                  />
+                {showTooltip && <p className="text-[12px] text-amber-600 italic mt-2">Edición manual del plan próximamente</p>}
               </div>
 
               <div className="flex items-start gap-4 rounded-[20px] border border-[#E9D5FF]/40 bg-[#E9D5FF]/20 p-4">
@@ -93,9 +111,9 @@ export default function RefinementMockup() {
                 </div>
                 <div>
                   <p className="font-display text-[13px] font-bold uppercase tracking-[0.22em] text-[#4C1D95]">
-                    <MockData>{t('mockups.refinement.advice_title')}</MockData>
+                    {t('mockups.refinement.advice_title')}
                   </p>
-                  <p className="mt-1 text-[14px] leading-6 text-[#6D28D9]"><MockData>{t('mockups.refinement.advice_copy')}</MockData></p>
+                  <p className="mt-1 text-[14px] leading-6 text-[#6D28D9]">{t('mockups.refinement.advice_copy')}</p>
                 </div>
               </div>
             </div>
@@ -103,16 +121,16 @@ export default function RefinementMockup() {
 
           <div className="mt-10 border-t border-slate-100 pt-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <button type="button" className="inline-flex items-center gap-2 text-[14px] text-slate-400 transition hover:text-[#334155]">
+              <button type="button" onClick={() => router.push('/')} className="inline-flex items-center gap-2 text-[14px] text-slate-400 transition hover:text-[#334155]">
                 <MaterialIcon name="arrow_back" className="text-[18px]" />
                 {t('mockups.refinement.previous')}
               </button>
 
               <div className="flex flex-col gap-3 md:flex-row">
-                <button type="button" className="h-14 rounded-[18px] bg-slate-100 px-6 font-display text-[14px] font-bold text-[#334155] transition hover:bg-slate-200">
+                <button type="button" disabled className="h-14 rounded-[18px] bg-slate-100 px-6 font-display text-[14px] font-bold text-slate-400 opacity-50 cursor-not-allowed">
                   {t('mockups.refinement.save')}
                 </button>
-                <button type="button" className="group inline-flex h-14 items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] px-6 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5">
+                <button type="button" onClick={() => router.push('/plan?view=week')} className="group inline-flex h-14 items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] px-6 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5">
                   <span>{t('mockups.refinement.continue')}</span>
                   <MaterialIcon name="arrow_forward" className="text-[18px] transition-transform group-hover:translate-x-1" />
                 </button>

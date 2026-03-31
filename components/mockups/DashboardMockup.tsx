@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { DateTime } from 'luxon'
+import { useRouter } from 'next/navigation'
 import { t } from '@/src/i18n'
 import type { DeploymentMode } from '@/src/lib/env/deployment'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
@@ -18,6 +19,7 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
   const [dateStr, setDateStr] = useState<string>('')
   const [hydrationProgress, setHydrationProgress] = useState(80)
   const [readingProgress, setReadingProgress] = useState(45)
+  const router = useRouter()
 
   useEffect(() => {
     browserLapClient.profile.latest().then((profileId) => {
@@ -81,10 +83,10 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
           <div className="flex h-9 items-center rounded-full bg-slate-100/80 px-4 text-[14px] text-slate-400 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
             {t('mockups.common.search')}
           </div>
-          <button type="button" className="text-slate-500 transition hover:text-slate-700">
+          <button type="button" onClick={() => router.push('/settings')} className="text-slate-500 transition hover:text-[#334155]">
             <MaterialIcon name="notifications" className="text-[20px]" />
           </button>
-          <button type="button" className="text-slate-500 transition hover:text-slate-700">
+          <button type="button" onClick={() => router.push('/settings')} className="text-slate-500 transition hover:text-[#334155]">
             <MaterialIcon name="account_circle" className="text-[20px]" />
           </button>
         </>

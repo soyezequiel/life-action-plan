@@ -279,3 +279,135 @@ export async function resumePlanBuild(
     answers
   }, callbacks)
 }
+
+export interface CredentialCheckResult {
+  success: boolean
+  canExecute: boolean
+  blockReasonCode: string | null
+  blockReasonDetail: string | null
+  mode: string | null
+  credentialSource: string | null
+  chargeable: boolean
+  estimatedCostSats: number
+  provider: string | null
+}
+
+export interface WalletStatusResult {
+  configured: boolean
+  connected: boolean
+  canUseSecureStorage: boolean
+  alias?: string
+  balanceSats?: number
+  budgetSats?: number
+  budgetUsedSats?: number
+  planBuildChargeSats?: number
+  planBuildChargeReady?: boolean
+  planBuildChargeReasonCode?: string | null
+}
+
+export async function checkCredentialReadiness(provider?: string): Promise<CredentialCheckResult> {
+  const params = new URLSearchParams()
+  if (provider) {
+    params.set('provider', provider)
+  }
+
+  const url = `/api/settings/credentials/check${params.toString() ? `?${params.toString()}` : ''}`
+
+  try {
+    const response = await fetch(url)
+
+    if (!response.ok) {
+      return {
+        success: false,
+        canExecute: false,
+        blockReasonCode: 'request_failed',
+        blockReasonDetail: null,
+        mode: null,
+        credentialSource: null,
+        chargeable: false,
+        estimatedCostSats: 0,
+        provider: null
+      }
+    }
+
+    return await response.json() as CredentialCheckResult
+  } catch {
+    return {
+      success: false,
+      canExecute: false,
+      blockReasonCode: 'request_failed',
+      blockReasonDetail: null,
+      mode: null,
+      credentialSource: null,
+      chargeable: false,
+      estimatedCostSats: 0,
+      provider: null
+    }
+  }
+}
+
+export async function fetchWalletStatus(): Promise<WalletStatusResult> {
+  try {
+    const response = await fetch('/api/wallet/status')
+
+    if (!response.ok) {
+      return {
+        configured: false,
+        connected: false,
+        canUseSecureStorage: false
+      }
+    }
+
+    return await response.json() as WalletStatusResult
+  } catch {
+    return {
+      configured: false,
+      connected: false,
+      canUseSecureStorage: false
+    }
+  }
+}
+
+export async function connectWalletInline(connectionUrl: string): Promise<{
+  success: boolean
+  status: WalletStatusResult
+  error?: string
+}> {
+  try {
+    const response = await fetch('/api/wallet/connect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ connectionUrl })
+    })
+
+    return await response.json() as {
+      success: boolean
+      status: WalletStatusResult
+      error?: string
+    }
+  } catch {
+    return {
+      success: false,
+      status: {
+        configured: false,
+        connected: false,
+        canUseSecureStorage: false
+      },
+      error: 'REQUEST_FAILED'
+    }
+  }
+}
+
+export async function disconnectWalletInline(): Promise<{ success: boolean }> {
+  try {
+    const response = await fetch('/api/wallet/disconnect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    })
+
+    return await response.json() as { success: boolean }
+  } catch {
+    return { success: false }
+  }
+}

@@ -33,31 +33,15 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
       })
 
       if (intakeRes.profileId) {
-        let finishLocal = false
-        const unsubs = [
-          browserLapClient.plan.onBuildProgress((prog) => {
-            // Note: The new HTTP client actually emits raw progress without explicit phase strings sometimes 
-            // but we can catch standard Next.js SSE callbacks.
-            if (!finishLocal) {
-              setCurrentPhase(prog.stage || 'generating')
-              setProgressScore(prog.current ? Math.floor((prog.current / (prog.total || 4)) * 100) : 0)
-            }
-          })
-        ]
+        const { startPlanBuild } = await import('@/src/lib/client/plan-client')
 
-        // Custom loop
-        const streamCallbacks = {
+        await startPlanBuild(value, intakeRes.profileId, 'codex', {
           onPhase: (phaseStr: string) => setCurrentPhase(phaseStr),
           onProgress: (score: number, action: string) => { setProgressScore(score); setLastAction(action) },
-          onNeedsInput: () => { /* Handle later */ },
-          onComplete: () => { finishLocal = true; onComplete?.(intakeRes.profileId!) },
-          onError: () => { finishLocal = true; setIsGenerating(false) }
-        }
-
-        const { startPlanBuild } = await import('@/src/lib/client/plan-client')
-        await startPlanBuild(value, intakeRes.profileId, 'openai', streamCallbacks)
-
-        unsubs.forEach(u => u())
+          onNeedsInput: (_sessionId: string) => { /* clarification flow: handle later */ },
+          onComplete: (planId: string) => { onComplete?.(planId || intakeRes.profileId!) },
+          onError: () => { setIsGenerating(false) }
+        })
       }
     } catch {
       setIsGenerating(false)
@@ -174,10 +158,9 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
 
           <button
             type="button"
-            onClick={() => {
-              onComplete?.('mock-profile')
-            }}
-            className="mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] px-7 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5"
+            onClick={handleComplete}
+            disabled={isGenerating || !value.trim()}
+            className={`mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-[18px] px-7 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5 ${isGenerating || !value.trim() ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
           >
             <span>{t('mockups.intake.continue')}</span>
             <MaterialIcon name="arrow_forward" className="text-[18px]" />

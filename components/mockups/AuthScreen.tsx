@@ -37,9 +37,9 @@ export default function AuthScreen() {
         setStatus('error')
         setErrorMsg(data.error || 'Autenticación fallida')
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       setStatus('error')
-      setErrorMsg(e.message || 'Error de conexión')
+      setErrorMsg(e instanceof Error ? e.message : 'Error de conexión')
     }
   }
 

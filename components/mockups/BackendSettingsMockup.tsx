@@ -7,6 +7,7 @@ import { MockupShell } from '../midnight-mint/MockupShell'
 
 export default function BackendSettingsMockup() {
   const [apiKey, setApiKey] = useState('')
+  const [endpoint, setEndpoint] = useState('https://api.openai.com/v1')
   const [configured, setConfigured] = useState(false)
   const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -40,7 +41,7 @@ export default function BackendSettingsMockup() {
         setStatus('error')
         setErrorMsg(data.error || 'Error al guardar')
       }
-    } catch (err) {
+    } catch {
       setStatus('error')
       setErrorMsg('Error de red')
     }
@@ -99,7 +100,8 @@ export default function BackendSettingsMockup() {
                 <MaterialIcon name="dns" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
                 <input
                   className="h-16 w-full rounded-[18px] border-0 bg-[#FAFAF9] pl-12 pr-4 text-[15px] text-[#334155] outline-none transition focus:ring-2 focus:ring-[#1E293B]/10"
-                  defaultValue="https://api.openai.com/v1"
+                  value={endpoint}
+                  onChange={(e) => setEndpoint(e.target.value)}
                 />
               </div>
             </label>
@@ -157,7 +159,11 @@ export default function BackendSettingsMockup() {
 
             <p className="text-center text-[12px] text-slate-400">
               {t('mockups.settingsBackend.footer_prefix')}
-              <button type="button" className="ml-1 font-semibold text-[#334155]">
+              <button 
+                type="button" 
+                className="ml-1 font-semibold text-[#334155]"
+                onClick={() => window.open('https://platform.openai.com/docs', '_blank')}
+              >
                 {t('mockups.settingsBackend.footer_link')}
               </button>
             </p>

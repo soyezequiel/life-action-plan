@@ -204,6 +204,13 @@ export const flowResumePatchRequestSchema = z.object({
 export const flowStepQuerySchema = z.object({
   step: flowStepSchema.optional()
 }).strict()
+ 
+export const credentialCheckQuerySchema = z.object({
+  provider: z.string().trim().min(1).optional(),
+  resourceMode: buildResourceModeSchema.optional(),
+  backendCredentialId: z.string().trim().min(1).optional()
+}).strict()
+
 
 export const interactiveSessionCreateRequestSchema = interactiveSessionCreateRequestSchemaBase
 export const interactiveSessionResponseSchema = interactiveSessionResponseSchemaBase

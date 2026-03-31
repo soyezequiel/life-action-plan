@@ -7,6 +7,13 @@ import { useRouter } from 'next/navigation'
 import { DateTime } from 'luxon'
 import { t } from '../src/i18n'
 import { flowClient } from '../src/lib/client/flow-client'
+import {
+  connectWalletInline,
+  disconnectWalletInline,
+  fetchWalletStatus,
+  type WalletStatusResult
+} from '../src/lib/client/plan-client'
+
 import type { DeploymentMode } from '../src/lib/env/deployment'
 import {
   ACTIVE_WORKFLOW_ID_STORAGE_KEY,
@@ -192,6 +199,11 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
   const [calendarGrid, setCalendarGrid] = useState<AvailabilityGrid>(defaultGrid())
   const [simTree, setSimTree] = useState<SimTree | null>(null)
   const [simTreeLoading, setSimTreeLoading] = useState(false)
+  const [gateWalletUrl, setGateWalletUrl] = useState('')
+  const [gateWalletBusy, setGateWalletBusy] = useState(false)
+  const [gateWalletError, setGateWalletError] = useState('')
+  const [gateWalletStatus, setGateWalletStatus] = useState<WalletStatusResult | null>(null)
+
 
   const currentStep = session?.currentStep ?? 'gate'
   const codexModeVisible = deploymentMode === 'local'
@@ -336,6 +348,12 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
 
     initialized.current = true
     void bootstrapSession()
+    if (initialized.current) {
+      return
+    }
+
+    initialized.current = true
+    void bootstrapSession()
   }, [bootstrapSession])
 
   useEffect(() => {
@@ -394,6 +412,12 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
       .catch(() => {})
       .finally(() => setSimTreeLoading(false))
   }, [session?.id])
+
+  useEffect(() => {
+    if (!session || currentStep !== 'gate') return
+    if (!session.state.gate?.walletRequired) return
+    void fetchWalletStatus().then((status) => setGateWalletStatus(status.connected ? status : null))
+  }, [currentStep, session])
 
   const checkpointSummary = useMemo(() => checkpoints.slice(0, 3), [checkpoints])
 
@@ -1134,11 +1158,86 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
               </ul>
             </div>
           )}
+          {activeSession.state.gate?.walletRequired && !gateWalletStatus?.connected && (
+            <div className={styles.summaryBox}>
+              <strong>{t('gate.wallet_inline.title')}</strong>
+              <p className={styles.inlineHint}>{t('gate.wallet_inline.hint')}</p>
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  if (!gateWalletUrl.trim() || gateWalletBusy) return
+                  setGateWalletBusy(true)
+                  setGateWalletError('')
+                  void connectWalletInline(gateWalletUrl.trim())
+                    .then((result) => {
+                      if (result.success) {
+                        setGateWalletStatus(result.status)
+                        setGateWalletUrl('')
+                        setNotice(t('gate.wallet_inline.connected'))
+                      } else {
+                        const errorKey = result.error === 'INVALID_NWC_URL'
+                          ? 'gate.wallet_inline.error_invalid_url'
+                          : result.error === 'NWC_INCOMPATIBLE'
+                            ? 'gate.wallet_inline.error_incompatible'
+                            : 'gate.wallet_inline.error_generic'
+                        setGateWalletError(t(errorKey))
+                      }
+                    })
+                    .finally(() => setGateWalletBusy(false))
+                }}
+              >
+                <input
+                  className="app-input"
+                  type="password"
+                  value={gateWalletUrl}
+                  onChange={(event) => setGateWalletUrl(event.target.value)}
+                  placeholder={t('gate.wallet_inline.placeholder')}
+                />
+                <div className="app-actions">
+                  <button
+                    className="app-button app-button--primary"
+                    type="submit"
+                    disabled={!gateWalletUrl.trim() || gateWalletBusy}
+                  >
+                    {gateWalletBusy ? t('gate.wallet_inline.connecting') : t('gate.wallet_inline.connect')}
+                  </button>
+                </div>
+              </form>
+              {gateWalletError && <p className="status-message status-message--warning">{gateWalletError}</p>}
+            </div>
+          )}
+          {gateWalletStatus?.connected && (
+            <div className={styles.summaryBox}>
+              <strong>{t('gate.wallet_inline.connected')}</strong>
+              {typeof gateWalletStatus.balanceSats === 'number' && (
+                <p>{t('gate.wallet_inline.balance', { sats: String(gateWalletStatus.balanceSats) })}</p>
+              )}
+              <div className="app-actions">
+                <button
+                  className="app-button app-button--ghost"
+                  type="button"
+                  disabled={gateWalletBusy}
+                  onClick={() => {
+                    setGateWalletBusy(true)
+                    void disconnectWalletInline()
+                      .then(() => {
+                        setGateWalletStatus(null)
+                        setNotice('')
+                      })
+                      .finally(() => setGateWalletBusy(false))
+                  }}
+                >
+                  {t('gate.wallet_inline.disconnect')}
+                </button>
+              </div>
+            </div>
+          )}
           <div className="app-actions">
             <button className="app-button app-button--primary" type="button" disabled={busy} onClick={() => void saveGate()}>
               {gatePrimaryLabel()}
             </button>
           </div>
+
         </section>
       )
     }

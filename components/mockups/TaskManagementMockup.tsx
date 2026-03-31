@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
@@ -11,6 +12,7 @@ export default function TaskManagementMockup() {
   const [tasks, setTasks] = useState<ProgressRow[]>([])
   const [loading, setLoading] = useState(true)
   const [togglingId, setTogglingId] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     browserLapClient.profile.latest().then((profileId) => {
@@ -183,7 +185,7 @@ export default function TaskManagementMockup() {
                   </div>
                 ))}
               </div>
-              <button type="button" className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-[16px] border border-white/10 text-[11px] font-bold uppercase tracking-[0.22em] text-white">
+              <button type="button" onClick={() => router.push('/flow?variant=spatial')} className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-[16px] border border-white/10 text-[11px] font-bold uppercase tracking-[0.22em] text-white transition hover:bg-white/5">
                 {t('mockups.flow.tasks.library')}
               </button>
             </section>

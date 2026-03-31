@@ -2,6 +2,7 @@
 
 import { DateTime } from 'luxon'
 import { t } from '@/src/i18n'
+import { useRouter } from 'next/navigation'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
 import { usePlanV5 } from '@/src/lib/client/use-plan-v5'
@@ -18,6 +19,7 @@ function DayRow({ time, title, place, color, height }: { time: string; title: st
 
 export default function DailyCalendarMockup() {
   const { package: planPackage, loading } = usePlanV5()
+  const router = useRouter()
   const allTasks = planPackage?.plan.detail.weeks.flatMap(w => w.scheduledEvents ?? []) ?? []
   
   const today = DateTime.fromObject({ year: 2023, month: 10, day: 4 }, { locale: 'es-AR' })
@@ -48,8 +50,8 @@ export default function DailyCalendarMockup() {
       ]}
       topRight={(
         <>
-          <button type="button" className="text-slate-500"><MaterialIcon name="search" className="text-[20px]" /></button>
-          <button type="button" className="text-slate-500"><MaterialIcon name="notifications" className="text-[20px]" /></button>
+          <button type="button" onClick={() => router.push('/flow?variant=tasks')} className="text-slate-500 transition hover:text-[#334155]"><MaterialIcon name="search" className="text-[20px]" /></button>
+          <button type="button" onClick={() => router.push('/settings')} className="text-slate-500 transition hover:text-[#334155]"><MaterialIcon name="notifications" className="text-[20px]" /></button>
           <div className="h-8 w-8 rounded-full bg-[linear-gradient(135deg,#F59E0B,#FDE68A)]" />
         </>
       )}

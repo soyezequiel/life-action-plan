@@ -33,7 +33,7 @@ export default function WalletSettingsMockup() {
       setRelayUrl('')
       fetchWallet()
       setTimeout(() => setConnectStatus('idle'), 2000)
-    } catch (e) {
+    } catch {
       setConnectStatus('error')
       setTimeout(() => setConnectStatus('idle'), 3000)
     }

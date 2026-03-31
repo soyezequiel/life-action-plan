@@ -1,6 +1,7 @@
 'use client'
 
 import { t } from '@/src/i18n'
+import { useRouter } from 'next/navigation'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
 import { usePlanV5 } from '@/src/lib/client/use-plan-v5'
@@ -9,6 +10,7 @@ const HOURS = ['08:00', '09:00', '10:00', '11:00', '12:00']
 
 export default function WeeklyCalendarMockup() {
   const { package: planPackage, loading } = usePlanV5()
+  const router = useRouter()
   const allTasks = planPackage?.plan.detail.weeks.flatMap(w => w.scheduledEvents ?? []) ?? []
 
   const days = [
@@ -144,7 +146,7 @@ export default function WeeklyCalendarMockup() {
                 <div className="h-8 w-8 rounded-full bg-[linear-gradient(135deg,#F9A8D4,#FDBA74)]" />
                 <div className="h-8 w-8 rounded-full bg-[linear-gradient(135deg,#86EFAC,#34D399)]" />
               </div>
-              <button type="button" className="rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-[#334155]">
+              <button type="button" onClick={() => router.push('/flow?variant=tasks')} className="rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-[#334155] transition hover:bg-slate-50">
                 {t('mockups.calendarWeekly.join')}
               </button>
             </div>

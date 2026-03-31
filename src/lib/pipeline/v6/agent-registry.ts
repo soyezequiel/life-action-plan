@@ -8,33 +8,14 @@ import { packagerAgent } from './agents/packager-agent';
 import { schedulerAgent } from './agents/scheduler-agent';
 import type { V6Agent, V6AgentName } from './types';
 
+import { criticAgent } from './agents/critic-agent';
+import { feasibilityCheckerAgent } from './agents/feasibility-checker';
+
 type RegisteredAgent = V6Agent<unknown, unknown> & {
   execute(input: unknown, runtime: AgentRuntime): Promise<unknown>
   fallback(input: unknown): unknown
 };
 
-const requireModule = createRequire(import.meta.url);
-
-function isRegisteredAgent(value: unknown): value is RegisteredAgent {
-  return typeof value === 'object'
-    && value !== null
-    && typeof (value as RegisteredAgent).name === 'string'
-    && typeof (value as RegisteredAgent).execute === 'function'
-    && typeof (value as RegisteredAgent).fallback === 'function';
-}
-
-function loadOptionalAgent(
-  modulePath: string,
-  exportName: 'criticAgent' | 'feasibilityCheckerAgent',
-): RegisteredAgent | null {
-  try {
-    const loadedModule = requireModule(modulePath) as Record<string, unknown>;
-    const candidate = loadedModule[exportName];
-    return isRegisteredAgent(candidate) ? candidate : null;
-  } catch {
-    return null;
-  }
-}
 
 export class AgentRegistry {
   private agents: Map<V6AgentName, RegisteredAgent> = new Map()
@@ -71,16 +52,8 @@ export function createDefaultRegistry(): AgentRegistry {
   registry.register(packagerAgent)
   registry.register(domainExpertAgent)
 
-  const optionalAgents = [
-    loadOptionalAgent('./agents/critic-agent', 'criticAgent'),
-    loadOptionalAgent('./agents/feasibility-checker', 'feasibilityCheckerAgent'),
-  ]
-
-  for (const agent of optionalAgents) {
-    if (agent) {
-      registry.register(agent)
-    }
-  }
+  registry.register(criticAgent as RegisteredAgent)
+  registry.register(feasibilityCheckerAgent as RegisteredAgent)
 
   return registry
 }

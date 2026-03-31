@@ -774,7 +774,30 @@ const runtimeFallbacks: Record<string, string> = {
   'flowInteractive.package.regenerateTitle': 'Regenerar desde',
   'flowInteractive.package.regenerateCopy': 'Si algo no te convence, vuelve a un checkpoint y dejo el resto pendiente para recalcular.',
   'flowInteractive.package.regenerateButton': 'Regenerar desde este paso',
-  'flowInteractive.package.acceptButton': 'Aceptar plan'
+  'flowInteractive.package.acceptButton': 'Aceptar plan',
+  'gate.wallet_inline.title': 'Conecta tu billetera',
+  'gate.wallet_inline.hint': 'Para usar esta ruta necesitas una billetera Lightning. Pega tu enlace NWC para conectarla.',
+  'gate.wallet_inline.placeholder': 'nostr+walletconnect://...',
+  'gate.wallet_inline.connect': 'Conectar billetera',
+  'gate.wallet_inline.connecting': 'Conectando...',
+  'gate.wallet_inline.connected': 'Billetera conectada',
+  'gate.wallet_inline.balance': 'Saldo: {{sats}} sats',
+  'gate.wallet_inline.disconnect': 'Desconectar',
+  'gate.wallet_inline.error_generic': 'No pude conectar la billetera. Revisa el enlace e intenta de nuevo.',
+  'gate.wallet_inline.error_invalid_url': 'Ese enlace no parece una conexion NWC valida.',
+  'gate.wallet_inline.error_incompatible': 'Esta billetera no respondio como una conexion NWC compatible.',
+  'gate.credential_check.missing_credential': 'Todavia falta configurar la conexion al asistente de IA.',
+  'gate.credential_check.missing_key_hint': 'Podes dejar tu clave en Ajustes o cargar una API del sistema.',
+  'gate.credential_check.codex_hint': 'Ejecuta "npm run codex:login" en esta maquina para habilitar Codex.',
+  'gate.credential_check.ready': 'La conexion al asistente esta lista.',
+  'planFlow.preflight.checking': 'Verificando acceso...',
+  'planFlow.preflight.wallet_title': 'Conecta tu billetera para generar el plan',
+  'planFlow.preflight.wallet_hint': 'Esta accion tiene un costo de {{sats}} sats. Pega tu enlace NWC para continuar.',
+  'planFlow.preflight.credential_missing': 'Falta configurar la conexion al asistente de IA antes de generar el plan.',
+  'planFlow.preflight.credential_settings_link': 'Ir a Ajustes',
+  'planFlow.preflight.wallet_missing': 'Conecta tu billetera antes de generar el plan.',
+  'planFlow.preflight.wallet_balance_low': 'Tu saldo no alcanza para esta accion.',
+  'planFlow.preflight.ready': 'Todo listo para generar tu plan.'
 }
 
 let currentLocale = 'es-AR'

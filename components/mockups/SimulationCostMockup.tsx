@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
@@ -10,6 +11,7 @@ import type { WalletStatus } from '@/src/shared/types/lap-api'
 export default function SimulationCostMockup() {
   const [wallet, setWallet] = useState<WalletStatus | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     browserLapClient.wallet.status()
@@ -42,8 +44,8 @@ export default function SimulationCostMockup() {
       ]}
       topRight={(
         <>
-          <button type="button" className="text-slate-500"><MaterialIcon name="notifications" className="text-[20px]" /></button>
-          <button type="button" className="h-8 w-8 rounded-full bg-[linear-gradient(135deg,#0F172A,#475569)]" />
+          <button type="button" onClick={() => router.push('/settings')} className="text-slate-500 transition hover:text-[#334155]"><MaterialIcon name="notifications" className="text-[20px]" /></button>
+          <button type="button" onClick={() => router.push('/settings')} className="h-8 w-8 rounded-full bg-[linear-gradient(135deg,#0F172A,#475569)] transition hover:ring-2 hover:ring-[#1E293B]/20" />
         </>
       )}
     >

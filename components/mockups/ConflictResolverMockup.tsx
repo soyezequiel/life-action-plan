@@ -1,9 +1,12 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 export default function ConflictResolverMockup() {
+  const router = useRouter()
   const sidebar = [
     { label: t('mockups.flow.conflict.nav.dashboard'), icon: 'dashboard', href: '/' },
     { label: t('mockups.flow.conflict.nav.calendar'), icon: 'calendar_today', active: true, href: '/flow' },
@@ -64,8 +67,8 @@ export default function ConflictResolverMockup() {
       ]}
       topRight={(
         <>
-          <button type="button" className="text-slate-500"><MaterialIcon name="notifications" className="text-[20px]" /></button>
-          <button type="button" className="h-8 w-8 rounded-full bg-[linear-gradient(135deg,#C4B5FD,#FDBA74)]" />
+          <button type="button" onClick={() => router.push('/settings')} className="text-slate-500 transition hover:text-[#334155]"><MaterialIcon name="notifications" className="text-[20px]" /></button>
+          <button type="button" onClick={() => router.push('/settings')} className="h-8 w-8 rounded-full bg-[linear-gradient(135deg,#C4B5FD,#FDBA74)] transition hover:ring-2 hover:ring-[#1E293B]/20" />
         </>
       )}
     >
@@ -104,9 +107,9 @@ export default function ConflictResolverMockup() {
                   <div key={label} className="grid grid-cols-[1fr_auto] items-center gap-4">
                     <div>
                       <p className="text-[14px] text-slate-500">{label}</p>
-                      {hint && <p className="text-[12px] text-slate-400"><MockData>{hint}</MockData></p>}
+                      {hint && <p className="text-[12px] text-slate-400">{hint}</p>}
                     </div>
-                    <strong className="font-display text-[18px] font-bold text-[#334155]"><MockData>{value}</MockData></strong>
+                    <strong className="font-display text-[18px] font-bold text-[#334155]">{value}</strong>
                   </div>
                 ))}
                 <div className="h-2 overflow-hidden rounded-full bg-slate-100">
@@ -118,7 +121,14 @@ export default function ConflictResolverMockup() {
                 <em className="text-slate-500">{card.quote}</em>
               </div>
 
-              <button type="button" className={`mt-8 inline-flex h-14 w-full items-center justify-center gap-2 rounded-[18px] px-6 font-display text-[14px] font-bold transition hover:-translate-y-0.5 ${card.buttonTone}`}>
+              <button 
+                type="button" 
+                onClick={() => {
+                  localStorage.setItem('lap-scenario', index === 0 ? 'ambitious' : 'realistic')
+                  router.push('/plan?view=week')
+                }}
+                className={`mt-8 inline-flex h-14 w-full items-center justify-center gap-2 rounded-[18px] px-6 font-display text-[14px] font-bold transition hover:-translate-y-0.5 ${card.buttonTone}`}
+              >
                 <span>{card.button}</span>
                 <MaterialIcon name="arrow_forward" className="text-[18px]" />
               </button>
