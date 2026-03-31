@@ -494,7 +494,8 @@ export class PlanOrchestrator {
   private context: OrchestratorContext;
   private scratchpad: Scratchpad;
   private config: OrchestratorConfig;
-  private runtime: AgentRuntime;
+  private brainRuntime: AgentRuntime;
+  private fastRuntime: AgentRuntime;
   private lastAction = '';
   private pendingAnswers: Record<string, string> | null = null;
   private clarificationSkipRequested = false;
@@ -502,7 +503,7 @@ export class PlanOrchestrator {
   private agentOutcomes: AgentExecutionOutcome[] = [];
   private debugTrace: OrchestratorDebugEvent[] = [];
   private debugSequence = 0;
-  private runtimeLabel: string;
+  private brainRuntimeLabel: string;
   private debugListener?: (event: OrchestratorDebugEvent) => void;
 
   private getPlanningDomainLabel(): string | null {
@@ -511,13 +512,15 @@ export class PlanOrchestrator {
 
   constructor(
     config: Partial<OrchestratorConfig>,
-    runtime: AgentRuntime,
+    brainRuntime: AgentRuntime,
+    fastRuntime?: AgentRuntime,
     runtimeLabel = 'unknown',
     debugListener?: (event: OrchestratorDebugEvent) => void,
   ) {
     this.config = { ...DEFAULT_CONFIG, ...config };
-    this.runtime = runtime;
-    this.runtimeLabel = runtimeLabel;
+    this.brainRuntime = brainRuntime;
+    this.fastRuntime = fastRuntime ?? brainRuntime;
+    this.brainRuntimeLabel = runtimeLabel;
     this.debugListener = debugListener;
     this.scratchpad = new Scratchpad();
 
@@ -574,12 +577,13 @@ export class PlanOrchestrator {
 
   static restore(
     snapshot: PlanOrchestratorSnapshot,
-    runtime: AgentRuntime,
+    brainRuntime: AgentRuntime,
+    fastRuntime?: AgentRuntime,
     runtimeLabel = 'unknown',
     debugListener?: (event: OrchestratorDebugEvent) => void,
   ): PlanOrchestrator {
     const parsed = PlanOrchestratorSnapshotSchema.parse(snapshot);
-    const orchestrator = new PlanOrchestrator(parsed.config, runtime, runtimeLabel, debugListener);
+    const orchestrator = new PlanOrchestrator(parsed.config, brainRuntime, fastRuntime, runtimeLabel, debugListener);
 
     orchestrator.state = {
       ...parsed.state,
@@ -644,7 +648,7 @@ export class PlanOrchestrator {
       phase: 'interpret',
       agent: this.phaseToAgent('interpret'),
       details: {
-        runtimeLabel: this.runtimeLabel,
+        runtimeLabel: this.brainRuntimeLabel,
         timezone: userCtx.timezone,
         locale: userCtx.locale,
       },
@@ -1691,7 +1695,7 @@ export class PlanOrchestrator {
 
     if (agent) {
       try {
-        const result = await agent.execute(input, this.runtime);
+        const result = await agent.execute(input, this.fastRuntime);
         this.recordAgentOutcome('goal-interpreter', 'interpret', 'llm', Date.now() - start);
         return result;
       } catch (error) {
@@ -1822,7 +1826,7 @@ export class PlanOrchestrator {
 
     if (agent) {
       try {
-        const result = this.namespaceClarificationRound(await agent.execute(input, this.runtime));
+        const result = this.namespaceClarificationRound(await agent.execute(input, this.brainRuntime));
         this.recordAgentOutcome('clarifier', 'clarify', 'llm', Date.now() - start);
         return result;
       } catch (error) {
@@ -1900,7 +1904,7 @@ export class PlanOrchestrator {
 
     try {
       const strategyResult = await generateStrategyWithSource(
-        this.runtime,
+        this.brainRuntime,
         strategyInput,
         this.context.domainCard ?? undefined,
       );
@@ -1984,7 +1988,7 @@ export class PlanOrchestrator {
 
     if (agent) {
       try {
-        const result = await agent.execute(input, this.runtime);
+        const result = await agent.execute(input, this.fastRuntime);
         this.recordAgentOutcome('feasibility-checker', 'check', 'llm', Date.now() - start);
         return result;
       } catch (error) {
@@ -2043,7 +2047,7 @@ export class PlanOrchestrator {
 
     if (agent) {
       try {
-        const result = await agent.execute(input, this.runtime) as ScheduleExecutionResult;
+        const result = await agent.execute(input, this.fastRuntime) as ScheduleExecutionResult;
         this.recordAgentOutcome('scheduler', 'schedule', 'deterministic', Date.now() - start);
         return result;
       } catch (error) {
@@ -2110,7 +2114,7 @@ export class PlanOrchestrator {
 
     if (agent) {
       try {
-        const result = await agent.execute(input, this.runtime);
+        const result = await agent.execute(input, this.brainRuntime);
         this.recordAgentOutcome('critic', 'critique', 'llm', Date.now() - start);
         return result;
       } catch (error) {
@@ -2185,7 +2189,7 @@ export class PlanOrchestrator {
 
     try {
       const strategyResult = await generateStrategyWithSource(
-        this.runtime,
+        this.brainRuntime,
         strategyInput,
         this.context.domainCard ?? undefined,
       );
@@ -2291,7 +2295,8 @@ export class PlanOrchestrator {
           domainLabel: planningDomainLabel,
           goalType: this.context.interpretation?.goalType ?? 'FINITE_PROJECT',
           specificQuestion,
-        }, this.runtime);
+        },
+        this.brainRuntime);
         this.recordAgentOutcome('domain-expert', phase, 'llm', Date.now() - start);
 
         if (result.card) {
@@ -2359,7 +2364,7 @@ export class PlanOrchestrator {
         scratchpad: this.scratchpad.getAll(),
       };
       try {
-        const result = await agent.execute(input, this.runtime);
+        const result = await agent.execute(input, this.fastRuntime);
         this.recordAgentOutcome('packager', 'package', 'deterministic', Date.now() - start);
         return result;
       } catch (error) {
@@ -2416,7 +2421,7 @@ export class PlanOrchestrator {
   }
 
   private formatDiagnosticReasoning(error: unknown): string {
-    return `[provider=${this.runtimeLabel}] Agent failed [${this.getErrorCode(error)}]: ${this.getErrorMessage(error)}`;
+    return `[provider=${this.brainRuntimeLabel}] Agent failed [${this.getErrorCode(error)}]: ${this.getErrorMessage(error)}`;
   }
 
   private buildSyntheticAgentError(code: string, message: string): Error {

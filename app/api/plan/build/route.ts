@@ -166,12 +166,20 @@ function handleV6Build(
           return
         }
 
-        const runtime = createBuildAgentRuntime(execution.runtime, {
+        const brainRuntime = createBuildAgentRuntime(execution.runtime, {
           thinkingMode,
         })
 
+        const fastRuntime = createBuildAgentRuntime({
+          ...execution.runtime,
+          modelId: 'openai:gpt-4o-mini',
+        }, {
+          thinkingMode: 'disabled',
+        })
+
         try {
-          const preflight = await runtime.chat([{
+          // Preflight on brain runtime
+          const preflight = await brainRuntime.chat([{
             role: 'user',
             content: 'Respond with exactly: OK',
           }])
@@ -232,7 +240,8 @@ function handleV6Build(
 
         const orchestrator = new PlanOrchestrator(
           {},
-          runtime,
+          brainRuntime,
+          fastRuntime,
           execution.runtime.modelId,
           debugEnabled
             ? (event) => {
