@@ -17,13 +17,20 @@ function run(command, args) {
   console.log(`[Vercel-Prepare] ✅ COMPLETADO: ${fullCommand} (${duration}s)`);
 }
 
-// 1. Ejecutar Doctor
-run('node', ['scripts/deploy-doctor.mjs']);
+const isPrecheck = process.argv.includes('--precheck-only');
+const isPostbuild = process.argv.includes('--postbuild');
 
-// 2. Ejecutar Build
-run('npm', ['run', 'build']);
+if (isPrecheck) {
+  // 1. Solo ejecutar Doctor
+  run('node', ['scripts/deploy-doctor.mjs']);
+} else if (isPostbuild) {
+  // 2. Solo ejecutar Migraciones post-build
+  run('npm', ['run', 'db:push']);
+} else {
+  // 3. Ejecución completa (fallback)
+  run('node', ['scripts/deploy-doctor.mjs']);
+  run('npm', ['run', 'build']);
+  run('npm', ['run', 'db:push']);
+}
 
-// 3. Ejecutar Migraciones
-run('npm', ['run', 'db:push']);
-
-console.log('[Vercel-Prepare] ¡Todo listo para el despliegue!');
+console.log('[Vercel-Prepare] ¡Paso finalizado con éxito!');
