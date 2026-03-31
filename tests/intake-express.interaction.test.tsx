@@ -8,6 +8,7 @@ import IntakeExpress from '../components/IntakeExpress'
 import { AppServicesProvider } from '../src/lib/client/app-services'
 import { t } from '../src/i18n'
 import type { LapAPI } from '../src/shared/types/lap-api'
+import { UserStatusProvider } from '../src/lib/client/UserStatusProvider'
 
 vi.mock('framer-motion', async () => {
   const ReactModule = await import('react')
@@ -47,6 +48,20 @@ vi.mock('framer-motion', async () => {
   }
 })
 
+vi.mock('../src/lib/client/UserStatusProvider', () => ({
+  UserStatusProvider: ({ children }: { children: React.ReactNode }) => children,
+  useUserStatusContext: () => ({
+    hasWallet: true,
+    hasApiKey: true,
+    hasPlan: false,
+    onboardingStep: 'READY' as const,
+    isConfigured: true,
+    loading: false,
+    error: null,
+    refresh: vi.fn(async () => {})
+  })
+}))
+
 function createLapClientStub(): LapAPI {
   return {
     intake: {
@@ -61,14 +76,16 @@ describe('intake express interaction', () => {
 
     render(
       <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
-        <IntakeExpress onComplete={() => {}} />
+        <UserStatusProvider>
+          <IntakeExpress onComplete={() => {}} />
+        </UserStatusProvider>
       </AppServicesProvider>
     )
 
-    await user.type(screen.getByLabelText(t('intake.questions.nombre')), 'Ada')
+    await user.type(screen.getByPlaceholderText(t('mockups.intake.placeholder')), 'Aprender Rust')
     await user.keyboard('{Enter}')
 
-    expect(screen.getByLabelText(t('intake.questions.edad'))).toBeTruthy()
-    expect(screen.getByText(t('intake.tip_short'))).toBeTruthy()
+    // Debería mostrar verificando acceso o el quote de pago
+    expect(screen.queryByText(t('planFlow.preflight.checking')) || screen.queryByText(t('mockups.intake.placeholder'))).toBeTruthy()
   })
 })

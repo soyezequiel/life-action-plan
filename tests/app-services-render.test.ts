@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { t } from '../src/i18n'
 import IntakeExpress from '../components/IntakeExpress'
 import { AppServicesProvider, useLapClient } from '../src/lib/client/app-services'
+import { UserStatusProvider } from '../src/lib/client/UserStatusProvider'
 import type { LapAPI } from '../src/shared/types/lap-api'
 
 const mockLapApi = {
@@ -33,11 +34,11 @@ describe('app services render', () => {
       createElement(
         AppServicesProvider,
         { services: { lapClient: mockLapApi } },
-        createElement(IntakeExpress, { onComplete: () => {} })
+        createElement(UserStatusProvider, null, createElement(IntakeExpress, { onComplete: () => {} }))
       )
     )
 
-    expect(html).toContain(t('intake.questions.nombre'))
-    expect(html).toContain(t('intake.buttons.next'))
+    expect(html).toContain(t('mockups.intake.placeholder'))
+    expect(html).toContain(t('mockups.intake.button_next'))
   })
 })

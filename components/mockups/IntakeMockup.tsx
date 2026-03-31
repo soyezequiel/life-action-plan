@@ -12,6 +12,7 @@ import { AdvancedFlowVisualizer } from '../pipeline-visualizer/AdvancedFlowVisua
 import { usePipelineState } from '../pipeline-visualizer/use-pipeline-state'
 import { SuccessPaymentAnimation } from '../midnight-mint/SuccessPaymentAnimation'
 import { fetchWalletStatus, chargePlanBuild } from '@/src/lib/client/plan-client'
+import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 
 interface IntakeMockupProps {
   onComplete?: (profileId: string, planId: string) => void
@@ -19,10 +20,12 @@ interface IntakeMockupProps {
 }
 
 export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps) {
+  const status = useUserStatusContext()
   const [value, setValue] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [viewMode, setViewMode] = useState<'standard' | 'advanced'>('standard')
   const { state: pState, callbacks: pCallbacks, reset: pReset } = usePipelineState()
+  const [showPlanReplaceWarning, setShowPlanReplaceWarning] = useState(false)
 
   // Clarification states
   const [clarification, setClarification] = useState<import('@/src/lib/pipeline/v6/types').ClarificationRound | null>(null)
@@ -43,22 +46,30 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [pendingGoal, setPendingGoal] = useState<string | null>(null)
 
-  const handleComplete = async (arg?: string | any) => {
+  const handleComplete = async (arg?: string | any, confirmed = false) => {
     const overrideValue = typeof arg === 'string' ? arg : undefined
     const goalToProcess = overrideValue || value
     if (!goalToProcess || typeof goalToProcess !== 'string' || !goalToProcess.trim() || isGenerating || isCheckingCost) return
     
+    // Si ya existe un plan y el usuario no ha confirmado el reemplazo, mostrar advertencia
+    if (status.hasPlan && !confirmed) {
+      setPendingGoal(goalToProcess.trim())
+      setShowPlanReplaceWarning(true)
+      return
+    }
+
     setIsCheckingCost(true)
     setPendingGoal(goalToProcess.trim())
+    setShowPlanReplaceWarning(false)
     
     try {
       // 1. Obtener estado de billetera y costo estimado
-      const status = await fetchWalletStatus()
-      setWalletStatus(status)
+      const statusRes = await fetchWalletStatus()
+      setWalletStatus(statusRes)
       setIsCheckingCost(false)
       
       // Si el costo es gratuito o no aplicable (ej. local), saltamos el quote
-      if (!status.planBuildChargeSats || status.planBuildChargeSats <= 0) {
+      if (!statusRes.planBuildChargeSats || statusRes.planBuildChargeSats <= 0) {
         processGeneration(goalToProcess.trim())
         return
       }
@@ -234,7 +245,44 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
             transition={{ duration: 0.35, ease: 'easeOut' }}
           >
             <div className={`p-6 md:p-8 ${showPaymentQuote ? 'bg-slate-50/50' : ''}`}>
-            {isCompletedLocal && completionData ? (
+            {showPlanReplaceWarning ? (
+              <motion.div
+                className="w-full flex flex-col items-center py-8 text-center"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+              >
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-50 text-amber-500 shadow-sm border border-amber-100">
+                  <MaterialIcon name="warning" className="text-[40px]" />
+                </div>
+                
+                <h3 className="font-display text-[28px] font-bold tracking-tight text-[#334155] mb-2">
+                  ¿Reemplazar plan actual?
+                </h3>
+                <p className="text-slate-500 text-[16px] max-w-md mb-10 leading-relaxed">
+                  Ya tienes un plan activo. Al crear uno nuevo, el anterior se archivará y todo su progreso dejará de ser visible en el dashboard.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+                  <button
+                    onClick={() => handleComplete(pendingGoal, true)}
+                    className="flex-1 inline-flex h-14 items-center justify-center gap-3 rounded-[22px] bg-[#1E293B] px-8 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-200 transition hover:-translate-y-1 hover:bg-[#334155] active:translate-y-0"
+                  >
+                    <span>Continuar y Reemplazar</span>
+                    <MaterialIcon name="arrow_forward" className="text-[20px]" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPlanReplaceWarning(false)
+                      setPendingGoal(null)
+                    }}
+                    className="flex-1 inline-flex h-14 items-center justify-center gap-3 rounded-[22px] bg-white border border-slate-200 px-8 font-display text-[15px] font-bold text-slate-600 transition hover:bg-slate-50"
+                  >
+                    <span>Cancelar</span>
+                  </button>
+                </div>
+              </motion.div>
+            ) : isCompletedLocal && completionData ? (
               <motion.div 
                 className="w-full flex flex-col items-center py-8 text-center"
                 initial={{ opacity: 0, scale: 0.95 }}

@@ -103,7 +103,8 @@ export const plans = pgTable('plans', {
   manifest: jsonb('manifest').notNull(),
   reasoningTrace: jsonb('reasoning_trace'),
   createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
-  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull()
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull(),
+  deletedAt: timestamp('deleted_at', { mode: 'string', withTimezone: true })
 })
 
 

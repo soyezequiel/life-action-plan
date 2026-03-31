@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import type { PlanEvent } from '../../shared/types/lap-api'
 import type { PlanPackage, V5PhaseSnapshot } from '../pipeline/shared/phase-io'
 import type { ReasoningEntry } from '../pipeline/v6/types'
-import { createPlan, seedProgressFromEvents } from '../db/db-helpers'
+import { createPlan, seedProgressFromEvents, softDeleteOtherPlans } from '../db/db-helpers'
 import {
   buildPendingAdaptiveState,
   buildPlanManifest,
@@ -113,6 +113,7 @@ export async function persistPlanFromV5Package(input: {
   })
   const planId = await createPlan(input.profileId, nombre, planSlug, manifest, reasoningTrace)
   await seedProgressFromEvents(planId, eventos, input.timezone)
+  await softDeleteOtherPlans(input.profileId, planId)
 
   return {
     planId,

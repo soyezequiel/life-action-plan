@@ -97,7 +97,8 @@ function serializePlanRow(row: typeof plans.$inferSelect): PlanRow {
     slug: row.slug,
     manifest: toJsonString(row.manifest) ?? '{}',
     createdAt: row.createdAt,
-    updatedAt: row.updatedAt
+    updatedAt: row.updatedAt,
+    deletedAt: row.deletedAt
   }
 }
 
@@ -397,7 +398,7 @@ export async function getLatestProfileIdForUser(userId: string | null): Promise<
       planCount: count(plans.id)
     })
     .from(profiles)
-    .leftJoin(plans, eq(plans.profileId, profiles.id))
+    .leftJoin(plans, and(eq(plans.profileId, profiles.id), isNull(plans.deletedAt)))
 
   if (userId) {
     query.where(eq(profiles.userId, userId))
@@ -751,13 +752,13 @@ export async function createPlan(
 }
 
 export async function getPlan(id: string) {
-  const rows = await db().select().from(plans).where(eq(plans.id, id))
+  const rows = await db().select().from(plans).where(and(eq(plans.id, id), isNull(plans.deletedAt)))
   const row = rows[0]
   return row ? serializePlanRow(row) : null
 }
 
 export async function getPlanBySlug(slug: string) {
-  const rows = await db().select().from(plans).where(eq(plans.slug, slug))
+  const rows = await db().select().from(plans).where(and(eq(plans.slug, slug), isNull(plans.deletedAt)))
   const row = rows[0]
   return row ? serializePlanRow(row) : null
 }
@@ -792,8 +793,19 @@ export async function markProgressComplete(id: string, notas?: string): Promise<
 }
 
 export async function getPlansByProfile(profileId: string): Promise<PlanRow[]> {
-  const rows = await db().select().from(plans).where(eq(plans.profileId, profileId))
+  const rows = await db().select().from(plans).where(and(eq(plans.profileId, profileId), isNull(plans.deletedAt)))
   return rows.map(serializePlanRow)
+}
+
+export async function softDeleteOtherPlans(profileId: string, exceptPlanId: string): Promise<void> {
+  const timestamp = now()
+  await db().update(plans)
+    .set({ deletedAt: timestamp, updatedAt: timestamp })
+    .where(and(
+      eq(plans.profileId, profileId),
+      isNull(plans.deletedAt),
+      sql`${plans.id} <> ${exceptPlanId}`
+    ))
 }
 
 export async function getProgressByPlan(planId: string): Promise<ProgressRow[]> {
