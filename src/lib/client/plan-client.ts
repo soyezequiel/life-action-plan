@@ -11,6 +11,7 @@ export interface PlanStreamCallbacks {
   onProgress: (score: number, lastAction: string) => void
   onNeedsInput: (sessionId: string, questions: ClarificationRound) => void
   onDegraded?: (data: PlanDegradedEvent) => void
+  onDebug?: (event: unknown) => void
   onComplete: (planId: string, score: number, iterations: number) => void
   onError: (message: string) => void
 }
@@ -161,6 +162,11 @@ function dispatchSsePayload(payloadText: string, explicitEventType: string | nul
       return
     }
 
+    if (eventType === 'v6:debug' && data) {
+      callbacks.onDebug?.(data)
+      return
+    }
+
     if (eventType === 'v6:degraded' && data && typeof data === 'object') {
       const value = data as { message?: unknown; failedAgents?: unknown; agentOutcomes?: unknown }
       callbacks.onDegraded?.({
@@ -265,7 +271,8 @@ export async function startPlanBuild(
   return postV6Stream('/api/plan/build', {
     goalText,
     profileId,
-    provider
+    provider,
+    debug: true
   }, callbacks)
 }
 
@@ -276,7 +283,8 @@ export async function resumePlanBuild(
 ): Promise<void> {
   return postV6Stream('/api/plan/build/resume', {
     sessionId,
-    answers
+    answers,
+    debug: true
   }, callbacks)
 }
 

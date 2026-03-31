@@ -60,8 +60,10 @@ export default function WalletSettingsMockup() {
         { label: t('mockups.wallet.nav.tasks'), icon: 'check_circle', href: '/flow?variant=tasks' },
         { label: t('mockups.wallet.nav.notes'), icon: 'description', href: '/flow?variant=spatial' },
         { label: t('mockups.wallet.nav.focus'), icon: 'center_focus_strong', href: '/flow?variant=simulation' },
-        { label: t('mockups.wallet.nav.settings'), icon: 'settings', active: true, href: '/settings?section=wallet' }
+        { label: t('mockups.settingsBackend.nav.settings') || 'Ajustes', icon: 'settings', href: '/settings?section=backend' },
+        { label: t('mockups.wallet.title') || 'Billetera (NWC)', icon: 'account_balance_wallet', active: true, href: '/settings?section=wallet' }
       ]}
+
       sidebarPrimaryAction={{ label: t('mockups.wallet.sidebar_action'), icon: 'add', href: '/flow' }}
       sidebarFooter={[
         { label: t('mockups.common.help'), icon: 'help', href: '#' },
@@ -70,8 +72,10 @@ export default function WalletSettingsMockup() {
       topTabs={[
         { label: t('mockups.wallet.tabs.dashboard'), href: '/' },
         { label: t('mockups.wallet.tabs.calendar'), href: '/plan?view=month' },
-        { label: t('mockups.wallet.tabs.settings'), active: true, href: '/settings?section=wallet' }
+        { label: t('mockups.settingsBackend.nav.settings') || 'APIs', href: '/settings?section=backend' },
+        { label: t('mockups.wallet.tabs.settings') || 'Billetera (NWC)', active: true, href: '/settings?section=wallet' }
       ]}
+
       topRight={(
         <>
           <div className="flex h-9 w-[200px] items-center rounded-full bg-slate-100/70 px-4 text-[14px] text-slate-400 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">

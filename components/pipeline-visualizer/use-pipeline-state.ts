@@ -160,11 +160,25 @@ export function usePipelineState(): {
     addNotification('error', 'visualizer.notification.failed', message);
   }, [addNotification]);
 
+  const onDebug = useCallback((event: any) => {
+    // Mantener log en consola para debugueo comodo
+    const { logPlanificadorDebug } = require('../../src/lib/client/debug-logger');
+    logPlanificadorDebug?.(event);
+
+    if (event?.summary_es) {
+      setState(prev => ({
+        ...prev,
+        lastAction: event.summary_es
+      }));
+    }
+  }, []);
+
   const callbacks: PlanStreamCallbacks = {
     onPhase,
     onProgress,
     onNeedsInput,
     onDegraded,
+    onDebug,
     onComplete,
     onError
   };

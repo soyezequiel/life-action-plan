@@ -41,10 +41,16 @@ export async function POST(request: Request): Promise<Response> {
         controller.enqueue(encodeSseData(payload))
       }
       let heartbeatTimer: ReturnType<typeof setInterval> | null = null
+      let progressTimer: ReturnType<typeof setInterval> | null = null
+
       const stopHeartbeat = () => {
         if (heartbeatTimer) {
           clearInterval(heartbeatTimer)
           heartbeatTimer = null
+        }
+        if (progressTimer) {
+          clearInterval(progressTimer)
+          progressTimer = null
         }
       }
 
@@ -242,6 +248,23 @@ export async function POST(request: Request): Promise<Response> {
           }, 10_000)
           heartbeatTimer.unref?.()
         }
+
+        // Add progress timer to keep SSE alive and update UI smoothly
+        progressTimer = setInterval(() => {
+          const progress = orchestrator.getProgress()
+          if (progress) {
+            send({
+              type: 'v6:progress',
+              data: { score: progress.progressScore, lastAction: progress.lastAction },
+            })
+            // Emit phase as well to trigger phase transitions in the client
+            send({
+              type: 'v6:phase',
+              data: { phase: progress.phase, iteration: progress.iteration },
+            })
+          }
+        }, 2000)
+        progressTimer.unref?.()
 
         const finalResult = await orchestrator.resume(answers)
 

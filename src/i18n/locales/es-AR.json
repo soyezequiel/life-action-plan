@@ -597,6 +597,51 @@
       "phase_adapt_simple": "Observa la vida real de la semana y decide si el plan necesita rebase o ajuste."
     }
   },
+  "visualizer": {
+    "title": "Centro de Operaciones AI",
+    "section_user": "Tu participación",
+    "user_define_goal": "Definición del objetivo",
+    "user_answer_questions": "Ronda de preguntas",
+    "user_review_plan": "Aprobación del plan",
+    "section_engine": "Procesamiento de Agentes",
+    "progress": "{{score}}% completado",
+    "last_action": "Actividad: {{action}}",
+    "section_notifications": "Bitácora",
+    "section_storage": "Estado de guardado",
+    "storage": {
+      "session_label": "Sesión interactiva",
+      "plan_label": "Plan de acción",
+      "saved": "Protegido",
+      "pending": "En memoria"
+    },
+    "phase": {
+      "interpret": "Analista de Objetivos",
+      "clarify": "Consultor de Detalles",
+      "plan": "Arquitecto del Plan",
+      "check": "Control de Calidad",
+      "schedule": "Especialista en Tiempos",
+      "critique": "Evaluador de Riesgos",
+      "revise": "Ajuste de Detalles",
+      "package": "Preparación de Salida",
+      "done": "Misión cumplida",
+      "failed": "Falla en el motor"
+    },
+    "status": {
+      "pending": "En espera",
+      "active": "Trabajando...",
+      "completed": "Completado",
+      "failed": "Falló",
+      "skipped": "No necesitado",
+      "waiting": "Esperando tu respuesta",
+      "degraded": "Funcionando con error"
+    },
+    "notification": {
+      "needs_input": "La IA necesita una aclaración para seguir adelante.",
+      "degraded": "Un agente no respondió, el pipeline sigue con respaldo.",
+      "completed": "¡Logramos construir una ruta ejecutable!",
+      "failed": "Se detuvo el proceso por un problema técnico."
+    }
+  },
   "auth": {
     "login_title": "Entrar a tu cuenta",
     "register_title": "Crear tu cuenta",

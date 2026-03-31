@@ -1,9 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { resumePlanBuild, startPlanBuild, type PlanStreamCallbacks } from '../../src/lib/client/plan-client'
+import {
+  checkCredentialReadiness,
+  connectWalletInline,
+  disconnectWalletInline,
+  fetchWalletStatus,
+  resumePlanBuild,
+  startPlanBuild,
+  type CredentialCheckResult,
+  type PlanStreamCallbacks,
+  type WalletStatusResult
+} from '../../src/lib/client/plan-client'
+import { logPlanificadorDebug } from '@/src/lib/client/debug-logger'
 import { t } from '../../src/i18n'
 import type { ClarificationQuestion, ClarificationRound } from '../../src/lib/pipeline/v6/types'
 import styles from './PlanFlow.module.css'
@@ -19,8 +30,13 @@ interface GoalInputSectionProps {
   goalText: string
   busy: boolean
   profileReady: boolean
+  preflightLoading: boolean
+  preflightResult: CredentialCheckResult | null
+  walletStatus: WalletStatusResult | null
   onGoalTextChange: (value: string) => void
   onSubmit: () => void
+  onConnectWallet: (url: string) => Promise<{ success: boolean; error?: string }>
+  onDisconnectWallet: () => Promise<void>
 }
 
 interface ProgressSectionProps {
@@ -286,6 +302,14 @@ function getPlanHref(planId: string | null): string {
 }
 
 function GoalInputSection(props: GoalInputSectionProps) {
+  const [walletUrl, setWalletUrl] = useState('')
+  const [walletBusy, setWalletBusy] = useState(false)
+  const [walletError, setWalletError] = useState('')
+
+  const isBlocked = props.preflightLoading || (props.preflightResult && !props.preflightResult.canExecute)
+  const needsWallet = props.preflightResult && !props.preflightResult.canExecute && props.preflightResult.blockReasonCode === 'wallet_not_connected'
+  const isCredentialMissing = props.preflightResult && !props.preflightResult.canExecute && props.preflightResult.blockReasonCode === 'credential_missing'
+
   return (
     <div className={styles.sectionStack}>
       <div className={styles.banner}>
@@ -305,6 +329,99 @@ function GoalInputSection(props: GoalInputSectionProps) {
         />
       </label>
 
+      {props.preflightLoading ? (
+        <div className={styles.summaryBox}>
+          <p>{t('planFlow.preflight.checking')}</p>
+        </div>
+      ) : isCredentialMissing ? (
+        <div className={styles.summaryBox}>
+          <p className="status-message status-message--warning">
+            {t('planFlow.preflight.credential_missing')}
+          </p>
+          <div className="app-actions">
+            <Link href="/settings" className="app-button app-button--secondary">
+              {t('planFlow.preflight.credential_settings_link')}
+            </Link>
+          </div>
+        </div>
+      ) : needsWallet && !props.walletStatus?.connected ? (
+        <div className={styles.summaryBox}>
+          <strong>{t('planFlow.preflight.wallet_title')}</strong>
+          <p className={styles.inlineHint}>
+            {t('planFlow.preflight.wallet_hint', { sats: String(props.preflightResult?.estimatedCostSats || 0) })}
+          </p>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              if (!walletUrl.trim() || walletBusy) return
+              setWalletBusy(true)
+              setWalletError('')
+              void props.onConnectWallet(walletUrl.trim())
+                .then((result) => {
+                  if (result.success) {
+                    setWalletUrl('')
+                  } else {
+                    const errorKey = result.error === 'INVALID_NWC_URL'
+                      ? 'gate.wallet_inline.error_invalid_url'
+                      : result.error === 'NWC_INCOMPATIBLE'
+                        ? 'gate.wallet_inline.error_incompatible'
+                        : 'gate.wallet_inline.error_generic'
+                    setWalletError(t(errorKey))
+                  }
+                })
+                .finally(() => setWalletBusy(false))
+            }}
+          >
+            <input
+              className="app-input"
+              type="password"
+              value={walletUrl}
+              onChange={(event) => setWalletUrl(event.target.value)}
+              placeholder={t('gate.wallet_inline.placeholder')}
+            />
+            <div className="app-actions">
+              <button
+                className="app-button app-button--primary"
+                type="submit"
+                disabled={!walletUrl.trim() || walletBusy}
+              >
+                {walletBusy ? t('gate.wallet_inline.connecting') : t('gate.wallet_inline.connect')}
+              </button>
+            </div>
+          </form>
+          {walletError && <p className="status-message status-message--warning">{walletError}</p>}
+        </div>
+      ) : props.walletStatus?.connected && props.preflightResult?.chargeable ? (
+        <div className={styles.summaryBox}>
+          <strong>{t('gate.wallet_inline.connected')}</strong>
+          {typeof props.walletStatus.balanceSats === 'number' && (
+            <p>{t('gate.wallet_inline.balance', { sats: String(props.walletStatus.balanceSats) })}</p>
+          )}
+          {props.preflightResult && !props.preflightResult.canExecute && props.preflightResult.blockReasonCode === 'insufficient_balance' && (
+            <p className="status-message status-message--warning">
+              {t('planFlow.preflight.wallet_balance_low')}
+            </p>
+          )}
+          <div className="app-actions">
+            <button
+              className="app-button app-button--ghost"
+              type="button"
+              disabled={walletBusy}
+              onClick={() => {
+                setWalletBusy(true)
+                void props.onDisconnectWallet().finally(() => setWalletBusy(false))
+              }}
+            >
+              {t('gate.wallet_inline.disconnect')}
+            </button>
+          </div>
+        </div>
+      ) : props.preflightResult && props.preflightResult.canExecute ? (
+        <div className={styles.helperList}>
+          <p className={styles.miniText}>{t('planFlow.preflight.ready')}</p>
+        </div>
+      ) : null}
+
       <div className={styles.helperList}>
         <p className={styles.miniText}>Cuanto más claro sea tu objetivo, más útil será el primer borrador.</p>
         {!props.profileReady && (
@@ -317,7 +434,7 @@ function GoalInputSection(props: GoalInputSectionProps) {
           type="button"
           className="app-button app-button--primary"
           onClick={props.onSubmit}
-          disabled={props.busy || !props.profileReady}
+          disabled={props.busy || !props.profileReady || Boolean(isBlocked)}
         >
           {props.busy ? 'Preparando...' : COPY.start}
         </button>
@@ -532,7 +649,30 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
   const [completedScore, setCompletedScore] = useState(0)
   const [completedIterations, setCompletedIterations] = useState(0)
   const [degraded, setDegraded] = useState<DegradedState | null>(null)
+  const [preflightLoading, setPreflightLoading] = useState(true)
+  const [preflightResult, setPreflightResult] = useState<CredentialCheckResult | null>(null)
+  const [walletStatus, setWalletStatus] = useState<WalletStatusResult | null>(null)
   const runIdRef = useRef(0)
+
+  useEffect(() => {
+    let mounted = true
+    setPreflightLoading(true)
+    
+    Promise.all([
+      checkCredentialReadiness(provider),
+      fetchWalletStatus()
+    ]).then(([credResult, walletResult]) => {
+      if (mounted) {
+        setPreflightResult(credResult)
+        setWalletStatus(walletResult)
+        setPreflightLoading(false)
+      }
+    }).catch(() => {
+      if (mounted) setPreflightLoading(false)
+    })
+
+    return () => { mounted = false }
+  }, [provider])
 
   const profileReady = profileId.trim().length > 0
   const missingAnswers = questions?.questions.some((question) => !isAnswerFilled(question, answers[question.id])) ?? false
@@ -549,6 +689,9 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
 
         setCurrentPhase(phase)
         setProgressScore((current) => Math.max(current, PHASE_PROGRESS_FLOORS[phase] ?? 8))
+      },
+      onDebug(data) {
+        logPlanificadorDebug(data)
       },
       onProgress(score) {
         if (!isCurrent()) {
@@ -730,8 +873,20 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
             goalText={goalText}
             busy={busy}
             profileReady={profileReady}
+            preflightLoading={preflightLoading}
+            preflightResult={preflightResult}
+            walletStatus={walletStatus}
             onGoalTextChange={setGoalText}
             onSubmit={() => void handleStart()}
+            onConnectWallet={async (url) => {
+              const res = await connectWalletInline(url)
+              if (res.success) setWalletStatus(res.status)
+              return res
+            }}
+            onDisconnectWallet={async () => {
+              const res = await disconnectWalletInline()
+              if (res.success) setWalletStatus(null)
+            }}
           />
         )}
 

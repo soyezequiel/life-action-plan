@@ -348,12 +348,6 @@ export default function FlowPageContent({ deploymentMode }: FlowPageContentProps
 
     initialized.current = true
     void bootstrapSession()
-    if (initialized.current) {
-      return
-    }
-
-    initialized.current = true
-    void bootstrapSession()
   }, [bootstrapSession])
 
   useEffect(() => {
