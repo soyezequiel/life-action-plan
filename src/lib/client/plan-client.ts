@@ -263,17 +263,13 @@ async function postV6Stream(
 }
 
 export async function startPlanBuild(
-  goalText: string,
+  goal: string,
   profileId: string,
-  provider: string,
+  resourceMode: string,
   callbacks: PlanStreamCallbacks
 ): Promise<void> {
-  return postV6Stream('/api/plan/build', {
-    goalText,
-    profileId,
-    provider,
-    debug: true
-  }, callbacks)
+  const body = { goalText: goal, profileId, resourceMode, debug: true }
+  await postV6Stream('/api/plan/build', body, callbacks)
 }
 
 export async function resumePlanBuild(

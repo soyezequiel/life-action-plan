@@ -409,8 +409,8 @@ export async function getLatestProfileIdForUser(userId: string | null): Promise<
   const rows = await query
     .groupBy(profiles.id, profiles.updatedAt)
     .orderBy(
-      desc(count(plans.id)), // Prioritize profiles with plans
-      desc(profiles.updatedAt) // Then by most recently updated
+      desc(profiles.updatedAt), // Prioritize most recently updated (e.g. just got a plan)
+      desc(count(plans.id)) // Then by profile richness
     )
     .limit(1)
 
@@ -793,7 +793,9 @@ export async function markProgressComplete(id: string, notas?: string): Promise<
 }
 
 export async function getPlansByProfile(profileId: string): Promise<PlanRow[]> {
-  const rows = await db().select().from(plans).where(and(eq(plans.profileId, profileId), isNull(plans.deletedAt)))
+  const rows = await db().select().from(plans)
+    .where(and(eq(plans.profileId, profileId), isNull(plans.deletedAt)))
+    .orderBy(desc(plans.createdAt))
   return rows.map(serializePlanRow)
 }
 

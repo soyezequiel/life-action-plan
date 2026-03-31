@@ -62,6 +62,8 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
           profileId = window.localStorage.getItem(LOCAL_PROFILE_ID_STORAGE_KEY)
         }
 
+        console.log(`[Dashboard] Resolviendo datos para perfil: ${profileId}, planIdParam: ${planIdParam}`)
+
         if (!profileId) {
           setIsLoading(false)
           return
@@ -73,6 +75,8 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
         // 3. Select Active Plan
         let active = plans.find(p => p.id === planIdParam) || plans[0]
         
+        console.log(`[Dashboard] Planes encontrados: ${plans.length}, Seleccionado: ${active?.id} (${active?.nombre})`)
+
         if (!active) {
           setIsLoading(false)
           return

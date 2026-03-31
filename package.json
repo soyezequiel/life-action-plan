@@ -16,6 +16,7 @@
     "lap:run:v5-real": "tsx scripts/lap-runner-v5-real.ts",
     "pulse:input": "tsx scripts/lap-runner-v5-interactive.ts",
     "codex:login": "tsx scripts/codex-login.ts",
+    "codex:export-env": "node scripts/export-codex-session.mjs",
     "lap:inspect": "tsx scripts/inspect-results.ts",
     "plan:run": "node scripts/run-plan.mjs",
     "plan:run:json": "node scripts/run-plan.mjs --json",

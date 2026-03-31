@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, MotionConfig, AnimatePresence } from 'framer-motion'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
@@ -11,8 +11,9 @@ import { PipelineVisualizer } from '../pipeline-visualizer/PipelineVisualizer'
 import { AdvancedFlowVisualizer } from '../pipeline-visualizer/AdvancedFlowVisualizer'
 import { usePipelineState } from '../pipeline-visualizer/use-pipeline-state'
 import { SuccessPaymentAnimation } from '../midnight-mint/SuccessPaymentAnimation'
-import { fetchWalletStatus, chargePlanBuild } from '@/src/lib/client/plan-client'
+import { fetchWalletStatus, chargePlanBuild, startPlanBuild, resumePlanBuild } from '@/src/lib/client/plan-client'
 import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
+import type { ClarificationRound, ClarificationQuestion } from '@/src/lib/pipeline/v6/types'
 
 interface IntakeMockupProps {
   onComplete?: (profileId: string, planId: string) => void
@@ -28,7 +29,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
   const [showPlanReplaceWarning, setShowPlanReplaceWarning] = useState(false)
 
   // Clarification states
-  const [clarification, setClarification] = useState<import('@/src/lib/pipeline/v6/types').ClarificationRound | null>(null)
+  const [clarification, setClarification] = useState<ClarificationRound | null>(null)
   const [sessionId, setSessionId] = useState<string>('')
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isResuming, setIsResuming] = useState(false)
@@ -45,6 +46,16 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
   const [walletStatus, setWalletStatus] = useState<any>(null)
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [pendingGoal, setPendingGoal] = useState<string | null>(null)
+
+  // Rehidratar perfil existente al montar para evitar duplicación
+  useEffect(() => {
+    browserLapClient.profile.latest().then(lpId => {
+      if (lpId) {
+        setActiveProfileId(lpId)
+        logPlanificadorDebug(`[Intake] Perfil rehidratado: ${lpId}`)
+      }
+    })
+  }, [])
 
   const handleComplete = async (arg?: string | any, confirmed = false) => {
     const overrideValue = typeof arg === 'string' ? arg : undefined
@@ -91,6 +102,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
        // Primero aseguramos que tenemos un perfil (intake)
        let profileId = activeProfileId
        if (!profileId) {
+         logPlanificadorDebug('[Intake] No hay profileId activo, guardando nuevo intake...')
          const intakeRes = await browserLapClient.intake.save({
             nombre: 'Usuario',
             edad: 30,
@@ -100,17 +112,22 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
          })
          profileId = intakeRes.profileId
          setActiveProfileId(profileId)
+         logPlanificadorDebug(`[Intake] Nuevo perfil creado: ${profileId}`)
        }
 
        // Realizar cobro real
+       logPlanificadorDebug(`[Intake] Iniciando cobro para perfil: ${profileId}`)
        const chargeRes = await chargePlanBuild(profileId!)
        
+       setIsPaying(false) // Liberamos el botón independientemente del resultado
+
        if (chargeRes.success) {
+         logPlanificadorDebug('[Intake] Cobro exitoso, mostrando animación...')
          setShowPaymentQuote(false)
          setShowSuccessAnimation(true)
        } else {
+         logPlanificadorDebug(`[Intake] Error en el cobro: ${chargeRes.error}`)
          setPaymentError(chargeRes.error || 'No se pudo procesar el pago.')
-         setIsPaying(false)
        }
     } catch (err) {
       setPaymentError('Error de red al procesar el pago.')
@@ -118,27 +135,32 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
     }
   }
 
-  const processGeneration = async (targetValue: string) => {
+  const processGeneration = async (targetValue: string, forcedProfileId?: string) => {
     setIsGenerating(true)
     setShowPaymentQuote(false)
     
     try {
-      const intakeRes = await browserLapClient.intake.save({
-        nombre: 'Usuario',
-        edad: 30,
-        ubicacion: 'Local',
-        ocupacion: 'Profesional',
-        objetivo: targetValue,
-      })
+      // Reutilizar profileId si ya lo tenemos
+      let profileId = forcedProfileId || activeProfileId
+      if (!profileId) {
+        logPlanificadorDebug('[Intake] Guardando intake inicial...')
+        const intakeRes = await browserLapClient.intake.save({
+          nombre: 'Usuario',
+          edad: 30,
+          ubicacion: 'Local',
+          ocupacion: 'Profesional',
+          objetivo: targetValue,
+        })
+        profileId = intakeRes.profileId
+        setActiveProfileId(profileId)
+      }
 
-      if (intakeRes.profileId) {
-        const { startPlanBuild } = await import('@/src/lib/client/plan-client')
-        pReset()
-        setActiveProfileId(intakeRes.profileId)
+      logPlanificadorDebug(`[Intake] Iniciando generación de plan para: ${profileId} con modo 'codex'`)
+      pReset()
 
-        await startPlanBuild(targetValue, intakeRes.profileId, 'codex', {
+      await startPlanBuild(targetValue, profileId!, 'codex', {
           ...pCallbacks,
-          onNeedsInput: (sid: string, questions: import('@/src/lib/pipeline/v6/types').ClarificationRound) => { 
+          onNeedsInput: (sid: string, questions: any) => { 
             setSessionId(sid)
             setClarification(questions)
             setIsGenerating(false)
@@ -151,12 +173,14 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
             setIsCompletedLocal(true)
           },
           onError: (msg: string) => { 
+            logPlanificadorDebug(`[Intake] Error en el stream SSE: ${msg}`)
             pCallbacks.onError(msg)
             setIsGenerating(false) 
           }
         })
-      }
-    } catch {
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err)
+      logPlanificadorDebug(`[Intake] Excepción en processGeneration: ${errorMsg}`)
       setIsGenerating(false)
     }
   }
@@ -168,7 +192,6 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
     setIsGenerating(true)
 
     try {
-      const { resumePlanBuild } = await import('@/src/lib/client/plan-client')
       await resumePlanBuild(sessionId, answers, {
         ...pCallbacks,
         onNeedsInput: (sid, questions) => {
@@ -425,7 +448,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                 </header>
                 
                 <div className="space-y-6">
-                  {clarification.questions.map((q, idx) => (
+                  {clarification.questions.map((q: ClarificationQuestion, idx: number) => (
                     <motion.div 
                       key={q.id}
                       className="group relative rounded-[22px] border border-slate-100 bg-[#FAFAF9]/50 p-6 transition-all hover:bg-white hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]"
@@ -492,7 +515,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                   <button
                     type="button"
                     onClick={handleResume}
-                    disabled={isResuming || clarification.questions.some((q) => !answers[q.id]?.trim() && q.type !== 'range')}
+                    disabled={isResuming || clarification.questions.some((q: ClarificationQuestion) => !answers[q.id]?.trim() && q.type !== 'range')}
                     className="inline-flex h-14 items-center justify-center gap-3 rounded-[20px] bg-[#1E293B] px-8 font-display text-[15px] font-bold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-[#334155] active:translate-y-0 disabled:opacity-30 disabled:grayscale"
                   >
                     <span>{isResuming ? 'Procesando...' : 'Continuar'}</span>
@@ -653,7 +676,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
           show={showSuccessAnimation} 
           onComplete={() => {
             setShowSuccessAnimation(false)
-            processGeneration(pendingGoal!)
+            processGeneration(pendingGoal!, activeProfileId || undefined)
           }} 
         />
       </MockupShell>

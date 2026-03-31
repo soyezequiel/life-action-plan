@@ -31,7 +31,8 @@ function hasRouteMaxDuration(routePath) {
   }
 
   const source = readFileSync(routePath, 'utf8')
-  return /export const maxDuration\s*=\s*60/.test(source)
+  // We accept 60 or 120 (Next.js 15+ long running routes)
+  return /export const maxDuration\s*=\s*(?:60|120)/.test(source)
 }
 
 function hasVercelTimeoutConfig() {
@@ -40,7 +41,10 @@ function hasVercelTimeoutConfig() {
   }
 
   const source = readFileSync('vercel.json', 'utf8')
-  return REQUIRED_LONG_ROUTES.every((routePath) => source.includes(routePath) && source.includes('"maxDuration": 60'))
+  // Ensure the route is mentioned and has a reasonable timeout configured
+  return REQUIRED_LONG_ROUTES.every((routePath) => 
+    source.includes(routePath) && (source.includes('"maxDuration": 60') || source.includes('"maxDuration": 120'))
+  )
 }
 
 function isCloudDatabaseUrl(value) {
@@ -92,26 +96,26 @@ async function main() {
 
   const routeTimeoutsOk = REQUIRED_LONG_ROUTES.every(hasRouteMaxDuration)
   if (routeTimeoutsOk) {
-    logStatus(true, 'maxDuration', 'las rutas largas exportan maxDuration=60')
+    logStatus(true, 'maxDuration', 'las rutas largas exportan maxDuration >= 60')
   } else {
     hasFailure = true
-    logStatus(false, 'maxDuration', 'falta export const maxDuration = 60 en alguna ruta larga')
+    logStatus(false, 'maxDuration', 'falta export const maxDuration = 60/120 en alguna ruta larga')
   }
 
   if (hasVercelTimeoutConfig()) {
     logStatus(true, 'vercel.json', 'timeouts largos declarados para build y simulate')
   } else {
     hasFailure = true
-    logStatus(false, 'vercel.json', 'faltan timeouts largos para build y simulate')
+    logStatus(false, 'vercel.json', 'faltan timeouts largos (60/120) para build y simulate')
   }
 
   if (hasFailure) {
     process.exitCode = 1
-    console.log('Resultado: todavia faltan precondiciones para Vercel.')
+    console.log('\n❌ Resultado: todavia faltan precondiciones para Vercel.')
     return
   }
 
-  console.log('Resultado: el repo tiene precondiciones razonables para un smoke en Vercel.')
+  console.log('\n✅ Resultado: el repo tiene precondiciones razonables para un smoke en Vercel.')
 }
 
 await main()
