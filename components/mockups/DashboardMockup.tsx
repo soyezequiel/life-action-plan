@@ -33,26 +33,35 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
     async function loadDashboardData() {
       setIsLoading(true)
       try {
-        // 1. Resolve Profile ID (URL > LocalStorage > Backend)
-        let profileId = window.localStorage.getItem(LOCAL_PROFILE_ID_STORAGE_KEY)
+        // 1. Resolve Profile ID (Backend session > URL > LocalStorage)
+        // We always ask the backend first because it knows the current authenticated session.
+        let profileId: string | null = await browserLapClient.profile.latest()
         
-        if (!profileId) {
-          profileId = await browserLapClient.profile.latest()
-          if (profileId) {
-            window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, profileId)
-          }
+        if (profileId) {
+          console.log('[LAP] Profile resolved from server:', profileId)
+          window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, profileId)
+        } else {
+          profileId = window.localStorage.getItem(LOCAL_PROFILE_ID_STORAGE_KEY)
+          console.log('[LAP] Server returned no profile, falling back to localStorage:', profileId)
         }
 
         if (!profileId) {
+          console.warn('[LAP] No profileId available (server or local). Showing landing state.')
           setIsLoading(false)
           return
         }
 
         // 2. Resolve Plan list
+        console.log('[LAP] Fetching plans for profile:', profileId)
         const plans = await browserLapClient.plan.list(profileId)
+        console.log(`[LAP] Found ${plans.length} plans.`)
         
         // 3. Select Active Plan (Targeted planId > First in list)
         let active = plans.find(p => p.id === planIdParam) || plans[0]
+        
+        if (planIdParam && !active && plans.length > 0) {
+           console.warn(`[LAP] planId from URL (${planIdParam}) not found in this profile's plans. Using fallback.`)
+        }
         
         if (!active) {
           setIsLoading(false)

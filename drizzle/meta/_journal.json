@@ -15,6 +15,13 @@
       "when": 1774706058555,
       "tag": "0001_chief_random",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774963125120,
+      "tag": "0002_nosy_donald_blake",
+      "breakpoints": true
     }
   ]
 }

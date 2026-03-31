@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, isNull, or, sql } from 'drizzle-orm'
 import { DateTime } from 'luxon'
 import { extractEmailFromLoginIdentifier, normalizeLoginIdentifier } from '../auth/login-identifier'
 import { calculateHabitStreak } from '../../utils/streaks'
@@ -22,14 +22,7 @@ import type {
   CredentialSecretType,
   StoredCredentialRecord
 } from '../../shared/types/credential-registry'
-import type {
-  FlowCheckpoint,
-  FlowSession,
-  FlowState,
-  FlowStatus,
-  FlowStep
-} from '../../shared/types/flow'
-import { DEFAULT_CREDENTIAL_LABEL, flowStateSchema } from '../../shared/schemas'
+import { DEFAULT_CREDENTIAL_LABEL } from '../../shared/schemas'
 import { DEFAULT_OPENROUTER_BUILD_MODEL } from '../providers/provider-metadata'
 import { extractResourceUsageFromMetadata } from '../runtime/resource-usage-summary'
 import { DEFAULT_USER_ID } from '../auth/user-settings'
@@ -42,9 +35,6 @@ import {
   encryptedKeyVaults,
   operationCharges,
   planProgress,
-  planSimulationTrees,
-  planWorkflowCheckpoints,
-  planWorkflows,
   plans,
   profiles,
   settings,
@@ -125,43 +115,6 @@ function serializeProgressRow(row: typeof planProgress.$inferSelect): ProgressRo
   }
 }
 
-function parseFlowState(value: unknown): FlowState {
-  const parsed = flowStateSchema.safeParse(value)
-
-  if (parsed.success) {
-    return parsed.data
-  }
-
-  return flowStateSchema.parse({})
-}
-
-function serializePlanWorkflowRow(row: typeof planWorkflows.$inferSelect): FlowSession {
-  return {
-    id: row.id,
-    userId: row.userId,
-    profileId: row.profileId,
-    planId: row.planId,
-    status: row.status as FlowStatus,
-    currentStep: row.currentStep as FlowStep,
-    state: parseFlowState(row.state),
-    lastCheckpointCode: row.lastCheckpointCode,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt
-  }
-}
-
-function serializePlanWorkflowCheckpointRow(row: typeof planWorkflowCheckpoints.$inferSelect): FlowCheckpoint {
-  return {
-    id: row.id,
-    workflowId: row.workflowId,
-    step: row.step as FlowStep,
-    code: row.code,
-    payload: (row.payload && typeof row.payload === 'object'
-      ? row.payload
-      : {}) as Record<string, unknown>,
-    createdAt: row.createdAt
-  }
-}
 
 interface CreateOperationChargeInput {
   profileId?: string | null
@@ -269,25 +222,6 @@ interface UpsertEncryptedKeyVaultInput {
   salt: string
 }
 
-interface CreatePlanWorkflowInput {
-  userId?: string | null
-  profileId?: string | null
-  planId?: string | null
-  status?: FlowStatus
-  currentStep?: FlowStep
-  state?: FlowState
-  lastCheckpointCode?: string | null
-}
-
-interface UpdatePlanWorkflowInput {
-  userId?: string | null
-  profileId?: string | null
-  planId?: string | null
-  status?: FlowStatus
-  currentStep?: FlowStep
-  state?: FlowState
-  lastCheckpointCode?: string | null
-}
 
 function serializeOperationChargeRow(row: typeof operationCharges.$inferSelect): OperationChargeRow {
   return {
@@ -456,137 +390,32 @@ export async function updateProfile(id: string, data: string): Promise<void> {
 }
 
 export async function getLatestProfileIdForUser(userId: string | null): Promise<string | null> {
-  const rows = userId
-    ? await db().select({ id: profiles.id })
-      .from(profiles)
-      .where(eq(profiles.userId, userId))
-      .orderBy(desc(profiles.updatedAt))
-      .limit(1)
-    : await db().select({ id: profiles.id })
-      .from(profiles)
-      .where(isNull(profiles.userId))
-      .orderBy(desc(profiles.updatedAt))
-      .limit(1)
-
-  return rows[0]?.id ?? null
-}
-
-export async function createPlanWorkflow(input: CreatePlanWorkflowInput = {}): Promise<FlowSession> {
-  const id = generateId()
-  const timestamp = now()
-  const row: typeof planWorkflows.$inferInsert = {
-    id,
-    userId: input.userId?.trim() || null,
-    profileId: input.profileId?.trim() || null,
-    planId: input.planId?.trim() || null,
-    status: input.status ?? 'draft',
-    currentStep: input.currentStep ?? 'gate',
-    state: input.state ?? flowStateSchema.parse({}),
-    lastCheckpointCode: input.lastCheckpointCode ?? null,
-    createdAt: timestamp,
-    updatedAt: timestamp
-  }
-
-  await db().insert(planWorkflows).values(row)
-  return serializePlanWorkflowRow(row as typeof planWorkflows.$inferSelect)
-}
-
-export async function getPlanWorkflow(id: string): Promise<FlowSession | null> {
-  const rows = await db().select().from(planWorkflows).where(eq(planWorkflows.id, id))
-  const row = rows[0]
-  return row ? serializePlanWorkflowRow(row) : null
-}
-
-export async function getLatestPlanWorkflowIdForUser(userId: string | null): Promise<string | null> {
-  const rows = userId
-    ? await db().select({ id: planWorkflows.id })
-      .from(planWorkflows)
-      .where(eq(planWorkflows.userId, userId))
-      .orderBy(desc(planWorkflows.updatedAt))
-      .limit(1)
-    : await db().select({ id: planWorkflows.id })
-      .from(planWorkflows)
-      .where(isNull(planWorkflows.userId))
-      .orderBy(desc(planWorkflows.updatedAt))
-      .limit(1)
-
-  return rows[0]?.id ?? null
-}
-
-export async function updatePlanWorkflow(id: string, input: UpdatePlanWorkflowInput): Promise<FlowSession | null> {
-  const payload: Record<string, unknown> = {
-    updatedAt: now()
-  }
-
-  if (typeof input.userId !== 'undefined') {
-    payload.userId = input.userId?.trim() || null
-  }
-
-  if (typeof input.profileId !== 'undefined') {
-    payload.profileId = input.profileId?.trim() || null
-  }
-
-  if (typeof input.planId !== 'undefined') {
-    payload.planId = input.planId?.trim() || null
-  }
-
-  if (typeof input.status !== 'undefined') {
-    payload.status = input.status
-  }
-
-  if (typeof input.currentStep !== 'undefined') {
-    payload.currentStep = input.currentStep
-  }
-
-  if (typeof input.state !== 'undefined') {
-    payload.state = input.state
-  }
-
-  if (typeof input.lastCheckpointCode !== 'undefined') {
-    payload.lastCheckpointCode = input.lastCheckpointCode
-  }
-
-  await db().update(planWorkflows)
-    .set(payload)
-    .where(eq(planWorkflows.id, id))
-
-  return getPlanWorkflow(id)
-}
-
-export async function createPlanWorkflowCheckpoint(
-  workflowId: string,
-  step: FlowStep,
-  code: string,
-  payload: Record<string, unknown>
-): Promise<FlowCheckpoint> {
-  const row: typeof planWorkflowCheckpoints.$inferInsert = {
-    id: generateId(),
-    workflowId,
-    step,
-    code,
-    payload,
-    createdAt: now()
-  }
-
-  await db().insert(planWorkflowCheckpoints).values(row)
-  await db().update(planWorkflows)
-    .set({
-      lastCheckpointCode: code,
-      updatedAt: now()
+  const query = db()
+    .select({
+      id: profiles.id,
+      updatedAt: profiles.updatedAt,
+      planCount: count(plans.id)
     })
-    .where(eq(planWorkflows.id, workflowId))
+    .from(profiles)
+    .leftJoin(plans, eq(plans.profileId, profiles.id))
 
-  return serializePlanWorkflowCheckpointRow(row as typeof planWorkflowCheckpoints.$inferSelect)
+  if (userId) {
+    query.where(eq(profiles.userId, userId))
+  } else {
+    query.where(isNull(profiles.userId))
+  }
+
+  const rows = await query
+    .groupBy(profiles.id, profiles.updatedAt)
+    .orderBy(
+      desc(count(plans.id)), // Prioritize profiles with plans
+      desc(profiles.updatedAt) // Then by most recently updated
+    )
+    .limit(1)
+
+  return rows[0]?.id ?? null
 }
 
-export async function listPlanWorkflowCheckpoints(workflowId: string): Promise<FlowCheckpoint[]> {
-  const rows = await db().select()
-    .from(planWorkflowCheckpoints)
-    .where(eq(planWorkflowCheckpoints.workflowId, workflowId))
-    .orderBy(desc(planWorkflowCheckpoints.createdAt))
-
-  return rows.map(serializePlanWorkflowCheckpointRow)
-}
 
 export async function createUser(input: CreateUserInput) {
   const timestamp = now()
@@ -778,37 +607,6 @@ export async function claimAnonymousLocalData(userId: string, localProfileId: st
   return claimed
 }
 
-export async function claimAnonymousWorkflowData(userId: string, workflowId: string): Promise<boolean> {
-  let claimed = false
-  const timestamp = now()
-
-  await db().transaction(async (tx: any) => {
-    const anonymousWorkflowRows = await tx.select()
-      .from(planWorkflows)
-      .where(and(eq(planWorkflows.id, workflowId), isNull(planWorkflows.userId)))
-    const anonymousWorkflow = anonymousWorkflowRows[0] as typeof planWorkflows.$inferSelect | undefined
-
-    if (!anonymousWorkflow) {
-      const ownedWorkflowRows = await tx.select()
-        .from(planWorkflows)
-        .where(and(eq(planWorkflows.id, workflowId), eq(planWorkflows.userId, userId)))
-      claimed = Boolean(ownedWorkflowRows[0])
-      return
-    }
-
-    claimed = true
-
-    await tx.update(planWorkflows)
-      .set({
-        userId,
-        updatedAt: timestamp
-      })
-      .where(eq(planWorkflows.id, workflowId))
-  })
-
-  return claimed
-}
-
 export async function createSessionRecord(input: CreateSessionRecordInput) {
   const row: typeof sessions.$inferInsert = {
     sessionToken: input.sessionToken,
@@ -942,6 +740,12 @@ export async function createPlan(
     createdAt: timestamp,
     updatedAt: timestamp
   })
+
+  // Bump profile updatedAt to mark it as the most active
+  await db()
+    .update(profiles)
+    .set({ updatedAt: timestamp })
+    .where(eq(profiles.id, profileId))
 
   return id
 }
@@ -1555,74 +1359,11 @@ export async function deleteUserSetting(userId: string, key: string): Promise<vo
   await db().delete(userSettings).where(and(eq(userSettings.userId, userId), eq(userSettings.key, key)))
 }
 
+
 export async function trackEvent(event: string, payload?: Record<string, unknown>): Promise<void> {
   await db().insert(analyticsEvents).values({
     event,
     payload: payload ?? null,
     timestamp: now()
   })
-}
-
-export async function getSimulationTree(workflowId: string): Promise<SimTree | null> {
-  const rows = await db()
-    .select()
-    .from(planSimulationTrees)
-    .where(eq(planSimulationTrees.workflowId, workflowId))
-    .orderBy(desc(planSimulationTrees.createdAt))
-    .limit(1)
-
-  if (!rows[0]) return null
-
-  const parsed = simTreeSchema.safeParse(rows[0].data)
-  return parsed.success ? parsed.data : null
-}
-
-export async function upsertSimulationTree(
-  workflowId: string,
-  tree: SimTree,
-  expectedVersion: number
-): Promise<SimTree> {
-  const timestamp = now()
-
-  if (expectedVersion === 0) {
-    const rows = await db()
-      .insert(planSimulationTrees)
-      .values({
-        id: tree.id,
-        workflowId,
-        data: tree as unknown as Record<string, unknown>,
-        version: 1,
-        createdAt: timestamp,
-        updatedAt: timestamp
-      })
-      .returning()
-
-    const parsed = simTreeSchema.safeParse(rows[0]?.data)
-    if (!parsed.success) throw new Error('SIM_TREE_PARSE_ERROR')
-    return parsed.data
-  }
-
-  const existing = await db()
-    .select({ version: planSimulationTrees.version, id: planSimulationTrees.id })
-    .from(planSimulationTrees)
-    .where(eq(planSimulationTrees.workflowId, workflowId))
-    .orderBy(desc(planSimulationTrees.createdAt))
-    .limit(1)
-
-  if (!existing[0]) throw new Error('SIM_TREE_NOT_FOUND')
-  if (existing[0].version !== expectedVersion) throw new Error('SIM_TREE_VERSION_CONFLICT')
-
-  const nextVersion = expectedVersion + 1
-  const updatedTree: SimTree = { ...tree, version: nextVersion }
-
-  await db()
-    .update(planSimulationTrees)
-    .set({
-      data: updatedTree as unknown as Record<string, unknown>,
-      version: nextVersion,
-      updatedAt: timestamp
-    })
-    .where(eq(planSimulationTrees.id, existing[0].id))
-
-  return updatedTree
 }
