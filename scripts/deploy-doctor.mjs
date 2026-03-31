@@ -1,4 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+console.log('[Doctor] --- ARRANQUE TOTAL DEL SCRIPT ---');
+console.log('[Doctor] Node Version:', process.version);
 
 const PLACEHOLDER_DATABASE_URL = /:\/\/user:password@host(?::\d+)?\//i
 const LOCAL_DATABASE_URL = /:\/\/(?:[^@]+@)?(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\//i
