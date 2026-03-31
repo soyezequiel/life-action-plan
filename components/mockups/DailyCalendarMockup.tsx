@@ -1,14 +1,15 @@
 import { DateTime } from 'luxon'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 function DayRow({ time, title, place, color, height }: { time: string; title: string; place: string; color: string; height: string }) {
   return (
     <div className={`rounded-[18px] ${color} p-4 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]`} style={{ minHeight: height }}>
-      <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-current/70">{time}</p>
-      <h3 className="mt-2 text-[16px] font-semibold text-current">{title}</h3>
-      <p className="mt-2 text-[12px] text-current/70">{place}</p>
+      <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-current/70"><MockData>{time}</MockData></p>
+      <h3 className="mt-2 text-[16px] font-semibold text-current"><MockData>{title}</MockData></h3>
+      <p className="mt-2 text-[12px] text-current/70"><MockData>{place}</MockData></p>
     </div>
   )
 }
@@ -53,7 +54,7 @@ export default function DailyCalendarMockup() {
         <section className="rounded-[28px] bg-white/80 p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
           <div className="mb-6 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-slate-300">
             <MaterialIcon name="schedule" className="text-[16px]" />
-            {today.toFormat('cccc d LLLL yyyy')}
+            <MockData>{today.toFormat('cccc d LLLL yyyy')}</MockData>
           </div>
 
           <div className="space-y-4">

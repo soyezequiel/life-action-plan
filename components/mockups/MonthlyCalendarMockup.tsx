@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 function buildMonthGrid(month: number): Array<Array<number | null>> {
@@ -22,7 +23,7 @@ function buildMonthGrid(month: number): Array<Array<number | null>> {
     weeks.push(cells.slice(index, index + 7))
   }
 
-  return weeks.slice(0, 5)
+  return weeks
 }
 
 const highlights: Record<number, string> = {
@@ -52,7 +53,7 @@ export default function MonthlyCalendarMockup() {
         { label: t('mockups.common.help'), icon: 'help', href: '#' },
         { label: t('mockups.common.exit'), icon: 'logout', href: '#' }
       ]}
-      topLeft={<div className="font-display text-[20px] font-bold text-[#334155]">{monthTitle}</div>}
+      topLeft={<div className="font-display text-[20px] font-bold text-[#334155]"><MockData>{monthTitle}</MockData></div>}
       topTabs={[
         { label: t('mockups.calendarMonthly.tabs.day'), href: '/plan?view=day' },
         { label: t('mockups.calendarMonthly.tabs.week'), href: '/plan?view=week' },
@@ -120,7 +121,7 @@ export default function MonthlyCalendarMockup() {
                 <MaterialIcon name="check_circle" className="text-[18px]" />
               </div>
               <div>
-                <p className="text-[24px] font-bold text-[#334155]">12</p>
+                <p className="text-[24px] font-bold text-[#334155]"><MockData>12</MockData></p>
                 <p className="text-[12px] text-slate-400">{t('mockups.calendarMonthly.pending_copy')}</p>
               </div>
             </div>

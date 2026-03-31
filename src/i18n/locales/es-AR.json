@@ -1,4 +1,4 @@
-﻿{
+{
   "app": {
     "name": "Pulso",
     "tagline": "Tu plan de vida, paso a paso"
@@ -1042,7 +1042,14 @@
       "help": "Ayuda",
       "exit": "Salir",
       "cancel": "Cancelar",
-      "save": "Guardar"
+      "save": "Guardar",
+      "nav": {
+        "dashboard": "Dashboard",
+        "planificador": "Planificador",
+        "tareas": "Tareas Activas",
+        "intake": "Objetivos",
+        "settings": "Configuraciones"
+      }
     },
     "auth": {
       "title": "Bienvenido a Pulse",
@@ -1057,6 +1064,7 @@
       "login": "Iniciar Sesión",
       "register": "Crear cuenta",
       "no_account": "¿No tienes una cuenta?",
+      "already_account": "¿Ya tienes una cuenta?",
       "create_account": "Crear una ahora",
       "system_status": "Sistemas Operativos",
       "support": "Soporte",
@@ -1162,6 +1170,7 @@
       "temporality_hint": "Este dato nos ayuda a priorizar tareas en tu flujo diario.",
       "deadline_label": "Fecha Crítica",
       "deadline_title": "Fecha límite deseada",
+      "deadline_value": "12/31/2024",
       "motivation_label": "Motivación",
       "motivation_question": "¿Cuál es la intención principal detrás de este objetivo?",
       "motivation_placeholder": "Describe el 'por qué' de este proyecto...",
@@ -1480,6 +1489,7 @@
       "copy": "Dejá ordenadas las conexiones técnicas sin mezclarlo con tu trabajo diario.",
       "endpoint_label": "Endpoint",
       "model_label": "Modelo",
+      "model_default": "GPT-4o",
       "api_label": "Clave",
       "toggle_title": "Modo seguro",
       "toggle_copy": "Protege la configuración antes de usarla.",

@@ -1,6 +1,7 @@
 import { t } from '@/src/i18n'
 import type { DeploymentMode } from '@/src/lib/env/deployment'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 interface DashboardMockupProps {
@@ -149,7 +150,7 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
                   <div className="flex justify-around pt-4">
                     {['L', 'M', 'M', 'J', 'V'].map((letter, index) => (
                       <div
-                        key={letter}
+                        key={index}
                         className={index < 3
                           ? 'flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#A7F3D0] text-[10px] font-bold text-[#334155]'
                           : 'flex h-9 w-9 items-center justify-center rounded-full border-2 border-slate-200 text-[10px] font-bold text-slate-400'}
@@ -176,7 +177,7 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
                     </div>
                   </div>
                   <div className="mt-4 text-center">
-                    <h3 className="text-[16px] font-bold text-[#334155]">{t('mockups.dashboard.risk.status')}</h3>
+                    <h3 className="text-[16px] font-bold text-[#334155]"><span className="text-[12px] font-bold text-[#A7F3D0]"><MockData>today</MockData></span>{t('mockups.dashboard.risk.status')}</h3>
                     <p className="mt-1 text-[12px] text-slate-500">{t('mockups.dashboard.risk.copy')}</p>
                   </div>
                 </div>

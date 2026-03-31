@@ -1,5 +1,6 @@
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 const HOURS = ['08:00', '09:00', '10:00', '11:00', '12:00']
@@ -81,33 +82,33 @@ export default function WeeklyCalendarMockup() {
             <div />
             <div className="col-start-2 col-end-3 mt-[66px]">
               <div className="h-[110px] rounded-[18px] border border-[#E9D5FF]/70 bg-[#E9D5FF]/55 p-3 text-[#4C1D95] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
-                <p className="text-[12px] font-bold">{t('mockups.calendarWeekly.event_1_title')}</p>
-                <p className="mt-1 text-[11px]">{t('mockups.calendarWeekly.event_1_time')}</p>
+                <p className="text-[12px] font-bold"><MockData>{t('mockups.calendarWeekly.event_1_title')}</MockData></p>
+                <p className="mt-1 text-[11px]"><MockData>{t('mockups.calendarWeekly.event_1_time')}</MockData></p>
               </div>
             </div>
             <div className="col-start-3 col-end-4 mt-[108px]">
               <div className="h-[82px] rounded-[18px] border border-[#A7F3D0]/70 bg-[#A7F3D0]/25 p-3 text-[#166534] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
-                <p className="text-[12px] font-bold">{t('mockups.calendarWeekly.event_2_title')}</p>
-                <p className="mt-1 text-[11px]">{t('mockups.calendarWeekly.event_2_time')}</p>
+                <p className="text-[12px] font-bold"><MockData>{t('mockups.calendarWeekly.event_2_title')}</MockData></p>
+                <p className="mt-1 text-[11px]"><MockData>{t('mockups.calendarWeekly.event_2_time')}</MockData></p>
               </div>
             </div>
             <div className="col-start-4 col-end-5 mt-[72px]">
               <div className="h-[96px] rounded-[18px] bg-slate-200 p-3 text-[#334155] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
-                <p className="text-[12px] font-bold">{t('mockups.calendarWeekly.event_3_title')}</p>
-                <p className="mt-1 text-[11px]">{t('mockups.calendarWeekly.event_3_time')}</p>
+                <p className="text-[12px] font-bold"><MockData>{t('mockups.calendarWeekly.event_3_title')}</MockData></p>
+                <p className="mt-1 text-[11px]"><MockData>{t('mockups.calendarWeekly.event_3_time')}</MockData></p>
               </div>
             </div>
             <div className="col-start-5 col-end-6 mt-[60px]">
               <div className="h-[132px] rounded-[18px] border border-[#E9D5FF]/80 bg-[#E9D5FF]/70 p-3 text-[#4C1D95] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
                 <MaterialIcon name="palette" className="text-[18px]" />
-                <p className="mt-2 text-[12px] font-bold">{t('mockups.calendarWeekly.event_4_title')}</p>
-                <p className="mt-1 text-[11px]">{t('mockups.calendarWeekly.event_4_copy')}</p>
+                <p className="mt-2 text-[12px] font-bold"><MockData>{t('mockups.calendarWeekly.event_4_title')}</MockData></p>
+                <p className="mt-1 text-[11px]"><MockData>{t('mockups.calendarWeekly.event_4_copy')}</MockData></p>
               </div>
             </div>
             <div className="col-start-6 col-end-7 mt-[118px]">
               <div className="h-[74px] rounded-[18px] border border-[#A7F3D0]/70 bg-[#A7F3D0]/25 p-3 text-[#166534] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
-                <p className="text-[12px] font-bold">{t('mockups.calendarWeekly.event_5_title')}</p>
-                <p className="mt-1 text-[11px]">{t('mockups.calendarWeekly.event_5_tag')}</p>
+                <p className="text-[12px] font-bold"><MockData>{t('mockups.calendarWeekly.event_5_title')}</MockData></p>
+                <p className="mt-1 text-[11px]"><MockData>{t('mockups.calendarWeekly.event_5_tag')}</MockData></p>
               </div>
             </div>
           </div>
@@ -121,7 +122,7 @@ export default function WeeklyCalendarMockup() {
               </div>
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">{t('mockups.calendarWeekly.focus_label')}</p>
-                <p className="text-[24px] font-bold text-[#334155]">84%</p>
+                <p className="text-[24px] font-bold text-[#334155]"><MockData>84%</MockData></p>
               </div>
             </div>
             <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">

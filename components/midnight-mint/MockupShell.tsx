@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from './MaterialIcon'
 import PulsoLogo from '../PulsoLogo'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 export interface MockupNavItem {
   label: string
@@ -24,7 +25,7 @@ export interface MockupTopTab {
 
 export interface MockupShellProps {
   sidebarLabel?: string
-  sidebarNav: MockupNavItem[]
+  sidebarNav?: MockupNavItem[]
   sidebarPrimaryAction?: {
     label: string
     icon?: string
@@ -49,6 +50,28 @@ export function MockupShell({
   contentClassName,
   children
 }: MockupShellProps) {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const variant = searchParams?.get('variant')
+
+  const isDashboard = pathname === '/' && !variant
+  const isTasks = pathname === '/flow' && variant === 'tasks'
+  const isPlan = pathname?.startsWith('/plan')
+  const isIntake = pathname?.startsWith('/intake')
+  const isSettings = pathname?.startsWith('/settings')
+
+  const canonicalNav: MockupNavItem[] = [
+    { label: t('mockups.common.nav.dashboard'), icon: 'dashboard', href: '/', active: isDashboard },
+    { label: t('mockups.common.nav.planificador'), icon: 'calendar_today', href: '/plan?view=week', active: isPlan },
+    { label: t('mockups.common.nav.tareas'), icon: 'check_circle', href: '/flow?variant=tasks', active: isTasks },
+    { label: t('mockups.common.nav.intake'), icon: 'flag', href: '/intake', active: isIntake },
+    { label: t('mockups.common.nav.settings'), icon: 'settings', href: '/settings', active: isSettings }
+  ]
+
+  const canonicalFooter: MockupNavItem[] = [
+    { label: t('mockups.common.help'), icon: 'help', href: '#' },
+    { label: t('mockups.common.exit'), icon: 'logout', href: '#' }
+  ]
   return (
     <MotionConfig reducedMotion="user">
       <div className="relative min-h-screen overflow-hidden bg-[#FAFAF9] text-[#334155]">
@@ -69,7 +92,7 @@ export function MockupShell({
           </div>
 
           <nav className="flex-1 space-y-1">
-            {sidebarNav.map((item) => {
+            {canonicalNav.map((item) => {
               const content = (
                 <span
                   className={cn(
@@ -111,10 +134,10 @@ export function MockupShell({
             </Link>
           )}
 
-          {sidebarFooter && sidebarFooter.length > 0 && (
+          {canonicalFooter && canonicalFooter.length > 0 && (
             <div className="mt-6 border-t border-slate-200/50 pt-4">
               <div className="space-y-1">
-                {sidebarFooter.map((item) => (
+                {canonicalFooter.map((item) => (
                   <button
                     key={item.label}
                     type="button"

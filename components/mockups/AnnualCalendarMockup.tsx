@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 const MONTHS = Array.from({ length: 12 }, (_, index) => index + 1)
@@ -52,7 +53,7 @@ export default function AnnualCalendarMockup() {
         { label: t('mockups.common.help'), icon: 'help', href: '#' },
         { label: t('mockups.common.exit'), icon: 'logout', href: '#' }
       ]}
-      topLeft={<div className="font-display text-[24px] font-bold text-[#334155]">2024</div>}
+      topLeft={<div className="font-display text-[24px] font-bold text-[#334155]"><MockData>2024</MockData></div>}
       topTabs={[
         { label: t('mockups.calendarAnnual.tabs.day'), href: '/plan?view=day' },
         { label: t('mockups.calendarAnnual.tabs.week'), href: '/plan?view=week' },
@@ -97,7 +98,7 @@ export default function AnnualCalendarMockup() {
                             className={`flex h-5 items-center justify-center text-[9px] text-slate-300 ${day ? '' : 'text-transparent'}`}
                           >
                             <span className={`flex h-4 w-4 items-center justify-center rounded-full ${highlightClass}`}>
-                              {day ?? '0'}
+                              {day ?? ''}
                             </span>
                           </div>
                         )

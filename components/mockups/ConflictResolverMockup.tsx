@@ -1,5 +1,6 @@
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 export default function ConflictResolverMockup() {
@@ -103,9 +104,9 @@ export default function ConflictResolverMockup() {
                   <div key={label} className="grid grid-cols-[1fr_auto] items-center gap-4">
                     <div>
                       <p className="text-[14px] text-slate-500">{label}</p>
-                      {hint && <p className="text-[12px] text-slate-400">{hint}</p>}
+                      {hint && <p className="text-[12px] text-slate-400"><MockData>{hint}</MockData></p>}
                     </div>
-                    <strong className="font-display text-[18px] font-bold text-[#334155]">{value}</strong>
+                    <strong className="font-display text-[18px] font-bold text-[#334155]"><MockData>{value}</MockData></strong>
                   </div>
                 ))}
                 <div className="h-2 overflow-hidden rounded-full bg-slate-100">

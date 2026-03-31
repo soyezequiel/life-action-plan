@@ -1,5 +1,6 @@
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 export default function RefinementMockup() {
@@ -47,7 +48,7 @@ export default function RefinementMockup() {
           <span className="font-display text-[11px] font-bold uppercase tracking-[0.26em] text-slate-400">
             {t('mockups.refinement.progress_label')}
           </span>
-          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#334155]">{t('mockups.refinement.progress_value')}</span>
+          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#334155]"><MockData>{t('mockups.refinement.progress_value')}</MockData></span>
         </div>
         <div className="mb-10 h-1.5 overflow-hidden rounded-full bg-slate-100">
           <div className="h-full w-1/2 rounded-full bg-[#1E293B]" />
@@ -60,7 +61,7 @@ export default function RefinementMockup() {
                 <p className="text-[14px] font-medium text-slate-600">{t('mockups.refinement.temporality')}</p>
                 <h2 className="font-display text-[20px] font-bold leading-tight text-[#334155]">{t('mockups.refinement.temporality_question')}</h2>
                 <div className="flex h-14 items-center justify-between rounded-[16px] bg-[#FAFAF9] px-4 text-[15px] text-slate-500">
-                  <span>{t('mockups.refinement.temporality_option')}</span>
+                  <span><MockData>{t('mockups.refinement.temporality_option')}</MockData></span>
                   <MaterialIcon name="expand_more" className="text-[20px] text-slate-400" />
                 </div>
                 <p className="text-[12px] italic text-slate-400">{t('mockups.refinement.temporality_hint')}</p>
@@ -70,7 +71,7 @@ export default function RefinementMockup() {
                 <p className="text-[14px] font-medium text-slate-600">{t('mockups.refinement.deadline_label')}</p>
                 <h2 className="font-display text-[20px] font-bold leading-tight text-[#334155]">{t('mockups.refinement.deadline_title')}</h2>
                 <div className="flex h-14 items-center rounded-[16px] bg-[#FAFAF9] px-4 text-[15px] text-slate-500">
-                  <span>12/31/2024</span>
+                  <span><MockData>12/31/2024</MockData></span>
                   <MaterialIcon name="calendar_today" className="ml-auto text-[18px] text-slate-400" />
                 </div>
               </div>
@@ -92,9 +93,9 @@ export default function RefinementMockup() {
                 </div>
                 <div>
                   <p className="font-display text-[13px] font-bold uppercase tracking-[0.22em] text-[#4C1D95]">
-                    {t('mockups.refinement.advice_title')}
+                    <MockData>{t('mockups.refinement.advice_title')}</MockData>
                   </p>
-                  <p className="mt-1 text-[14px] leading-6 text-[#6D28D9]">{t('mockups.refinement.advice_copy')}</p>
+                  <p className="mt-1 text-[14px] leading-6 text-[#6D28D9]"><MockData>{t('mockups.refinement.advice_copy')}</MockData></p>
                 </div>
               </div>
             </div>

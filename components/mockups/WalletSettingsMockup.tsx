@@ -1,5 +1,6 @@
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 export default function WalletSettingsMockup() {
@@ -55,17 +56,17 @@ export default function WalletSettingsMockup() {
                 </span>
               </div>
               <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">{t('mockups.wallet.balance_label')}</p>
-              <p className="mt-1 font-display text-[32px] font-bold text-[#334155]">1.240.500 <span className="text-[14px]">sats</span></p>
-              <p className="mt-1 text-[12px] text-slate-400">≈ $312.45 USD</p>
+              <p className="mt-1 font-display text-[32px] font-bold text-[#334155]"><MockData>1.240.500 <span className="text-[14px]">sats</span></MockData></p>
+              <p className="mt-1 text-[12px] text-slate-400"><MockData>≈ $312.45 USD</MockData></p>
             </article>
 
             <article className="rounded-[24px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
               <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">{t('mockups.wallet.transactions_label')}</p>
               <div className="mt-4 flex items-end justify-between">
-                <p className="font-display text-[32px] font-bold text-[#334155]">42</p>
+                <p className="font-display text-[32px] font-bold text-[#334155]"><MockData>42</MockData></p>
                 <MaterialIcon name="trending_up" className="text-[20px] text-slate-300" />
               </div>
-              <p className="mt-2 text-[12px] text-[#166534]">+12% {t('mockups.wallet.month_hint')}</p>
+              <p className="mt-2 text-[12px] text-[#166534]"><MockData>+12%</MockData> {t('mockups.wallet.month_hint')}</p>
             </article>
           </div>
 

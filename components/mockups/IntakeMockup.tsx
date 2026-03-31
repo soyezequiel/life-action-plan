@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, MotionConfig } from 'framer-motion'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 interface IntakeMockupProps {
@@ -65,7 +66,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
               value={value}
               onChange={(event) => setValue(event.target.value)}
               placeholder={t('mockups.intake.placeholder')}
-              className="min-h-[210px] w-full resize-none rounded-[20px] border border-transparent bg-[#FAFAF9] p-6 text-[24px] leading-[1.45] text-slate-300 outline-none placeholder:text-slate-300 focus:border-[#1E293B]/10 focus:bg-white focus:text-[#334155]"
+              className="min-h-[210px] w-full resize-none rounded-[20px] border border-transparent bg-[#FAFAF9] p-6 text-[24px] leading-[1.45] text-slate-500 outline-none placeholder:text-slate-400 focus:border-[#1E293B]/10 focus:bg-white focus:text-[#334155]"
             />
             <div className="absolute bottom-6 right-6 flex items-center gap-2">
               <span className="rounded-full bg-white/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
@@ -101,7 +102,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                   {t('mockups.intake.card_1_time')}
                 </div>
               </div>
-              <p className="text-[15px] leading-7 text-[#334155]">{t('mockups.intake.card_1_title')}</p>
+              <span className="font-display text-[15px] font-bold text-[#334155]"><MockData>{t('mockups.intake.card_1_title')}</MockData></span>
               <div className="mt-5 inline-flex rounded-full bg-[#A7F3D0]/20 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#166534]">
                 {t('mockups.intake.card_1_tag')}
               </div>

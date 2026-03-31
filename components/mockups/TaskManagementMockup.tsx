@@ -1,5 +1,6 @@
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 export default function TaskManagementMockup() {
@@ -123,7 +124,7 @@ export default function TaskManagementMockup() {
                   </div>
                   <h2 className="font-display text-[18px] font-bold">{t('mockups.flow.tasks.explore_title')}</h2>
                 </div>
-                <span className="rounded-full bg-[#334155] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">75%</span>
+                <span className="rounded-full bg-[#334155] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300"><MockData>75%</MockData></span>
               </div>
               <p className="text-[14px] leading-7 text-slate-300">{t('mockups.flow.tasks.explore_copy')}</p>
               <div className="mt-6 space-y-4">
@@ -135,7 +136,7 @@ export default function TaskManagementMockup() {
                   <div key={label}>
                     <div className="mb-2 flex items-center justify-between text-[13px] text-slate-300">
                       <span>{label}</span>
-                      <span>{percent}</span>
+                      <span><MockData>{percent}</MockData></span>
                     </div>
                     <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                       <div className="h-full rounded-full bg-[#A7F3D0]" style={{ width: percent }} />

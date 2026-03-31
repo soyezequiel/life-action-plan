@@ -1,5 +1,6 @@
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
+import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 export default function SpatialPrioritizationMockup() {
@@ -87,8 +88,8 @@ export default function SpatialPrioritizationMockup() {
                   </span>
                   <MaterialIcon name="drag_indicator" className="text-[18px] text-slate-300" />
                 </div>
-                <h3 className="text-[15px] font-semibold text-[#334155]">{item.title}</h3>
-                <p className="mt-2 text-[13px] leading-6 text-slate-500">{item.copy}</p>
+                <h3 className="text-[15px] font-semibold text-[#334155]"><MockData>{item.title}</MockData></h3>
+                <p className="mt-2 text-[13px] leading-6 text-slate-500"><MockData>{item.copy}</MockData></p>
               </article>
             ))}
           </div>
@@ -113,11 +114,11 @@ export default function SpatialPrioritizationMockup() {
                 <span className="h-2 w-2 rounded-full bg-[#FCA5A5]" />
                 {t('mockups.flow.prioritization.in_progress')}
               </div>
-              <h3 className="font-display text-[18px] font-bold text-[#334155]">{t('mockups.flow.prioritization.side_title')}</h3>
-              <p className="mt-2 text-[13px] leading-6 text-slate-500">{t('mockups.flow.prioritization.side_copy')}</p>
+              <h3 className="font-display text-[18px] font-bold text-[#334155]"><MockData>{t('mockups.flow.prioritization.side_title')}</MockData></h3>
+              <p className="mt-2 text-[13px] leading-6 text-slate-500"><MockData>{t('mockups.flow.prioritization.side_copy')}</MockData></p>
               <div className="mt-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
                 <MaterialIcon name="event" className="text-[14px] text-[#A7F3D0]" />
-                {t('mockups.flow.prioritization.side_meta')}
+                <MockData>{t('mockups.flow.prioritization.side_meta')}</MockData>
               </div>
             </article>
 
@@ -125,11 +126,11 @@ export default function SpatialPrioritizationMockup() {
               <div className="absolute -right-4 -top-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#A7F3D0] text-[#166534]">
                 <MaterialIcon name="star" className="text-[18px]" />
               </div>
-              <h3 className="font-display text-[18px] font-bold">{t('mockups.flow.prioritization.big_title')}</h3>
-              <p className="mt-2 text-[13px] leading-6 text-slate-200">{t('mockups.flow.prioritization.big_copy')}</p>
+              <h3 className="font-display text-[18px] font-bold"><MockData>{t('mockups.flow.prioritization.big_title')}</MockData></h3>
+              <p className="mt-2 text-[13px] leading-6 text-slate-200"><MockData>{t('mockups.flow.prioritization.big_copy')}</MockData></p>
               <div className="mt-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[#A7F3D0]">
                 <MaterialIcon name="event" className="text-[14px]" />
-                {t('mockups.flow.prioritization.big_meta')}
+                <MockData>{t('mockups.flow.prioritization.big_meta')}</MockData>
               </div>
             </article>
 
