@@ -9,7 +9,7 @@ describe('Scheduler Robustness (Budget Squeezing)', () => {
     freeHoursWeekend: 1, // 2h total finde
     energyLevel: 'medium',
     fixedCommitments: []
-  }; // Total 12h/semana. Target 85% = 10.2h 
+  }; // Total 12h/semana. Target 85% = 10.2h  
 
   const mockClassification: GoalClassification = {
     goalType: 'FINITE_PROJECT',
