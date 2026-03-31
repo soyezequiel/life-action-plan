@@ -225,12 +225,12 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                   <MaterialIcon name="rocket_launch" className="text-[18px]" />
                 </div>
                 <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
-                  {isGenerating ? currentPhase : t('mockups.intake.card_1_time')}
+                  {isGenerating ? pState.currentPhase : t('mockups.intake.card_1_time')}
                 </div>
               </div>
-              <span className="font-display text-[15px] font-bold text-[#334155]">{isGenerating ? lastAction || 'Construyendo modelo...' : t('mockups.intake.card_1_title')}</span>
+              <span className="font-display text-[15px] font-bold text-[#334155]">{isGenerating ? pState.lastAction || 'Construyendo modelo...' : t('mockups.intake.card_1_title')}</span>
               <div className="mt-5 inline-flex rounded-full bg-[#A7F3D0]/20 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#166534]">
-                {isGenerating ? `${progressScore}% Completado` : t('mockups.intake.card_1_tag')}
+                {isGenerating ? `${pState.progressScore}% Completado` : t('mockups.intake.card_1_tag')}
               </div>
             </article>
 

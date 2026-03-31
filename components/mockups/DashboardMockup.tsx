@@ -8,6 +8,7 @@ import type { DeploymentMode } from '@/src/lib/env/deployment'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
 import { browserLapClient } from '@/src/lib/client/browser-http-client'
+import { readPlanV5Manifest } from '@/src/shared/utils/plan-manifest'
 
 interface DashboardMockupProps {
   deploymentMode?: DeploymentMode
@@ -17,28 +18,65 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
   void deploymentMode
   const [timeRemaining, setTimeRemaining] = useState<string>('24:00 restante')
   const [dateStr, setDateStr] = useState<string>('')
-  const [hydrationProgress, setHydrationProgress] = useState(80)
-  const [readingProgress, setReadingProgress] = useState(45)
+  const [hydrationProgress, setHydrationProgress] = useState(0)
+  const [readingProgress, setReadingProgress] = useState(0)
+  const [activePlan, setActivePlan] = useState<any>(null)
+  const [tasks, setTasks] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
-    browserLapClient.profile.latest().then((profileId) => {
-      if (profileId) {
-        browserLapClient.plan.list(profileId).then((plans) => {
-          const active = plans[0]
-          if (active) {
-            browserLapClient.progress.list(active.id).then((progressRows) => {
-              // Real metrics calculation from DB
-              if (progressRows.length >= 2) {
-                setHydrationProgress(progressRows[0].completado ? 100 : 80)
-                setReadingProgress(progressRows[1].completado ? 100 : 45)
-              }
-            }).catch(console.error)
-          }
-        }).catch(console.error)
+    async function loadDashboardData() {
+      setIsLoading(true)
+      try {
+        const profileId = await browserLapClient.profile.latest()
+        if (!profileId) {
+          setIsLoading(false)
+          return
+        }
+
+        const plans = await browserLapClient.plan.list(profileId)
+        const active = plans[0]
+        if (!active) {
+          setIsLoading(false)
+          return
+        }
+
+        setActivePlan(active)
+        const today = DateTime.local().toISODate()!
+        const progressRows = await browserLapClient.progress.list(active.id, today)
+        setTasks(progressRows)
+
+        // Basic metrics calculation
+        if (progressRows.length > 0) {
+          const completedCount = progressRows.filter(t => t.completado).length
+          const totalCount = progressRows.length
+          const generalProgress = Math.round((completedCount / totalCount) * 100)
+          
+          // Try to split metrics if possible, or just use general progress
+          setHydrationProgress(generalProgress)
+          setReadingProgress(Math.min(100, Math.round(generalProgress * 1.2))) // Just for visual delta
+        }
+      } catch (error) {
+        console.error('Error loading dashboard data:', error)
+      } finally {
+        setIsLoading(false)
       }
-    }).catch(console.error)
+    }
+
+    loadDashboardData()
   }, [])
+
+  const handleToggleTask = async (taskId: string) => {
+    try {
+      const result = await browserLapClient.progress.toggle(taskId)
+      setTasks(current => 
+        current.map(t => t.id === taskId ? { ...t, completado: result.completado } : t)
+      )
+    } catch (error) {
+      console.error('Error toggling task:', error)
+    }
+  }
 
   useEffect(() => {
     const updateTime = () => {
@@ -94,8 +132,12 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
     >
       <div className="mx-auto w-full max-w-[1360px]">
         <header className="mb-10">
-          <h1 className="font-display text-[32px] font-bold tracking-tight text-[#334155]">{t('mockups.dashboard.title')}</h1>
-          <p className="mt-2 text-[15px] leading-7 text-slate-500">{t('mockups.dashboard.copy')}</p>
+          <h1 className="font-display text-[32px] font-bold tracking-tight text-[#334155]">
+            {activePlan?.nombre || t('mockups.dashboard.title')}
+          </h1>
+          <p className="mt-2 text-[15px] leading-7 text-slate-500">
+            {isLoading ? 'Cargando tu progreso...' : (activePlan ? t('mockups.dashboard.copy') : 'Comienza hoy mismo creando tu primer plan.')}
+          </p>
         </header>
 
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
@@ -106,18 +148,30 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
             </div>
 
             <div className="space-y-6">
-              <article className="border-l-4 border-[#A7F3D0] pl-4 py-1">
-                <h3 className="text-[16px] font-semibold text-[#334155]">{t('mockups.dashboard.daily.review')}</h3>
-                <p className="text-[12px] text-slate-500">{t('mockups.dashboard.daily.review_meta')}</p>
-              </article>
-              <article className="border-l-4 border-[#E9D5FF] pl-4 py-1 opacity-60">
-                <h3 className="text-[16px] font-semibold text-[#334155]">{t('mockups.dashboard.daily.deep_work')}</h3>
-                <p className="text-[12px] text-slate-500">{t('mockups.dashboard.daily.deep_work_meta')}</p>
-              </article>
-              <article className="border-l-4 border-[#1E293B]/10 pl-4 py-1">
-                <h3 className="text-[16px] font-semibold text-[#334155]">{t('mockups.dashboard.daily.lunch')}</h3>
-                <p className="text-[12px] text-slate-500">{t('mockups.dashboard.daily.lunch_meta')}</p>
-              </article>
+              {isLoading ? (
+                <div className="py-8 text-center text-slate-400">Cargando horario...</div>
+              ) : (activePlan && readPlanV5Manifest(activePlan.manifest)?.package?.plan.detail.weeks[0]?.scheduledEvents?.length) ? (
+                (() => {
+                  const v5 = readPlanV5Manifest(activePlan.manifest)
+                  const events = v5?.package?.plan.detail.weeks[0]?.scheduledEvents || []
+                  // For the mockup, we just show the first 3 events of the first week
+                  // In a real app, we would filter by the current day of the week
+                  return events.slice(0, 3).map((event: any, idx: number) => {
+                    const colors = ['#A7F3D0', '#E9D5FF', '#1E293B33']
+                    const color = colors[idx % colors.length]
+                    return (
+                      <article key={idx} className="border-l-4 pl-4 py-1" style={{ borderColor: color }}>
+                        <h3 className="text-[16px] font-semibold text-[#334155]">{event.title}</h3>
+                        <p className="text-[12px] text-slate-500">{event.startAt ? DateTime.fromISO(event.startAt).toFormat('HH:mm') : 'Horario flexible'}</p>
+                      </article>
+                    )
+                  })
+                })()
+              ) : (
+                <div className="py-8 text-center text-slate-400 italic">
+                  {activePlan ? 'Sin eventos para hoy.' : 'Crea un plan para ver tu horario.'}
+                </div>
+              )}
             </div>
 
             <div className="mt-8 border-t border-slate-100 pt-6">
@@ -150,25 +204,45 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
               </div>
 
               <div className="space-y-4">
-                <div className="group flex items-center gap-4 rounded-[18px] border border-transparent p-4 transition hover:border-slate-100 hover:bg-slate-50">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-md border-2 border-slate-200">
-                    <MaterialIcon name="check" className="text-[14px] text-transparent group-hover:text-[#334155]" />
+                {isLoading ? (
+                  <div className="py-12 text-center text-slate-400">Buscando tareas...</div>
+                ) : tasks.length > 0 ? (
+                  tasks.map((task) => (
+                    <div 
+                      key={task.id}
+                      onClick={() => handleToggleTask(task.id)}
+                      className={`group flex cursor-pointer items-center gap-4 rounded-[18px] border border-transparent p-4 transition ${
+                        task.completado ? 'border-[#A7F3D0]/20 bg-[#A7F3D0]/10' : 'hover:border-slate-100 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className={`flex h-6 w-6 items-center justify-center rounded-md border-2 ${
+                        task.completado ? 'bg-[#1E293B] border-[#1E293B] text-white' : 'border-slate-200'
+                      }`}>
+                        <MaterialIcon name="check" className={`text-[14px] ${task.completado ? 'text-white' : 'text-transparent group-hover:text-[#334155]'}`} />
+                      </div>
+                      <h3 className={`flex-1 text-[16px] text-[#334155] ${task.completado ? 'line-through opacity-50' : ''}`}>
+                        {task.descripcion}
+                      </h3>
+                      {task.completado ? (
+                        <MaterialIcon name="verified" className="text-[18px] text-[#A7F3D0]" />
+                      ) : (
+                        <MaterialIcon name="drag_indicator" className="text-[18px] text-slate-300" />
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-12 text-center">
+                    <p className="text-slate-400">{t('mockups.dashboard.checklist.empty', { defaultValue: 'No hay tareas programadas para hoy.' })}</p>
+                    {!activePlan && (
+                      <button 
+                        onClick={() => router.push('/flow')}
+                        className="mt-4 rounded-full bg-[#1E293B] px-6 py-2 text-sm font-bold text-white transition hover:bg-[#334155]"
+                      >
+                        {t('mockups.common.new_entry')}
+                      </button>
+                    )}
                   </div>
-                  <h3 className="flex-1 text-[16px] text-[#334155]">{t('mockups.dashboard.checklist.task_1')}</h3>
-                  <MaterialIcon name="drag_indicator" className="text-[18px] text-slate-300" />
-                </div>
-                <div className="group flex items-center gap-4 rounded-[18px] border border-transparent p-4 transition hover:border-slate-100 hover:bg-slate-50">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-md border-2 border-slate-200" />
-                  <h3 className="flex-1 text-[16px] text-[#334155]">{t('mockups.dashboard.checklist.task_2')}</h3>
-                  <MaterialIcon name="drag_indicator" className="text-[18px] text-slate-300" />
-                </div>
-                <div className="flex items-center gap-4 rounded-[18px] border border-[#A7F3D0]/20 bg-[#A7F3D0]/10 p-4">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1E293B] text-white">
-                    <MaterialIcon name="check" className="text-[14px] text-white" />
-                  </div>
-                  <h3 className="flex-1 text-[16px] text-[#334155] line-through opacity-50">{t('mockups.dashboard.checklist.task_3')}</h3>
-                  <MaterialIcon name="verified" className="text-[18px] text-[#A7F3D0]" />
-                </div>
+                )}
               </div>
             </section>
 
@@ -234,10 +308,10 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
 
             <footer className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
               {[
-                { value: '12', label: t('mockups.dashboard.footer.tasks'), icon: 'task_alt' },
-                { value: '85%', label: t('mockups.dashboard.footer.productivity'), icon: 'bolt' },
-                { value: '04:12', label: t('mockups.dashboard.footer.focus'), icon: 'timer' },
-                { value: '+14%', label: t('mockups.dashboard.footer.variation'), icon: 'trending_up' }
+                { value: tasks.length.toString(), label: t('mockups.dashboard.footer.tasks'), icon: 'task_alt' },
+                { value: `${tasks.length > 0 ? Math.round((tasks.filter(t => t.completado).length / tasks.length) * 100) : 0}%`, label: t('mockups.dashboard.footer.productivity'), icon: 'bolt' },
+                { value: tasks.filter(t => t.completado).length > 0 ? `0${tasks.filter(t => t.completado).length}:00` : '00:00', label: t('mockups.dashboard.footer.focus'), icon: 'timer' },
+                { value: activePlan ? '+14%' : '--', label: t('mockups.dashboard.footer.variation'), icon: 'trending_up' }
               ].map((item) => (
                 <article
                   key={item.label}

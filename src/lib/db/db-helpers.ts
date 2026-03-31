@@ -243,13 +243,15 @@ interface CreateUserInput {
   email?: string | null
   passwordHash: string
   hashAlgorithm?: string
+  name?: string | null
 }
 
 interface CreateSessionRecordInput {
-  id: string
+  sessionToken: string
   userId: string
-  tokenHash: string
-  expiresAt: string
+  expires: string
+  id?: string
+  tokenHash?: string
 }
 
 interface UpsertAuthLoginGuardInput {
@@ -362,10 +364,9 @@ function serializeUserRow(row: typeof users.$inferSelect) {
 
 function serializeSessionRow(row: typeof sessions.$inferSelect) {
   return {
-    id: row.id,
+    sessionToken: row.sessionToken,
     userId: row.userId,
-    tokenHash: row.tokenHash,
-    expiresAt: row.expiresAt,
+    expires: row.expires,
     createdAt: row.createdAt
   }
 }
@@ -591,6 +592,7 @@ export async function createUser(input: CreateUserInput) {
   const timestamp = now()
   const row: typeof users.$inferInsert = {
     id: generateId(),
+    name: input.name?.trim() || null,
     username: normalizeLoginIdentifier(input.username),
     email: input.email?.trim().toLowerCase() || null,
     passwordHash: input.passwordHash,
@@ -809,10 +811,9 @@ export async function claimAnonymousWorkflowData(userId: string, workflowId: str
 
 export async function createSessionRecord(input: CreateSessionRecordInput) {
   const row: typeof sessions.$inferInsert = {
-    id: input.id,
+    sessionToken: input.sessionToken,
     userId: input.userId,
-    tokenHash: input.tokenHash,
-    expiresAt: input.expiresAt,
+    expires: new Date(input.expires),
     createdAt: now()
   }
 
@@ -870,14 +871,14 @@ export async function deleteAuthLoginGuard(scope: string, keyHash: string): Prom
   ))
 }
 
-export async function getSessionRecordByTokenHash(tokenHash: string) {
-  const rows = await db().select().from(sessions).where(eq(sessions.tokenHash, tokenHash))
+export async function getSessionRecordByToken(sessionToken: string) {
+  const rows = await db().select().from(sessions).where(eq(sessions.sessionToken, sessionToken))
   const row = rows[0]
-  return row ? serializeSessionRow(row) : null
+  return row ? serializeSessionRow(row as typeof sessions.$inferSelect) : null
 }
 
-export async function deleteSessionRecordByTokenHash(tokenHash: string): Promise<void> {
-  await db().delete(sessions).where(eq(sessions.tokenHash, tokenHash))
+export async function deleteSessionRecordByToken(sessionToken: string): Promise<void> {
+  await db().delete(sessions).where(eq(sessions.sessionToken, sessionToken))
 }
 
 export async function deleteSessionRecordsByUserId(userId: string): Promise<void> {

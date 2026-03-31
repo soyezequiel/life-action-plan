@@ -5,9 +5,10 @@ import type { ReactNode } from 'react'
 import { motion, MotionConfig } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { t } from '@/src/i18n'
+import { usePathname, useSearchParams, useRouter } from 'next/navigation'
+import { useSession, signOut } from "next-auth/react"
 import { MaterialIcon } from './MaterialIcon'
 import PulsoLogo from '../PulsoLogo'
-import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 
 export interface MockupNavItem {
   label: string
@@ -70,14 +71,10 @@ export function MockupShell({
     { label: t('mockups.common.nav.settings'), icon: 'settings', href: '/settings', active: isSettings }
   ]
 
+  const { data: session } = useSession()
+
   const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-    } catch (e) {
-      console.error('Logout error:', e)
-    } finally {
-      router.push('/')
-    }
+    await signOut({ callbackUrl: '/' })
   }
 
   const canonicalFooter: MockupNavItem[] = [
@@ -102,6 +99,22 @@ export function MockupShell({
               )}
             </div>
           </div>
+
+          {session?.user && (
+            <div className="mb-6 flex items-center gap-3 rounded-[22px] bg-white/60 p-3 shadow-sm backdrop-blur-sm border border-white/40">
+              {session.user.image ? (
+                <img src={session.user.image} alt="" className="h-10 w-10 rounded-full border border-slate-200" />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E293B] text-white">
+                  <MaterialIcon name="person" className="text-[20px]" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-display text-[13px] font-bold text-slate-800">{session.user.name || session.user.email}</p>
+                <p className="truncate font-display text-[10px] text-slate-400 capitalize">Planificador activo</p>
+              </div>
+            </div>
+          )}
 
           <nav className="flex-1 space-y-1">
             {canonicalNav.map((item) => {

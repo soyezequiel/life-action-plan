@@ -635,6 +635,10 @@
       "waiting": "Esperando tu respuesta",
       "degraded": "Funcionando con error"
     },
+    "iteration": {
+      "refining": "Refinando detalles...",
+      "improving": "Mejorando el plan..."
+    },
     "notification": {
       "needs_input": "La IA necesita una aclaración para seguir adelante.",
       "degraded": "Un agente no respondió, el pipeline sigue con respaldo.",

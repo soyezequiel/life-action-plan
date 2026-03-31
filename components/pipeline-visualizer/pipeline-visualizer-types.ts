@@ -17,6 +17,7 @@ export interface PhaseNodeData {
   agentName: V6AgentName | null;
   iteration?: number;
   maxIterations?: number;
+  statusDetail?: string;
 }
 
 export interface VisualizerNotification {

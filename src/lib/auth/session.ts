@@ -2,9 +2,9 @@ import { DateTime } from 'luxon'
 import type { NextResponse } from 'next/server'
 import {
   createSessionRecord,
-  deleteSessionRecordByTokenHash,
+  deleteSessionRecordByToken,
   deleteSessionRecordsByUserId,
-  getSessionRecordByTokenHash
+  getSessionRecordByToken
 } from '../db/db-helpers'
 import {
   getSessionCookieExpiry,
@@ -42,10 +42,11 @@ export async function createSession(userId: string): Promise<SessionResult & { t
   })
 
   await createSessionRecord({
-    id: sessionId,
+    sessionToken: token,
     userId,
-    tokenHash: await hashSessionToken(token),
-    expiresAt
+    expires: expiresAt,
+    id: sessionId,
+    tokenHash: await hashSessionToken(token)
   })
 
   return {
@@ -64,13 +65,12 @@ export async function validateSession(token: string): Promise<SessionResult | nu
   }
 
   const tokenHash = await hashSessionToken(token)
-  const sessionRecord = await getSessionRecordByTokenHash(tokenHash)
+  const sessionRecord = await getSessionRecordByToken(token)
 
   if (
     !sessionRecord ||
-    sessionRecord.id !== claims.sessionId ||
     sessionRecord.userId !== claims.userId ||
-    DateTime.fromISO(sessionRecord.expiresAt, { zone: 'utc' }).toMillis() <= DateTime.utc().toMillis()
+    DateTime.fromJSDate(sessionRecord.expires).toMillis() <= DateTime.utc().toMillis()
   ) {
     return null
   }
@@ -94,7 +94,7 @@ export async function getAuthenticatedUserId(request: Request): Promise<string |
 }
 
 export async function destroySession(token: string): Promise<void> {
-  await deleteSessionRecordByTokenHash(await hashSessionToken(token))
+  await deleteSessionRecordByToken(token)
 }
 
 export async function destroySessionFromRequest(request: Request): Promise<void> {

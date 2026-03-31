@@ -6,12 +6,8 @@ import type { ChargeReasonCode, OperationChargeSummary, PlanSimulationSnapshot }
 import type { ExecutionBlockReason } from '../../shared/types/execution-context'
 import { getPlanBySlug } from '../db/db-helpers'
 import type { PlanPackage, StoredAdaptiveState, V5PhaseSnapshot } from '../pipeline/shared/phase-io'
-
-export interface StoredPlanV5Manifest {
-  package?: PlanPackage | null
-  adaptive?: StoredAdaptiveState | null
-  run?: V5PhaseSnapshot | null
-}
+import { readPlanV5Manifest, safeParseJsonRecord, type StoredPlanV5Manifest } from '../../shared/utils/plan-manifest'
+export { readPlanV5Manifest, safeParseJsonRecord, type StoredPlanV5Manifest }
 
 export function parseStoredProfile(data: string): Perfil | null {
   try {
@@ -114,22 +110,6 @@ export function buildPendingAdaptiveState(nowIso = DateTime.utc().toISO() ?? '20
   }
 }
 
-export function readPlanV5Manifest(manifestJson: string | null | undefined): StoredPlanV5Manifest | null {
-  const manifest = safeParseJsonRecord(manifestJson)
-  const candidate = manifest.v5
-
-  if (!candidate || typeof candidate !== 'object') {
-    return null
-  }
-
-  const v5 = candidate as Record<string, unknown>
-  return {
-    package: (v5.package && typeof v5.package === 'object' ? v5.package : null) as PlanPackage | null,
-    adaptive: (v5.adaptive && typeof v5.adaptive === 'object' ? v5.adaptive : null) as StoredAdaptiveState | null,
-    run: (v5.run && typeof v5.run === 'object' ? v5.run : null) as V5PhaseSnapshot | null
-  }
-}
-
 export function updatePlanManifestV5(
   manifestJson: string | null | undefined,
   next: Partial<StoredPlanV5Manifest>
@@ -218,19 +198,6 @@ export function createSimulationManifest(
 export function buildCalendarFileName(planName: string, timezone: string): string {
   const date = DateTime.now().setZone(timezone).toISODate() ?? 'plan'
   return `lap-${normalizePlanSlug(planName)}-${date}.ics`
-}
-
-export function safeParseJsonRecord(value: string | null | undefined): Record<string, unknown> {
-  if (!value) {
-    return {}
-  }
-
-  try {
-    const parsed = JSON.parse(value) as Record<string, unknown>
-    return parsed && typeof parsed === 'object' ? parsed : {}
-  } catch {
-    return {}
-  }
 }
 
 export function toPlanBuildErrorMessage(error: unknown): string {

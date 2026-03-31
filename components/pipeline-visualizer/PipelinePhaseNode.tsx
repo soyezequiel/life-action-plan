@@ -33,11 +33,16 @@ export const PipelinePhaseNode: React.FC<PipelinePhaseNodeProps> = ({ data, isCu
 
   // Determinar loop text si existe
   let loopText = null;
-  if (data.phase === 'clarify' && data.maxIterations) {
-    loopText = `ronda ${data.iteration || 1}/${data.maxIterations}`;
-  } else if (data.phase === 'revise' && data.maxIterations) {
-    loopText = `ciclo ${data.iteration || 1}/${data.maxIterations}`;
+  if (data.status === 'active' || data.status === 'waiting') {
+    if (data.phase === 'clarify' && (data.iteration || 0) > 1) {
+      loopText = t('visualizer.iteration.refining'); // "Refinando..."
+    } else if (data.phase === 'revise' && (data.iteration || 0) > 1) {
+      loopText = t('visualizer.iteration.improving'); // "Mejorando el plan..."
+    }
   }
+
+  // Si hay un detalle de estado específico, lo preferimos o lo sumamos
+  const detailText = data.status === 'active' ? data.statusDetail : null;
 
   // Animation variants
   const nodeVariants = {
@@ -79,6 +84,9 @@ export const PipelinePhaseNode: React.FC<PipelinePhaseNodeProps> = ({ data, isCu
         <h4 className={styles.nodeTitle}>{t(data.labelKey)}</h4>
         {loopText && (
           <span className={styles.nodeLoop}>{loopText}</span>
+        )}
+        {detailText && (
+          <span className={styles.nodeDetail}>{detailText}</span>
         )}
       </div>
     </motion.div>

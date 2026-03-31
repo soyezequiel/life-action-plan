@@ -98,7 +98,10 @@ export function usePipelineState(): {
       ...prev,
       // Prevent backward progress jumps visually across phase resets, unless it's a big logic jump
       progressScore: prev.progressScore > score && prev.progressScore - score < 15 ? prev.progressScore : score,
-      lastAction
+      lastAction,
+      phases: prev.phases.map(p => 
+        p.phase === prev.currentPhase ? { ...p, statusDetail: lastAction } : p
+      )
     }));
   }, []);
 
@@ -168,7 +171,10 @@ export function usePipelineState(): {
     if (event?.summary_es) {
       setState(prev => ({
         ...prev,
-        lastAction: event.summary_es
+        lastAction: event.summary_es,
+        phases: prev.phases.map(p => 
+          p.phase === prev.currentPhase ? { ...p, statusDetail: event.summary_es } : p
+        )
       }));
     }
   }, []);

@@ -12,9 +12,12 @@ import {
 } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text('name'),
   username: text('username').notNull(),
   email: text('email'),
+  emailVerified: timestamp('emailVerified', { mode: 'date' }),
+  image: text('image'),
   passwordHash: text('password_hash').notNull(),
   hashAlgorithm: text('hash_algorithm').notNull().default('argon2id'),
   createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull(),
@@ -25,14 +28,38 @@ export const users = pgTable('users', {
   emailIdx: uniqueIndex('users_email_idx').on(table.email)
 }))
 
-export const sessions = pgTable('sessions', {
-  id: text('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  tokenHash: text('token_hash').notNull(),
-  expiresAt: timestamp('expires_at', { mode: 'string', withTimezone: true }).notNull(),
-  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull()
+export const accounts = pgTable('accounts', {
+  userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: text('type').$type<any>().notNull(),
+  provider: text('provider').notNull(),
+  providerAccountId: text('providerAccountId').notNull(),
+  refresh_token: text('refresh_token'),
+  access_token: text('access_token'),
+  expires_at: integer('expires_at'),
+  token_type: text('token_type'),
+  scope: text('scope'),
+  id_token: text('id_token'),
+  session_state: text('session_state')
 }, (table) => ({
-  tokenHashIdx: uniqueIndex('sessions_token_hash_idx').on(table.tokenHash)
+  compoundKey: uniqueIndex('accounts_provider_providerAccountId_idx').on(table.provider, table.providerAccountId)
+}))
+
+export const sessions = pgTable('sessions', {
+  sessionToken: text('sessionToken').primaryKey(),
+  userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  expires: timestamp('expires', { mode: 'date' }).notNull(),
+  // Legacy fields (optional to keep, but keeping for now as backup)
+  id: text('id'),
+  tokenHash: text('token_hash'),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true })
+})
+
+export const verificationTokens = pgTable('verification_tokens', {
+  identifier: text('identifier').notNull(),
+  token: text('token').notNull(),
+  expires: timestamp('expires', { mode: 'date' }).notNull()
+}, (table) => ({
+  compositePk: uniqueIndex('verification_tokens_identifier_token_idx').on(table.identifier, table.token)
 }))
 
 export const authLoginGuards = pgTable('auth_login_guards', {

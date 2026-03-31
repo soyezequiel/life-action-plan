@@ -46,7 +46,8 @@ export async function POST(request: Request): Promise<Response> {
 
     const user = await createUser({
       username,
-      email: validation.normalizedEmail ?? null,
+      email: parsed.data.email ?? validation.normalizedEmail ?? null,
+      name: parsed.data.name ?? null,
       passwordHash: await hashPassword(parsed.data.password)
     })
     const session = await createSession(user.id)
