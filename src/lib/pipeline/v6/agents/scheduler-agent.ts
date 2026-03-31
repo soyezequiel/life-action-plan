@@ -12,6 +12,7 @@ import type {
 import type { AgentRuntime } from '../../../runtime/types';
 import { buildTemplate } from '../../shared/template-builder';
 import type { V6Agent, StrategicDraft, UserProfileV5, DomainKnowledgeCard, SchedulerOutput } from '../types';
+import type { TimeEventItem } from '../../../domain/plan-item';
 
 export interface SchedulerInput {
   strategicDraft: StrategicDraft
@@ -258,30 +259,134 @@ async function explainTradeoffs(
     );
   }
 }
+ 
+ async function llmScheduleFallback(
+   runtime: AgentRuntime,
+   input: SchedulerInput,
+ ): Promise<ScheduleResult> {
+   const startPos = Date.now();
+   const activityList = buildActivityRequests(input.strategicDraft, input.userProfile, input.domainCard);
+   const weekStart = nextWeekStartDate();
+ 
+   const response = await runtime.chat([{
+     role: 'system',
+     content: `Eres un experto en gestión del tiempo. Tu tarea es asignar horarios a una lista de actividades basándote en la disponibilidad de un usuario.
+ No puedes usar herramientas externas. Responde únicamente con un JSON válido.
+ 
+ Formato de salida esperado:
+ {
+   "events": [
+     {
+       "activityId": "ID de la actividad",
+       "startAt": "ISO8601 (UTC)",
+       "durationMin": 60
+     }
+   ],
+   "unscheduled": [
+     { "activityId": "ID", "reason": "motivo", "suggestion_esAR": "sugerencia" }
+   ]
+ }
+ 
+ Restricciones:
+ 1. Usa solo los bloques permitidos.
+ 2. No solapes actividades.
+ 3. Respeta la duración mínima.
+ 4. Fecha de inicio de la semana: ${weekStart}.
+ 
+ Disponibilidad Semanal:
+ ${input.availability.map(v => `- ${v.day}: ${v.startTime} a ${v.endTime}`).join('\n')}
+ 
+ Bloqueos (Ocupado):
+ ${input.blocked.map(v => `- ${v.day}: ${v.startTime} a ${v.endTime}`).join('\n')}
+ `,
+   }, {
+     role: 'user',
+     content: `Actividades a programar:
+ ${activityList.map(a => `- ${a.label} (${a.id}): ${a.frequencyPerWeek} veces por semana, ${a.durationMin} min cada vez.`).join('\n')}
+ 
+ Perfil: ${input.userProfile.freeHoursWeekday}h L-V, ${input.userProfile.freeHoursWeekend}h finde, energía ${input.userProfile.energyLevel}.`,
+   }]);
+ 
+   try {
+     const raw = extractFirstJsonObject(response.content);
+     const parsed = JSON.parse(raw) as { events: any[], unscheduled: any[] };
+     
+     const events: TimeEventItem[] = (parsed.events || []).map((e: any) => {
+       const act = activityList.find(a => a.id === e.activityId);
+       const now = DateTime.utc().toISO()!;
+       return {
+         id: `${e.activityId}_llm_${Math.random().toString(36).substring(2, 7)}`,
+         kind: 'time_event',
+         title: act?.label || 'Actividad',
+         status: 'active',
+         goalIds: act ? [act.goalId] : [],
+         startAt: e.startAt,
+         durationMin: e.durationMin || act?.durationMin || 60,
+         rigidity: (act?.constraintTier === 'hard' ? 'hard' : 'soft') as 'hard' | 'soft',
+         createdAt: now,
+         updatedAt: now,
+       };
+     });
+ 
+     const fillRate = activityList.length > 0 ? (events.length / activityList.reduce((acc, a) => acc + a.frequencyPerWeek, 0)) : 1;
+ 
+     return {
+       solverOutput: {
+         events,
+         unscheduled: parsed.unscheduled || [],
+         metrics: {
+           fillRate,
+           solverTimeMs: Date.now() - startPos,
+           solverStatus: 'llm_fallback',
+         },
+       },
+       tradeoffs: [],
+       qualityScore: clampScore(Math.round(fillRate * 100)),
+       unscheduledCount: parsed.unscheduled?.length || 0,
+     };
+   } catch (err) {
+     console.error('[Scheduler] LLM Fallback failed:', err);
+     return buildUnavailableResult(input);
+   }
+ }
+
 
 export const schedulerAgent: V6Agent<SchedulerInput, ScheduleResult> = {
   name: 'scheduler',
 
   async execute(input: SchedulerInput, runtime: AgentRuntime): Promise<ScheduleResult> {
-    const deterministicResult = await runSolver(input);
-    scheduleCache.set(serializeInput(input), deterministicResult);
-
-    if (deterministicResult.unscheduledCount === 0) {
-      return deterministicResult;
-    }
-
-    try {
-      const tradeoffs = await explainTradeoffs(runtime, input, deterministicResult.solverOutput);
-      const enrichedResult: ScheduleResult = {
-        ...deterministicResult,
-        tradeoffs,
-      };
-      scheduleCache.set(serializeInput(input), enrichedResult);
-      return enrichedResult;
-    } catch {
-      return deterministicResult;
-    }
-  },
+     try {
+       const deterministicResult = await runSolver(input);
+       
+       // Si el solver matemático falló miserablemente o está en modo fallback vacío
+       if (deterministicResult.solverOutput.metrics.solverStatus === 'fallback_unavailable' || 
+           deterministicResult.solverOutput.metrics.fillRate < 0.05) {
+         console.log('[Scheduler] Solver matemático insuficiente, activando LLM Fallback...');
+         return await llmScheduleFallback(runtime, input);
+       }
+ 
+       scheduleCache.set(serializeInput(input), deterministicResult);
+ 
+       if (deterministicResult.unscheduledCount === 0) {
+         return deterministicResult;
+       }
+ 
+       try {
+         const tradeoffs = await explainTradeoffs(runtime, input, deterministicResult.solverOutput);
+         const enrichedResult: ScheduleResult = {
+           ...deterministicResult,
+           tradeoffs,
+         };
+         scheduleCache.set(serializeInput(input), enrichedResult);
+         return enrichedResult;
+       } catch {
+         return deterministicResult;
+       }
+     } catch (err) {
+       console.error('[Scheduler] Excepción en execute, intentando LLM Fallback...', err);
+       return await llmScheduleFallback(runtime, input);
+     }
+   },
 
   fallback(input: SchedulerInput): ScheduleResult {
     return scheduleCache.get(serializeInput(input)) ?? buildUnavailableResult(input);

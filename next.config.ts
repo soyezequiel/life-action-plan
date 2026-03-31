@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  serverExternalPackages: ['highs'],
 }
 
 export default nextConfig
