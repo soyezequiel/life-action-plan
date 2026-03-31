@@ -5,7 +5,7 @@ import type { GoalClassification } from '../../src/lib/domain/goal-taxonomy';
 
 describe('Scheduler Robustness (Budget Squeezing)', () => {
   const mockProfile: UserProfileV5 = {
-    freeHoursWeekday: 2, // 10h total semanal L-V
+    freeHoursWeekday: 2, // 10h total semanal L-V 
     freeHoursWeekend: 1, // 2h total finde
     energyLevel: 'medium',
     fixedCommitments: []
