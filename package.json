@@ -12,7 +12,7 @@
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
     "build": "node scripts/run-next.mjs build",
-    "vercel-build": "npm run doctor:deploy && npm run build && npm run db:push",
+    "vercel-build": "node scripts/vercel-prepare.mjs",
     "start": "node scripts/run-next.mjs start",
     "lap:run": "tsx scripts/lap-runner-v5-real.ts",
     "lap:run:example": "tsx scripts/lap-runner-v5-example.ts",
