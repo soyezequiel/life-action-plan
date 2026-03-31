@@ -5,7 +5,6 @@ export interface PlanDegradedEvent {
   failedAgents: string
   agentOutcomes: unknown[]
 }
-
 export interface PlanStreamCallbacks {
   onPhase: (phase: string, iteration: number) => void
   onProgress: (score: number, lastAction: string) => void
@@ -455,13 +454,13 @@ export async function chargePlanBuild(profileId: string): Promise<{
     })
 
     const result = await response.json()
-    
+
     if (!response.ok) {
-       return {
-         success: false,
-         error: result.error || 'PAYMENT_FAILED',
-         detail: result.detail
-       }
+      return {
+        success: false,
+        error: result.error || 'PAYMENT_FAILED',
+        detail: result.detail
+      }
     }
 
     return {
