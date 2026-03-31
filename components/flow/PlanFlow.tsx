@@ -17,6 +17,8 @@ import {
 import { logPlanificadorDebug } from '@/src/lib/client/debug-logger'
 import { t } from '../../src/i18n'
 import type { ClarificationQuestion, ClarificationRound } from '../../src/lib/pipeline/v6/types'
+import { PipelineVisualizer } from '../pipeline-visualizer/PipelineVisualizer'
+import { usePipelineState } from '../pipeline-visualizer/use-pipeline-state'
 import styles from './PlanFlow.module.css'
 
 type FlowStep = 'input' | 'processing' | 'clarifying' | 'completed'
@@ -652,6 +654,9 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
   const [preflightLoading, setPreflightLoading] = useState(true)
   const [preflightResult, setPreflightResult] = useState<CredentialCheckResult | null>(null)
   const [walletStatus, setWalletStatus] = useState<WalletStatusResult | null>(null)
+
+  const { state: pState, callbacks: pCallbacks, reset: pReset } = usePipelineState()
+
   const runIdRef = useRef(0)
 
   useEffect(() => {
@@ -682,29 +687,31 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
     const isCurrent = (): boolean => runIdRef.current === runId
 
     return {
-      onPhase(phase) {
+      ...pCallbacks,
+      onPhase(phase, iteration) {
         if (!isCurrent()) {
           return
         }
-
+        pCallbacks.onPhase(phase, iteration)
         setCurrentPhase(phase)
         setProgressScore((current) => Math.max(current, PHASE_PROGRESS_FLOORS[phase] ?? 8))
       },
       onDebug(data) {
         logPlanificadorDebug(data)
+        pCallbacks.onDebug?.(data)
       },
-      onProgress(score) {
+      onProgress(score, action) {
         if (!isCurrent()) {
           return
         }
-
+        pCallbacks.onProgress(score, action)
         setProgressScore((current) => Math.max(current, clampProgress(score)))
       },
       onNeedsInput(nextSessionId, nextQuestions) {
         if (!isCurrent()) {
           return
         }
-
+        pCallbacks.onNeedsInput(nextSessionId, nextQuestions)
         setSessionId(nextSessionId)
         setQuestions(nextQuestions)
         setAnswers((current) => buildInitialAnswers(nextQuestions, current))
@@ -719,7 +726,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
         if (!isCurrent()) {
           return
         }
-
+        pCallbacks.onDegraded?.(data)
         setDegraded({
           message: data.message,
           failedAgents: data.failedAgents
@@ -729,7 +736,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
         if (!isCurrent()) {
           return
         }
-
+        pCallbacks.onComplete(planId, score, iterations)
         setCompletedPlanId(planId || null)
         setCompletedScore(clampProgress(score))
         setCompletedIterations(iterations)
@@ -744,7 +751,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
         if (!isCurrent()) {
           return
         }
-
+        pCallbacks.onError(message)
         setError(getFriendlyErrorMessage(message))
         setBusy(false)
         setStep(origin === 'resume' && questions ? 'clarifying' : 'input')
@@ -781,6 +788,7 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
     setCompletedScore(0)
     setCompletedIterations(0)
     setDegraded(null)
+    pReset()
 
     await startPlanBuild(normalizedGoal, profileId, provider, createCallbacks('start', runId))
 
@@ -891,7 +899,13 @@ export function PlanFlow({ profileId, provider }: PlanFlowProps) {
         )}
 
         {step === 'processing' && (
-          <ProgressSection phase={currentPhase || 'interpret'} />
+          <div className={styles.sectionStack}>
+            <div className={styles.banner}>
+              <p className={styles.eyebrow}>{COPY.eyebrow}</p>
+              <h2 className={styles.sectionTitle}>{COPY.processingTitle}</h2>
+            </div>
+            <PipelineVisualizer state={pState} />
+          </div>
         )}
 
         {step === 'clarifying' && questions && (
