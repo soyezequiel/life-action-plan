@@ -9,7 +9,7 @@ describe('Scheduler Robustness (Budget Squeezing)', () => {
     freeHoursWeekend: 1, // 2h total finde
     energyLevel: 'medium',
     fixedCommitments: []
-  }; // Total 12h/semana. Target 85% = 10.2h
+  }; // Total 12h/semana. Target 85% = 10.2h 
 
   const mockClassification: GoalClassification = {
     goalType: 'FINITE_PROJECT',
@@ -46,15 +46,15 @@ describe('Scheduler Robustness (Budget Squeezing)', () => {
   it('debe reducir la carga horaria si el plan original excede el presupuesto del usuario', () => {
     // Originalmente 4 fases * 2 frec * 1h = 8h (si baseFreq es 2)
     // Pero si el perfil es muy bajo, queremos ver que no se pase.
-    
+
     const result = buildTemplate(mockInput, mockClassification, mockProfile);
-    
+
     const totalHours = result.activities.reduce((acc, a) => acc + (a.durationMin * a.frequencyPerWeek) / 60, 0);
-    
+
     const budget = (mockProfile.freeHoursWeekday * 5) + (mockProfile.freeHoursWeekend * 2);
-    
+
     console.log(`Budget: ${budget}h, Requested: ${totalHours}h`);
-    
+
     // El budget es 12h. Si el template generó 4 actividades de 1h con freq 2, son 8h. Eso entra.
     // Vamos a forzar a que sea mayor. Si baseFreq fuera 4, serían 16h.
     expect(totalHours).toBeLessThanOrEqual(budget * 0.9);
@@ -63,10 +63,10 @@ describe('Scheduler Robustness (Budget Squeezing)', () => {
   it('debe reducir frecuencia antes que duración', () => {
     const tightProfile = { ...mockProfile, freeHoursWeekday: 1, freeHoursWeekend: 0 }; // 5h/semana
     const result = buildTemplate(mockInput, mockClassification, tightProfile);
-    
+
     const totalHours = result.activities.reduce((acc, a) => acc + (a.durationMin * a.frequencyPerWeek) / 60, 0);
     expect(totalHours).toBeLessThanOrEqual(5 * 0.9);
-    
+
     // Verificar que al menos alguna frecuencia bajó a 1
     const hasLowFreq = result.activities.some(a => a.frequencyPerWeek === 1);
     expect(hasLowFreq).toBe(true);
