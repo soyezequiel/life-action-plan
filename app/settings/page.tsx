@@ -1,3 +1,5 @@
+import { auth } from '@/src/auth'
+import { redirect } from 'next/navigation'
 import SettingsMockupPage from '../../components/settings/SettingsMockupPage'
 
 type SearchParams = Record<string, string | string[] | undefined>
@@ -23,6 +25,12 @@ async function resolveSearchParams(searchParams: Promise<SearchParams> | undefin
 }
 
 export default async function SettingsPage({ searchParams }: SettingsPageProps) {
+  const session = await auth()
+
+  if (!session) {
+    redirect('/auth/signin?callbackUrl=/settings')
+  }
+
   const params = await resolveSearchParams(searchParams)
   const section = readParam(params.section) ?? 'backend'
 

@@ -16,8 +16,11 @@ export default auth((req) => {
   const isPublicRoute = PUBLIC_ROUTES.some(route => nextUrl.pathname.startsWith(route))
 
   // Redirect to sign-in if not logged in and accessing a protected route
+  // The root path '/' is not public, so it will be redirected
   if (!isLoggedIn && !isPublicRoute) {
-    return NextResponse.redirect(new URL("/auth/signin", nextUrl))
+    const signInUrl = new URL("/auth/signin", nextUrl)
+    signInUrl.searchParams.set("callbackUrl", nextUrl.pathname)
+    return NextResponse.redirect(signInUrl)
   }
 
   const nextHeaders = new Headers(req.headers)
