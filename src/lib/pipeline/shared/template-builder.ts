@@ -322,6 +322,64 @@ function buildUncertaintyReductionActivities(
   }));
 }
 
+function calculateWeeklyBudget(profile: UserProfileV5): number {
+  return (profile.freeHoursWeekday * 5) + (profile.freeHoursWeekend * 2);
+}
+
+function adjustActivitiesToBudget(activities: ActivityRequest[], budgetHours: number): ActivityRequest[] {
+  const totalRequestedHours = activities.reduce((acc, a) => acc + (a.durationMin * a.frequencyPerWeek) / 60, 0);
+
+  if (totalRequestedHours <= budgetHours * 0.9 || budgetHours <= 0) {
+    return activities;
+  }
+
+  // Ordenar por debilidad de restricción para podar primero lo menos importante
+  const sorted = [...activities].sort((a, b) => {
+    const tierA = a.constraintTier || 'soft_weak';
+    const tierB = b.constraintTier || 'soft_weak';
+    if (tierA.includes('weak') && !tierB.includes('weak')) return -1;
+    if (!tierA.includes('weak') && tierB.includes('weak')) return 1;
+    return 0;
+  });
+
+  const adjusted = JSON.parse(JSON.stringify(activities)) as ActivityRequest[];
+  let currentHours = totalRequestedHours;
+  const targetHours = budgetHours * 0.85;
+
+  // Límite de seguridad para evitar loops infinitos
+  let iterations = 0;
+  while (currentHours > targetHours && iterations < 20) {
+    iterations++;
+    let changed = false;
+
+    for (const activityRef of sorted) {
+      if (currentHours <= targetHours) break;
+
+      const idx = adjusted.findIndex((a) => a.id === activityRef.id);
+      if (idx === -1) continue;
+
+      const act = adjusted[idx];
+      // Intentar reducir frecuencia primero si es > 1
+      if (act.frequencyPerWeek > 1) {
+        act.frequencyPerWeek -= 1;
+        currentHours -= act.durationMin / 60;
+        changed = true;
+      } else if (act.durationMin > 20) {
+        // Si no se puede reducir frecuencia, reducimos duración (mínimo 20 min)
+        const reduction = Math.min(15, act.durationMin - 20);
+        if (reduction > 0) {
+          act.durationMin -= reduction;
+          currentHours -= reduction / 60;
+          changed = true;
+        }
+      }
+    }
+    if (!changed) break;
+  }
+
+  return adjusted;
+}
+
 export function buildTemplate(
   input: TemplateInput,
   classification: GoalClassification,
@@ -428,5 +486,9 @@ export function buildTemplate(
     });
   }
 
-  return { activities };
+  const budget = calculateWeeklyBudget(profile);
+  const adjustedActivities = adjustActivitiesToBudget(activities, budget);
+
+  return { activities: adjustedActivities };
 }
+

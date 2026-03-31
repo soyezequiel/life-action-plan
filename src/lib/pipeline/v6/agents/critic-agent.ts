@@ -169,6 +169,12 @@ Score the overall plan 0-100 using weighted average:
 - Feasibility: 15%
 - Domain: 10%
 
+## Specific Instructions for Scheduling Failures
+If the schedule quality score is notably low (e.g., < 50) OR if the unscheduled items mention reasons like "exceso_carga", "conflicto_bloqueo", "fuera de horario", or "sin disponibilidad", you MUST:
+1. Flag a 'critical' finding in the 'scheduling' category.
+2. The suggestion MUST be actionable for the strategy agent: "Reduce the number of phases", "Merge tasks to reduce transitions", or "Lower the weekly hoursPerWeek in the strategic draft".
+3. Do not just say "fix the schedule"; specify that the STRATEGY is too ambitious for the user's free time.
+
 For findings with severity 'critical', the verdict MUST be 'revise' or 'rethink'.
 For findings with only 'warning' or 'info', the verdict can be 'approve' if overall score >= 75.
 

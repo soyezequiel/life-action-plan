@@ -270,41 +270,36 @@ async function explainTradeoffs(
  
    const response = await runtime.chat([{
      role: 'system',
-     content: `Eres un experto en gestión del tiempo. Tu tarea es asignar horarios a una lista de actividades basándote en la disponibilidad de un usuario.
- No puedes usar herramientas externas. Responde únicamente con un JSON válido.
- 
- Formato de salida esperado:
- {
-   "events": [
-     {
-       "activityId": "ID de la actividad",
-       "startAt": "ISO8601 (UTC)",
-       "durationMin": 60
-     }
-   ],
-   "unscheduled": [
-     { "activityId": "ID", "reason": "motivo", "suggestion_esAR": "sugerencia" }
-   ]
- }
- 
- Restricciones:
- 1. Usa solo los bloques permitidos.
- 2. No solapes actividades.
- 3. Respeta la duración mínima.
- 4. Fecha de inicio de la semana: ${weekStart}.
- 
- Disponibilidad Semanal:
- ${input.availability.map(v => `- ${v.day}: ${v.startTime} a ${v.endTime}`).join('\n')}
- 
- Bloqueos (Ocupado):
- ${input.blocked.map(v => `- ${v.day}: ${v.startTime} a ${v.endTime}`).join('\n')}
- `,
+     content: `Eres un Experto en Gestión del Tiempo y Optimización de Calendarios. Tu objetivo es convertir un Roadmap estratégico en una rutina ejecutable para un usuario con disponibilidad muy limitada.
+
+Identifica los "bloques de oro" (mayor impacto) y asegúrate de que queden agendados SI O SI.
+
+REGLAS DE AGENDAMIENTO:
+1. PRIORIDAD: Si el tiempo no alcanza, descarta actividades marcadas como 'soft_weak' antes que las 'soft_strong'.
+2. SQUEEZING: No dejes huecos de menos de 15 min entre actividades si puedes pegarlas para ganar eficiencia.
+3. REALISMO: No agendes sesiones de estudio de 2h si el usuario solo tiene un bloque de 2h total; deja 15 min para transición.
+4. ESTRICTO: Devuelve un JSON con "events" y "unscheduled". Si algo se queda fuera, explica el motivo específico en "suggestion_esAR".
+
+FORMATO DE SALIDA (JSON):
+{
+  "events": [{"activityId": "id", "startAt": "ISO8601 (UTC)", "durationMin": number}],
+  "unscheduled": [{"activityId": "id", "reason": "exceso_carga|conflicto_bloqueo", "suggestion_esAR": "sugerencia concreta"}]
+}
+
+Restricciones adicionales:
+- Fecha de inicio de la semana: ${weekStart}.
+- No solapes actividades.
+- Respeta la duración mínima de cada actividad solicitada.`,
    }, {
      role: 'user',
-     content: `Actividades a programar:
- ${activityList.map(a => `- ${a.label} (${a.id}): ${a.frequencyPerWeek} veces por semana, ${a.durationMin} min cada vez.`).join('\n')}
- 
- Perfil: ${input.userProfile.freeHoursWeekday}h L-V, ${input.userProfile.freeHoursWeekend}h finde, energía ${input.userProfile.energyLevel}.`,
+     content: `DATOS DE ENTRADA:
+- Disponibilidad: 
+${input.availability.map((v) => `- ${v.day}: ${v.startTime} a ${v.endTime}`).join('\n')}
+- Bloqueos: 
+${input.blocked.map((v) => `- ${v.day}: ${v.startTime} a ${v.endTime}`).join('\n')}
+- Actividades: 
+${activityList.map((a) => `- ${a.label} (${a.id}): ${a.frequencyPerWeek} veces/semana, ${a.durationMin} min, tier: ${a.constraintTier}`).join('\n')}
+- Perfil: ${input.userProfile.freeHoursWeekday}h/día L-V, ${input.userProfile.freeHoursWeekend}h finde, Energía: ${input.userProfile.energyLevel}.`,
    }]);
  
    try {
