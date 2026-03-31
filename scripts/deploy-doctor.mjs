@@ -67,7 +67,7 @@ function getConfiguredCloudProvider() {
 
 async function main() {
   const loadedFiles = loadDeployEnv()
-  const databaseUrl = process.env.DATABASE_URL?.trim() || ''
+  const databaseUrl = process.env.DATABASE_URL?.trim() || process.env.POSTGRES_URL?.trim() || ''
   const cloudProvider = getConfiguredCloudProvider()
   const sessionSecret = process.env.SESSION_SECRET?.trim() || ''
   const encryptionSecret = process.env.API_KEY_ENCRYPTION_SECRET?.trim() || ''

@@ -9,7 +9,7 @@ declare global {
 }
 
 function createSqlClient() {
-  const connectionString = process.env.DATABASE_URL?.trim()
+  const connectionString = process.env.DATABASE_URL?.trim() || process.env.POSTGRES_URL?.trim()
 
   if (!connectionString) {
     throw new Error('DATABASE_URL_NOT_SET')
