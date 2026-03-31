@@ -7,13 +7,26 @@ const REQUIRED_LONG_ROUTES = [
   'app/api/plan/simulate/route.ts'
 ]
 
+console.log('[Doctor] Iniciando chequeo de pre-vuelo...');
+
 function loadDeployEnv() {
   const loadedFiles = []
 
+  // Skip loading env files if we are on Vercel (variables are already in process.env)
+  if (process.env.VERCEL === '1') {
+    return loadedFiles
+  }
+
   for (const envFile of ['.env.production.local', '.env.local', '.env']) {
-    if (existsSync(envFile)) {
-      process.loadEnvFile(envFile)
-      loadedFiles.push(envFile)
+    try {
+      if (existsSync(envFile)) {
+        if (typeof process.loadEnvFile === 'function') {
+          process.loadEnvFile(envFile)
+          loadedFiles.push(envFile)
+        }
+      }
+    } catch (e) {
+      console.log(`[Doctor] Aviso: No se pudo cargar ${envFile} (ignorado)`)
     }
   }
 
