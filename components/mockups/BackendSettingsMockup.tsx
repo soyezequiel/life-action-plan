@@ -1,8 +1,50 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
 
 export default function BackendSettingsMockup() {
+  const [apiKey, setApiKey] = useState('')
+  const [configured, setConfigured] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+
+  useEffect(() => {
+    fetch('/api/settings/api-key?provider=openai')
+      .then(res => res.json())
+      .then(data => {
+        if (data.configured) setConfigured(true)
+      })
+      .catch(console.error)
+  }, [])
+
+  const handleSave = async () => {
+    if (!apiKey && !configured) return
+    setStatus('saving')
+    setErrorMsg('')
+    try {
+      const res = await fetch('/api/settings/api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'openai', apiKey })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setStatus('success')
+        setConfigured(true)
+        setApiKey('')
+        setTimeout(() => setStatus('idle'), 3000)
+      } else {
+        setStatus('error')
+        setErrorMsg(data.error || 'Error al guardar')
+      }
+    } catch (err) {
+      setStatus('error')
+      setErrorMsg('Error de red')
+    }
+  }
   return (
     <MockupShell
       sidebarLabel={t('mockups.common.digital_sanctuary')}
@@ -79,8 +121,10 @@ export default function BackendSettingsMockup() {
                 <div className="relative">
                   <MaterialIcon name="key" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
                   <input
-                    className="h-16 w-full rounded-[18px] border-0 bg-[#FAFAF9] pl-12 pr-4 text-[15px] tracking-[0.4em] text-slate-400 outline-none transition focus:ring-2 focus:ring-[#1E293B]/10"
-                    defaultValue="••••••••••••••••"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder={configured ? "•••••••••••••••• (Configurado)" : "sk-..."}
+                    className="h-16 w-full rounded-[18px] border-0 bg-[#FAFAF9] pl-12 pr-4 text-[15px] tracking-[0.2em] text-[#334155] placeholder-slate-400 outline-none transition focus:ring-2 focus:ring-[#1E293B]/10"
                     type="password"
                   />
                 </div>
@@ -97,10 +141,19 @@ export default function BackendSettingsMockup() {
               </div>
             </div>
 
-            <button type="button" className="group inline-flex h-16 w-full items-center justify-center gap-3 rounded-[18px] bg-[#1E293B] font-display text-[15px] font-bold text-white transition hover:-translate-y-0.5">
-              <span>{t('mockups.settingsBackend.primary')}</span>
-              <MaterialIcon name="arrow_forward" className="text-[18px] transition-transform group-hover:translate-x-1" />
-            </button>
+            <div className="space-y-4">
+              {status === 'success' && <div className="rounded-[18px] bg-emerald-50 p-4 text-center text-sm text-emerald-600 font-semibold">Configuración guardada exitosamente</div>}
+              {status === 'error' && <div className="rounded-[18px] bg-red-50 p-4 text-center text-sm text-red-600 font-semibold">{errorMsg}</div>}
+              <button 
+                type="button" 
+                onClick={handleSave}
+                disabled={status === 'saving'}
+                className="group inline-flex h-16 w-full items-center justify-center gap-3 rounded-[18px] bg-[#1E293B] font-display text-[15px] font-bold text-white transition hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+              >
+                <span>{status === 'saving' ? 'Guardando...' : t('mockups.settingsBackend.primary')}</span>
+                <MaterialIcon name="arrow_forward" className="text-[18px] transition-transform group-hover:translate-x-1" />
+              </button>
+            </div>
 
             <p className="text-center text-[12px] text-slate-400">
               {t('mockups.settingsBackend.footer_prefix')}

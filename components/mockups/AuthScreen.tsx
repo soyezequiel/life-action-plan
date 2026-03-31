@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, MotionConfig } from 'framer-motion'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
@@ -9,7 +10,38 @@ import PulsoLogo from '../PulsoLogo'
 type AuthMode = 'login' | 'register'
 
 export default function AuthScreen() {
+  const router = useRouter()
   const [mode, setMode] = useState<AuthMode>('login')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+  const [showForgotMsg, setShowForgotMsg] = useState(false)
+
+  const handleSubmit = async () => {
+    setStatus('submitting')
+    setErrorMsg('')
+    try {
+      const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register'
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      const data = await response.json()
+      
+      if (data.authenticated) {
+        router.push('/')
+      } else {
+        setStatus('error')
+        setErrorMsg(data.error || 'Autenticación fallida')
+      }
+    } catch (e: any) {
+      setStatus('error')
+      setErrorMsg(e.message || 'Error de conexión')
+    }
+  }
 
   return (
     <MotionConfig reducedMotion="user">
@@ -51,9 +83,12 @@ export default function AuthScreen() {
                 <div className="relative">
                   <MaterialIcon name="mail" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
                   <input
-                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-4 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5"
+                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-4 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5 disabled:opacity-50"
                     type="email"
                     placeholder={t('mockups.auth.email_placeholder')}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    disabled={status === 'submitting'}
                   />
                 </div>
               </label>
@@ -63,25 +98,38 @@ export default function AuthScreen() {
                   <span className="ml-0.5 font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
                     {t('mockups.auth.password_label')}
                   </span>
-                  <button type="button" className="text-[11px] italic text-slate-400 transition hover:text-[#334155]">
+                  <button 
+                    type="button" 
+                    className="text-[11px] italic text-slate-400 transition hover:text-[#334155]"
+                    onClick={() => setShowForgotMsg(true)}
+                  >
                     {t('mockups.auth.forgot')}
                   </button>
                 </div>
                 <div className="relative">
                   <MaterialIcon name="lock" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
                   <input
-                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-11 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5"
-                    type="password"
+                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-11 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5 disabled:opacity-50"
+                    type={showPassword ? "text" : "password"}
                     placeholder={t('mockups.auth.password_placeholder')}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={status === 'submitting'}
                   />
                   <button
                     type="button"
                     className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 transition hover:text-[#334155]"
                     aria-label="toggle password"
+                    onClick={() => setShowPassword(!showPassword)}
                   >
-                    <MaterialIcon name="visibility" className="text-[18px]" />
+                    <MaterialIcon name={showPassword ? "visibility_off" : "visibility"} className="text-[18px]" />
                   </button>
                 </div>
+                {showForgotMsg && (
+                  <p className="mt-1 text-[11px] text-amber-600/80 italic">
+                    Restablecimiento de contraseña no disponible en esta versión
+                  </p>
+                )}
               </label>
 
               <label className="flex items-center gap-2 px-0.5 py-1 text-[13px] text-slate-500">
@@ -94,11 +142,25 @@ export default function AuthScreen() {
 
               <button
                 type="button"
-                className="group flex h-14 w-full items-center justify-center gap-2 rounded-[16px] bg-[#1E293B] font-display text-[14px] font-semibold tracking-wide text-white transition-all hover:-translate-y-0.5 active:translate-y-0"
+                className="group flex h-14 w-full items-center justify-center gap-2 rounded-[16px] bg-[#1E293B] font-display text-[14px] font-semibold tracking-wide text-white transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0"
+                onClick={handleSubmit}
+                disabled={status === 'submitting' || !username || !password}
               >
-                <span>{mode === 'login' ? t('mockups.auth.login') : t('mockups.auth.register')}</span>
-                <MaterialIcon name="arrow_forward" className="text-[18px] transition-transform group-hover:translate-x-1" />
+                <span>
+                  {status === 'submitting' 
+                    ? t('mockups.auth.submitting') || 'Procesando...'
+                    : mode === 'login' ? t('mockups.auth.login') : t('mockups.auth.register')}
+                </span>
+                {status !== 'submitting' && (
+                  <MaterialIcon name="arrow_forward" className="text-[18px] transition-transform group-hover:translate-x-1" />
+                )}
               </button>
+
+              {status === 'error' && (
+                <div className="mt-4 rounded-lg bg-red-50 p-3 text-center text-[13px] text-red-600 border border-red-100">
+                  {errorMsg}
+                </div>
+              )}
             </form>
 
             <div className="mt-8 border-t border-slate-200/40 pt-8 text-center">

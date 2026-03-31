@@ -1,0 +1,15 @@
+---
+description: 'Use prompt-master-es for prompt creation and prompt adaptation tasks'
+globs: **
+alwaysApply: false
+---
+
+# Prompt Master ES bridge
+
+When the user asks to create, adapt, simplify, decompile, or debug a prompt, use the local skill bundle at `.agents/skills/prompt-master-es/SKILL.md` as the source of truth.
+
+Also follow the reference files in:
+- `.agents/skills/prompt-master-es/references/templates.md`
+- `.agents/skills/prompt-master-es/references/patterns.md`
+
+If the target AI tool is ambiguous, ask for the destination tool first before generating the prompt.

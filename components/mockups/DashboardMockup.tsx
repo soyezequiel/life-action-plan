@@ -1,8 +1,12 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { DateTime } from 'luxon'
 import { t } from '@/src/i18n'
 import type { DeploymentMode } from '@/src/lib/env/deployment'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
+import { browserLapClient } from '@/src/lib/client/browser-http-client'
 
 interface DashboardMockupProps {
   deploymentMode?: DeploymentMode
@@ -10,6 +14,47 @@ interface DashboardMockupProps {
 
 export default function DashboardMockup({ deploymentMode }: DashboardMockupProps) {
   void deploymentMode
+  const [timeRemaining, setTimeRemaining] = useState<string>('24:00 restante')
+  const [dateStr, setDateStr] = useState<string>('')
+  const [hydrationProgress, setHydrationProgress] = useState(80)
+  const [readingProgress, setReadingProgress] = useState(45)
+
+  useEffect(() => {
+    browserLapClient.profile.latest().then((profileId) => {
+      if (profileId) {
+        browserLapClient.plan.list(profileId).then((plans) => {
+          const active = plans[0]
+          if (active) {
+            browserLapClient.progress.list(active.id).then((progressRows) => {
+              // Real metrics calculation from DB
+              if (progressRows.length >= 2) {
+                setHydrationProgress(progressRows[0].completado ? 100 : 80)
+                setReadingProgress(progressRows[1].completado ? 100 : 45)
+              }
+            }).catch(console.error)
+          }
+        }).catch(console.error)
+      }
+    }).catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = DateTime.local()
+      const endOfDay = now.endOf('day')
+      const diff = endOfDay.diff(now, ['hours', 'minutes']).toObject()
+      
+      const h = Math.floor(diff.hours ?? 0).toString().padStart(2, '0')
+      const m = Math.floor(diff.minutes ?? 0).toString().padStart(2, '0')
+      
+      setTimeRemaining(`${h}:${m} restante`)
+      setDateStr(now.toFormat('cccc d LLLL yyyy', { locale: 'es-AR' }))
+    }
+
+    updateTime()
+    const interval = setInterval(updateTime, 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <MockupShell
@@ -54,7 +99,7 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
           <section className="overflow-hidden rounded-[24px] bg-white p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] xl:col-span-4">
             <div className="mb-8 flex items-center justify-between">
-              <h2 className="font-display text-[18px] font-bold text-[#334155]">{t('mockups.dashboard.daily.title')}</h2>
+              <h2 className="font-display text-[18px] font-bold text-[#334155]">{dateStr || t('mockups.dashboard.daily.title')}</h2>
               <MaterialIcon name="today" className="text-[20px] text-slate-400" />
             </div>
 
@@ -82,7 +127,7 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
                   <p className="text-[11px] font-display font-bold uppercase tracking-[0.22em] text-slate-400">
                     {t('mockups.dashboard.daily.focus_mode')}
                   </p>
-                  <p className="font-display text-[15px] font-bold text-[#334155]">{t('mockups.dashboard.daily.remaining')}</p>
+                  <p className="font-display text-[15px] font-bold text-[#334155]">{timeRemaining}</p>
                 </div>
               </div>
             </div>
@@ -132,19 +177,19 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
                   <div>
                     <div className="mb-2 flex justify-between">
                       <h3 className="text-[16px] font-medium text-slate-600">{t('mockups.dashboard.metrics.hydration')}</h3>
-                      <span className="text-[12px] font-display font-bold text-[#334155]">80%</span>
+                      <span className="text-[12px] font-display font-bold text-[#334155]">{hydrationProgress}%</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full w-[80%] rounded-full bg-[#A7F3D0]" />
+                      <div className="h-full rounded-full bg-[#A7F3D0]" style={{ width: `${hydrationProgress}%` }} />
                     </div>
                   </div>
                   <div>
                     <div className="mb-2 flex justify-between">
                       <h3 className="text-[16px] font-medium text-slate-600">{t('mockups.dashboard.metrics.technical_reading')}</h3>
-                      <span className="text-[12px] font-display font-bold text-[#334155]">45%</span>
+                      <span className="text-[12px] font-display font-bold text-[#334155]">{readingProgress}%</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full w-[45%] rounded-full bg-[#E9D5FF]" />
+                      <div className="h-full rounded-full bg-[#E9D5FF]" style={{ width: `${readingProgress}%` }} />
                     </div>
                   </div>
                   <div className="flex justify-around pt-4">
@@ -177,7 +222,7 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
                     </div>
                   </div>
                   <div className="mt-4 text-center">
-                    <h3 className="text-[16px] font-bold text-[#334155]"><span className="text-[12px] font-bold text-[#A7F3D0]"><MockData>today</MockData></span>{t('mockups.dashboard.risk.status')}</h3>
+                    <h3 className="text-[16px] font-bold text-[#334155]"><span className="text-[12px] font-bold text-[#A7F3D0]">today</span>{t('mockups.dashboard.risk.status')}</h3>
                     <p className="mt-1 text-[12px] text-slate-500">{t('mockups.dashboard.risk.copy')}</p>
                   </div>
                 </div>

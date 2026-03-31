@@ -1,0 +1,606 @@
+{
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\AnnualCalendarMockup.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": true,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"search\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"notifications\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"settings\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"inline-flex h-12 items-center gap-2 rounded-full bg-white px-4 text-[13px] font-semibold text-[#334155]\">\r\n                  {t('mockups.calendarAnnual.export')}\r\n                  <MaterialIcon name=\"download\" className=\"text-[16px]\" />\r\n                </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\AuthScreen.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button type=\"button\" className=\"text-[11px] italic text-slate-400 transition hover:text-[#334155]\">\r\n                    {t('mockups.auth.forgot')}\r\n                  </button>",
+      "<button\r\n                    type=\"button\"\r\n                    className=\"absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 transition hover:text-[#334155]\"\r\n                    aria-label=\"toggle password\"\r\n                  >\r\n                    <MaterialIcon name=\"visibility\" className=\"text-[18px]\" />\r\n                  </button>",
+      "<button\r\n                type=\"button\"\r\n                className=\"group flex h-14 w-full items-center justify-center gap-2 rounded-[16px] bg-[#1E293B] font-display text-[14px] font-semibold tracking-wide text-white transition-all hover:-translate-y-0.5 active:translate-y-0\"\r\n              >\r\n                <span>{mode === 'login' ? t('mockups.auth.login') : t('mockups.auth.register')}</span>\r\n                <MaterialIcon name=\"arrow_forward\" className=\"text-[18px] transition-transform group-hover:translate-x-1\" />\r\n              </button>",
+      "<button\r\n                  type=\"button\"\r\n                  className=\"ml-1 font-semibold text-[#334155] transition hover:underline\"\r\n                  onClick={() => setMode(mode === 'login' ? 'register' : 'login')}\r\n                >\r\n                  {mode === 'login' ? t('mockups.auth.create_account') : t('mockups.auth.login')}\r\n                </button>",
+      "<button type=\"button\" className=\"font-display text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400 transition hover:text-[#334155]\">\r\n                {t('mockups.auth.support')}\r\n              </button>",
+      "<button type=\"button\" className=\"font-display text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400 transition hover:text-[#334155]\">\r\n                {t('mockups.auth.privacy')}\r\n              </button>"
+    ],
+    "links": [],
+    "inputs": [
+      "<input\r\n                    className=\"h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-4 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5\"\r\n                    type=\"email\"\r\n                    placeholder={t('mockups.auth.email_placeholder')}\r\n                  />",
+      "<input\r\n                    className=\"h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-11 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5\"\r\n                    type=\"password\"\r\n                    placeholder={t('mockups.auth.password_placeholder')}\r\n                  />",
+      "<input\r\n                  type=\"checkbox\"\r\n                  className=\"h-3.5 w-3.5 rounded border-slate-300 text-[#1E293B] focus:ring-[#1E293B]/20\"\r\n                />"
+    ],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\BackendSettingsMockup.tsx": {
+    "usesLapClient": false,
+    "usesFetch": true,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"notifications\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"account_circle\" className=\"text-[20px]\" /></button>",
+      "<button \r\n                type=\"button\" \r\n                onClick={handleSave}\r\n                disabled={status === 'saving'}\r\n                className=\"group inline-flex h-16 w-full items-center justify-center gap-3 rounded-[18px] bg-[#1E293B] font-display text-[15px] font-bold text-white transition hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0\"\r\n              >\r\n                <span>{status === 'saving' ? 'Guardando...' : t('mockups.settingsBackend.primary')}</span>\r\n                <MaterialIcon name=\"arrow_forward\" className=\"text-[18px] transition-transform group-hover:translate-x-1\" />\r\n              </button>",
+      "<button type=\"button\" className=\"ml-1 font-semibold text-[#334155]\">\r\n                {t('mockups.settingsBackend.footer_link')}\r\n              </button>"
+    ],
+    "links": [],
+    "inputs": [
+      "<input\r\n                  className=\"h-16 w-full rounded-[18px] border-0 bg-[#FAFAF9] pl-12 pr-4 text-[15px] text-[#334155] outline-none transition focus:ring-2 focus:ring-[#1E293B]/10\"\r\n                  defaultValue=\"https://api.openai.com/v1\"\r\n                />",
+      "<input\r\n                    value={apiKey}\r\n                    onChange={(e) =>"
+    ],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\ConflictResolverMockup.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"notifications\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"h-8 w-8 rounded-full bg-[linear-gradient(135deg,#C4B5FD,#FDBA74)]\" />\r\n        </>\r\n      )}\r\n    >\r\n      <div className=\"mx-auto w-full max-w-[1300px]\">\r\n        <div className=\"mb-8\">\r\n          <p className=\"font-display text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400\">{t('mockups.flow.conflict.eyebrow')}</p>\r\n          <h1 className=\"mt-4 font-display text-[32px] font-bold tracking-tight text-[#334155]\">{t('mockups.flow.conflict.title')}</h1>\r\n          <p className=\"mt-3 max-w-3xl text-[16px] leading-7 text-slate-500\">{t('mockups.flow.conflict.copy')}</p>\r\n        </div>\r\n\r\n        <div className=\"grid gap-6 lg:grid-cols-2\">\r\n          {cards.map((card, index) => (\r\n            <article\r\n              key={card.title}\r\n              className={`rounded-[24px] bg-white p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] ${index === 0 ? 'border border-[#FCA5A5]/30' : 'border border-[#A7F3D0]'}`}\r\n            >\r\n              {index === 1 && (\r\n                <div className=\"mb-4 flex justify-end\">\r\n                  <span className=\"rounded-full bg-[#A7F3D0] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#166534]\">\r\n                    {t('mockups.flow.conflict.recommended')}\r\n                  </span>\r\n                </div>\r\n              )}\r\n              <div className=\"flex items-start gap-4\">\r\n                <div className={`flex h-12 w-12 items-center justify-center rounded-full ${card.iconBg} text-[#334155]`}>\r\n                  <MaterialIcon name={card.icon} className=\"text-[20px]\" />\r\n                </div>\r\n                <div>\r\n                  <h2 className=\"font-display text-[24px] font-bold text-[#334155]\">{card.title}</h2>\r\n                  <p className=\"text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400\">{card.subtitle}</p>\r\n                </div>\r\n              </div>\r\n\r\n              <div className=\"mt-8 space-y-5\">\r\n                {card.stats.map(([label, value, hint]) => (\r\n                  <div key={label} className=\"grid grid-cols-[1fr_auto] items-center gap-4\">\r\n                    <div>\r\n                      <p className=\"text-[14px] text-slate-500\">{label}</p>\r\n                      {hint && <p className=\"text-[12px] text-slate-400\"><MockData>{hint}</MockData></p>}\r\n                    </div>\r\n                    <strong className=\"font-display text-[18px] font-bold text-[#334155]\"><MockData>{value}</MockData></strong>\r\n                  </div>\r\n                ))}\r\n                <div className=\"h-2 overflow-hidden rounded-full bg-slate-100\">\r\n                  <div className={`h-full w-[82%] rounded-full ${card.bar}`} />\r\n                </div>\r\n              </div>\r\n\r\n              <div className={`mt-8 rounded-[18px] p-4 text-[14px] leading-7 ${index === 0 ? 'bg-[#F8FAFC]' : 'bg-[#A7F3D0]/20'}`}>\r\n                <em className=\"text-slate-500\">{card.quote}</em>\r\n              </div>\r\n\r\n              <button type=\"button\" className={`mt-8 inline-flex h-14 w-full items-center justify-center gap-2 rounded-[18px] px-6 font-display text-[14px] font-bold transition hover:-translate-y-0.5 ${card.buttonTone}`}>\r\n                <span>{card.button}</span>\r\n                <MaterialIcon name=\"arrow_forward\" className=\"text-[18px]\" />\r\n              </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": [
+      "<MockData>{hint}</MockData>",
+      "<MockData>{value}</MockData>"
+    ]
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\DailyCalendarMockup.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": true,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"search\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"notifications\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"flex w-full items-center justify-between rounded-[18px] bg-slate-50 px-4 py-4 text-left\">\r\n                <span className=\"flex items-center gap-3 text-[14px] text-[#334155]\">\r\n                  <MaterialIcon name=\"replay\" className=\"text-[18px] text-[#166534]\" />\r\n                  {t('mockups.calendarDaily.quick_1')}\r\n                </span>\r\n                <MaterialIcon name=\"chevron_right\" className=\"text-[18px] text-slate-300\" />\r\n              </button>",
+      "<button type=\"button\" className=\"flex w-full items-center justify-between rounded-[18px] bg-slate-50 px-4 py-4 text-left\">\r\n                <span className=\"flex items-center gap-3 text-[14px] text-[#334155]\">\r\n                  <MaterialIcon name=\"archive\" className=\"text-[18px] text-[#7C3AED]\" />\r\n                  {t('mockups.calendarDaily.quick_2')}\r\n                </span>\r\n                <MaterialIcon name=\"chevron_right\" className=\"text-[18px] text-slate-300\" />\r\n              </button>",
+      "<button type=\"button\" className=\"flex w-full items-center justify-between rounded-[18px] bg-slate-50 px-4 py-4 text-left\">\r\n                <span className=\"flex items-center gap-3 text-[14px] text-[#EF4444]\">\r\n                  <MaterialIcon name=\"close\" className=\"text-[18px]\" />\r\n                  {t('mockups.calendarDaily.quick_3')}\r\n                </span>\r\n                <MaterialIcon name=\"chevron_right\" className=\"text-[18px] text-slate-300\" />\r\n              </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\DashboardMockup.tsx": {
+    "usesLapClient": true,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500 transition hover:text-slate-700\">\r\n            <MaterialIcon name=\"notifications\" className=\"text-[20px]\" />\r\n          </button>",
+      "<button type=\"button\" className=\"text-slate-500 transition hover:text-slate-700\">\r\n            <MaterialIcon name=\"account_circle\" className=\"text-[20px]\" />\r\n          </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\IntakeMockup.tsx": {
+    "usesLapClient": true,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500 transition hover:text-slate-700\">\r\n              <MaterialIcon name=\"notifications\" className=\"text-[20px]\" />\r\n            </button>",
+      "<button type=\"button\" className=\"text-slate-500 transition hover:text-slate-700\">\r\n              <MaterialIcon name=\"account_circle\" className=\"text-[20px]\" />\r\n            </button>",
+      "<button\r\n                type=\"button\"\r\n                onClick={handleComplete}\r\n                disabled={isGenerating || !value.trim()}\r\n                className={`flex h-12 w-12 items-center justify-center rounded-full text-white transition hover:-translate-y-0.5 ${isGenerating ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}\r\n                aria-label={t('mockups.intake.continue')}\r\n              >\r\n                {isGenerating ? <MaterialIcon name=\"hourglass_empty\" className=\"text-[20px] animate-spin\" /> : <MaterialIcon name=\"arrow_forward\" className=\"text-[20px]\" />}\r\n              </button>",
+      "<button\r\n            type=\"button\"\r\n            onClick={() => {\r\n              onComplete?.('mock-profile')\r\n            }}\r\n            className=\"mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] px-7 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5\"\r\n          >\r\n            <span>{t('mockups.intake.continue')}</span>\r\n            <MaterialIcon name=\"arrow_forward\" className=\"text-[18px]\" />\r\n          </button>",
+      "<button\r\n            type=\"button\"\r\n            onClick={onCancel}\r\n            className=\"mt-4 text-[12px] italic text-slate-400 transition hover:text-[#334155]\"\r\n          >\r\n            {t('mockups.intake.help')}\r\n          </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [
+      "<textarea\r\n              value={value}\r\n              onChange={(event) =>"
+    ],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\MonthlyCalendarMockup.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": true,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"search\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"notifications\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"settings\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"h-10 w-10 cursor-not-allowed rounded-full bg-slate-50 text-slate-300\">\r\n              <MaterialIcon name=\"chevron_left\" className=\"text-[20px]\" />\r\n            </button>",
+      "<button type=\"button\" className=\"h-10 w-10 rounded-full bg-slate-50 text-[#334155] transition hover:bg-slate-100\">\r\n              <MaterialIcon name=\"chevron_right\" className=\"text-[20px]\" />\r\n            </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\RefinementMockup.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500 transition hover:text-slate-700\">\r\n            <MaterialIcon name=\"notifications\" className=\"text-[20px]\" />\r\n          </button>",
+      "<button type=\"button\" className=\"inline-flex items-center gap-2 text-[14px] text-slate-400 transition hover:text-[#334155]\">\r\n                <MaterialIcon name=\"arrow_back\" className=\"text-[18px]\" />\r\n                {t('mockups.refinement.previous')}\r\n              </button>",
+      "<button type=\"button\" className=\"h-14 rounded-[18px] bg-slate-100 px-6 font-display text-[14px] font-bold text-[#334155] transition hover:bg-slate-200\">\r\n                  {t('mockups.refinement.save')}\r\n                </button>",
+      "<button type=\"button\" className=\"group inline-flex h-14 items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] px-6 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5\">\r\n                  <span>{t('mockups.refinement.continue')}</span>\r\n                  <MaterialIcon name=\"arrow_forward\" className=\"text-[18px] transition-transform group-hover:translate-x-1\" />\r\n                </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [
+      "<textarea\r\n                  className=\"min-h-[164px] w-full rounded-[20px] bg-[#FAFAF9] p-4 text-[15px] text-slate-500 outline-none placeholder:text-slate-300\"\r\n                  placeholder={t('mockups.refinement.motivation_placeholder')}\r\n                />"
+    ],
+    "selects": [],
+    "mockData": [
+      "<MockData>{t('mockups.refinement.progress_value')}</MockData>",
+      "<MockData>{t('mockups.refinement.temporality_option')}</MockData>",
+      "<MockData>12/31/2024</MockData>",
+      "<MockData>{t('mockups.refinement.advice_title')}</MockData>",
+      "<MockData>{t('mockups.refinement.advice_copy')}</MockData>"
+    ]
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\SimulationCostMockup.tsx": {
+    "usesLapClient": true,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"notifications\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"h-8 w-8 rounded-full bg-[linear-gradient(135deg,#0F172A,#475569)]\" />\r\n        </>\r\n      )}\r\n    >\r\n      <div className=\"mx-auto w-full max-w-[1300px]\">\r\n        <div className=\"mb-8\">\r\n          <p className=\"font-display text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400\">{t('mockups.flow.simulation.eyebrow')}</p>\r\n          <h1 className=\"mt-4 font-display text-[32px] font-bold tracking-tight text-[#334155]\">{t('mockups.flow.simulation.title')}</h1>\r\n          <p className=\"mt-3 max-w-3xl text-[16px] leading-7 text-slate-500\">{t('mockups.flow.simulation.copy')}</p>\r\n        </div>\r\n\r\n        <div className=\"grid gap-6 lg:grid-cols-[minmax(0,1fr)_330px]\">\r\n          <div className=\"space-y-6\">\r\n            <section className=\"rounded-[24px] bg-white p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]\">\r\n              <div className=\"mb-6 flex items-center gap-2\">\r\n                <span className=\"h-2 w-2 rounded-full bg-[#A7F3D0]\" />\r\n                <h2 className=\"font-display text-[18px] font-bold text-[#334155]\">{t('mockups.flow.simulation.parameters')}</h2>\r\n              </div>\r\n              <div className=\"grid gap-6 md:grid-cols-2\">\r\n                <label className=\"space-y-2\">\r\n                  <span className=\"text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400\">{t('mockups.flow.simulation.priority')}</span>\r\n                  <div className=\"flex h-14 items-center justify-between rounded-[16px] bg-[#FAFAF9] px-4 text-[15px] text-slate-500\">\r\n                    <span>{t('mockups.flow.simulation.priority_value')}</span>\r\n                    <MaterialIcon name=\"expand_more\" className=\"text-[18px] text-slate-400\" />\r\n                  </div>\r\n                </label>\r\n                <label className=\"space-y-2\">\r\n                  <span className=\"text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400\">{t('mockups.flow.simulation.destination')}</span>\r\n                  <div className=\"flex h-14 items-center justify-between rounded-[16px] bg-[#FAFAF9] px-4 text-[15px] text-slate-500\">\r\n                    <span>{t('mockups.flow.simulation.destination_value')}</span>\r\n                    <MaterialIcon name=\"expand_more\" className=\"text-[18px] text-slate-400\" />\r\n                  </div>\r\n                </label>\r\n              </div>\r\n            </section>\r\n\r\n            <section className=\"rounded-[24px] bg-white p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]\">\r\n              <div className=\"mb-6 flex items-center justify-between\">\r\n                <div className=\"flex items-center gap-2\">\r\n                  <span className=\"h-2 w-2 rounded-full bg-[#E9D5FF]\" />\r\n                  <h2 className=\"font-display text-[18px] font-bold text-[#334155]\">{t('mockups.flow.simulation.monitor')}</h2>\r\n                </div>\r\n                <span className=\"text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400\">{t('mockups.flow.simulation.active_count')}</span>\r\n              </div>\r\n              <div className=\"space-y-4\">\r\n                {[\r\n                  { title: t('mockups.flow.simulation.monitor_1_title'), copy: t('mockups.flow.simulation.monitor_1_copy'), status: t('mockups.flow.simulation.ready') },\r\n                  { title: t('mockups.flow.simulation.monitor_2_title'), copy: t('mockups.flow.simulation.monitor_2_copy'), status: 'Desconectado' },\r\n                  { title: t('mockups.flow.simulation.monitor_3_title'), copy: t('mockups.flow.simulation.monitor_3_copy'), status: t('mockups.flow.simulation.pending') }\r\n                ].map((item, index) => (\r\n                  <div\r\n                    key={item.title}\r\n                    className={`flex items-center gap-4 rounded-[18px] p-4 ${index === 0 ? 'bg-[#A7F3D0]/10' : 'bg-white'} ${index === 1 ? 'border-t border-slate-100' : ''}`}\r\n                  >\r\n                    <div className=\"flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#334155] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]\">\r\n                      <MaterialIcon name={index === 0 ? 'check_circle' : index === 1 ? 'settings' : 'more_horiz'} className=\"text-[18px]\" />\r\n                    </div>\r\n                    <div className=\"min-w-0 flex-1\">\r\n                      <p className=\"text-[15px] font-semibold text-[#334155]\">{item.title}</p>\r\n                      <p className=\"text-[13px] text-slate-400\">{item.copy}</p>\r\n                    </div>\r\n                    <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] ${index === 0 ? 'bg-[#A7F3D0]/20 text-[#166534]' : index === 1 ? 'bg-[#E9D5FF]/20 text-[#7C3AED]' : 'bg-slate-100 text-slate-400'}`}>\r\n                      {item.status}\r\n                    </span>\r\n                  </div>\r\n                ))}\r\n              </div>\r\n            </section>\r\n          </div>\r\n\r\n          <aside className=\"space-y-6\">\r\n            <section className=\"rounded-[24px] bg-white p-8 text-center shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]\">\r\n              <div className=\"mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[20px] bg-[#1E293B] text-white\">\r\n                <MaterialIcon name=\"deployed_code\" className=\"text-[28px]\" />\r\n              </div>\r\n              <p className=\"text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400\">{t('mockups.flow.simulation.budget_label')}</p>\r\n              <h2 className=\"mt-2 font-display text-[24px] font-bold text-[#334155]\">{t('mockups.flow.simulation.cost_title')}</h2>\r\n              <div className=\"mt-4 inline-flex rounded-[16px] bg-[#1E293B] px-4 py-3 font-display text-[32px] font-bold text-white\">\r\n                {isLoading ? '...' : (wallet?.planBuildChargeSats ?? 45)}\r\n                <span className=\"ml-2 text-[12px] font-bold uppercase tracking-[0.22em] text-slate-300\">sats</span>\r\n              </div>\r\n              <div className=\"mt-6 space-y-3 text-left text-[14px] text-slate-500\">\r\n                <div className=\"flex justify-between\"><span>{t('mockups.flow.simulation.fee')}</span><span>12 sats</span></div>\r\n                <div className=\"flex justify-between\"><span>{t('mockups.flow.simulation.ai_processing')}</span><span>{isLoading ? '...' : (wallet?.planBuildChargeSats ? wallet.planBuildChargeSats - 12 : 33)} sats</span></div>\r\n                <div className=\"flex justify-between border-t border-slate-100 pt-3 font-semibold text-[#334155]\"><span>{t('mockups.flow.simulation.total')}</span><span>{isLoading ? '...' : (wallet?.planBuildChargeSats ?? 45)} sats</span></div>\r\n              </div>\r\n              <button type=\"button\" className=\"group mt-8 inline-flex h-14 w-full items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] px-6 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5\">\r\n                <span>{t('mockups.flow.simulation.generate')}</span>\r\n                <MaterialIcon name=\"rocket_launch\" className=\"text-[18px] transition-transform group-hover:translate-x-1\" />\r\n              </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\SpatialPrioritizationMockup.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": true,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\">\r\n            <MaterialIcon name=\"account_balance_wallet\" className=\"text-[20px]\" />\r\n          </button>",
+      "<button type=\"button\" className=\"text-slate-500\">\r\n            <MaterialIcon name=\"notifications\" className=\"text-[20px]\" />\r\n          </button>",
+      "<button type=\"button\" className=\"inline-flex h-11 items-center gap-2 rounded-full bg-[#1E293B] px-5 text-[11px] font-bold uppercase tracking-[0.22em] text-white\">\r\n                {t('mockups.flow.prioritization.save_view')}\r\n                <MaterialIcon name=\"arrow_forward\" className=\"text-[16px]\" />\r\n              </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\TaskManagementMockup.tsx": {
+    "usesLapClient": true,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"notifications\" className=\"text-[20px]\" /></button>",
+      "<button \r\n                        type=\"button\" \r\n                        onClick={() => handleToggle(task.id)}\r\n                        disabled={togglingId === task.id}\r\n                        className={`inline-flex h-11 items-center gap-2 rounded-full px-4 text-[11px] font-bold uppercase tracking-[0.22em] text-white transition ${task.completado ? 'bg-[#166534]' : 'bg-[#1E293B]'} ${togglingId === task.id ? 'opacity-50' : ''}`}\r\n                      >\r\n                        {task.completado ? 'Completado' : t('mockups.flow.tasks.begin')}\r\n                      </button>",
+      "<button type=\"button\" className=\"mt-6 inline-flex h-12 w-full items-center justify-center rounded-[16px] border border-white/10 text-[11px] font-bold uppercase tracking-[0.22em] text-white\">\r\n                {t('mockups.flow.tasks.library')}\r\n              </button>",
+      "<button type=\"button\" className=\"absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#1E293B] text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]\">\r\n                  <MaterialIcon name=\"add\" className=\"text-[18px]\" />\r\n                </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\WalletSettingsMockup.tsx": {
+    "usesLapClient": true,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"notifications\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"account_circle\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"group inline-flex h-14 flex-1 items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] px-6 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5\">\r\n                <span>{t('mockups.wallet.primary')}</span>\r\n                <MaterialIcon name=\"arrow_forward\" className=\"text-[18px] transition-transform group-hover:translate-x-1\" />\r\n              </button>",
+      "<button type=\"button\" className=\"h-14 rounded-[18px] border border-slate-200 bg-white px-6 font-display text-[14px] font-bold text-[#334155] transition hover:bg-slate-50\">\r\n                {t('mockups.wallet.secondary')}\r\n              </button>",
+      "<button type=\"button\" className=\"text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400\">\r\n                  {t('mockups.wallet.details')}\r\n                </button>"
+    ],
+    "links": [],
+    "inputs": [
+      "<input\r\n                  className=\"h-16 w-full rounded-[18px] border-0 bg-[#FAFAF9] px-4 pr-12 tracking-[0.5em] text-slate-400 outline-none transition focus:ring-2 focus:ring-[#1E293B]/10\"\r\n                  defaultValue=\"••••••••••••••••••••••••••••••••••••••\"\r\n                  type=\"password\"\r\n                />"
+    ],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\mockups\\WeeklyCalendarMockup.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": true,
+    "buttons": [
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"search\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"text-slate-500\"><MaterialIcon name=\"notifications\" className=\"text-[20px]\" /></button>",
+      "<button type=\"button\" className=\"rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-[#334155]\">\r\n                {t('mockups.calendarWeekly.join')}\r\n              </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\flow\\PlanFlow.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button\n          type=\"button\"\n          className=\"app-button app-button--primary\"\n          onClick={props.onSubmit}\n          disabled={props.busy || !props.profileReady}\n        >\n          {props.busy ? 'Preparando...' : COPY.start}\n        </button>",
+      "<button\n          type=\"button\"\n          className=\"app-button app-button--primary\"\n          onClick={props.onSubmit}\n          disabled={props.busy}\n        >\n          {props.busy ? 'Procesando...' : COPY.continue}\n        </button>"
+    ],
+    "links": [],
+    "inputs": [
+      "<input\n          className={styles.inlineInput}\n          type=\"number\"\n          min={question.min}\n          max={question.max}\n          value={value}\n          disabled={props.busy}\n          onChange={(event) =>",
+      "<input\n          className={styles.rangeInput}\n          type=\"range\"\n          min={question.min ?? 0}\n          max={question.max ?? 100}\n          value={value}\n          disabled={props.busy}\n          onChange={(event) =>"
+    ],
+    "textareas": [
+      "<textarea\n          className={styles.goalInput}\n          value={props.goalText}\n          onChange={(event) =>",
+      "<textarea\n        className={styles.textarea}\n        value={value}\n        disabled={props.busy}\n        onChange={(event) =>"
+    ],
+    "selects": [
+      "<select\n          className={styles.selectInput}\n          value={value}\n          disabled={props.busy}\n          onChange={(event) =>"
+    ],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\flow\\PlanFlowPage.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\settings\\AccountSection.tsx": {
+    "usesLapClient": false,
+    "usesFetch": true,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button className=\"app-button app-button--secondary\" type=\"button\" onClick={() => void handleLogout()} disabled={busy}>\r\n              {t('auth.logout_button')}\r\n            </button>",
+      "<button\r\n            className=\"app-button app-button--secondary\"\r\n            type=\"button\"\r\n            onClick={() => {\r\n              void handleDeleteAccount()\r\n            }}\r\n            disabled={busy || deleteConfirmation.trim() !== 'ELIMINAR'}\r\n          >\r\n            {t('auth.delete_button')}\r\n          </button>",
+      "<button\r\n              className=\"app-button app-button--primary\"\r\n              type=\"button\"\r\n              onClick={() => {\r\n                void handleAuthSubmit()\r\n              }}\r\n              disabled={busy || !username.trim() || !password.trim()}\r\n            >\r\n              {mode === 'login' ? t('auth.login_button') : t('auth.register_button')}\r\n            </button>",
+      "<button\r\n              className=\"app-button app-button--secondary\"\r\n              type=\"button\"\r\n              onClick={() => setMode(mode === 'login' ? 'register' : 'login')}\r\n              disabled={busy}\r\n            >\r\n              {mode === 'login' ? t('auth.register_button') : t('auth.login_button')}\r\n            </button>"
+    ],
+    "links": [],
+    "inputs": [
+      "<input\r\n              className=\"app-input\"\r\n              type=\"text\"\r\n              value={deleteConfirmation}\r\n              onChange={(event) =>",
+      "<input\r\n              className=\"app-input\"\r\n              type=\"text\"\r\n              value={username}\r\n              onChange={(event) =>",
+      "<input\r\n              className=\"app-input\"\r\n              type=\"password\"\r\n              value={password}\r\n              onChange={(event) =>"
+    ],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\settings\\BuildSection.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button\r\n            className=\"app-button app-button--secondary\"\r\n            type=\"button\"\r\n            onClick={props.onToggleInspector}\r\n          >\r\n            {props.inspectorVisible ? t('debug.disable') : t('debug.panel_title')}\r\n          </button>",
+      "<button\r\n            className=\"app-button app-button--primary\"\r\n            type=\"button\"\r\n            onClick={() => {\r\n              void props.onBuild()\r\n            }}\r\n            disabled={props.buildBusy || props.buildUsageLoading || !props.canBuild}\r\n          >\r\n            {props.buildBusy ? t('builder.generating') : t('settings.apikey_confirm')}\r\n          </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\settings\\LlmModeSelector.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button\r\n        type=\"button\"\r\n        className=\"app-button app-button--secondary\"\r\n        onClick={onToggleAdvanced}\r\n        aria-expanded={advancedVisible}\r\n      >\r\n        {advancedVisible ? t('settings.normal_lane.advanced_close') : t('settings.normal_lane.advanced_open')}\r\n      </button>",
+      "<button\r\n              type=\"button\"\r\n              className={[styles.modeCard, value === 'service' ? styles.modeCardActive : ''].join(' ')}\r\n              onClick={() => onChange('service')}\r\n            >\r\n              <strong>{t('settings.llm_mode.service_title')}</strong>\r\n              <span>{t('settings.llm_mode.service_hint')}</span>\r\n            </button>",
+      "<button\r\n              type=\"button\"\r\n              className={[styles.modeCard, value === 'own' ? styles.modeCardActive : ''].join(' ')}\r\n              onClick={() => onChange('own')}\r\n            >\r\n              <strong>{t('settings.llm_mode.own_key_title')}</strong>\r\n              <span>{t('settings.llm_mode.own_key_hint')}</span>\r\n            </button>",
+      "<button\r\n                type=\"button\"\r\n                className={[styles.modeCard, value === 'codex' ? styles.modeCardActive : ''].join(' ')}\r\n                onClick={() => onChange('codex')}\r\n              >\r\n                <strong>{t('settings.llm_mode.codex_title')}</strong>\r\n                <span>{t('settings.llm_mode.codex_hint')}</span>\r\n              </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\settings\\OwnKeyManager.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button\r\n          className=\"app-button app-button--primary\"\r\n          type=\"button\"\r\n          onClick={() => {\r\n            void handleSubmit()\r\n          }}\r\n          disabled={!props.protectionPassword.trim() || !alias.trim() || !value.trim() || props.busy}\r\n        >\r\n          {t('settings.own_keys.save')}\r\n        </button>",
+      "<button\r\n          className=\"app-button app-button--secondary\"\r\n          type=\"button\"\r\n          onClick={() => {\r\n            void props.onBackup()\r\n          }}\r\n          disabled={!props.isAuthenticated || !props.protectionPassword.trim() || props.keys.length === 0 || props.busy}\r\n        >\r\n          {t('settings.own_keys.backup_toggle')}\r\n        </button>",
+      "<button\r\n          className=\"app-button app-button--secondary\"\r\n          type=\"button\"\r\n          onClick={() => {\r\n            void props.onRestore()\r\n          }}\r\n          disabled={!props.isAuthenticated || !props.protectionPassword.trim() || props.busy}\r\n        >\r\n          {t('settings.own_keys.restore_title')}\r\n        </button>",
+      "<button\r\n                className=\"app-button app-button--secondary\"\r\n                type=\"button\"\r\n                onClick={() => props.onDeleteKey(record.id)}\r\n              >\r\n                {t('settings.own_keys.delete')}\r\n              </button>"
+    ],
+    "links": [],
+    "inputs": [
+      "<input\r\n          className=\"app-input\"\r\n          type=\"password\"\r\n          value={props.protectionPassword}\r\n          onChange={(event) =>",
+      "<input\r\n            className=\"app-input\"\r\n            type=\"text\"\r\n            value={alias}\r\n            onChange={(event) =>",
+      "<input\r\n          className=\"app-input\"\r\n          type=\"password\"\r\n          value={value}\r\n          onChange={(event) =>",
+      "<input\r\n                  type=\"radio\"\r\n                  name=\"local-key\"\r\n                  checked={props.selectedKeyId === record.id}\r\n                  onChange={() =>"
+    ],
+    "textareas": [],
+    "selects": [
+      "<select className=\"app-input\" value={provider} onChange={(event) =>"
+    ],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\settings\\ServiceAiSelector.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button\r\n              key={model.modelId}\r\n              type=\"button\"\r\n              className={[styles.serviceModelCard, selectedModelId === model.modelId ? styles.serviceModelCardActive : ''].join(' ')}\r\n              onClick={() => onSelect(model.modelId)}\r\n            >\r\n              <strong>{model.displayName}</strong>\r\n              <span>{model.modelId}</span>\r\n            </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\settings\\SettingsMockupPage.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\settings\\types.ts": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\settings\\WalletSection.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button\r\n            className=\"app-button app-button--primary\"\r\n            type=\"submit\"\r\n            disabled={!props.walletConnection.trim() || props.walletBusy}\r\n          >\r\n            {props.walletBusy ? t('settings.wallet_connecting') : t('settings.wallet_confirm')}\r\n          </button>",
+      "<button\r\n            className=\"app-button app-button--secondary\"\r\n            type=\"button\"\r\n            onClick={() => {\r\n              void props.onDisconnect()\r\n            }}\r\n            disabled={props.walletBusy || !props.walletStatus.configured}\r\n          >\r\n            {t('settings.wallet_disconnect')}\r\n          </button>"
+    ],
+    "links": [],
+    "inputs": [
+      "<input\r\n          className=\"app-input\"\r\n          type=\"password\"\r\n          value={props.walletConnection}\r\n          onChange={(event) =>"
+    ],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\AdaptiveChangesPanel.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\CalendarView.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\DayView.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\HabitTracker.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\PlanDashboardV5.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": true,
+    "buttons": [
+      "<button type=\"button\" className=\"app-button app-button--primary\" onClick={refetch}>\n            {t('planV5.refresh')}\n          </button>",
+      "<button type=\"button\" className=\"app-button app-button--primary\" onClick={refetch}>\n            {t('planV5.refresh')}\n          </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\PlanDashboardV5Content.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button\n            key={tab}\n            type=\"button\"\n            role=\"tab\"\n            className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ''}`}\n            aria-selected={activeTab === tab}\n            onClick={() => onTabChange(tab)}\n          >\n            {t(`planV5.tabs.${tab}`)}\n          </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\PlanMockupPage.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\PlanPackageExplorer.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\PlanSummaryBar.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button className={styles.button} type=\"button\" onClick={onOpenChanges}>\n              {t('planV5.summary.changes')}\n            </button>",
+      "<button className={styles.button} type=\"button\" onClick={onOpenTradeoffs}>\n              {t('planV5.summary.tradeoffs')}\n            </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\ProgressView.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\TradeoffDialog.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button className={styles.close} type=\"button\" onClick={onClose}>\n            {t('planV5.tradeoff.close')}\n          </button>",
+      "<button\n                    className={styles.optionButton}\n                    type=\"button\"\n                    onClick={() => {\n                      console.info(t('planV5.dialog.selected', { option: 'A' }), tradeoff);\n                    }}\n                  >\n                    {t('planV5.tradeoff.select')}\n                  </button>",
+      "<button\n                    className={styles.optionButton}\n                    type=\"button\"\n                    onClick={() => {\n                      console.info(t('planV5.dialog.selected', { option: 'B' }), tradeoff);\n                    }}\n                  >\n                    {t('planV5.tradeoff.select')}\n                  </button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\plan-viewer\\WeekView.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\midnight-mint\\MaterialIcon.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\midnight-mint\\MockData.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\midnight-mint\\MockupShell.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [
+      "<button key={item.label} type=\"button\" className=\"w-full text-left\">\r\n                  {content}\r\n                </button>",
+      "<button\r\n                    key={item.label}\r\n                    type=\"button\"\r\n                    className={cn(\r\n                      'flex w-full items-center gap-3 rounded-[18px] px-4 py-2.5 text-left text-[11px] uppercase tracking-[0.22em] transition-colors',\r\n                      item.active ? 'bg-white text-slate-900' : 'text-slate-500 hover:bg-white/70 hover:text-slate-800'\r\n                    )}\r\n                  >\r\n                    <MaterialIcon name={item.icon} className={cn('text-[18px]', item.active ? 'text-slate-900' : 'text-slate-400')} />\r\n                    <span className=\"font-display font-bold\">{item.label}</span>\r\n                  </button>",
+      "<button key={tab.label} type=\"button\">{tabContent}</button>"
+    ],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\Dashboard.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  },
+  "F:\\proyectos\\planificador-vida\\components\\IntakePageContent.tsx": {
+    "usesLapClient": false,
+    "usesFetch": false,
+    "usesUsePlanV5": false,
+    "buttons": [],
+    "links": [],
+    "inputs": [],
+    "textareas": [],
+    "selects": [],
+    "mockData": []
+  }
+}

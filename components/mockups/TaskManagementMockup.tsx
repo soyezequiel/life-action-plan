@@ -1,9 +1,48 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
+import { browserLapClient } from '@/src/lib/client/browser-http-client'
+import type { ProgressRow } from '@/src/shared/types/lap-api'
 
 export default function TaskManagementMockup() {
+  const [tasks, setTasks] = useState<ProgressRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
+
+  useEffect(() => {
+    browserLapClient.profile.latest().then((profileId) => {
+      if (!profileId) return setLoading(false)
+      return browserLapClient.plan.list(profileId).then((plans) => {
+        const active = plans[0]
+        if (active) {
+          return browserLapClient.progress.list(active.id).then((progressRows) => {
+            setTasks(progressRows)
+            setLoading(false)
+          })
+        }
+        setLoading(false)
+      })
+    }).catch(() => setLoading(false))
+  }, [])
+
+  const handleToggle = async (taskId: string) => {
+    if (togglingId) return
+    setTogglingId(taskId)
+    try {
+      const res = await browserLapClient.progress.toggle(taskId)
+      if (res.success) {
+        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, completado: res.completado } : t))
+      }
+    } catch (err) {
+      console.error('Failed to toggle task', err)
+    } finally {
+      setTogglingId(null)
+    }
+  }
+
   const sidebar = [
     { label: t('mockups.flow.tasks.nav.dashboard'), icon: 'dashboard', href: '/' },
     { label: t('mockups.flow.tasks.nav.calendar'), icon: 'calendar_today', href: '/plan?view=week' },
@@ -57,34 +96,34 @@ export default function TaskManagementMockup() {
               </div>
 
               <div className="space-y-4">
-                <article className="rounded-[22px] bg-white p-5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em]">
-                    <span className="rounded-full bg-[#FCA5A5]/20 px-2 py-1 text-[#EF4444]">{t('mockups.flow.tasks.urgent')}</span>
-                    <span className="text-slate-400">{t('mockups.flow.tasks.id')}</span>
-                  </div>
-                  <h3 className="mt-3 text-[18px] font-semibold text-[#334155]">{t('mockups.flow.tasks.task_1_title')}</h3>
-                  <p className="mt-3 text-[14px] leading-7 text-slate-500">{t('mockups.flow.tasks.task_1_copy')}</p>
-                  <div className="mt-5 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-[13px] text-slate-400">
-                      <MaterialIcon name="schedule" className="text-[16px]" />
-                      <span>{t('mockups.flow.tasks.task_1_meta')}</span>
+                {loading ? <p className="text-slate-400">Cargando progreso...</p> : tasks.length === 0 ? (
+                  <p className="text-slate-400">No hay tareas generadas.</p>
+                ) : tasks.slice(0, 5).map((task, idx) => (
+                  <article key={task.id} className="rounded-[22px] bg-white p-5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-[0.22em]">
+                      <div className="flex gap-2">
+                        {idx === 0 && <span className="rounded-full bg-[#FCA5A5]/20 px-2 py-1 text-[#EF4444]">{t('mockups.flow.tasks.urgent')}</span>}
+                        {idx !== 0 && <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-500">{t('mockups.flow.tasks.important')}</span>}
+                      </div>
+                      <span className="text-slate-400">{task.completado ? '100' : '0'}%</span>
                     </div>
-                    <button type="button" className="inline-flex h-11 items-center gap-2 rounded-full bg-[#1E293B] px-4 text-[11px] font-bold uppercase tracking-[0.22em] text-white">
-                      {t('mockups.flow.tasks.begin')}
-                    </button>
-                  </div>
-                </article>
-
-                <article className="rounded-[22px] bg-white p-5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em]">
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-500">{t('mockups.flow.tasks.important')}</span>
-                  </div>
-                  <h3 className="mt-3 text-[18px] font-semibold text-[#334155]">{t('mockups.flow.tasks.task_2_title')}</h3>
-                  <div className="mt-5 flex items-center gap-2 text-[13px] text-slate-400">
-                    <MaterialIcon name="event" className="text-[16px]" />
-                    <span>{t('mockups.flow.tasks.task_2_meta')}</span>
-                  </div>
-                </article>
+                    <h3 className="mt-3 text-[18px] font-semibold text-[#334155]">{task.descripcion}</h3>
+                    <div className="mt-5 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-[13px] text-slate-400">
+                        <MaterialIcon name="schedule" className="text-[16px]" />
+                        <span>{t('mockups.flow.tasks.task_1_meta')}</span>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => handleToggle(task.id)}
+                        disabled={togglingId === task.id}
+                        className={`inline-flex h-11 items-center gap-2 rounded-full px-4 text-[11px] font-bold uppercase tracking-[0.22em] text-white transition ${task.completado ? 'bg-[#166534]' : 'bg-[#1E293B]'} ${togglingId === task.id ? 'opacity-50' : ''}`}
+                      >
+                        {task.completado ? 'Completado' : t('mockups.flow.tasks.begin')}
+                      </button>
+                    </div>
+                  </article>
+                ))}
               </div>
             </section>
 
@@ -124,7 +163,7 @@ export default function TaskManagementMockup() {
                   </div>
                   <h2 className="font-display text-[18px] font-bold">{t('mockups.flow.tasks.explore_title')}</h2>
                 </div>
-                <span className="rounded-full bg-[#334155] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300"><MockData>75%</MockData></span>
+                <span className="rounded-full bg-[#334155] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">75%</span>
               </div>
               <p className="text-[14px] leading-7 text-slate-300">{t('mockups.flow.tasks.explore_copy')}</p>
               <div className="mt-6 space-y-4">
@@ -136,7 +175,7 @@ export default function TaskManagementMockup() {
                   <div key={label}>
                     <div className="mb-2 flex items-center justify-between text-[13px] text-slate-300">
                       <span>{label}</span>
-                      <span><MockData>{percent}</MockData></span>
+                      <span>{percent}</span>
                     </div>
                     <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                       <div className="h-full rounded-full bg-[#A7F3D0]" style={{ width: percent }} />

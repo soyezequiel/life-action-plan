@@ -1,8 +1,11 @@
+'use client'
+
 import { DateTime } from 'luxon'
+
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
+import { usePlanV5 } from '@/src/lib/client/use-plan-v5'
 
 function buildMonthGrid(month: number): Array<Array<number | null>> {
   const firstDay = DateTime.fromObject({ year: 2023, month, day: 1 }, { locale: 'es-AR' })
@@ -34,6 +37,12 @@ const highlights: Record<number, string> = {
 }
 
 export default function MonthlyCalendarMockup() {
+  const { package: planPackage, loading } = usePlanV5()
+  
+  const allTasks = planPackage?.plan.detail.weeks.flatMap(w => w.scheduledEvents ?? []) ?? []
+  const firstTask = allTasks[0]
+  const pendingCount = allTasks.length
+
   const month = 10
   const monthTitle = DateTime.fromObject({ year: 2023, month, day: 1 }, { locale: 'es-AR' }).toFormat('LLLL')
   const weeks = buildMonthGrid(month)
@@ -53,7 +62,7 @@ export default function MonthlyCalendarMockup() {
         { label: t('mockups.common.help'), icon: 'help', href: '#' },
         { label: t('mockups.common.exit'), icon: 'logout', href: '#' }
       ]}
-      topLeft={<div className="font-display text-[20px] font-bold text-[#334155]"><MockData>{monthTitle}</MockData></div>}
+      topLeft={<div className="font-display text-[20px] font-bold text-[#334155]">{monthTitle}</div>}
       topTabs={[
         { label: t('mockups.calendarMonthly.tabs.day'), href: '/plan?view=day' },
         { label: t('mockups.calendarMonthly.tabs.week'), href: '/plan?view=week' },
@@ -71,6 +80,17 @@ export default function MonthlyCalendarMockup() {
       contentClassName="px-0"
     >
       <div className="mx-auto w-full max-w-[1400px]">
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="font-display text-[32px] font-bold tracking-tight text-[#334155]">{t('mockups.calendarMonthly.title')}</h1>
+          <div className="flex gap-2">
+            <button type="button" className="h-10 w-10 cursor-not-allowed rounded-full bg-slate-50 text-slate-300">
+              <MaterialIcon name="chevron_left" className="text-[20px]" />
+            </button>
+            <button type="button" className="h-10 w-10 rounded-full bg-slate-50 text-[#334155] transition hover:bg-slate-100">
+              <MaterialIcon name="chevron_right" className="text-[20px]" />
+            </button>
+          </div>
+        </div>
         <div className="rounded-[28px] bg-white/80 p-4 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
           <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold uppercase tracking-[0.22em] text-slate-300">
             {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day) => <span key={day}>{day}</span>)}
@@ -108,7 +128,7 @@ export default function MonthlyCalendarMockup() {
                 <MaterialIcon name="event" className="text-[18px]" />
               </div>
               <div>
-                <p className="text-[14px] font-semibold text-[#334155]">{t('mockups.calendarMonthly.next_event_title')}</p>
+                <p className="text-[14px] font-semibold text-[#334155]">{loading ? '...' : (firstTask?.title ?? t('mockups.calendarMonthly.next_event_title'))}</p>
                 <p className="text-[12px] text-slate-400">{t('mockups.calendarMonthly.next_event_subtitle')}</p>
               </div>
             </div>
@@ -121,7 +141,7 @@ export default function MonthlyCalendarMockup() {
                 <MaterialIcon name="check_circle" className="text-[18px]" />
               </div>
               <div>
-                <p className="text-[24px] font-bold text-[#334155]"><MockData>12</MockData></p>
+                <p className="text-[24px] font-bold text-[#334155]">{loading ? '...' : pendingCount}</p>
                 <p className="text-[12px] text-slate-400">{t('mockups.calendarMonthly.pending_copy')}</p>
               </div>
             </div>

@@ -1,20 +1,25 @@
+'use client'
+
 import { DateTime } from 'luxon'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
+import { usePlanV5 } from '@/src/lib/client/use-plan-v5'
 
 function DayRow({ time, title, place, color, height }: { time: string; title: string; place: string; color: string; height: string }) {
   return (
     <div className={`rounded-[18px] ${color} p-4 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]`} style={{ minHeight: height }}>
-      <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-current/70"><MockData>{time}</MockData></p>
-      <h3 className="mt-2 text-[16px] font-semibold text-current"><MockData>{title}</MockData></h3>
-      <p className="mt-2 text-[12px] text-current/70"><MockData>{place}</MockData></p>
+      <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-current/70">{time}</p>
+      <h3 className="mt-2 text-[16px] font-semibold text-current">{title}</h3>
+      <p className="mt-2 text-[12px] text-current/70">{place}</p>
     </div>
   )
 }
 
 export default function DailyCalendarMockup() {
+  const { package: planPackage, loading } = usePlanV5()
+  const allTasks = planPackage?.plan.detail.weeks.flatMap(w => w.scheduledEvents ?? []) ?? []
+  
   const today = DateTime.fromObject({ year: 2023, month: 10, day: 4 }, { locale: 'es-AR' })
 
   return (
@@ -54,35 +59,27 @@ export default function DailyCalendarMockup() {
         <section className="rounded-[28px] bg-white/80 p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
           <div className="mb-6 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-slate-300">
             <MaterialIcon name="schedule" className="text-[16px]" />
-            <MockData>{today.toFormat('cccc d LLLL yyyy')}</MockData>
+            {today.toFormat('cccc d LLLL yyyy')}
           </div>
 
           <div className="space-y-4">
-            <DayRow
-              time="09:00 — 10:30"
-              title={t('mockups.calendarDaily.event_1_title')}
-              place={t('mockups.calendarDaily.event_1_place')}
-              color="bg-[#A7F3D0]/55 text-[#166534]"
-              height="108px"
-            />
-            <div className="flex items-center gap-4 py-2">
-              <div className="h-2 w-2 rounded-full bg-[#A7F3D0]" />
-              <div className="h-px flex-1 bg-[#A7F3D0]" />
-            </div>
-            <DayRow
-              time="11:00 — 12:00"
-              title={t('mockups.calendarDaily.event_2_title')}
-              place={t('mockups.calendarDaily.event_2_place')}
-              color="bg-[#E9D5FF]/55 text-[#4C1D95]"
-              height="112px"
-            />
-            <DayRow
-              time="13:00 — 14:00"
-              title={t('mockups.calendarDaily.event_3_title')}
-              place={t('mockups.calendarDaily.event_3_place')}
-              color="bg-white text-[#334155] border border-slate-100"
-              height="88px"
-            />
+            {loading ? <p className="text-sm text-slate-400">Cargando eventos...</p> : allTasks.slice(0, 3).map((task, idx) => (
+              <div key={idx}>
+                {idx > 0 && (
+                  <div className="flex items-center gap-4 py-2">
+                    <div className="h-2 w-2 rounded-full bg-[#A7F3D0]" />
+                    <div className="h-px flex-1 bg-[#A7F3D0]" />
+                  </div>
+                )}
+                <DayRow
+                  time={idx === 0 ? "09:00 — 10:30" : idx === 1 ? "11:00 — 12:00" : "13:00 — 14:00"}
+                  title={task.title ?? t(`mockups.calendarDaily.event_${idx + 1}_title`)}
+                  place={t(`mockups.calendarDaily.event_${idx + 1}_place`)}
+                  color={idx === 0 ? "bg-[#A7F3D0]/55 text-[#166534]" : idx === 1 ? "bg-[#E9D5FF]/55 text-[#4C1D95]" : "bg-white text-[#334155] border border-slate-100"}
+                  height={idx === 0 ? "108px" : idx === 1 ? "112px" : "88px"}
+                />
+              </div>
+            ))}
           </div>
         </section>
 

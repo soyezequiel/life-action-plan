@@ -1,9 +1,14 @@
+'use client'
+
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
+import { usePlanV5 } from '@/src/lib/client/use-plan-v5'
 
 export default function SpatialPrioritizationMockup() {
+  const { package: planPackage, loading } = usePlanV5()
+  const allTasks = planPackage?.plan.detail.weeks.flatMap(w => w.scheduledEvents ?? []) ?? []
+
   const sidebar = [
     { label: t('mockups.refinement.nav.dashboard'), icon: 'dashboard', href: '/' },
     { label: t('mockups.refinement.nav.planner'), icon: 'calendar_month', active: true, href: '/flow' },
@@ -51,45 +56,16 @@ export default function SpatialPrioritizationMockup() {
           </div>
           <div className="mt-8 space-y-4">
             <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">{t('mockups.flow.prioritization.pending')}</p>
-            {[
-              {
-                badge: 'text-[#7C3AED]',
-                badgeBg: 'bg-[#E9D5FF]/20',
-                title: t('mockups.flow.prioritization.card_1_title'),
-                copy: t('mockups.flow.prioritization.card_1_copy'),
-                category: t('mockups.flow.prioritization.card_1_category')
-              },
-              {
-                badge: 'text-[#166534]',
-                badgeBg: 'bg-[#A7F3D0]/20',
-                title: t('mockups.flow.prioritization.card_2_title'),
-                copy: t('mockups.flow.prioritization.card_2_copy'),
-                category: t('mockups.flow.prioritization.card_2_category')
-              },
-              {
-                badge: 'text-[#475569]',
-                badgeBg: 'bg-slate-100',
-                title: t('mockups.flow.prioritization.card_3_title'),
-                copy: t('mockups.flow.prioritization.card_3_copy'),
-                category: t('mockups.flow.prioritization.card_3_category')
-              },
-              {
-                badge: 'text-[#7C3AED]',
-                badgeBg: 'bg-[#E9D5FF]/20',
-                title: t('mockups.flow.prioritization.card_4_title'),
-                copy: t('mockups.flow.prioritization.card_4_copy'),
-                category: t('mockups.flow.prioritization.card_4_category')
-              }
-            ].map((item) => (
-              <article key={item.title} className="rounded-[20px] bg-white p-4 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+            {loading ? <p className="text-sm text-slate-400">Calculando layout espacial...</p> : allTasks.length === 0 ? <p className="text-sm text-slate-400">Sin tareas.</p> : allTasks.slice(0, 4).map((item, idx) => (
+              <article key={item.id || idx} className="rounded-[20px] bg-white p-4 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className={`inline-flex h-7 items-center rounded-full px-3 text-[10px] font-bold uppercase tracking-[0.22em] ${item.badge} ${item.badgeBg}`}>
-                    {item.category}
+                  <span className={`inline-flex h-7 items-center rounded-full px-3 text-[10px] font-bold uppercase tracking-[0.22em] ${idx === 0 ? 'text-[#7C3AED] bg-[#E9D5FF]/20' : idx === 1 ? 'text-[#166534] bg-[#A7F3D0]/20' : 'text-[#475569] bg-slate-100'}`}>
+                    {idx === 0 ? 'Urgente' : idx === 1 ? 'Importante' : 'Priorizado'}
                   </span>
                   <MaterialIcon name="drag_indicator" className="text-[18px] text-slate-300" />
                 </div>
-                <h3 className="text-[15px] font-semibold text-[#334155]"><MockData>{item.title}</MockData></h3>
-                <p className="mt-2 text-[13px] leading-6 text-slate-500"><MockData>{item.copy}</MockData></p>
+                <h3 className="text-[15px] font-semibold text-[#334155]">{item.title}</h3>
+                <p className="mt-2 text-[13px] leading-6 text-slate-500">Espacio reservado.</p>
               </article>
             ))}
           </div>
@@ -114,11 +90,11 @@ export default function SpatialPrioritizationMockup() {
                 <span className="h-2 w-2 rounded-full bg-[#FCA5A5]" />
                 {t('mockups.flow.prioritization.in_progress')}
               </div>
-              <h3 className="font-display text-[18px] font-bold text-[#334155]"><MockData>{t('mockups.flow.prioritization.side_title')}</MockData></h3>
-              <p className="mt-2 text-[13px] leading-6 text-slate-500"><MockData>{t('mockups.flow.prioritization.side_copy')}</MockData></p>
+              <h3 className="font-display text-[18px] font-bold text-[#334155]">{loading ? '...' : (allTasks[0]?.title ?? t('mockups.flow.prioritization.side_title'))}</h3>
+              <p className="mt-2 text-[13px] leading-6 text-slate-500">{t('mockups.flow.prioritization.side_copy')}</p>
               <div className="mt-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
                 <MaterialIcon name="event" className="text-[14px] text-[#A7F3D0]" />
-                <MockData>{t('mockups.flow.prioritization.side_meta')}</MockData>
+                {t('mockups.flow.prioritization.side_meta')}
               </div>
             </article>
 
@@ -126,11 +102,11 @@ export default function SpatialPrioritizationMockup() {
               <div className="absolute -right-4 -top-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#A7F3D0] text-[#166534]">
                 <MaterialIcon name="star" className="text-[18px]" />
               </div>
-              <h3 className="font-display text-[18px] font-bold"><MockData>{t('mockups.flow.prioritization.big_title')}</MockData></h3>
-              <p className="mt-2 text-[13px] leading-6 text-slate-200"><MockData>{t('mockups.flow.prioritization.big_copy')}</MockData></p>
+              <h3 className="font-display text-[18px] font-bold">{loading ? '...' : (allTasks[1]?.title ?? t('mockups.flow.prioritization.big_title'))}</h3>
+              <p className="mt-2 text-[13px] leading-6 text-slate-200">{t('mockups.flow.prioritization.big_copy')}</p>
               <div className="mt-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[#A7F3D0]">
                 <MaterialIcon name="event" className="text-[14px]" />
-                <MockData>{t('mockups.flow.prioritization.big_meta')}</MockData>
+                {t('mockups.flow.prioritization.big_meta')}
               </div>
             </article>
 

@@ -1,8 +1,10 @@
+'use client'
+
 import { DateTime } from 'luxon'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
+import { usePlanV5 } from '@/src/lib/client/use-plan-v5'
 
 const MONTHS = Array.from({ length: 12 }, (_, index) => index + 1)
 
@@ -36,6 +38,13 @@ const highlightedDays: Record<number, Record<number, string>> = {
 }
 
 export default function AnnualCalendarMockup() {
+  const { package: planPackage, loading } = usePlanV5()
+  const allTasks = planPackage?.plan.detail.weeks.flatMap(w => w.scheduledEvents ?? []) ?? []
+  const allMilestones = planPackage?.plan.skeleton.milestones ?? []
+
+  const totalEvents = allTasks.length || 124
+  const totalMilestones = allMilestones.length || 18
+
   const sidebar = [
     { label: t('mockups.calendarAnnual.nav.calendar'), icon: 'calendar_today', active: true, href: '/plan?view=year' },
     { label: t('mockups.calendarAnnual.nav.events'), icon: 'event', href: '/plan?view=month' },
@@ -53,7 +62,7 @@ export default function AnnualCalendarMockup() {
         { label: t('mockups.common.help'), icon: 'help', href: '#' },
         { label: t('mockups.common.exit'), icon: 'logout', href: '#' }
       ]}
-      topLeft={<div className="font-display text-[24px] font-bold text-[#334155]"><MockData>2024</MockData></div>}
+      topLeft={<div className="font-display text-[24px] font-bold text-[#334155]">2024</div>}
       topTabs={[
         { label: t('mockups.calendarAnnual.tabs.day'), href: '/plan?view=day' },
         { label: t('mockups.calendarAnnual.tabs.week'), href: '/plan?view=week' },
@@ -142,11 +151,11 @@ export default function AnnualCalendarMockup() {
                 <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-300">{t('mockups.calendarAnnual.summary_title')}</p>
                 <div className="mt-4 flex gap-10">
                   <div>
-                    <strong className="block font-display text-[32px] font-bold">124</strong>
+                    <strong className="block font-display text-[32px] font-bold">{loading ? '...' : totalEvents}</strong>
                     <span className="text-[12px] text-slate-300">{t('mockups.calendarAnnual.summary_events')}</span>
                   </div>
                   <div>
-                    <strong className="block font-display text-[32px] font-bold">18</strong>
+                    <strong className="block font-display text-[32px] font-bold">{loading ? '...' : totalMilestones}</strong>
                     <span className="text-[12px] text-slate-300">{t('mockups.calendarAnnual.summary_milestones')}</span>
                   </div>
                 </div>

@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { motion, MotionConfig } from 'framer-motion'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockData } from '../midnight-mint/MockData'
 import { MockupShell } from '../midnight-mint/MockupShell'
+import { browserLapClient } from '@/src/lib/client/browser-http-client'
 
 interface IntakeMockupProps {
   onComplete?: (profileId: string) => void
@@ -14,6 +14,55 @@ interface IntakeMockupProps {
 
 export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps) {
   const [value, setValue] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [currentPhase, setCurrentPhase] = useState<string>('idle')
+  const [progressScore, setProgressScore] = useState<number>(0)
+  const [lastAction, setLastAction] = useState<string>('')
+
+  const handleComplete = async () => {
+    if (!value.trim() || isGenerating) return
+    setIsGenerating(true)
+    
+    try {
+      const intakeRes = await browserLapClient.intake.save({
+        nombre: 'Usuario',
+        edad: 30,
+        ubicacion: 'Local',
+        ocupacion: 'Profesional',
+        objetivo: value
+      })
+
+      if (intakeRes.profileId) {
+        let finishLocal = false
+        const unsubs = [
+          browserLapClient.plan.onBuildProgress((prog) => {
+            // Note: The new HTTP client actually emits raw progress without explicit phase strings sometimes 
+            // but we can catch standard Next.js SSE callbacks.
+            if (!finishLocal) {
+              setCurrentPhase(prog.stage || 'generating')
+              setProgressScore(prog.current ? Math.floor((prog.current / (prog.total || 4)) * 100) : 0)
+            }
+          })
+        ]
+
+        // Custom loop
+        const streamCallbacks = {
+          onPhase: (phaseStr: string) => setCurrentPhase(phaseStr),
+          onProgress: (score: number, action: string) => { setProgressScore(score); setLastAction(action) },
+          onNeedsInput: () => { /* Handle later */ },
+          onComplete: () => { finishLocal = true; onComplete?.(intakeRes.profileId!) },
+          onError: () => { finishLocal = true; setIsGenerating(false) }
+        }
+
+        const { startPlanBuild } = await import('@/src/lib/client/plan-client')
+        await startPlanBuild(value, intakeRes.profileId, 'openai', streamCallbacks)
+
+        unsubs.forEach(u => u())
+      }
+    } catch {
+      setIsGenerating(false)
+    }
+  }
 
   return (
     <MotionConfig reducedMotion="user">
@@ -74,13 +123,12 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
               </span>
               <button
                 type="button"
-                onClick={() => {
-                  onComplete?.('mock-profile')
-                }}
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1E293B] text-white transition hover:-translate-y-0.5"
+                onClick={handleComplete}
+                disabled={isGenerating || !value.trim()}
+                className={`flex h-12 w-12 items-center justify-center rounded-full text-white transition hover:-translate-y-0.5 ${isGenerating ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
                 aria-label={t('mockups.intake.continue')}
               >
-                <MaterialIcon name="arrow_forward" className="text-[20px]" />
+                {isGenerating ? <MaterialIcon name="hourglass_empty" className="text-[20px] animate-spin" /> : <MaterialIcon name="arrow_forward" className="text-[20px]" />}
               </button>
             </div>
           </motion.section>
@@ -99,12 +147,12 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                   <MaterialIcon name="rocket_launch" className="text-[18px]" />
                 </div>
                 <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
-                  {t('mockups.intake.card_1_time')}
+                  {isGenerating ? currentPhase : t('mockups.intake.card_1_time')}
                 </div>
               </div>
-              <span className="font-display text-[15px] font-bold text-[#334155]"><MockData>{t('mockups.intake.card_1_title')}</MockData></span>
+              <span className="font-display text-[15px] font-bold text-[#334155]">{isGenerating ? lastAction || 'Construyendo modelo...' : t('mockups.intake.card_1_title')}</span>
               <div className="mt-5 inline-flex rounded-full bg-[#A7F3D0]/20 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#166534]">
-                {t('mockups.intake.card_1_tag')}
+                {isGenerating ? `${progressScore}% Completado` : t('mockups.intake.card_1_tag')}
               </div>
             </article>
 

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from './MaterialIcon'
 import PulsoLogo from '../PulsoLogo'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 
 export interface MockupNavItem {
   label: string
@@ -15,6 +15,7 @@ export interface MockupNavItem {
   active?: boolean
   href?: string
   meta?: string
+  onClick?: () => void
 }
 
 export interface MockupTopTab {
@@ -52,6 +53,7 @@ export function MockupShell({
 }: MockupShellProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const variant = searchParams?.get('variant')
 
   const isDashboard = pathname === '/' && !variant
@@ -68,9 +70,19 @@ export function MockupShell({
     { label: t('mockups.common.nav.settings'), icon: 'settings', href: '/settings', active: isSettings }
   ]
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } catch (e) {
+      console.error('Logout error:', e)
+    } finally {
+      router.push('/')
+    }
+  }
+
   const canonicalFooter: MockupNavItem[] = [
-    { label: t('mockups.common.help'), icon: 'help', href: '#' },
-    { label: t('mockups.common.exit'), icon: 'logout', href: '#' }
+    { label: t('mockups.common.help'), icon: 'help', onClick: () => router.push('/settings') },
+    { label: t('mockups.common.exit'), icon: 'logout', onClick: handleLogout }
   ]
   return (
     <MotionConfig reducedMotion="user">
@@ -117,7 +129,7 @@ export function MockupShell({
               }
 
               return (
-                <button key={item.label} type="button" className="w-full text-left">
+                <button key={item.label} type="button" className="w-full text-left" onClick={item.onClick}>
                   {content}
                 </button>
               )
@@ -141,6 +153,7 @@ export function MockupShell({
                   <button
                     key={item.label}
                     type="button"
+                    onClick={item.onClick}
                     className={cn(
                       'flex w-full items-center gap-3 rounded-[18px] px-4 py-2.5 text-left text-[11px] uppercase tracking-[0.22em] transition-colors',
                       item.active ? 'bg-white text-slate-900' : 'text-slate-500 hover:bg-white/70 hover:text-slate-800'
