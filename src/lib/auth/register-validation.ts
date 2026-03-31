@@ -1,3 +1,4 @@
+import { MIN_PASSWORD_LENGTH } from '../../shared/auth-constants'
 import { extractEmailFromLoginIdentifier, normalizeLoginIdentifier } from './login-identifier'
 
 const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/
@@ -45,7 +46,7 @@ export function validateRegisterSubmission(identifierRaw: string, passwordRaw: s
     }
   }
 
-  if (password.length < 10) {
+  if (password.length < MIN_PASSWORD_LENGTH) {
     return { ok: false, errorCode: 'PASSWORD_TOO_SHORT' }
   }
 

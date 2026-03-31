@@ -1,5 +1,4 @@
-import NextAuth from "next-auth"
-import GitHub from "next-auth/providers/github"
+import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { getDatabase } from "@/src/lib/db/connection"
@@ -8,6 +7,18 @@ import { z } from "zod"
 import { authConfig } from "./auth.config"
 
 import type { NextAuthConfig } from "next-auth"
+
+class UserNotFoundError extends CredentialsSignin {
+  code = "user_not_found"
+}
+
+class InvalidPasswordError extends CredentialsSignin {
+  code = "invalid_password"
+}
+
+class InvalidInputError extends CredentialsSignin {
+  code = "invalid_input"
+}
 
 const providers: NextAuthConfig["providers"] = [
   Credentials({
@@ -22,7 +33,7 @@ const providers: NextAuthConfig["providers"] = [
         .safeParse(credentials)
 
       if (!parsedCredentials.success) {
-        return null
+        throw new InvalidInputError()
       }
 
       const { email, password } = parsedCredentials.data
@@ -31,7 +42,14 @@ const providers: NextAuthConfig["providers"] = [
         where: (users, { eq }) => eq(users.email, email),
       })
 
-      if (!user || !user.passwordHash) return null
+      if (!user) {
+        throw new UserNotFoundError()
+      }
+
+      if (!user.passwordHash) {
+        // Handle cases where user might not have a password (e.g. social only)
+        throw new InvalidPasswordError()
+      }
 
       const passwordsMatch = await verify(user.passwordHash, password)
       if (passwordsMatch) {
@@ -43,18 +61,13 @@ const providers: NextAuthConfig["providers"] = [
         }
       }
 
-      return null
+      throw new InvalidPasswordError()
     },
   }),
 ]
-
-if (process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET) {
-  providers.push(GitHub)
-}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: DrizzleAdapter(getDatabase()),
   providers,
 })
-

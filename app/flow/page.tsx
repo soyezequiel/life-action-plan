@@ -1,33 +1,5 @@
-import { PlanFlowPage } from '../../components/flow/PlanFlowPage'
-import { getDeploymentMode } from '../../src/lib/env/deployment'
+import { redirect } from 'next/navigation'
 
-type SearchParams = Record<string, string | string[] | undefined>
-
-interface FlowPageProps {
-  searchParams?: Promise<SearchParams>
-}
-
-function readParam(value: string | string[] | undefined): string | null {
-  if (Array.isArray(value)) {
-    return typeof value[0] === 'string' && value[0].trim() ? value[0].trim() : null
-  }
-
-  return typeof value === 'string' && value.trim() ? value.trim() : null
-}
-
-async function resolveSearchParams(searchParams: Promise<SearchParams> | undefined): Promise<SearchParams> {
-  if (!searchParams) {
-    return {}
-  }
-
-  return (await searchParams) ?? {}
-}
-
-export default async function FlowPage({ searchParams }: FlowPageProps) {
-  const params = await resolveSearchParams(searchParams)
-  const profileId = readParam(params.profileId) ?? readParam(params.id) ?? ''
-  const provider = readParam(params.provider) ?? (getDeploymentMode() === 'local' ? 'codex' : 'openai')
-  const variant = readParam(params.variant) ?? 'refinement'
-
-  return <PlanFlowPage variant={variant as 'refinement' | 'spatial' | 'conflict' | 'simulation' | 'tasks'} initialProfileId={profileId} provider={provider} />
+export default async function FlowPage() {
+  redirect('/intake')
 }

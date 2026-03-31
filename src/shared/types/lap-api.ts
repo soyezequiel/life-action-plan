@@ -360,6 +360,9 @@ export interface LapAPI {
   cost: {
     summary: (planId: string) => Promise<CostSummary>
   }
+  settings: {
+    apiKeyStatus: (provider: 'openai' | 'openrouter') => Promise<{ configured: boolean }>
+  }
   debug: {
     enable: () => Promise<DebugStatusResult>
     disable: () => Promise<DebugStatusResult>

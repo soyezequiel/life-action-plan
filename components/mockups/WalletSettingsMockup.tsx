@@ -69,12 +69,7 @@ export default function WalletSettingsMockup() {
         { label: t('mockups.common.help'), icon: 'help', href: '#' },
         { label: t('mockups.common.exit'), icon: 'logout', href: '#' }
       ]}
-      topTabs={[
-        { label: t('mockups.wallet.tabs.dashboard'), href: '/' },
-        { label: t('mockups.wallet.tabs.calendar'), href: '/plan?view=month' },
-        { label: t('mockups.settingsBackend.nav.settings') || 'APIs', href: '/settings?section=backend' },
-        { label: t('mockups.wallet.tabs.settings') || 'Billetera (NWC)', active: true, href: '/settings?section=wallet' }
-      ]}
+      topTabs={[]}
 
       topRight={(
         <>

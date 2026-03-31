@@ -20,7 +20,7 @@ const packageQuerySchema = z.object({
 
 const packageSuccessSchema = z.object({
   ok: z.literal(true),
-  data: z.custom<PlanPackage>((value) => typeof value === 'object' && value !== null),
+  data: z.custom<PlanPackage>((value) => typeof value === 'object' && value !== null).nullable(),
   meta: z.object({
     modelId: z.string().trim().min(1).nullable(),
   }).strict(),
@@ -67,26 +67,29 @@ export async function GET(request: Request): Promise<Response> {
   try {
     const resolvedPlanId = await resolvePlanId(request, parsedQuery.data.planId);
     if (!resolvedPlanId) {
-      return jsonResponse(packageErrorSchema.parse({
-        ok: false,
-        error: t('errors.plan_not_found'),
-      }), { status: 404 });
+      return jsonResponse(packageSuccessSchema.parse({
+        ok: true,
+        data: null,
+        meta: { modelId: null },
+      }));
     }
 
     const plan = await getPlan(resolvedPlanId);
     if (!plan) {
-      return jsonResponse(packageErrorSchema.parse({
-        ok: false,
-        error: t('errors.plan_not_found'),
-      }), { status: 404 });
+      return jsonResponse(packageSuccessSchema.parse({
+        ok: true,
+        data: null,
+        meta: { modelId: null },
+      }));
     }
 
     const v5 = readPlanV5Manifest(plan.manifest);
     if (!v5?.package) {
-      return jsonResponse(packageErrorSchema.parse({
-        ok: false,
-        error: 'PLAN_V5_NOT_AVAILABLE',
-      }), { status: 404 });
+      return jsonResponse(packageSuccessSchema.parse({
+        ok: true,
+        data: null,
+        meta: { modelId: null },
+      }));
     }
 
     let validatedPackage = v5.package;

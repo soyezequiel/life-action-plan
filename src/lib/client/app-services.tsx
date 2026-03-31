@@ -5,6 +5,8 @@ import type { PropsWithChildren } from 'react'
 import type { LapAPI } from '../../shared/types/lap-api'
 import { browserLapClient } from './browser-http-client'
 import { setLocale } from '../../i18n'
+import { UserStatusProvider } from './UserStatusProvider'
+import { UserStatusGuard } from '@/components/guards/UserStatusGuard'
 import { SessionProvider } from "next-auth/react"
 
 export interface AppServices {
@@ -40,8 +42,12 @@ export function AppProviders({ children }: PropsWithChildren) {
   return (
     <SessionProvider>
       <AppServicesProvider>
-        <I18nBootstrap />
-        {children}
+        <UserStatusProvider>
+          <UserStatusGuard>
+            <I18nBootstrap />
+            {children}
+          </UserStatusGuard>
+        </UserStatusProvider>
       </AppServicesProvider>
     </SessionProvider>
   )

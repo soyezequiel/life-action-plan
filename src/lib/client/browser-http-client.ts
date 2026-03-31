@@ -508,6 +508,11 @@ export const browserLapClient: LapAPI = {
       return fetchJson<CostSummary>(`/api/cost?planId=${encodeURIComponent(planId)}`)
     }
   },
+  settings: {
+    async apiKeyStatus(provider: 'openai' | 'openrouter') {
+      return fetchJson<{ configured: boolean }>(`/api/settings/api-key?provider=${encodeURIComponent(provider)}`)
+    }
+  },
   debug: {
     async enable() {
       return fetchJson<DebugStatusResult>('/api/debug', {

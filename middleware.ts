@@ -8,7 +8,18 @@ import {
 
 const { auth } = NextAuth(authConfig)
 
+const PUBLIC_ROUTES = ["/auth/signin", "/auth/signup", "/api/auth"]
+
 export default auth((req) => {
+  const { nextUrl } = req
+  const isLoggedIn = !!req.auth
+  const isPublicRoute = PUBLIC_ROUTES.some(route => nextUrl.pathname.startsWith(route))
+
+  // Redirect to sign-in if not logged in and accessing a protected route
+  if (!isLoggedIn && !isPublicRoute) {
+    return NextResponse.redirect(new URL("/auth/signin", nextUrl))
+  }
+
   const nextHeaders = new Headers(req.headers)
   
   // Inject headers for downward compatibility with sync resolveUserId

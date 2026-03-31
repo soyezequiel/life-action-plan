@@ -211,6 +211,9 @@ function createLapClientStub(): LapAPI {
         }
       }))
     },
+    settings: {
+      apiKeyStatus: vi.fn(async () => ({ configured: true }))
+    },
     debug: {
       enable: vi.fn(async () => ({ enabled: true, panelVisible: true })),
       disable: vi.fn(async () => ({ enabled: false, panelVisible: false })),
@@ -238,7 +241,7 @@ describe('dashboard interaction', () => {
 
     await user.click(screen.getByRole('button', { name: t('dashboard.redo_intake') }))
 
-    expect(pushMock).toHaveBeenCalledWith('/flow?entry=redo-profile')
+    expect(pushMock).toHaveBeenCalledWith('/intake?entry=redo-profile')
   })
 
   it('envia cambiar objetivo al flow arrancando desde objetivos', async () => {
@@ -256,7 +259,7 @@ describe('dashboard interaction', () => {
 
     await user.click(screen.getByRole('button', { name: t('dashboard.change_objectives') }))
 
-    expect(pushMock).toHaveBeenCalledWith('/flow?entry=change-objectives')
+    expect(pushMock).toHaveBeenCalledWith('/intake?entry=change-objectives')
   })
 
   it('envia rehacer desde cero al flow arrancando en gate', async () => {
@@ -274,7 +277,7 @@ describe('dashboard interaction', () => {
 
     await user.click(screen.getByRole('button', { name: t('dashboard.restart_flow') }))
 
-    expect(pushMock).toHaveBeenCalledWith('/flow?entry=restart-flow')
+    expect(pushMock).toHaveBeenCalledWith('/intake?entry=restart-flow')
   })
 
   it('loads a plan and updates progress plus streak after completing a habit', async () => {

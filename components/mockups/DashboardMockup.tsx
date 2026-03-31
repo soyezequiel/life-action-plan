@@ -102,20 +102,16 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
       sidebarNav={[
         { label: t('dashboard.shell_nav.dashboard'), icon: 'dashboard', active: true, href: '/' },
         { label: t('dashboard.shell_nav.calendar'), icon: 'calendar_today', href: '/plan' },
-        { label: t('dashboard.shell_nav.flow'), icon: 'check_circle', href: '/flow' },
+        { label: t('dashboard.shell_nav.flow'), icon: 'check_circle', href: '/intake' },
         { label: t('dashboard.shell_nav.plan'), icon: 'description', href: '/plan?view=week' },
         { label: t('dashboard.shell_nav.system'), icon: 'settings', href: '/settings' }
       ]}
-      sidebarPrimaryAction={{ label: t('mockups.common.new_entry'), icon: 'add', href: '/flow' }}
+      sidebarPrimaryAction={{ label: t('mockups.common.new_entry'), icon: 'add', href: '/intake' }}
       sidebarFooter={[
         { label: t('mockups.common.help'), icon: 'help', href: '#' },
         { label: t('mockups.common.exit'), icon: 'logout', href: '#' }
       ]}
-      topTabs={[
-        { label: t('mockups.dashboard.top_tabs.panel'), active: true, href: '/' },
-        { label: t('mockups.dashboard.top_tabs.projects'), href: '/flow' },
-        { label: t('mockups.dashboard.top_tabs.team'), href: '/settings' }
-      ]}
+      topTabs={[]}
       topRight={(
         <>
           <div className="flex h-9 items-center rounded-full bg-slate-100/80 px-4 text-[14px] text-slate-400 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">

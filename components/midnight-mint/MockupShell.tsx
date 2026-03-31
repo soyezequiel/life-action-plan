@@ -9,6 +9,7 @@ import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import { useSession, signOut } from "next-auth/react"
 import { MaterialIcon } from './MaterialIcon'
 import PulsoLogo from '../PulsoLogo'
+import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 
 export interface MockupNavItem {
   label: string
@@ -57,19 +58,36 @@ export function MockupShell({
   const router = useRouter()
   const variant = searchParams?.get('variant')
 
+  const { onboardingStep } = useUserStatusContext()
+
   const isDashboard = pathname === '/' && !variant
   const isTasks = pathname === '/flow' && variant === 'tasks'
   const isPlan = pathname?.startsWith('/plan')
   const isIntake = pathname?.startsWith('/intake')
   const isSettings = pathname?.startsWith('/settings')
 
-  const canonicalNav: MockupNavItem[] = [
-    { label: t('mockups.common.nav.dashboard'), icon: 'dashboard', href: '/', active: isDashboard },
-    { label: t('mockups.common.nav.planificador'), icon: 'calendar_today', href: '/plan?view=week', active: isPlan },
-    { label: t('mockups.common.nav.tareas'), icon: 'check_circle', href: '/flow?variant=tasks', active: isTasks },
-    { label: t('mockups.common.nav.intake'), icon: 'flag', href: '/intake', active: isIntake },
-    { label: t('mockups.common.nav.settings'), icon: 'settings', href: '/settings', active: isSettings }
-  ]
+  const canonicalNav: MockupNavItem[] = []
+
+  // Always show Settings
+  const settingsItem = { label: t('mockups.common.nav.settings'), icon: 'settings', href: '/settings', active: isSettings }
+
+  if (onboardingStep === 'SETUP') {
+    canonicalNav.push(settingsItem)
+  } else if (onboardingStep === 'PLAN') {
+    canonicalNav.push(
+      { label: t('mockups.common.nav.intake'), icon: 'flag', href: '/intake', active: isIntake },
+      settingsItem
+    )
+  } else {
+    // READY (Full Access)
+    canonicalNav.push(
+      { label: t('mockups.common.nav.dashboard'), icon: 'dashboard', href: '/', active: isDashboard },
+      { label: t('mockups.common.nav.planificador'), icon: 'calendar_today', href: '/plan?view=week', active: isPlan },
+      { label: t('mockups.common.nav.tareas'), icon: 'check_circle', href: '/flow?variant=tasks', active: isTasks },
+      { label: t('mockups.common.nav.intake'), icon: 'flag', href: '/intake', active: isIntake },
+      settingsItem
+    )
+  }
 
   const { data: session } = useSession()
 

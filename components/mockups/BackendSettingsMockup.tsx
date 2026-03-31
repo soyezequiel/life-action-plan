@@ -64,12 +64,7 @@ export default function BackendSettingsMockup() {
         { label: t('mockups.common.help'), icon: 'help', href: '#' },
         { label: t('mockups.common.exit'), icon: 'logout', href: '#' }
       ]}
-      topTabs={[
-        { label: t('mockups.settingsBackend.tabs.dashboard'), href: '/' },
-        { label: t('mockups.settingsBackend.tabs.calendar'), href: '/plan?view=month' },
-        { label: t('mockups.settingsBackend.tabs.settings'), active: true, href: '/settings?section=backend' },
-        { label: t('mockups.wallet.title') || 'Billetera (NWC)', href: '/settings?section=wallet' }
-      ]}
+      topTabs={[]}
 
       topRight={(
         <>

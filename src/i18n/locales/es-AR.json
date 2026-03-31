@@ -1363,6 +1363,15 @@
         "network": "Red",
         "network_value": "Conexión estable"
       },
+      "clarify": {
+        "title": "Ajuste de Objetivo",
+        "copy": "El modelo identificó algunos puntos ambiguos. Definamos los parámetros críticos para que tu plan sea accionable.",
+        "label": "Pregunta {{n}}",
+        "placeholder": "Tu respuesta...",
+        "continue": "Continuar",
+        "processing": "Procesando...",
+        "hint": "Respondé todo lo que puedas para un plan más preciso."
+      },
       "tasks": {
         "nav": {
           "dashboard": "Dashboard",

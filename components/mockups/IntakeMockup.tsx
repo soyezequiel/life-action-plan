@@ -147,39 +147,105 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
             transition={{ duration: 0.35, ease: 'easeOut' }}
           >
             {clarification ? (
-              <div className="space-y-6">
-                <div className="rounded-[18px] bg-indigo-50/50 p-6 border border-indigo-100/50">
-                  <h3 className="font-display text-[18px] font-bold text-[#334155] mb-2">{t('flow.clarify.title') || 'Necesitamos aclarar algunas cosas'}</h3>
-                  <p className="text-[14px] leading-6 text-slate-500 mb-6">{t('flow.clarify.copy') || 'El modelo identificó algunos puntos ambiguos en tu objetivo.'}</p>
-                  
-                  <div className="space-y-5">
-                    {clarification.questions.map((q) => (
-                      <div key={q.id} className="space-y-2">
-                        <label className="block text-[14px] font-medium text-slate-700">{q.text}</label>
-                        <input
-                          type="text"
+              <motion.div 
+                className="w-full space-y-8"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <header className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center rounded-full bg-[#A7F3D0]/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#166534]">
+                      Ajuste de Objetivo
+                    </span>
+                    <span className="text-[12px] font-medium text-slate-400">
+                      Preguntas de aclaración
+                    </span>
+                  </div>
+                  <h3 className="font-display text-[22px] font-bold tracking-tight text-[#334155]">
+                    {t('flow.clarify.title') || 'Necesitamos aclarar algunas cosas'}
+                  </h3>
+                  <p className="text-[15px] leading-relaxed text-slate-500">
+                    {t('flow.clarify.copy') || 'El modelo identificó algunos puntos ambiguos en tu objetivo.'}
+                  </p>
+                </header>
+                
+                <div className="space-y-6">
+                  {clarification.questions.map((q, idx) => (
+                    <motion.div 
+                      key={q.id}
+                      className="group relative rounded-[22px] border border-slate-100 bg-[#FAFAF9]/50 p-6 transition-all hover:bg-white hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                    >
+                      <div className="mb-4 flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#334155] shadow-sm border border-slate-50">
+                          <span className="text-[12px] font-bold">{idx + 1}</span>
+                        </div>
+                        <label className="text-[16px] font-semibold text-[#334155]">{q.text}</label>
+                      </div>
+
+                      {q.type === 'select' ? (
+                        <div className="relative">
+                          <select
+                            value={answers[q.id] || ''}
+                            onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
+                            className="w-full appearance-none rounded-[16px] border border-slate-200 bg-white px-5 py-4 text-[15px] text-[#334155] outline-none transition focus:border-[#1E293B]/20 focus:ring-2 focus:ring-slate-100"
+                          >
+                            <option value="">Seleccioná una opción...</option>
+                            {q.options?.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                            <MaterialIcon name="expand_more" className="text-[20px]" />
+                          </div>
+                        </div>
+                      ) : q.type === 'range' ? (
+                        <div className="space-y-4 px-2 py-2">
+                          <input
+                            type="range"
+                            min={q.min ?? 0}
+                            max={q.max ?? 100}
+                            step={1}
+                            value={answers[q.id] || q.min || 0}
+                            onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
+                            className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-100 accent-[#1E293B]"
+                          />
+                          <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            <span>{q.min ?? 0}</span>
+                            <span className="text-[14px] text-[#1E293B]">{answers[q.id] || q.min || 0}</span>
+                            <span>{q.max ?? 100}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <textarea
                           value={answers[q.id] || ''}
                           onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
-                          className="w-full rounded-[14px] border border-slate-200 bg-[#FAFAF9] px-4 py-3 text-[14px] text-slate-700 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-100"
-                          placeholder="Tu respuesta..."
+                          placeholder="Escribí aquí..."
+                          className="w-full min-h-[100px] resize-none rounded-[16px] border border-slate-200 bg-white px-5 py-4 text-[15px] text-[#334155] outline-none transition focus:border-[#1E293B]/20 focus:ring-2 focus:ring-slate-100"
                         />
-                      </div>
-                    ))}
-                  </div>
+                      )}
+                    </motion.div>
+                  ))}
                 </div>
                 
-                <div className="flex justify-end gap-3">
+                <div className="flex items-center justify-between border-t border-slate-100 pt-8">
+                  <p className="text-[13px] italic text-slate-400">
+                    Respondé todo lo que puedas para un plan más preciso.
+                  </p>
                   <button
                     type="button"
                     onClick={handleResume}
-                    disabled={isResuming || clarification.questions.some((q) => !answers[q.id]?.trim())}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-[16px] bg-[#1E293B] px-6 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+                    disabled={isResuming || clarification.questions.some((q) => !answers[q.id]?.trim() && q.type !== 'range')}
+                    className="inline-flex h-14 items-center justify-center gap-3 rounded-[20px] bg-[#1E293B] px-8 font-display text-[15px] font-bold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-[#334155] active:translate-y-0 disabled:opacity-30 disabled:grayscale"
                   >
-                    <span>{isResuming ? 'Reanudando...' : (t('flow.actions.continue') || 'Continuar')}</span>
-                    <MaterialIcon name="arrow_forward" className="text-[18px]" />
+                    <span>{isResuming ? 'Procesando...' : 'Continuar'}</span>
+                    <MaterialIcon name="auto_awesome" className="text-[20px]" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             ) : isGenerating ? (
               <div className="py-2">
                 <PipelineVisualizer state={pState} />

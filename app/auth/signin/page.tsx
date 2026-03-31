@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, MotionConfig } from 'framer-motion'
@@ -20,34 +20,57 @@ function SignInContent() {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
+  // Handle errors from URL parameters (NextAuth v5 redirects on error)
+  const urlError = searchParams.get('code') || searchParams.get('error')
+  
+  // Use useEffect to handle URL errors after mounting
+  useEffect(() => {
+    if (urlError) {
+      setStatus('error')
+      if (urlError.includes('user_not_found')) {
+        setErrorMsg('Este correo electrónico no está registrado en Pulso.')
+      } else if (urlError.includes('invalid_password')) {
+        setErrorMsg('Contraseña incorrecta. Por favor, inténtalo de nuevo.')
+      } else if (urlError.includes('invalid_input')) {
+        setErrorMsg('Datos de acceso inválidos. Revisa el formato del correo.')
+      } else {
+        setErrorMsg('Error al iniciar sesión. Verifica tus credenciales.')
+      }
+    }
+  }, [urlError])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Basic frontend validation
+    if (!email.includes('@')) {
+      setStatus('error')
+      setErrorMsg('Por favor, ingresa un correo electrónico válido.')
+      return
+    }
+    
+    if (password.length < 6) {
+      setStatus('error')
+      setErrorMsg('La contraseña debe tener al menos 6 caracteres.')
+      return
+    }
+
     setStatus('submitting')
     setErrorMsg('')
     
     try {
-      const res = await signIn('credentials', {
+      // In NextAuth v5, for Credentials we use redirect: true to get the code in URL
+      await signIn('credentials', {
         email,
         password,
-        redirect: false,
+        redirect: true,
         callbackUrl
       })
-
-      if (res?.error) {
-        setStatus('error')
-        setErrorMsg('Credenciales inválidas')
-      } else {
-        router.push(callbackUrl)
-        router.refresh()
-      }
+      // If successful, redirect happens automatically
     } catch (err) {
       setStatus('error')
-      setErrorMsg('Error de conexión')
+      setErrorMsg('Hubo un problema de conexión. Inténtalo más tarde.')
     }
-  }
-
-  const handleGitHubSignIn = () => {
-    signIn('github', { callbackUrl })
   }
 
   return (
@@ -78,56 +101,66 @@ function SignInContent() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <label className="block space-y-2">
-                <span className="ml-0.5 font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
-                  {t('mockups.auth.email_label')}
-                </span>
-                <div className="relative">
-                  <MaterialIcon name="mail" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
-                  <input
-                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-4 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5 disabled:opacity-50"
-                    type="email"
-                    required
-                    placeholder={t('mockups.auth.email_placeholder')}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={status === 'submitting'}
-                  />
-                </div>
-              </label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <label className="block space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="ml-0.5 font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
+                      {t('mockups.auth.email_label')}
+                    </span>
+                    <span className="text-[9px] text-slate-300 font-medium italic">Requerido</span>
+                  </div>
+                  <div className="relative">
+                    <MaterialIcon name="mail" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
+                    <input
+                      className={`h-14 w-full rounded-[16px] border bg-[#FAFAF9] pl-11 pr-4 text-[14px] text-[#334155] outline-none transition focus:ring-2 focus:ring-[#1E293B]/5 disabled:opacity-50 ${
+                        status === 'error' && !email ? 'border-red-300' : 'border-slate-200/80 focus:border-[#1E293B]/30'
+                      }`}
+                      type="email"
+                      required
+                      placeholder={t('mockups.auth.email_placeholder')}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={status === 'submitting'}
+                    />
+                  </div>
+                </label>
 
-              <label className="block space-y-2">
-                <div className="flex items-end justify-between">
-                  <span className="ml-0.5 font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
-                    {t('mockups.auth.password_label')}
-                  </span>
-                </div>
-                <div className="relative">
-                  <MaterialIcon name="lock" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
-                  <input
-                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-11 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5 disabled:opacity-50"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    placeholder={t('mockups.auth.password_placeholder')}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={status === 'submitting'}
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 transition hover:text-[#334155]"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    <MaterialIcon name={showPassword ? "visibility_off" : "visibility"} className="text-[18px]" />
-                  </button>
-                </div>
-              </label>
+                <label className="block space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="ml-0.5 font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
+                      {t('mockups.auth.password_label')}
+                    </span>
+                    <span className="text-[9px] text-slate-300 font-medium italic">Mín. 6 caracteres</span>
+                  </div>
+                  <div className="relative">
+                    <MaterialIcon name="lock" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
+                    <input
+                      className={`h-14 w-full rounded-[16px] border bg-[#FAFAF9] pl-11 pr-11 text-[14px] text-[#334155] outline-none transition focus:ring-2 focus:ring-[#1E293B]/5 disabled:opacity-50 ${
+                        status === 'error' && password.length < 6 ? 'border-red-300' : 'border-slate-200/80 focus:border-[#1E293B]/30'
+                      }`}
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder={t('mockups.auth.password_placeholder')}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={status === 'submitting'}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 transition hover:text-[#334155]"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      <MaterialIcon name={showPassword ? "visibility_off" : "visibility"} className="text-[18px]" />
+                    </button>
+                  </div>
+                </label>
+              </div>
 
               <button
                 type="submit"
                 className="group flex h-14 w-full items-center justify-center gap-2 rounded-[16px] bg-[#1E293B] font-display text-[14px] font-semibold tracking-wide text-white transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0"
-                disabled={status === 'submitting' || !email || !password}
+                disabled={status === 'submitting'}
               >
                 <span>
                   {status === 'submitting' ? 'Iniciando sesión...' : t('mockups.auth.login')}
@@ -137,26 +170,8 @@ function SignInContent() {
                 )}
               </button>
 
-              <div className="relative flex items-center py-2">
-                <div className="flex-grow border-t border-slate-200"></div>
-                <span className="mx-4 flex-shrink font-display text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">O continuar con</span>
-                <div className="flex-grow border-t border-slate-200"></div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleGitHubSignIn}
-                className="flex h-14 w-full items-center justify-center gap-3 rounded-[16px] border border-slate-200 bg-white font-display text-[14px] font-semibold text-[#334155] transition-all hover:bg-slate-50 hover:border-slate-300"
-                disabled={status === 'submitting'}
-              >
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.608-.015 2.898-.015 3.293 0 .322.218.694.825.576C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-                </svg>
-                <span>GitHub</span>
-              </button>
-
               {status === 'error' && (
-                <div className="mt-4 rounded-lg bg-red-50 p-3 text-center text-[13px] text-red-600 border border-red-100 italic">
+                <div className="rounded-xl bg-red-50 p-4 text-center text-[13px] text-red-600 border border-red-100 italic animate-pulse">
                   {errorMsg}
                 </div>
               )}

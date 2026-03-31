@@ -86,26 +86,29 @@ export async function GET(request: Request): Promise<Response> {
   try {
     const resolvedPlanId = await resolvePlanId(request, parsedQuery.data.planId);
     if (!resolvedPlanId) {
-      return jsonResponse(adaptiveErrorSchema.parse({
-        ok: false,
-        error: t('errors.plan_not_found'),
-      }), { status: 404 });
+      return jsonResponse(adaptiveSuccessSchema.parse({
+        ok: true,
+        status: 'pending',
+        data: null,
+      }));
     }
 
     const plan = await getPlan(resolvedPlanId);
     if (!plan) {
-      return jsonResponse(adaptiveErrorSchema.parse({
-        ok: false,
-        error: t('errors.plan_not_found'),
-      }), { status: 404 });
+      return jsonResponse(adaptiveSuccessSchema.parse({
+        ok: true,
+        status: 'pending',
+        data: null,
+      }));
     }
 
     const v5 = readPlanV5Manifest(plan.manifest);
     if (!v5?.package) {
-      return jsonResponse(adaptiveErrorSchema.parse({
-        ok: false,
-        error: 'PLAN_V5_NOT_AVAILABLE',
-      }), { status: 404 });
+      return jsonResponse(adaptiveSuccessSchema.parse({
+        ok: true,
+        status: 'pending',
+        data: null,
+      }));
     }
 
     const adaptive = v5.adaptive ?? buildPendingAdaptiveState();
@@ -135,26 +138,29 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const resolvedPlanId = await resolvePlanId(request, parsedBody.data.planId);
     if (!resolvedPlanId) {
-      return jsonResponse(adaptiveErrorSchema.parse({
-        ok: false,
-        error: t('errors.plan_not_found'),
-      }), { status: 404 });
+      return jsonResponse(adaptiveSuccessSchema.parse({
+        ok: true,
+        status: 'pending',
+        data: null,
+      }));
     }
 
     const plan = await getPlan(resolvedPlanId);
     if (!plan) {
-      return jsonResponse(adaptiveErrorSchema.parse({
-        ok: false,
-        error: t('errors.plan_not_found'),
-      }), { status: 404 });
+      return jsonResponse(adaptiveSuccessSchema.parse({
+        ok: true,
+        status: 'pending',
+        data: null,
+      }));
     }
 
     const v5 = readPlanV5Manifest(plan.manifest);
     if (!v5?.package) {
-      return jsonResponse(adaptiveErrorSchema.parse({
-        ok: false,
-        error: 'PLAN_V5_NOT_AVAILABLE',
-      }), { status: 404 });
+      return jsonResponse(adaptiveSuccessSchema.parse({
+        ok: true,
+        status: 'pending',
+        data: null,
+      }));
     }
 
     const output = await generateAdaptiveResponse({

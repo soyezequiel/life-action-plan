@@ -1,5 +1,4 @@
-import BackendSettingsMockup from '../mockups/BackendSettingsMockup'
-import WalletSettingsMockup from '../mockups/WalletSettingsMockup'
+import ResourceProviderMockup from '../mockups/ResourceProviderMockup'
 
 export type SettingsMockupSection = 'backend' | 'wallet'
 
@@ -8,9 +7,6 @@ interface SettingsMockupPageProps {
 }
 
 export default function SettingsMockupPage({ section }: SettingsMockupPageProps) {
-  if (section === 'wallet') {
-    return <WalletSettingsMockup />
-  }
-
-  return <BackendSettingsMockup />
+  // Now we use a unified resource provider selection that defaults to Wallet
+  return <ResourceProviderMockup />
 }
