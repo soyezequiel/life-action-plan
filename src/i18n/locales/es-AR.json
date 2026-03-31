@@ -1153,6 +1153,13 @@
       },
       "risk": {
         "title": "Riesgo",
+        "status_prefix": "hoy: ",
+        "status_green": "optimizado",
+        "status_amber": "en riesgo",
+        "status_red": "crítico",
+        "copy_green": "Tu progreso está al día con el horario de hoy.",
+        "copy_amber": "Llevas menos del 50% y ya pasó el mediodía.",
+        "copy_red": "Progreso crítico para la hora actual. Tareas pendientes altas.",
         "status": "Atención Moderada",
         "copy": "3 proyectos requieren revisión de plazos hoy."
       },

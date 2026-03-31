@@ -23,45 +23,55 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
   const [readingProgress, setReadingProgress] = useState(0)
   const [activePlan, setActivePlan] = useState<any>(null)
   const [tasks, setTasks] = useState<any[]>([])
+  const [weeklySummary, setWeeklySummary] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
-   const router = useRouter()
-   const searchParams = useSearchParams()
-   const planIdParam = searchParams.get('planId')
-   const LOCAL_PROFILE_ID_STORAGE_KEY = 'lap_profile_id'
+  const [riskStatus, setRiskStatus] = useState<'green' | 'amber' | 'red'>('green')
+
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const planIdParam = searchParams.get('planId')
+  const LOCAL_PROFILE_ID_STORAGE_KEY = 'lap_profile_id'
+
+  const calculateRisk = (currentTasks: any[]) => {
+    const now = DateTime.local()
+    const completedCount = currentTasks.filter(t => t.completado).length
+    const totalCount = currentTasks.length
+    
+    if (totalCount === 0) return 'green'
+    
+    const progress = completedCount / totalCount
+    
+    // ROJO (Critical): < 20% completed and it is after 17:00.
+    if (now.hour >= 17 && progress < 0.2) return 'red'
+    // ÁMBAR (Warning): < 50% completed and it is after 14:00.
+    if (now.hour >= 14 && progress < 0.5) return 'amber'
+    
+    return 'green'
+  }
 
   useEffect(() => {
     async function loadDashboardData() {
       setIsLoading(true)
       try {
         // 1. Resolve Profile ID (Backend session > URL > LocalStorage)
-        // We always ask the backend first because it knows the current authenticated session.
         let profileId: string | null = await browserLapClient.profile.latest()
         
         if (profileId) {
-          console.log('[LAP] Profile resolved from server:', profileId)
           window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, profileId)
         } else {
           profileId = window.localStorage.getItem(LOCAL_PROFILE_ID_STORAGE_KEY)
-          console.log('[LAP] Server returned no profile, falling back to localStorage:', profileId)
         }
 
         if (!profileId) {
-          console.warn('[LAP] No profileId available (server or local). Showing landing state.')
           setIsLoading(false)
           return
         }
 
         // 2. Resolve Plan list
-        console.log('[LAP] Fetching plans for profile:', profileId)
         const plans = await browserLapClient.plan.list(profileId)
-        console.log(`[LAP] Found ${plans.length} plans.`)
         
-        // 3. Select Active Plan (Targeted planId > First in list)
+        // 3. Select Active Plan
         let active = plans.find(p => p.id === planIdParam) || plans[0]
-        
-        if (planIdParam && !active && plans.length > 0) {
-           console.warn(`[LAP] planId from URL (${planIdParam}) not found in this profile's plans. Using fallback.`)
-        }
         
         if (!active) {
           setIsLoading(false)
@@ -70,8 +80,14 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
 
         setActivePlan(active)
         const today = DateTime.local().toISODate()!
-        const progressRows = await browserLapClient.progress.list(active.id, today)
+        const [progressRows, summary] = await Promise.all([
+          browserLapClient.progress.list(active.id, today),
+          browserLapClient.progress.summary(active.id, 5)
+        ])
+
         setTasks(progressRows)
+        setWeeklySummary(summary)
+        setRiskStatus(calculateRisk(progressRows))
 
         // 4. Clean up URL if we were forced to a specific plan
         if (planIdParam) {
@@ -100,9 +116,11 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
   const handleToggleTask = async (taskId: string) => {
     try {
       const result = await browserLapClient.progress.toggle(taskId)
-      setTasks(current => 
-        current.map(t => t.id === taskId ? { ...t, completado: result.completado } : t)
-      )
+      setTasks(current => {
+        const newTasks = current.map(t => t.id === taskId ? { ...t, completado: result.completado } : t)
+        setRiskStatus(calculateRisk(newTasks))
+        return newTasks
+      })
     } catch (error) {
       console.error('Error toggling task:', error)
     }
@@ -298,41 +316,78 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
                     </div>
                   </div>
                   <div className="flex justify-around pt-4">
-                    {['L', 'M', 'M', 'J', 'V'].map((letter, index) => (
-                      <div
-                        key={index}
-                        className={index < 3
-                          ? 'flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#A7F3D0] text-[10px] font-bold text-[#334155]'
-                          : 'flex h-9 w-9 items-center justify-center rounded-full border-2 border-slate-200 text-[10px] font-bold text-slate-400'}
-                      >
+                    {weeklySummary.slice(0, 5).map((item, index) => {
+                      const dayLetter = ['L', 'M', 'M', 'J', 'V'][index] || '?'
+                      const percentage = item.percentage
+                      const isToday = item.date === DateTime.local().toISODate()
+                      const isComplete = percentage >= 80
+
+                      return (
+                        <div
+                          key={index}
+                          className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-500 text-[10px] font-bold ${
+                            isComplete 
+                              ? 'border-[#A7F3D0] bg-[#A7F3D0]/10 text-[#334155]' 
+                              : percentage > 0 
+                                ? 'border-[#E9D5FF] bg-[#E9D5FF]/5 text-[#334155]'
+                                : 'border-slate-100 text-slate-400'
+                          } ${isToday ? 'ring-2 ring-slate-100 ring-offset-2' : ''}`}
+                          title={`${percentage}% completado`}
+                        >
+                          {dayLetter}
+                        </div>
+                      )
+                    })}
+                    {weeklySummary.length === 0 && ['L', 'M', 'M', 'J', 'V'].map((letter, index) => (
+                      <div key={index} className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-slate-100 text-[10px] font-bold text-slate-300 opacity-50">
                         {letter}
                       </div>
                     ))}
                   </div>
                 </div>
               </section>
-
-              <section className="relative overflow-hidden rounded-[24px] bg-white p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
-                <h2 className="mb-8 font-display text-[18px] font-bold text-[#334155]">{t('mockups.dashboard.risk.title')}</h2>
-                <div className="flex flex-col items-center justify-center gap-4 py-2">
-                  <div className="flex gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FEE2E2]/30">
-                      <div className="h-6 w-6 rounded-full bg-[#EF4444]/20" />
-                    </div>
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
-                      <div className="h-8 w-8 animate-pulse rounded-full bg-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)]" />
-                    </div>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#A7F3D0]/10">
-                      <div className="h-6 w-6 rounded-full bg-[#A7F3D0]/30" />
+              <section className="relative overflow-hidden rounded-[24px] bg-white p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] group">
+                <div className={`absolute top-0 right-0 w-32 h-32 blur-3xl -mr-16 -mt-16 transition-colors duration-1000 ${
+                  riskStatus === 'red' ? 'bg-red-500/10' : riskStatus === 'amber' ? 'bg-amber-500/10' : 'bg-[#A7F3D0]/10'
+                }`} />
+                
+                <h2 className="mb-6 font-display text-[18px] font-bold text-[#334155] tracking-tight">{t('mockups.dashboard.risk.title')}</h2>
+                
+                <div className="flex flex-col items-center justify-center py-2 relative z-10">
+                  <div className="flex items-center gap-6 mb-6">
+                    <div className="relative flex items-center justify-center">
+                      <div className={`absolute h-16 w-16 rounded-full animate-ping opacity-20 ${
+                        riskStatus === 'red' ? 'bg-red-500' : riskStatus === 'amber' ? 'bg-amber-500' : 'bg-[#A7F3D0]'
+                      }`} />
+                      <div className={`h-12 w-12 rounded-full flex items-center justify-center shadow-lg transition-colors duration-500 ${
+                        riskStatus === 'red' ? 'bg-red-500' : riskStatus === 'amber' ? 'bg-amber-500' : 'bg-[#A7F3D0]'
+                      }`}>
+                        <MaterialIcon 
+                          name={riskStatus === 'red' ? 'priority_high' : riskStatus === 'amber' ? 'warning' : 'check'} 
+                          className="text-white text-[24px]" 
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-4 text-center">
-                    <h3 className="text-[16px] font-bold text-[#334155]"><span className="text-[12px] font-bold text-[#A7F3D0]">today</span>{t('mockups.dashboard.risk.status')}</h3>
-                    <p className="mt-1 text-[12px] text-slate-500">{t('mockups.dashboard.risk.copy')}</p>
+
+                  <div className="text-center">
+                    <h3 className="text-[17px] font-bold text-[#1E293B] mb-1">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-slate-400 mr-2">
+                        {t('mockups.dashboard.risk.status_prefix')}
+                      </span>
+                      <span className={`transition-colors duration-500 ${
+                        riskStatus === 'red' ? 'text-red-600' : riskStatus === 'amber' ? 'text-amber-600' : 'text-[#059669]'
+                      }`}>
+                        {t(`mockups.dashboard.risk.status_${riskStatus}`)}
+                      </span>
+                    </h3>
+                    <p className="max-w-[240px] text-[13px] leading-relaxed text-slate-500">
+                      {t(`mockups.dashboard.risk.copy_${riskStatus}`)}
+                    </p>
                   </div>
                 </div>
-                <div className="absolute -bottom-10 -right-10 h-24 w-24 rounded-full bg-amber-400/5 blur-2xl" />
               </section>
+
             </div>
 
             <footer className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">

@@ -137,6 +137,7 @@ function createLapClientStub(): LapAPI {
     },
     progress: {
       list: vi.fn(async () => [habitTask]),
+      summary: vi.fn(async () => []),
       toggle: vi.fn(async () => ({ success: true, completado: true }))
     },
     streak: {

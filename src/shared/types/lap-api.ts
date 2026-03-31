@@ -108,6 +108,15 @@ export interface ProgressListResult {
   rows: ProgressRow[]
 }
 
+export interface ProgressSummaryRow {
+  date: string
+  percentage: number
+}
+
+export interface ProgressSummaryResult {
+  summary: ProgressSummaryRow[]
+}
+
 export interface ProgressToggleRequest {
   progressId: string
 }
@@ -347,6 +356,7 @@ export interface LapAPI {
   }
   progress: {
     list: (planId: string, fecha?: string) => Promise<ProgressRow[]>
+    summary: (planId: string, days?: number) => Promise<ProgressSummaryRow[]>
     toggle: (progressId: string) => Promise<ProgressToggleResult>
   }
   streak: {

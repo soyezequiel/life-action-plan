@@ -801,6 +801,29 @@ export async function getProgressByPlan(planId: string): Promise<ProgressRow[]> 
   return rows.map(serializeProgressRow)
 }
 
+export async function getWeeklyProgressSummary(planId: string, days: number = 5): Promise<Array<{ date: string, percentage: number }>> {
+  const startDate = DateTime.now().minus({ days }).toISODate()!
+
+  const rows = await db()
+    .select({
+      fecha: planProgress.fecha,
+      completedCount: sql<number>`count(case when ${planProgress.completado} then 1 end)`,
+      totalCount: count(planProgress.id),
+    })
+    .from(planProgress)
+    .where(and(
+      eq(planProgress.planId, planId),
+      sql`${planProgress.fecha} >= ${startDate}`
+    ))
+    .groupBy(planProgress.fecha)
+    .orderBy(planProgress.fecha)
+
+  return rows.map((row: any) => ({
+    date: row.fecha,
+    percentage: row.totalCount > 0 ? Math.round((Number(row.completedCount) / Number(row.totalCount)) * 100) : 0
+  }))
+}
+
 export async function getProgressByPlanAndDate(planId: string, fecha: string): Promise<ProgressRow[]> {
   const rows = await db().select().from(planProgress)
     .where(and(eq(planProgress.planId, planId), eq(planProgress.fecha, fecha)))

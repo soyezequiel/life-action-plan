@@ -419,3 +419,41 @@ export async function disconnectWalletInline(): Promise<{ success: boolean }> {
     return { success: false }
   }
 }
+
+export async function chargePlanBuild(profileId: string): Promise<{
+  success: boolean
+  transactionId?: string
+  chargedSats?: number
+  error?: string
+  detail?: string
+}> {
+  try {
+    const response = await fetch('/api/plan/charge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profileId })
+    })
+
+    const result = await response.json()
+    
+    if (!response.ok) {
+       return {
+         success: false,
+         error: result.error || 'PAYMENT_FAILED',
+         detail: result.detail
+       }
+    }
+
+    return {
+      success: true,
+      transactionId: result.transactionId,
+      chargedSats: result.chargedSats
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: 'REQUEST_FAILED',
+      detail: error instanceof Error ? error.message : String(error)
+    }
+  }
+}

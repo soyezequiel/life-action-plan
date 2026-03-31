@@ -66,6 +66,11 @@ export const progressToggleRequestSchema = z.object({
   progressId: idSchema
 }).strict()
 
+export const progressSummaryQuerySchema = z.object({
+  planId: idSchema,
+  days: z.coerce.number().int().min(1).max(365).default(5)
+}).strict()
+
 export const streakQuerySchema = z.object({
   planId: idSchema
 }).strict()

@@ -10,6 +10,8 @@ import { logPlanificadorDebug } from '@/src/lib/client/debug-logger'
 import { PipelineVisualizer } from '../pipeline-visualizer/PipelineVisualizer'
 import { AdvancedFlowVisualizer } from '../pipeline-visualizer/AdvancedFlowVisualizer'
 import { usePipelineState } from '../pipeline-visualizer/use-pipeline-state'
+import { SuccessPaymentAnimation } from '../midnight-mint/SuccessPaymentAnimation'
+import { fetchWalletStatus, chargePlanBuild } from '@/src/lib/client/plan-client'
 
 interface IntakeMockupProps {
   onComplete?: (profileId: string, planId: string) => void
@@ -31,15 +33,85 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
   const [completionData, setCompletionData] = useState<{ planId: string, score: number, iterations: number } | null>(null)
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null)
+  
+  // Payment states
+  const [isCheckingCost, setIsCheckingCost] = useState(false)
+  const [showPaymentQuote, setShowPaymentQuote] = useState(false)
+  const [isPaying, setIsPaying] = useState(false)
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false)
+  const [walletStatus, setWalletStatus] = useState<any>(null)
+  const [paymentError, setPaymentError] = useState<string | null>(null)
+  const [pendingGoal, setPendingGoal] = useState<string | null>(null)
 
   const handleComplete = async (arg?: string | any) => {
     const overrideValue = typeof arg === 'string' ? arg : undefined
     const goalToProcess = overrideValue || value
-    if (!goalToProcess || typeof goalToProcess !== 'string' || !goalToProcess.trim() || isGenerating) return
-    setIsGenerating(true)
+    if (!goalToProcess || typeof goalToProcess !== 'string' || !goalToProcess.trim() || isGenerating || isCheckingCost) return
+    
+    setIsCheckingCost(true)
+    setPendingGoal(goalToProcess.trim())
     
     try {
-      const targetValue = goalToProcess.trim()
+      // 1. Obtener estado de billetera y costo estimado
+      const status = await fetchWalletStatus()
+      setWalletStatus(status)
+      setIsCheckingCost(false)
+      
+      // Si el costo es gratuito o no aplicable (ej. local), saltamos el quote
+      if (!status.planBuildChargeSats || status.planBuildChargeSats <= 0) {
+        processGeneration(goalToProcess.trim())
+        return
+      }
+
+      setShowPaymentQuote(true)
+    } catch {
+      setIsCheckingCost(false)
+      // Si falla la verificación de billetera, intentamos procesar de todas formas
+      processGeneration(goalToProcess.trim())
+    }
+  }
+
+  const handleConfirmPayment = async () => {
+    if (!activeProfileId && !pendingGoal) return
+    setIsPaying(true)
+    setPaymentError(null)
+
+    try {
+       // Primero aseguramos que tenemos un perfil (intake)
+       let profileId = activeProfileId
+       if (!profileId) {
+         const intakeRes = await browserLapClient.intake.save({
+            nombre: 'Usuario',
+            edad: 30,
+            ubicacion: 'Local',
+            ocupacion: 'Profesional',
+            objetivo: pendingGoal!,
+         })
+         profileId = intakeRes.profileId
+         setActiveProfileId(profileId)
+       }
+
+       // Realizar cobro real
+       const chargeRes = await chargePlanBuild(profileId!)
+       
+       if (chargeRes.success) {
+         setShowPaymentQuote(false)
+         setShowSuccessAnimation(true)
+       } else {
+         setPaymentError(chargeRes.error || 'No se pudo procesar el pago.')
+         setIsPaying(false)
+       }
+    } catch (err) {
+      setPaymentError('Error de red al procesar el pago.')
+      setIsPaying(false)
+    }
+  }
+
+  const processGeneration = async (targetValue: string) => {
+    setIsGenerating(true)
+    setShowPaymentQuote(false)
+    
+    try {
       const intakeRes = await browserLapClient.intake.save({
         nombre: 'Usuario',
         edad: 30,
@@ -51,18 +123,18 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
       if (intakeRes.profileId) {
         const { startPlanBuild } = await import('@/src/lib/client/plan-client')
         pReset()
+        setActiveProfileId(intakeRes.profileId)
 
         await startPlanBuild(targetValue, intakeRes.profileId, 'codex', {
           ...pCallbacks,
           onNeedsInput: (sid: string, questions: import('@/src/lib/pipeline/v6/types').ClarificationRound) => { 
             setSessionId(sid)
             setClarification(questions)
-            setIsGenerating(false) // pause generation while waiting input
+            setIsGenerating(false)
             pCallbacks.onNeedsInput(sid, questions)
           },
           onComplete: (planId: string, score: number, iterations: number) => { 
             pCallbacks.onComplete(planId, score, iterations)
-            setActiveProfileId(intakeRes.profileId!)
             setCompletionData({ planId, score, iterations })
             setIsGenerating(false)
             setIsCompletedLocal(true)
@@ -156,11 +228,12 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
           </div>
 
           <motion.section
-            className="relative w-full rounded-[24px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] md:p-8 overflow-hidden"
+            className="relative w-full rounded-[24px] bg-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] overflow-hidden"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
           >
+            <div className={`p-6 md:p-8 ${showPaymentQuote ? 'bg-slate-50/50' : ''}`}>
             {isCompletedLocal && completionData ? (
               <motion.div 
                 className="w-full flex flex-col items-center py-8 text-center"
@@ -202,6 +275,82 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                     <MaterialIcon name="dashboard" className="text-[20px]" />
                   </button>
                 </div>
+              </motion.div>
+            ) : showPaymentQuote && walletStatus ? (
+              <motion.div
+                className="w-full flex flex-col items-center py-6 text-center"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+              >
+                 <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-[#1E293B] text-emerald-400 shadow-2xl shadow-slate-200 border-4 border-slate-700">
+                    <MaterialIcon name="bolt" className="text-[48px]" />
+                 </div>
+
+                 <h3 className="font-display text-[26px] font-bold tracking-tight text-[#1E293B] mb-2">
+                   Cotización del Plan
+                 </h3>
+                 <p className="text-slate-500 max-w-sm mb-10 leading-relaxed">
+                   Para construir un plan de alta fidelidad con inteligencia artificial premium, se requiere una pequeña provisión de recursos.
+                 </p>
+
+                 <div className="w-full max-w-sm space-y-4 mb-10">
+                    <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                       <span className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">Costo</span>
+                       <div className="flex items-center gap-2">
+                          <span className="text-2xl font-black text-[#1E293B]">{walletStatus.planBuildChargeSats}</span>
+                          <span className="text-[14px] font-bold text-emerald-600 uppercase">sats</span>
+                       </div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2 p-5 rounded-2xl border border-transparent bg-slate-100/50">
+                       <div className="flex justify-between items-center text-[12px]">
+                          <span className="font-bold text-slate-400 uppercase tracking-widest">Tu Billetera</span>
+                          <span className="font-bold text-slate-600">{walletStatus.alias || 'Conectada'}</span>
+                       </div>
+                       <div className="flex justify-between items-center">
+                          <span className="text-[11px] font-medium text-slate-500">Balance Disponible</span>
+                          <span className="text-[15px] font-bold text-slate-700">{walletStatus.balanceSats?.toLocaleString() || 0} sats</span>
+                       </div>
+                    </div>
+
+                    {paymentError && (
+                      <motion.div 
+                        className="p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-[13px] font-medium"
+                        initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
+                      >
+                         <MaterialIcon name="error_outline" className="text-[16px] inline mr-2" />
+                         {paymentError}
+                      </motion.div>
+                    )}
+                 </div>
+
+                 <div className="flex flex-col w-full max-w-sm gap-4">
+                    <button
+                      onClick={handleConfirmPayment}
+                      disabled={isPaying || (walletStatus.balanceSats < walletStatus.planBuildChargeSats)}
+                      className={`inline-flex h-16 items-center justify-center gap-3 rounded-[24px] font-display text-[16px] font-extrabold text-white shadow-xl transition-all ${isPaying ? 'bg-slate-400' : 'bg-emerald-600 hover:bg-emerald-700 hover:-translate-y-1 active:translate-y-0'} disabled:opacity-50 disabled:grayscale disabled:hover:translate-y-0`}
+                    >
+                      {isPaying ? (
+                        <>
+                          <MaterialIcon name="hourglass_empty" className="text-[24px] animate-spin" />
+                          <span>Procesando Pago...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Pagar y Crear Plan</span>
+                          <MaterialIcon name="bolt" className="text-[20px]" />
+                        </>
+                      )}
+                    </button>
+                    
+                    <button
+                      onClick={() => setShowPaymentQuote(false)}
+                      disabled={isPaying}
+                      className="text-[13px] font-bold text-slate-400 hover:text-slate-600 transition"
+                    >
+                      Cancelar
+                    </button>
+                 </div>
               </motion.div>
             ) : clarification ? (
               <motion.div 
@@ -360,15 +509,16 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                   <button
                     type="button"
                     onClick={() => handleComplete()}
-                    disabled={isGenerating || !value.trim()}
-                    className={`flex h-12 w-12 items-center justify-center rounded-full text-white transition hover:-translate-y-0.5 ${isGenerating ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
+                    disabled={isGenerating || isCheckingCost || !value.trim()}
+                    className={`flex h-12 w-12 items-center justify-center rounded-full text-white transition hover:-translate-y-0.5 ${isGenerating || isCheckingCost ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
                     aria-label={t('mockups.intake.continue')}
                   >
-                    {isGenerating ? <MaterialIcon name="hourglass_empty" className="text-[20px] animate-spin" /> : <MaterialIcon name="arrow_forward" className="text-[20px]" />}
+                    {isGenerating || isCheckingCost ? <MaterialIcon name="hourglass_empty" className="text-[20px] animate-spin" /> : <MaterialIcon name="arrow_forward" className="text-[20px]" />}
                   </button>
                 </div>
               </>
             )}
+            </div>
           </motion.section>
 
           <div className="mt-12 flex w-full items-center justify-between">
@@ -449,6 +599,15 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
             </div>
           </div>
         </div>
+        
+        {/* Animación Dopamínica de Pago */}
+        <SuccessPaymentAnimation 
+          show={showSuccessAnimation} 
+          onComplete={() => {
+            setShowSuccessAnimation(false)
+            processGeneration(pendingGoal!)
+          }} 
+        />
       </MockupShell>
     </MotionConfig>
   )

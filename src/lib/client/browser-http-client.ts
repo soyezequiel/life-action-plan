@@ -9,6 +9,7 @@ import type {
   PlanSimulationResult,
   PlanRow,
   ProgressRow,
+  ProgressSummaryRow,
   ProgressToggleResult,
   StreakResult,
   WalletConnectResult,
@@ -474,6 +475,14 @@ export const browserLapClient: LapAPI = {
       }
 
       return fetchJson<ProgressRow[]>(`/api/progress/list?${params.toString()}`)
+    },
+    async summary(planId: string, days?: number) {
+      const params = new URLSearchParams({ planId })
+      if (days) {
+        params.set('days', days.toString())
+      }
+
+      return fetchJson<ProgressSummaryRow[]>(`/api/progress/summary?${params.toString()}`)
     },
     async toggle(progressId: string) {
       return fetchJson<ProgressToggleResult>('/api/progress/toggle', {
