@@ -2,6 +2,8 @@ import { costQuerySchema } from '../_schemas'
 import { getCostSummary } from '../_db'
 import { jsonResponse } from '../_shared'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url)
   const parsed = costQuerySchema.safeParse({

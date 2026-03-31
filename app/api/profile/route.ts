@@ -3,6 +3,8 @@ import { getProfile } from '../_db'
 import { jsonResponse } from '../_shared'
 import { parseStoredProfile } from '../_plan'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url)
   const parsed = profileQuerySchema.safeParse({

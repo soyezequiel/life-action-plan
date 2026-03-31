@@ -70,6 +70,8 @@ async function resolvePlanId(request: Request, explicitPlanId?: string): Promise
   return latestPlan?.id ?? null;
 }
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const parsedQuery = adaptiveQuerySchema.safeParse({

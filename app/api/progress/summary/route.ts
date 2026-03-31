@@ -2,6 +2,8 @@ import { getWeeklyProgressSummary } from '../../_db'
 import { jsonResponse } from '../../_shared'
 import { progressSummaryQuerySchema } from '../../_schemas'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url)
   const planId = url.searchParams.get('planId')
