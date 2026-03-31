@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20.12.0"
+    "node": "20.x"
   },
   "description": "LAP - Life Action Plan",
   "author": "LAP Team <lap@lacrypta.ar>",
@@ -12,7 +12,7 @@
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
     "build": "node scripts/run-next.mjs build",
-    "vercel-build": "node -e \"console.log('--- TEST INTEGRIDAD NODE ---'); console.log('Version:', process.version);\" && node scripts/vercel-prepare.mjs",
+    "vercel-build": "node scripts/vercel-prepare.mjs",
     "start": "node scripts/run-next.mjs start",
     "lap:run": "tsx scripts/lap-runner-v5-real.ts",
     "lap:run:example": "tsx scripts/lap-runner-v5-example.ts",
