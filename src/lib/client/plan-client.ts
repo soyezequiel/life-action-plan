@@ -238,6 +238,24 @@ async function postV6Stream(
   body: Record<string, unknown>,
   callbacks: PlanStreamCallbacks
 ): Promise<void> {
+  let streamTerminatedCleanly = false
+
+  const wrappedCallbacks: PlanStreamCallbacks = {
+    ...callbacks,
+    onComplete: (planId, score, iterations) => {
+      streamTerminatedCleanly = true
+      callbacks.onComplete(planId, score, iterations)
+    },
+    onError: (msg) => {
+      streamTerminatedCleanly = true
+      callbacks.onError(msg)
+    },
+    onNeedsInput: (sid, questions) => {
+      streamTerminatedCleanly = true
+      callbacks.onNeedsInput(sid, questions)
+    }
+  }
+
   try {
     const response = await fetch(path, {
       method: 'POST',
@@ -249,16 +267,22 @@ async function postV6Stream(
     })
 
     if (!response.ok) {
-      callbacks.onError(await readErrorMessage(response))
+      wrappedCallbacks.onError(await readErrorMessage(response))
       return
     }
 
-    await consumeSseStream(response, callbacks)
+    await consumeSseStream(response, wrappedCallbacks)
+
+    if (!streamTerminatedCleanly) {
+      wrappedCallbacks.onError('La conexión se interrumpió inesperadamente por tiempo límite del servidor o red. Intentá de nuevo o revisá la cuota de tu cuenta (Codex/OpenAI).')
+    }
   } catch (error) {
-    const message = error instanceof Error && error.message.trim()
-      ? error.message
-      : 'No pudimos continuar en este momento.'
-    callbacks.onError(message)
+    if (!streamTerminatedCleanly) {
+      const message = error instanceof Error && error.message.trim()
+        ? error.message
+        : 'No pudimos continuar en este momento. Verificá tu conexión o cuota de uso.'
+      wrappedCallbacks.onError(message)
+    }
   }
 }
 

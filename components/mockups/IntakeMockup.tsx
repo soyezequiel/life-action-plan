@@ -36,7 +36,6 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
   const [isCompletedLocal, setIsCompletedLocal] = useState(false)
   const [completionData, setCompletionData] = useState<{ planId: string, score: number, iterations: number } | null>(null)
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
-  const [selectedGoal, setSelectedGoal] = useState<string | null>(null)
   
   // Payment states
   const [isCheckingCost, setIsCheckingCost] = useState(false)
@@ -46,6 +45,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
   const [walletStatus, setWalletStatus] = useState<any>(null)
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [pendingGoal, setPendingGoal] = useState<string | null>(null)
+  const [generationError, setGenerationError] = useState<string | null>(null)
 
   // Rehidratar perfil existente al montar para evitar duplicación
   useEffect(() => {
@@ -138,6 +138,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
   const processGeneration = async (targetValue: string, forcedProfileId?: string) => {
     setIsGenerating(true)
     setShowPaymentQuote(false)
+    setGenerationError(null)
     
     try {
       // Reutilizar profileId si ya lo tenemos
@@ -175,12 +176,14 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
           onError: (msg: string) => { 
             logPlanificadorDebug(`[Intake] Error en el stream SSE: ${msg}`)
             pCallbacks.onError(msg)
+            setGenerationError(msg)
             setIsGenerating(false) 
           }
         })
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err)
       logPlanificadorDebug(`[Intake] Excepción en processGeneration: ${errorMsg}`)
+      setGenerationError(errorMsg)
       setIsGenerating(false)
     }
   }
@@ -189,6 +192,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
     if (!sessionId || isResuming) return
     setIsResuming(true)
     setClarification(null)
+    setGenerationError(null)
     setIsGenerating(true)
 
     try {
@@ -210,11 +214,14 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
         },
         onError: (msg: string) => { 
           pCallbacks.onError(msg)
+          setGenerationError(msg)
           setIsGenerating(false)
           setIsResuming(false) 
         }
       })
-    } catch {
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err)
+      setGenerationError(errorMsg)
       setIsGenerating(false)
       setIsResuming(false)
     }
@@ -566,6 +573,19 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
               </div>
             ) : (
               <>
+                {generationError && (
+                  <motion.div 
+                    className="mb-6 rounded-[16px] border border-red-100 bg-red-50 p-4 text-red-600 shadow-sm flex items-start gap-3"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <MaterialIcon name="error_outline" className="text-[20px] shrink-0 mt-0.5" />
+                    <div className="flex flex-col">
+                      <span className="font-bold text-[14px]">Problema con el asistente</span>
+                      <span className="text-[14px]">{generationError}</span>
+                    </div>
+                  </motion.div>
+                )}
                 <textarea
                   value={value}
                   onChange={(event) => setValue(event.target.value)}
@@ -592,71 +612,10 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
             </div>
           </motion.section>
 
-          <div className="mt-12 flex w-full items-center justify-between">
-            <h2 className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400">
-              {t('mockups.intake.recent')}
-            </h2>
-            <span className="text-[12px] text-slate-400">{t('mockups.intake.pending')}</span>
-          </div>
-
-          <div className="mt-4 grid w-full grid-cols-1 gap-4 md:grid-cols-2">
-            <article 
-              onClick={() => {
-                setSelectedGoal(t('mockups.intake.card_1_title'))
-                handleComplete(t('mockups.intake.card_1_title'))
-              }}
-              className={`rounded-[22px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] cursor-pointer border-2 transition-all ${selectedGoal === t('mockups.intake.card_1_title') ? 'border-[#1E293B]' : 'border-transparent hover:border-slate-100'}`}
-            >
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E9D5FF]/30 text-[#7C3AED]">
-                  <MaterialIcon name="rocket_launch" className="text-[18px]" />
-                </div>
-                <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
-                  {isGenerating && selectedGoal === t('mockups.intake.card_1_title') ? pState.currentPhase : t('mockups.intake.card_1_time')}
-                </div>
-              </div>
-              <span className="font-display text-[15px] font-bold text-[#334155]">{isGenerating && selectedGoal === t('mockups.intake.card_1_title') ? pState.lastAction || 'Construyendo modelo...' : t('mockups.intake.card_1_title')}</span>
-              <div className="mt-5 inline-flex rounded-full bg-[#A7F3D0]/20 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#166534]">
-                {isGenerating && selectedGoal === t('mockups.intake.card_1_title') ? `${pState.progressScore}% Completado` : t('mockups.intake.card_1_tag')}
-              </div>
-            </article>
-
-            <article 
-              onClick={() => {
-                setSelectedGoal(t('mockups.intake.card_2_title'))
-                handleComplete(t('mockups.intake.card_2_title'))
-              }}
-              className={`rounded-[22px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] cursor-pointer border-2 transition-all ${selectedGoal === t('mockups.intake.card_2_title') ? 'border-[#1E293B]' : 'border-transparent hover:border-slate-100'}`}
-            >
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A7F3D0]/30 text-[#059669]">
-                  <MaterialIcon name="eco" className="text-[18px]" />
-                </div>
-                <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
-                  {t('mockups.intake.card_2_time')}
-                </div>
-              </div>
-              <p className="text-[15px] leading-7 text-[#334155]">{isGenerating && selectedGoal === t('mockups.intake.card_2_title') ? pState.lastAction || 'Construyendo modelo...' : t('mockups.intake.card_2_title')}</p>
-              <div className="mt-5 inline-flex rounded-full bg-[#E9D5FF]/20 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#7C3AED]">
-                {t('mockups.intake.card_2_tag')}
-              </div>
-            </article>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => handleComplete()}
-            disabled={isGenerating || (!value.trim() && !selectedGoal)}
-            className={`mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-[18px] px-7 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5 ${isGenerating || (!value.trim() && !selectedGoal) ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
-          >
-            <span>{isGenerating ? 'Generando...' : t('mockups.intake.continue')}</span>
-            <MaterialIcon name="arrow_forward" className="text-[18px]" />
-          </button>
-
           <button
             type="button"
             onClick={onCancel}
-            className="mt-4 text-[12px] italic text-slate-400 transition hover:text-[#334155]"
+            className="mt-12 text-[12px] italic text-slate-400 transition hover:text-[#334155]"
           >
             {t('mockups.intake.help')}
           </button>

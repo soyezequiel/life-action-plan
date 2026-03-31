@@ -1188,18 +1188,7 @@
       "title": "¿Qué deseas lograr hoy?",
       "placeholder": "Escribe tu objetivo aquí...",
       "submit_hint": "CMD + ENTER",
-      "recent": "Capturados recientemente",
-      "pending": "3 objetivos pendientes de priorización",
-      "draft": "BORRADOR...",
-      "draft_copy": "Continuar explorando el objetivo “Sostenibilidad SaaS” de ayer.",
-      "continue": "Continuar a Priorización",
-      "help": "Ayúdame a articular mis ideas",
-      "card_1_time": "Hace 2 min",
-      "card_1_title": "Escalar la infraestructura del Q3 para soportar 50k usuarios concurrentes en regiones EMEA.",
-      "card_1_tag": "Infraestructura",
-      "card_2_time": "Hace 1 hora",
-      "card_2_title": "Rediseñar la documentación del sistema de diseño para una mejor entrega a desarrollo.",
-      "card_2_tag": "Producto"
+      "help": "Ayúdame a articular mis ideas"
     },
     "refinement": {
       "nav": {
