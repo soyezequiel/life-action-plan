@@ -69,11 +69,18 @@ async function main() {
   const loadedFiles = loadDeployEnv()
   const databaseUrl = process.env.DATABASE_URL?.trim() || ''
   const cloudProvider = getConfiguredCloudProvider()
+  const sessionSecret = process.env.SESSION_SECRET?.trim() || ''
+  const encryptionSecret = process.env.API_KEY_ENCRYPTION_SECRET?.trim() || ''
+  const nextAuthUrl = process.env.NEXTAUTH_URL?.trim() || ''
+  const nwcUrl = process.env.LAP_LIGHTNING_RECEIVER_NWC_URL?.trim() || ''
+  const codexSession = process.env.LAP_CODEX_AUTH_SESSION_JSON?.trim() || ''
+  
   let hasFailure = false
 
   console.log('LAP deploy doctor')
   console.log(`Env cargado: ${loadedFiles.length > 0 ? loadedFiles.join(', ') : 'ninguno'}`)
 
+  // 1. DATABASE_URL
   if (!databaseUrl) {
     hasFailure = true
     logStatus(false, 'DATABASE_URL', 'falta configurar una base cloud para Vercel')
@@ -87,6 +94,7 @@ async function main() {
     logStatus(true, 'DATABASE_URL', 'parece apuntar a una base cloud')
   }
 
+  // 2. LLM Provider
   if (!cloudProvider) {
     hasFailure = true
     logStatus(false, 'LLM cloud', 'falta OPENAI_API_KEY u OPENROUTER_API_KEY para preview o produccion')
@@ -94,6 +102,41 @@ async function main() {
     logStatus(true, 'LLM cloud', `${cloudProvider} configurado`)
   }
 
+  // 3. Auth & Security
+  if (!sessionSecret) {
+    hasFailure = true
+    logStatus(false, 'SESSION_SECRET', 'falta SESSION_SECRET (obligatorio para Auth.js)')
+  } else {
+    logStatus(true, 'SESSION_SECRET', 'configurado')
+  }
+
+  if (!encryptionSecret) {
+    hasFailure = true
+    logStatus(false, 'API_KEY_ENCRYPTION_SECRET', 'falta secreto para encriptar API keys en DB')
+  } else {
+    logStatus(true, 'API_KEY_ENCRYPTION_SECRET', 'configurado')
+  }
+
+  if (!nextAuthUrl) {
+    console.log('WARN NEXTAUTH_URL: no configurado. Auth.js v5 suele requerirlo en produccion.')
+  } else {
+    logStatus(true, 'NEXTAUTH_URL', 'configurado')
+  }
+
+  // 4. Features (NWC & Codex)
+  if (!nwcUrl) {
+    console.log('WARN NWC: LAP_LIGHTNING_RECEIVER_NWC_URL no configurado. Los cobros Lightning no funcionaran.')
+  } else {
+    logStatus(true, 'Lightning (NWC)', 'configurado')
+  }
+
+  if (!codexSession) {
+    console.log('INFO Codex: LAP_CODEX_AUTH_SESSION_JSON no configurado. Modo servicio Codex desactivado.')
+  } else {
+    logStatus(true, 'Codex Session', 'configurado')
+  }
+
+  // 5. Next.js Routes configuration
   const routeTimeoutsOk = REQUIRED_LONG_ROUTES.every(hasRouteMaxDuration)
   if (routeTimeoutsOk) {
     logStatus(true, 'maxDuration', 'las rutas largas exportan maxDuration >= 60')

@@ -17,8 +17,11 @@ function createSqlClient() {
 
   const normalizedSslMode = process.env.DATABASE_SSL?.trim().toLowerCase()
   const needsSsl = connectionString.includes('neon.tech') ||
+    connectionString.includes('supabase.co') ||
+    connectionString.includes('amazonaws.com') ||
     connectionString.includes('sslmode=require') ||
-    normalizedSslMode === 'require'
+    normalizedSslMode === 'require' ||
+    normalizedSslMode === 'true'
 
   return postgres(connectionString, {
     max: 1,

@@ -161,6 +161,45 @@ This project uses internal development documents for architecture decisions:
 - `docs/architecture/PLAN_LAP_FINAL.md` — architectural source of truth
 - `docs/` — all documentation organized by category (see `docs/README.md`)
 
+
+## Despliegue en Vercel
+
+Este repositorio está preparado para ser desplegado en Vercel con una configuración mínima.
+
+### Variables de Entorno Obligatorias
+
+Configura estas variables en el panel de Vercel:
+
+| Variable | Descripción |
+|----------|-------------|
+| `DATABASE_URL` | URL de PostgreSQL Cloud (Neon, Supabase, etc.) |
+| `SESSION_SECRET` | String aleatorio para tokens de sesión |
+| `API_KEY_ENCRYPTION_SECRET` | String aleatorio para encriptar API keys en DB |
+| `OPENAI_API_KEY` | API Key de OpenAI (o `OPENROUTER_API_KEY`) |
+| `NEXTAUTH_URL` | URL base de tu despliegue (ej: `https://tu-app.vercel.app`) |
+
+### Opcionales (Features)
+
+| Variable | Descripción |
+|----------|-------------|
+| `LAP_LIGHTNING_RECEIVER_NWC_URL` | URL de Nostr Wallet Connect para cobros |
+| `LAP_CODEX_AUTH_SESSION_JSON` | Sesión de Codex exportada (ver abajo) |
+
+### Cómo usar Codex en Vercel
+
+Si quieres usar el modo servicio de Codex (ChatGPT) en Vercel:
+
+1. Ejecuta `npm run codex:login` en tu máquina local.
+2. Ejecuta `npm run codex:export-env`.
+3. Copia el JSON resultante y pégalo como valor de `LAP_CODEX_AUTH_SESSION_JSON` en Vercel.
+
+### Comando de Build en Vercel
+
+Vercel detectará automáticamente el framework, pero asegúrate de que el **Build Command** sea:
+`npm run vercel-build`
+
+Esto ejecutará automáticamente el diagnóstico de salud, el build de Next.js y sincronizará el esquema de la base de datos (`db:push`).
+
 ## License
 
 Private — all rights reserved.

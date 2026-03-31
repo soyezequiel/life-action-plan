@@ -19,7 +19,8 @@ const nextBin = require.resolve('next/dist/bin/next')
 const env = { ...process.env }
 
 if (command === 'build' || command === 'start') {
-  env.NEXT_DIST_DIR = '.next-build'
+  const isVercel = env.VERCEL === '1' || env.NODE_ENV === 'production'
+  env.NEXT_DIST_DIR = isVercel ? '.next' : '.next-build'
 }
 
 const child = spawn(process.execPath, [nextBin, command, ...args], {
@@ -28,7 +29,8 @@ const child = spawn(process.execPath, [nextBin, command, ...args], {
 })
 
 function syncRouteTypes() {
-  const buildRoutesPath = path.join(projectRoot, '.next-build', 'types', 'routes.d.ts')
+  const distDir = env.NEXT_DIST_DIR || '.next'
+  const buildRoutesPath = path.join(projectRoot, distDir, 'types', 'routes.d.ts')
   const devTypesDir = path.join(projectRoot, '.next', 'types')
   const devRoutesPath = path.join(devTypesDir, 'routes.d.ts')
   const nextEnvPath = path.join(projectRoot, 'next-env.d.ts')
@@ -43,7 +45,7 @@ function syncRouteTypes() {
   }
 
   const current = fs.readFileSync(nextEnvPath, 'utf8')
-  const updated = current.replace('./.next-build/types/routes.d.ts', './.next/types/routes.d.ts')
+  const updated = current.replace(new RegExp(`\\.\\/${distDir}\\/types\\/routes\\.d\\.ts`, 'g'), './.next/types/routes.d.ts')
 
   if (updated !== current) {
     fs.writeFileSync(nextEnvPath, updated, 'utf8')
