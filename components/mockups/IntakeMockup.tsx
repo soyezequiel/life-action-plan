@@ -1,23 +1,25 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, MotionConfig } from 'framer-motion'
+import { motion, MotionConfig, AnimatePresence } from 'framer-motion'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
 import { browserLapClient } from '@/src/lib/client/browser-http-client'
 import { logPlanificadorDebug } from '@/src/lib/client/debug-logger'
 import { PipelineVisualizer } from '../pipeline-visualizer/PipelineVisualizer'
+import { AdvancedFlowVisualizer } from '../pipeline-visualizer/AdvancedFlowVisualizer'
 import { usePipelineState } from '../pipeline-visualizer/use-pipeline-state'
 
 interface IntakeMockupProps {
-  onComplete?: (profileId: string) => void
+  onComplete?: (profileId: string, planId: string) => void
   onCancel?: () => void
 }
 
 export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps) {
   const [value, setValue] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
+  const [viewMode, setViewMode] = useState<'standard' | 'advanced'>('standard')
   const { state: pState, callbacks: pCallbacks, reset: pReset } = usePipelineState()
 
   // Clarification states
@@ -25,25 +27,32 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
   const [sessionId, setSessionId] = useState<string>('')
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isResuming, setIsResuming] = useState(false)
+  const [isCompletedLocal, setIsCompletedLocal] = useState(false)
+  const [completionData, setCompletionData] = useState<{ planId: string, score: number, iterations: number } | null>(null)
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
+  const [selectedGoal, setSelectedGoal] = useState<string | null>(null)
 
-  const handleComplete = async () => {
-    if (!value.trim() || isGenerating) return
+  const handleComplete = async (arg?: string | any) => {
+    const overrideValue = typeof arg === 'string' ? arg : undefined
+    const goalToProcess = overrideValue || value
+    if (!goalToProcess || typeof goalToProcess !== 'string' || !goalToProcess.trim() || isGenerating) return
     setIsGenerating(true)
     
     try {
+      const targetValue = goalToProcess.trim()
       const intakeRes = await browserLapClient.intake.save({
         nombre: 'Usuario',
         edad: 30,
         ubicacion: 'Local',
         ocupacion: 'Profesional',
-        objetivo: value
+        objetivo: targetValue,
       })
 
       if (intakeRes.profileId) {
         const { startPlanBuild } = await import('@/src/lib/client/plan-client')
         pReset()
 
-        await startPlanBuild(value, intakeRes.profileId, 'codex', {
+        await startPlanBuild(targetValue, intakeRes.profileId, 'codex', {
           ...pCallbacks,
           onNeedsInput: (sid: string, questions: import('@/src/lib/pipeline/v6/types').ClarificationRound) => { 
             setSessionId(sid)
@@ -53,7 +62,10 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
           },
           onComplete: (planId: string, score: number, iterations: number) => { 
             pCallbacks.onComplete(planId, score, iterations)
-            onComplete?.(planId || intakeRes.profileId!) 
+            setActiveProfileId(intakeRes.profileId!)
+            setCompletionData({ planId, score, iterations })
+            setIsGenerating(false)
+            setIsCompletedLocal(true)
           },
           onError: (msg: string) => { 
             pCallbacks.onError(msg)
@@ -85,7 +97,10 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
         },
         onComplete: (planId: string, score: number, iterations: number) => { 
           pCallbacks.onComplete(planId, score, iterations)
-          onComplete?.(planId) 
+          setCompletionData({ planId, score, iterations })
+          setIsGenerating(false)
+          setIsResuming(false)
+          setIsCompletedLocal(true)
         },
         onError: (msg: string) => { 
           pCallbacks.onError(msg)
@@ -141,12 +156,54 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
           </div>
 
           <motion.section
-            className="relative w-full rounded-[24px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] md:p-8"
+            className="relative w-full rounded-[24px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] md:p-8 overflow-hidden"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
           >
-            {clarification ? (
+            {isCompletedLocal && completionData ? (
+              <motion.div 
+                className="w-full flex flex-col items-center py-8 text-center"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+              >
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-500 shadow-sm border border-emerald-100">
+                  <MaterialIcon name="verified" className="text-[40px]" />
+                </div>
+                
+                <h3 className="font-display text-[28px] font-bold tracking-tight text-[#334155] mb-2">
+                  ¡Plan Generado con Éxito!
+                </h3>
+                <p className="text-slate-500 text-[16px] max-w-md mb-10">
+                  El modelo ha finalizado la construcción de tu plan con un puntaje de calidad de <strong>{completionData.score}%</strong> tras {completionData.iterations} iteraciones de refinamiento.
+                </p>
+
+                <div className="grid grid-cols-3 gap-4 w-full max-w-lg mb-10">
+                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <span className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Calidad</span>
+                      <span className="text-xl font-bold text-emerald-600">{completionData.score}%</span>
+                   </div>
+                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <span className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Pasos</span>
+                      <span className="text-xl font-bold text-slate-700">6+</span>
+                   </div>
+                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <span className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Iteraciones</span>
+                      <span className="text-xl font-bold text-slate-700">{completionData.iterations}</span>
+                   </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => onComplete?.(activeProfileId || '', completionData.planId)}
+                    className="inline-flex h-14 items-center justify-center gap-3 rounded-[22px] bg-[#1E293B] px-10 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-200 transition hover:-translate-y-1 hover:bg-[#334155] active:translate-y-0"
+                  >
+                    <span>Ir al Dashboard</span>
+                    <MaterialIcon name="dashboard" className="text-[20px]" />
+                  </button>
+                </div>
+              </motion.div>
+            ) : clarification ? (
               <motion.div 
                 className="w-full space-y-8"
                 initial={{ opacity: 0, x: 20 }}
@@ -247,8 +304,45 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                 </div>
               </motion.div>
             ) : isGenerating ? (
-              <div className="py-2">
-                <PipelineVisualizer state={pState} />
+              <div className="py-2 space-y-4">
+                <div className="flex justify-end pr-2">
+                  <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 shadow-sm">
+                    <button
+                      onClick={() => setViewMode('standard')}
+                      className={`px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${viewMode === 'standard' ? 'bg-[#1E293B] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      Estándar
+                    </button>
+                    <button
+                      onClick={() => setViewMode('advanced')}
+                      className={`px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${viewMode === 'advanced' ? 'bg-[#1E293B] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      Analista
+                    </button>
+                  </div>
+                </div>
+                
+                <AnimatePresence mode="wait">
+                  {viewMode === 'standard' ? (
+                    <motion.div
+                      key="standard"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      <PipelineVisualizer state={pState} />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="advanced"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                    >
+                      <AdvancedFlowVisualizer state={pState} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <>
@@ -265,7 +359,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                   </span>
                   <button
                     type="button"
-                    onClick={handleComplete}
+                    onClick={() => handleComplete()}
                     disabled={isGenerating || !value.trim()}
                     className={`flex h-12 w-12 items-center justify-center rounded-full text-white transition hover:-translate-y-0.5 ${isGenerating ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
                     aria-label={t('mockups.intake.continue')}
@@ -285,22 +379,34 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
           </div>
 
           <div className="mt-4 grid w-full grid-cols-1 gap-4 md:grid-cols-2">
-            <article className="rounded-[22px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+            <article 
+              onClick={() => {
+                setSelectedGoal(t('mockups.intake.card_1_title'))
+                handleComplete(t('mockups.intake.card_1_title'))
+              }}
+              className={`rounded-[22px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] cursor-pointer border-2 transition-all ${selectedGoal === t('mockups.intake.card_1_title') ? 'border-[#1E293B]' : 'border-transparent hover:border-slate-100'}`}
+            >
               <div className="mb-4 flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E9D5FF]/30 text-[#7C3AED]">
                   <MaterialIcon name="rocket_launch" className="text-[18px]" />
                 </div>
                 <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
-                  {isGenerating ? pState.currentPhase : t('mockups.intake.card_1_time')}
+                  {isGenerating && selectedGoal === t('mockups.intake.card_1_title') ? pState.currentPhase : t('mockups.intake.card_1_time')}
                 </div>
               </div>
-              <span className="font-display text-[15px] font-bold text-[#334155]">{isGenerating ? pState.lastAction || 'Construyendo modelo...' : t('mockups.intake.card_1_title')}</span>
+              <span className="font-display text-[15px] font-bold text-[#334155]">{isGenerating && selectedGoal === t('mockups.intake.card_1_title') ? pState.lastAction || 'Construyendo modelo...' : t('mockups.intake.card_1_title')}</span>
               <div className="mt-5 inline-flex rounded-full bg-[#A7F3D0]/20 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#166534]">
-                {isGenerating ? `${pState.progressScore}% Completado` : t('mockups.intake.card_1_tag')}
+                {isGenerating && selectedGoal === t('mockups.intake.card_1_title') ? `${pState.progressScore}% Completado` : t('mockups.intake.card_1_tag')}
               </div>
             </article>
 
-            <article className="rounded-[22px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+            <article 
+              onClick={() => {
+                setSelectedGoal(t('mockups.intake.card_2_title'))
+                handleComplete(t('mockups.intake.card_2_title'))
+              }}
+              className={`rounded-[22px] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] cursor-pointer border-2 transition-all ${selectedGoal === t('mockups.intake.card_2_title') ? 'border-[#1E293B]' : 'border-transparent hover:border-slate-100'}`}
+            >
               <div className="mb-4 flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A7F3D0]/30 text-[#059669]">
                   <MaterialIcon name="eco" className="text-[18px]" />
@@ -309,7 +415,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                   {t('mockups.intake.card_2_time')}
                 </div>
               </div>
-              <p className="text-[15px] leading-7 text-[#334155]">{t('mockups.intake.card_2_title')}</p>
+              <p className="text-[15px] leading-7 text-[#334155]">{isGenerating && selectedGoal === t('mockups.intake.card_2_title') ? pState.lastAction || 'Construyendo modelo...' : t('mockups.intake.card_2_title')}</p>
               <div className="mt-5 inline-flex rounded-full bg-[#E9D5FF]/20 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#7C3AED]">
                 {t('mockups.intake.card_2_tag')}
               </div>
@@ -318,11 +424,11 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
 
           <button
             type="button"
-            onClick={handleComplete}
-            disabled={isGenerating || !value.trim()}
-            className={`mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-[18px] px-7 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5 ${isGenerating || !value.trim() ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
+            onClick={() => handleComplete()}
+            disabled={isGenerating || (!value.trim() && !selectedGoal)}
+            className={`mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-[18px] px-7 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5 ${isGenerating || (!value.trim() && !selectedGoal) ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
           >
-            <span>{t('mockups.intake.continue')}</span>
+            <span>{isGenerating ? 'Generando...' : t('mockups.intake.continue')}</span>
             <MaterialIcon name="arrow_forward" className="text-[18px]" />
           </button>
 

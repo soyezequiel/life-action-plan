@@ -1414,6 +1414,8 @@
       }
     },
     "calendarAnnual": {
+      "title": "Vista Anual",
+      "copy": "El panorama completo de tus objetivos a largo plazo.",
       "nav": {
         "calendar": "Calendario",
         "events": "Eventos",
@@ -1440,6 +1442,8 @@
       "export": "Exportar"
     },
     "calendarMonthly": {
+      "title": "Archivo Mensual",
+      "copy": "Revisa tu avance histórico y proyectado mes a mes.",
       "nav": {
         "calendar": "Calendario",
         "events": "Eventos",

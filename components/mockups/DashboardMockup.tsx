@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { DateTime } from 'luxon'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { t } from '@/src/i18n'
 import type { DeploymentMode } from '@/src/lib/env/deployment'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
@@ -16,27 +16,44 @@ interface DashboardMockupProps {
 
 export default function DashboardMockup({ deploymentMode }: DashboardMockupProps) {
   void deploymentMode
-  const [timeRemaining, setTimeRemaining] = useState<string>('24:00 restante')
+  const [timeRemaining, setTimeRemaining] = useState<string>('')
   const [dateStr, setDateStr] = useState<string>('')
+  const [isClient, setIsClient] = useState(false)
   const [hydrationProgress, setHydrationProgress] = useState(0)
   const [readingProgress, setReadingProgress] = useState(0)
   const [activePlan, setActivePlan] = useState<any>(null)
   const [tasks, setTasks] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+   const router = useRouter()
+   const searchParams = useSearchParams()
+   const planIdParam = searchParams.get('planId')
+   const LOCAL_PROFILE_ID_STORAGE_KEY = 'lap_profile_id'
 
   useEffect(() => {
     async function loadDashboardData() {
       setIsLoading(true)
       try {
-        const profileId = await browserLapClient.profile.latest()
+        // 1. Resolve Profile ID (URL > LocalStorage > Backend)
+        let profileId = window.localStorage.getItem(LOCAL_PROFILE_ID_STORAGE_KEY)
+        
+        if (!profileId) {
+          profileId = await browserLapClient.profile.latest()
+          if (profileId) {
+            window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, profileId)
+          }
+        }
+
         if (!profileId) {
           setIsLoading(false)
           return
         }
 
+        // 2. Resolve Plan list
         const plans = await browserLapClient.plan.list(profileId)
-        const active = plans[0]
+        
+        // 3. Select Active Plan (Targeted planId > First in list)
+        let active = plans.find(p => p.id === planIdParam) || plans[0]
+        
         if (!active) {
           setIsLoading(false)
           return
@@ -47,15 +64,19 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
         const progressRows = await browserLapClient.progress.list(active.id, today)
         setTasks(progressRows)
 
+        // 4. Clean up URL if we were forced to a specific plan
+        if (planIdParam) {
+          window.history.replaceState({}, '', '/')
+        }
+
         // Basic metrics calculation
         if (progressRows.length > 0) {
           const completedCount = progressRows.filter(t => t.completado).length
           const totalCount = progressRows.length
           const generalProgress = Math.round((completedCount / totalCount) * 100)
           
-          // Try to split metrics if possible, or just use general progress
           setHydrationProgress(generalProgress)
-          setReadingProgress(Math.min(100, Math.round(generalProgress * 1.2))) // Just for visual delta
+          setReadingProgress(Math.min(100, Math.round(generalProgress * 1.2)))
         }
       } catch (error) {
         console.error('Error loading dashboard data:', error)
@@ -65,7 +86,7 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
     }
 
     loadDashboardData()
-  }, [])
+  }, [planIdParam])
 
   const handleToggleTask = async (taskId: string) => {
     try {
@@ -91,10 +112,13 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
       setDateStr(now.toFormat('cccc d LLLL yyyy', { locale: 'es-AR' }))
     }
 
+    setIsClient(true)
     updateTime()
     const interval = setInterval(updateTime, 60000)
     return () => clearInterval(interval)
   }, [])
+
+  if (!isClient) return null // Prevent hydration mismatch by not rendering time-sensitive content on server
 
   return (
     <MockupShell

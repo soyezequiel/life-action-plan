@@ -5,7 +5,7 @@ import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MaterialIcon } from '@/components/midnight-mint/MaterialIcon'
+import PulsoLogoAnimated from '@/components/ui/PulsoLogoAnimated'
 import { t } from '@/src/i18n'
 
 export function UserStatusGuard({ children }: { children: ReactNode }) {
@@ -37,30 +37,29 @@ export function UserStatusGuard({ children }: { children: ReactNode }) {
   // Show a distinctive loading state while resolving status
   if (loading || sessionStatus === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF9]">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#090B0D] text-[#F8FBFF] overflow-hidden relative">
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
+          backgroundImage: 'radial-gradient(circle, #F8FBFF 1px, transparent 1px)',
+          backgroundSize: '24px 24px'
+        }} />
+        
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4"
+          className="flex flex-col items-center gap-8 relative z-10"
         >
-          <div className="relative h-16 w-16">
+          <PulsoLogoAnimated variant="mark" size={80} speed={1.2} />
+          
+          <div className="flex flex-col items-center gap-2">
+            <p className="font-display text-[11px] font-bold uppercase tracking-[0.4em] text-[#F8FBFF]/40">
+              {t('app.loading')}
+            </p>
             <motion.div 
-              className="absolute inset-0 rounded-2xl border-2 border-[#1E293B]/10"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              className="h-px w-12 bg-gradient-to-r from-transparent via-[#14E6BE]/40 to-transparent"
+              animate={{ scaleX: [0, 1.5, 0], opacity: [0, 1, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             />
-            <motion.div 
-              className="absolute inset-0 rounded-2xl border-t-2 border-[#1E293B]"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <MaterialIcon name="pumping_station" className="animate-pulse text-[#1E293B]" />
-            </div>
           </div>
-          <p className="font-display text-[11px] font-bold uppercase tracking-[0.2em] text-[#1E293B]/40">
-            {t('app.loading')}
-          </p>
         </motion.div>
       </div>
     )

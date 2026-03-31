@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion, MotionConfig } from 'framer-motion'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '@/components/midnight-mint/MaterialIcon'
-import PulsoLogo from '@/components/PulsoLogo'
+import PulsoLogoAnimated from '@/components/ui/PulsoLogoAnimated'
 import Link from 'next/link'
 import { MIN_PASSWORD_LENGTH } from '@/src/shared/auth-constants'
 
@@ -89,8 +89,8 @@ export default function SignUpPage() {
             transition={{ duration: 0.35, ease: 'easeOut' }}
           >
             <div className="mb-10 flex flex-col items-center text-center">
-              <div className="mb-6 flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] bg-[#1E293B] shadow-[0_12px_24px_-8px_rgba(30,41,59,0.3)]">
-                <PulsoLogo variant="mark" className="h-full w-full scale-125" ariaLabel="Pulso" />
+              <div className="mb-6 flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] bg-[#090B0D] shadow-[0_12px_24px_-8px_rgba(9,11,13,0.3)]">
+                <PulsoLogoAnimated variant="mark" size="100%" speed={1.5} glow={true} ariaLabel="Pulso" />
               </div>
               <h1 className="font-display text-[24px] font-bold tracking-tight text-[#334155]">
                 {t('auth.register_title')}

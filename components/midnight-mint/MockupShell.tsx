@@ -8,7 +8,7 @@ import { t } from '@/src/i18n'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import { useSession, signOut } from "next-auth/react"
 import { MaterialIcon } from './MaterialIcon'
-import PulsoLogo from '../PulsoLogo'
+import PulsoLogoAnimated from '../ui/PulsoLogoAnimated'
 import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 
 export interface MockupNavItem {
@@ -109,7 +109,7 @@ export function MockupShell({
 
         <aside className="fixed left-0 top-0 z-30 flex h-screen w-64 flex-col border-r border-slate-200/40 bg-[#F8FAFC]/85 px-4 py-4 backdrop-blur-xl">
           <div className="mb-6 flex items-center gap-3 px-2 pt-1">
-            <PulsoLogo variant="mark" className="h-10 w-10 shrink-0 rounded-[18px]" ariaLabel={t('app.name')} />
+            <PulsoLogoAnimated variant="mark" size={40} speed={4} glow={false} ariaLabel={t('app.name')} />
             <div className="min-w-0">
               <p className="font-display text-xl font-bold tracking-tight text-[#334155]">{t('app.name')}</p>
               {sidebarLabel && (
