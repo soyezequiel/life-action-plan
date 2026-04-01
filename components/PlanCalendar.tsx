@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import type { JSX } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -121,7 +121,7 @@ function renderEventContent(content: EventContentArg): JSX.Element {
   )
 }
 
-export default function PlanCalendar({
+function PlanCalendar({
   tasks,
   timezone,
   defaultView,
@@ -145,9 +145,32 @@ export default function PlanCalendar({
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
       return
     }
-    // Only override with mobile default if no explicit defaultView was provided
-    if (!defaultView && window.matchMedia('(max-width: 720px)').matches) {
-      setInitialView('timeGridDay')
+
+    const mql = window.matchMedia('(max-width: 720px)')
+    const handleResize = (e: MediaQueryListEvent | MediaQueryList) => {
+      // Only override with mobile default if no explicit defaultView was provided
+      if (!defaultView && e.matches) {
+        setInitialView('timeGridDay')
+      }
+    }
+
+    // Initial check
+    handleResize(mql)
+
+    // Add listener for future changes
+    if (mql.addEventListener) {
+      mql.addEventListener('change', handleResize)
+    } else {
+      // Legacy support
+      mql.addListener(handleResize)
+    }
+
+    return () => {
+      if (mql.removeEventListener) {
+        mql.removeEventListener('change', handleResize)
+      } else {
+        mql.removeListener(handleResize)
+      }
     }
   }, [defaultView])
 
@@ -169,12 +192,20 @@ export default function PlanCalendar({
   const completedCount = tasks.filter((task) => task.completado).length
   const pendingCount = Math.max(tasks.length - completedCount, 0)
   const todayCount = tasks.filter((task) => task.fecha === todayIso).length
-  const events = tasks
-    .map((task) => buildEvent(task, timezone))
-    .filter((event): event is EventInput => event !== null)
-  const selectedTasks = tasks
-    .filter((task) => task.fecha === selectedDateIso)
-    .sort((a, b) => (parseTaskMeta(a.notas).hora || '').localeCompare(parseTaskMeta(b.notas).hora || ''))
+  const events = useMemo(() => {
+    return tasks
+      .map((task) => buildEvent(task, timezone))
+      .filter((event): event is EventInput => event !== null)
+  }, [tasks, timezone])
+
+  const selectedTasks = useMemo(() => {
+    return tasks
+      .filter((task) => task.fecha === selectedDateIso)
+      .map((task) => ({ task, meta: parseTaskMeta(task.notas) }))
+      .sort((a, b) => (a.meta.hora || '').localeCompare(b.meta.hora || ''))
+      .map((item) => item.task)
+  }, [tasks, selectedDateIso])
+
   const selectedDateLabel = DateTime.fromISO(selectedDateIso, { zone: timezone })
     .setLocale(getCurrentLocale())
     .toFormat('cccc d LLL')
@@ -219,7 +250,6 @@ export default function PlanCalendar({
       ) : (
         <FullCalendar
           ref={internalRef}
-          key={initialView}
           plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin, interactionPlugin]}
           locale={esLocale}
           initialView={initialView}
@@ -359,3 +389,5 @@ export default function PlanCalendar({
     </section>
   )
 }
+
+export default React.memo(PlanCalendar)
