@@ -14,6 +14,7 @@ import type {
   StreakResult,
   WalletConnectResult,
   WalletDisconnectResult,
+  WalletBuildQuote,
   WalletStatus,
   CostSummary,
   DebugSnapshotResult,
@@ -510,6 +511,9 @@ export const browserLapClient: LapAPI = {
   wallet: {
     async status() {
       return fetchJson<WalletStatus>('/api/wallet/status')
+    },
+    async quote() {
+      return fetchJson<WalletBuildQuote>('/api/wallet/quote')
     },
     async connect(connectionUrl: string) {
       return fetchJson<WalletConnectResult>('/api/wallet/connect', {

@@ -1,6 +1,5 @@
 import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { getDatabase } from "@/src/lib/db/connection"
 import { verify } from "argon2"
 import { z } from "zod"
@@ -68,6 +67,5 @@ const providers: NextAuthConfig["providers"] = [
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  adapter: DrizzleAdapter(getDatabase()),
   providers,
 })

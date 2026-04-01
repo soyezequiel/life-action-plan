@@ -11,7 +11,7 @@
 ## Divs
 
 ### DIV-001 - Source of truth limpio
-- Objetivo: alinear `README.md`, `AGENTS.md`, `PLAN_LAP_FINAL.md` y documentos operativos con el estado real del repo
+- Objetivo: alinear `README.md`, `AGENTS.md`, `docs/architecture/REGISTRY.json` y documentos operativos con el estado real del repo
 - Incluye: stack actual, scripts reales, rutas reales, entorno local real
 - Excluye: cambios de producto
 - Cierre: no quedan instrucciones activas que pidan Electron, SQLite o `dev:electron`
@@ -129,7 +129,7 @@
 ## Registro de avance
 
 - 2026-03-20 - Se redefine el plan operativo a web-only. Electron sale del plan vigente y queda solo como antecedente historico.
-- 2026-03-20 - DIV-001 cerrado. `README.md`, `AGENTS.md`, `PLAN_LAP_FINAL.md` y documentos operativos quedan alineados con la app web actual.
+- 2026-03-20 - DIV-001 cerrado. `README.md`, `AGENTS.md`, `docs/architecture/REGISTRY.json` y documentos operativos quedan alineados con la app web actual.
 - 2026-03-20 - DIV-002 cerrado. `CLAUDE.md` se ajusta a la realidad local y de deploy, `CODEX_LOG.md` queda marcado como historico, los iconos pasan a `public/`, se eliminan assets desktop de `build/` y `resources/`, y los errores base de API se centralizan con copy reutilizable.
 - 2026-03-20 - Nota operativa: no correr `npm run typecheck` en paralelo con `npm run build` en Next.js 15 porque la regeneracion de `.next/types` puede producir falsos `TS6053`.
 - 2026-03-20 - DIV-003 cerrado. `drizzle.config.ts` ya carga `.env.local`, se agregan `npm run doctor:local` y `npm run smoke:local`, el smoke local verifica PostgreSQL, tablas base y Ollama, y la documentacion operativa queda alineada con ese flujo reproducible.

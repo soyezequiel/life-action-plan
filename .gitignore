@@ -9,6 +9,10 @@ out
 .codex-temp
 .agent
 .agents
+docs/.obsidian/
+.obsidian
+.obsidian/
+.obsidian/*
 .DS_Store
 .eslintcache
 *.log*

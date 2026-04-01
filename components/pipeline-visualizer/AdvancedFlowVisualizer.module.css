@@ -1,6 +1,6 @@
 .visualizerWrapper {
   width: 100%;
-  height: 600px;
+  height: clamp(380px, 68vh, 600px);
   background-color: transparent;
   position: relative;
   border-radius: 24px;
@@ -117,4 +117,23 @@
   background: rgba(255, 255, 255, 0.05);
   color: #f1f5f9;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 768px) {
+  .visualizerWrapper {
+    border-radius: 20px;
+  }
+
+  .customNode {
+    min-width: 148px;
+    padding: 10px 12px;
+  }
+
+  .nodeTitle {
+    font-size: 12px;
+  }
+
+  .agentName {
+    font-size: 9px;
+  }
 }

@@ -151,6 +151,16 @@
       "canonical_plan_file": "docs/plans/pipeline-v5-sprint-6-v1/PLAN.md"
     },
     {
+      "plan_id": "repo-cleanup-doc-order-v1",
+      "series_id": "repo-cleanup-doc-order",
+      "version": 1,
+      "title": "Plan: Limpieza de repo y orden documental",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/repo-cleanup-doc-order-v1/PLAN.md"
+    },
+    {
       "plan_id": "sim-export-v1",
       "series_id": "sim-export",
       "version": 1,
@@ -169,6 +179,16 @@
       "lifecycle": "active",
       "latest_in_series": true,
       "canonical_plan_file": "docs/plans/ui-fixes-dashboard-v1/PLAN.md"
+    },
+    {
+      "plan_id": "navigation-performance-hardening-v1",
+      "series_id": "navigation-performance-hardening",
+      "version": 1,
+      "title": "Plan: Hardening de rendimiento de navegacion",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/navigation-performance-hardening-v1/PLAN.md"
     }
   ]
 }

@@ -48,6 +48,7 @@ export interface CodexAuthIdentity {
 }
 
 let activeRefreshPromise: Promise<CodexAuthSession> | null = null
+let cachedEnvAuthFileState: { raw: string; authFile: CodexAuthFile } | null = null
 
 function getCodexHomeDir(): string {
   const configuredHome = process.env.CODEX_HOME?.trim()
@@ -182,11 +183,20 @@ function resolveCodexAuthSource(filePath: string): 'lap' | 'shared' {
 async function readCodexAuthFile(filePath = getCodexAuthFilePath()): Promise<CodexAuthFile | null> {
   const envSession = process.env.LAP_CODEX_AUTH_SESSION_JSON?.trim()
   if (envSession) {
+    if (cachedEnvAuthFileState?.raw === envSession) {
+      return cachedEnvAuthFileState.authFile
+    }
+
     try {
-      return JSON.parse(envSession) as CodexAuthFile
+      const authFile = JSON.parse(envSession) as CodexAuthFile
+      cachedEnvAuthFileState = { raw: envSession, authFile }
+      return authFile
     } catch {
+      cachedEnvAuthFileState = null
       console.error('[Codex Auth] LAP_CODEX_AUTH_SESSION_JSON contains invalid JSON')
     }
+  } else {
+    cachedEnvAuthFileState = null
   }
 
   try {
@@ -277,6 +287,13 @@ async function refreshCodexSession(authFile: CodexAuthFile, filePath = getCodexA
   if (isVercel) {
     // On Vercel or when using env-based session, we don't write back to the filesystem
     // The refreshed token will be used in memory for the current request context
+    const envSession = process.env.LAP_CODEX_AUTH_SESSION_JSON?.trim()
+    if (envSession) {
+      cachedEnvAuthFileState = {
+        raw: envSession,
+        authFile: nextAuthFile,
+      }
+    }
   } else {
     await writeFile(filePath, JSON.stringify(nextAuthFile, null, 2), 'utf8')
   }

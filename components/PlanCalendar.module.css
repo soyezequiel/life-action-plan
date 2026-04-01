@@ -3,6 +3,7 @@
   grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
   gap: 1.15rem;
   padding: 1.3rem;
+  min-width: 0;
   border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   background:
@@ -204,6 +205,7 @@
   display: grid;
   align-content: start;
   gap: 0.9rem;
+  min-width: 0;
   padding: 1rem;
   border-radius: 28px;
   background:
@@ -536,10 +538,23 @@
 @media (max-width: 1040px) {
   .calendarShell {
     grid-template-columns: minmax(0, 1fr);
+    padding: 1rem;
+    border-radius: 28px;
+  }
+
+  .agenda {
+    padding: 0.95rem;
+    border-radius: 24px;
   }
 }
 
 @media (max-width: 720px) {
+  .calendarShell {
+    gap: 0.9rem;
+    padding: 0.78rem;
+    border-radius: 24px;
+  }
+
   .header,
   .agendaHeader {
     flex-direction: column;
@@ -547,11 +562,205 @@
   }
 
   .stats {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
+  }
+
+  .statCard {
+    min-height: 0;
+    padding: 0.8rem 0.85rem;
+    border-radius: 18px;
+  }
+
+  .label,
+  .statLabel {
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+  }
+
+  .title {
+    font-size: 1.55rem;
+    line-height: 0.95;
+  }
+
+  .agenda {
+    gap: 0.75rem;
+    padding: 0.85rem;
+    border-radius: 22px;
+  }
+
+  .agendaTitle {
+    font-size: 1.24rem;
+  }
+
+  .agendaStats {
+    gap: 0.45rem;
   }
 
   .agendaItem {
     grid-template-columns: minmax(0, 1fr);
+    gap: 0.7rem;
+    padding: 0.85rem;
+    border-radius: 18px;
+  }
+
+  .agendaTimeBlock {
+    min-width: 0;
+  }
+
+  .agendaInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .agendaTaskTitle {
+    font-size: 0.96rem;
+  }
+
+  .agendaStatus {
+    font-size: 0.72rem;
+  }
+
+  .footer {
+    gap: 0.5rem;
+  }
+
+  .footerChip {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.82rem;
+  }
+
+  .calendarShell :global(.fc-toolbar) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem !important;
+  }
+
+  .calendarShell :global(.fc-toolbar-chunk) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .calendarShell :global(.fc-toolbar-title) {
+    font-size: 1.18rem !important;
+  }
+
+  .calendarShell :global(.fc-button-group) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .calendarShell :global(.fc-button) {
+    min-height: 2.4rem;
+    padding: 0 0.78rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .calendarShell :global(.fc-scroller) {
+    overflow: auto !important;
+  }
+
+  .calendarShell :global(.fc-col-header-cell-cushion),
+  .calendarShell :global(.fc-daygrid-day-number),
+  .calendarShell :global(.fc-timegrid-axis-cushion),
+  .calendarShell :global(.fc-timegrid-slot-label-cushion) {
+    font-size: 0.72rem;
+  }
+
+  .calendarShell :global(.fc-daygrid-day-frame) {
+    min-height: 4.85rem;
+  }
+
+  .calendarShell :global(.fc-timegrid-slot) {
+    height: 2.9rem;
+  }
+
+  .calendarShell :global(.fc-timegrid-col-events) {
+    margin: 0 0.14rem 0 0.2rem;
+  }
+
+  .event {
+    border-radius: 14px !important;
+  }
+
+  .eventBody {
+    gap: 0.12rem;
+    padding: 0.08rem 0.12rem;
+  }
+
+  .eventTime,
+  .eventMeta {
+    font-size: 0.66rem;
+  }
+
+  .eventStatus {
+    display: none;
+  }
+
+  .eventTitle {
+    font-size: 0.74rem;
+    line-height: 1.18;
+  }
+
+  .eventTitleCompact {
+    font-size: 0.68rem;
+  }
+
+  .calendarShellLight .agendaItem {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.9rem;
+  }
+
+  .calendarShellLight .agendaTimeBlock {
+    border-right: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding-right: 0;
+    padding-bottom: 0.65rem;
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .agendaHeader {
+    gap: 0.75rem;
+  }
+
+  .agendaStats {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .footerChip {
+    justify-content: flex-start;
+  }
+
+  .calendarShell :global(.fc-toolbar-chunk:last-child) {
+    justify-content: stretch;
+  }
+
+  .calendarShell :global(.fc-toolbar-chunk:last-child .fc-button) {
+    flex: 1;
+  }
+
+  .calendarShell :global(.fc-daygrid-day-frame) {
+    min-height: 4.1rem;
+  }
+
+  .calendarShell :global(.fc-toolbar-title) {
+    font-size: 1.05rem !important;
   }
 }
 

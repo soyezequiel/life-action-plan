@@ -140,6 +140,9 @@ export interface WalletStatus {
   balanceSats?: number
   budgetSats?: number
   budgetUsedSats?: number
+}
+
+export interface WalletBuildQuote {
   planBuildChargeSats?: number
   planBuildChargeReady?: boolean
   planBuildChargeReasonCode?: ChargeReasonCode | null
@@ -365,6 +368,7 @@ export interface LapAPI {
   }
   wallet: {
     status: () => Promise<WalletStatus>
+    quote: () => Promise<WalletBuildQuote>
     connect: (connectionUrl: string) => Promise<WalletConnectResult>
     disconnect: () => Promise<WalletDisconnectResult>
   }

@@ -178,10 +178,7 @@ export async function POST(request: Request): Promise<Response> {
           thinkingMode: thinkingMode ?? undefined
         })
 
-        const fastRuntime = createBuildAgentRuntime({
-          ...execution.runtime,
-          modelId: 'openai:gpt-4o-mini'
-        }, {
+        const fastRuntime = createBuildAgentRuntime(execution.runtime, {
           thinkingMode: 'disabled'
         })
 

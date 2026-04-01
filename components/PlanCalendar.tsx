@@ -5,6 +5,7 @@ import type { JSX } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import scrollGridPlugin from '@fullcalendar/scrollgrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import multiMonthPlugin from '@fullcalendar/multimonth'
 import esLocale from '@fullcalendar/core/locales/es'
@@ -97,7 +98,7 @@ function buildEvent(task: ProgressRow, timezone: string): EventInput | null {
 function renderEventContent(content: EventContentArg): JSX.Element {
   const categoryLabel = String(content.event.extendedProps.categoryLabel || '')
   const statusLabel = String(content.event.extendedProps.statusLabel || '')
-  const isCompactView = content.view.type === 'dayGridMonth'
+  const isCompactView = content.view.type === 'dayGridMonth' || content.view.type === 'multiMonthYear'
 
   if (isCompactView) {
     return (
@@ -130,6 +131,7 @@ function PlanCalendar({
   showHeader = true
 }: PlanCalendarProps): JSX.Element {
   const [initialView, setInitialView] = useState<CalendarView>(defaultView ?? 'dayGridMonth')
+  const [isCompactLayout, setIsCompactLayout] = useState(false)
   const internalRef = useRef<FullCalendar>(null)
 
   // Expose the FullCalendar API via the provided ref so the parent can imperatively switch views
@@ -138,6 +140,20 @@ function PlanCalendar({
       (calendarRef as React.MutableRefObject<CalendarApi | null>).current = internalRef.current.getApi()
     }
   })
+
+  useEffect(() => {
+    if (!defaultView) {
+      return
+    }
+
+    setInitialView(defaultView)
+
+    const api = internalRef.current?.getApi()
+    if (api && api.view.type !== defaultView) {
+      api.changeView(defaultView)
+    }
+  }, [defaultView])
+
   const todayIso = DateTime.now().setZone(timezone).toISODate() ?? ''
   const [selectedDateIso, setSelectedDateIso] = useState(todayIso)
 
@@ -146,11 +162,15 @@ function PlanCalendar({
       return
     }
 
-    const mql = window.matchMedia('(max-width: 720px)')
+    const mql = window.matchMedia('(max-width: 900px)')
     const handleResize = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsCompactLayout(e.matches)
+
       // Only override with mobile default if no explicit defaultView was provided
       if (!defaultView && e.matches) {
         setInitialView('timeGridDay')
+      } else if (!defaultView && !e.matches) {
+        setInitialView('dayGridMonth')
       }
     }
 
@@ -210,6 +230,17 @@ function PlanCalendar({
     .setLocale(getCurrentLocale())
     .toFormat('cccc d LLL')
   const selectedPendingCount = selectedTasks.filter((task) => !task.completado).length
+  const toolbarConfig = isCompactLayout
+    ? {
+        left: 'title',
+        center: '',
+        right: 'prev,next today'
+      }
+    : {
+        left: 'prev,next today',
+        center: 'title',
+        right: variant === 'light' && !showHeader ? '' : 'multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay'
+      }
 
   const shellClass = `${styles.calendarShell} ${variant === 'light' ? styles.calendarShellLight : ''} ${!showHeader ? styles.noHeader : ''}`
 
@@ -250,14 +281,10 @@ function PlanCalendar({
       ) : (
         <FullCalendar
           ref={internalRef}
-          plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin, interactionPlugin, scrollGridPlugin]}
           locale={esLocale}
           initialView={initialView}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: variant === 'light' ? '' : 'multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay'
-          }}
+          headerToolbar={toolbarConfig}
           buttonText={{
             today: t('dashboard.calendar_panel.toolbar.today')
           }}
@@ -280,10 +307,14 @@ function PlanCalendar({
           nowIndicator
           allDaySlot={false}
           height="auto"
-          dayMaxEventRows={3}
+          dayMaxEventRows={isCompactLayout ? 2 : 3}
           stickyHeaderDates
           slotMinTime="06:00:00"
           slotMaxTime="23:00:00"
+          dayMinWidth={isCompactLayout ? 84 : undefined}
+          multiMonthMaxColumns={isCompactLayout ? 1 : 4}
+          multiMonthMinWidth={isCompactLayout ? 260 : 180}
+          fixedWeekCount={false}
           eventTimeFormat={{
             hour: '2-digit',
             minute: '2-digit',

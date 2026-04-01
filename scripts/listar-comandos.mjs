@@ -10,10 +10,6 @@ const descriptions = {
   'dev:turbo': 'Inicia el servidor de desarrollo usando Turbopack.',
   build: 'Genera la build de produccion.',
   start: 'Levanta la app en modo produccion.',
-  'lap:run': 'Ejecuta el runner principal de LAP en modo real.',
-  'lap:run:example': 'Ejecuta el ejemplo del runner v5.',
-  'lap:run:v5-example': 'Ejecuta el runner v5 con datos de ejemplo.',
-  'lap:run:v5-real': 'Ejecuta el runner v5 real.',
   'codex:login': 'Inicia el flujo de login de Codex para este workspace.',
   'lap:inspect': 'Inspecciona resultados generados por el runner.',
   'lap:flow:viewer': 'Abre el visor local del flujo en el navegador.',
@@ -80,17 +76,13 @@ const commandPriorities = {
   'smoke:local:resource': 17,
   'smoke:resource:policy': 18,
   'smoke:deploy': 19,
-  'lap:run': 20,
-  'lap:run:example': 21,
-  'lap:run:v5-example': 22,
-  'lap:run:v5-real': 23,
-  'lap:inspect': 24,
-  'lap:flow:viewer': 25,
-  'codex:login': 26,
-  'credential:bootstrap:backend': 27,
-  'charge:report': 28,
-  'resource:report': 29,
-  'resource:report:canonical': 30
+  'lap:inspect': 20,
+  'lap:flow:viewer': 21,
+  'codex:login': 22,
+  'credential:bootstrap:backend': 23,
+  'charge:report': 24,
+  'resource:report': 25,
+  'resource:report:canonical': 26
 }
 
 function resolveCategory(scriptName) {

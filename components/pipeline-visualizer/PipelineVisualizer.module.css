@@ -114,10 +114,32 @@
 }
 
 @media (max-width: 768px) {
+  .userNodesRow {
+    flex-direction: column;
+  }
+
+  .progressText {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .section {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .graphContainer {
+    gap: 2rem;
+  }
+
   .graphRow {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .phaseNode {
+    min-width: min(100%, 220px);
   }
 }
 

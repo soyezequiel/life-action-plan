@@ -5,8 +5,8 @@ import React, { useState } from 'react';
 import type { MilestoneItem } from '../../src/lib/domain/plan-item';
 import type { AdaptiveOutput, AdaptiveStatus, PlanPackage } from '../../src/lib/pipeline/shared/phase-io';
 import { t } from '../../src/i18n';
+import { CalendarView } from '@/components/plan-viewer/CalendarView';
 import { AdaptiveChangesPanel } from './AdaptiveChangesPanel';
-import { CalendarView } from './CalendarView';
 import { PlanSummaryBar } from './PlanSummaryBar';
 import { ProgressView } from './ProgressView';
 import { TradeoffDialog } from './TradeoffDialog';
@@ -150,6 +150,7 @@ export function PlanDashboardV5Content({
             detail={pkg.plan.detail}
             milestones={milestones}
             goalIds={pkg.plan.goalIds}
+            timezone={pkg.plan.timezone}
             activeView={calendarView}
             onViewChange={onCalendarViewChange}
           />

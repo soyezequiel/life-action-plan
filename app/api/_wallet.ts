@@ -17,6 +17,7 @@ import {
   DEFAULT_BACKEND_OWNER_ID,
   listCredentialConfigurations
 } from '../../src/lib/auth/credential-config'
+import type { WalletBuildQuote, WalletStatus } from '../../src/shared/types/lap-api'
 
 function toSats(valueMsats: number | null): number | undefined {
   return typeof valueMsats === 'number' ? Math.floor(valueMsats / 1000) : undefined
@@ -28,11 +29,8 @@ function toWalletStatus(
     configured: boolean
     connected: boolean
     canUseSecureStorage?: boolean
-    planBuildChargeSats?: number
-    planBuildChargeReady?: boolean
-    planBuildChargeReasonCode?: string | null
   }
-) {
+): WalletStatus {
   return {
     configured: options.configured,
     connected: options.connected,
@@ -40,10 +38,7 @@ function toWalletStatus(
     alias: snapshot?.alias ?? undefined,
     balanceSats: toSats(snapshot?.balanceMsats ?? null),
     budgetSats: toSats(snapshot?.budgetTotalMsats ?? null),
-    budgetUsedSats: toSats(snapshot?.budgetUsedMsats ?? null),
-    planBuildChargeSats: options.planBuildChargeSats,
-    planBuildChargeReady: options.planBuildChargeReady,
-    planBuildChargeReasonCode: options.planBuildChargeReasonCode
+    budgetUsedSats: toSats(snapshot?.budgetUsedMsats ?? null)
   }
 }
 
@@ -62,7 +57,7 @@ async function resolveBackendChargeModel(): Promise<string> {
   return getDefaultBuildModelForProvider(credential?.providerId ?? '') ?? DEFAULT_OPENAI_BUILD_MODEL
 }
 
-async function getPlanBuildChargeState(userId?: string) {
+export async function getWalletBuildQuote(userId?: string): Promise<WalletBuildQuote> {
   const modelId = await resolveBackendChargeModel()
   const execution = await resolvePlanBuildExecution({
     modelId,
@@ -93,14 +88,13 @@ async function getPlanBuildChargeState(userId?: string) {
   }
 }
 
-export async function getWalletStatus(userId?: string) {
+export async function getWalletStatus(userId?: string): Promise<WalletStatus> {
   const canUseSecureStorage = canUseWalletSecretStorage()
   if (!canUseSecureStorage) {
     return toWalletStatus(null, {
       configured: false,
       connected: false,
-      canUseSecureStorage: false,
-      ...(await getPlanBuildChargeState(userId))
+      canUseSecureStorage: false
     })
   }
 
@@ -109,8 +103,7 @@ export async function getWalletStatus(userId?: string) {
     return toWalletStatus(null, {
       configured: false,
       connected: false,
-      canUseSecureStorage: true,
-      ...(await getPlanBuildChargeState(userId))
+      canUseSecureStorage: true
     })
   }
 
@@ -121,14 +114,12 @@ export async function getWalletStatus(userId?: string) {
     const snapshot = await provider.getStatus()
     return toWalletStatus(snapshot, {
       configured: true,
-      connected: true,
-      ...(await getPlanBuildChargeState(userId))
+      connected: true
     })
   } catch {
     return toWalletStatus(null, {
       configured: true,
-      connected: false,
-      ...(await getPlanBuildChargeState(userId))
+      connected: false
     })
   } finally {
     provider?.close()
@@ -143,8 +134,7 @@ export async function connectWallet(connectionUrl: string, userId?: string) {
       status: toWalletStatus(null, {
         configured: false,
         connected: false,
-        canUseSecureStorage: false,
-        ...(await getPlanBuildChargeState(userId))
+        canUseSecureStorage: false
       }),
       error: 'SECURE_STORAGE_UNAVAILABLE'
     }
@@ -165,8 +155,7 @@ export async function connectWallet(connectionUrl: string, userId?: string) {
       success: true,
       status: toWalletStatus(snapshot, {
         configured: true,
-        connected: true,
-        ...(await getPlanBuildChargeState(userId))
+        connected: true
       })
     }
   } catch (error) {
@@ -178,8 +167,7 @@ export async function connectWallet(connectionUrl: string, userId?: string) {
       success: false,
       status: toWalletStatus(null, {
         configured: false,
-        connected: false,
-        ...(await getPlanBuildChargeState(userId))
+        connected: false
       }),
       error: normalizedCode
     }

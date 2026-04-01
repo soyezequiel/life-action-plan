@@ -350,6 +350,9 @@ export interface WalletStatusResult {
   balanceSats?: number
   budgetSats?: number
   budgetUsedSats?: number
+}
+
+export interface WalletBuildQuoteResult {
   planBuildChargeSats?: number
   planBuildChargeReady?: boolean
   planBuildChargeReasonCode?: string | null
@@ -414,6 +417,24 @@ export async function fetchWalletStatus(): Promise<WalletStatusResult> {
       configured: false,
       connected: false,
       canUseSecureStorage: false
+    }
+  }
+}
+
+export async function fetchWalletBuildQuote(): Promise<WalletBuildQuoteResult> {
+  try {
+    const response = await fetch('/api/wallet/quote')
+
+    if (!response.ok) {
+      return {
+        planBuildChargeReady: false
+      }
+    }
+
+    return await response.json() as WalletBuildQuoteResult
+  } catch {
+    return {
+      planBuildChargeReady: false
     }
   }
 }

@@ -1,10 +1,15 @@
 import PlanificadorPage from './PlanificadorPage'
 import type { CalendarView } from '../PlanCalendar'
+import type { PlanRow, ProgressRow } from '@/src/shared/types/lap-api'
 
 export type PlanMockupView = 'day' | 'week' | 'month' | 'year'
 
 interface PlanMockupPageProps {
   view: PlanMockupView
+  initialData?: {
+    activePlan: PlanRow | null
+    tasks: ProgressRow[]
+  } | null
 }
 
 function mapToCalendarView(view: PlanMockupView): CalendarView {
@@ -22,6 +27,6 @@ function mapToCalendarView(view: PlanMockupView): CalendarView {
   }
 }
 
-export default function PlanMockupPage({ view }: PlanMockupPageProps) {
-  return <PlanificadorPage initialView={mapToCalendarView(view)} />
+export default function PlanMockupPage({ view, initialData = null }: PlanMockupPageProps) {
+  return <PlanificadorPage initialView={mapToCalendarView(view)} initialData={initialData} />
 }

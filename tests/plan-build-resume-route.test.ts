@@ -218,6 +218,14 @@ describe('plan build resume route', () => {
     }, {
       thinkingMode: 'enabled',
     })
+    expect(mocks.createBuildAgentRuntimeMock).toHaveBeenNthCalledWith(2, {
+      modelId: 'openai:gpt-5-codex',
+      apiKey: 'chatgpt-oauth',
+      baseURL: 'https://chatgpt.com/backend-api/codex',
+      authMode: 'codex-oauth',
+    }, {
+      thinkingMode: 'disabled',
+    })
   })
 
   it('falla rapido con diagnostico explicito si el provider restaurado no esta soportado', async () => {
@@ -457,7 +465,7 @@ describe('plan build resume route', () => {
     expect(resultPayload?.result).toEqual(expect.objectContaining({
       success: false,
       failureCode: 'failed_for_quality_review',
-      error: expect.stringContaining('revision final'),
+      error: 'Faltan hitos concretos para cerrar el plan.',
       blockingAgents: expect.arrayContaining([
         expect.objectContaining({
           agent: 'critic',
@@ -486,7 +494,7 @@ describe('plan build resume route', () => {
   })
 
   it('emits structured debug events when resume runs in debug mode', async () => {
-    mocks.restoreMock.mockImplementationOnce((_snapshot, _runtime, _runtimeLabel, debugListener) => ({
+    mocks.restoreMock.mockImplementationOnce((_snapshot, _brainRuntime, _fastRuntime, _runtimeLabel, debugListener) => ({
       resume: vi.fn().mockImplementation(async () => {
         debugListener?.({
           sequence: 3,

@@ -11,7 +11,7 @@ import { PipelineVisualizer } from '../pipeline-visualizer/PipelineVisualizer'
 import { AdvancedFlowVisualizer } from '../pipeline-visualizer/AdvancedFlowVisualizer'
 import { usePipelineState } from '../pipeline-visualizer/use-pipeline-state'
 import { SuccessPaymentAnimation } from '../midnight-mint/SuccessPaymentAnimation'
-import { fetchWalletStatus, chargePlanBuild, startPlanBuild, resumePlanBuild } from '@/src/lib/client/plan-client'
+import { fetchWalletBuildQuote, fetchWalletStatus, chargePlanBuild, startPlanBuild, resumePlanBuild } from '@/src/lib/client/plan-client'
 import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 import type { ClarificationRound, ClarificationQuestion } from '@/src/lib/pipeline/v6/types'
 import { GenerationErrorDetails } from '../flow/GenerationErrorDetails'
@@ -76,13 +76,17 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
     setShowPlanReplaceWarning(false)
     
     try {
-      // 1. Obtener estado de billetera y costo estimado
-      const statusRes = await fetchWalletStatus()
-      setWalletStatus(statusRes)
+      // 1. Obtener estado de billetera y costo estimado por separado para no pagar
+      // logica de billing cada vez que otra pantalla solo pide "status".
+      const [statusRes, quoteRes] = await Promise.all([
+        fetchWalletStatus(),
+        fetchWalletBuildQuote()
+      ])
+      setWalletStatus({ ...statusRes, ...quoteRes })
       setIsCheckingCost(false)
       
       // Si el costo es gratuito o no aplicable (ej. local), saltamos el quote
-      if (!statusRes.planBuildChargeSats || statusRes.planBuildChargeSats <= 0) {
+      if (!quoteRes.planBuildChargeSats || quoteRes.planBuildChargeSats <= 0) {
         processGeneration(goalToProcess.trim())
         return
       }
@@ -244,61 +248,44 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
           { label: t('mockups.intake.nav.balances'), icon: 'scale', href: '/plan?view=week' }
         ]}
         sidebarPrimaryAction={{ label: t('mockups.common.new_flow'), icon: 'add', href: '/flow' }}
-        sidebarFooter={[{ label: t('mockups.common.help'), icon: 'help', href: '#' }]}
-        topTabs={[
-          { label: t('mockups.intake.top_tabs.flow'), active: true, href: '/flow' },
-          { label: t('mockups.intake.top_tabs.canvas'), href: '/flow?variant=spatial' },
-          { label: t('mockups.intake.top_tabs.analysis'), href: '/flow?variant=simulation' },
-          { label: t('mockups.intake.top_tabs.archive'), href: '/plan?view=month' }
-        ]}
-        topRight={(
-          <>
-            <button type="button" className="text-slate-500 transition hover:text-slate-700">
-              <MaterialIcon name="notifications" className="text-[20px]" />
-            </button>
-            <button type="button" className="text-slate-500 transition hover:text-slate-700">
-              <MaterialIcon name="account_circle" className="text-[20px]" />
-            </button>
-          </>
-        )}
         contentClassName="px-0"
       >
-        <div className="mx-auto flex w-full max-w-[980px] flex-col items-center px-8 pt-10">
-          <div className="mb-6 text-center">
-            <p className="font-display text-[11px] font-bold uppercase tracking-[0.32em] text-slate-400">
+        <div className="mx-auto flex w-full max-w-[980px] flex-col items-center px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
+          <div className="mb-5 text-center sm:mb-6">
+            <p className="font-display text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 sm:text-[11px] sm:tracking-[0.32em]">
               {t('mockups.intake.eyebrow')}
             </p>
-            <h1 className="mt-4 font-display text-[32px] font-bold tracking-tight text-[#334155]">
+            <h1 className="mt-3 font-display text-[28px] font-bold tracking-tight text-[#334155] sm:mt-4 sm:text-[32px]">
               {t('mockups.intake.title')}
             </h1>
           </div>
 
           <motion.section
-            className="relative w-full rounded-[24px] bg-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] overflow-hidden"
+            className="relative w-full overflow-hidden rounded-[20px] bg-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] sm:rounded-[24px]"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
           >
-            <div className={`p-6 md:p-8 ${showPaymentQuote ? 'bg-slate-50/50' : ''}`}>
+            <div className={`p-4 sm:p-6 md:p-8 ${showPaymentQuote ? 'bg-slate-50/50' : ''}`}>
             {showPlanReplaceWarning ? (
               <motion.div
-                className="w-full flex flex-col items-center py-8 text-center"
+                className="flex w-full flex-col items-center py-4 text-center sm:py-8"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
               >
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-50 text-amber-500 shadow-sm border border-amber-100">
+                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-amber-100 bg-amber-50 text-amber-500 shadow-sm sm:mb-6 sm:h-20 sm:w-20">
                   <MaterialIcon name="warning" className="text-[40px]" />
                 </div>
                 
-                <h3 className="font-display text-[28px] font-bold tracking-tight text-[#334155] mb-2">
+                <h3 className="mb-2 font-display text-[24px] font-bold tracking-tight text-[#334155] sm:text-[28px]">
                   ¿Reemplazar plan actual?
                 </h3>
-                <p className="text-slate-500 text-[16px] max-w-md mb-10 leading-relaxed">
+                <p className="mb-8 max-w-md text-[15px] leading-relaxed text-slate-500 sm:mb-10 sm:text-[16px]">
                   Ya tienes un plan activo. Al crear uno nuevo, el anterior se archivará y todo su progreso dejará de ser visible en el dashboard.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+                <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row sm:gap-4">
                   <button
                     onClick={() => handleComplete(pendingGoal, true)}
                     className="flex-1 inline-flex h-14 items-center justify-center gap-3 rounded-[22px] bg-[#1E293B] px-8 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-200 transition hover:-translate-y-1 hover:bg-[#334155] active:translate-y-0"
@@ -319,22 +306,22 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
               </motion.div>
             ) : isCompletedLocal && completionData ? (
               <motion.div 
-                className="w-full flex flex-col items-center py-8 text-center"
+                className="flex w-full flex-col items-center py-4 text-center sm:py-8"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-500 shadow-sm border border-emerald-100">
+                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-500 shadow-sm sm:mb-6 sm:h-20 sm:w-20">
                   <MaterialIcon name="verified" className="text-[40px]" />
                 </div>
                 
-                <h3 className="font-display text-[28px] font-bold tracking-tight text-[#334155] mb-2">
+                <h3 className="mb-2 font-display text-[24px] font-bold tracking-tight text-[#334155] sm:text-[28px]">
                   ¡Plan Generado con Éxito!
                 </h3>
-                <p className="text-slate-500 text-[16px] max-w-md mb-10">
+                <p className="mb-8 max-w-md text-[15px] text-slate-500 sm:mb-10 sm:text-[16px]">
                   El modelo ha finalizado la construcción de tu plan con un puntaje de calidad de <strong>{completionData.score}%</strong> tras {completionData.iterations} iteraciones de refinamiento.
                 </p>
 
-                <div className="grid grid-cols-3 gap-4 w-full max-w-lg mb-10">
+                <div className="mb-8 grid w-full max-w-lg grid-cols-1 gap-3 sm:mb-10 sm:grid-cols-3 sm:gap-4">
                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                       <span className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Calidad</span>
                       <span className="text-xl font-bold text-emerald-600">{completionData.score}%</span>
@@ -349,10 +336,10 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                    </div>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex w-full justify-center">
                   <button
                     onClick={() => onComplete?.(activeProfileId || '', completionData.planId)}
-                    className="inline-flex h-14 items-center justify-center gap-3 rounded-[22px] bg-[#1E293B] px-10 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-200 transition hover:-translate-y-1 hover:bg-[#334155] active:translate-y-0"
+                    className="inline-flex h-14 w-full items-center justify-center gap-3 rounded-[22px] bg-[#1E293B] px-8 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-200 transition hover:-translate-y-1 hover:bg-[#334155] active:translate-y-0 sm:w-auto sm:px-10"
                   >
                     <span>Ir al Dashboard</span>
                     <MaterialIcon name="dashboard" className="text-[20px]" />
@@ -361,22 +348,22 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
               </motion.div>
             ) : showPaymentQuote && walletStatus ? (
               <motion.div
-                className="w-full flex flex-col items-center py-6 text-center"
+                className="flex w-full flex-col items-center py-4 text-center sm:py-6"
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
-                 <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-[#1E293B] text-emerald-400 shadow-2xl shadow-slate-200 border-4 border-slate-700">
+                 <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-slate-700 bg-[#1E293B] text-emerald-400 shadow-2xl shadow-slate-200 sm:mb-8 sm:h-24 sm:w-24">
                     <MaterialIcon name="bolt" className="text-[48px]" />
                  </div>
 
-                 <h3 className="font-display text-[26px] font-bold tracking-tight text-[#1E293B] mb-2">
+                 <h3 className="mb-2 font-display text-[24px] font-bold tracking-tight text-[#1E293B] sm:text-[26px]">
                    Cotización del Plan
                  </h3>
-                 <p className="text-slate-500 max-w-sm mb-10 leading-relaxed">
+                 <p className="mb-8 max-w-sm text-[15px] leading-relaxed text-slate-500 sm:mb-10">
                    Para construir un plan de alta fidelidad con inteligencia artificial premium, se requiere una pequeña provisión de recursos.
                  </p>
 
-                 <div className="w-full max-w-sm space-y-4 mb-10">
+                 <div className="mb-8 w-full max-w-sm space-y-4 sm:mb-10">
                     <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                        <span className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">Costo</span>
                        <div className="flex items-center gap-2">
@@ -437,13 +424,13 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
               </motion.div>
             ) : clarification ? (
               <motion.div 
-                className="w-full space-y-8"
+                className="w-full space-y-6 sm:space-y-8"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4 }}
               >
                 <header className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center rounded-full bg-[#A7F3D0]/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#166534]">
                       Ajuste de Objetivo
                     </span>
@@ -463,7 +450,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                   {clarification.questions.map((q: ClarificationQuestion, idx: number) => (
                     <motion.div 
                       key={q.id}
-                      className="group relative rounded-[22px] border border-slate-100 bg-[#FAFAF9]/50 p-6 transition-all hover:bg-white hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]"
+                      className="group relative rounded-[20px] border border-slate-100 bg-[#FAFAF9]/50 p-4 transition-all hover:bg-white hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] sm:rounded-[22px] sm:p-6"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.1 }}
@@ -520,7 +507,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                   ))}
                 </div>
                 
-                <div className="flex items-center justify-between border-t border-slate-100 pt-8">
+                <div className="flex flex-col gap-4 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between sm:pt-8">
                   <p className="text-[13px] italic text-slate-400">
                     Respondé todo lo que puedas para un plan más preciso.
                   </p>
@@ -536,8 +523,8 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                 </div>
               </motion.div>
             ) : isGenerating ? (
-              <div className="py-2 space-y-4">
-                <div className="flex justify-end pr-2">
+              <div className="space-y-4 py-2">
+                <div className="flex justify-center sm:justify-end sm:pr-2">
                   <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 shadow-sm">
                     <button
                       onClick={() => setViewMode('standard')}
@@ -587,48 +574,34 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                     />
                   </div>
                 )}
-                <textarea
-                  value={value}
-                  onChange={(event) => setValue(event.target.value)}
-                  placeholder={t('mockups.intake.placeholder')}
-                  disabled={isGenerating}
-                  className="min-h-[210px] w-full resize-none rounded-[20px] border border-transparent bg-[#FAFAF9] p-6 text-[24px] leading-[1.45] text-slate-500 outline-none placeholder:text-slate-400 focus:border-[#1E293B]/10 focus:bg-white focus:text-[#334155] disabled:opacity-50"
-                />
-                <div className="absolute bottom-6 right-6 flex items-center gap-2">
-                  <span className="rounded-full bg-white/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
-                    {t('mockups.intake.submit_hint')}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleComplete()}
-                    disabled={isGenerating || isCheckingCost || !value.trim()}
-                    className={`flex h-12 w-12 items-center justify-center rounded-full text-white transition hover:-translate-y-0.5 ${isGenerating || isCheckingCost ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
-                    aria-label={t('mockups.intake.continue')}
-                  >
-                    {isGenerating || isCheckingCost ? <MaterialIcon name="hourglass_empty" className="text-[20px] animate-spin" /> : <MaterialIcon name="arrow_forward" className="text-[20px]" />}
-                  </button>
+                <div className="space-y-4 sm:space-y-0">
+                  <textarea
+                    value={value}
+                    onChange={(event) => setValue(event.target.value)}
+                    placeholder={t('mockups.intake.placeholder')}
+                    disabled={isGenerating}
+                    className="min-h-[220px] w-full resize-none rounded-[20px] border border-transparent bg-[#FAFAF9] p-5 text-[18px] leading-[1.5] text-slate-500 outline-none placeholder:text-slate-400 focus:border-[#1E293B]/10 focus:bg-white focus:text-[#334155] disabled:opacity-50 sm:min-h-[240px] sm:p-6 sm:pb-24 sm:text-[22px] md:text-[24px]"
+                  />
+                  <div className="flex w-full items-center justify-between gap-3 sm:absolute sm:bottom-6 sm:right-6 sm:w-auto sm:justify-end">
+                    <span className="rounded-full bg-white/80 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] sm:text-[10px] sm:tracking-[0.2em]">
+                      {t('mockups.intake.submit_hint')}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleComplete()}
+                      disabled={isGenerating || isCheckingCost || !value.trim()}
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white transition hover:-translate-y-0.5 ${isGenerating || isCheckingCost ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1E293B]'}`}
+                      aria-label={t('mockups.intake.continue')}
+                    >
+                      {isGenerating || isCheckingCost ? <MaterialIcon name="hourglass_empty" className="text-[20px] animate-spin" /> : <MaterialIcon name="arrow_forward" className="text-[20px]" />}
+                    </button>
+                  </div>
                 </div>
               </>
             )}
             </div>
           </motion.section>
 
-          <button
-            type="button"
-            onClick={onCancel}
-            className="mt-12 text-[12px] italic text-slate-400 transition hover:text-[#334155]"
-          >
-            {t('mockups.intake.help')}
-          </button>
-
-          <div className="mt-16 flex w-full items-center justify-center">
-            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.28em] text-slate-300">
-              <MaterialIcon name="edit_note" className="text-[14px]" />
-              <span>{t('mockups.intake.draft')}</span>
-              <span className="normal-case tracking-normal text-slate-400">{t('mockups.intake.draft_copy')}</span>
-              <MaterialIcon name="arrow_forward" className="text-[14px]" />
-            </div>
-          </div>
         </div>
         
         {/* Animación Dopamínica de Pago */}

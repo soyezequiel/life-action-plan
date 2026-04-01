@@ -151,6 +151,11 @@ function createLapClientStub(): LapAPI {
         connected: false,
         canUseSecureStorage: true
       })),
+      quote: vi.fn(async () => ({
+        planBuildChargeSats: 5,
+        planBuildChargeReady: true,
+        planBuildChargeReasonCode: null
+      })),
       connect: vi.fn(async () => ({
         success: true,
         status: {
@@ -352,7 +357,10 @@ describe('dashboard interaction', () => {
       alias: 'Casa',
       balanceSats: 21000,
       budgetSats: 5000,
-      budgetUsedSats: 1200,
+      budgetUsedSats: 1200
+    }))
+
+    client.wallet.quote = vi.fn(async () => ({
       planBuildChargeSats: 5,
       planBuildChargeReady: true,
       planBuildChargeReasonCode: null

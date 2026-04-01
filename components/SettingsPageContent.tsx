@@ -44,9 +44,7 @@ const settingsTransition = {
 const initialWalletStatus: WalletStatus = {
   configured: false,
   connected: false,
-  canUseSecureStorage: true,
-  planBuildChargeReady: false,
-  planBuildChargeReasonCode: 'wallet_not_connected'
+  canUseSecureStorage: true
 }
 
 const initialAuthState: AuthState = {
@@ -430,9 +428,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
       setWalletStatus({
         ...walletStatus,
         configured: false,
-        connected: false,
-        planBuildChargeReady: false,
-        planBuildChargeReasonCode: 'wallet_not_connected'
+        connected: false
       })
       setWalletNotice(t('settings.wallet_disconnect_success'))
     } catch (error) {

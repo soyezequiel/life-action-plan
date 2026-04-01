@@ -6,16 +6,16 @@ import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
 import { browserLapClient } from '@/src/lib/client/browser-http-client'
-import type { WalletStatus } from '@/src/shared/types/lap-api'
+import type { WalletBuildQuote } from '@/src/shared/types/lap-api'
 
 export default function SimulationCostMockup() {
-  const [wallet, setWallet] = useState<WalletStatus | null>(null)
+  const [quote, setQuote] = useState<WalletBuildQuote | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
-    browserLapClient.wallet.status()
-      .then(setWallet)
+    browserLapClient.wallet.quote()
+      .then(setQuote)
       .catch((err) => console.error('Error fetching cost stats:', err))
       .finally(() => setIsLoading(false))
   }, [])
@@ -123,13 +123,13 @@ export default function SimulationCostMockup() {
               <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">{t('mockups.flow.simulation.budget_label')}</p>
               <h2 className="mt-2 font-display text-[24px] font-bold text-[#334155]">{t('mockups.flow.simulation.cost_title')}</h2>
               <div className="mt-4 inline-flex rounded-[16px] bg-[#1E293B] px-4 py-3 font-display text-[32px] font-bold text-white">
-                {isLoading ? '...' : (wallet?.planBuildChargeSats ?? 45)}
+                {isLoading ? '...' : (quote?.planBuildChargeSats ?? 45)}
                 <span className="ml-2 text-[12px] font-bold uppercase tracking-[0.22em] text-slate-300">sats</span>
               </div>
               <div className="mt-6 space-y-3 text-left text-[14px] text-slate-500">
                 <div className="flex justify-between"><span>{t('mockups.flow.simulation.fee')}</span><span>12 sats</span></div>
-                <div className="flex justify-between"><span>{t('mockups.flow.simulation.ai_processing')}</span><span>{isLoading ? '...' : (wallet?.planBuildChargeSats ? wallet.planBuildChargeSats - 12 : 33)} sats</span></div>
-                <div className="flex justify-between border-t border-slate-100 pt-3 font-semibold text-[#334155]"><span>{t('mockups.flow.simulation.total')}</span><span>{isLoading ? '...' : (wallet?.planBuildChargeSats ?? 45)} sats</span></div>
+                <div className="flex justify-between"><span>{t('mockups.flow.simulation.ai_processing')}</span><span>{isLoading ? '...' : (quote?.planBuildChargeSats ? quote.planBuildChargeSats - 12 : 33)} sats</span></div>
+                <div className="flex justify-between border-t border-slate-100 pt-3 font-semibold text-[#334155]"><span>{t('mockups.flow.simulation.total')}</span><span>{isLoading ? '...' : (quote?.planBuildChargeSats ?? 45)} sats</span></div>
               </div>
               <button type="button" className="group mt-8 inline-flex h-14 w-full items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] px-6 font-display text-[14px] font-bold text-white transition hover:-translate-y-0.5">
                 <span>{t('mockups.flow.simulation.generate')}</span>

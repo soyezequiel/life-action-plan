@@ -1,9 +1,9 @@
-# Reglas del Proyecto LAP — Cursor
+# Reglas del Proyecto LAP - Cursor
 
-> **OBLIGATORIO**: Leé `AGENTS.md` antes de escribir código. Contiene el estado actual, estructura, stack, y reglas.
-> Source of truth arquitectónica: `PLAN_LAP_FINAL.md`
+> **OBLIGATORIO**: Le `AGENTS.md` antes de escribir codigo. Contiene el estado actual, estructura, stack, y reglas.
+> Source of truth arquitectonica: `docs/architecture/REGISTRY.json`
 
-## Carga Determinística
-1. Abrí y leé `AGENTS.md` (contexto completo del proyecto, estado, decisiones técnicas)
-2. Consultá `docs/architecture/PLAN_LAP_FINAL.md` para detalles de arquitectura y specs de schemas
-3. Respetá las 8 reglas inquebrantables listadas en `AGENTS.md` sección "Reglas INQUEBRANTABLES"
+## Carga Deterministica
+1. Abri y le `AGENTS.md` (contexto completo del proyecto, estado, decisiones tecnicas)
+2. Consulta `docs/architecture/REGISTRY.json` y `docs/plans/REGISTRY.json` para resolver documentos vigentes
+3. Respeta las 8 reglas inquebrantables listadas en `AGENTS.md` seccion "Reglas INQUEBRANTABLES"

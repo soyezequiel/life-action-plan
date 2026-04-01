@@ -10,27 +10,39 @@ import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 import type { WalletStatus } from '@/src/shared/types/lap-api'
 import Link from 'next/link'
 
-export default function ResourceProviderMockup() {
+interface ResourceProviderMockupProps {
+  initialWalletStatus?: WalletStatus | null
+  initialApiConfigured?: boolean
+}
+
+export default function ResourceProviderMockup({
+  initialWalletStatus = null,
+  initialApiConfigured = false
+}: ResourceProviderMockupProps) {
   const { onboardingStep, refresh: refreshStatus } = useUserStatusContext()
   const [mode, setMode] = useState<'wallet' | 'api'>('wallet')
   
   // Wallet states
-  const [wallet, setWallet] = useState<WalletStatus | null>(null)
-  const [isWalletLoading, setIsWalletLoading] = useState(true)
+  const [wallet, setWallet] = useState<WalletStatus | null>(initialWalletStatus)
+  const [isWalletLoading, setIsWalletLoading] = useState(initialWalletStatus === null)
   const [relayUrl, setRelayUrl] = useState('')
   const [walletStatus, setWalletStatus] = useState<'idle' | 'connecting' | 'success' | 'error'>('idle')
 
   // API states
   const [apiKey, setApiKey] = useState('')
   const [endpoint, setEndpoint] = useState('https://api.openai.com/v1')
-  const [apiConfigured, setApiConfigured] = useState(false)
+  const [apiConfigured, setApiConfigured] = useState(initialApiConfigured)
   const [apiStatus, setApiStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
-    // Initial data fetch
-    fetchWallet()
-    fetchApiStatus()
+    if (initialWalletStatus === null) {
+      fetchWallet()
+    }
+
+    if (!initialApiConfigured) {
+      fetchApiStatus()
+    }
   }, [])
 
   const fetchWallet = () => {

@@ -108,11 +108,6 @@ export default function BuildSection(props: BuildSectionProps) {
       )}
       {props.buildNotice && <p className="status-message status-message--success">{props.buildNotice}</p>}
       {props.buildError && <p className="status-message status-message--warning">{props.buildError}</p>}
-      {props.walletStatus.planBuildChargeReady === false && props.buildUsage?.chargeable && (
-        <p className="status-message status-message--warning">
-          {t('dashboard.wallet_build_blocked.other')}
-        </p>
-      )}
     </section>
   )
 }

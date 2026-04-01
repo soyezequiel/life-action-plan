@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { DateTime } from 'luxon'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { t } from '@/src/i18n'
@@ -9,28 +9,93 @@ import { MaterialIcon } from '../midnight-mint/MaterialIcon'
 import { MockupShell } from '../midnight-mint/MockupShell'
 import { browserLapClient } from '@/src/lib/client/browser-http-client'
 import { readPlanV5Manifest } from '@/src/shared/utils/plan-manifest'
+import type { PlanRow, ProgressRow, ProgressSummaryRow, StreakResult } from '@/src/shared/types/lap-api'
 
 interface DashboardMockupProps {
   deploymentMode?: DeploymentMode
+  initialData?: DashboardBootstrapData | null
 }
 
-export default function DashboardMockup({ deploymentMode }: DashboardMockupProps) {
+export interface DashboardBootstrapData {
+  activePlan: PlanRow | null
+  tasks: ProgressRow[]
+  weeklySummary: ProgressSummaryRow[]
+  streak: StreakResult | null
+  hydrationProgress: number
+  readingProgress: number
+  initialDateStr: string
+  initialTimeRemaining: string
+}
+
+function formatCountdownMinutes(totalMinutes: number): string {
+  const safeMinutes = Math.max(0, Math.floor(totalMinutes))
+  const hours = Math.floor(safeMinutes / 60).toString().padStart(2, '0')
+  const minutes = (safeMinutes % 60).toString().padStart(2, '0')
+
+  return `${hours}:${minutes}`
+}
+
+function resolveFocusCountdown(activePlan: any): string {
+  const now = DateTime.local()
+
+  if (!activePlan?.manifest) {
+    return `${formatCountdownMinutes(now.endOf('day').diff(now, 'minutes').minutes ?? 0)} restante`
+  }
+
+  const manifest = readPlanV5Manifest(activePlan.manifest)
+  const timezone = manifest?.package?.timezone ?? now.zoneName
+  const localNow = now.setZone(timezone)
+  const scheduledEvents = (manifest?.package?.plan.operational.scheduledEvents?.length
+    ? manifest.package.plan.operational.scheduledEvents
+    : manifest?.package?.plan.detail.scheduledEvents ?? []
+  ).sort((left, right) =>
+    DateTime.fromISO(left.startAt, { zone: 'utc' }).toMillis() -
+    DateTime.fromISO(right.startAt, { zone: 'utc' }).toMillis()
+  )
+
+  if (scheduledEvents.length === 0) {
+    return `${formatCountdownMinutes(localNow.endOf('day').diff(localNow, 'minutes').minutes ?? 0)} restante`
+  }
+
+  const currentEvent = scheduledEvents.find((event) => {
+    const start = DateTime.fromISO(event.startAt, { zone: 'utc' }).setZone(timezone)
+    const end = start.plus({ minutes: event.durationMin })
+
+    return localNow >= start && localNow < end
+  })
+
+  const nextEventToday = scheduledEvents.find((event) => {
+    const start = DateTime.fromISO(event.startAt, { zone: 'utc' }).setZone(timezone)
+    return start.toISODate() === localNow.toISODate() && start > localNow
+  })
+
+  const target = currentEvent
+    ? DateTime.fromISO(currentEvent.startAt, { zone: 'utc' }).setZone(timezone).plus({ minutes: currentEvent.durationMin })
+    : nextEventToday
+      ? DateTime.fromISO(nextEventToday.startAt, { zone: 'utc' }).setZone(timezone)
+      : localNow.endOf('day')
+
+  return `${formatCountdownMinutes(target.diff(localNow, 'minutes').minutes ?? 0)} restante`
+}
+
+export default function DashboardMockup({ deploymentMode, initialData = null }: DashboardMockupProps) {
   void deploymentMode
-  const [timeRemaining, setTimeRemaining] = useState<string>('')
-  const [dateStr, setDateStr] = useState<string>('')
-  const [isClient, setIsClient] = useState(false)
-  const [hydrationProgress, setHydrationProgress] = useState(0)
-  const [readingProgress, setReadingProgress] = useState(0)
-  const [activePlan, setActivePlan] = useState<any>(null)
-  const [tasks, setTasks] = useState<any[]>([])
-  const [weeklySummary, setWeeklySummary] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [timeRemaining, setTimeRemaining] = useState<string>(initialData?.initialTimeRemaining ?? '')
+  const [dateStr, setDateStr] = useState<string>(initialData?.initialDateStr ?? '')
+  const [hydrationProgress, setHydrationProgress] = useState(initialData?.hydrationProgress ?? 0)
+  const [readingProgress, setReadingProgress] = useState(initialData?.readingProgress ?? 0)
+  const [activePlan, setActivePlan] = useState<PlanRow | null>(initialData?.activePlan ?? null)
+  const [tasks, setTasks] = useState<ProgressRow[]>(initialData?.tasks ?? [])
+  const [weeklySummary, setWeeklySummary] = useState<ProgressSummaryRow[]>(initialData?.weeklySummary ?? [])
+  const [streak, setStreak] = useState<StreakResult | null>(initialData?.streak ?? null)
+  const [isLoading, setIsLoading] = useState(initialData === null)
   const [riskStatus, setRiskStatus] = useState<'green' | 'amber' | 'red'>('green')
 
   const router = useRouter()
   const searchParams = useSearchParams()
   const planIdParam = searchParams.get('planId')
   const LOCAL_PROFILE_ID_STORAGE_KEY = 'lap_profile_id'
+  const shouldBootstrapOnClient = !initialData || (Boolean(planIdParam) && planIdParam !== initialData.activePlan?.id)
 
   const calculateRisk = (currentTasks: any[]) => {
     const now = DateTime.local()
@@ -50,6 +115,11 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
   }
 
   useEffect(() => {
+    if (!shouldBootstrapOnClient) {
+      setRiskStatus(calculateRisk(initialData?.tasks ?? []))
+      return
+    }
+
     async function loadDashboardData() {
       setIsLoading(true)
       try {
@@ -93,6 +163,14 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
         setWeeklySummary(summary)
         setRiskStatus(calculateRisk(progressRows))
 
+        try {
+          const streakResult = await browserLapClient.streak.get(active.id)
+          setStreak(streakResult)
+        } catch (streakError) {
+          console.warn('Error loading streak data:', streakError)
+          setStreak(null)
+        }
+
         // 4. Clean up URL if we were forced to a specific plan
         if (planIdParam) {
           window.history.replaceState({}, '', '/')
@@ -115,7 +193,7 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
     }
 
     loadDashboardData()
-  }, [planIdParam])
+  }, [initialData, planIdParam, shouldBootstrapOnClient])
 
   const handleToggleTask = async (taskId: string) => {
     try {
@@ -133,23 +211,15 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
   useEffect(() => {
     const updateTime = () => {
       const now = DateTime.local()
-      const endOfDay = now.endOf('day')
-      const diff = endOfDay.diff(now, ['hours', 'minutes']).toObject()
-      
-      const h = Math.floor(diff.hours ?? 0).toString().padStart(2, '0')
-      const m = Math.floor(diff.minutes ?? 0).toString().padStart(2, '0')
-      
-      setTimeRemaining(`${h}:${m} restante`)
+
+      setTimeRemaining(resolveFocusCountdown(activePlan))
       setDateStr(now.toFormat('cccc d LLLL yyyy', { locale: 'es-AR' }))
     }
 
-    setIsClient(true)
     updateTime()
     const interval = setInterval(updateTime, 60000)
     return () => clearInterval(interval)
-  }, [])
-
-  if (!isClient) return null // Prevent hydration mismatch by not rendering time-sensitive content on server
+  }, [activePlan])
 
   return (
     <MockupShell
@@ -398,7 +468,13 @@ export default function DashboardMockup({ deploymentMode }: DashboardMockupProps
               {[
                 { value: tasks.length.toString(), label: t('mockups.dashboard.footer.tasks'), icon: 'task_alt' },
                 { value: `${tasks.length > 0 ? Math.round((tasks.filter(t => t.completado).length / tasks.length) * 100) : 0}%`, label: t('mockups.dashboard.footer.productivity'), icon: 'bolt' },
-                { value: tasks.filter(t => t.completado).length > 0 ? `0${tasks.filter(t => t.completado).length}:00` : '00:00', label: t('mockups.dashboard.footer.focus'), icon: 'timer' },
+                {
+                  value: streak
+                    ? t('dashboard.streak_current', { count: streak.current })
+                    : t('dashboard.streak_empty'),
+                  label: t('dashboard.streak_title'),
+                  icon: 'local_fire_department'
+                },
                 { value: activePlan ? '+14%' : '--', label: t('mockups.dashboard.footer.variation'), icon: 'trending_up' }
               ].map((item) => (
                 <article

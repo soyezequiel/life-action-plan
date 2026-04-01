@@ -4,7 +4,7 @@ import React, { useEffect, ReactNode } from 'react'
 import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import PulsoLogoAnimated from '@/components/ui/PulsoLogoAnimated'
 import { t } from '@/src/i18n'
 
@@ -34,8 +34,10 @@ export function UserStatusGuard({ children }: { children: ReactNode }) {
     }
   }, [onboardingStep, loading, sessionStatus, pathname, router])
 
-  // Show a distinctive loading state while resolving status
-  if (loading || sessionStatus === 'loading') {
+  // Only block the entire app while the session itself is unresolved.
+  // Once the user is authenticated, we prefer a fast render and redirect if needed
+  // instead of a global loading wall on every section change.
+  if (sessionStatus === 'loading') {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#090B0D] text-[#F8FBFF] overflow-hidden relative">
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
