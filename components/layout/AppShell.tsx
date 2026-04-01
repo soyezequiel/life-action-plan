@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { ReactNode } from 'react'
+import React, { type ReactNode } from 'react'
 
 import { t } from '../../src/i18n'
 import PulsoLogo from '../PulsoLogo'
@@ -10,6 +10,7 @@ import styles from './AppShell.module.css'
 
 type ShellNavItem = {
   href: string
+  matchPath?: string
   label: string
   exact?: boolean
 }
@@ -17,8 +18,7 @@ type ShellNavItem = {
 const NAV_ITEMS: ShellNavItem[] = [
   { href: '/', label: t('dashboard.shell_nav.dashboard'), exact: true },
   { href: '/flow', label: t('dashboard.shell_nav.flow') },
-  { href: '/plan', label: t('dashboard.shell_nav.plan') },
-  { href: '/plan/v5', label: t('dashboard.shell_nav.calendar') },
+  { href: '/plan/v5?tab=calendar&view=week', matchPath: '/plan/v5', label: t('dashboard.shell_nav.calendar') },
   { href: '/settings', label: t('dashboard.shell_nav.system') },
 ]
 
@@ -32,11 +32,13 @@ interface AppShellProps {
 }
 
 function isActivePath(pathname: string, item: ShellNavItem): boolean {
+  const matchPath = item.matchPath ?? item.href
+
   if (item.exact) {
-    return pathname === item.href
+    return pathname === matchPath
   }
 
-  return pathname === item.href || pathname.startsWith(`${item.href}/`)
+  return pathname === matchPath || pathname.startsWith(`${matchPath}/`)
 }
 
 export function AppShell({ eyebrow, title, copy, children, actions, compact = false }: AppShellProps) {

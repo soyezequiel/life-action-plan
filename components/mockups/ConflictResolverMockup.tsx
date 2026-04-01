@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockupShell } from '../midnight-mint/MockupShell'
+import { MockupOrchestrator as MockupShell } from '../midnight-mint/MockupOrchestrator'
 
 export default function ConflictResolverMockup() {
   const router = useRouter()

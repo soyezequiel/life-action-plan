@@ -1,7 +1,9 @@
 import { auth } from '@/src/auth'
 import { redirect } from 'next/navigation'
-import PlanMockupPage from '../../components/plan-viewer/PlanMockupPage'
+
+import PlanificadorPage from '../../components/plan-viewer/PlanificadorPage'
 import { getLatestProfileIdForUser, getPlansByProfile, getProgressByPlan } from '../../src/lib/db/db-helpers'
+import type { PlannerViewProps } from '../../components/workspace/types'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -25,6 +27,21 @@ async function resolveSearchParams(searchParams: Promise<SearchParams> | undefin
   return (await searchParams) ?? {}
 }
 
+function resolveInitialView(view: string | null): PlannerViewProps['initialView'] {
+  switch (view) {
+    case 'year':
+      return 'multiMonthYear'
+    case 'month':
+      return 'dayGridMonth'
+    case 'week':
+      return 'timeGridWeek'
+    case 'day':
+      return 'timeGridDay'
+    default:
+      return 'timeGridWeek'
+  }
+}
+
 export default async function PlanPage({ searchParams }: PlanPageProps) {
   const session = await auth()
 
@@ -33,19 +50,16 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
   }
 
   const params = await resolveSearchParams(searchParams)
-  const view = (readParam(params.view) ?? 'year') as 'day' | 'week' | 'month' | 'year'
+  const requestedPlanId = readParam(params.planId)
   const latestProfileId = session.user?.id
     ? await getLatestProfileIdForUser(session.user.id)
     : null
 
-  let initialData: {
-    activePlan: Awaited<ReturnType<typeof getPlansByProfile>>[number] | null
-    tasks: Awaited<ReturnType<typeof getProgressByPlan>>
-  } | null = null
+  let initialData: PlannerViewProps['initialData'] = null
 
   if (latestProfileId) {
     const plans = await getPlansByProfile(latestProfileId)
-    const activePlan = plans[0] ?? null
+    const activePlan = (requestedPlanId ? plans.find((plan) => plan.id === requestedPlanId) : null) ?? plans[0] ?? null
 
     if (activePlan) {
       initialData = {
@@ -55,5 +69,10 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
     }
   }
 
-  return <PlanMockupPage view={view} initialData={initialData} />
+  return (
+    <PlanificadorPage
+      initialView={resolveInitialView(readParam(params.view))}
+      initialData={initialData}
+    />
+  )
 }

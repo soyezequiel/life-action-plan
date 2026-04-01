@@ -1,0 +1,68 @@
+{
+  "steps": [
+    {
+      "name": "after-login",
+      "url": "http://localhost:3000/",
+      "title": "Pulso",
+      "bodyText": "Cargando...",
+      "sidebar": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema",
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioTabVisible": true,
+        "dashboardNavVisible": true,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": true,
+        "resumenDelPlanVisible": false
+      }
+    },
+    {
+      "name": "dashboard-final",
+      "url": "http://localhost:3000/",
+      "title": "Pulso",
+      "bodyText": "APP.LOADING",
+      "sidebar": "",
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioTabVisible": false,
+        "dashboardNavVisible": false,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": false,
+        "resumenDelPlanVisible": false
+      }
+    },
+    {
+      "name": "plan-legacy-final",
+      "url": "http://localhost:3000/plan",
+      "title": "Pulso",
+      "bodyText": "APP.LOADING",
+      "sidebar": "",
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioTabVisible": false,
+        "dashboardNavVisible": false,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": false,
+        "resumenDelPlanVisible": false
+      }
+    },
+    {
+      "name": "plan-v5-final",
+      "url": "http://localhost:3000/plan/v5?tab=calendar&view=week",
+      "title": "Mi plan semanal",
+      "bodyText": "APP.LOADING",
+      "sidebar": "",
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioTabVisible": false,
+        "dashboardNavVisible": false,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": false,
+        "resumenDelPlanVisible": false
+      }
+    }
+  ]
+}

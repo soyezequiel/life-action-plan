@@ -1,0 +1,52 @@
+{
+  "steps": [
+    {
+      "name": "spa-dashboard",
+      "url": "http://localhost:3000/",
+      "title": "Pulso",
+      "bodyText": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema\nTU DÍA\nPlan - bajar 1 kg en una semana\n\nResumen real de tu plan, con agenda, tareas y progreso de hoy.\n\nAyuda\nSalir\nHOY\nmiércoles 1 abril 2026\n\nPlan activo: Plan - bajar 1 kg en una semana\n\nPROGRESO\n25%\nTAREAS TOTALES\n4\nTAREAS ACTIVAS\n3\nRACHA DE HABITOS\n0 dias seguidos\nTENDENCIA\n+4 pts\nMejor que la semana anterior\nENFOQUE\nSin eventos para hoy\ntimer\nSIN EVENTOS PARA HOY\n--:--\n\nNo hay eventos programados para hoy.\n\nhelp\nAbrir ayuda\nAGENDA DE HOY\nEventos del dia\n0\n\nNo hay eventos programados para hoy.\n\nTAREAS DE HOY\nChecklist real\n4 TAREAS\ncheck\nNatacion o aquagym\ndrag_indicator\ncheck\nChequeo de peso y medidas\ndrag_indicator\ncheck\nCaminata constante\nverified\ncheck\nCiclismo suave o bici fija\ndrag_indicator\nSEMANA REAL\nProgreso de los ultimos 7 dias\nMEJOR QUE LA SEMANA ANTERIOR\nJUE\n0%\nVIE\n0%\nSÁB\n0%\nDOM\n0%\nLUN\n0%\nMAR\n0%\nMIÉ\n25%\nAYUDA RAPIDA\nSi algo no te queda claro, esta guia corta te muestra por donde seguir.\n\nCreacion de planes, progreso, calendario y ajustes de sistema, todo en un solo lugar.\n\nAbrir ayuda\nIr al flujo",
+      "sidebar": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema",
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioVisible": true,
+        "dashboardVisible": true,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": true,
+        "resumenDelPlanVisible": false
+      }
+    },
+    {
+      "name": "spa-calendar",
+      "url": "http://localhost:3000/plan/v5?tab=calendar&view=week",
+      "title": "Mi plan semanal",
+      "bodyText": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema\nCALENDARIO\nMi plan semanal\n\nRevisá el estado general, el calendario y el progreso sin ruido.\n\nCargando tu plan...",
+      "sidebar": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema",
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioVisible": false,
+        "dashboardVisible": true,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": false,
+        "resumenDelPlanVisible": false
+      }
+    },
+    {
+      "name": "spa-dashboard-return",
+      "url": "http://localhost:3000/",
+      "title": "Pulso",
+      "bodyText": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema\nTU DÍA\nPlan - bajar 1 kg en una semana\n\nResumen real de tu plan, con agenda, tareas y progreso de hoy.\n\nAyuda\nSalir\nHOY\nmiércoles 1 abril 2026\n\nPlan activo: Plan - bajar 1 kg en una semana\n\nPROGRESO\n25%\nTAREAS TOTALES\n4\nTAREAS ACTIVAS\n3\nRACHA DE HABITOS\n0 dias seguidos\nTENDENCIA\n+4 pts\nMejor que la semana anterior\nENFOQUE\nSin eventos para hoy\ntimer\nSIN EVENTOS PARA HOY\n--:--\n\nNo hay eventos programados para hoy.\n\nhelp\nAbrir ayuda\nAGENDA DE HOY\nEventos del dia\n0\n\nNo hay eventos programados para hoy.\n\nTAREAS DE HOY\nChecklist real\n4 TAREAS\ncheck\nNatacion o aquagym\ndrag_indicator\ncheck\nChequeo de peso y medidas\ndrag_indicator\ncheck\nCaminata constante\nverified\ncheck\nCiclismo suave o bici fija\ndrag_indicator\nSEMANA REAL\nProgreso de los ultimos 7 dias\nMEJOR QUE LA SEMANA ANTERIOR\nJUE\n0%\nVIE\n0%\nSÁB\n0%\nDOM\n0%\nLUN\n0%\nMAR\n0%\nMIÉ\n25%\nAYUDA RAPIDA\nSi algo no te queda claro, esta guia corta te muestra por donde seguir.\n\nCreacion de planes, progreso, calendario y ajustes de sistema, todo en un solo lugar.\n\nAbrir ayuda\nIr al flujo",
+      "sidebar": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema",
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioVisible": true,
+        "dashboardVisible": true,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": true,
+        "resumenDelPlanVisible": false
+      }
+    }
+  ]
+}

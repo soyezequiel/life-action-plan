@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockupShell } from '../midnight-mint/MockupShell'
+import { MockupOrchestrator as MockupShell } from '../midnight-mint/MockupOrchestrator'
 
 export default function BackendSettingsMockup() {
   const [apiKey, setApiKey] = useState('')

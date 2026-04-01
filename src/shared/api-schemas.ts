@@ -71,6 +71,10 @@ export const progressSummaryQuerySchema = z.object({
   days: z.coerce.number().int().min(1).max(365).default(5)
 }).strict()
 
+export const dashboardSummaryQuerySchema = z.object({
+  planId: idSchema
+}).strict()
+
 export const streakQuerySchema = z.object({
   planId: idSchema
 }).strict()

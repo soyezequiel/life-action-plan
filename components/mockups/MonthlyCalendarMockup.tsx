@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockupShell } from '../midnight-mint/MockupShell'
+import { MockupOrchestrator as MockupShell } from '../midnight-mint/MockupOrchestrator'
 import { usePlanV5 } from '@/src/lib/client/use-plan-v5'
 
 function buildMonthGrid(month: number): Array<Array<number | null>> {

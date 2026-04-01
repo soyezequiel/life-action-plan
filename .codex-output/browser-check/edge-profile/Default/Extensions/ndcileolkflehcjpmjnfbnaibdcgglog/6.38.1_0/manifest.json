@@ -1,0 +1,105 @@
+{
+   "author": "Adblock, Inc.",
+   "background": {
+      "persistent": true,
+      "scripts": [ "polyfill.js", "ext/common.js", "ext/background.js", "abp-background.js" ]
+   },
+   "browser_action": {
+      "default_icon": {
+         "16": "icons/adblock-16.png",
+         "19": "icons/adblock-19.png",
+         "20": "icons/adblock-20.png",
+         "32": "icons/adblock-32.png",
+         "38": "icons/adblock-38.png",
+         "40": "icons/adblock-40.png"
+      },
+      "default_popup": "adblock-button-popup.html",
+      "default_title": "__MSG_name__"
+   },
+   "content_scripts": [ {
+      "all_frames": true,
+      "js": [ "vendor/@eyeo/webext-ad-filtering-solution/content.js", "polyfill.js", "ext/common.js", "ext/content.js", "globals-front.js", "adblock-functions.js", "contentscript-loader.js", "premium.preload.js", "adblock-picreplacement.js" ],
+      "match_about_blank": true,
+      "matches": [ "http://*/*", "https://*/*" ],
+      "run_at": "document_start"
+   }, {
+      "all_frames": true,
+      "js": [ "vendor/@eyeo/webext-ad-filtering-solution/content-main.js" ],
+      "match_about_blank": true,
+      "matches": [ "http://*/*", "https://*/*" ],
+      "run_at": "document_start",
+      "world": "MAIN"
+   }, {
+      "all_frames": true,
+      "js": [ "polyfill.js", "adblock-uiscripts-rightclick_hook.js" ],
+      "matches": [ "http://*/*", "https://*/*" ],
+      "run_at": "document_idle"
+   }, {
+      "all_frames": true,
+      "js": [ "polyfill.js", "globals-front.js", "adblock-functions.js", "adblock-getadblock.js" ],
+      "matches": [ "https://getadblock.com/*", "https://*.dev.getadblock.com/*", "https://*.myaccount.getadblock.com/*" ],
+      "run_at": "document_start"
+   }, {
+      "js": [ "polyfill.js", "yt-auto-allowlist.preload.js" ],
+      "matches": [ "*://*.youtube.com/*" ],
+      "run_at": "document_start"
+   }, {
+      "js": [ "polyfill.js", "reverse-trial.preload.js" ],
+      "matches": [ "https://youtube.com/*", "https://www.youtube.com/*" ],
+      "run_at": "document_start"
+   }, {
+      "js": [ "polyfill.js", "info-injector.preload.js" ],
+      "matches": [ "https://getadblock.com/*", "https://vpn.getadblock.com/*", "https://*.dev.getadblock.com/*", "https://*.myaccount.getadblock.com/*", "https://adblockplus.org/*", "https://new.adblockplus.org/*", "https://welcome.adblockplus.org/*", "https://accounts.adblockplus.org/*", "https://*.myaccount.adblockplus.org/*" ],
+      "run_at": "document_start"
+   }, {
+      "all_frames": true,
+      "js": [ "polyfill.js", "public-api.preload.js" ],
+      "matches": [ "https://btloader.com/trustedIframe.html?o=*" ],
+      "run_at": "document_start"
+   }, {
+      "js": [ "polyfill.js", "conflict-detection.preload.js" ],
+      "matches": [ "*://*.youtube.com/*", "*://*.facebook.com/*" ],
+      "run_at": "document_start"
+   }, {
+      "all_frames": true,
+      "js": [ "polyfill.js", "cookie-banner-detection.preload.js" ],
+      "matches": [ "http://*/*", "https://*/*" ],
+      "run_at": "document_start"
+   }, {
+      "all_frames": true,
+      "js": [ "polyfill.js", "growth-experiments.preload.js" ],
+      "matches": [ "https://stackoverflow.com/*" ],
+      "run_at": "document_start"
+   } ],
+   "default_locale": "en_US",
+   "description": "__MSG_description__",
+   "devtools_page": "devtools.html",
+   "externally_connectable": {
+      "ids": [ "cfhdojbkjhnklbpkdaibdccddilifddb", "gighmmpiobklfepjocnamgkkbiglidom", "gmgoamodcdcjnbaobigkjelfplakmdhh", "ndcileolkflehcjpmjnfbnaibdcgglog", "oidhhegpmlfpoeialbgcdocjalghfpkp" ]
+   },
+   "icons": {
+      "128": "icons/adblock-128.png",
+      "16": "icons/adblock-16.png",
+      "32": "icons/adblock-32.png",
+      "48": "icons/adblock-48.png",
+      "64": "icons/adblock-64.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5Ho9n7J9OOcOsjNormwsOg+lgSTGYNArJs8Mqo5yiHM9hzXWIHHpJET0+++zOPWZiZ0diLkkbS4BQKKz2lSH/IsAr5iCNzPilCa2rQPS7B3uwhBkEjgRlK1K2ekAxssvwRZmp7vG68oj4nCJoaymzPt9AI56bqBHubU7jSnrslvNJyIIGtwuKUIMLV9G7DQTK93SU6ewy6re7wz/x9Jz+pVs/m06qhXtEx2e3kYmVjbrMpGD7AqNAeFWjOZVJWjQ/OXWmDEDncl1JrTugZTgupJxL8a/85SRP2PZ/XrCsTrOC6da7uX0+z0nGl8+96kIDwPXzVzNw/uycnymprQtoQIDAQAB",
+   "manifest_version": 2,
+   "minimum_chrome_version": "79.0",
+   "minimum_opera_version": "66.0",
+   "name": "__MSG_name__",
+   "optional_permissions": [ "management" ],
+   "options_ui": {
+      "open_in_tab": true,
+      "page": "options.html"
+   },
+   "permissions": [ "\u003Call_urls>", "alarms", "contextMenus", "idle", "notifications", "storage", "tabs", "unlimitedStorage", "webNavigation", "webRequest", "webRequestBlocking" ],
+   "short_name": "__MSG_short_name__",
+   "storage": {
+      "managed_schema": "managed-storage-schema.json"
+   },
+   "update_url": "https://edge.microsoft.com/extensionwebstorebase/v1/crx",
+   "version": "6.38.1",
+   "web_accessible_resources": [ "adblock-uiscripts-adblock-wizard.css", "icons/icon24.png", "icons/adblock-19.png", "icons/adblock-20.svg", "icons/dark_theme/logo.svg", "icons/default_theme/logo.svg", "fonts/lato-ext-italic.woff", "fonts/lato-italic.woff", "fonts/lato-ext-bolditalic.woff", "fonts/lato-bolditalic.woff", "fonts/lato-ext-regular.woff", "fonts/lato-regular.woff", "fonts/lato-ext-bold.woff", "fonts/lato-bold.woff", "fonts/font-face.css", "icons/MaterialIcons-Regular.woff2", "icons/adblock-icons.woff2", "purify.min.js", "adblock-deny-push-notifications-requests.js" ]
+}

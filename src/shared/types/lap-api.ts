@@ -118,6 +118,61 @@ export interface ProgressSummaryResult {
   summary: ProgressSummaryRow[]
 }
 
+export interface DashboardScheduleEvent {
+  title: string
+  startAt: string
+  endAt: string
+  durationMin: number
+  rigidity: 'hard' | 'soft'
+}
+
+export interface DashboardFocusSummary {
+  status: 'in_event' | 'before_next' | 'after_last_event' | 'no_events'
+  remainingMinutes: number | null
+  title: string | null
+  nextEventStartAt: string | null
+  targetAt: string | null
+}
+
+export interface DashboardDaySummary {
+  date: string
+  weekdayLabel: string
+  percentage: number
+  completedCount: number
+  totalCount: number
+  isToday: boolean
+}
+
+export interface DashboardTrendSummary {
+  direction: 'up' | 'down' | 'flat' | 'unavailable'
+  deltaPercentagePoints: number | null
+  currentAverage: number | null
+  previousAverage: number | null
+}
+
+export interface DashboardSummaryResult {
+  planId: string
+  planName: string
+  timezone: string
+  date: string
+  dateLabel: string
+  progressPercentage: number
+  tasksTotal: number
+  tasksCompleted: number
+  tasksActive: number
+  tasks: ProgressRow[]
+  schedule: {
+    events: DashboardScheduleEvent[]
+    isEmpty: boolean
+  }
+  focus: DashboardFocusSummary
+  week: {
+    days: DashboardDaySummary[]
+  }
+  trend: DashboardTrendSummary
+  streak: StreakResult
+}
+
 export interface ProgressToggleRequest {
   progressId: string
 }
@@ -353,6 +408,9 @@ export interface LapAPI {
     onSimulationProgress: (listener: (progress: PlanSimulationProgress) => void) => () => void
     exportCalendar: (planId: string) => Promise<PlanExportCalendarResult>
     exportSimulation: (planId: string, format?: 'json' | 'csv') => Promise<PlanExportCalendarResult>
+  }
+  dashboard: {
+    summary: (planId: string) => Promise<DashboardSummaryResult>
   }
   profile: {
     get: (profileId: string) => Promise<Perfil | null>

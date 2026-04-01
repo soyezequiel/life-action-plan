@@ -14,7 +14,11 @@ export default function SettingsMockupPage({
   initialWalletStatus,
   initialApiConfigured = false
 }: SettingsMockupPageProps) {
-  // Now we use a unified resource provider selection that defaults to Wallet
-  void section
-  return <ResourceProviderMockup initialWalletStatus={initialWalletStatus} initialApiConfigured={initialApiConfigured} />
+  return (
+    <ResourceProviderMockup
+      section={section}
+      initialWalletStatus={initialWalletStatus}
+      initialApiConfigured={initialApiConfigured}
+    />
+  )
 }

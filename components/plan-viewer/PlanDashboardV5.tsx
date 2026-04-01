@@ -9,15 +9,15 @@ import { PlanDashboardV5Content } from './PlanDashboardV5Content';
 import { AppShell } from '../layout/AppShell';
 import styles from './PlanDashboardV5.module.css';
 
-type DashboardTab = 'overview' | 'calendar' | 'tasks' | 'progress';
+type DashboardTab = 'calendar' | 'tasks' | 'progress';
 type CalendarView = 'day' | 'week' | 'month' | 'year';
 
 function readTab(value: string | null): DashboardTab {
-  if (value === 'calendar' || value === 'tasks' || value === 'progress') {
+  if (value === 'tasks' || value === 'progress') {
     return value;
   }
 
-  return 'overview';
+  return 'calendar';
 }
 
 function readCalendarView(value: string | null): CalendarView {
@@ -34,7 +34,7 @@ export function PlanDashboardV5() {
   const planId = searchParams?.get('planId') ?? undefined;
   const rawTab = searchParams?.get('tab') ?? null;
   const rawView = searchParams?.get('view') ?? null;
-  const activeTab = rawTab ? readTab(rawTab) : rawView ? 'calendar' : 'overview';
+  const activeTab = readTab(rawTab);
   const calendarView = readCalendarView(rawView);
   const { package: pkg, adaptive, adaptiveStatus, loading, error, refetch } = usePlanV5(planId);
 

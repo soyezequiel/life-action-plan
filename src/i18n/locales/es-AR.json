@@ -72,10 +72,10 @@
     "undo": "Deshacer",
     "minutes": "{{min}} min",
     "plan_name": "Plan: {{nombre}}",
-    "streak_title": "Racha de hábitos",
-    "streak_current": "{{count}} días seguidos",
-    "streak_best": "Mejor racha: {{count}} días",
-    "streak_empty": "Todavía no arrancaste tu racha",
+    "streak_title": "Racha de habitos",
+    "streak_current": "{{count}} dias seguidos",
+    "streak_best": "Mejor racha: {{count}} dias",
+    "streak_empty": "Todavia no arrancaste tu racha",
     "wallet_title": "Tu billetera",
     "wallet_ready": "Billetera lista",
     "wallet_saved": "Conexion guardada",
@@ -200,6 +200,9 @@
       "plan": "Plan",
       "system": "Sistema"
     },
+    "sidebar": {
+      "navigation": "Secciones principales"
+    },
     "redo_intake": "Rehacer mi perfil",
     "change_objectives": "Cambiar objetivo",
     "restart_flow": "Rehacer desde cero",
@@ -232,7 +235,14 @@
       "view_annual": "Anual",
       "view_monthly": "Mensual",
       "view_weekly": "Semanal",
-      "view_daily": "Diario"
+      "view_daily": "Diario",
+      "detail_label": "Detalle de la actividad",
+      "detail_close": "Cerrar",
+      "detail_day": "Día",
+      "detail_time": "Hora",
+      "detail_duration": "Duración",
+      "detail_category": "Categoría",
+      "detail_status": "Estado"
     },
     "category": {
       "estudio": "Estudio",
@@ -241,7 +251,64 @@
       "habito": "Hábito",
       "descanso": "Descanso",
       "otro": "Otro"
-    }
+    },
+    "copy": "Resumen real de tu plan, con agenda, tareas y progreso de hoy.",
+    "empty_title": "No hay plan activo",
+    "empty_copy": "Crea un plan para ver agenda, tareas y progreso reales.",
+    "error": "No pude cargar el panel ahora.",
+    "today_label": "Hoy",
+    "plan_label": "Plan activo: {{name}}",
+    "tasks_total": "Tareas totales",
+    "tasks_active": "Tareas activas",
+    "progress": {
+      "title": "Progreso"
+    },
+    "trend": {
+      "title": "Tendencia",
+      "up": "Mejor que la semana anterior",
+      "down": "Bajo respecto a la semana anterior",
+      "flat": "Sin cambios frente a la semana anterior",
+      "unavailable": "Todavia no hay historial suficiente"
+    },
+    "focus": {
+      "title": "Enfoque",
+      "no_events": "Sin eventos para hoy",
+      "current": "Bloque en curso",
+      "next": "Proximo bloque",
+      "after": "Fin del dia",
+      "no_schedule_copy": "No hay eventos programados para hoy.",
+      "next_time": "Siguiente bloque a las {{time}}",
+      "ends_at": "Termina a las {{time}}",
+      "after_time": "Cierra a las {{time}}"
+    },
+    "actions": {
+      "help": "Ayuda",
+      "logout": "Salir",
+      "flow": "Ir al flujo"
+    },
+    "help": {
+      "title": "Ayuda rapida",
+      "copy": "Si algo no te queda claro, esta guia corta te muestra por donde seguir.",
+      "detail": "Creacion de planes, progreso, calendario y ajustes de sistema, todo en un solo lugar.",
+      "cta": "Abrir ayuda"
+    },
+    "schedule": {
+      "title": "Agenda de hoy",
+      "today": "Eventos del dia",
+      "empty": "No hay eventos programados para hoy.",
+      "duration": "{{count}} min"
+    },
+    "tasks": {
+      "title": "Tareas de hoy",
+      "today": "Checklist real",
+      "empty": "No hay tareas programadas para hoy.",
+      "total_short": "{{count}} tareas"
+    },
+    "week": {
+      "title": "Semana real",
+      "summary": "Progreso de los ultimos 7 dias"
+    },
+    "dashboard_copy": "Resumen real de tu plan, con agenda, tareas y progreso de hoy."
   },
   "builder": {
     "thinking": "Estoy pensando tu plan...",
@@ -604,53 +671,49 @@
     }
   },
   "visualizer": {
-    "title": "Centro de Operaciones AI",
-    "section_user": "Tu participación",
-    "user_define_goal": "Definición del objetivo",
-    "user_answer_questions": "Ronda de preguntas",
-    "user_review_plan": "Aprobación del plan",
-    "section_engine": "Procesamiento de Agentes",
-    "progress": "{{score}}% completado",
-    "last_action": "Actividad: {{action}}",
-    "section_notifications": "Bitácora",
-    "section_storage": "Estado de guardado",
-    "storage": {
-      "session_label": "Sesión interactiva",
-      "plan_label": "Plan de acción",
-      "saved": "Protegido",
-      "pending": "En memoria"
-    },
+    "title": "Estado de la generacion",
+    "section_user": "Usuario",
+    "section_engine": "Motor de generacion",
+    "section_notifications": "Notificaciones",
+    "section_storage": "Datos",
+    "user_define_goal": "Define meta de vida",
+    "user_answer_questions": "Responde preguntas",
+    "user_review_plan": "Revisa y acepta plan",
     "phase": {
-      "interpret": "Analista de Objetivos",
-      "clarify": "Consultor de Detalles",
-      "plan": "Arquitecto del Plan",
-      "check": "Control de Calidad",
-      "schedule": "Especialista en Tiempos",
-      "critique": "Evaluador de Riesgos",
-      "revise": "Ajuste de Detalles",
-      "package": "Preparación de Salida",
-      "done": "Misión cumplida",
-      "failed": "Falla en el motor"
+      "interpret": "Interpretar meta",
+      "clarify": "Clarificar",
+      "plan": "Planificar estrategia",
+      "check": "Verificar viabilidad",
+      "schedule": "Armar agenda",
+      "critique": "Criticar plan",
+      "revise": "Revisar y mejorar",
+      "package": "Empaquetar resultado",
+      "done": "Listo",
+      "failed": "Fallo"
     },
     "status": {
-      "pending": "En espera",
-      "active": "Trabajando...",
+      "pending": "Pendiente",
+      "active": "En curso",
+      "waiting": "Esperando respuestas",
       "completed": "Completado",
-      "failed": "Falló",
-      "skipped": "No necesitado",
-      "waiting": "Esperando tu respuesta",
-      "degraded": "Funcionando con error"
-    },
-    "iteration": {
-      "refining": "Refinando detalles...",
-      "improving": "Mejorando el plan..."
+      "failed": "Fallo",
+      "skipped": "Omitido",
+      "degraded": "Con limitaciones"
     },
     "notification": {
-      "needs_input": "La IA necesita una aclaración para seguir adelante.",
-      "degraded": "Un agente no respondió, el pipeline sigue con respaldo.",
-      "completed": "¡Logramos construir una ruta ejecutable!",
-      "failed": "Se detuvo el proceso por un problema técnico."
-    }
+      "needs_input": "Necesito tus respuestas para continuar",
+      "degraded": "Plan generado con limitaciones",
+      "completed": "Plan completado!",
+      "failed": "La generacion fallo"
+    },
+    "storage": {
+      "session_label": "Sesion",
+      "plan_label": "Plan",
+      "saved": "guardado",
+      "pending": "pendiente"
+    },
+    "progress": "Progreso: {{score}}%",
+    "last_action": "{{action}}"
   },
   "auth": {
     "login_title": "Entrar a tu cuenta",
@@ -1042,51 +1105,6 @@
   "flow": {
     "loading": "Cargando..."
   },
-  "visualizer": {
-    "title": "Estado de la generacion",
-    "section_user": "Usuario",
-    "section_engine": "Motor de generacion",
-    "section_notifications": "Notificaciones",
-    "section_storage": "Datos",
-    "user_define_goal": "Define meta de vida",
-    "user_answer_questions": "Responde preguntas",
-    "user_review_plan": "Revisa y acepta plan",
-    "phase": {
-      "interpret": "Interpretar meta",
-      "clarify": "Clarificar",
-      "plan": "Planificar estrategia",
-      "check": "Verificar viabilidad",
-      "schedule": "Armar agenda",
-      "critique": "Criticar plan",
-      "revise": "Revisar y mejorar",
-      "package": "Empaquetar resultado",
-      "done": "Listo",
-      "failed": "Fallo"
-    },
-    "status": {
-      "pending": "Pendiente",
-      "active": "En curso",
-      "waiting": "Esperando respuestas",
-      "completed": "Completado",
-      "failed": "Fallo",
-      "skipped": "Omitido",
-      "degraded": "Con limitaciones"
-    },
-    "notification": {
-      "needs_input": "Necesito tus respuestas para continuar",
-      "degraded": "Plan generado con limitaciones",
-      "completed": "Plan completado!",
-      "failed": "La generacion fallo"
-    },
-    "storage": {
-      "session_label": "Sesion",
-      "plan_label": "Plan",
-      "saved": "guardado",
-      "pending": "pendiente"
-    },
-    "progress": "Progreso: {{score}}%",
-    "last_action": "{{action}}"
-  },
   "mockups": {
     "common": {
       "santuario_digital": "Santuario Digital",
@@ -1094,6 +1112,7 @@
       "search": "Buscar...",
       "new_entry": "New Entry",
       "new_flow": "Nuevo flujo",
+      "active_planner": "Planificador activo",
       "help": "Ayuda",
       "exit": "Salir",
       "cancel": "Cancelar",
@@ -1600,6 +1619,30 @@
       "completed": "completadas",
       "pending": "pendientes",
       "progress": "progreso"
+    }
+  },
+  "help": {
+    "eyebrow": "Ayuda",
+    "title": "Ayuda rapida",
+    "copy": "Guia corta para usar Pulso sin ruido tecnico.",
+    "back": "Volver al panel",
+    "topic": {
+      "plan": {
+        "title": "Crear un plan",
+        "copy": "Desde el flujo principal armamos un plan real y lo llevamos al panel."
+      },
+      "progress": {
+        "title": "Marcar progreso",
+        "copy": "Las tareas de hoy se pueden completar desde el panel y eso actualiza tu progreso."
+      },
+      "calendar": {
+        "title": "Ver el calendario",
+        "copy": "La agenda muestra solo los eventos reales del dia actual."
+      },
+      "settings": {
+        "title": "Ajustar el sistema",
+        "copy": "En configuracion cambias clave, proveedor y billetera sin tocar el panel."
+      }
     }
   }
 }

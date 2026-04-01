@@ -189,6 +189,16 @@
       "lifecycle": "active",
       "latest_in_series": true,
       "canonical_plan_file": "docs/plans/navigation-performance-hardening-v1/PLAN.md"
+    },
+    {
+      "plan_id": "pipeline-v6-xstate-migration-v1",
+      "series_id": "pipeline-v6-xstate-migration",
+      "version": 1,
+      "title": "Plan: Migracion del motor de generacion v6 a XState",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/pipeline-v6-xstate-migration-v1/PLAN.md"
     }
   ]
 }

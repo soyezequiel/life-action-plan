@@ -1,0 +1,57 @@
+{
+  "verificationUser": {
+    "email": "browser.verify.plan@example.com",
+    "password": "BrowserCheck2026",
+    "planName": "Plan - bajar 1 kg en una semana"
+  },
+  "results": [
+    {
+      "name": "post-login",
+      "requestedUrl": null,
+      "screenshotPath": "F:\\proyectos\\planificador-vida\\.codex-output\\browser-check\\post-login.png",
+      "href": "http://127.0.0.1:3000/auth/signin?callbackUrl=/plan",
+      "title": "Pulso",
+      "bodyText": "APP.LOADING",
+      "navItems": [],
+      "h1": null,
+      "selectedTab": null,
+      "tabs": []
+    },
+    {
+      "name": "dashboard",
+      "requestedUrl": "http://127.0.0.1:3000/",
+      "screenshotPath": "F:\\proyectos\\planificador-vida\\.codex-output\\browser-check\\dashboard.png",
+      "href": "http://127.0.0.1:3000/auth/signin?callbackUrl=%2F",
+      "title": "Pulso",
+      "bodyText": "APP.LOADING",
+      "navItems": [],
+      "h1": null,
+      "selectedTab": null,
+      "tabs": []
+    },
+    {
+      "name": "plan-legacy",
+      "requestedUrl": "http://127.0.0.1:3000/plan",
+      "screenshotPath": "F:\\proyectos\\planificador-vida\\.codex-output\\browser-check\\plan-legacy.png",
+      "href": "http://127.0.0.1:3000/auth/signin?callbackUrl=%2Fplan",
+      "title": "Pulso",
+      "bodyText": "APP.LOADING",
+      "navItems": [],
+      "h1": null,
+      "selectedTab": null,
+      "tabs": []
+    },
+    {
+      "name": "plan-v5",
+      "requestedUrl": "http://127.0.0.1:3000/plan/v5?tab=calendar&view=week",
+      "screenshotPath": "F:\\proyectos\\planificador-vida\\.codex-output\\browser-check\\plan-v5.png",
+      "href": "http://127.0.0.1:3000/auth/signin?callbackUrl=%2Fplan%2Fv5",
+      "title": "Pulso",
+      "bodyText": "APP.LOADING",
+      "navItems": [],
+      "h1": null,
+      "selectedTab": null,
+      "tabs": []
+    }
+  ]
+}

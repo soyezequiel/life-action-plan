@@ -1,0 +1,183 @@
+{
+   "checksum": "ac6865758e182e0bf4de26a9105d9d24",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13164301677729819",
+            "date_last_used": "13386186404814240",
+            "guid": "2c411db2-d115-49eb-b628-e5f648ea22d2",
+            "id": "9",
+            "name": "",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.youtube.com/?gl=AR",
+            "visit_count": 1
+         }, {
+            "date_added": "13330446604723629",
+            "date_last_used": "0",
+            "guid": "2fadacde-b410-48e0-9deb-d7a6c05fa217",
+            "id": "10",
+            "name": "",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://music.youtube.com/",
+            "visit_count": 0
+         } ],
+         "date_added": "13419542203868457",
+         "date_last_used": "0",
+         "date_modified": "13330446604723629",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Barra de favoritos",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "date_added": "13172641218694153",
+            "date_last_used": "0",
+            "guid": "da5e7cde-0f88-4274-916c-513c65822e66",
+            "id": "7",
+            "name": "Clase 85: Se realizan cuatro problemas sobre la Ley de Inducción de Faraday. - YouTube",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.youtube.com/watch?v=cR8hCvAw4pI",
+            "visit_count": 0
+         }, {
+            "date_added": "13339689929632409",
+            "date_last_used": "0",
+            "guid": "e75cb5b9-dc7e-4e32-b11c-a303d3f83e7d",
+            "id": "8",
+            "name": "Como hacer stream con PC Super económica *Configuración* - YouTube",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.youtube.com/watch?v=r-_9q5EzQg8&ab_channel=Proto",
+            "visit_count": 0
+         } ],
+         "date_added": "13419542203868457",
+         "date_last_used": "0",
+         "date_modified": "13339689929632409",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Otros favoritos",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [ {
+            "date_added": "13310825822354203",
+            "date_last_used": "0",
+            "guid": "627d054c-0a52-49ca-8572-fc4edbeba819",
+            "id": "11",
+            "name": "Arduino2PCB: La forma más fácil para pasar un prototipo con Arduino a un producto manufacturable o vendible - PCB Central",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://pcbcentral.com/arduino2pcb",
+            "visit_count": 0
+         }, {
+            "date_added": "13314450156720615",
+            "date_last_used": "0",
+            "guid": "516770e0-ead0-435b-b342-5314394c7a24",
+            "id": "12",
+            "name": "Pages Checklists - Checklist Design",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.checklist.design/pages-checklists",
+            "visit_count": 0
+         }, {
+            "date_added": "13319724118784924",
+            "date_last_used": "0",
+            "guid": "22bb7b46-53b5-4c88-b46b-1fb3177b19e7",
+            "id": "13",
+            "name": "Stable Diffusion Online",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://stablediffusionweb.com/",
+            "visit_count": 0
+         }, {
+            "date_added": "13319724166291892",
+            "date_last_used": "0",
+            "guid": "e4dd2175-cb30-4642-9a40-640de0691409",
+            "id": "14",
+            "name": "SheetAI App | Unlock AI Power in Your Google Sheets.",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.sheetai.app/",
+            "visit_count": 0
+         }, {
+            "date_added": "13319724197648650",
+            "date_last_used": "0",
+            "guid": "51ae97d5-d421-4ded-a909-7bd33d035d81",
+            "id": "15",
+            "name": "Presentation Software | Basic to Beautiful in Minutes with Beautiful.ai",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.beautiful.ai/",
+            "visit_count": 0
+         }, {
+            "date_added": "13336465033180088",
+            "date_last_used": "0",
+            "guid": "c995327f-2316-4664-aea8-be4656a73b21",
+            "id": "16",
+            "name": "Elecciones PASO 2023: se impuso Milei; Massa, segundo en votos y Bullrich le ganó a Larreta | Los resultados, minuto a minuto | Página|12",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.pagina12.com.ar/577311-paso-2023-el-voto-de-los-candidatos-a-presidente-y-todo-sobr",
+            "visit_count": 0
+         }, {
+            "date_added": "13336498334211256",
+            "date_last_used": "0",
+            "guid": "f5b30a3f-4674-4cbb-8b79-35dff78f12bf",
+            "id": "17",
+            "name": "Typefully",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://typefully.com/?ref=shared-draft&utm_content=header-logo",
+            "visit_count": 0
+         }, {
+            "date_added": "13336499492132567",
+            "date_last_used": "0",
+            "guid": "62d6f90e-639a-4c10-87a1-3702c00c9594",
+            "id": "18",
+            "name": "Video to animated PNG converter - loop radio.mp4",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://ezgif.com/video-to-apng/ezgif-3-dfb510f519.mp4",
+            "visit_count": 0
+         } ],
+         "date_added": "13419542203868457",
+         "date_last_used": "0",
+         "date_modified": "13336499492132567",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Favoritos móviles",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "workspaces_v2": {
+         "children": [  ],
+         "date_added": "13419542203868457",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "75aa6670-344f-549d-b742-660f029506ab",
+         "id": "5",
+         "name": "Áreas de trabajo",
+         "source": "unknown",
+         "type": "folder"
+      }
+   },
+   "sync_metadata": "CkEKHgiIgQISCGb6UEqdAQAAKg4QABgBIAAoBjAAOABAABIAKhhMenBQS0lkRERFdThRaEljOWNjaWVnPT1IA6AGDBKtAQgSEqgBChxBMWRHT0dmMllCSkxmUGQ5eFZQYjlDUnhubnc9EiQ2MmQ2ZjkwZS02MzlhLTRjMTAtODdhMS0zNzAyYzAwYzk1OTQYACAAKAAwmdnyoa4xOMTe8qGuMUDE3vKhrjFKHER6S3lKdll1RURCcnhaZlJudndTNlpUL3hzTT1aHyId/jBFTGVObFNrOFd2aXdIMDFVTm9TSFErS1Zobz1lL41UGMI+AmAFEq0BCA8SqAEKHFRaeE1IWFFMOERTaTQrakxyUDFlcUJqcjZtaz0SJDUxYWU5N2Q1LWQ0MjEtNGRlZC1hOTA5LTdiZDMzZDAzNWQ4MRgAIAAoADDPnvKhrjE4oaHyoa4xQKGh8qGuMUocLzRQL3JaVGRKQ095emgxWDZoUmd2d1Uwd0M4PVofIh33eWRvWkthdWZXYWNkSW9Mbk9VbXlvckxwTFRvPWUAAAAAwj4CYAUSrQEIDhKoAQocaS9RZ2VrMURtU3FxanM0MGU3MVBMT2NLV1QwPRIkZTRkZDIxNzUtY2IzMC00NjQyLTlhNDAtNjQwZGUwNjkxNDA5GAAgACgAMMjh8qGuMTjI5/KhrjFAyOfyoa4xShxvVHVFOVo0YzVnV0dxVnZTd0pyU0lwMVFwRjg9Wh8iHe4rZ0VkMk9ScWRSQnFJZE5FRWYyZmpmdjlGWlU9ZZOzBD7CPgJgBRKOAQgBEokBChx5eEovNmZ2a2VjcjdrcDVFUXpCNHRXTHBkYkU9EiQ1YjFhYzg3ZS0xMDJjLTVkMzQtODk1ZS00MzdhMDdjN2Y5NWMYACAAKAAw38uMlaIuOI6Oj/X2L0COjo/19i9KHGFSQ1dMZ2hGOWI1SW5xS0lEdnVKL2p2UWtGYz1aAGUAAAAAwj4CYAASrQEIDBKoAQocbE5QOVhTcmZQNE1JZ0d0ZjNPL3lmSytMeEtJPRIkNTE2NzcwZTAtZWFkMC00MzViLWIzNDItNTMxNDM5NGM3YTI0GAAgACgAMKOV8qGuMTjumPKhrjFA7pjyoa4xShxSeklxamVkSWNtVlkxUjFWaFBqc0J3TDJ3c1E9Wh8iHbpTYTJEc2QrQmlxa1lTRkdwKzJpNzE1a0lpOGc9Zc6SVqnCPgJgBRKtAQgREqgBChwxN0tScjdRR3dXL2JHaFpDSWQrVDdVd2RqVm89EiRmNWIzMGEzZi00Njc0LTRjYmItOGI3OS0zNWRmZjc4ZjEyYmYYACAAKAAwueHyoa4xOK3k8qGuMUCt5PKhrjFKHEN0dWhFNWRzY2xkK0xlSTNwZS9qeWM0L1ZJND1aHyId/UxiUjNEM0VwREZyVUF6SXFrblJSbzRmUmxjUT1l0MV4DcI+AmAFErUBCAoSsAEKHFNDYmd4UDA4L2twQzh5Qy9HSE5XT0JKSkl1QT0SJDJmYWRhY2RlLWI0MTAtNDhlMC05ZGViLWQ3YTZjMDVmYTIxNxgAIAAoADDbyYKItDM4vKHyoa4xQLyh8qGuMUocZmM0VWxMMjBWNFpuMWU3cGpIR096YnlKQ25NPVonIiX/////AAAABbhDeWVWMmhDanVnU3FkVmloMkFtdlFwR0IrZjQ9ZRC4LtPCPgJgBRK0AQgJEq8BChxZVGVITjJWcU95VFc0Z2hZcEJ4ZUMxaDhHZnM9EiQyYzQxMWRiMi1kMTE1LTQ5ZWItYjYyOC1lNWY2NDhlYTIyZDIYACAAKAAw+ZSf//4yOP6g8qGuMUD+oPKhrjFKHEZESVhVdEFIU3BtSFlqMlUwUTR6UkJLRWw5WT1aJiIk/////wAAAAVwTGJSUXRtNDFpejZ1ajdlaUhaL3UxL1VQSjQ9ZQAAAADCPgJgBRKtAQgQEqgBChxSMlFpR2VLOExyNWV5U0hQZXZPd1lNaHBVY2M9EiRjOTk1MzI3Zi0yMzE2LTQ2NjQtYWVhOC1iZTQ2NTZhNzNiMjEYACAAKAAwzZ7yoa4xOOKg8qGuMUDioPKhrjFKHENzNzR0U0h6WXEzOUtvYmRMMWN5b2d3YjRnaz1aHyId+1JOL1crOGpqSlRBZ2o5WEVVTXUxMFB1TEF0ND1ln6DIVMI+AmAFEq0BCA0SqAEKHGw4OFhET3RBN0s3dmd5OVRZQVFvQXUybFR2bz0SJDIyYmI3YjQ2LTUzYjUtNGM4OC1iNDZiLTFmYjMxNzdiMTllNxgAIAAoADC78/KhrjE4//nyoa4xQP/58qGuMUocRGRVWGt1dmJCVC96REdub3BqalJqbjdBOCtVPVofIh3dMlhlZHlGMzJKNDh6YlFSaHFSaXdvYUcxSGhBPWUa/mapwj4CYAUSjgEIAxKJAQocbmpnRHU4OGVDcnZYcDg2cEQ3ZkhHY3FGcDg4PRIkMGI0NmY0ZmQtZjkyZC01MzExLWEyODUtNGYwYWY2ZWVlYmM2GAAgACgAMOTLjJWiLjiLj4/19i9Ai4+P9fYvShx5ek5CMDFjbjU0QTdjUlUwdVQrL1BnbVR0VW89WgBlAAAAAMI+AmAAEo4BCAUSiQEKHHdSQnJaTCs2UEE5YXZLZ2pOUDdKWERMY2Z2cz0SJDllYjBlOWM4LTIwN2QtNWVjYi1iM2Q0LWVhMmEzYTVmNDM5MRgAIAAoADD5wa/pkDM458Ov6ZAzQOfDr+mQM0ocbm14NjVzUUR2eEk4VGdFZXYrQStudHRvU240PVoAZQAAAADCPgJgABKtAQgIEqgBChx5MXFwRXUwSTJ6TDkzN2RmTG43aEFJRXc4eFU9EiRlNzVjYjViOS1kYzdlLTRlMzItYjExYy1hMzAzZDNmODNlN2QYACAAKAAwiq/yoa4xON2x8qGuMUDdsfKhrjFKHGh5dUF2MitscHRqVlNrd3pJSGEzcGd1NHFlVT1aHyId1UtnVUsyWkNzbU9uUEV1NlVvYlg3VmJuQkRCOD1lOPk5M8I+AmAFEqwBCAcSpwEKHEZPVitlTmhuSGxQTzNoUlJMbUIwNmhRUWdORT0SJDJhY2QwNTYxLWYzOTktNDgwYS1iYTc2LTljY2QyM2I3Mjc4MhgAIAAoADC1ypCVoi447ZOP9fYvQO2Tj/X2L0occGVBb0tMRHYxS2N2emI2dTRPMysvTERpMS9JPVoeIhwyUW16MFBZVHI5bTdDNUkyclU2UVI5dmR1ZUU9ZQAAAADCPgJgBRKsAQgLEqcBChxSVmQzS0ZpRDZ3cG1iNnNjK1dmbFozOVptd2c9EiQ2MjdkMDU0Yy0wYTUyLTQ5Y2EtODU3Mi1mYzRlZGJlYmE4MTkYACAAKAAwiLfyoa4xONy68qGuMUDcuvKhrjFKHFA4V3VPZC9TN3lxekhWSmliWFAvVnVVTVpSdz1aHiIcdDVzSFpQYmZKSGdFMTlZMEI5VEJBeHFESlJRPWVtsK+Rwj4CYAUSjgEIAhKJAQocWWNTVG9udkVTUHdxQ3M0TDJjclZodjY4TDk4PRIkZGEyYTRkMjYtNjljOS01ZGVjLTllMzItZDQ0MzYxZDMwMjg3GAAgACgAMODLjJWiLjiujo/19i9Aro6P9fYvShxvUFZraHdCUmJWNjVLQ1dSMitJT05IV29PdTg9WgBlAAAAAMI+AmAAMAA4AA==",
+   "version": 1
+}

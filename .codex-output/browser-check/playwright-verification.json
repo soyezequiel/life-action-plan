@@ -1,0 +1,65 @@
+{
+  "verificationUser": {
+    "email": "browser.verify.plan@example.com",
+    "password": "BrowserCheck2026",
+    "planName": "Plan - bajar 1 kg en una semana"
+  },
+  "results": [
+    {
+      "name": "post-login",
+      "requestedUrl": null,
+      "screenshotPath": "F:/proyectos/planificador-vida/.codex-output/browser-check/post-login.png",
+      "href": "http://localhost:3000/settings",
+      "title": "Pulso",
+      "bodyText": "Pulso\n\nDIGITAL SANCTUARY\n\nperson\n\nBrowser Verify\n\nPlanificador Activo\n\nsettings\nConfiguraciones\nNew Entry\nadd\nlogout\nSALIR\nMi Espacio\nConfiguración de Recursos\n\nElegí cómo querés procesar y pagar tus planes de acción. Optimizá tu privacidad y costos.\n\naccount_balance_wallet\nBilletera LAP\n\nPaga con Sats vía Lightning (NWC). La opción privada, rápida y sin llaves API externas.\n\nRECOMENDADO\nkey\nLlave API Propia\n\nUsa tu propia cuenta de OpenAI o OpenRouter. Ideal si ya tenés créditos o suscripciones.\n\nAVANZADO\nESTADO ACTUAL\nNO ENLAZADA\n\n0 sats\n\nSaldo disponible para nuevos planes\n\nbolt\n\nUsa NWC para una conexión segura sin ceder el control de tus fondos.\n\nCONECTAR BILLETERA\nlink\nEnlazar Billetera\narrow_forward",
+      "navItems": [
+        "settingsConfiguraciones"
+      ],
+      "h1": "Configuración de Recursos",
+      "selectedTab": null,
+      "tabs": []
+    },
+    {
+      "name": "dashboard",
+      "requestedUrl": "http://localhost:3000/",
+      "screenshotPath": "F:/proyectos/planificador-vida/.codex-output/browser-check/dashboard.png",
+      "href": "http://localhost:3000/settings",
+      "title": "Pulso",
+      "bodyText": "Pulso\n\nDIGITAL SANCTUARY\n\nperson\n\nBrowser Verify\n\nPlanificador Activo\n\nsettings\nConfiguraciones\nNew Entry\nadd\nlogout\nSALIR\nMi Espacio\nConfiguración de Recursos\n\nElegí cómo querés procesar y pagar tus planes de acción. Optimizá tu privacidad y costos.\n\naccount_balance_wallet\nBilletera LAP\n\nPaga con Sats vía Lightning (NWC). La opción privada, rápida y sin llaves API externas.\n\nRECOMENDADO\nkey\nLlave API Propia\n\nUsa tu propia cuenta de OpenAI o OpenRouter. Ideal si ya tenés créditos o suscripciones.\n\nAVANZADO\nESTADO ACTUAL\nNO ENLAZADA\n\n0 sats\n\nSaldo disponible para nuevos planes\n\nbolt\n\nUsa NWC para una conexión segura sin ceder el control de tus fondos.\n\nCONECTAR BILLETERA\nlink\nEnlazar Billetera\narrow_forward",
+      "navItems": [
+        "settingsConfiguraciones"
+      ],
+      "h1": "Configuración de Recursos",
+      "selectedTab": null,
+      "tabs": []
+    },
+    {
+      "name": "plan-legacy",
+      "requestedUrl": "http://localhost:3000/plan",
+      "screenshotPath": "F:/proyectos/planificador-vida/.codex-output/browser-check/plan-legacy.png",
+      "href": "http://localhost:3000/settings",
+      "title": "Pulso",
+      "bodyText": "Pulso\n\nDIGITAL SANCTUARY\n\nperson\n\nBrowser Verify\n\nPlanificador Activo\n\nsettings\nConfiguraciones\nNew Entry\nadd\nlogout\nSALIR\nMi Espacio\nConfiguración de Recursos\n\nElegí cómo querés procesar y pagar tus planes de acción. Optimizá tu privacidad y costos.\n\naccount_balance_wallet\nBilletera LAP\n\nPaga con Sats vía Lightning (NWC). La opción privada, rápida y sin llaves API externas.\n\nRECOMENDADO\nkey\nLlave API Propia\n\nUsa tu propia cuenta de OpenAI o OpenRouter. Ideal si ya tenés créditos o suscripciones.\n\nAVANZADO\nESTADO ACTUAL\nNO ENLAZADA\n\n0 sats\n\nSaldo disponible para nuevos planes\n\nbolt\n\nUsa NWC para una conexión segura sin ceder el control de tus fondos.\n\nCONECTAR BILLETERA\nlink\nEnlazar Billetera\narrow_forward",
+      "navItems": [
+        "settingsConfiguraciones"
+      ],
+      "h1": "Configuración de Recursos",
+      "selectedTab": null,
+      "tabs": []
+    },
+    {
+      "name": "plan-v5",
+      "requestedUrl": "http://localhost:3000/plan/v5?tab=calendar&view=week",
+      "screenshotPath": "F:/proyectos/planificador-vida/.codex-output/browser-check/plan-v5.png",
+      "href": "http://localhost:3000/settings",
+      "title": "Pulso",
+      "bodyText": "Pulso\n\nDIGITAL SANCTUARY\n\nperson\n\nBrowser Verify\n\nPlanificador Activo\n\nsettings\nConfiguraciones\nNew Entry\nadd\nlogout\nSALIR\nMi Espacio\nConfiguración de Recursos\n\nElegí cómo querés procesar y pagar tus planes de acción. Optimizá tu privacidad y costos.\n\naccount_balance_wallet\nBilletera LAP\n\nPaga con Sats vía Lightning (NWC). La opción privada, rápida y sin llaves API externas.\n\nRECOMENDADO\nkey\nLlave API Propia\n\nUsa tu propia cuenta de OpenAI o OpenRouter. Ideal si ya tenés créditos o suscripciones.\n\nAVANZADO\nESTADO ACTUAL\nNO ENLAZADA\n\n0 sats\n\nSaldo disponible para nuevos planes\n\nbolt\n\nUsa NWC para una conexión segura sin ceder el control de tus fondos.\n\nCONECTAR BILLETERA\nlink\nEnlazar Billetera\narrow_forward",
+      "navItems": [
+        "settingsConfiguraciones"
+      ],
+      "h1": "Configuración de Recursos",
+      "selectedTab": null,
+      "tabs": []
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { t } from '@/src/i18n'
 import { MaterialIcon } from '../midnight-mint/MaterialIcon'
-import { MockupShell } from '../midnight-mint/MockupShell'
+import { MockupOrchestrator as MockupShell } from '../midnight-mint/MockupOrchestrator'
 import { browserLapClient } from '@/src/lib/client/browser-http-client'
 import type { WalletStatus } from '@/src/shared/types/lap-api'
 export default function WalletSettingsMockup() {

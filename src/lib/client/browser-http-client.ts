@@ -8,6 +8,7 @@ import type {
   PlanSimulationProgress,
   PlanSimulationResult,
   PlanRow,
+  DashboardSummaryResult,
   ProgressRow,
   ProgressSummaryRow,
   ProgressToggleResult,
@@ -469,6 +470,11 @@ export const browserLapClient: LapAPI = {
       }
 
       return downloadBlob(response, fileName)
+    }
+  },
+  dashboard: {
+    async summary(planId: string) {
+      return fetchJson<DashboardSummaryResult>(`/api/dashboard/summary?planId=${encodeURIComponent(planId)}`)
     }
   },
   profile: {

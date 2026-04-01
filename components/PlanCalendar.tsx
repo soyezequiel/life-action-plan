@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState, useMemo } from 'react'
+import React, { useEffect, useId, useRef, useState, useMemo } from 'react'
 import type { JSX } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -9,7 +9,7 @@ import scrollGridPlugin from '@fullcalendar/scrollgrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import multiMonthPlugin from '@fullcalendar/multimonth'
 import esLocale from '@fullcalendar/core/locales/es'
-import type { CalendarApi, EventContentArg, EventInput } from '@fullcalendar/core'
+import type { CalendarApi, EventContentArg, EventInput, EventMountArg } from '@fullcalendar/core'
 import { DateTime } from 'luxon'
 import { getCurrentLocale, t } from '../src/i18n'
 import type { ProgressRow } from '../src/shared/types/lap-api'
@@ -21,6 +21,22 @@ interface TaskMeta {
   hora?: string
   duracion?: number
   categoria?: string
+}
+
+interface EventDetail {
+  id: string
+  title: string
+  dateIso: string
+  dateLabel: string
+  timeLabel: string
+  durationLabel: string
+  categoryLabel: string
+  statusLabel: string
+}
+
+interface CalendarEventModel {
+  event: EventInput
+  detail: EventDetail
 }
 
 export interface PlanCalendarProps {
@@ -61,7 +77,7 @@ function getEventAccentClass(category: string): string {
   }
 }
 
-function buildEvent(task: ProgressRow, timezone: string): EventInput | null {
+function buildEventModel(task: ProgressRow, timezone: string, selectedEventId: string | null): CalendarEventModel | null {
   const meta = parseTaskMeta(task.notas)
   const category = meta.categoria || 'otro'
   const hour = meta.hora || '09:00'
@@ -73,51 +89,88 @@ function buildEvent(task: ProgressRow, timezone: string): EventInput | null {
   }
 
   const end = start.plus({ minutes: duration })
-  const timeLabel = start.setLocale(getCurrentLocale()).toFormat('HH:mm')
+  const locale = getCurrentLocale()
+  const dateLabel = start.setLocale(locale).toFormat('cccc d LLL')
+  const timeLabel = start.setLocale(locale).toFormat('HH:mm')
   const categoryLabel = t(`dashboard.category.${category}`)
   const statusLabel = task.completado ? t('dashboard.completed') : t('dashboard.pending')
+  const durationLabel = t('dashboard.minutes', { min: duration })
+  const summaryText = [timeLabel, task.descripcion, dateLabel, categoryLabel, statusLabel]
+    .filter(Boolean)
+    .join(' | ')
 
   return {
-    id: task.id,
-    title: task.descripcion,
-    start: start.toISO(),
-    end: end.toISO(),
-    classNames: [
-      styles.event,
-      getEventAccentClass(category),
-      task.completado ? styles.eventCompleted : ''
-    ].filter(Boolean),
-    extendedProps: {
+    event: {
+      id: task.id,
+      title: task.descripcion,
+      start: start.toISO(),
+      end: end.toISO(),
+      classNames: [
+        styles.event,
+        getEventAccentClass(category),
+        task.completado ? styles.eventCompleted : '',
+        selectedEventId === task.id ? styles.eventSelected : ''
+      ].filter(Boolean),
+      extendedProps: {
+        categoryLabel,
+        statusLabel,
+        timeLabel,
+        dateLabel,
+        durationLabel,
+        summaryText
+      }
+    },
+    detail: {
+      id: task.id,
+      title: task.descripcion,
+      dateIso: task.fecha,
+      dateLabel,
+      timeLabel,
+      durationLabel,
       categoryLabel,
-      statusLabel,
-      timeLabel
+      statusLabel
     }
   }
 }
 
 function renderEventContent(content: EventContentArg): JSX.Element {
+  const timeLabel = String(content.event.extendedProps.timeLabel || content.timeText || '')
   const categoryLabel = String(content.event.extendedProps.categoryLabel || '')
-  const statusLabel = String(content.event.extendedProps.statusLabel || '')
+  const showCategoryPreview = categoryLabel.length > 0 && categoryLabel.toLowerCase() !== t('dashboard.category.otro').toLowerCase()
   const isCompactView = content.view.type === 'dayGridMonth' || content.view.type === 'multiMonthYear'
+  const isTimeGridView = content.view.type === 'timeGridWeek' || content.view.type === 'timeGridDay'
+
+  if (content.view.type === 'multiMonthYear') {
+    return (
+      <div className={styles.eventBodyYear}>
+        {timeLabel && <span className={styles.eventTime}>{timeLabel}</span>}
+        <strong className={styles.eventTitleYear}>{content.event.title}</strong>
+      </div>
+    )
+  }
 
   if (isCompactView) {
     return (
       <div className={styles.eventBodyCompact}>
+        {timeLabel && <span className={styles.eventTime}>{timeLabel}</span>}
         <strong className={styles.eventTitleCompact}>{content.event.title}</strong>
       </div>
     )
   }
 
   return (
-    <div className={styles.eventBody}>
-      <div className={styles.eventTopline}>
-        <span className={styles.eventTime}>{content.timeText || String(content.event.extendedProps.timeLabel || '')}</span>
-        {statusLabel && <span className={styles.eventStatus}>{statusLabel}</span>}
-      </div>
-      <strong className={styles.eventTitle}>{content.event.title}</strong>
-      {categoryLabel && (
-        <span className={styles.eventMeta}>{categoryLabel}</span>
+    <div className={`${styles.eventBody} ${isTimeGridView ? styles.eventBodyTimeGrid : ''}`.trim()}>
+      {(timeLabel || (isTimeGridView && showCategoryPreview)) && (
+        <div className={styles.eventEyebrow}>
+          {timeLabel && <span className={styles.eventTime}>{timeLabel}</span>}
+          {isTimeGridView && showCategoryPreview && (
+            <span className={styles.eventCategoryPreview}>{categoryLabel}</span>
+          )}
+        </div>
       )}
+      <strong className={`${styles.eventTitle} ${isTimeGridView ? styles.eventTitleTimeGrid : ''}`.trim()}>
+        {content.event.title}
+      </strong>
     </div>
   )
 }
@@ -132,7 +185,12 @@ function PlanCalendar({
 }: PlanCalendarProps): JSX.Element {
   const [initialView, setInitialView] = useState<CalendarView>(defaultView ?? 'dayGridMonth')
   const [isCompactLayout, setIsCompactLayout] = useState(false)
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+  const [selectedEventDetail, setSelectedEventDetail] = useState<EventDetail | null>(null)
   const internalRef = useRef<FullCalendar>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const detailTitleId = useId()
+  const detailDescriptionId = useId()
 
   // Expose the FullCalendar API via the provided ref so the parent can imperatively switch views
   useEffect(() => {
@@ -153,6 +211,17 @@ function PlanCalendar({
       api.changeView(defaultView)
     }
   }, [defaultView])
+
+  useEffect(() => {
+    if (defaultView) {
+      return
+    }
+
+    const api = internalRef.current?.getApi()
+    if (api && api.view.type !== initialView) {
+      api.changeView(initialView)
+    }
+  }, [defaultView, initialView])
 
   const todayIso = DateTime.now().setZone(timezone).toISODate() ?? ''
   const [selectedDateIso, setSelectedDateIso] = useState(todayIso)
@@ -197,6 +266,8 @@ function PlanCalendar({
   useEffect(() => {
     if (tasks.length === 0) {
       setSelectedDateIso(todayIso)
+      setSelectedEventId(null)
+      setSelectedEventDetail(null)
       return
     }
 
@@ -208,15 +279,80 @@ function PlanCalendar({
     setSelectedDateIso(fallbackDate)
   }, [selectedDateIso, tasks, todayIso])
 
+  const eventModels = useMemo(() => {
+    return tasks
+      .map((task) => buildEventModel(task, timezone, selectedEventId))
+      .filter((model): model is CalendarEventModel => model !== null)
+  }, [selectedEventId, tasks, timezone])
+
+  const eventDetailsById = useMemo(() => {
+    return new Map(eventModels.map((model) => [model.detail.id, model.detail]))
+  }, [eventModels])
+
+  useEffect(() => {
+    if (!selectedEventId) {
+      setSelectedEventDetail(null)
+      return
+    }
+
+    const detail = eventDetailsById.get(selectedEventId) ?? null
+    if (!detail) {
+      setSelectedEventId(null)
+      setSelectedEventDetail(null)
+      return
+    }
+
+    setSelectedEventDetail(detail)
+  }, [eventDetailsById, selectedEventId])
+
+  useEffect(() => {
+    if (!selectedEventDetail) {
+      return
+    }
+
+    closeButtonRef.current?.focus()
+  }, [selectedEventDetail])
+
+  useEffect(() => {
+    if (!selectedEventDetail || typeof document === 'undefined') {
+      return
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [selectedEventDetail])
+
+  useEffect(() => {
+    if (!selectedEventDetail || typeof window === 'undefined') {
+      return
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') {
+        return
+      }
+
+      event.preventDefault()
+      closeEventDetail()
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [selectedEventDetail])
+
   const countFormatter = new Intl.NumberFormat(getCurrentLocale())
   const completedCount = tasks.filter((task) => task.completado).length
   const pendingCount = Math.max(tasks.length - completedCount, 0)
   const todayCount = tasks.filter((task) => task.fecha === todayIso).length
   const events = useMemo(() => {
-    return tasks
-      .map((task) => buildEvent(task, timezone))
-      .filter((event): event is EventInput => event !== null)
-  }, [tasks, timezone])
+    return eventModels.map((model) => model.event)
+  }, [eventModels])
 
   const selectedTasks = useMemo(() => {
     return tasks
@@ -243,6 +379,22 @@ function PlanCalendar({
       }
 
   const shellClass = `${styles.calendarShell} ${variant === 'light' ? styles.calendarShellLight : ''} ${!showHeader ? styles.noHeader : ''}`
+
+  const openEventDetail = (eventId: string): void => {
+    const detail = eventDetailsById.get(eventId)
+    if (!detail) {
+      return
+    }
+
+    setSelectedDateIso(detail.dateIso)
+    setSelectedEventId(eventId)
+    setSelectedEventDetail(detail)
+  }
+
+  const closeEventDetail = (): void => {
+    setSelectedEventId(null)
+    setSelectedEventDetail(null)
+  }
 
   return (
     <section className={shellClass} aria-labelledby="dashboard-calendar-title">
@@ -279,7 +431,7 @@ function PlanCalendar({
           <p>{t('dashboard.calendar_panel.empty_copy')}</p>
         </div>
       ) : (
-        <FullCalendar
+          <FullCalendar
           ref={internalRef}
           plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin, interactionPlugin, scrollGridPlugin]}
           locale={esLocale}
@@ -328,9 +480,12 @@ function PlanCalendar({
           events={events}
           eventContent={renderEventContent}
           dateClick={(info) => {
+            closeEventDetail()
             setSelectedDateIso(info.dateStr)
           }}
           eventClick={(info) => {
+            info.jsEvent.preventDefault()
+            info.jsEvent.stopPropagation()
             const eventDate = info.event.start
               ? DateTime.fromJSDate(info.event.start, { zone: timezone }).toISODate()
               : info.event.startStr.slice(0, 10)
@@ -338,16 +493,55 @@ function PlanCalendar({
             if (eventDate) {
               setSelectedDateIso(eventDate)
             }
+
+            openEventDetail(info.event.id)
           }}
           dayCellClassNames={(info) => {
             const isoDate = DateTime.fromJSDate(info.date, { zone: timezone }).toISODate()
             return isoDate === selectedDateIso ? [styles.daySelected] : []
           }}
-          eventDidMount={(info) => {
+          eventDidMount={(info: EventMountArg) => {
             const categoryLabel = String(info.event.extendedProps.categoryLabel || '')
             const statusLabel = String(info.event.extendedProps.statusLabel || '')
-            const timeLabel = info.timeText || String(info.event.extendedProps.timeLabel || '')
-            info.el.setAttribute('title', [timeLabel, info.event.title, categoryLabel, statusLabel].filter(Boolean).join(' | '))
+            const timeLabel = String(info.event.extendedProps.timeLabel || info.timeText || '')
+            const summaryText = String(info.event.extendedProps.summaryText || [
+              timeLabel,
+              info.event.title,
+              categoryLabel,
+              statusLabel
+            ].filter(Boolean).join(' | '))
+            const element = info.el as HTMLElement & {
+              __lapCalendarKeydownHandler?: (event: KeyboardEvent) => void
+            }
+
+            element.setAttribute('title', summaryText)
+            element.setAttribute('aria-label', summaryText)
+            element.setAttribute('tabindex', '0')
+            element.setAttribute('role', 'button')
+            element.setAttribute('aria-haspopup', 'dialog')
+
+            const keydownHandler = (event: KeyboardEvent) => {
+              if (event.key !== 'Enter' && event.key !== ' ') {
+                return
+              }
+
+              event.preventDefault()
+              event.stopPropagation()
+              openEventDetail(info.event.id)
+            }
+
+            element.__lapCalendarKeydownHandler = keydownHandler
+            element.addEventListener('keydown', keydownHandler)
+          }}
+          eventWillUnmount={(info: EventMountArg) => {
+            const element = info.el as HTMLElement & {
+              __lapCalendarKeydownHandler?: (event: KeyboardEvent) => void
+            }
+
+            if (element.__lapCalendarKeydownHandler) {
+              element.removeEventListener('keydown', element.__lapCalendarKeydownHandler)
+              delete element.__lapCalendarKeydownHandler
+            }
           }}
         />
       )}
@@ -417,6 +611,67 @@ function PlanCalendar({
           {t('dashboard.calendar_panel.legend_completed', { count: countFormatter.format(completedCount) })}
         </span>
       </div>
+
+      {selectedEventDetail && (
+        <div
+          className={styles.eventDetailOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={detailTitleId}
+          aria-describedby={detailDescriptionId}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              closeEventDetail()
+            }
+          }}
+        >
+          <div className={styles.eventDetailPanel} tabIndex={-1}>
+            <div className={styles.eventDetailHeader}>
+              <div className={styles.eventDetailHeaderCopy}>
+                <span className={styles.eventDetailLabel}>{t('dashboard.calendar_panel.detail_label')}</span>
+                <h4 id={detailTitleId} className={styles.eventDetailTitle}>
+                  {selectedEventDetail.title}
+                </h4>
+                <p id={detailDescriptionId} className={styles.eventDetailDescription}>
+                  {selectedEventDetail.dateLabel}
+                </p>
+              </div>
+
+              <button
+                ref={closeButtonRef}
+                type="button"
+                className={styles.eventDetailClose}
+                onClick={closeEventDetail}
+              >
+                {t('dashboard.calendar_panel.detail_close')}
+              </button>
+            </div>
+
+            <div className={styles.eventDetailMetaGrid}>
+              <div className={styles.eventDetailMetaItem}>
+                <span className={styles.eventDetailMetaLabel}>{t('dashboard.calendar_panel.detail_day')}</span>
+                <strong className={styles.eventDetailMetaValue}>{selectedEventDetail.dateLabel}</strong>
+              </div>
+              <div className={styles.eventDetailMetaItem}>
+                <span className={styles.eventDetailMetaLabel}>{t('dashboard.calendar_panel.detail_time')}</span>
+                <strong className={styles.eventDetailMetaValue}>{selectedEventDetail.timeLabel}</strong>
+              </div>
+              <div className={styles.eventDetailMetaItem}>
+                <span className={styles.eventDetailMetaLabel}>{t('dashboard.calendar_panel.detail_duration')}</span>
+                <strong className={styles.eventDetailMetaValue}>{selectedEventDetail.durationLabel}</strong>
+              </div>
+              <div className={styles.eventDetailMetaItem}>
+                <span className={styles.eventDetailMetaLabel}>{t('dashboard.calendar_panel.detail_category')}</span>
+                <strong className={styles.eventDetailMetaValue}>{selectedEventDetail.categoryLabel}</strong>
+              </div>
+              <div className={styles.eventDetailMetaItem}>
+                <span className={styles.eventDetailMetaLabel}>{t('dashboard.calendar_panel.detail_status')}</span>
+                <strong className={styles.eventDetailMetaValue}>{selectedEventDetail.statusLabel}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

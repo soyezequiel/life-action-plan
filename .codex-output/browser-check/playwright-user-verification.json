@@ -1,0 +1,84 @@
+{
+  "steps": [
+    {
+      "name": "after-login",
+      "url": "http://localhost:3000/",
+      "title": "Pulso",
+      "bodyText": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema\nTU DÍA\nPlan - bajar 1 kg en una semana\n\nResumen real de tu plan, con agenda, tareas y progreso de hoy.\n\nAyuda\nSalir\nHOY\nmiércoles 1 abril 2026\n\nPlan activo: Plan - bajar 1 kg en una semana\n\nPROGRESO\n25%\nTAREAS TOTALES\n4\nTAREAS ACTIVAS\n3\nRACHA DE HABITOS\n0 dias seguidos\nTENDENCIA\n+4 pts\nMejor que la semana anterior\nENFOQUE\nSin eventos para hoy\ntimer\nSIN EVENTOS PARA HOY\n--:--\n\nNo hay eventos programados para hoy.\n\nhelp\nAbrir ayuda\nAGENDA DE HOY\nEventos del dia\n0\n\nNo hay eventos programados para hoy.\n\nTAREAS DE HOY\nChecklist real\n4 TAREAS\ncheck\nNatacion o aquagym\ndrag_indicator\ncheck\nChequeo de peso y medidas\ndrag_indicator\ncheck\nCaminata constante\nverified\ncheck\nCiclismo suave o bici fija\ndrag_indicator\nSEMANA REAL\nProgreso de los ultimos 7 dias\nMEJOR QUE LA SEMANA ANTERIOR\nJUE\n0%\nVIE\n0%\nSÁB\n0%\nDOM\n0%\nLUN\n0%\nMAR\n0%\nMIÉ\n25%\nAYUDA RAPIDA\nSi algo no te queda claro, esta guia corta te muestra por donde seguir.\n\nCreacion de planes, progreso, calendario y ajustes de sistema, todo en un solo lugar.\n\nAbrir ayuda\nIr al flujo"
+    },
+    {
+      "name": "dashboard",
+      "url": "http://localhost:3000/",
+      "title": "Pulso",
+      "bodyText": "APP.LOADING",
+      "sidebar": "",
+      "tabs": [],
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioVisible": false,
+        "dashboardVisible": false,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": false,
+        "duplicatePlanSummaryVisible": false
+      }
+    },
+    {
+      "name": "plan-legacy",
+      "url": "http://localhost:3000/plan/v5?view=week&tab=calendar",
+      "title": "Mi plan semanal",
+      "bodyText": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema\nCALENDARIO\nMi plan semanal\n\nRevisá el estado general, el calendario y el progreso sin ruido.\n\n1 OBJETIVOS ACTIVOS\nEste plan convierte \"bajar 1 kg en una semana\" en 10 bloques concretos para esta semana. Lo organizamos en 3 etapas a lo largo de 3 semanas para que no quieras hacer todo de golpe. El puntaje de calidad actual es 100/100.\n\nEl plan ya quedo armado. Los ajustes de adaptacion todavia estan pendientes.\n\nAdapt pendiente\n\nLA FASE DE ADAPTACION CORRE POR SEPARADO Y TODAVIA NO SE CALCULO.\n\nCalendario\nTareas\nMi progreso\nCalendario completo\n\nMira tu plan entero por mes, semana o dia para ubicarte rapido sin perder el foco de hoy.\n\nAnual\nMensual\nSemanal\nDiario\nHoy\n30 mar – 5 abr 2026\n\t\nlun 30/3\n\t\nmar 31/3\n\t\nmié 1/4\n\t\njue 2/4\n\t\nvie 3/4\n\t\nsáb 4/4\n\t\ndom 5/4\n\n\n06:00\n\t\n\t\n\n07:00\n\t\n\t\n\n08:00\n\t\n\t\n\n09:00\n\t\n\t\n\n10:00\n\t\n\t\n\n11:00\n\t\n\t\n\n12:00\n\t\n\t\n\n13:00\n\t\n\t\n\n14:00\n\t\n\t\n\n15:00\n\t\n\t\n\n16:00\n\t\n\t\n\n17:00\n\t\n\t\n\n18:00\n\t\n\t\n\n19:00\n\t\n\t\n\n20:00\n\t\n\t\n\n21:00\n\t\n\t\n\n22:00\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\nYour license key is invalid. More Info\nDIA ELEGIDO\nLunes 6 Abr\n1 actividades\n1 pendientes\n21:00\n40 min\nNatacion o aquagym\n40 min / Estudio\nPendiente\nActividad programada\n0 listas",
+      "sidebar": "Pulso\n\nTU PLAN DE VIDA, PASO A PASO\n\nDashboard\nFlujo\nCalendario\nSistema\nCrear mi plan\nSistema",
+      "tabs": [
+        "Dashboard",
+        "Flujo",
+        "Calendario",
+        "Sistema",
+        "Crear mi plan",
+        "Sistema",
+        "Calendario",
+        "Tareas",
+        "Mi progreso",
+        "Anual",
+        "Mensual",
+        "Semanal",
+        "Diario",
+        "Hoy",
+        "lun 30/3",
+        "mar 31/3",
+        "mié 1/4",
+        "jue 2/4",
+        "vie 3/4",
+        "sáb 4/4",
+        "dom 5/4",
+        "More Info"
+      ],
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioVisible": false,
+        "dashboardVisible": true,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": false,
+        "duplicatePlanSummaryVisible": false
+      }
+    },
+    {
+      "name": "plan-v5",
+      "url": "http://localhost:3000/plan/v5?tab=calendar&view=week",
+      "title": "Mi plan semanal",
+      "bodyText": "APP.LOADING",
+      "sidebar": "",
+      "tabs": [],
+      "checks": {
+        "panoramaVisible": false,
+        "calendarioVisible": false,
+        "dashboardVisible": false,
+        "tuDiaVisible": false,
+        "miPlanSemanalVisible": false,
+        "checklistRealVisible": false,
+        "duplicatePlanSummaryVisible": false
+      }
+    }
+  ]
+}
