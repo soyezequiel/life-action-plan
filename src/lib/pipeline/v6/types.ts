@@ -55,6 +55,23 @@ export const OrchestratorPhaseSchema = z.enum([
 ]);
 export type OrchestratorPhase = z.infer<typeof OrchestratorPhaseSchema>;
 
+export const V6MachineStateValueSchema = z.enum([
+  'boot',
+  'interpret',
+  'clarify',
+  'paused_for_input',
+  'plan',
+  'check',
+  'schedule',
+  'critique',
+  'revise',
+  'package',
+  'done',
+  'blocked',
+  'failed',
+]);
+export type V6MachineStateValue = z.infer<typeof V6MachineStateValueSchema>;
+
 export const PHASE_LABELS_ES: Record<string, string> = {
   interpret: 'Interpretar meta',
   clarify: 'Clarificar',
@@ -487,12 +504,60 @@ export const PlanOrchestratorSnapshotSchema = z.object({
   agentOutcomes: z.array(AgentExecutionOutcomeSchema).optional(),
   debugTrace: z.array(OrchestratorDebugEventSchema).optional(),
 }).strict();
-export type PlanOrchestratorSnapshot = z.infer<typeof PlanOrchestratorSnapshotSchema>;
 
-export const V6RuntimeSnapshotSchema = z.object({
+export const V6MachineRuntimeSnapshotSchema = z.object({
+  iteration: z.number().int().min(0),
+  maxIterations: z.number().int().min(1),
+  clarifyRounds: z.number().int().min(0),
+  maxClarifyRounds: z.number().int().min(1),
+  revisionCycles: z.number().int().min(0),
+  maxRevisionCycles: z.number().int().min(0),
+  tokenBudgetUsed: z.number().int().min(0),
+  tokenBudgetLimit: z.number().int().min(1),
+  progressScore: z.number().min(0).max(100),
+  goalSignalsSnapshot: GoalSignalsSnapshotSchema.nullable(),
+  pendingQuestionCount: z.number().int().min(0),
+  lastClarifyReadyToAdvance: z.boolean().nullable(),
+  lastFeasibilityStatus: z.enum(['feasible', 'tight', 'infeasible']).nullable(),
+  lastCritiqueVerdict: z.enum(['approve', 'revise', 'rethink']).nullable(),
+  publicationState: z.enum(['ready', 'blocked', 'failed']).nullable(),
+}).strict();
+export type V6MachineRuntimeSnapshot = z.infer<typeof V6MachineRuntimeSnapshotSchema>;
+
+export const V6MachineSnapshotSchema = z.object({
+  state: V6MachineStateValueSchema,
+  runtime: V6MachineRuntimeSnapshotSchema,
+}).strict();
+export type V6MachineSnapshot = z.infer<typeof V6MachineSnapshotSchema>;
+
+export const PlanOrchestratorSnapshotV2Schema = PlanOrchestratorSnapshotSchema.extend({
+  schemaVersion: z.literal(2),
+  machine: V6MachineSnapshotSchema,
+}).strict();
+export type PlanOrchestratorSnapshotV2 = z.infer<typeof PlanOrchestratorSnapshotV2Schema>;
+
+export const PlanOrchestratorSnapshotAnySchema = z.union([
+  PlanOrchestratorSnapshotV2Schema,
+  PlanOrchestratorSnapshotSchema,
+]);
+export type PlanOrchestratorSnapshot = z.infer<typeof PlanOrchestratorSnapshotAnySchema>;
+
+export const V6RuntimeSnapshotV1Schema = z.object({
   schemaVersion: z.literal(1),
   pipeline: z.literal('v6'),
   request: V6BuildSessionRequestSchema,
   orchestrator: PlanOrchestratorSnapshotSchema,
 }).strict();
+
+export const V6RuntimeSnapshotV2Schema = z.object({
+  schemaVersion: z.literal(2),
+  pipeline: z.literal('v6'),
+  request: V6BuildSessionRequestSchema,
+  orchestrator: PlanOrchestratorSnapshotV2Schema,
+}).strict();
+
+export const V6RuntimeSnapshotSchema = z.union([
+  V6RuntimeSnapshotV2Schema,
+  V6RuntimeSnapshotV1Schema,
+]);
 export type V6RuntimeSnapshot = z.infer<typeof V6RuntimeSnapshotSchema>;

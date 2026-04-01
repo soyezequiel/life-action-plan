@@ -85,8 +85,9 @@ Fuentes:
 
 ### 4.3 Core del pipeline
 
-- `src/lib/pipeline/v6/orchestrator.ts`: loop principal, estado, stall detection, publication gate, debug trace y resultado final
-- `src/lib/pipeline/v6/state-machine.ts`: transiciones de fase y scores de progreso
+- `src/lib/pipeline/v6/orchestrator.ts`: adaptador runtime que ejecuta fases, integra agentes, SSE, publication gate y snapshots
+- `src/lib/pipeline/v6/xstate/`: maquina XState v5 tipada, serializable y fuente de verdad del flujo
+- `src/lib/pipeline/v6/state-machine.ts`: wrapper de compatibilidad para scores de progreso y tests puros de transicion
 - `src/lib/pipeline/v6/session-snapshot.ts`: snapshot versionado para pause/resume
 - `src/lib/pipeline/v6/types.ts`: contratos estrictos del runtime
 - `src/lib/pipeline/v6/agent-registry.ts`: registro de agentes disponibles
@@ -209,10 +210,26 @@ Si ninguna funciona, el agente no esta disponible y el orchestrator usa el fallb
 
 ## 8. Maquina de estados real
 
+La fuente de verdad del flujo ahora es una maquina `XState v5` con estos estados:
+- `interpret`
+- `clarify`
+- `paused_for_input`
+- `plan`
+- `check`
+- `schedule`
+- `critique`
+- `revise`
+- `package`
+- `done`
+- `blocked`
+- `failed`
+
 Transiciones base:
 - `interpret -> clarify`
-- `clarify -> plan` cuando `readyToAdvance === true` o `confidence >= 0.8` sin preguntas pendientes
-- `clarify -> plan` cuando `clarifyRounds >= maxClarifyRounds` (fuerza avance)
+- `clarify -> paused_for_input` cuando siguen faltando respuestas
+- `clarify -> plan` cuando hay senales suficientes y no quedan preguntas pendientes
+- `paused_for_input -> clarify` con `ANSWERS_SUBMITTED`
+- `paused_for_input -> plan` con `INPUT_SKIPPED`
 - `plan -> check`
 - `check -> schedule` si el plan es `feasible` o `tight`
 - `check -> plan` si es `infeasible` y `revisionCycles < maxRevisionCycles`
@@ -224,7 +241,7 @@ Transiciones base:
 - `critique -> clarify` si el verdict es `rethink` y `clarifyRounds < maxClarifyRounds`
 - `critique -> package` si el verdict es `rethink` y se agotaron rondas de aclaracion
 - `revise -> critique`
-- `package -> done`
+- `package -> done|blocked|failed` segun el publication gate
 
 Valvulas de seguridad (fuerzan salto a `package`):
 - `iteration >= maxIterations`
@@ -286,6 +303,8 @@ Maximo 4 preguntas por ronda. Maximo 3 rondas por defecto.
 Cuando el pipeline emite `needs_input`:
 - se genera un `sessionId` (UUID)
 - se persiste un `V6RuntimeSnapshot` en `interactive_sessions` (expira en 30 minutos)
+- el snapshot vigente usa `schemaVersion: 2` e incluye snapshot serializable de la maquina XState
+- el parser mantiene lectura backward-compatible de `schemaVersion: 1`
 - `userId` se verifica contra la tabla `users`; si no existe, se guarda `null` para evitar FK violation
 
 El snapshot contiene:
@@ -299,9 +318,9 @@ El snapshot contiene:
 `POST /api/plan/build/resume` con `{ sessionId, answers }`:
 
 - Si `answers` tiene claves: el orchestrator procesa las respuestas y re-entra en `clarify` para evaluar si avanzar
-- Si `answers` es `{}` (vacio): el orchestrator salta directamente a `plan` ignorando la aclaracion
+- Si `answers` es `{}` (vacio): el orchestrator despacha `INPUT_SKIPPED`, marca la aclaracion como `degraded_skip` y avanza a `plan`
 
-Esto evita loops infinitos cuando el cliente envia respuestas vacias (modo auto-resume sin interaccion del usuario).
+Esto evita loops infinitos cuando el cliente envia respuestas vacias y deja trazabilidad explicita de que se avanzo sin nuevas respuestas del usuario.
 
 Fuentes:
 - `src/lib/pipeline/v6/session-snapshot.ts`

@@ -10,10 +10,12 @@ import type { StrategyInput } from '../shared/phase-io';
 import type { AvailabilityWindow, BlockedSlot } from '../../scheduler/types';
 import { Scratchpad } from './scratchpad';
 import { buildRevisionContext } from './prompts/critic-reasoning';
-import { nextPhase, requiresUserInput, phaseProgressScore } from './state-machine';
+import { phaseProgressScore } from './state-machine';
 import {
   GoalSignalsSnapshotSchema,
+  PlanOrchestratorSnapshotAnySchema,
   PlanOrchestratorSnapshotSchema,
+  PlanOrchestratorSnapshotV2Schema,
   normalizeGoalSignalKey,
 } from './types';
 import { PHASE_LABELS_ES } from '@lib/pipeline/v6/types';
@@ -39,8 +41,14 @@ import {
   type UserProfileV5,
   type V6Agent,
   type V6AgentName,
+  type V6MachineStateValue,
   type PlanOrchestratorSnapshot,
+  type PlanOrchestratorSnapshotV2,
 } from './types';
+import { createV6GenerationActor } from './xstate/machine';
+import { buildMachineRuntimeSnapshot, getMachineStateFromPhase } from './xstate/services';
+import { getPublicPhaseFromMachineState, inferLegacyMachineState, parseMachineSnapshot, serializeMachineSnapshot } from './xstate/snapshot';
+import type { V6MachineEvent } from './xstate/events';
 import { extractQuotaFromError, formatQuotaMessage } from '../../runtime/quota-parser';
 import { type QuotaInfo } from '../../runtime/quota-parser';
 
@@ -482,6 +490,26 @@ function includesAnyPattern(values: string[], pattern: RegExp): boolean {
 
 export class PlanOrchestrator {
   private registry: AgentRegistryLike | null = null;
+  private machine = createV6GenerationActor({
+    restoredStateValue: 'interpret',
+    runtime: {
+      iteration: 0,
+      maxIterations: DEFAULT_CONFIG.maxIterations,
+      clarifyRounds: 0,
+      maxClarifyRounds: DEFAULT_CONFIG.maxClarifyRounds,
+      revisionCycles: 0,
+      maxRevisionCycles: DEFAULT_CONFIG.maxRevisionCycles,
+      tokenBudgetUsed: 0,
+      tokenBudgetLimit: DEFAULT_CONFIG.tokenBudgetLimit,
+      progressScore: 0,
+      goalSignalsSnapshot: null,
+      pendingQuestionCount: 0,
+      lastClarifyReadyToAdvance: null,
+      lastFeasibilityStatus: null,
+      lastCritiqueVerdict: null,
+      publicationState: null,
+    },
+  });
   private state: OrchestratorState;
   private context: OrchestratorContext;
   private scratchpad: Scratchpad;
@@ -567,6 +595,75 @@ export class PlanOrchestrator {
     };
   }
 
+  private rebuildMachine(
+    restoredStateValue: V6MachineStateValue,
+    publicationState: 'ready' | 'blocked' | 'failed' | null = null,
+  ): void {
+    this.machine.stop();
+    this.machine = createV6GenerationActor({
+      restoredStateValue,
+      runtime: buildMachineRuntimeSnapshot({
+        state: this.state,
+        context: this.context,
+        publicationState,
+      }),
+    });
+    this.syncPublicPhaseFromMachine();
+  }
+
+  private getMachineStateValue(): V6MachineStateValue {
+    return this.machine.getSnapshot().value as V6MachineStateValue;
+  }
+
+  private syncPublicPhaseFromMachine(): void {
+    this.state.phase = getPublicPhaseFromMachineState(this.getMachineStateValue(), this.state.phase);
+  }
+
+  private buildMachineRuntime(publicationState: 'ready' | 'blocked' | 'failed' | null = null) {
+    return buildMachineRuntimeSnapshot({
+      state: this.state,
+      context: this.context,
+      publicationState,
+    });
+  }
+
+  private sendMachine(event: V6MachineEvent): void {
+    this.machine.send(event);
+    this.syncPublicPhaseFromMachine();
+  }
+
+  private completeCurrentPhase(phase: OrchestratorPhase, publicationState: 'ready' | 'blocked' | 'failed' | null = null): void {
+    const runtime = this.buildMachineRuntime(publicationState);
+    switch (phase) {
+      case 'interpret':
+        this.sendMachine({ type: 'INTERPRET_COMPLETED', runtime });
+        return;
+      case 'clarify':
+        this.sendMachine({ type: 'CLARIFY_COMPLETED', runtime });
+        return;
+      case 'plan':
+        this.sendMachine({ type: 'PLAN_COMPLETED', runtime });
+        return;
+      case 'check':
+        this.sendMachine({ type: 'CHECK_COMPLETED', runtime });
+        return;
+      case 'schedule':
+        this.sendMachine({ type: 'SCHEDULE_COMPLETED', runtime });
+        return;
+      case 'critique':
+        this.sendMachine({ type: 'CRITIQUE_COMPLETED', runtime });
+        return;
+      case 'revise':
+        this.sendMachine({ type: 'REVISE_COMPLETED', runtime });
+        return;
+      case 'package':
+        this.sendMachine({ type: 'PACKAGE_COMPLETED', runtime });
+        return;
+      default:
+        return;
+    }
+  }
+
   static restore(
     snapshot: PlanOrchestratorSnapshot,
     brainRuntime: AgentRuntime,
@@ -574,7 +671,7 @@ export class PlanOrchestrator {
     runtimeLabel = 'unknown',
     debugListener?: (event: OrchestratorDebugEvent) => void,
   ): PlanOrchestrator {
-    const parsed = PlanOrchestratorSnapshotSchema.parse(snapshot);
+    const parsed = PlanOrchestratorSnapshotAnySchema.parse(snapshot);
     const orchestrator = new PlanOrchestrator(parsed.config, brainRuntime, fastRuntime, runtimeLabel, debugListener);
 
     orchestrator.state = {
@@ -623,6 +720,19 @@ export class PlanOrchestrator {
       0,
     );
     orchestrator.syncGoalSignalsSnapshot();
+    const restoredMachineState = 'schemaVersion' in parsed
+      ? parseMachineSnapshot(parsed.machine).state
+      : inferLegacyMachineState({
+        phase: orchestrator.state.phase,
+        clarifyRounds: orchestrator.state.clarifyRounds,
+        pendingAnswers: orchestrator.pendingAnswers,
+      });
+    const publicationState = restoredMachineState === 'blocked'
+      ? 'blocked'
+      : restoredMachineState === 'done'
+        ? 'ready'
+        : null;
+    orchestrator.rebuildMachine(restoredMachineState, publicationState);
 
     return orchestrator;
   }
@@ -632,6 +742,7 @@ export class PlanOrchestrator {
   async run(goalText: string, userCtx: UserContext): Promise<OrchestratorResult> {
     this.initializeContext(goalText, userCtx);
     this.state.phase = 'interpret';
+    this.rebuildMachine('interpret');
     this.registry = await loadRegistry();
     this.recordDebugEvent({
       category: 'lifecycle',
@@ -658,8 +769,7 @@ export class PlanOrchestrator {
 
     const hasActualAnswers = Object.values(answers).some((answer) => answer.trim().length > 0);
     this.pendingAnswers = hasActualAnswers ? answers : null;
-    this.clarificationSkipRequested = false;
-    this.state.phase = 'clarify';
+    this.clarificationSkipRequested = !hasActualAnswers;
 
     const goalSignalsSnapshot = this.syncGoalSignalsSnapshot();
 
@@ -679,8 +789,16 @@ export class PlanOrchestrator {
       },
     });
 
-    if (!hasActualAnswers) {
-      return this.pauseForInput();
+    if (hasActualAnswers) {
+      this.sendMachine({
+        type: 'ANSWERS_SUBMITTED',
+        runtime: this.buildMachineRuntime(),
+      });
+    } else {
+      this.sendMachine({
+        type: 'INPUT_SKIPPED',
+        runtime: this.buildMachineRuntime(),
+      });
     }
 
     return this.executeLoop();
@@ -705,17 +823,19 @@ export class PlanOrchestrator {
   getDebugStatus(): OrchestratorDebugStatus {
     const fallbackCount = this.getFallbackOutcomes().length;
     const lastEvent = this.debugTrace.at(-1) ?? null;
+    const machineState = this.getMachineStateValue();
     const currentPhase = this.state.phase ?? null;
     const currentAgent = lastEvent?.agent ?? (currentPhase ? this.phaseToAgent(currentPhase) : null);
-    const lifecycle = this.state.phase === 'done'
+    const lifecycle = machineState === 'done'
       ? 'completed'
-      : this.state.phase === 'failed'
+      : machineState === 'failed' || machineState === 'blocked'
         ? 'failed'
-        : requiresUserInput(this.state.phase) && !this.hasPendingAnswers() && this.context.clarificationRounds.length > 0
+        : machineState === 'paused_for_input'
           ? 'paused_for_input'
           : 'running';
-    const canEvaluatePublication = this.state.phase === 'done'
-      || this.state.phase === 'failed'
+    const canEvaluatePublication = machineState === 'done'
+      || machineState === 'failed'
+      || machineState === 'blocked'
       || this.context.finalPackage !== null;
     const publicationGate = canEvaluatePublication ? this.getPublicationGate() : null;
 
@@ -743,6 +863,7 @@ export class PlanOrchestrator {
     const goalSignalsSnapshot = this.syncGoalSignalsSnapshot();
 
     return {
+      schemaVersion: 2,
       config: { ...this.config },
       state: {
         ...this.state,
@@ -782,13 +903,14 @@ export class PlanOrchestrator {
       progressHistory: [...this.progressHistory],
       agentOutcomes: this.agentOutcomes.map((outcome) => ({ ...outcome })),
       debugTrace: this.debugTrace.map((event) => structuredClone(event)),
-    };
+      machine: serializeMachineSnapshot(this.machine),
+    } as PlanOrchestratorSnapshotV2;
   }
 
   // ─── Core loop ──────────────────────────────────────────────────────────
 
   private async executeLoop(): Promise<OrchestratorResult> {
-    while (this.state.phase !== 'done' && this.state.phase !== 'failed') {
+    while (!['done', 'blocked', 'failed'].includes(this.getMachineStateValue())) {
       // Safety valve: force finish
       const forceFinishReason = this.getForceFinishReason();
       if (forceFinishReason) {
@@ -806,32 +928,37 @@ export class PlanOrchestrator {
             tokenBudgetLimit: this.state.tokenBudget.limit,
           },
         });
-        this.state.phase = 'package';
+        this.sendMachine({
+          type: 'FORCE_PACKAGE',
+          runtime: this.buildMachineRuntime(),
+        });
       }
 
-      // If phase needs user input and we don't have it, pause
-      if (requiresUserInput(this.state.phase) && !this.hasPendingAnswers()) {
+      if (this.getMachineStateValue() === 'paused_for_input') {
+        this.syncPublicPhaseFromMachine();
         return this.pauseForInput();
       }
+
+      const activePhase = this.state.phase;
 
       this.recordDebugEvent({
         category: 'phase',
         action: 'phase.enter',
-        summary_es: this.buildPhaseEnterSummaryEs(this.state.phase),
-        phase: this.state.phase,
-        agent: this.phaseToAgent(this.state.phase),
+        summary_es: this.buildPhaseEnterSummaryEs(activePhase),
+        phase: activePhase,
+        agent: this.phaseToAgent(activePhase),
       });
 
       // Execute the current phase
       let result: unknown;
       const phaseStart = Date.now();
       try {
-        result = await this.executePhase(this.state.phase);
+        result = await this.executePhase(activePhase);
       } catch (error) {
         const errorMessage = this.getErrorMessage(error);
         this.recordAgentOutcome(
-          this.phaseToAgent(this.state.phase),
-          this.state.phase,
+          this.phaseToAgent(activePhase),
+          activePhase,
           'fallback',
           Date.now() - phaseStart,
           error,
@@ -843,12 +970,16 @@ export class PlanOrchestrator {
             },
           },
         );
-        this.recordEntry(this.state.phase, this.phaseToAgent(this.state.phase), {
-          action: `FAILURE in ${this.state.phase}`,
+        this.recordEntry(activePhase, this.phaseToAgent(activePhase), {
+          action: `FAILURE in ${activePhase}`,
           reasoning: this.formatDiagnosticReasoning(error),
           result: errorMessage,
         });
-        this.haltPipeline('system_exception', errorMessage, this.phaseToAgent(this.state.phase));
+        this.haltPipeline('system_exception', errorMessage, this.phaseToAgent(activePhase));
+        this.sendMachine({
+          type: 'FAIL',
+          runtime: this.buildMachineRuntime('failed'),
+        });
         continue;
       }
 
@@ -856,16 +987,16 @@ export class PlanOrchestrator {
       const previousCriticReport = this.context.criticReport ? structuredClone(this.context.criticReport) : null;
 
       // Record in scratchpad
-      this.recordEntry(this.state.phase, this.phaseToAgent(this.state.phase), {
-        action: `Executed ${this.state.phase}`,
+      this.recordEntry(activePhase, this.phaseToAgent(activePhase), {
+        action: `Executed ${activePhase}`,
         reasoning: this.extractReasoning(result),
         result: this.summarizeResult(result),
       });
 
       // Update context with result
-      this.mergeResult(this.state.phase, result);
+      this.mergeResult(activePhase, result);
       this.syncGoalSignalsSnapshot();
-      this.recordPhaseSpecificDebug(this.state.phase, result, {
+      this.recordPhaseSpecificDebug(activePhase, result, {
         previousClarificationRounds,
         previousCriticReport,
       });
@@ -874,17 +1005,18 @@ export class PlanOrchestrator {
 
 
       // Determine next phase
-      const previousPhase = this.state.phase;
-      this.state.phase = nextPhase(this.state.phase, this.state, this.context, result);
+      const previousPhase = activePhase;
       this.state.iteration++;
-
-      // Update progress score
-      this.updateProgressScore(previousPhase, this.state.phase);
 
       // Sync scratchpad entries into state
       this.state.tokenBudget.used = this.scratchpad.totalTokens();
       this.state.scratchpad = this.scratchpad.getAll();
       this.syncGoalSignalsSnapshot();
+      this.completeCurrentPhase(
+        activePhase,
+        activePhase === 'package' ? this.getPublicationGate().publicationState : null,
+      );
+      this.updateProgressScore(previousPhase, this.state.phase);
       this.recordPhaseTransition(previousPhase, this.state.phase, result);
     }
 
@@ -2552,19 +2684,30 @@ export class PlanOrchestrator {
   private handleFallback<TInput, TOutput>(
     phase: OrchestratorPhase,
     agentName: V6AgentName,
-    _input: TInput,
-    _agent: Pick<V6Agent<TInput, TOutput>, 'fallback'>,
+    input: TInput,
+    agent: Pick<V6Agent<TInput, TOutput>, 'fallback'>,
     start: number,
     error: unknown,
     fallbackLabel?: string,
   ): TOutput {
     this.recordAgentOutcome(agentName, phase, 'fallback', Date.now() - start, error);
+    const blockingFallbackAgents = new Set<V6AgentName>(['critic']);
+
+    if (blockingFallbackAgents.has(agentName)) {
+      this.recordEntry(phase, agentName, {
+        action: `FAILURE: ${fallbackLabel ?? agentName}`,
+        reasoning: this.formatDiagnosticReasoning(error),
+        result: 'Pipeline halted due to agent failure.',
+      });
+      throw error;
+    }
+
     this.recordEntry(phase, agentName, {
-      action: `FAILURE: ${fallbackLabel ?? agentName}`,
+      action: `FALLBACK: ${fallbackLabel ?? agentName}`,
       reasoning: this.formatDiagnosticReasoning(error),
-      result: 'Pipeline halted due to agent failure.',
+      result: 'Using inline fallback data - NOT from LLM',
     });
-    throw error;
+    return agent.fallback(input);
   }
 
   private buildCriticFallbackReport(goalText: string): CriticReport {
@@ -2720,11 +2863,32 @@ export class PlanOrchestrator {
     blockingAgents: AgentExecutionOutcome[];
     customMessage?: string;
   } {
-    // Health-risk supervision gate is disabled: plans are always generated.
+    if (!this.isHighRiskHealthGoal()) {
+      return {
+        publicationState: 'ready',
+        failureCode: null,
+        blockingAgents: [],
+      };
+    }
+
+    const missingEffectiveSupervision = this.hasHealthSupervisionFailureSignal()
+      || !this.hasEffectiveHealthSafetyCoverage();
+
+    if (!missingEffectiveSupervision) {
+      return {
+        publicationState: 'ready',
+        failureCode: null,
+        blockingAgents: [],
+      };
+    }
+
+    const phaseLabel = PHASE_LABELS_ES[this.state.phase] || this.state.phase;
+
     return {
-      publicationState: 'ready',
-      failureCode: null,
+      publicationState: 'blocked',
+      failureCode: 'requires_supervision',
       blockingAgents: [],
+      customMessage: `[Etapa: ${phaseLabel}] No se puede publicar este plan porque es un objetivo de salud de alto riesgo y falta una referencia clara a supervision profesional.`,
     };
   }
 
@@ -3048,6 +3212,7 @@ export class PlanOrchestrator {
   // ─── Final result building ──────────────────────────────────────────────
 
   private buildFinalResult(): OrchestratorResult {
+    const machineState = this.getMachineStateValue();
     const fallbackOutcomes = this.getFallbackOutcomes();
     const hasFallbacks = fallbackOutcomes.length > 0;
     const publicationGate = this.getPublicationGate();
@@ -3165,7 +3330,7 @@ export class PlanOrchestrator {
         : null;
 
     const canPublish = publicationGate.publicationState === 'ready'
-      && this.state.phase === 'done'
+      && (machineState === 'done' || this.state.phase === 'done')
       && finalPackage !== null;
 
     this.recordDebugEvent({

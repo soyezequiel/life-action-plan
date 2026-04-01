@@ -7,6 +7,9 @@ import type {
   CriticReport,
 } from './types';
 
+// Compatibility wrapper kept for pure transition tests and progress scores.
+// The runtime source of truth now lives in src/lib/pipeline/v6/xstate/.
+
 // ─── Phase score map (for progress tracking) ────────────────────────────────
 
 const PHASE_PROGRESS: Record<OrchestratorPhase, number> = {

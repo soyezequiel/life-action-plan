@@ -1059,7 +1059,7 @@ describe('PlanOrchestrator', () => {
     });
   });
 
-  it('does not jump blindly to plan on empty resume and keeps the session waiting in clarify', () => {
+  it('treats empty resume as an explicit skip and advances in degraded mode', () => {
     const payload = runScenario('resume_empty_skip');
     const firstResult = payload.firstResult as { status: string };
     const resumed = payload.resumed as {
@@ -1089,10 +1089,9 @@ describe('PlanOrchestrator', () => {
     };
 
     expect(firstResult.status).toBe('needs_input');
-    expect(resumed.status).toBe('needs_input');
-    expect(resumed.package).toBeNull();
-    expect(resumed.pendingQuestions?.readyToAdvance).toBe(false);
-    expect(resumed.pendingQuestions?.questions).toHaveLength(1);
+    expect(resumed.status).toBe('completed');
+    expect(resumed.package).not.toBeNull();
+    expect(resumed.pendingQuestions).toBeNull();
     const resumedEvent = debugTrace.find((event) => event.action === 'session.resumed');
     expect(resumedEvent).toMatchObject({
       phase: 'clarify',
@@ -1100,14 +1099,14 @@ describe('PlanOrchestrator', () => {
         goalSignalsSnapshot: {
           missingCriticalSignals: ['timeframe', 'current_baseline', 'constraints'],
           hasSufficientSignalsForPlanning: false,
-          clarificationMode: 'needs_input',
+          clarificationMode: 'degraded_skip',
         },
       },
     });
     expect(snapshot.context.goalSignalsSnapshot).toMatchObject({
       missingCriticalSignals: ['timeframe', 'current_baseline', 'constraints'],
       hasSufficientSignalsForPlanning: false,
-      clarificationMode: 'needs_input',
+      clarificationMode: 'degraded_skip',
     });
   });
 
