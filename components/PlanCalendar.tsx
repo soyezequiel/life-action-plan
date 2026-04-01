@@ -1,19 +1,20 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { JSX } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import timeGridPlugin from '@fullcalendar/timegrid'
+import multiMonthPlugin from '@fullcalendar/multimonth'
 import esLocale from '@fullcalendar/core/locales/es'
-import type { EventContentArg, EventInput } from '@fullcalendar/core'
+import type { CalendarApi, EventContentArg, EventInput } from '@fullcalendar/core'
 import { DateTime } from 'luxon'
 import { getCurrentLocale, t } from '../src/i18n'
 import type { ProgressRow } from '../src/shared/types/lap-api'
 import styles from './PlanCalendar.module.css'
 
-type CalendarView = 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay'
+export type CalendarView = 'multiMonthYear' | 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay'
 
 interface TaskMeta {
   hora?: string
@@ -21,9 +22,13 @@ interface TaskMeta {
   categoria?: string
 }
 
-interface PlanCalendarProps {
+export interface PlanCalendarProps {
   tasks: ProgressRow[]
   timezone: string
+  defaultView?: CalendarView
+  calendarRef?: React.RefObject<CalendarApi | null>
+  variant?: 'dark' | 'light'
+  showHeader?: boolean
 }
 
 function parseTaskMeta(notas: string | null): TaskMeta {
@@ -116,8 +121,23 @@ function renderEventContent(content: EventContentArg): JSX.Element {
   )
 }
 
-export default function PlanCalendar({ tasks, timezone }: PlanCalendarProps): JSX.Element {
-  const [initialView, setInitialView] = useState<CalendarView>('dayGridMonth')
+export default function PlanCalendar({
+  tasks,
+  timezone,
+  defaultView,
+  calendarRef,
+  variant = 'dark',
+  showHeader = true
+}: PlanCalendarProps): JSX.Element {
+  const [initialView, setInitialView] = useState<CalendarView>(defaultView ?? 'dayGridMonth')
+  const internalRef = useRef<FullCalendar>(null)
+
+  // Expose the FullCalendar API via the provided ref so the parent can imperatively switch views
+  useEffect(() => {
+    if (calendarRef && internalRef.current) {
+      (calendarRef as React.MutableRefObject<CalendarApi | null>).current = internalRef.current.getApi()
+    }
+  })
   const todayIso = DateTime.now().setZone(timezone).toISODate() ?? ''
   const [selectedDateIso, setSelectedDateIso] = useState(todayIso)
 
@@ -125,11 +145,11 @@ export default function PlanCalendar({ tasks, timezone }: PlanCalendarProps): JS
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
       return
     }
-
-    if (window.matchMedia('(max-width: 720px)').matches) {
+    // Only override with mobile default if no explicit defaultView was provided
+    if (!defaultView && window.matchMedia('(max-width: 720px)').matches) {
       setInitialView('timeGridDay')
     }
-  }, [])
+  }, [defaultView])
 
   useEffect(() => {
     if (tasks.length === 0) {
@@ -160,32 +180,36 @@ export default function PlanCalendar({ tasks, timezone }: PlanCalendarProps): JS
     .toFormat('cccc d LLL')
   const selectedPendingCount = selectedTasks.filter((task) => !task.completado).length
 
-  return (
-    <section className={styles.calendarShell} aria-labelledby="dashboard-calendar-title">
-      <div className={styles.header}>
-        <div className={styles.copy}>
-          <span className={styles.label}>{t('dashboard.calendar_panel.label')}</span>
-          <h3 id="dashboard-calendar-title" className={styles.title}>
-            {t('dashboard.calendar_panel.title')}
-          </h3>
-          <p className={styles.hint}>{t('dashboard.calendar_panel.hint')}</p>
-        </div>
+  const shellClass = `${styles.calendarShell} ${variant === 'light' ? styles.calendarShellLight : ''} ${!showHeader ? styles.noHeader : ''}`
 
-        <div className={styles.stats} aria-label={t('dashboard.calendar_panel.stats_label')}>
-          <div className={styles.statCard}>
-            <span className={styles.statLabel}>{t('dashboard.calendar_panel.total_label')}</span>
-            <strong className={styles.statValue}>{countFormatter.format(tasks.length)}</strong>
+  return (
+    <section className={shellClass} aria-labelledby="dashboard-calendar-title">
+      {showHeader && (
+        <div className={styles.header}>
+          <div className={styles.copy}>
+            <span className={styles.label}>{t('dashboard.calendar_panel.label')}</span>
+            <h3 id="dashboard-calendar-title" className={styles.title}>
+              {t('dashboard.calendar_panel.title')}
+            </h3>
+            <p className={styles.hint}>{t('dashboard.calendar_panel.hint')}</p>
           </div>
-          <div className={styles.statCard}>
-            <span className={styles.statLabel}>{t('dashboard.calendar_panel.pending_label')}</span>
-            <strong className={styles.statValue}>{countFormatter.format(pendingCount)}</strong>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statLabel}>{t('dashboard.calendar_panel.today_label')}</span>
-            <strong className={styles.statValue}>{countFormatter.format(todayCount)}</strong>
+
+          <div className={styles.stats} aria-label={t('dashboard.calendar_panel.stats_label')}>
+            <div className={styles.statCard}>
+              <span className={styles.statLabel}>{t('dashboard.calendar_panel.total_label')}</span>
+              <strong className={styles.statValue}>{countFormatter.format(tasks.length)}</strong>
+            </div>
+            <div className={styles.statCard}>
+              <span className={styles.statLabel}>{t('dashboard.calendar_panel.pending_label')}</span>
+              <strong className={styles.statValue}>{countFormatter.format(pendingCount)}</strong>
+            </div>
+            <div className={styles.statCard}>
+              <span className={styles.statLabel}>{t('dashboard.calendar_panel.today_label')}</span>
+              <strong className={styles.statValue}>{countFormatter.format(todayCount)}</strong>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {events.length === 0 ? (
         <div className={styles.emptyState}>
@@ -194,19 +218,23 @@ export default function PlanCalendar({ tasks, timezone }: PlanCalendarProps): JS
         </div>
       ) : (
         <FullCalendar
+          ref={internalRef}
           key={initialView}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin, interactionPlugin]}
           locale={esLocale}
           initialView={initialView}
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            right: variant === 'light' ? '' : 'multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay'
           }}
           buttonText={{
             today: t('dashboard.calendar_panel.toolbar.today')
           }}
           views={{
+            multiMonthYear: {
+              buttonText: t('dashboard.calendar_panel.toolbar.year')
+            },
             dayGridMonth: {
               buttonText: t('dashboard.calendar_panel.toolbar.month')
             },

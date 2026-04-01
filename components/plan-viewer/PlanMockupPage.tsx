@@ -1,7 +1,5 @@
-import AnnualCalendarMockup from '../mockups/AnnualCalendarMockup'
-import DailyCalendarMockup from '../mockups/DailyCalendarMockup'
-import MonthlyCalendarMockup from '../mockups/MonthlyCalendarMockup'
-import WeeklyCalendarMockup from '../mockups/WeeklyCalendarMockup'
+import PlanificadorPage from './PlanificadorPage'
+import type { CalendarView } from '../PlanCalendar'
 
 export type PlanMockupView = 'day' | 'week' | 'month' | 'year'
 
@@ -9,18 +7,21 @@ interface PlanMockupPageProps {
   view: PlanMockupView
 }
 
+function mapToCalendarView(view: PlanMockupView): CalendarView {
+  switch (view) {
+    case 'year':
+      return 'multiMonthYear'
+    case 'month':
+      return 'dayGridMonth'
+    case 'week':
+      return 'timeGridWeek'
+    case 'day':
+      return 'timeGridDay'
+    default:
+      return 'dayGridMonth'
+  }
+}
+
 export default function PlanMockupPage({ view }: PlanMockupPageProps) {
-  if (view === 'day') {
-    return <DailyCalendarMockup />
-  }
-
-  if (view === 'week') {
-    return <WeeklyCalendarMockup />
-  }
-
-  if (view === 'month') {
-    return <MonthlyCalendarMockup />
-  }
-
-  return <AnnualCalendarMockup />
+  return <PlanificadorPage initialView={mapToCalendarView(view)} />
 }

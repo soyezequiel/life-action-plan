@@ -225,8 +225,14 @@
         "today": "Hoy",
         "month": "Mes",
         "week": "Semana",
-        "day": "Dia"
-      }
+        "day": "Dia",
+        "year": "Anual"
+      },
+      "view_selector_label": "Vista del calendario",
+      "view_annual": "Anual",
+      "view_monthly": "Mensual",
+      "view_weekly": "Semanal",
+      "view_daily": "Diario"
     },
     "category": {
       "estudio": "Estudio",
@@ -1586,6 +1592,14 @@
       "status_title": "Estado correcto",
       "status_copy": "Listo para usar",
       "details": "Detalles"
+    }
+  },
+  "planner": {
+    "header": {
+      "activities": "actividades",
+      "completed": "completadas",
+      "pending": "pendientes",
+      "progress": "progreso"
     }
   }
 }

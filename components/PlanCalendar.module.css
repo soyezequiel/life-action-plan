@@ -12,6 +12,17 @@
   backdrop-filter: blur(18px);
 }
 
+.calendarShellLight {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.03);
+  backdrop-filter: none;
+}
+
+.noHeader {
+  padding-top: 0;
+}
+
 .header {
   grid-column: 1 / -1;
   display: flex;
@@ -317,6 +328,40 @@
   color: var(--text-primary);
 }
 
+.calendarShellLight :global(.fc) {
+  --fc-border-color: rgba(0, 0, 0, 0.05);
+  --fc-neutral-bg-color: rgba(0, 0, 0, 0.01);
+  --fc-list-event-hover-bg-color: rgba(0, 0, 0, 0.02);
+  --fc-now-indicator-color: #0f172a;
+  color: #334155;
+}
+
+.calendarShellLight :global(.fc-col-header-cell-cushion),
+.calendarShellLight :global(.fc-daygrid-day-number),
+.calendarShellLight :global(.fc-timegrid-axis-cushion),
+.calendarShellLight :global(.fc-timegrid-slot-label-cushion) {
+  color: #64748b;
+}
+
+.calendarShellLight :global(.fc-toolbar-title) {
+  color: #1e293b;
+}
+
+.calendarShellLight :global(.fc-button) {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+}
+
+.calendarShellLight :global(.fc-button:hover) {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+.calendarShellLight :global(.fc-button-active) {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
 .calendarShell :global(.fc-toolbar) {
   margin-bottom: 1rem !important;
 }
@@ -386,6 +431,69 @@
   overflow: hidden !important;
 }
 
+.calendarShellLight .agenda {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.calendarShellLight .agendaTitle {
+  color: #1e293b;
+}
+
+.calendarShellLight .agendaTime {
+  color: #0f172a;
+}
+
+.calendarShellLight .agendaDuration {
+  color: #94a3b8;
+}
+
+.calendarShellLight .agendaTaskTitle {
+  color: #334155;
+}
+
+.calendarShellLight .agendaTaskMeta {
+  color: #94a3b8;
+}
+
+.calendarShellLight .agendaStatus {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.calendarShellLight .agendaStatusDone {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.calendarShellLight .agendaEmpty {
+  color: #94a3b8;
+}
+
+.calendarShellLight .agendaItem {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+}
+
+.calendarShellLight .label {
+  color: #94a3b8;
+}
+
+.calendarShellLight .footerChip {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.calendarShellLight .emptyState {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+.calendarShellLight .emptyState strong {
+  color: #334155;
+}
+
 @media (max-width: 1040px) {
   .calendarShell {
     grid-template-columns: minmax(0, 1fr);
@@ -406,4 +514,74 @@
   .agendaItem {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Light theme events */
+.calendarShellLight .event {
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-left: 3px solid var(--calendar-accent) !important;
+  background: color-mix(in srgb, var(--calendar-accent) 12%, #ffffff) !important;
+}
+.calendarShellLight .eventTitle,
+.calendarShellLight .eventTitleCompact {
+  color: #1e293b;
+}
+.calendarShellLight .eventTime,
+.calendarShellLight .eventMeta {
+  color: #64748b;
+}
+.calendarShellLight .eventStatus {
+  background: rgba(0, 0, 0, 0.05);
+  color: #475569;
+}
+.calendarShellLight .eventCompleted {
+  opacity: 0.6;
+}
+.calendarShellLight .eventBody,
+.calendarShellLight .eventBodyCompact {
+  color: #334155;
+}
+/* Light theme accent overrides for better pastel backgrounds */
+.calendarShellLight .eventEstudio { --calendar-accent: #3b82f6; }
+.calendarShellLight .eventEjercicio { --calendar-accent: #22c55e; }
+.calendarShellLight .eventTrabajo { --calendar-accent: #64748b; }
+.calendarShellLight .eventHabito { --calendar-accent: #a855f7; }
+.calendarShellLight .eventDescanso { --calendar-accent: #f59e0b; }
+.calendarShellLight .eventOtro { --calendar-accent: #06b6d4; }
+/* Light theme day-today highlight */
+.calendarShellLight :global(.fc-day-today) {
+  background: rgba(59, 130, 246, 0.04) !important;
+}
+/* Light theme selected day */
+.calendarShellLight .daySelected {
+  background: rgba(59, 130, 246, 0.08) !important;
+}
+
+/* Annual view: compact dot indicators */
+.calendarShellLight :global(.fc-multimonth .fc-daygrid-day-events) {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  min-height: 6px;
+  padding: 0;
+}
+.calendarShellLight :global(.fc-multimonth .fc-daygrid-event-harness) {
+  width: 5px;
+  height: 5px;
+  overflow: hidden;
+}
+.calendarShellLight :global(.fc-multimonth .fc-daygrid-event) {
+  width: 5px !important;
+  height: 5px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  min-height: 0 !important;
+  border: none !important;
+}
+.calendarShellLight :global(.fc-multimonth .fc-event-main) {
+  padding: 0 !important;
+  font-size: 0 !important;
 }

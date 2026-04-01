@@ -24,6 +24,7 @@ export interface MockupTopTab {
   label: string
   active?: boolean
   href?: string
+  onClick?: () => void
 }
 
 export interface MockupShellProps {
@@ -226,7 +227,7 @@ export function MockupShell({
                         )
                       }
 
-                      return <button key={tab.label} type="button">{tabContent}</button>
+                      return <button key={tab.label} type="button" onClick={tab.onClick}>{tabContent}</button>
                     })}
                   </nav>
                 )}
