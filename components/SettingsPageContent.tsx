@@ -499,7 +499,7 @@ function SettingsPageClient({ deploymentMode }: SettingsPageContentProps) {
             <button className="app-button app-button--secondary" onClick={() => router.push('/')}>
               {t('ui.cancel')}
             </button>
-            <button className="app-button app-button--secondary" onClick={() => router.push('/flow?entry=redo-profile')}>
+    <button className="app-button app-button--secondary" onClick={() => router.push('/intake?entry=redo-profile')}>
               {t('dashboard.redo_intake')}
             </button>
           </>

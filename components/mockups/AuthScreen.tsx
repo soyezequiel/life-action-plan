@@ -45,25 +45,25 @@ export default function AuthScreen() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative min-h-screen overflow-hidden bg-[#FAFAF9] px-6 py-8 text-[#334155]">
+      <div className="relative min-h-screen overflow-hidden bg-transparent px-6 py-8 text-[#334155]">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-[12%] top-[8%] h-[420px] w-[420px] rounded-full bg-[#E9D5FF]/20 blur-[120px]" />
-          <div className="absolute bottom-[6%] right-[12%] h-[420px] w-[420px] rounded-full bg-[#A7F3D0]/20 blur-[120px]" />
-          <div className="absolute bottom-[-180px] left-1/2 h-[260px] w-[760px] -translate-x-1/2 rounded-full bg-[#1E293B]/5 blur-[120px]" />
+          <div className="absolute left-[12%] top-[8%] h-[420px] w-[420px] rounded-full bg-[#C8B6FF]/18 blur-[120px]" />
+          <div className="absolute bottom-[6%] right-[12%] h-[420px] w-[420px] rounded-full bg-[#A7F3D0]/16 blur-[120px]" />
+          <div className="absolute bottom-[-180px] left-1/2 h-[260px] w-[760px] -translate-x-1/2 rounded-full bg-[#1E293B]/6 blur-[120px]" />
         </div>
 
         <main className="relative mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-[480px] flex-col justify-center">
           <motion.section
-            className="rounded-[32px] bg-white/95 p-10 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] backdrop-blur-xl md:p-12"
+            className="rounded-[40px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] p-10 shadow-[0_26px_58px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl md:p-12"
             initial={{ opacity: 0, y: 14, scale: 0.985 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
           >
             <div className="mb-10 flex flex-col items-center text-center">
-              <div className="mb-6 flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] bg-[#090B0D] shadow-[0_12px_24px_-8px_rgba(9,11,13,0.3)]">
+              <div className="mb-6 flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] bg-[#0F172A] shadow-[0_12px_24px_-8px_rgba(9,11,13,0.3)]">
                 <PulsoLogoAnimated variant="mark" size="100%" speed={1.5} glow={true} ariaLabel="Pulso" />
               </div>
-              <h1 className="font-display text-[24px] font-bold tracking-tight text-[#334155]">
+              <h1 className="font-display text-[26px] font-bold tracking-tight text-[#1f2937]">
                 {mode === 'login' ? t('mockups.auth.title') : t('mockups.auth.register')}
               </h1>
               <p className="mt-1 font-display text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
@@ -83,7 +83,7 @@ export default function AuthScreen() {
                 <div className="relative">
                   <MaterialIcon name="mail" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
                   <input
-                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-4 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5 disabled:opacity-50"
+                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[rgba(255,252,247,0.96)] pl-11 pr-4 text-[14px] text-[#334155] outline-none transition focus:border-[#0f766e]/30 focus:ring-2 focus:ring-[#0f766e]/8 disabled:opacity-50"
                     type="email"
                     placeholder={t('mockups.auth.email_placeholder')}
                     value={username}
@@ -109,7 +109,7 @@ export default function AuthScreen() {
                 <div className="relative">
                   <MaterialIcon name="lock" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
                   <input
-                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[#FAFAF9] pl-11 pr-11 text-[14px] text-[#334155] outline-none transition focus:border-[#1E293B]/30 focus:ring-2 focus:ring-[#1E293B]/5 disabled:opacity-50"
+                    className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[rgba(255,252,247,0.96)] pl-11 pr-11 text-[14px] text-[#334155] outline-none transition focus:border-[#0f766e]/30 focus:ring-2 focus:ring-[#0f766e]/8 disabled:opacity-50"
                     type={showPassword ? "text" : "password"}
                     placeholder={t('mockups.auth.password_placeholder')}
                     value={password}
@@ -142,7 +142,7 @@ export default function AuthScreen() {
 
               <button
                 type="button"
-                className="group flex h-14 w-full items-center justify-center gap-2 rounded-[16px] bg-[#1E293B] font-display text-[14px] font-semibold tracking-wide text-white transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0"
+                className="group flex h-14 w-full items-center justify-center gap-2 rounded-[16px] bg-[#1f2937] font-display text-[14px] font-semibold tracking-wide text-white transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0"
                 onClick={handleSubmit}
                 disabled={status === 'submitting' || !username || !password}
               >

@@ -2753,6 +2753,14 @@ export class PlanOrchestrator {
       return false;
     }
 
+    const normalizedErrorMessage = outcome.errorMessage?.toLowerCase() ?? '';
+    const fallbackIsHealthSupervisionWarning = this.isHighRiskHealthGoal()
+      && normalizedErrorMessage.includes('health.supervision');
+
+    if (fallbackIsHealthSupervisionWarning) {
+      return true;
+    }
+
     const fallbackWasValidationDriven = outcome.errorMessage?.includes('Fallback strategy was used.') ?? false;
     const fallbackIsFinanceBestEffort = this.isFinanceSavingsGoal()
       && this.context.goalSignalsSnapshot?.hasSufficientSignalsForPlanning === true
@@ -2854,7 +2862,27 @@ export class PlanOrchestrator {
     return this.agentOutcomes.some((outcome) =>
       outcome.agent === 'planner'
       && outcome.source === 'fallback'
-      && (outcome.errorMessage?.includes('health.supervision') ?? false));
+      && ((outcome.errorMessage?.toLowerCase().includes('health.supervision')) ?? false));
+  }
+
+  private isHealthSupervisionWarningActive(): boolean {
+    if (!this.isHighRiskHealthGoal()) {
+      return false;
+    }
+
+    return this.hasHealthSupervisionFailureSignal()
+      || !this.hasEffectiveHealthSafetyCoverage();
+  }
+
+  private buildHealthSupervisionWarningMessage(phase: OrchestratorPhase = this.state.phase): string {
+    const phaseLabel = PHASE_LABELS_ES[phase] || phase;
+    return `[Etapa: ${phaseLabel}] Este plan toca un objetivo de salud sensible. Usalo como guia inicial y con seguimiento profesional o supervision clinica antes de empujar cambios fuertes.`;
+  }
+
+  private isLegacyHealthSupervisionWarning(value: string): boolean {
+    const normalized = value.toLowerCase();
+    return normalized.includes('meta de salud de alto riesgo')
+      && (normalized.includes('supervisi') || normalized.includes('seguimiento med'));
   }
 
   private getSafetyVerificationGate(): {
@@ -2871,10 +2899,7 @@ export class PlanOrchestrator {
       };
     }
 
-    const missingEffectiveSupervision = this.hasHealthSupervisionFailureSignal()
-      || !this.hasEffectiveHealthSafetyCoverage();
-
-    if (!missingEffectiveSupervision) {
+    if (!this.isHealthSupervisionWarningActive()) {
       return {
         publicationState: 'ready',
         failureCode: null,
@@ -2882,13 +2907,10 @@ export class PlanOrchestrator {
       };
     }
 
-    const phaseLabel = PHASE_LABELS_ES[this.state.phase] || this.state.phase;
-
     return {
-      publicationState: 'blocked',
-      failureCode: 'requires_supervision',
+      publicationState: 'ready',
+      failureCode: null,
       blockingAgents: [],
-      customMessage: `[Etapa: ${phaseLabel}] No se puede publicar este plan porque es un objetivo de salud de alto riesgo y falta una referencia clara a supervision profesional.`,
     };
   }
 
@@ -2975,8 +2997,8 @@ export class PlanOrchestrator {
 
     if (this.context.finalPackage?.publicationState === 'requires_supervision') {
       return {
-        publicationState: 'blocked',
-        failureCode: 'requires_supervision',
+        publicationState: 'ready',
+        failureCode: null,
         blockingAgents: [],
       };
     }
@@ -3013,19 +3035,18 @@ export class PlanOrchestrator {
     existingWarnings: string[],
     publicationState: 'ready' | 'blocked' | 'failed',
   ): string[] {
-    const warnings = new Set(existingWarnings);
+    const healthSupervisionWarningActive = this.isHealthSupervisionWarningActive();
+    const warnings = new Set(
+      healthSupervisionWarningActive
+        ? existingWarnings.filter((warning) => !this.isLegacyHealthSupervisionWarning(warning))
+        : existingWarnings,
+    );
+    if (healthSupervisionWarningActive) {
+      warnings.add(this.buildHealthSupervisionWarningMessage());
+    }
+
     if (publicationState === 'blocked') {
-      if (
-        this.isHighRiskHealthGoal()
-        && (
-          this.hasHealthSupervisionFailureSignal()
-          || !this.hasEffectiveHealthSafetyCoverage()
-        )
-      ) {
-        warnings.add(
-          'No se puede publicar este plan de salud sin una referencia clara a seguimiento profesional o supervision clinica.',
-        );
-      } else if (this.getBlockingOutcomes().length > 0) {
+      if (this.getBlockingOutcomes().length > 0) {
         warnings.add(
           'No se puede publicar este plan: la revision critica fallo y hace falta regenerarlo con un proveedor que responda bien.',
         );
@@ -3231,6 +3252,10 @@ export class PlanOrchestrator {
     const currentPhase = (this.context as any).safetyBlockPhase || this.state.phase;
     const phaseLabel = PHASE_LABELS_ES[currentPhase] || currentPhase;
     const stagePrefix = `[Etapa: ${phaseLabel}]`;
+    const healthSupervisionWarningActive = this.isHealthSupervisionWarningActive();
+    const healthSupervisionWarningMessage = healthSupervisionWarningActive
+      ? this.buildHealthSupervisionWarningMessage(currentPhase)
+      : null;
 
     const gateQualityIssues = publicationGate.failureCode === 'requires_regeneration'
       ? [{
@@ -3264,6 +3289,16 @@ export class PlanOrchestrator {
             },
           ]
           : [];
+    const healthSupervisionQualityIssues = healthSupervisionWarningMessage
+      ? [{
+        code: 'HEALTH_SAFETY_SUPERVISION_MISSING',
+        severity: 'warning' as const,
+        message: healthSupervisionWarningMessage,
+      }]
+      : [];
+    const normalizedFinalPackageQualityIssues = (this.context.finalPackage?.qualityIssues ?? []).filter((issue) =>
+      !healthSupervisionWarningActive
+      || (issue.code !== 'health_safety_gap' && issue.code !== 'HEALTH_SAFETY_SUPERVISION_MISSING'));
     const bestEffortPublication = publicationGate.publicationState === 'ready'
       && this.context.criticReport
       && this.context.criticReport.verdict !== 'approve'
@@ -3291,12 +3326,15 @@ export class PlanOrchestrator {
         ),
         publicationState: packagePublicationState,
         qualityIssues: [
-          ...(this.context.finalPackage.qualityIssues ?? []),
+          ...normalizedFinalPackageQualityIssues,
           ...gateQualityIssues.filter((issue) =>
-            !(this.context.finalPackage?.qualityIssues ?? []).some((existing) => existing.code === issue.code),
+            !normalizedFinalPackageQualityIssues.some((existing) => existing.code === issue.code),
+          ),
+          ...healthSupervisionQualityIssues.filter((issue) =>
+            !normalizedFinalPackageQualityIssues.some((existing) => existing.code === issue.code),
           ),
           ...bestEffortQualityIssues.filter((issue) =>
-            !(this.context.finalPackage?.qualityIssues ?? []).some((existing) => existing.code === issue.code),
+            !normalizedFinalPackageQualityIssues.some((existing) => existing.code === issue.code),
           ),
         ],
         agentOutcomes: [...this.agentOutcomes],

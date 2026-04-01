@@ -21,7 +21,7 @@ function renderTopTab(tab: WorkspaceTopTab, mobile = false) {
     mobile
       ? 'inline-flex whitespace-nowrap pb-2 text-[10px] tracking-[0.18em]'
       : 'pb-2 text-[11px] tracking-[0.22em]',
-    tab.active ? 'border-[#1E293B] text-[#334155]' : 'text-slate-400 hover:text-slate-600'
+    tab.active ? 'border-[#0f766e] text-[#1f2937]' : 'text-slate-400 hover:text-slate-600'
   )
 
   if (tab.href) {
@@ -60,10 +60,10 @@ export function WorkspaceOrchestrator<K extends keyof import('./types').Workspac
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative min-h-screen overflow-hidden bg-[#FAFAF9] text-[#334155]">
+      <div className="relative min-h-screen overflow-hidden bg-transparent text-[#334155]">
         <div className="pointer-events-none fixed inset-0">
-          <div className="absolute right-0 top-0 h-[520px] w-[520px] rounded-full bg-[#E9D5FF]/25 blur-3xl" />
-          <div className="absolute bottom-0 left-0 h-[520px] w-[520px] rounded-full bg-[#A7F3D0]/25 blur-3xl" />
+          <div className="absolute right-0 top-0 h-[520px] w-[520px] rounded-full bg-[#C8B6FF]/18 blur-3xl" />
+          <div className="absolute bottom-0 left-0 h-[520px] w-[520px] rounded-full bg-[#A7F3D0]/16 blur-3xl" />
         </div>
 
         {isMobileNavOpen ? (
@@ -89,7 +89,7 @@ export function WorkspaceOrchestrator<K extends keyof import('./types').Workspac
         <main className="relative z-10 min-h-screen lg:pl-64">
           <header
             className={cn(
-              'sticky top-0 z-20 border-b border-white/70 bg-white/80 backdrop-blur-xl',
+              'sticky top-0 z-20 border-b border-white/70 bg-[rgba(255,253,249,0.82)] backdrop-blur-xl',
               hasHeaderContent ? '' : 'lg:hidden'
             )}
           >
@@ -100,14 +100,14 @@ export function WorkspaceOrchestrator<K extends keyof import('./types').Workspac
                   aria-controls="workspace-nav"
                   aria-expanded={isMobileNavOpen}
                   aria-label={currentSectionLabel}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-slate-600 shadow-[0_12px_30px_-18px_rgba(0,0,0,0.3)] transition hover:text-slate-900 lg:hidden"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-slate-600 shadow-[0_12px_30px_-18px_rgba(17,24,39,0.18)] transition hover:text-slate-900 lg:hidden"
                   onClick={() => setIsMobileNavOpen(true)}
                 >
                   <MaterialIcon name="menu" className="text-[20px]" />
                 </button>
 
                 <div className="min-w-0 lg:hidden">
-                  <p className="truncate font-display text-[14px] font-bold tracking-tight text-[#334155]">{currentSectionLabel}</p>
+                  <p className="truncate font-display text-[14px] font-bold tracking-tight text-[#1f2937]">{currentSectionLabel}</p>
                   <p className="truncate font-display text-[10px] uppercase tracking-[0.22em] text-slate-400">{sidebarLabel}</p>
                 </div>
 

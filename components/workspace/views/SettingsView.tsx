@@ -120,9 +120,10 @@ export default function SettingsView({
   )
 
   return (
-    <div className="mx-auto w-full max-w-[900px] py-4">
+    <div className="mx-auto w-full max-w-[980px] py-4">
       <header className="mb-12 text-center">
-        <h1 className="font-display text-[36px] font-bold tracking-tight text-[#1E293B]">
+        <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Sistema</span>
+        <h1 className="mt-3 font-display text-[36px] font-bold tracking-tight text-[#1f2937]">
           Configuraci&oacute;n de Recursos
         </h1>
         <p className="mx-auto mt-4 max-w-lg text-[16px] leading-[1.6] text-slate-500">
@@ -134,11 +135,11 @@ export default function SettingsView({
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12 overflow-hidden rounded-[32px] border border-[#A7F3D0]/40 bg-[#A7F3D0]/20 p-1"
+          className="mb-12 overflow-hidden rounded-[36px] border border-[#0f766e]/15 bg-[rgba(15,118,110,0.08)] p-1 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.16)] backdrop-blur-2xl"
         >
           <div className="flex flex-col items-center justify-between gap-6 px-10 py-8 md:flex-row">
             <div className="flex items-center gap-6">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1E293B] text-[#A7F3D0] shadow-xl shadow-emerald-200/50">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1f2937] text-[#A7F3D0] shadow-xl shadow-emerald-200/30">
                 <MaterialIcon name="auto_awesome" className="text-[28px]" />
               </div>
               <div className="text-left">
@@ -150,7 +151,7 @@ export default function SettingsView({
             </div>
             <Link
               href="/intake"
-              className="inline-flex h-14 items-center justify-center gap-3 rounded-[20px] bg-[#1E293B] px-8 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-900/10 transition-transform hover:-translate-y-0.5 active:translate-y-0"
+              className="inline-flex h-14 items-center justify-center gap-3 rounded-[20px] bg-[#1f2937] px-8 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-900/10 transition-transform hover:-translate-y-0.5 active:translate-y-0"
             >
               <span>Comenzar mi primer plan</span>
               <MaterialIcon name="arrow_forward" className="text-[20px]" />
@@ -163,22 +164,22 @@ export default function SettingsView({
         <button
           type="button"
           onClick={() => setMode('wallet')}
-          className={`group relative overflow-hidden rounded-[32px] border-2 p-8 text-left transition-all duration-300 ${
+          className={`group relative overflow-hidden rounded-[36px] border-2 p-8 text-left transition-all duration-300 ${
             mode === 'wallet'
-              ? 'border-[#A7F3D0] bg-white shadow-xl shadow-slate-200/50'
-              : 'border-transparent bg-slate-50 hover:bg-white hover:shadow-lg'
+              ? 'border-[#0f766e]/20 bg-[rgba(255,253,249,0.96)] shadow-xl shadow-slate-200/40'
+              : 'border-transparent bg-[rgba(255,253,249,0.72)] hover:bg-[rgba(255,253,249,0.92)] hover:shadow-lg'
           }`}
         >
           {mode === 'wallet' ? (
-            <motion.div layoutId="active-bg" className="absolute inset-0 z-0 bg-gradient-to-br from-[#A7F3D0]/10 to-transparent" />
+            <motion.div layoutId="active-bg" className="absolute inset-0 z-0 bg-gradient-to-br from-[#A7F3D0]/12 to-transparent" />
           ) : null}
           <div className="relative z-10">
             <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-[20px] transition-colors ${
-              mode === 'wallet' ? 'bg-[#1E293B] text-[#A7F3D0]' : 'bg-slate-200 text-slate-500'
+              mode === 'wallet' ? 'bg-[#1f2937] text-[#A7F3D0]' : 'bg-slate-200 text-slate-500'
             }`}>
               <MaterialIcon name="account_balance_wallet" className="text-[24px]" />
             </div>
-            <h3 className="font-display text-[20px] font-bold text-[#1E293B]">Billetera LAP</h3>
+            <h3 className="font-display text-[20px] font-bold text-[#1f2937]">Billetera LAP</h3>
             <p className="mt-2 text-[14px] leading-relaxed text-slate-500">
               Paga con Sats v&iacute;a Lightning (NWC). La opci&oacute;n privada, r&aacute;pida y sin llaves API externas.
             </p>
@@ -195,10 +196,10 @@ export default function SettingsView({
         <button
           type="button"
           onClick={() => setMode('api')}
-          className={`group relative overflow-hidden rounded-[32px] border-2 p-8 text-left transition-all duration-300 ${
+          className={`group relative overflow-hidden rounded-[36px] border-2 p-8 text-left transition-all duration-300 ${
             mode === 'api'
-              ? 'border-[#334155]/20 bg-white shadow-xl shadow-slate-200/50'
-              : 'border-transparent bg-slate-50 hover:bg-white hover:shadow-lg'
+              ? 'border-[#334155]/20 bg-[rgba(255,253,249,0.96)] shadow-xl shadow-slate-200/40'
+              : 'border-transparent bg-[rgba(255,253,249,0.72)] hover:bg-[rgba(255,253,249,0.92)] hover:shadow-lg'
           }`}
         >
           {mode === 'api' ? (
@@ -206,11 +207,11 @@ export default function SettingsView({
           ) : null}
           <div className="relative z-10">
             <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-[20px] transition-colors ${
-              mode === 'api' ? 'bg-[#1E293B] text-white' : 'bg-slate-200 text-slate-500'
+              mode === 'api' ? 'bg-[#1f2937] text-white' : 'bg-slate-200 text-slate-500'
             }`}>
               <MaterialIcon name="key" className="text-[24px]" />
             </div>
-            <h3 className="font-display text-[20px] font-bold text-[#1E293B]">Llave API Propia</h3>
+            <h3 className="font-display text-[20px] font-bold text-[#1f2937]">Llave API Propia</h3>
             <p className="mt-2 text-[14px] leading-relaxed text-slate-500">
               Usa tu propia cuenta de OpenAI o OpenRouter. Ideal si ya ten&eacute;s cr&eacute;ditos o suscripciones.
             </p>
@@ -230,15 +231,15 @@ export default function SettingsView({
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            className="rounded-[40px] bg-white p-10 shadow-2xl shadow-slate-200/40"
+            className="rounded-[40px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] p-10 shadow-[0_26px_58px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl"
           >
             <div className="grid gap-12 lg:grid-cols-2">
               <div className="space-y-8">
                 <div>
                   <h4 className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-slate-400">Estado Actual</h4>
-                  <div className="rounded-[24px] border border-slate-100 bg-[#FAFAF9] p-6">
-                    <div className="mb-4 flex items-center justify-between">
-                      <span className={`h-3 w-3 rounded-full ${wallet?.connected ? 'bg-[#A7F3D0]' : 'bg-slate-300'}`} />
+                    <div className="rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.96)] p-6">
+                      <div className="mb-4 flex items-center justify-between">
+                        <span className={`h-3 w-3 rounded-full ${wallet?.connected ? 'bg-[#A7F3D0]' : 'bg-slate-300'}`} />
                       <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
                         {wallet?.connected ? 'Conectada' : 'No enlazada'}
                       </span>
@@ -252,8 +253,8 @@ export default function SettingsView({
 
                 <div className="flex items-center gap-4 rounded-[20px] bg-[#E9D5FF]/20 p-4 text-[13px] text-[#4C1D95]">
                   <MaterialIcon name="bolt" className="text-[20px]" />
-                  <p>Usa NWC para una conexi&oacute;n segura sin ceder el control de tus fondos.</p>
-                </div>
+                    <p>Usa NWC para una conexi&oacute;n segura sin ceder el control de tus fondos.</p>
+                  </div>
               </div>
 
               <div className="space-y-6">
@@ -264,7 +265,7 @@ export default function SettingsView({
                     placeholder="nwc://..."
                     value={relayUrl}
                     onChange={(event) => setRelayUrl(event.target.value)}
-                    className="h-16 w-full rounded-[20px] bg-[#FAFAF9] px-6 text-[15px] outline-none transition-all focus:ring-2 focus:ring-[#A7F3D0]"
+                      className="h-16 w-full rounded-[20px] bg-[rgba(255,252,247,0.96)] px-6 text-[15px] outline-none transition-all focus:ring-2 focus:ring-[#0f766e]/10"
                   />
                   <MaterialIcon name="link" className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300" />
                 </div>
@@ -273,7 +274,7 @@ export default function SettingsView({
                     type="button"
                     onClick={() => void handleWalletConnect()}
                     disabled={walletStatus === 'connecting' || !relayUrl}
-                    className="flex h-14 flex-1 items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] font-bold text-white transition-transform hover:-translate-y-0.5 disabled:opacity-50"
+                    className="flex h-14 flex-1 items-center justify-center gap-2 rounded-[18px] bg-[#1f2937] font-bold text-white transition-transform hover:-translate-y-0.5 disabled:opacity-50"
                   >
                     <span>{walletStatus === 'connecting' ? 'Enlazando...' : 'Enlazar Billetera'}</span>
                     <MaterialIcon name="arrow_forward" className="text-[18px]" />
@@ -299,7 +300,7 @@ export default function SettingsView({
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            className="rounded-[40px] bg-white p-10 shadow-2xl shadow-slate-200/40"
+            className="rounded-[40px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] p-10 shadow-[0_26px_58px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl"
           >
             <div className="mb-10 flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-slate-100">
@@ -316,7 +317,7 @@ export default function SettingsView({
                 <label className="block space-y-3">
                   <span className="ml-1 text-[11px] font-bold uppercase tracking-[0.3em] text-slate-400">Proveedor</span>
                   <div className="relative">
-                    <div className="flex h-16 items-center justify-between rounded-[20px] bg-[#FAFAF9] px-6 text-slate-500">
+                    <div className="flex h-16 items-center justify-between rounded-[20px] bg-[rgba(255,252,247,0.96)] px-6 text-slate-500">
                       <span>OpenAI</span>
                       <MaterialIcon name="expand_more" />
                     </div>
@@ -330,7 +331,7 @@ export default function SettingsView({
                       placeholder={apiConfigured ? '•••••••••••••••• (Activa)' : 'sk-...'}
                       value={apiKey}
                       onChange={(event) => setApiKey(event.target.value)}
-                      className="h-16 w-full rounded-[20px] bg-[#FAFAF9] px-6 text-[15px] outline-none transition-all focus:ring-2 focus:ring-slate-200"
+                      className="h-16 w-full rounded-[20px] bg-[rgba(255,252,247,0.96)] px-6 text-[15px] outline-none transition-all focus:ring-2 focus:ring-[#0f766e]/10"
                     />
                   </div>
                 </label>
@@ -343,7 +344,7 @@ export default function SettingsView({
                   type="button"
                   onClick={() => void handleApiSave()}
                   disabled={apiStatus === 'saving' || (!apiKey && !apiConfigured)}
-                  className="flex h-16 items-center justify-center gap-3 rounded-[20px] bg-[#1E293B] text-[16px] font-bold text-white shadow-lg shadow-slate-200 transition-transform hover:-translate-y-0.5 disabled:opacity-50"
+                  className="flex h-16 items-center justify-center gap-3 rounded-[20px] bg-[#1f2937] text-[16px] font-bold text-white shadow-lg shadow-slate-200 transition-transform hover:-translate-y-0.5 disabled:opacity-50"
                 >
                   <span>{apiStatus === 'saving' ? 'Guardando...' : 'Guardar Configuraci&oacute;n'}</span>
                   <MaterialIcon name="save" className="text-[20px]" />

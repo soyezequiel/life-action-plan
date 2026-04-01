@@ -13,12 +13,14 @@
   display: grid;
   gap: 1.15rem;
   min-height: calc(100vh - 2.5rem);
-  padding: 1.15rem;
-  border-radius: 32px;
-  border: 1px solid var(--border-soft);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(244, 247, 244, 0.88));
-  box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(18px);
+  padding: 1.2rem;
+  border-radius: 36px;
+  border: 1px solid rgba(31, 41, 55, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(248, 244, 236, 0.88)),
+    rgba(255, 255, 255, 0.86);
+  box-shadow: 0 26px 58px -24px rgba(17, 24, 39, 0.18);
+  backdrop-filter: blur(22px);
 }
 
 .brandLockup {
@@ -74,12 +76,12 @@
 .navItem:hover {
   transform: translateX(2px);
   color: var(--text-primary);
-  background: rgba(30, 41, 59, 0.04);
+  background: rgba(15, 118, 110, 0.06);
 }
 
 .navItemActive {
   color: var(--text-primary);
-  background: rgba(20, 184, 166, 0.12);
+  background: rgba(15, 118, 110, 0.12);
 }
 
 .sidebarFooter {
@@ -108,12 +110,13 @@
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-end;
-  padding: 1rem 1.15rem;
-  border-radius: 28px;
-  border: 1px solid var(--border-soft);
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(18px);
+  padding: 1.15rem 1.25rem;
+  border-radius: 30px;
+  border: 1px solid rgba(31, 41, 55, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 249, 0.9), rgba(255, 250, 243, 0.8));
+  box-shadow: 0 22px 46px -24px rgba(17, 24, 39, 0.16);
+  backdrop-filter: blur(20px);
 }
 
 .topbarCopy {
@@ -132,7 +135,8 @@
 .title {
   margin: 0;
   font-size: clamp(1.8rem, 3vw, 2.45rem);
-  line-height: 1;
+  line-height: 0.96;
+  letter-spacing: -0.05em;
 }
 
 .copy {

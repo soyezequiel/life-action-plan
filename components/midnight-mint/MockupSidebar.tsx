@@ -44,8 +44,8 @@ export function MockupSidebar({
             ? 'px-4 py-2.5 text-[11px] uppercase tracking-[0.22em]'
             : 'px-4 py-3.5 text-[15px]',
           item.active
-            ? 'bg-white text-slate-900 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]'
-            : 'text-slate-500 hover:bg-white/70 hover:text-slate-800'
+            ? 'bg-white text-slate-900 shadow-[0_18px_36px_-18px_rgba(17,24,39,0.18)]'
+            : 'text-slate-500 hover:bg-white/80 hover:text-slate-800'
         )}
       >
         <MaterialIcon
@@ -86,18 +86,18 @@ export function MockupSidebar({
     <aside
       id={id}
       className={cn(
-        'fixed inset-y-0 left-0 z-40 flex h-[100dvh] w-[18rem] max-w-[88vw] flex-col border-r border-slate-200/40 bg-[#F8FAFC]/92 px-4 py-4 backdrop-blur-xl transition-transform duration-300 ease-out lg:w-64 lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-40 flex h-[100dvh] w-[18rem] max-w-[88vw] flex-col border-r border-slate-200/50 bg-[linear-gradient(180deg,rgba(255,253,249,0.96),rgba(247,241,232,0.92))] px-4 py-4 backdrop-blur-2xl transition-transform duration-300 ease-out lg:w-64 lg:translate-x-0',
         isMobileNavOpen ? 'translate-x-0' : '-translate-x-full'
       )}
     >
       <div className="mb-6 flex items-center justify-between gap-3 px-2 pt-1">
         <div className="flex min-w-0 items-center gap-3">
           <PulsoLogoAnimated variant="mark" size={40} speed={4} glow={false} ariaLabel={t('app.name')} />
-          <div className="min-w-0">
-            <p className="truncate font-display text-xl font-bold tracking-tight text-[#334155]">{t('app.name')}</p>
-            {sidebarLabel ? (
-              <p className="truncate font-display text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">{sidebarLabel}</p>
-            ) : null}
+        <div className="min-w-0">
+          <p className="truncate font-display text-xl font-bold tracking-tight text-[#1f2937]">{t('app.name')}</p>
+          {sidebarLabel ? (
+            <p className="truncate font-display text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">{sidebarLabel}</p>
+          ) : null}
           </div>
         </div>
 
@@ -112,7 +112,7 @@ export function MockupSidebar({
       </div>
 
       {userName || userEmail ? (
-        <div className="mb-6 flex items-center gap-3 rounded-[22px] border border-white/40 bg-white/60 p-3 shadow-sm backdrop-blur-sm">
+        <div className="mb-6 flex items-center gap-3 rounded-[22px] border border-white/60 bg-white/70 p-3 shadow-[0_18px_36px_-24px_rgba(17,24,39,0.18)] backdrop-blur-sm">
           {userImage ? (
             <img src={userImage} alt="" className="h-10 w-10 rounded-full border border-slate-200" />
           ) : (
@@ -135,7 +135,7 @@ export function MockupSidebar({
         <Link
           href={primaryAction.href ?? '#'}
           onClick={onCloseMobileNav}
-          className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-[18px] bg-[#1E293B] px-5 font-display text-[13px] font-bold text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
+          className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-[18px] bg-[#1f2937] px-5 font-display text-[13px] font-bold text-white shadow-[0_20px_40px_-10px_rgba(17,24,39,0.2)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
         >
           <span>{primaryAction.label}</span>
           {primaryAction.icon ? <MaterialIcon name={primaryAction.icon} className="text-[18px]" /> : null}

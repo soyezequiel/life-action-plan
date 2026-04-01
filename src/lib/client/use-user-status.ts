@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useLapClient } from './app-services'
 import { useSession } from 'next-auth/react'
+import { LOCAL_PROFILE_ID_STORAGE_KEY } from './storage-keys'
 
 export type OnboardingStep = 'LOADING' | 'SETUP' | 'PLAN' | 'READY'
 
@@ -15,6 +16,15 @@ export interface UserStatus {
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
+}
+
+function readStoredProfileId(): string | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const storedValue = window.localStorage.getItem(LOCAL_PROFILE_ID_STORAGE_KEY)?.trim() || ''
+  return storedValue || null
 }
 
 export function useUserStatus(): UserStatus {
@@ -35,30 +45,69 @@ export function useUserStatus(): UserStatus {
 
     try {
       setLoading(true)
-      
-      // 1. Check Wallet & API Key (Parallel)
-      const [walletStatus, openaiStatus, openrouterStatus] = await Promise.all([
+      const configChecks = await Promise.allSettled([
         lapClient.wallet.status(),
         lapClient.settings.apiKeyStatus('openai'),
         lapClient.settings.apiKeyStatus('openrouter')
       ])
 
-      const configuredWallet = walletStatus.configured
-      const configuredApi = openaiStatus.configured || openrouterStatus.configured
-      
-      setHasWallet(configuredWallet)
-      setHasApiKey(configuredApi)
+      const [walletStatus, openaiStatus, openrouterStatus] = configChecks
+      const refreshErrors: string[] = []
 
-      // 2. Check Plan
-      const latestProfileId = await lapClient.profile.latest()
-      if (latestProfileId) {
-        const plans = await lapClient.plan.list(latestProfileId)
-        setHasPlan(plans.length > 0)
+      if (walletStatus.status === 'fulfilled') {
+        setHasWallet(walletStatus.value.configured)
       } else {
-        setHasPlan(false)
+        console.error('Failed to fetch wallet status:', walletStatus.reason)
+        refreshErrors.push(walletStatus.reason instanceof Error ? walletStatus.reason.message : 'wallet_status_failed')
       }
 
-      setError(null)
+      const apiStatuses = [openaiStatus, openrouterStatus].filter((result) => result.status === 'fulfilled')
+      if (apiStatuses.length > 0) {
+        setHasApiKey(apiStatuses.some((result) => result.value.configured))
+      } else {
+        console.error('Failed to fetch API key status:', {
+          openai: openaiStatus.status === 'rejected' ? openaiStatus.reason : null,
+          openrouter: openrouterStatus.status === 'rejected' ? openrouterStatus.reason : null
+        })
+        const apiFailure = openaiStatus.status === 'rejected'
+          ? openaiStatus.reason
+          : openrouterStatus.status === 'rejected'
+            ? openrouterStatus.reason
+            : null
+        refreshErrors.push(apiFailure instanceof Error ? apiFailure.message : 'api_key_status_failed')
+      }
+
+      let latestProfileId: string | null = null
+
+      try {
+        latestProfileId = await lapClient.profile.latest()
+      } catch (err) {
+        console.error('Failed to resolve latest profile id:', err)
+        refreshErrors.push(err instanceof Error ? err.message : 'latest_profile_failed')
+      }
+
+      const candidateProfileIds = Array.from(new Set([
+        latestProfileId,
+        readStoredProfileId(),
+      ].filter((value): value is string => Boolean(value))))
+
+      let nextHasPlan = false
+
+      for (const profileId of candidateProfileIds) {
+        try {
+          const plans = await lapClient.plan.list(profileId)
+          if (plans.length > 0) {
+            nextHasPlan = true
+            break
+          }
+        } catch (err) {
+          console.error(`Failed to fetch plans for profile ${profileId}:`, err)
+          refreshErrors.push(err instanceof Error ? err.message : 'plan_list_failed')
+        }
+      }
+
+      setHasPlan(nextHasPlan)
+      setError(refreshErrors[0] ?? null)
     } catch (err) {
       console.error('Failed to fetch user status:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')

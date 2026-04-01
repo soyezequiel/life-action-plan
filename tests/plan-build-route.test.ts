@@ -91,7 +91,13 @@ vi.mock('../src/lib/pipeline/v6/session-snapshot', () => ({
 
 vi.mock('../src/lib/pipeline/v6/orchestrator', () => ({
   PlanOrchestrator: class {
-    constructor(_config: unknown, _runtime: unknown, _runtimeLabel?: string, debugListener?: (event: unknown) => void) {
+    constructor(
+      _config: unknown,
+      _brainRuntime: unknown,
+      _fastRuntime: unknown,
+      _runtimeLabel?: string,
+      debugListener?: (event: unknown) => void,
+    ) {
       mocks.setDebugListenerMock(debugListener ?? null)
     }
     run = mocks.runMock
@@ -334,7 +340,7 @@ describe('plan build route failure surfacing', () => {
       type: 'v6:blocked',
       data: expect.objectContaining({
         failureCode: 'failed_for_quality_review',
-        message: expect.stringContaining('revision final'),
+        message: 'Faltan hitos concretos para cerrar el plan.',
         blockingAgents: expect.arrayContaining([
           expect.objectContaining({
             agent: 'critic',
@@ -373,6 +379,137 @@ describe('plan build route failure surfacing', () => {
         failureCode: 'failed_for_quality_review',
       }))
     }
+  })
+
+  it('persists the plan when health supervision is only a warning', async () => {
+    mocks.runMock.mockResolvedValueOnce({
+      status: 'completed',
+      package: {
+        plan: {
+          goalIds: ['goal-salud'],
+          timezone: 'UTC',
+          createdAt: '2026-03-30T00:00:00.000Z',
+          updatedAt: '2026-03-30T00:00:00.000Z',
+          skeleton: {
+            horizonWeeks: 12,
+            goalIds: ['goal-salud'],
+            phases: [],
+            milestones: [],
+          },
+          detail: {
+            horizonWeeks: 2,
+            startDate: '2026-03-30',
+            endDate: '2026-04-12',
+            scheduledEvents: [],
+            weeks: [],
+          },
+          operational: {
+            horizonDays: 7,
+            startDate: '2026-03-30',
+            endDate: '2026-04-05',
+            frozen: true,
+            scheduledEvents: [],
+            buffers: [],
+            days: [],
+            totalBufferMin: 0,
+          },
+        },
+        items: [],
+        habitStates: [],
+        slackPolicy: {
+          weeklyTimeBufferMin: 120,
+          maxChurnMovesPerWeek: 3,
+          frozenHorizonDays: 2,
+        },
+        timezone: 'UTC',
+        summary_esAR: 'Plan listo con advertencia de salud.',
+        qualityScore: 78,
+        implementationIntentions: [],
+        warnings: [
+          '[Etapa: Listo] Este plan toca un objetivo de salud sensible. Usalo como guia inicial y con seguimiento profesional o supervision clinica antes de empujar cambios fuertes.',
+        ],
+        tradeoffs: [],
+        publicationState: 'publishable',
+        qualityIssues: [
+          {
+            code: 'HEALTH_SAFETY_SUPERVISION_MISSING',
+            severity: 'warning',
+            message: '[Etapa: Listo] Este plan toca un objetivo de salud sensible. Usalo como guia inicial y con seguimiento profesional o supervision clinica antes de empujar cambios fuertes.',
+          },
+        ],
+        requestDomain: 'salud',
+        packageDomain: 'salud',
+        intakeCoverage: {
+          requiredSignals: ['health_supervision'],
+          missingSignals: ['health_supervision'],
+          signalUsage: [],
+        },
+        agentOutcomes: [
+          {
+            agent: 'planner',
+            phase: 'plan',
+            source: 'fallback',
+            errorCode: 'Error',
+            errorMessage: 'Planner output failed validation: check "health.supervision" did not pass. Fallback strategy was used.',
+            durationMs: 21,
+          },
+        ],
+        degraded: false,
+      },
+      pendingQuestions: null,
+      scratchpad: [],
+      tokensUsed: 10,
+      iterations: 3,
+      agentOutcomes: [
+        {
+          agent: 'planner',
+          phase: 'plan',
+          source: 'fallback',
+          errorCode: 'Error',
+          errorMessage: 'Planner output failed validation: check "health.supervision" did not pass. Fallback strategy was used.',
+          durationMs: 21,
+        },
+      ],
+      degraded: false,
+      publicationState: 'ready',
+      failureCode: null,
+      blockingAgents: [],
+    })
+
+    const response = await POST(new Request('http://localhost/api/plan/build', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        goalText: 'Quiero bajar 50kg en 12 meses',
+        profileId: 'c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        provider: 'openai:gpt-5-codex',
+        resourceMode: 'codex',
+      }),
+    }))
+
+    const payloads = extractSsePayloads(await response.text())
+    const completePayload = payloads.find((payload) => payload.type === 'v6:complete')
+
+    expect(payloads.some((payload) => payload.type === 'v6:blocked')).toBe(false)
+    expect(mocks.persistPlanFromV5PackageMock).toHaveBeenCalledTimes(1)
+    expect(mocks.persistPlanFromV5PackageMock).toHaveBeenCalledWith(expect.objectContaining({
+      goalText: 'Quiero bajar 50kg en 12 meses',
+      package: expect.objectContaining({
+        publicationState: 'publishable',
+        warnings: expect.arrayContaining([
+          expect.stringContaining('seguimiento profesional o supervision clinica'),
+        ]),
+      }),
+    }))
+    expect(completePayload).toEqual(expect.objectContaining({
+      type: 'v6:complete',
+      data: expect.objectContaining({
+        planId: 'persisted-debug-plan',
+        score: 78,
+      }),
+    }))
   })
 
   it('returns explicit provider diagnostics when the provider cannot execute', async () => {

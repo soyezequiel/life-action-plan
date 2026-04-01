@@ -1,17 +1,17 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
-import { Geist_Mono, Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google'
+import { Geist_Mono, Manrope, Fraunces } from 'next/font/google'
 import ClientProviders from '../src/lib/client/providers'
 import esAR from '../src/i18n/locales/es-AR.json'
 import './globals.css'
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const manrope = Manrope({
   subsets: ['latin'],
   variable: '--font-ui',
   display: 'swap'
 })
 
-const spaceGrotesk = Space_Grotesk({
+const fraunces = Fraunces({
   subsets: ['latin'],
   variable: '--font-display',
   display: 'swap'
@@ -45,7 +45,7 @@ export default function RootLayout({
   children: ReactNode
 }>) {
   return (
-    <html lang="es-AR" className={`${plusJakartaSans.variable} ${spaceGrotesk.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html lang="es-AR" className={`${manrope.variable} ${fraunces.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

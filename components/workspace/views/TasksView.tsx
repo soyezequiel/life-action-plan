@@ -74,7 +74,10 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-8">
           <header>
-            <h1 className="font-display text-[32px] font-bold tracking-tight text-[#334155]">
+            <p className="font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
+              {t('mockups.flow.tasks.eyebrow')}
+            </p>
+            <h1 className="mt-2 font-display text-[32px] font-bold tracking-tight text-[#1f2937]">
               {t('mockups.flow.tasks.title')}
             </h1>
             <p className="mt-3 max-w-3xl text-[16px] leading-7 text-slate-500">
@@ -82,10 +85,10 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
             </p>
           </header>
 
-          <section className="rounded-[24px] bg-white p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-8 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1E293B] text-white">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1f2937] text-white">
                   <MaterialIcon name="flash_on" className="text-[20px]" />
                 </div>
                 <h2 className="font-display text-[18px] font-bold text-[#334155]">
@@ -103,7 +106,7 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
               ) : null}
 
               {!loading ? tasks.slice(0, 5).map((task, index) => (
-                <article key={task.id} className="rounded-[22px] bg-white p-5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+                <article key={task.id} className="rounded-[22px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] p-5 shadow-[0_20px_40px_-24px_rgba(17,24,39,0.16)] backdrop-blur-2xl">
                   <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-[0.22em]">
                     <div className="flex gap-2">
                       {index === 0 ? (
@@ -119,7 +122,7 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
                     <span className="text-slate-400">{task.completado ? '100%' : '0%'}</span>
                   </div>
 
-                  <h3 className="mt-3 text-[18px] font-semibold text-[#334155]">{task.descripcion}</h3>
+                  <h3 className="mt-3 text-[18px] font-semibold text-[#1f2937]">{task.descripcion}</h3>
 
                   <div className="mt-5 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-[13px] text-slate-400">
@@ -132,7 +135,7 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
                       onClick={() => void handleToggle(task.id)}
                       disabled={togglingId === task.id}
                       className={`inline-flex h-11 items-center gap-2 rounded-full px-4 text-[11px] font-bold uppercase tracking-[0.22em] text-white transition ${
-                        task.completado ? 'bg-[#166534]' : 'bg-[#1E293B]'
+                        task.completado ? 'bg-[#166534]' : 'bg-[#1f2937]'
                       } ${togglingId === task.id ? 'opacity-50' : ''}`}
                     >
                       {task.completado ? 'Completado' : t('mockups.flow.tasks.begin')}
@@ -145,8 +148,8 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
 
           <section>
             <div className="mb-4 flex items-center gap-3">
-              <MaterialIcon name="waves" className="text-[20px] text-[#A7F3D0]" />
-              <h2 className="font-display text-[22px] font-bold text-[#334155]">
+              <MaterialIcon name="waves" className="text-[20px] text-[#0f766e]" />
+              <h2 className="font-display text-[22px] font-bold text-[#1f2937]">
                 {t('mockups.flow.tasks.fluid_title')}
               </h2>
             </div>
@@ -155,16 +158,16 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
                 [t('mockups.flow.tasks.fluid_1_title'), t('mockups.flow.tasks.fluid_1_tag')],
                 [t('mockups.flow.tasks.fluid_2_title'), t('mockups.flow.tasks.fluid_2_tag')]
               ].map(([title, tag]) => (
-                <article key={title} className="rounded-[18px] bg-white p-4 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+                <article key={title} className="rounded-[18px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] p-4 shadow-[0_20px_40px_-24px_rgba(17,24,39,0.16)] backdrop-blur-2xl">
                   <p className="text-[15px] font-semibold text-[#334155]">{title}</p>
                   <span className="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
                     {tag}
                   </span>
                 </article>
               ))}
-              <article className="rounded-[18px] bg-white p-4 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] md:col-span-2">
+              <article className="rounded-[18px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] p-4 shadow-[0_20px_40px_-24px_rgba(17,24,39,0.16)] backdrop-blur-2xl md:col-span-2">
                 <div className="flex items-center gap-2 text-slate-500">
-                  <MaterialIcon name="check_circle" className="text-[18px] text-[#A7F3D0]" />
+                  <MaterialIcon name="check_circle" className="text-[18px] text-[#0f766e]" />
                   <span className="line-through">{t('mockups.flow.tasks.fluid_done')}</span>
                 </div>
               </article>
@@ -173,10 +176,10 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
         </div>
 
         <aside className="space-y-6">
-          <section className="rounded-[24px] bg-[#1E293B] p-6 text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[#1f2937] p-6 text-white shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)]">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A7F3D0]/20 text-[#A7F3D0]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-[#A7F3D0]">
                   <MaterialIcon name="explore" className="text-[18px]" />
                 </div>
                 <h2 className="font-display text-[18px] font-bold">{t('mockups.flow.tasks.explore_title')}</h2>
@@ -203,14 +206,14 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
             </div>
             <button
               type="button"
-              onClick={() => router.push('/flow?variant=spatial')}
+              onClick={() => router.push('/intake')}
               className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-[16px] border border-white/10 text-[11px] font-bold uppercase tracking-[0.22em] text-white transition hover:bg-white/5"
             >
               {t('mockups.flow.tasks.library')}
             </button>
           </section>
 
-          <section className="rounded-[22px] bg-white p-5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="rounded-[22px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] p-5 shadow-[0_20px_40px_-24px_rgba(17,24,39,0.16)] backdrop-blur-2xl">
             <h3 className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
               {t('mockups.flow.tasks.wisdom_title')}
             </h3>
@@ -219,7 +222,7 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
             </p>
           </section>
 
-          <section className="overflow-hidden rounded-[24px] bg-[#0F172A] p-0 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="overflow-hidden rounded-[24px] bg-[#0F172A] p-0 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)]">
             <div className="relative min-h-[170px] overflow-hidden rounded-[24px]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.25),transparent_45%),linear-gradient(135deg,#0F172A,#1E293B)]" />
               <div className="relative flex min-h-[170px] flex-col justify-end p-5 text-white">

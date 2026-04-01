@@ -361,7 +361,7 @@ Agentes criticos segun `_terminal-failure.ts`: `clarifier`, `planner`, `critic`.
 
 | Evento | Payload | Descripcion |
 | --- | --- | --- |
-| `v6:blocked` | `{ message, failureCode, blockingAgents, agentOutcomes, degraded, qualityIssues, warnings, package }` | Plan no publicable (requiere regeneracion o supervision) |
+| `v6:blocked` | `{ message, failureCode, blockingAgents, agentOutcomes, degraded, qualityIssues, warnings, package }` | Plan no publicable (requiere regeneracion o no paso la revision final) |
 | `result` con `success: false` | `{ success, error, scratchpad, degraded, publicationState, failureCode, agentOutcomes, blockingAgents, qualityIssues, warnings, package }` | Error terminal del pipeline |
 
 ### 12.3 Eventos de debug (solo con `debug: true`)
@@ -391,11 +391,15 @@ Fuentes:
 | --- | --- | --- |
 | `status` | `'completed' \| 'needs_input' \| 'failed'` | Estado del run |
 | `publicationState` | `'ready' \| 'blocked' \| 'failed'` | Aptitud para publicar |
-| `failureCode` | `'requires_regeneration' \| 'requires_supervision' \| 'failed_for_quality_review' \| null` | Razon de bloqueo |
+| `failureCode` | `'requires_regeneration' \| 'requires_supervision' \| 'failed_for_quality_review' \| null` | Razon del estado terminal; `requires_supervision` queda reservado para compatibilidad/diagnostico |
 | `blockingAgents` | `AgentExecutionOutcome[]` | Agentes que causaron el bloqueo |
 | `degraded` | `boolean` | Si hubo fallbacks |
 
 La ruta de build solo persiste el plan y emite `v6:complete` cuando `status === 'completed' && publicationState === 'ready'`.
+
+Nota operativa vigente:
+- si el paquete final detecta `requires_supervision` en un objetivo de salud sensible, `v6` ya no bloquea la publicacion por ese motivo
+- en ese caso el plan sale como publicable y el paquete conserva una advertencia/`qualityIssue` `HEALTH_SAFETY_SUPERVISION_MISSING` con severidad `warning`
 
 En cualquier otro caso terminal llama `sendTerminalFailure()`, que:
 1. Emite `v6:blocked` si hay `failureCode` reconocido o `publicationState === 'blocked'`
@@ -403,7 +407,7 @@ En cualquier otro caso terminal llama `sendTerminalFailure()`, que:
 3. Siempre emite `result` con `success: false` y detalle del error
 
 Mensajes de error por `failureCode`:
-- `requires_supervision`: objetivo de salud de alto riesgo sin referencia a supervision profesional
+- `requires_supervision`: reservado para compatibilidad; el runtime vigente lo degrada a advertencia cuando existe paquete publicable
 - `failed_for_quality_review`: la revision final no paso el umbral de calidad
 - `requires_regeneration`: la revision critica fallo y el plan requiere regeneracion
 - sin failureCode + degraded: fallo parcial en el pipeline

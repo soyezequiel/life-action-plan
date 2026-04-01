@@ -194,7 +194,7 @@
     },
     "shell_nav": {
       "dashboard": "Dashboard",
-      "flow": "Flujo",
+      "flow": "Objetivos",
       "today": "Hoy",
       "calendar": "Calendario",
       "plan": "Plan",
@@ -284,7 +284,7 @@
     "actions": {
       "help": "Ayuda",
       "logout": "Salir",
-      "flow": "Ir al flujo"
+      "flow": "Ir a objetivos"
     },
     "help": {
       "title": "Ayuda rapida",

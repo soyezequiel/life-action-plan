@@ -1521,7 +1521,7 @@ describe('PlanOrchestrator', () => {
     );
   });
 
-  it('keeps requires_supervision ahead of generic planner degradation in health goals', () => {
+  it('publishes health plans with a supervision warning instead of blocking them', () => {
     const payload = runScenario('health_requires_supervision_trace');
     const result = payload.result as {
       status: string;
@@ -1529,20 +1529,29 @@ describe('PlanOrchestrator', () => {
       failureCode: string | null;
       package: {
         publicationState: string;
-        qualityIssues: Array<{ code: string }>;
+        warnings: string[];
+        qualityIssues: Array<{ code: string; severity: string }>;
       } | null;
       blockingAgents?: Array<{ agent: string }>;
     };
 
-    expect(result.status).toBe('failed');
-    expect(result.publicationState).toBe('blocked');
-    expect(result.failureCode).toBe('requires_supervision');
-    expect(result.package?.publicationState).toBe('requires_supervision');
-    expect(result.package?.qualityIssues.map((issue) => issue.code)).toContain('HEALTH_SAFETY_SUPERVISION_MISSING');
+    expect(result.status).toBe('completed');
+    expect(result.publicationState).toBe('ready');
+    expect(result.failureCode).toBeNull();
+    expect(result.package?.publicationState).toBe('publishable');
+    expect(result.package?.qualityIssues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: 'HEALTH_SAFETY_SUPERVISION_MISSING',
+        severity: 'warning',
+      }),
+    ]));
+    expect(result.package?.warnings).toEqual(expect.arrayContaining([
+      expect.stringContaining('seguimiento profesional o supervision clinica'),
+    ]));
     expect(result.blockingAgents).toEqual([]);
   });
 
-  it('treats negated supervision wording as missing supervision in health goals', () => {
+  it('keeps supervision as warning even when the run still fails for other quality reasons', () => {
     const payload = runScenario('health_negated_supervision_trace');
     const result = payload.result as {
       status: string;
@@ -1551,17 +1560,19 @@ describe('PlanOrchestrator', () => {
       package: {
         publicationState: string;
         warnings: string[];
+        qualityIssues: Array<{ code: string }>;
       } | null;
       blockingAgents?: Array<{ agent: string }>;
     };
 
     expect(result.status).toBe('failed');
-    expect(result.publicationState).toBe('blocked');
-    expect(result.failureCode).toBe('requires_supervision');
-    expect(result.package?.publicationState).toBe('requires_supervision');
-    expect(result.package?.warnings).toContain(
-      'No se puede publicar este plan de salud sin una referencia clara a seguimiento profesional o supervision clinica.',
-    );
+    expect(result.publicationState).toBe('failed');
+    expect(result.failureCode).toBe('failed_for_quality_review');
+    expect(result.package?.publicationState).toBe('failed_for_quality_review');
+    expect(result.package?.warnings).toEqual(expect.arrayContaining([
+      expect.stringContaining('seguimiento profesional o supervision clinica'),
+    ]));
+    expect(result.package?.qualityIssues.map((issue) => issue.code)).toContain('FAILED_QUALITY_REVIEW');
     expect(result.blockingAgents).toEqual([]);
   });
 

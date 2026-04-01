@@ -17,7 +17,7 @@ type ShellNavItem = {
 
 const NAV_ITEMS: ShellNavItem[] = [
   { href: '/', label: t('dashboard.shell_nav.dashboard'), exact: true },
-  { href: '/flow', label: t('dashboard.shell_nav.flow') },
+  { href: '/intake', label: t('dashboard.shell_nav.flow') },
   { href: '/plan/v5?tab=calendar&view=week', matchPath: '/plan/v5', label: t('dashboard.shell_nav.calendar') },
   { href: '/settings', label: t('dashboard.shell_nav.system') },
 ]
@@ -73,7 +73,7 @@ export function AppShell({ eyebrow, title, copy, children, actions, compact = fa
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <Link className={`${styles.primaryAction} app-button app-button--primary`} href="/flow">
+          <Link className={`${styles.primaryAction} app-button app-button--primary`} href="/intake">
             {t('dashboard.start')}
           </Link>
           <Link className={`${styles.secondaryAction} app-button app-button--secondary`} href="/settings">

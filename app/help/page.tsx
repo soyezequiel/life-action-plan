@@ -43,7 +43,7 @@ export default async function HelpPage() {
     >
       <div className="grid gap-4 xl:grid-cols-2">
         {HELP_TOPICS.map((topic) => (
-          <article key={topic.title} className="rounded-[28px] border border-[var(--border-soft)] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <article key={topic.title} className="rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-6 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl">
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{t(topic.title)}</span>
             <p className="mt-3 text-[15px] leading-7 text-slate-500">{t(topic.copy)}</p>
           </article>

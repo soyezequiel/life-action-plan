@@ -95,7 +95,7 @@ export default function PlannerView({
             <p className="font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400 sm:text-[11px]">
               {t('dashboard.calendar_panel.label')}
             </p>
-            <h1 className="mt-2 font-display text-[26px] font-bold tracking-tight text-[#334155] sm:text-[30px] lg:text-[32px]">
+            <h1 className="mt-2 font-display text-[26px] font-bold tracking-tight text-[#1f2937] sm:text-[30px] lg:text-[32px]">
               {activePlan?.nombre || t('dashboard.calendar_panel.title')}
             </h1>
           </div>
@@ -103,14 +103,14 @@ export default function PlannerView({
           <div className="min-w-0 flex-1 lg:max-w-[380px]">
             <div className="flex items-center justify-between gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
               <span>{t('planner.header.progress')}</span>
-              <span className="text-[#334155]">{progressPercent}%</span>
+              <span className="text-[#1f2937]">{progressPercent}%</span>
             </div>
-            <div className="mt-3 h-[6px] w-full overflow-hidden rounded-full bg-[#e2e8f0]">
+            <div className="mt-3 h-[6px] w-full overflow-hidden rounded-full bg-[rgba(31,41,55,0.08)]">
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{
                   width: `${progressPercent}%`,
-                  background: 'linear-gradient(90deg, #1e293b, #3b82f6)'
+                  background: 'linear-gradient(90deg, #1f2937, #0f766e)'
                 }}
               />
             </div>
@@ -128,8 +128,8 @@ export default function PlannerView({
                 onClick={() => handleViewChange(tab.view)}
                 className={`inline-flex items-center rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] transition ${
                   active
-                    ? 'bg-[#1E293B] text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.12)]'
-                    : 'bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                    ? 'bg-[#1f2937] text-white shadow-[0_20px_40px_-10px_rgba(17,24,39,0.18)]'
+                    : 'bg-[rgba(255,253,249,0.86)] text-slate-500 hover:bg-white hover:text-slate-700'
                 }`}
               >
                 {tab.label}
@@ -139,29 +139,29 @@ export default function PlannerView({
         </nav>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-[18px] border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 sm:px-5 sm:py-4">
-            <span className="font-display text-[22px] font-bold leading-none text-[#334155] sm:text-[24px]">{taskCount}</span>
+          <div className="rounded-[18px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] px-4 py-3 sm:px-5 sm:py-4">
+            <span className="font-display text-[22px] font-bold leading-none text-[#1f2937] sm:text-[24px]">{taskCount}</span>
             <span className="mt-2 block font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400 sm:text-[11px]">
               {t('planner.header.activities')}
             </span>
           </div>
 
-          <div className="rounded-[18px] border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 sm:px-5 sm:py-4">
-            <span className="font-display text-[22px] font-bold leading-none text-[#334155] sm:text-[24px]">{completedCount}</span>
+          <div className="rounded-[18px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] px-4 py-3 sm:px-5 sm:py-4">
+            <span className="font-display text-[22px] font-bold leading-none text-[#1f2937] sm:text-[24px]">{completedCount}</span>
             <span className="mt-2 block font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400 sm:text-[11px]">
               {t('planner.header.completed')}
             </span>
           </div>
 
-          <div className="rounded-[18px] border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 sm:px-5 sm:py-4">
-            <span className="font-display text-[22px] font-bold leading-none text-[#334155] sm:text-[24px]">{pendingCount}</span>
+          <div className="rounded-[18px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] px-4 py-3 sm:px-5 sm:py-4">
+            <span className="font-display text-[22px] font-bold leading-none text-[#1f2937] sm:text-[24px]">{pendingCount}</span>
             <span className="mt-2 block font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400 sm:text-[11px]">
               {t('planner.header.pending')}
             </span>
           </div>
 
-          <div className="rounded-[18px] border border-[#dbeafe] bg-[#eff6ff] px-4 py-3 sm:px-5 sm:py-4">
-            <span className="font-display text-[22px] font-bold leading-none text-[#1d4ed8] sm:text-[24px]">
+          <div className="rounded-[18px] border border-[rgba(15,118,110,0.12)] bg-[rgba(15,118,110,0.08)] px-4 py-3 sm:px-5 sm:py-4">
+            <span className="font-display text-[22px] font-bold leading-none text-[#0f766e] sm:text-[24px]">
               {progressPercent}%
             </span>
             <span className="mt-2 block font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400 sm:text-[11px]">
@@ -172,11 +172,11 @@ export default function PlannerView({
       </header>
 
       {isLoading ? (
-        <div className="flex h-[520px] items-center justify-center rounded-[24px] border border-slate-100 bg-white shadow-sm sm:h-[600px] sm:rounded-[32px]">
+        <div className="flex h-[520px] items-center justify-center rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:h-[600px] sm:rounded-[32px]">
           <p className="font-display text-slate-400 animate-pulse">{t('ui.loading')}</p>
         </div>
       ) : activePlan ? (
-        <div className="overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] sm:rounded-[32px]">
+        <div className="overflow-hidden rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:rounded-[32px]">
           <PlanCalendar
             calendarRef={calendarRef}
             tasks={tasks}
@@ -187,7 +187,7 @@ export default function PlannerView({
           />
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-[24px] border border-slate-100 bg-white py-16 text-center shadow-sm sm:rounded-[32px] sm:py-20">
+        <div className="flex flex-col items-center justify-center rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] py-16 text-center shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:rounded-[32px] sm:py-20">
           <p className="text-lg font-bold text-slate-500">{t('dashboard.calendar_panel.empty_title')}</p>
           <p className="mt-2 text-slate-400">{t('dashboard.calendar_panel.empty_copy')}</p>
         </div>

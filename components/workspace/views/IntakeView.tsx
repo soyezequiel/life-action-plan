@@ -254,23 +254,23 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="mx-auto flex w-full max-w-[980px] flex-col items-center px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
+      <div className="mx-auto flex w-full max-w-[1040px] flex-col items-center px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <div className="mb-5 text-center sm:mb-6">
           <p className="font-display text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 sm:text-[11px] sm:tracking-[0.32em]">
             {t('mockups.intake.eyebrow')}
           </p>
-          <h1 className="mt-3 font-display text-[28px] font-bold tracking-tight text-[#334155] sm:mt-4 sm:text-[32px]">
+          <h1 className="mt-3 font-display text-[28px] font-bold tracking-tight text-[#1f2937] sm:mt-4 sm:text-[32px]">
             {t('mockups.intake.title')}
           </h1>
         </div>
 
         <motion.section
-          className="relative w-full overflow-hidden rounded-[20px] bg-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] sm:rounded-[24px]"
+          className="relative w-full overflow-hidden rounded-[28px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] shadow-[0_26px_58px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:rounded-[32px]"
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
         >
-          <div className={`p-4 sm:p-6 md:p-8 ${showPaymentQuote ? 'bg-slate-50/50' : ''}`}>
+          <div className={`p-4 sm:p-6 md:p-8 ${showPaymentQuote ? 'bg-[rgba(31,41,55,0.02)]' : ''}`}>
             {showPlanReplaceWarning ? (
               <motion.div
                 className="flex w-full flex-col items-center py-4 text-center sm:py-8"
@@ -293,7 +293,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                   <button
                     type="button"
                     onClick={() => void handleComplete(pendingGoal, true)}
-                    className="inline-flex h-14 flex-1 items-center justify-center gap-3 rounded-[22px] bg-[#1E293B] px-8 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-200 transition hover:-translate-y-1 hover:bg-[#334155] active:translate-y-0"
+                    className="inline-flex h-14 flex-1 items-center justify-center gap-3 rounded-[22px] bg-[#1f2937] px-8 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-200 transition hover:-translate-y-1 hover:bg-[#334155] active:translate-y-0"
                   >
                     <span>Continuar y Reemplazar</span>
                     <MaterialIcon name="arrow_forward" className="text-[20px]" />
@@ -304,7 +304,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                       setShowPlanReplaceWarning(false)
                       setPendingGoal(null)
                     }}
-                    className="inline-flex h-14 flex-1 items-center justify-center gap-3 rounded-[22px] border border-slate-200 bg-white px-8 font-display text-[15px] font-bold text-slate-600 transition hover:bg-slate-50"
+                    className="inline-flex h-14 flex-1 items-center justify-center gap-3 rounded-[22px] border border-slate-200 bg-[rgba(255,253,249,0.96)] px-8 font-display text-[15px] font-bold text-slate-600 transition hover:bg-white"
                   >
                     <span>Cancelar</span>
                   </button>
@@ -346,7 +346,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                   <button
                     type="button"
                     onClick={() => void onComplete?.(activeProfileId || '', completionData.planId)}
-                    className="inline-flex h-14 w-full items-center justify-center gap-3 rounded-[22px] bg-[#1E293B] px-8 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-200 transition hover:-translate-y-1 hover:bg-[#334155] active:translate-y-0 sm:w-auto sm:px-10"
+                    className="inline-flex h-14 w-full items-center justify-center gap-3 rounded-[22px] bg-[#1f2937] px-8 font-display text-[15px] font-bold text-white shadow-xl shadow-slate-200 transition hover:-translate-y-1 hover:bg-[#334155] active:translate-y-0 sm:w-auto sm:px-10"
                   >
                     <span>Ir al Dashboard</span>
                     <MaterialIcon name="dashboard" className="text-[20px]" />
@@ -359,7 +359,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-slate-700 bg-[#1E293B] text-emerald-400 shadow-2xl shadow-slate-200 sm:mb-8 sm:h-24 sm:w-24">
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-slate-700 bg-[#1f2937] text-emerald-400 shadow-2xl shadow-slate-200 sm:mb-8 sm:h-24 sm:w-24">
                   <MaterialIcon name="bolt" className="text-[48px]" />
                 </div>
 
@@ -462,7 +462,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                   {clarification.questions.map((question: ClarificationQuestion, index: number) => (
                     <motion.div
                       key={question.id}
-                      className="group relative rounded-[20px] border border-slate-100 bg-[#FAFAF9]/50 p-4 transition-all hover:bg-white hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] sm:rounded-[22px] sm:p-6"
+                      className="group relative rounded-[20px] border border-slate-100 bg-[rgba(255,253,249,0.72)] p-4 transition-all hover:bg-white hover:shadow-[0_20px_40px_-24px_rgba(17,24,39,0.16)] sm:rounded-[22px] sm:p-6"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
@@ -527,7 +527,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                     type="button"
                     onClick={() => void handleResume()}
                     disabled={isResuming || clarification.questions.some((question: ClarificationQuestion) => !answers[question.id]?.trim() && question.type !== 'range')}
-                    className="inline-flex h-14 items-center justify-center gap-3 rounded-[20px] bg-[#1E293B] px-8 font-display text-[15px] font-bold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-[#334155] active:translate-y-0 disabled:grayscale disabled:opacity-30"
+                    className="inline-flex h-14 items-center justify-center gap-3 rounded-[20px] bg-[#1f2937] px-8 font-display text-[15px] font-bold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-[#334155] active:translate-y-0 disabled:grayscale disabled:opacity-30"
                   >
                     <span>{isResuming ? 'Procesando...' : 'Continuar'}</span>
                     <MaterialIcon name="auto_awesome" className="text-[20px]" />
@@ -537,12 +537,12 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
             ) : isGenerating ? (
               <div className="space-y-4 py-2">
                 <div className="flex justify-center sm:justify-end sm:pr-2">
-                  <div className="flex items-center gap-1 rounded-xl border border-slate-100 bg-slate-50 p-1 shadow-sm">
+                  <div className="flex items-center gap-1 rounded-xl border border-slate-100 bg-[rgba(255,253,249,0.92)] p-1 shadow-sm">
                     <button
                       type="button"
                       onClick={() => setViewMode('standard')}
                       className={`rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all ${
-                        viewMode === 'standard' ? 'bg-[#1E293B] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'
+                        viewMode === 'standard' ? 'bg-[#1f2937] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'
                       }`}
                     >
                       Estándar
@@ -551,7 +551,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                       type="button"
                       onClick={() => setViewMode('advanced')}
                       className={`rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all ${
-                        viewMode === 'advanced' ? 'bg-[#1E293B] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'
+                        viewMode === 'advanced' ? 'bg-[#1f2937] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'
                       }`}
                     >
                       Analista
@@ -599,7 +599,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                     onChange={(event) => setValue(event.target.value)}
                     placeholder={t('mockups.intake.placeholder')}
                     disabled={isGenerating}
-                    className="min-h-[220px] w-full resize-none rounded-[20px] border border-transparent bg-[#FAFAF9] p-5 text-[18px] leading-[1.5] text-slate-500 outline-none placeholder:text-slate-400 focus:border-[#1E293B]/10 focus:bg-white focus:text-[#334155] disabled:opacity-50 sm:min-h-[240px] sm:p-6 sm:pb-24 sm:text-[22px] md:text-[24px]"
+                    className="min-h-[220px] w-full resize-none rounded-[20px] border border-transparent bg-[rgba(255,252,247,0.96)] p-5 text-[18px] leading-[1.5] text-slate-500 outline-none placeholder:text-slate-400 focus:border-[#0f766e]/10 focus:bg-white focus:text-[#334155] disabled:opacity-50 sm:min-h-[240px] sm:p-6 sm:pb-24 sm:text-[22px] md:text-[24px]"
                   />
                   <div className="flex w-full items-center justify-between gap-3 sm:absolute sm:bottom-6 sm:right-6 sm:w-auto sm:justify-end">
                     <span className="rounded-full bg-white/80 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] sm:text-[10px] sm:tracking-[0.2em]">
@@ -610,7 +610,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                       onClick={() => void handleComplete()}
                       disabled={isGenerating || isCheckingCost || !value.trim()}
                       className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white transition hover:-translate-y-0.5 ${
-                        isGenerating || isCheckingCost ? 'cursor-not-allowed bg-slate-400' : 'bg-[#1E293B]'
+                        isGenerating || isCheckingCost ? 'cursor-not-allowed bg-slate-400' : 'bg-[#1f2937]'
                       }`}
                       aria-label={t('mockups.intake.continue')}
                     >

@@ -2,9 +2,9 @@
   display: grid;
   gap: 16px;
   padding: 20px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(31, 41, 55, 0.08);
   border-radius: 20px;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98));
+  background: linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(255, 252, 247, 0.98));
 }
 
 .header {
@@ -27,13 +27,13 @@
   margin: 6px 0 0;
   font-size: 28px;
   line-height: 1.1;
-  color: #0f172a;
+  color: #1f2937;
 }
 
 .copy {
   margin: 8px 0 0;
   max-width: 72ch;
-  color: #475569;
+  color: #4b5563;
 }
 
 .stats {
@@ -47,8 +47,8 @@
   gap: 6px;
   padding: 14px;
   border-radius: 16px;
-  background: #f8fafc;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 253, 249, 0.96);
+  border: 1px solid rgba(31, 41, 55, 0.08);
 }
 
 .statLabel {
@@ -61,7 +61,7 @@
 
 .statValue {
   font-size: 24px;
-  color: #0f172a;
+  color: #1f2937;
 }
 
 .metaRow {
@@ -76,9 +76,9 @@
   margin: 0;
   padding: 14px;
   border-radius: 16px;
-  background: #fff;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  color: #334155;
+  background: rgba(255, 253, 249, 0.96);
+  border: 1px solid rgba(31, 41, 55, 0.08);
+  color: #1f2937;
 }
 
 .metaItem span {
@@ -99,14 +99,14 @@
   gap: 10px;
   padding: 14px;
   border-radius: 16px;
-  background: #fff;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 253, 249, 0.96);
+  border: 1px solid rgba(31, 41, 55, 0.08);
 }
 
 .kindTitle {
   margin: 0;
   font-size: 16px;
-  color: #0f172a;
+  color: #1f2937;
 }
 
 .kindList {
@@ -121,8 +121,8 @@
   gap: 6px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: #f1f5f9;
-  color: #0f172a;
+  background: rgba(15, 118, 110, 0.08);
+  color: #0f766e;
   font-size: 13px;
 }
 
@@ -132,9 +132,9 @@
 }
 
 .node {
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(31, 41, 55, 0.08);
   border-radius: 16px;
-  background: #fff;
+  background: rgba(255, 253, 249, 0.96);
   overflow: hidden;
 }
 
@@ -154,7 +154,7 @@
 
 .label {
   font-weight: 600;
-  color: #0f172a;
+  color: #1f2937;
 }
 
 .meta {
@@ -174,13 +174,13 @@
   gap: 12px;
   padding: 10px 12px;
   border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: rgba(255, 252, 247, 0.96);
+  border: 1px solid rgba(31, 41, 55, 0.08);
 }
 
 .value {
   overflow-wrap: anywhere;
-  color: #1e293b;
+  color: #1f2937;
 }
 
 .scalarMuted {
@@ -193,7 +193,7 @@
 }
 
 .scalarNumber {
-  color: #1d4ed8;
+  color: #1f2937;
   font-weight: 600;
 }
 
@@ -209,9 +209,9 @@
 }
 
 .rawPanel {
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(31, 41, 55, 0.08);
   border-radius: 16px;
-  background: #fff;
+  background: rgba(255, 253, 249, 0.96);
   overflow: hidden;
 }
 
@@ -219,8 +219,8 @@
   margin: 0;
   padding: 16px;
   overflow: auto;
-  background: #0f172a;
-  color: #e2e8f0;
+  background: #1f2937;
+  color: #f8fafc;
   font-size: 12px;
   line-height: 1.5;
 }

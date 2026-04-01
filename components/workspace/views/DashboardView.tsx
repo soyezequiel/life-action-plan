@@ -130,11 +130,11 @@ export default function DashboardView({ initialData = null }: DashboardViewProps
 
   return (
     <div className="grid gap-6">
-      <header className="rounded-[32px] border border-[rgba(148,163,184,0.18)] bg-[rgba(255,255,255,0.86)] p-5 shadow-[0_30px_80px_-28px_rgba(15,23,42,0.2)] backdrop-blur-xl sm:p-6">
+      <header className="rounded-[36px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.9)] p-5 shadow-[0_26px_58px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div className="grid gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#14b8a6]">{t('dashboard.title')}</span>
-            <h1 className="font-display text-[32px] font-bold leading-none tracking-[-0.04em] text-slate-800 sm:text-[42px]">{summary?.planName ?? t('dashboard.title')}</h1>
+            <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#0f766e]">{t('dashboard.title')}</span>
+            <h1 className="font-display text-[32px] font-bold leading-none tracking-[-0.05em] text-[#1f2937] sm:text-[42px]">{summary?.planName ?? t('dashboard.title')}</h1>
             <p className="max-w-3xl text-[15px] leading-7 text-slate-500 sm:text-[17px]">{summary ? t('dashboard.copy') : t('dashboard.empty')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3 xl:justify-end">
@@ -144,15 +144,15 @@ export default function DashboardView({ initialData = null }: DashboardViewProps
         </div>
       </header>
 
-      {error ? <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-6 text-amber-900 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]"><p className="font-display text-lg font-bold">{error}</p><p className="mt-2 text-sm text-amber-800">{t('dashboard.error')}</p></div> : null}
+      {error ? <div className="rounded-[30px] border border-amber-200 bg-amber-50/80 p-6 text-amber-900 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.14)] backdrop-blur-2xl"><p className="font-display text-lg font-bold">{error}</p><p className="mt-2 text-sm text-amber-800">{t('dashboard.error')}</p></div> : null}
 
-      {isLoading && !summary ? <div className="rounded-[28px] border border-[var(--border-soft)] bg-white p-6 text-slate-500 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">{t('ui.loading')}</div> : null}
+      {isLoading && !summary ? <div className="rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-6 text-slate-500 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl">{t('ui.loading')}</div> : null}
 
       {!isLoading && !summary ? (
-        <div className="grid gap-4 rounded-[28px] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] md:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.6fr)]">
+        <div className="grid gap-4 rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-6 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl md:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.6fr)]">
           <div className="grid gap-4">
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.empty_title')}</span>
-            <h2 className="font-display text-3xl font-bold tracking-tight text-[#334155]">{t('dashboard.empty_title')}</h2>
+            <h2 className="font-display text-3xl font-bold tracking-tight text-[#1f2937]">{t('dashboard.empty_title')}</h2>
             <p className="max-w-2xl text-[15px] leading-7 text-slate-500">{t('dashboard.empty_copy')}</p>
           </div>
           <div className="grid gap-3 self-start">
@@ -164,45 +164,45 @@ export default function DashboardView({ initialData = null }: DashboardViewProps
 
       {summary ? (
         <div className="grid gap-4 xl:grid-cols-12">
-          <section className="xl:col-span-8 rounded-[28px] border border-[var(--border-soft)] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="xl:col-span-8 rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-6 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div className="grid gap-3">
                 <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.today_label')}</span>
-                <h2 className="font-display text-3xl font-bold tracking-tight text-[#334155]">{summary.dateLabel}</h2>
+                <h2 className="font-display text-3xl font-bold tracking-tight text-[#1f2937]">{summary.dateLabel}</h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-500">{t('dashboard.plan_label', { name: summary.planName })}</p>
               </div>
-              <div className="rounded-[22px] bg-[#FAFAF9] px-4 py-3 text-right"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.progress.title')}</div><div className="mt-1 font-display text-4xl font-bold tracking-tight text-[#334155]">{summary.progressPercentage}%</div></div>
+              <div className="rounded-[22px] bg-[rgba(255,253,249,0.96)] px-4 py-3 text-right"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.progress.title')}</div><div className="mt-1 font-display text-4xl font-bold tracking-tight text-[#1f2937]">{summary.progressPercentage}%</div></div>
             </div>
             <div className="mt-6 grid gap-3 md:grid-cols-4">
-              <div className="rounded-[20px] bg-[#FAFAF9] p-4"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.tasks_total')}</div><div className="mt-2 font-display text-2xl font-bold text-[#334155]">{summary.tasksTotal}</div></div>
-              <div className="rounded-[20px] bg-[#FAFAF9] p-4"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.tasks_active')}</div><div className="mt-2 font-display text-2xl font-bold text-[#334155]">{summary.tasksActive}</div></div>
-              <div className="rounded-[20px] bg-[#FAFAF9] p-4"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.streak_title')}</div><div className="mt-2 font-display text-2xl font-bold text-[#334155]">{t('dashboard.streak_current', { count: summary.streak.current })}</div></div>
-              <div className="rounded-[20px] bg-[#FAFAF9] p-4"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.trend.title')}</div><div className="mt-2 font-display text-2xl font-bold text-[#334155]">{summary.trend.deltaPercentagePoints === null ? '-' : `${summary.trend.deltaPercentagePoints > 0 ? '+' : ''}${summary.trend.deltaPercentagePoints} pts`}</div><div className="mt-1 text-xs text-slate-500">{getTrendCopy(summary.trend.direction)}</div></div>
+              <div className="rounded-[20px] bg-[rgba(255,253,249,0.96)] p-4"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.tasks_total')}</div><div className="mt-2 font-display text-2xl font-bold text-[#1f2937]">{summary.tasksTotal}</div></div>
+              <div className="rounded-[20px] bg-[rgba(255,253,249,0.96)] p-4"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.tasks_active')}</div><div className="mt-2 font-display text-2xl font-bold text-[#1f2937]">{summary.tasksActive}</div></div>
+              <div className="rounded-[20px] bg-[rgba(255,253,249,0.96)] p-4"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.streak_title')}</div><div className="mt-2 font-display text-2xl font-bold text-[#1f2937]">{t('dashboard.streak_current', { count: summary.streak.current })}</div></div>
+              <div className="rounded-[20px] bg-[rgba(255,253,249,0.96)] p-4"><div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.trend.title')}</div><div className="mt-2 font-display text-2xl font-bold text-[#1f2937]">{summary.trend.deltaPercentagePoints === null ? '-' : `${summary.trend.deltaPercentagePoints > 0 ? '+' : ''}${summary.trend.deltaPercentagePoints} pts`}</div><div className="mt-1 text-xs text-slate-500">{getTrendCopy(summary.trend.direction)}</div></div>
             </div>
           </section>
 
-          <section className="xl:col-span-4 rounded-[28px] border border-[var(--border-soft)] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="xl:col-span-4 rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-6 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl">
             <div className="flex items-center justify-between gap-4"><div><span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.focus.title')}</span><h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#334155]">{getFocusCopy(summary)}</h3></div><div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#A7F3D0]/25 text-[#334155]"><MaterialIcon name="timer" className="text-[24px]" /></div></div>
-            <div className="mt-6 rounded-[24px] bg-[#FAFAF9] p-5"><div className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{summary.focus.title ?? t('dashboard.focus.no_events')}</div><div className="mt-2 font-display text-4xl font-bold tracking-tight text-[#334155]">{formatCountdown(summary.focus.remainingMinutes)}</div><p className="mt-2 text-sm leading-6 text-slate-500">{summary.focus.status === 'no_events' ? t('dashboard.focus.no_schedule_copy') : summary.focus.targetAt ? summary.focus.status === 'in_event' ? t('dashboard.focus.ends_at', { time: DateTime.fromISO(summary.focus.targetAt).toFormat('HH:mm') }) : summary.focus.status === 'after_last_event' ? t('dashboard.focus.after_time', { time: DateTime.fromISO(summary.focus.targetAt).toFormat('HH:mm') }) : t('dashboard.focus.next_time', { time: DateTime.fromISO(summary.focus.targetAt).toFormat('HH:mm') }) : t('dashboard.focus.no_schedule_copy')}</p></div>
+            <div className="mt-6 rounded-[24px] bg-[rgba(255,253,249,0.96)] p-5"><div className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{summary.focus.title ?? t('dashboard.focus.no_events')}</div><div className="mt-2 font-display text-4xl font-bold tracking-tight text-[#1f2937]">{formatCountdown(summary.focus.remainingMinutes)}</div><p className="mt-2 text-sm leading-6 text-slate-500">{summary.focus.status === 'no_events' ? t('dashboard.focus.no_schedule_copy') : summary.focus.targetAt ? summary.focus.status === 'in_event' ? t('dashboard.focus.ends_at', { time: DateTime.fromISO(summary.focus.targetAt).toFormat('HH:mm') }) : summary.focus.status === 'after_last_event' ? t('dashboard.focus.after_time', { time: DateTime.fromISO(summary.focus.targetAt).toFormat('HH:mm') }) : t('dashboard.focus.next_time', { time: DateTime.fromISO(summary.focus.targetAt).toFormat('HH:mm') }) : t('dashboard.focus.no_schedule_copy')}</p></div>
             <div className="mt-4"><Link href="/help" className="inline-flex items-center gap-2 text-sm font-bold text-[#334155] transition hover:text-[#1E293B]"><MaterialIcon name="help" className="text-[18px]" />{t('dashboard.help.cta')}</Link></div>
           </section>
 
-          <section className="xl:col-span-7 rounded-[28px] border border-[var(--border-soft)] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="xl:col-span-7 rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-6 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl">
             <div className="flex items-center justify-between gap-4"><div><span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.schedule.title')}</span><h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#334155]">{t('dashboard.schedule.today')}</h3></div><span className="rounded-full bg-[#FAFAF9] px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">{summary.schedule.events.length}</span></div>
             <div className="mt-6 space-y-4">{summary.schedule.isEmpty ? <p className="text-sm leading-6 text-slate-500">{t('dashboard.schedule.empty')}</p> : summary.schedule.events.map((event) => <article key={`${event.startAt}-${event.title}`} className="rounded-[22px] bg-[#FAFAF9] p-4"><div className="flex items-start justify-between gap-4"><div className="min-w-0"><h4 className="truncate font-display text-[17px] font-bold text-[#334155]">{event.title}</h4><p className="mt-1 text-sm text-slate-500">{formatTimeRange(event.startAt, event.endAt)}</p></div><div className="rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">{t('dashboard.schedule.duration', { count: event.durationMin })}</div></div></article>)}</div>
           </section>
 
-          <section className="xl:col-span-5 rounded-[28px] border border-[var(--border-soft)] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="xl:col-span-5 rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-6 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl">
             <div className="flex items-center justify-between gap-4"><div><span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.tasks.title')}</span><h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#334155]">{t('dashboard.tasks.today')}</h3></div><span className="rounded-full bg-[#FAFAF9] px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">{t('dashboard.tasks.total_short', { count: summary.tasksTotal })}</span></div>
             <div className="mt-6 space-y-3">{summary.tasks.length === 0 ? <p className="text-sm leading-6 text-slate-500">{t('dashboard.tasks.empty')}</p> : summary.tasks.map((task) => <button key={task.id} type="button" onClick={() => void handleToggleTask(task.id)} className={`flex w-full items-center gap-4 rounded-[20px] border p-4 text-left transition ${task.completado ? 'border-[#A7F3D0]/30 bg-[#A7F3D0]/10' : 'border-transparent bg-[#FAFAF9] hover:border-slate-200'}`} disabled={busyTaskId === task.id}><div className={`flex h-6 w-6 items-center justify-center rounded-md border-2 ${task.completado ? 'border-[#1E293B] bg-[#1E293B] text-white' : 'border-slate-300'}`}><MaterialIcon name="check" className={`text-[14px] ${task.completado ? 'text-white' : 'text-transparent'}`} /></div><div className="min-w-0 flex-1"><div className={`font-display text-[16px] font-semibold text-[#334155] ${task.completado ? 'line-through opacity-50' : ''}`}>{task.descripcion}</div></div><MaterialIcon name={task.completado ? 'verified' : 'drag_indicator'} className="text-[18px] text-slate-300" /></button>)}</div>
           </section>
 
-          <section className="xl:col-span-7 rounded-[28px] border border-[var(--border-soft)] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="xl:col-span-7 rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-6 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl">
             <div className="flex items-center justify-between gap-4"><div><span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.week.title')}</span><h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#334155]">{t('dashboard.week.summary')}</h3></div><span className="rounded-full bg-[#FAFAF9] px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">{getTrendCopy(summary.trend.direction)}</span></div>
             <div className="mt-6 grid grid-cols-7 gap-2">{summary.week.days.map((day) => <div key={day.date} className={`rounded-[18px] border p-3 text-center ${day.isToday ? 'border-slate-300 bg-[#FAFAF9]' : 'border-slate-100 bg-[#FAFAF9]/40'}`}><div className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{day.weekdayLabel}</div><div className="mt-3 flex h-24 items-end"><div className="h-full w-full rounded-full bg-slate-100"><div className={`w-full rounded-full ${day.percentage >= 80 ? 'bg-[#A7F3D0]' : day.percentage > 0 ? 'bg-[#E9D5FF]' : 'bg-slate-200'}`} style={{ height: `${Math.max(8, day.percentage)}%` }} /></div></div><div className="mt-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">{day.percentage}%</div></div>)}</div>
           </section>
 
-          <section className="xl:col-span-5 rounded-[28px] border border-[var(--border-soft)] bg-white p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)]">
+          <section className="xl:col-span-5 rounded-[30px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] p-6 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl">
             <div><span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{t('dashboard.help.title')}</span><h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#334155]">{t('dashboard.help.copy')}</h3><p className="mt-3 text-sm leading-6 text-slate-500">{t('dashboard.help.detail')}</p></div>
             <div className="mt-6 grid gap-3"><Link href="/help" className="app-button app-button--primary">{t('dashboard.help.cta')}</Link><Link href="/intake" className="app-button app-button--secondary">{t('dashboard.actions.flow')}</Link></div>
           </section>
