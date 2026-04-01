@@ -37,6 +37,28 @@ export function extractErrorMessage(error: unknown): string {
     return parseErrorPayload(error.message)
   }
 
+  // Handle native browser Event objects (which stringify to [object Event]).
+  if (typeof Event !== 'undefined' && error instanceof Event) {
+    return `Network or system event: ${error.type}`
+  }
+
+  const stringified = String(error)
+  if (stringified !== '[object Object]') {
+    return stringified
+  }
+
+  // Fallback for other objects that might have a message property.
+  if (error && typeof error === 'object') {
+    if ('message' in error && typeof (error as any).message === 'string') {
+      return parseErrorPayload((error as any).message)
+    }
+
+    // Capture potential SSE or connection event types.
+    if ('type' in error && typeof (error as any).type === 'string') {
+      return `Browser event: ${(error as any).type}`
+    }
+  }
+
   return 'Unknown error'
 }
 

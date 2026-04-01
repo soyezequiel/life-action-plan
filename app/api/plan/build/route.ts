@@ -418,12 +418,11 @@ function handleV6Build(
         }
       } catch (cause: unknown) {
         const { toPlanBuildErrorMessage } = await import('../../_plan')
-        const error = cause instanceof Error ? cause : new Error(String(cause))
         send({
           type: 'result',
           result: {
             success: false,
-            error: toPlanBuildErrorMessage(error),
+            error: toPlanBuildErrorMessage(cause),
           },
         })
       } finally {

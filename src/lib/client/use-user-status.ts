@@ -69,7 +69,9 @@ export function useUserStatus(): UserStatus {
 
   useEffect(() => {
     if (sessionStatus === 'authenticated') {
-      refresh()
+      refresh().catch(err => {
+        console.error('[LAP] Unhandled error in useUserStatus refresh:', err)
+      })
     } else if (sessionStatus === 'unauthenticated') {
       setLoading(false)
     }

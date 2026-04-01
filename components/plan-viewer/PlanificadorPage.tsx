@@ -49,7 +49,9 @@ export default function PlanificadorPage({ initialView = 'dayGridMonth' }: Plani
       }
     }
 
-    loadData()
+    loadData().catch(err => {
+      console.error('[LAP] Unhandled error during planner data load:', err)
+    })
   }, [])
 
   const viewTabs = [

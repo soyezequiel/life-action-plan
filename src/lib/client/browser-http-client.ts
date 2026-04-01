@@ -53,8 +53,19 @@ function ensureLeadingSlash(path: string): string {
   return path.startsWith('/') ? path : `/${path}`
 }
 
+async function safeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init)
+  } catch (error) {
+    if (typeof Event !== 'undefined' && error instanceof Event) {
+      throw new Error(`DOM Event interceptado en fetch: ${error.type || 'Desconocido'}`)
+    }
+    throw error
+  }
+}
+
 async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(ensureLeadingSlash(path), {
+  const response = await safeFetch(ensureLeadingSlash(path), {
     ...init,
     headers: {
       'Content-Type': 'application/json',
@@ -352,7 +363,7 @@ export const browserLapClient: LapAPI = {
 
       emitBuildProgress(initial)
 
-      const response = await fetch('/api/plan/build', {
+      const response = await safeFetch('/api/plan/build', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -387,7 +398,7 @@ export const browserLapClient: LapAPI = {
 
       emitSimulationProgress(initial)
 
-      const response = await fetch('/api/plan/simulate', {
+      const response = await safeFetch('/api/plan/simulate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -409,7 +420,7 @@ export const browserLapClient: LapAPI = {
       }
     },
     async exportCalendar(planId: string) {
-      const response = await fetch('/api/plan/export-ics', {
+      const response = await safeFetch('/api/plan/export-ics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -436,7 +447,7 @@ export const browserLapClient: LapAPI = {
       return downloadBlob(response, fileName)
     },
     async exportSimulation(planId: string, format: 'json' | 'csv' = 'json') {
-      const response = await fetch(`/api/plan/${encodeURIComponent(planId)}/export-simulation?format=${format}`, {
+      const response = await safeFetch(`/api/plan/${encodeURIComponent(planId)}/export-simulation?format=${format}`, {
         method: 'GET'
       })
 

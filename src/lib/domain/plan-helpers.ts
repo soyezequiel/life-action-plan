@@ -201,7 +201,11 @@ export function buildCalendarFileName(planName: string, timezone: string): strin
 }
 
 export function toPlanBuildErrorMessage(error: unknown): string {
-  const message = error instanceof Error ? error.message : 'Unknown error'
+  const message = error instanceof Error
+    ? error.message
+    : (error && typeof error === 'object' && 'type' in error && typeof (error as any).type === 'string')
+      ? `Internal error event: ${(error as any).type}`
+      : String(error)
   const normalized = message.toLowerCase()
 
   if (

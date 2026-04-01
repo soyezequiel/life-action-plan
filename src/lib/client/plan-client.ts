@@ -1,4 +1,5 @@
 import type { ClarificationRound } from '../pipeline/v6/types'
+import { extractErrorMessage } from './error-utils'
 
 export interface PlanDegradedEvent {
   message: string
@@ -301,9 +302,7 @@ async function postV6Stream(
     }
   } catch (error) {
     if (!streamTerminatedCleanly) {
-      const message = error instanceof Error && error.message.trim()
-        ? error.message
-        : 'No pudimos continuar en este momento. Verificá tu conexión o cuota de uso.'
+      const message = extractErrorMessage(error)
       wrappedCallbacks.onError(message)
     }
   }
@@ -496,7 +495,7 @@ export async function chargePlanBuild(profileId: string): Promise<{
     return {
       success: false,
       error: 'REQUEST_FAILED',
-      detail: error instanceof Error ? error.message : String(error)
+      detail: extractErrorMessage(error)
     }
   }
 }

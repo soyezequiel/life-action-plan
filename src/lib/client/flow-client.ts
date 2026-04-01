@@ -25,8 +25,19 @@ async function readResponseText(response: Response): Promise<string> {
   return (await response.text()).trim() || 'REQUEST_FAILED'
 }
 
+async function safeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init)
+  } catch (error) {
+    if (typeof Event !== 'undefined' && error instanceof Event) {
+      throw new Error(`DOM Event interceptado en fetch: ${error.type || 'Desconocido'}`)
+    }
+    throw error
+  }
+}
+
 async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(path, {
+  const response = await safeFetch(path, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
@@ -124,7 +135,7 @@ async function postSse<T>(
   body: unknown,
   onProgress?: (progress: FlowTaskProgress) => void
 ): Promise<T> {
-  const response = await fetch(path, {
+  const response = await safeFetch(path, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -280,7 +291,7 @@ export const flowClient = {
   },
   async exportSimulation(workflowId: string, format: 'json' | 'csv' = 'json'): Promise<void> {
     const url = `/api/flow/session/${encodeURIComponent(workflowId)}/export-simulation?format=${format}`
-    const response = await fetch(url)
+    const response = await safeFetch(url)
 
     if (!response.ok) {
       throw new Error(await readResponseText(response))

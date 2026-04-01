@@ -109,7 +109,9 @@ export function usePlanV5(planId?: string): UsePlanV5Result {
       }
     }
 
-    void load();
+    load().catch(err => {
+      console.error('[LAP] Unhandled error in usePlanV5:', err);
+    });
 
     return () => {
       controller.abort();
