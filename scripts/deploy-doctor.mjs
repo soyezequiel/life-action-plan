@@ -7,8 +7,10 @@ console.log('[Doctor] Node Version:', process.version);
 
 const PLACEHOLDER_DATABASE_URL = /:\/\/user:password@host(?::\d+)?\//i
 const LOCAL_DATABASE_URL = /:\/\/(?:[^@]+@)?(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\//i
+const MIN_LONG_ROUTE_DURATION_SECONDS = 60
 const REQUIRED_LONG_ROUTES = [
   'app/api/plan/build/route.ts',
+  'app/api/plan/build/resume/route.ts',
   'app/api/plan/simulate/route.ts'
 ]
 
@@ -49,8 +51,12 @@ function hasRouteMaxDuration(routePath) {
   }
 
   const source = readFileSync(routePath, 'utf8')
-  // We accept 60 or 120 (Next.js 15+ long running routes)
-  return /export const maxDuration\s*=\s*(?:60|120)/.test(source)
+  const match = source.match(/export const maxDuration\s*=\s*(\d+)/)
+  if (!match) {
+    return false
+  }
+
+  return Number.parseInt(match[1], 10) >= MIN_LONG_ROUTE_DURATION_SECONDS
 }
 
 function hasVercelTimeoutConfig() {
@@ -58,11 +64,21 @@ function hasVercelTimeoutConfig() {
     return false
   }
 
-  const source = readFileSync('vercel.json', 'utf8')
-  // Ensure the route is mentioned and has a reasonable timeout configured
-  return REQUIRED_LONG_ROUTES.every((routePath) => 
-    source.includes(routePath) && (source.includes('"maxDuration": 60') || source.includes('"maxDuration": 120'))
-  )
+  try {
+    const parsed = JSON.parse(readFileSync('vercel.json', 'utf8'))
+    const functionsConfig = parsed?.functions
+
+    if (!functionsConfig || typeof functionsConfig !== 'object') {
+      return false
+    }
+
+    return REQUIRED_LONG_ROUTES.every((routePath) => {
+      const duration = functionsConfig[routePath]?.maxDuration
+      return typeof duration === 'number' && duration >= MIN_LONG_ROUTE_DURATION_SECONDS
+    })
+  } catch {
+    return false
+  }
 }
 
 function isCloudDatabaseUrl(value) {
@@ -160,14 +176,14 @@ async function main() {
     logStatus(true, 'maxDuration', 'las rutas largas exportan maxDuration >= 60')
   } else {
     hasFailure = true
-    logStatus(false, 'maxDuration', 'falta export const maxDuration = 60/120 en alguna ruta larga')
+    logStatus(false, 'maxDuration', 'falta export const maxDuration >= 60 en alguna ruta larga')
   }
 
   if (hasVercelTimeoutConfig()) {
-    logStatus(true, 'vercel.json', 'timeouts largos declarados para build y simulate')
+    logStatus(true, 'vercel.json', 'timeouts largos declarados para build, resume y simulate')
   } else {
     hasFailure = true
-    logStatus(false, 'vercel.json', 'faltan timeouts largos (60/120) para build y simulate')
+    logStatus(false, 'vercel.json', 'faltan timeouts largos (>= 60) para build, resume y simulate')
   }
 
   if (hasFailure) {

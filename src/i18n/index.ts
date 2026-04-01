@@ -16,6 +16,7 @@ const locales: Record<string, Record<string, unknown>> = {
 
 const runtimeFallbacks: Record<string, string> = {
   'errors.request_timeout': 'La respuesta esta tardando demasiado. Intenta de nuevo en un ratito.',
+  'errors.plan_stream_interrupted': 'La conexion se interrumpio antes de terminar. Puede haber sido un limite de tiempo del servidor, la red o la cuota del proveedor. Intenta reanudar o volver a intentar.',
   'errors.network_unavailable': 'No pude conectarme. Revisa tu internet o el servicio local y volve a intentar.',
   'errors.service_unavailable': 'Hay una configuracion pendiente del lado del servidor. Revisala y volve a intentar.',
   'errors.dev_missing_env': 'Falta {{name}} en el servidor local. Revisalo y volve a intentar.',

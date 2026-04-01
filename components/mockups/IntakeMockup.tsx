@@ -146,6 +146,11 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
     setShowPaymentQuote(false)
     setGenerationError(null)
     setDebugData(null)
+    setClarification(null)
+    setSessionId('')
+    setAnswers({})
+    setIsCompletedLocal(false)
+    setCompletionData(null)
     
     try {
       // Reutilizar profileId si ya lo tenemos
@@ -234,6 +239,18 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
       setIsGenerating(false)
       setIsResuming(false)
     }
+  }
+
+  const handleRetryGeneration = () => {
+    const hasResumeContext = sessionId.trim().length > 0
+      && Object.values(answers).some((answer) => answer.trim().length > 0)
+
+    if (hasResumeContext) {
+      void handleResume()
+      return
+    }
+
+    void handleComplete(pendingGoal || value, true)
   }
 
   return (
@@ -570,7 +587,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
                     <GenerationErrorDetails 
                       message={generationError}
                       debug={debugData}
-                      onRetry={() => handleComplete(pendingGoal || value, true)}
+                      onRetry={handleRetryGeneration}
                     />
                   </div>
                 )}

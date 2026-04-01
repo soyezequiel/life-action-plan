@@ -6,7 +6,7 @@ import { planBuildRequestSchema } from '../../_schemas'
 import { resolveUserId } from '../../_user-settings'
 import * as terminalFailure from './_terminal-failure'
 
-export const maxDuration = 120
+export const maxDuration = 300
 
 const v6RequestSchema = planBuildRequestSchema.extend({
   goalText: z.string().trim().min(1).max(2000).optional(),

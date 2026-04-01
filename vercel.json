@@ -1,10 +1,13 @@
 {
   "functions": {
     "app/api/plan/build/route.ts": {
-      "maxDuration": 120
+      "maxDuration": 300
+    },
+    "app/api/plan/build/resume/route.ts": {
+      "maxDuration": 300
     },
     "app/api/plan/simulate/route.ts": {
-      "maxDuration": 120
+      "maxDuration": 300
     }
   }
 }

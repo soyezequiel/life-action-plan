@@ -6,7 +6,7 @@ import { processPlanSimulate } from '../../../../src/lib/services'
 import type { ChargeReasonCode } from '../../../../src/shared/types/lap-api'
 import type { ExecutionBlockReason } from '../../../../src/shared/schemas/execution-context'
 
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 type RouteChargePayload = Record<string, unknown> & {
   reasonCode?: ChargeReasonCode | null

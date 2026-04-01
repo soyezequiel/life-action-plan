@@ -4,7 +4,7 @@ import { apiErrorMessages, encodeSseData, sseHeaders } from '../../../_shared'
 import { resolveUserId } from '../../../_user-settings'
 import * as terminalFailure from '../_terminal-failure'
 
-export const maxDuration = 120
+export const maxDuration = 300
 
 const resumeRequestSchema = z.object({
   sessionId: z.string().trim().min(1),

@@ -1,4 +1,5 @@
 import type { ClarificationRound } from '../pipeline/v6/types'
+import { t } from '../../i18n'
 import { extractErrorMessage } from './error-utils'
 
 export interface PlanDegradedEvent {
@@ -25,6 +26,23 @@ interface SseEnvelope {
 interface ParsedSseBlock {
   eventType: string | null
   data: string
+}
+
+interface StreamInterruptionDebugPayload {
+  structured: {
+    code: string
+    state: string
+    score: number | null
+  }
+  raw: {
+    interruption: 'unexpected_stream_end'
+    lastKnownPhase: string | null
+    lastKnownIteration: number | null
+    lastKnownAction: string | null
+    lastKnownScore: number | null
+    lastDebugEvent: unknown
+    cause?: string
+  }
 }
 
 async function readErrorMessage(response: Response): Promise<string> {
@@ -106,6 +124,56 @@ function toNumber(value: unknown, fallback = 0): number {
 
 function toStringValue(value: unknown, fallback = ''): string {
   return typeof value === 'string' ? value : fallback
+}
+
+function pickStringValue(value: Record<string, unknown>, keys: string[]): string | null {
+  for (const key of keys) {
+    const candidate = value[key]
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim()
+    }
+  }
+
+  return null
+}
+
+function pickNumberValue(value: Record<string, unknown>, keys: string[]): number | null {
+  for (const key of keys) {
+    const candidate = value[key]
+    if (typeof candidate === 'number' && Number.isFinite(candidate)) {
+      return candidate
+    }
+  }
+
+  return null
+}
+
+function createUnexpectedStreamDebugPayload(
+  context: {
+    lastKnownPhase: string | null
+    lastKnownIteration: number | null
+    lastKnownAction: string | null
+    lastKnownScore: number | null
+    lastDebugEvent: unknown
+  },
+  cause?: string
+): StreamInterruptionDebugPayload {
+  return {
+    structured: {
+      code: 'stream_interrupted',
+      state: context.lastKnownPhase ?? 'stream_pending',
+      score: context.lastKnownScore,
+    },
+    raw: {
+      interruption: 'unexpected_stream_end',
+      lastKnownPhase: context.lastKnownPhase,
+      lastKnownIteration: context.lastKnownIteration,
+      lastKnownAction: context.lastKnownAction,
+      lastKnownScore: context.lastKnownScore,
+      lastDebugEvent: context.lastDebugEvent,
+      ...(cause ? { cause } : {}),
+    },
+  }
 }
 
 function dispatchSsePayload(payloadText: string, explicitEventType: string | null, callbacks: PlanStreamCallbacks): void {
@@ -263,16 +331,57 @@ async function postV6Stream(
   callbacks: PlanStreamCallbacks
 ): Promise<void> {
   let streamTerminatedCleanly = false
+  let lastKnownPhase: string | null = null
+  let lastKnownIteration: number | null = null
+  let lastKnownAction: string | null = null
+  let lastKnownScore: number | null = null
+  let lastDebugEvent: unknown = null
+
+  const getInterruptionContext = (cause?: string): StreamInterruptionDebugPayload => createUnexpectedStreamDebugPayload({
+    lastKnownPhase,
+    lastKnownIteration,
+    lastKnownAction,
+    lastKnownScore,
+    lastDebugEvent,
+  }, cause)
+
+  const rememberDebugEvent = (event: unknown): void => {
+    if (!event || typeof event !== 'object') {
+      return
+    }
+
+    lastDebugEvent = event
+
+    const value = event as Record<string, unknown>
+    lastKnownPhase = pickStringValue(value, ['phase', 'currentPhase']) ?? lastKnownPhase
+    lastKnownAction = pickStringValue(value, ['summary_es', 'currentSummary_es', 'lastEventSummary_es', 'action', 'currentAction']) ?? lastKnownAction
+    lastKnownScore = pickNumberValue(value, ['progressScore', 'score']) ?? lastKnownScore
+    lastKnownIteration = pickNumberValue(value, ['iteration', 'clarifyRounds']) ?? lastKnownIteration
+  }
 
   const wrappedCallbacks: PlanStreamCallbacks = {
     ...callbacks,
+    onPhase: (phase, iteration) => {
+      lastKnownPhase = phase.trim() ? phase : lastKnownPhase
+      lastKnownIteration = Number.isFinite(iteration) ? iteration : lastKnownIteration
+      callbacks.onPhase(phase, iteration)
+    },
+    onProgress: (score, lastAction) => {
+      lastKnownScore = Number.isFinite(score) ? score : lastKnownScore
+      lastKnownAction = lastAction.trim() ? lastAction : lastKnownAction
+      callbacks.onProgress(score, lastAction)
+    },
+    onDebug: (event) => {
+      rememberDebugEvent(event)
+      callbacks.onDebug?.(event)
+    },
     onComplete: (planId, score, iterations) => {
       streamTerminatedCleanly = true
       callbacks.onComplete(planId, score, iterations)
     },
-    onError: (msg) => {
+    onError: (msg, debug) => {
       streamTerminatedCleanly = true
-      callbacks.onError(msg)
+      callbacks.onError(msg, debug)
     },
     onNeedsInput: (sid, questions) => {
       streamTerminatedCleanly = true
@@ -298,12 +407,18 @@ async function postV6Stream(
     await consumeSseStream(response, wrappedCallbacks)
 
     if (!streamTerminatedCleanly) {
+      streamTerminatedCleanly = true
+      callbacks.onError(t('errors.plan_stream_interrupted'), getInterruptionContext())
+      return
+    }
+
+    if (!streamTerminatedCleanly) {
       wrappedCallbacks.onError('La conexión se interrumpió inesperadamente por tiempo límite del servidor o red. Intentá de nuevo o revisá la cuota de tu cuenta (Codex/OpenAI).')
     }
   } catch (error) {
     if (!streamTerminatedCleanly) {
       const message = extractErrorMessage(error)
-      wrappedCallbacks.onError(message)
+      callbacks.onError(message, getInterruptionContext(message))
     }
   }
 }
