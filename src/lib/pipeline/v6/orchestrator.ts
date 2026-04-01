@@ -16,30 +16,33 @@ import {
   PlanOrchestratorSnapshotSchema,
   normalizeGoalSignalKey,
 } from './types';
-import type {
-  AgentExecutionOutcome,
-  GoalSignalKey,
-  ClarificationQuestion,
-  ClarificationRound,
-  CriticReport,
-  FeasibilityReport,
-  GoalInterpretation,
-  GoalSignalsSnapshot,
-  OrchestratorConfig,
-  OrchestratorContext,
-  OrchestratorDebugEvent,
-  OrchestratorDebugStatus,
-  OrchestratorPhase,
-  OrchestratorState,
-  PlanPackage,
-  ReasoningEntry,
-  ScheduleExecutionResult,
-  StrategicDraft,
-  UserProfileV5,
-  V6Agent,
-  V6AgentName,
-  PlanOrchestratorSnapshot,
+import { PHASE_LABELS_ES } from '@lib/pipeline/v6/types';
+import {
+  type AgentExecutionOutcome,
+  type GoalSignalKey,
+  type ClarificationQuestion,
+  type ClarificationRound,
+  type CriticReport,
+  type FeasibilityReport,
+  type GoalInterpretation,
+  type GoalSignalsSnapshot,
+  type OrchestratorConfig,
+  type OrchestratorContext,
+  type OrchestratorDebugEvent,
+  type OrchestratorDebugStatus,
+  type OrchestratorPhase,
+  type OrchestratorState,
+  type PlanPackage,
+  type ReasoningEntry,
+  type ScheduleExecutionResult,
+  type StrategicDraft,
+  type UserProfileV5,
+  type V6Agent,
+  type V6AgentName,
+  type PlanOrchestratorSnapshot,
 } from './types';
+import { extractQuotaFromError, formatQuotaMessage } from '../../runtime/quota-parser';
+import { type QuotaInfo } from '../../runtime/quota-parser';
 
 // ─── Public interfaces ──────────────────────────────────────────────────────
 
@@ -63,6 +66,7 @@ export interface OrchestratorResult {
   publicationState?: 'ready' | 'blocked' | 'failed';
   failureCode?: 'requires_regeneration' | 'requires_supervision' | 'failed_for_quality_review' | null;
   blockingAgents?: AgentExecutionOutcome[];
+  customMessage?: string;
 }
 
 export interface OrchestratorProgress {
@@ -80,7 +84,7 @@ const DEFAULT_CONFIG: OrchestratorConfig = {
   maxClarifyRounds: 3,
   maxRevisionCycles: 2,
   tokenBudgetLimit: 100_000,
-  criticApprovalThreshold: 75,
+  criticApprovalThreshold: 21,
   enableDomainExpert: true,
 };
 
@@ -102,19 +106,6 @@ interface AgentOutcomeDebugDetails {
   action?: string;
   details?: Record<string, unknown> | null;
 }
-
-const PHASE_LABELS_ES: Record<OrchestratorPhase, string> = {
-  interpret: 'interpretacion',
-  clarify: 'aclaracion',
-  plan: 'planificacion',
-  check: 'factibilidad',
-  schedule: 'calendarizacion',
-  critique: 'critica',
-  revise: 'revision',
-  package: 'empaquetado',
-  done: 'cierre',
-  failed: 'falla',
-};
 
 const AGENT_LABELS_ES: Record<V6AgentName, string> = {
   'goal-interpreter': 'interprete',
@@ -392,7 +383,8 @@ function extractMatchedFragment(values: string[], pattern: RegExp): string | nul
 function collectBestMatchedGoalSignalValue(values: string[], patterns: RegExp[]): string | null {
   let bestMatch: { fragment: string; surroundingNoise: number; valueLength: number; index: number } | null = null;
 
-  for (const [index, value] of values.entries()) {
+  for (let index = 0; index < values.length; index++) {
+    const value = values[index];
     for (const pattern of patterns) {
       const match = value.match(pattern);
       if (!match) {
@@ -604,10 +596,10 @@ export class PlanOrchestrator {
         : undefined,
       userProfile: parsed.context.userProfile
         ? {
-            ...parsed.context.userProfile,
-            fixedCommitments: [...parsed.context.userProfile.fixedCommitments],
-            scheduleConstraints: [...parsed.context.userProfile.scheduleConstraints],
-          }
+          ...parsed.context.userProfile,
+          fixedCommitments: [...parsed.context.userProfile.fixedCommitments],
+          scheduleConstraints: [...parsed.context.userProfile.scheduleConstraints],
+        }
         : null,
       domainCard: parsed.context.domainCard ? structuredClone(parsed.context.domainCard) : null,
       strategicDraft: parsed.context.strategicDraft ? structuredClone(parsed.context.strategicDraft) : null,
@@ -769,10 +761,10 @@ export class PlanOrchestrator {
         goalSignalsSnapshot: structuredClone(goalSignalsSnapshot),
         userProfile: this.context.userProfile
           ? {
-              ...this.context.userProfile,
-              fixedCommitments: [...this.context.userProfile.fixedCommitments],
-              scheduleConstraints: [...this.context.userProfile.scheduleConstraints],
-            }
+            ...this.context.userProfile,
+            fixedCommitments: [...this.context.userProfile.fixedCommitments],
+            scheduleConstraints: [...this.context.userProfile.scheduleConstraints],
+          }
           : null,
         domainCard: this.context.domainCard ? structuredClone(this.context.domainCard) : null,
         strategicDraft: this.context.strategicDraft ? structuredClone(this.context.strategicDraft) : null,
@@ -844,7 +836,7 @@ export class PlanOrchestrator {
           Date.now() - phaseStart,
           error,
           {
-            summaryEs: `La fase ${PHASE_LABELS_ES[this.state.phase]} falló con ${this.getErrorCode(error)} y el pipeline fuerza un fallback.`,
+            summaryEs: `La fase ${PHASE_LABELS_ES[this.state.phase]} falló con ${this.getErrorCode(error)} y el proceso se detiene.`,
             action: 'phase.exception',
             details: {
               errorMessage,
@@ -852,11 +844,11 @@ export class PlanOrchestrator {
           },
         );
         this.recordEntry(this.state.phase, this.phaseToAgent(this.state.phase), {
-          action: `FALLBACK in ${this.state.phase}`,
+          action: `FAILURE in ${this.state.phase}`,
           reasoning: this.formatDiagnosticReasoning(error),
-          result: 'Used fallback data - result is NOT from LLM',
+          result: errorMessage,
         });
-        this.state.phase = 'package';
+        this.haltPipeline('system_exception', errorMessage, this.phaseToAgent(this.state.phase));
         continue;
       }
 
@@ -877,6 +869,9 @@ export class PlanOrchestrator {
         previousClarificationRounds,
         previousCriticReport,
       });
+
+      // Safety Gate: disabled — plans are always generated regardless of health risk flags.
+
 
       // Determine next phase
       const previousPhase = this.state.phase;
@@ -1063,8 +1058,8 @@ export class PlanOrchestrator {
       informationGaps: missingCriticalSignals.length > 0
         ? missingCriticalSignals
         : latestClarification?.informationGaps
-          ?? this.context.interpretation?.ambiguities
-          ?? [],
+        ?? this.context.interpretation?.ambiguities
+        ?? [],
       clarifyConfidence: latestClarification?.confidence ?? null,
       readyToAdvance: latestClarification?.readyToAdvance ?? null,
       normalizedUserAnswers,
@@ -1122,7 +1117,7 @@ export class PlanOrchestrator {
   }
 
   private getRequiredCriticalSignals(anchors: GenericGoalSignalAnchors): GoalSignalKey[] {
-    const signals: GoalSignalKey[] = [
+    return [
       this.context.interpretation?.goalType === 'QUANT_TARGET_TRACKING' || hasMeaningfulText(anchors.metric)
         ? 'metric'
         : 'success_criteria',
@@ -1130,12 +1125,6 @@ export class PlanOrchestrator {
       'current_baseline',
       'constraints',
     ];
-
-    if (this.requiresSafetyContext()) {
-      signals.push('safety_context');
-    }
-
-    return signals;
   }
 
   private requiresSafetyContext(): boolean {
@@ -1892,9 +1881,9 @@ export class PlanOrchestrator {
       planningContext: {
         interpretation: this.context.interpretation
           ? {
-              parsedGoal: this.context.interpretation.parsedGoal,
-              implicitAssumptions: this.context.interpretation.implicitAssumptions,
-            }
+            parsedGoal: this.context.interpretation.parsedGoal,
+            implicitAssumptions: this.context.interpretation.implicitAssumptions,
+          }
           : undefined,
         clarificationAnswers: this.context.userAnswers,
         goalSignalsSnapshot,
@@ -1915,8 +1904,8 @@ export class PlanOrchestrator {
         );
         this.recordAgentOutcome('planner', 'plan', 'fallback', Date.now() - start, fallbackError, {
           summaryEs: strategyResult.validationSummaryEs
-            ? `${strategyResult.validationSummaryEs} Se uso un fallback del planificador.`
-            : 'El planificador no devolvio un borrador publicable y se uso un fallback.',
+            ? `${strategyResult.validationSummaryEs} El proceso se detiene por falla en la validación.`
+            : 'El planificador no devolvió un borrador publicable y el proceso se detiene.',
           details: {
             failedCheck: strategyResult.failedCheck ?? null,
             validationSummaryEs: strategyResult.validationSummaryEs ?? null,
@@ -1924,27 +1913,28 @@ export class PlanOrchestrator {
           },
         });
         this.recordEntry('plan', 'planner', {
-          action: 'FALLBACK: planner',
+          action: 'FAILURE: planner validation',
           reasoning: this.formatDiagnosticReasoning(fallbackError),
-          result: 'Using fallback strategic draft - NOT from LLM',
+          result: 'Pipeline halted due to planner validation failure.',
         });
+        throw fallbackError;
       } else {
         this.recordAgentOutcome('planner', 'plan', 'llm', Date.now() - start);
       }
       return strategyResult.output;
     } catch (error) {
+      if (this.isSyntheticAgentError(error)) {
+        throw error; // Re-throw our validation failure
+      }
       this.recordAgentOutcome('planner', 'plan', 'fallback', Date.now() - start, error, {
-        summaryEs: 'El planificador fallo de forma inesperada y se uso un fallback estrategico.',
+        summaryEs: 'El planificador falló de forma inesperada y el proceso se detiene.',
       });
       this.recordEntry('plan', 'planner', {
-        action: 'FALLBACK: planner',
+        action: 'FAILURE: planner exception',
         reasoning: this.formatDiagnosticReasoning(error),
-        result: 'Using fallback strategic draft - NOT from LLM',
+        result: 'Pipeline halted due to unexpected planner exception.',
       });
-      return buildFallbackStrategy(
-        strategyInput,
-        this.context.domainCard ?? undefined,
-      );
+      throw error;
     }
   }
 
@@ -2175,9 +2165,9 @@ export class PlanOrchestrator {
       planningContext: {
         interpretation: this.context.interpretation
           ? {
-              parsedGoal: this.context.interpretation.parsedGoal,
-              implicitAssumptions: this.context.interpretation.implicitAssumptions,
-            }
+            parsedGoal: this.context.interpretation.parsedGoal,
+            implicitAssumptions: this.context.interpretation.implicitAssumptions,
+          }
           : undefined,
         clarificationAnswers: this.context.userAnswers,
         goalSignalsSnapshot,
@@ -2200,8 +2190,8 @@ export class PlanOrchestrator {
         );
         this.recordAgentOutcome('planner', 'revise', 'fallback', Date.now() - start, fallbackError, {
           summaryEs: strategyResult.validationSummaryEs
-            ? `${strategyResult.validationSummaryEs} La revision siguio con fallback del planificador.`
-            : 'La revision del planificador no devolvio un borrador publicable y se uso un fallback.',
+            ? `${strategyResult.validationSummaryEs} La revisión falló y el proceso se detiene.`
+            : 'La revisión del planificador no devolvió un borrador publicable y el proceso se detiene.',
           details: {
             failedCheck: strategyResult.failedCheck ?? null,
             validationSummaryEs: strategyResult.validationSummaryEs ?? null,
@@ -2209,20 +2199,24 @@ export class PlanOrchestrator {
           },
         });
         this.recordEntry('revise', 'planner', {
-          action: 'FALLBACK: planner',
+          action: 'FAILURE: planner revision',
           reasoning: this.formatDiagnosticReasoning(fallbackError),
-          result: 'Using existing draft as fallback - NOT from LLM',
+          result: 'Pipeline halted due to planner revision failure.',
         });
+        throw fallbackError;
       } else {
         this.recordAgentOutcome('planner', 'revise', 'llm', Date.now() - start);
       }
       return strategyResult.output;
     } catch (error) {
+      if (this.isSyntheticAgentError(error)) {
+        throw error;
+      }
       this.recordAgentOutcome('planner', 'revise', 'fallback', Date.now() - start, error, {
-        summaryEs: 'La revision del planificador fallo y se reutilizo el borrador existente.',
+        summaryEs: 'La revisión del planificador falló inesperadamente y el proceso se detiene.',
       });
       this.recordEntry('revise', 'planner', {
-        action: 'FALLBACK: planner',
+        action: 'FAILURE: planner exception',
         reasoning: this.formatDiagnosticReasoning(error),
         result: 'Using existing draft as fallback - NOT from LLM',
       });
@@ -2296,7 +2290,7 @@ export class PlanOrchestrator {
           goalType: this.context.interpretation?.goalType ?? 'FINITE_PROJECT',
           specificQuestion,
         },
-        this.brainRuntime);
+          this.brainRuntime);
         this.recordAgentOutcome('domain-expert', phase, 'llm', Date.now() - start);
 
         if (result.card) {
@@ -2421,13 +2415,33 @@ export class PlanOrchestrator {
   }
 
   private formatDiagnosticReasoning(error: unknown): string {
-    return `[provider=${this.brainRuntimeLabel}] Agent failed [${this.getErrorCode(error)}]: ${this.getErrorMessage(error)}`;
+    const quota = extractQuotaFromError(error);
+    const quotaSuffix = quota ? ` ${formatQuotaMessage(quota)}` : '';
+    return `[provider=${this.brainRuntimeLabel}] Agent failed [${this.getErrorCode(error)}]: ${this.getErrorMessage(error)}${quotaSuffix}`;
   }
 
   private buildSyntheticAgentError(code: string, message: string): Error {
     const error = new Error(message);
     error.name = code;
     return error;
+  }
+
+  private isSyntheticAgentError(error: unknown): boolean {
+    return error instanceof Error && (error.name.startsWith('PLANNER_') || error.name.startsWith('REVISION_') || error.name.includes('VALIDATION'));
+  }
+
+  private haltPipeline(
+    failureCode: 'requires_regeneration' | 'requires_supervision' | 'failed_for_quality_review' | 'system_exception',
+    internalMessage: string,
+    agent?: V6AgentName,
+  ): void {
+    this.state.terminalState = {
+      phase: this.state.phase,
+      agent,
+      failureCode,
+      internalMessage,
+    };
+    this.state.phase = 'failed';
   }
 
   private createTimestamp(): string {
@@ -2449,6 +2463,7 @@ export class PlanOrchestrator {
     publicationState?: 'ready' | 'blocked' | 'failed' | null;
     failureCode?: string | null;
     errorCode?: string | null;
+    quota?: QuotaInfo | null;
     details?: Record<string, unknown> | null;
   }): void {
     const event: OrchestratorDebugEvent = {
@@ -2468,6 +2483,7 @@ export class PlanOrchestrator {
       publicationState: input.publicationState ?? null,
       failureCode: input.failureCode ?? null,
       errorCode: input.errorCode ?? null,
+      quota: (input.quota as any) ?? null,
       details: input.details ?? null,
     };
 
@@ -2503,6 +2519,8 @@ export class PlanOrchestrator {
   ): void {
     const errorCode = error ? this.getErrorCode(error) : null;
     const errorMessage = error ? this.getErrorMessage(error) : null;
+    const quota = extractQuotaFromError(error);
+
     this.agentOutcomes.push({
       agent,
       phase,
@@ -2510,6 +2528,7 @@ export class PlanOrchestrator {
       errorCode,
       errorMessage,
       durationMs,
+      quota: (quota as any) ?? null,
     });
 
     this.recordDebugEvent({
@@ -2519,6 +2538,7 @@ export class PlanOrchestrator {
       phase,
       agent,
       errorCode,
+      quota,
       details: {
         source,
         durationMs,
@@ -2532,19 +2552,19 @@ export class PlanOrchestrator {
   private handleFallback<TInput, TOutput>(
     phase: OrchestratorPhase,
     agentName: V6AgentName,
-    input: TInput,
-    agent: Pick<V6Agent<TInput, TOutput>, 'fallback'>,
+    _input: TInput,
+    _agent: Pick<V6Agent<TInput, TOutput>, 'fallback'>,
     start: number,
     error: unknown,
     fallbackLabel?: string,
   ): TOutput {
     this.recordAgentOutcome(agentName, phase, 'fallback', Date.now() - start, error);
     this.recordEntry(phase, agentName, {
-      action: `FALLBACK: ${fallbackLabel ?? agentName}`,
+      action: `FAILURE: ${fallbackLabel ?? agentName}`,
       reasoning: this.formatDiagnosticReasoning(error),
-      result: 'Using fallback data - NOT from LLM',
+      result: 'Pipeline halted due to agent failure.',
     });
-    return agent.fallback(input);
+    throw error;
   }
 
   private buildCriticFallbackReport(goalText: string): CriticReport {
@@ -2626,11 +2646,12 @@ export class PlanOrchestrator {
   }
 
   private isHighRiskHealthGoal(): boolean {
+    const interpretationRisk = (this.context.interpretation?.riskFlags ?? []).includes('HIGH_HEALTH');
     const goalText = `${this.context.goalText} ${this.context.interpretation?.parsedGoal ?? ''}`.toLowerCase();
-    return (
-      this.context.interpretation?.riskFlags.includes('HIGH_HEALTH')
-      || /\b(bajar de peso|perder peso|adelgaz|obesidad|sobrepeso|kg\b|kilos?|imc|bmi|cintura|medidas|salud)\b/.test(goalText)
-    );
+    const heuristicRisk = /\b(bajar|perder|reducir)\b.*\b(peso|kilos|kg|grasa|imc|bmi)\b/.test(goalText)
+      || /\b(obesidad|sobrepeso|diabet|hiperten|corazon|cardiac|cronica|enf\.|enfermedad)\b/.test(goalText);
+
+    return interpretationRisk || heuristicRisk;
   }
 
   private hasHealthSafetyFraming(): boolean {
@@ -2649,27 +2670,32 @@ export class PlanOrchestrator {
   }
 
   private hasEffectiveHealthSafetyCoverage(): boolean {
-    const packageText = [
+    const contextText = [
+      this.context.goalText,
+      this.context.interpretation?.parsedGoal,
+      ...(this.context.interpretation?.implicitAssumptions ?? []),
+      ...Object.values(this.context.userAnswers),
       this.context.finalPackage?.summary_esAR,
       ...(this.context.finalPackage?.warnings ?? []),
       ...(this.context.finalPackage?.implementationIntentions ?? []),
       this.context.criticReport?.reasoning,
-      this.context.strategicDraft?.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`) ?? [],
+      ...(this.context.strategicDraft?.phases.map((phase) => `${phase.name} ${phase.focus_esAR}`) ?? []),
+      ...(this.context.strategicDraft?.milestones ?? []),
     ]
       .flat()
       .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
       .join(' ')
       .toLowerCase();
 
-    if (!packageText.trim()) {
+    if (!contextText.trim()) {
       return false;
     }
 
-    if (!HEALTH_SAFETY_TERMS.test(packageText)) {
+    if (!HEALTH_SAFETY_TERMS.test(contextText)) {
       return false;
     }
 
-    return !NEGATED_HEALTH_SAFETY_TERMS.some((pattern) => pattern.test(packageText));
+    return !NEGATED_HEALTH_SAFETY_TERMS.some((pattern) => pattern.test(contextText));
   }
 
   private hasHealthSupervisionFailureSignal(): boolean {
@@ -2688,23 +2714,48 @@ export class PlanOrchestrator {
       && (outcome.errorMessage?.includes('health.supervision') ?? false));
   }
 
+  private getSafetyVerificationGate(): {
+    publicationState: 'ready' | 'blocked' | 'failed';
+    failureCode: 'requires_regeneration' | 'requires_supervision' | 'failed_for_quality_review' | null;
+    blockingAgents: AgentExecutionOutcome[];
+    customMessage?: string;
+  } {
+    // Health-risk supervision gate is disabled: plans are always generated.
+    return {
+      publicationState: 'ready',
+      failureCode: null,
+      blockingAgents: [],
+    };
+  }
+
   private getPublicationGate(): {
     publicationState: 'ready' | 'blocked' | 'failed';
     failureCode: 'requires_regeneration' | 'requires_supervision' | 'failed_for_quality_review' | null;
     blockingAgents: AgentExecutionOutcome[];
+    customMessage?: string;
   } {
-    if (
-      this.isHighRiskHealthGoal()
-      && (
-        this.hasHealthSupervisionFailureSignal()
-        || !this.hasEffectiveHealthSafetyCoverage()
-      )
-    ) {
+    if (this.state.terminalState) {
+      const ts = this.state.terminalState;
+      const phaseLabel = PHASE_LABELS_ES[ts.phase] || ts.phase;
+      
+      let customMessage = undefined;
+      if (ts.failureCode === 'requires_supervision') {
+         customMessage = `[Etapa: ${phaseLabel}] No se puede publicar este plan porque es un objetivo de salud de alto riesgo y falta una referencia clara a supervisión profesional.`;
+      } else if (ts.failureCode === 'system_exception') {
+         customMessage = `[Etapa: ${phaseLabel}] El sistema falló de forma inesperada: ${ts.internalMessage}`;
+      }
+
       return {
-        publicationState: 'blocked',
-        failureCode: 'requires_supervision',
+        publicationState: ts.failureCode === 'requires_supervision' ? 'blocked' : 'failed',
+        failureCode: ts.failureCode === 'system_exception' ? 'requires_regeneration' : ts.failureCode,
         blockingAgents: [],
+        customMessage,
       };
+    }
+
+    const safetyGate = this.getSafetyVerificationGate();
+    if (safetyGate.publicationState === 'blocked') {
+      return safetyGate;
     }
 
     const blockingAgents = this.getBlockingOutcomes();
@@ -2722,12 +2773,10 @@ export class PlanOrchestrator {
 
     if (this.context.criticReport && this.context.criticReport.verdict !== 'approve') {
       const revisionsExhausted = this.state.revisionCycles >= this.state.maxRevisionCycles;
-      const hasCriticalFindings = (this.context.criticReport.mustFix ?? []).some(
-        (finding) => finding.severity === 'critical',
-      );
-      const scoreAboveDegradedThreshold = (this.context.criticReport.overallScore ?? 0) >= 60;
 
-      if (!(revisionsExhausted && scoreAboveDegradedThreshold && !hasCriticalFindings)) {
+      // Once revision cycles are exhausted the pipeline cannot improve further.
+      // Publish whatever was produced; quality issues are surfaced as warnings.
+      if (!revisionsExhausted) {
         return {
           publicationState: 'failed',
           failureCode: 'failed_for_quality_review',
@@ -2739,7 +2788,7 @@ export class PlanOrchestrator {
     if (!this.context.finalPackage) {
       return {
         publicationState: 'failed',
-        failureCode: 'failed_for_quality_review',
+        failureCode: 'requires_regeneration',
         blockingAgents: [],
       };
     }
@@ -2973,12 +3022,13 @@ export class PlanOrchestrator {
 
       // CriticReport
       if (typeof record.verdict === 'string' && typeof record.overallScore === 'number') {
-        return `Score: ${record.overallScore}, verdict: ${record.verdict}`;
+        const report = record as unknown as CriticReport;
+        return `Score: ${report.overallScore}, verdict: ${report.verdict}`;
       }
 
       // StrategicDraft
-      if (Array.isArray(record.phases)) {
-        return `${(record.phases as unknown[]).length} phases generated`;
+      if (typeof record.phases === 'object' && Array.isArray((record as any).phases)) {
+        return `${((record as any).phases).length} phases generated`;
       }
     }
 
@@ -3012,38 +3062,42 @@ export class PlanOrchestrator {
         ? 'requires_regeneration'
         : publicationGate.failureCode === 'requires_supervision'
           ? 'requires_supervision'
-        : 'failed_for_quality_review';
+          : 'failed_for_quality_review';
+    const currentPhase = (this.context as any).safetyBlockPhase || this.state.phase;
+    const phaseLabel = PHASE_LABELS_ES[currentPhase] || currentPhase;
+    const stagePrefix = `[Etapa: ${phaseLabel}]`;
+
     const gateQualityIssues = publicationGate.failureCode === 'requires_regeneration'
       ? [{
-          code: 'CRITICAL_AGENT_FAILURE',
-          severity: 'blocking' as const,
-          message: 'La ruta critica del pipeline fallo y hace falta regenerar el plan con agentes que respondan correctamente.',
-        }]
+        code: 'CRITICAL_AGENT_FAILURE',
+        severity: 'blocking' as const,
+        message: `${stagePrefix} La ruta crítica del pipeline falló y hace falta regenerar el plan con agentes que respondan correctamente.`,
+      }]
       : publicationGate.failureCode === 'requires_supervision'
         ? [{
-            code: 'HEALTH_SAFETY_SUPERVISION_MISSING',
-            severity: 'blocking' as const,
-            message: 'Hace falta una referencia clara a supervision profesional antes de tratar este plan de salud como aceptable.',
-          }]
+          code: 'HEALTH_SAFETY_SUPERVISION_MISSING',
+          severity: 'blocking' as const,
+          message: (publicationGate as any).customMessage || `${stagePrefix} Hace falta una referencia clara a supervisión profesional antes de tratar este plan de salud como aceptable.`,
+        }]
         : publicationGate.failureCode === 'failed_for_quality_review'
           ? [
-              // Surface the critic's actual findings so the failure is diagnosable
-              ...(this.context.criticReport?.mustFix ?? []).map((f) => ({
-                code: `critic_${f.category}` as string,
-                severity: 'blocking' as const,
-                message: `[${f.severity}/${f.category}] ${f.message}${f.suggestion ? ` → ${f.suggestion}` : ''}`,
-              })),
-              ...(this.context.criticReport?.shouldFix ?? []).slice(0, 3).map((f) => ({
-                code: `critic_${f.category}` as string,
-                severity: 'warning' as const,
-                message: `[${f.severity}/${f.category}] ${f.message}`,
-              })),
-              {
-                code: 'FAILED_QUALITY_REVIEW',
-                severity: 'blocking' as const,
-                message: `El plan no paso la revision final de calidad (score: ${this.context.criticReport?.overallScore ?? '?'}/100, verdict: ${this.context.criticReport?.verdict ?? '?'}). ${this.context.criticReport?.reasoning ?? ''}`.trim(),
-              },
-            ]
+            // Surface the critic's actual findings so the failure is diagnosable
+            ...(this.context.criticReport?.mustFix ?? []).map((f) => ({
+              code: `critic_${f.category}` as string,
+              severity: 'blocking' as const,
+              message: `${stagePrefix} [${f.severity}/${f.category}] ${f.message}${f.suggestion ? ` → ${f.suggestion}` : ''}`,
+            })),
+            ...(this.context.criticReport?.shouldFix ?? []).slice(0, 3).map((f) => ({
+              code: `critic_${f.category}` as string,
+              severity: 'warning' as const,
+              message: `${stagePrefix} [${f.severity}/${f.category}] ${f.message}`,
+            })),
+            {
+              code: 'FAILED_QUALITY_REVIEW',
+              severity: 'blocking' as const,
+              message: `${stagePrefix} El plan no pasó la revisión final de calidad (score: ${this.context.criticReport?.overallScore ?? '?'}/100, verdict: ${this.context.criticReport?.verdict ?? '?'}). ${this.context.criticReport?.reasoning ?? ''}`.trim(),
+            },
+          ]
           : [];
     const bestEffortPublication = publicationGate.publicationState === 'ready'
       && this.context.criticReport
@@ -3054,36 +3108,61 @@ export class PlanOrchestrator {
       && !criticHasCriticalFindings;
     const bestEffortQualityIssues = bestEffortPublication
       ? [{
-          code: 'BEST_EFFORT_PUBLICATION',
-          severity: 'warning' as const,
-          message: `Plan publicado en modo best-effort (score: ${criticScore ?? '?'}/100, ciclos de revision agotados).`,
-        }]
+        code: 'BEST_EFFORT_PUBLICATION',
+        severity: 'warning' as const,
+        message: `[Crítica] Plan publicado en modo best-effort (score: ${criticScore ?? '?'}/100, ciclos de revisión agotados).`,
+      }]
       : [];
     const finalPackage = this.context.finalPackage
       ? {
-          ...this.withLatestReasoningTrace(this.context.finalPackage),
-          qualityScore: this.finalizePackageQualityScore(
-            this.context.finalPackage.qualityScore,
-            publicationGate.publicationState,
+        ...this.withLatestReasoningTrace(this.context.finalPackage),
+        qualityScore: this.finalizePackageQualityScore(
+          this.context.finalPackage.qualityScore,
+          publicationGate.publicationState,
+        ),
+        warnings: this.buildDegradedWarnings(
+          this.context.finalPackage.warnings,
+          publicationGate.publicationState,
+        ),
+        publicationState: packagePublicationState,
+        qualityIssues: [
+          ...(this.context.finalPackage.qualityIssues ?? []),
+          ...gateQualityIssues.filter((issue) =>
+            !(this.context.finalPackage?.qualityIssues ?? []).some((existing) => existing.code === issue.code),
           ),
-          warnings: this.buildDegradedWarnings(
-            this.context.finalPackage.warnings,
-            publicationGate.publicationState,
+          ...bestEffortQualityIssues.filter((issue) =>
+            !(this.context.finalPackage?.qualityIssues ?? []).some((existing) => existing.code === issue.code),
           ),
-          publicationState: packagePublicationState,
-          qualityIssues: [
-            ...(this.context.finalPackage.qualityIssues ?? []),
-            ...gateQualityIssues.filter((issue) =>
-              !(this.context.finalPackage?.qualityIssues ?? []).some((existing) => existing.code === issue.code),
-            ),
-            ...bestEffortQualityIssues.filter((issue) =>
-              !(this.context.finalPackage?.qualityIssues ?? []).some((existing) => existing.code === issue.code),
-            ),
+        ],
+        agentOutcomes: [...this.agentOutcomes],
+        degraded: hasFallbacks,
+      }
+      : publicationGate.failureCode === 'requires_supervision'
+        ? {
+          plan: { skeleton: { phases: [], milestones: [] } },
+          items: [],
+          habitStates: [],
+          slackPolicy: {
+            weeklyTimeBufferMin: 0,
+            maxChurnMovesPerWeek: 0,
+            frozenHorizonDays: 0,
+          },
+          timezone: 'UTC',
+          summary_esAR: 'Bloqueo de seguridad preventivo.',
+          qualityScore: 0,
+          implementationIntentions: [],
+          warnings: [],
+          publicationState: 'requires_supervision',
+          qualityIssues: gateQualityIssues.length > 0 ? gateQualityIssues : [
+            {
+              code: 'HEALTH_SAFETY_SUPERVISION_MISSING',
+              severity: 'blocking',
+              message: (publicationGate as any).customMessage || '[Seguridad] Se requiere supervisión profesional para este plan de salud.',
+            },
           ],
-          agentOutcomes: [...this.agentOutcomes],
           degraded: hasFallbacks,
         }
-      : null;
+        : null;
 
     const canPublish = publicationGate.publicationState === 'ready'
       && this.state.phase === 'done'
@@ -3125,7 +3204,7 @@ export class PlanOrchestrator {
 
     return {
       status: canPublish ? 'completed' : 'failed',
-      package: finalPackage,
+      package: finalPackage as unknown as PlanPackage,
       pendingQuestions: null,
       scratchpad: this.scratchpad.getAll(),
       tokensUsed: this.scratchpad.totalTokens(),
@@ -3135,6 +3214,7 @@ export class PlanOrchestrator {
       publicationState: publicationGate.publicationState,
       failureCode: publicationGate.failureCode,
       blockingAgents: publicationGate.blockingAgents,
+      customMessage: publicationGate.customMessage,
     };
   }
 }

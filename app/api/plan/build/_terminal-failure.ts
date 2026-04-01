@@ -1,5 +1,6 @@
 type V6AgentOutcomeLike = {
   agent: string
+  phase?: string
   source: string
   errorCode: string | null
   errorMessage: string | null
@@ -14,6 +15,7 @@ type V6QualityIssueLike = {
 type V6FailurePackageLike = {
   warnings?: string[]
   qualityIssues?: V6QualityIssueLike[]
+  qualityScore?: number
 } | null
 
 export type V6TerminalState = {
@@ -24,6 +26,7 @@ export type V6TerminalState = {
   blockingAgents?: V6AgentOutcomeLike[]
   package?: V6FailurePackageLike
   scratchpad: unknown[]
+  customMessage?: string
 }
 
 export type V6TerminalFailurePayload = {
@@ -38,7 +41,10 @@ export type V6TerminalFailurePayload = {
   qualityIssues: V6QualityIssueLike[]
   warnings: string[]
   package: V6FailurePackageLike
+  debug?: Record<string, any>
 }
+
+import { PHASE_LABELS_ES } from '@lib/pipeline/v6/types';
 
 function uniqueStrings(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)))
@@ -74,9 +80,16 @@ function getTopQualityIssues(state: V6TerminalState): V6QualityIssueLike[] {
 }
 
 function buildQualityReviewFailureMessage(state: V6TerminalState): string {
-  const parts: string[] = []
-  const topIssues = getTopQualityIssues(state)
+  const mainIssue = state.package?.qualityIssues?.find((i) => i.code === 'FAILED_QUALITY_REVIEW')
+  if (mainIssue?.message) return mainIssue.message;
+
+  const lastPhase = state.agentOutcomes[state.agentOutcomes.length - 1]?.phase;
+  const phaseLabel = lastPhase ? (PHASE_LABELS_ES[lastPhase] || lastPhase) : null;
+  const stage = phaseLabel ? `[Etapa: ${phaseLabel}] ` : '[Crítica] ';
+  
+  const topIssues = (state.package?.qualityIssues ?? []).filter((i) => i.severity === 'blocking')
   const warnings = uniqueStrings(state.package?.warnings ?? [])
+  const parts: string[] = []
   const blockingAgents = summarizeAgentOutcomes(getBlockingAgents(state))
 
   if (topIssues.length > 0) {
@@ -91,14 +104,18 @@ function buildQualityReviewFailureMessage(state: V6TerminalState): string {
     parts.push(`Agentes implicados: ${blockingAgents}.`)
   }
 
-  if (parts.length > 0) {
-    return `No publicamos este plan porque la revision final no paso la calidad. ${parts.join(' ')}`
-  }
-
-  return 'No publicamos este plan porque la revision final no paso la calidad.'
+  const baseMessage = `${stage}No publicamos este plan porque la revisión final no pasó la calidad.`
+  return parts.length > 0 ? `${baseMessage} ${parts.join(' ')}` : baseMessage
 }
 
 function buildRegenerationFailureMessage(state: V6TerminalState): string {
+  const mainIssue = state.package?.qualityIssues?.find((i) => i.code === 'CRITICAL_AGENT_FAILURE')
+  if (mainIssue?.message) return mainIssue.message;
+
+  const lastPhase = state.agentOutcomes[state.agentOutcomes.length - 1]?.phase;
+  const phaseLabel = lastPhase ? (PHASE_LABELS_ES[lastPhase] || lastPhase) : null;
+  const stage = phaseLabel ? `[Etapa: ${phaseLabel}] ` : '[Agente] ';
+
   const blockingAgents = summarizeAgentOutcomes(getBlockingAgents(state))
   const parts: string[] = []
 
@@ -111,13 +128,20 @@ function buildRegenerationFailureMessage(state: V6TerminalState): string {
     parts.push(`Advertencias: ${warnings.slice(0, 4).join(' | ')}.`)
   }
 
-  return parts.length > 0
-    ? `No publicamos este plan porque la revision critica fallo y requiere regeneracion. ${parts.join(' ')}`
-    : 'No publicamos este plan porque la revision critica fallo y requiere regeneracion.'
+  const baseMessage = `${stage}No publicamos este plan porque la revisión crítica falló y requiere regeneración.`
+  return parts.length > 0 ? `${baseMessage} ${parts.join(' ')}` : baseMessage
 }
 
-function buildSupervisionFailureMessage(): string {
-  return 'No publicamos este plan porque es un objetivo de salud de alto riesgo y falta una referencia clara a supervision profesional.'
+function buildSupervisionFailureMessage(state: V6TerminalState): string {
+  const safetyIssue = state.package?.qualityIssues?.find((i) => i.code === 'HEALTH_SAFETY_SUPERVISION_MISSING' || i.code === 'health_safety_gap')
+  if (safetyIssue?.message) return safetyIssue.message;
+  
+  // Si no encontramos el issue pero sabemos el codigo, intentamos reconstruir la etapa
+  const lastPhase = state.agentOutcomes[state.agentOutcomes.length - 1]?.phase;
+  const phaseLabel = lastPhase ? (PHASE_LABELS_ES[lastPhase] || lastPhase) : null;
+  const stage = phaseLabel ? `[Etapa: ${phaseLabel}] ` : '[Seguridad] ';
+  
+  return `${stage}No publicamos este plan porque es un objetivo de salud de alto riesgo y falta una referencia clara a supervisión profesional.`
 }
 
 function buildDegradedFailureMessage(state: V6TerminalState): string {
@@ -126,24 +150,43 @@ function buildDegradedFailureMessage(state: V6TerminalState): string {
   )
 
   return fallbackAgents.length > 0
-    ? `El plan no pudo publicarse con normalidad porque hubo fallos parciales en el pipeline. Agentes con fallback: ${fallbackAgents}.`
-    : 'El plan no pudo publicarse con normalidad porque hubo fallos parciales en el pipeline.'
+    ? `[Agente] El plan no pudo publicarse con normalidad porque hubo fallos parciales en el pipeline. Agentes con fallback: ${fallbackAgents}.`
+    : '[Agente] El plan no pudo publicarse con normalidad porque hubo fallos parciales en el pipeline.'
+}
+
+function buildTechnicalMetadata(state: V6TerminalState): Record<string, any> {
+  const metadata: Record<string, any> = {
+    code: state.failureCode || 'unknown',
+    state: state.publicationState || 'unknown',
+    score: state.package?.qualityScore ?? null,
+  }
+
+  // Identificar el rastro de agentes
+  const failingAgents = state.agentOutcomes
+    .filter((o) => o.source === 'fallback' || (o.errorCode && o.errorCode !== 'null'))
+    .map((o) => ({
+      agent: o.agent,
+      errorCode: o.errorCode || 'error',
+      message: o.errorMessage || 'unknown'
+    }))
+  
+  if (failingAgents.length > 0) {
+    metadata.agents = failingAgents
+  }
+
+  return metadata
 }
 
 export function buildTerminalErrorMessage(state: V6TerminalState): string {
+  if (state.customMessage) return state.customMessage;
+
   if (state.failureCode === 'requires_supervision') {
-    return buildSupervisionFailureMessage()
-  }
-
-  if (state.failureCode === 'failed_for_quality_review') {
+    return buildSupervisionFailureMessage(state)
+  } else if (state.failureCode === 'failed_for_quality_review') {
     return buildQualityReviewFailureMessage(state)
-  }
-
-  if (state.publicationState === 'blocked' || state.failureCode === 'requires_regeneration') {
+  } else if (state.publicationState === 'blocked' || state.failureCode === 'requires_regeneration') {
     return buildRegenerationFailureMessage(state)
-  }
-
-  if (state.degraded) {
+  } else if (state.degraded) {
     return buildDegradedFailureMessage(state)
   }
 
@@ -167,6 +210,7 @@ export function buildTerminalFailurePayload(state: V6TerminalState): V6TerminalF
     qualityIssues,
     warnings,
     package: state.package ?? null,
+    debug: buildTechnicalMetadata(state),
   }
 }
 
@@ -195,6 +239,7 @@ export function sendTerminalFailure(
         qualityIssues: payload.qualityIssues,
         warnings: payload.warnings,
         package: payload.package,
+        debug: payload.debug,
       },
     })
   } else if (state.degraded) {

@@ -8,7 +8,8 @@ describe('Scheduler Robustness (Budget Squeezing)', () => {
     freeHoursWeekday: 2, // 10h total semanal L-V 
     freeHoursWeekend: 1, // 2h total finde
     energyLevel: 'medium',
-    fixedCommitments: []
+    fixedCommitments: [],
+    scheduleConstraints: []
   }; // Total 12h/semana. Target 85% = 10.2h  
 
   const mockClassification: GoalClassification = {
@@ -30,16 +31,12 @@ describe('Scheduler Robustness (Budget Squeezing)', () => {
     goalText: 'Aprender algo complejo',
     roadmap: {
       phases: [
-        { id: 'p1', name: 'Fase 1', focus_esAR: 'Estudio intenso 1', startMonth: 1, endMonth: 1, hoursPerWeek: 5, milestone: 'M1', metrics: [], dependencies: [], failureMode: '', mitigation: '' },
-        { id: 'p2', name: 'Fase 2', focus_esAR: 'Estudio intenso 2', startMonth: 1, endMonth: 1, hoursPerWeek: 5, milestone: 'M2', metrics: [], dependencies: [], failureMode: '', mitigation: '' },
-        { id: 'p3', name: 'Fase 3', focus_esAR: 'Estudio intenso 3', startMonth: 1, endMonth: 1, hoursPerWeek: 5, milestone: 'M3', metrics: [], dependencies: [], failureMode: '', mitigation: '' },
-        { id: 'p4', name: 'Fase 4', focus_esAR: 'Estudio intenso 4', startMonth: 1, endMonth: 1, hoursPerWeek: 5, milestone: 'M4', metrics: [], dependencies: [], failureMode: '', mitigation: '' },
+        { name: 'Fase 1', focus_esAR: 'Estudio intenso 1' },
+        { name: 'Fase 2', focus_esAR: 'Estudio intenso 2' },
+        { name: 'Fase 3', focus_esAR: 'Estudio intenso 3' },
+        { name: 'Fase 4', focus_esAR: 'Estudio intenso 4' },
       ],
       milestones: [],
-      title: 'Plan Ambicioso',
-      summary: 'Test',
-      totalMonths: 4,
-      estimatedWeeklyHours: 20
     }
   };
 

@@ -87,6 +87,9 @@ function handleV6Build(
         const { PlanOrchestrator } = await import(
           '../../../../src/lib/pipeline/v6/orchestrator'
         )
+        const { extractQuotaFromError } = await import(
+          '../../../../src/lib/runtime/quota-parser'
+        )
         const { createV6RuntimeSnapshot } = await import(
           '../../../../src/lib/pipeline/v6/session-snapshot'
         )
@@ -170,10 +173,7 @@ function handleV6Build(
           thinkingMode,
         })
 
-        const fastRuntime = createBuildAgentRuntime({
-          ...execution.runtime,
-          modelId: 'openai:gpt-4o-mini',
-        }, {
+        const fastRuntime = createBuildAgentRuntime(execution.runtime, {
           thinkingMode: 'disabled',
         })
 
@@ -202,9 +202,11 @@ function handleV6Build(
           }
         } catch (preflightError) {
           const message = preflightError instanceof Error ? preflightError.message : String(preflightError)
+          const quota = extractQuotaFromError(preflightError)
           const providerFailure = createRuntimeProviderFailure({
             rawMessage: message,
             trace: providerTrace,
+            quota,
           })
           send({
             type: 'result',
@@ -213,6 +215,7 @@ function handleV6Build(
               error: providerFailure.message,
               providerErrorCode: providerFailure.code,
               providerTrace: providerFailure.trace,
+              quota: providerFailure.quota,
             },
           })
           return

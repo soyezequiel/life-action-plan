@@ -55,6 +55,19 @@ export const OrchestratorPhaseSchema = z.enum([
 ]);
 export type OrchestratorPhase = z.infer<typeof OrchestratorPhaseSchema>;
 
+export const PHASE_LABELS_ES: Record<string, string> = {
+  interpret: 'Interpretar meta',
+  clarify: 'Clarificar',
+  plan: 'Planificar estrategia',
+  check: 'Verificar viabilidad',
+  schedule: 'Armar agenda semanal',
+  critique: 'Criticar el plan',
+  revise: 'Revisar y mejorar',
+  package: 'Empaquetar resultado',
+  done: 'Listo ✅',
+  failed: 'Fallo ❌',
+};
+
 export const GoalInterpretationSchema = z.object({
   parsedGoal: z.string(),
   goalType: GoalTypeSchema,
@@ -234,6 +247,7 @@ export const AgentExecutionOutcomeSchema = z.object({
   errorCode: z.string().nullable(),
   errorMessage: z.string().nullable(),
   durationMs: z.number().int().min(0),
+  quota: z.record(z.string(), z.unknown()).nullable().optional(),
 }).strict();
 export type AgentExecutionOutcome = z.infer<typeof AgentExecutionOutcomeSchema>;
 
@@ -254,6 +268,7 @@ export const OrchestratorDebugEventSchema = z.object({
   publicationState: z.enum(['ready', 'blocked', 'failed']).nullable(),
   failureCode: z.string().nullable(),
   errorCode: z.string().nullable(),
+  quota: z.record(z.string(), z.unknown()).nullable().optional(),
   details: z.record(z.string(), z.unknown()).nullable(),
 }).strict();
 export type OrchestratorDebugEvent = z.infer<typeof OrchestratorDebugEventSchema>;
@@ -306,6 +321,14 @@ export const PlanIntakeCoverageSchema = z.object({
 }).strict();
 export type PlanIntakeCoverage = z.infer<typeof PlanIntakeCoverageSchema>;
 
+export const EngineTerminalStateSchema = z.object({
+  phase: OrchestratorPhaseSchema,
+  agent: V6AgentNameSchema.optional(),
+  failureCode: z.enum(['requires_regeneration', 'requires_supervision', 'failed_for_quality_review', 'system_exception']),
+  internalMessage: z.string(),
+}).strict();
+export type EngineTerminalState = z.infer<typeof EngineTerminalStateSchema>;
+
 export const OrchestratorStateSchema = z.object({
   phase: OrchestratorPhaseSchema,
   iteration: z.number().int().min(0),
@@ -320,6 +343,7 @@ export const OrchestratorStateSchema = z.object({
   }).strict(),
   progressScore: z.number().min(0).max(100),
   scratchpad: z.array(ReasoningEntrySchema),
+  terminalState: EngineTerminalStateSchema.nullable().optional(),
 }).strict();
 export type OrchestratorState = z.infer<typeof OrchestratorStateSchema>;
 

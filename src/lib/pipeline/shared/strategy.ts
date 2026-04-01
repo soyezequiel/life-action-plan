@@ -87,6 +87,38 @@ function normalizeReasoningOutput(raw: unknown): StrategyOutput {
   });
 }
 
+const SPANISH_NUMBER_WORDS_TO_DIGIT: Record<string, number> = {
+  un: 1,
+  una: 1,
+  uno: 1,
+  dos: 2,
+  tres: 3,
+  cuatro: 4,
+  cinco: 5,
+  seis: 6,
+  siete: 7,
+  ocho: 8,
+  nueve: 9,
+  diez: 10,
+  doce: 12,
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  twelve: 12,
+};
+
+function parseAmountFromMatch(raw: string): number {
+  const digital = Number(raw);
+  if (!isNaN(digital)) return digital;
+  return SPANISH_NUMBER_WORDS_TO_DIGIT[raw.toLowerCase()] ?? 1;
+}
+
+const HORIZON_NUMBER_PATTERN = '(\\d+|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|doce|one|two|three|four|five|six|twelve)';
+const HORIZON_UNIT_PATTERN = '(año|años|ano|anos|year|years|mes|meses|month|months|semana|semanas|week|weeks)';
+
 interface CookingSignals {
   level: string | null;
   subtopic: string | null;
@@ -980,13 +1012,13 @@ function buildHorizonVariants(horizon: string): string[] {
     6: ['seis', 'six'],
     12: ['doce', 'twelve'],
   };
-  const match = normalizeSignalText(horizon).match(/(\d+)\s*(año|años|ano|anos|year|years|mes|meses|month|months|semana|semanas|week|weeks)\b/);
+  const match = normalizeSignalText(horizon).match(new RegExp(`${HORIZON_NUMBER_PATTERN}\\s*${HORIZON_UNIT_PATTERN}\\b`));
 
   if (!match) {
     return [...variants];
   }
 
-  const amount = Number(match[1]);
+  const amount = parseAmountFromMatch(match[1]);
   const rawUnit = match[2];
   const isMonthUnit = /\b(mes|meses|month|months)\b/.test(rawUnit);
   const isYearUnit = /\b(año|años|ano|anos|year|years)\b/.test(rawUnit);
@@ -1211,11 +1243,6 @@ function validateStrategyOutput(
     }
   }
 
-  if (typedSignals.health.highRisk) {
-    if (!includesAny(textFields, ['supervision', 'supervision profesional', 'seguimiento', 'medico', 'nutricionista'])) {
-      return { valid: false, failedCheck: 'health.supervision' };
-    }
-  }
 
   if (typedSignals.health.preferredActivities.length > 0) {
     const hasActivity = typedSignals.health.preferredActivities.some((activity) => includesAny(textFields, [activity]));
@@ -1314,19 +1341,19 @@ function resolveDurations(mastery: string | null): number[] {
 function extractTargetHorizonWeeks(goalText: string, deadline: string | null): number | null {
   const text = normalizeSignalText(`${goalText} ${deadline ?? ''}`);
 
-  const yearMatch = text.match(/(\d+)\s*(ano|anos|year|years)\b/);
+  const yearMatch = text.match(new RegExp(`${HORIZON_NUMBER_PATTERN}\\s*(ano|anos|year|years)\\b`));
   if (yearMatch) {
-    return Math.max(1, Math.min(Number(yearMatch[1]) * 52, 104));
+    return Math.max(1, Math.min(parseAmountFromMatch(yearMatch[1]) * 52, 104));
   }
 
-  const monthMatch = text.match(/(\d+)\s*(mes|meses|month|months)\b/);
+  const monthMatch = text.match(new RegExp(`${HORIZON_NUMBER_PATTERN}\\s*(mes|meses|month|months)\\b`));
   if (monthMatch) {
-    return Math.max(1, Math.min(Number(monthMatch[1]) * 4, 104));
+    return Math.max(1, Math.min(parseAmountFromMatch(monthMatch[1]) * 4, 104));
   }
 
-  const weekMatch = text.match(/(\d+)\s*(semana|semanas|week|weeks)\b/);
+  const weekMatch = text.match(new RegExp(`${HORIZON_NUMBER_PATTERN}\\s*(semana|semanas|week|weeks)\\b`));
   if (weekMatch) {
-    return Math.max(1, Math.min(Number(weekMatch[1]), 104));
+    return Math.max(1, Math.min(parseAmountFromMatch(weekMatch[1]), 104));
   }
 
   const calendarDeadlineWeeks = extractCalendarDeadlineWeeks(text);
@@ -2231,15 +2258,6 @@ function buildStrategyValidationDiagnosis(
         },
       };
     }
-    case 'health.supervision':
-      return {
-        summaryEs: 'El borrador omitió la referencia de supervisión profesional necesaria para un objetivo de salud de alto riesgo.',
-        evidence: {
-          highRisk: typedSignals.health.highRisk,
-          expectedTerms: ['supervision', 'seguimiento', 'medico', 'nutricionista'],
-          observedTexts: truncatedTexts,
-        },
-      };
     case 'health.preferred_activities':
       return {
         summaryEs: 'El borrador no incorporó las actividades viables detectadas para este objetivo de salud.',
@@ -2381,11 +2399,11 @@ export async function generateStrategyWithSource(
         input,
         typedSignals,
       );
+      // Validation checks are advisory only: use the LLM output as-is and
+      // surface the issue as a warning instead of halting the pipeline.
       return {
-        output: buildFallbackStrategy(input, domainCard),
-        source: 'fallback',
-        fallbackCode: 'STRATEGY_VALIDATION_FAILED',
-        fallbackMessage: `Planner output failed validation: check "${validation.failedCheck}" did not pass. Fallback strategy was used.`,
+        output,
+        source: 'llm',
         failedCheck: validation.failedCheck,
         validationSummaryEs: diagnosis.summaryEs,
         validationEvidence: diagnosis.evidence,

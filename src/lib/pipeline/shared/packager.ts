@@ -643,8 +643,8 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
       code: 'goal_mismatch',
       severity: 'block',
       message: blockingMissingSignals.length > 0
-        ? `El paquete pierde senales criticas del intake (${blockingMissingSignals.map((usage) => usage.signal).join(', ')}) y queda desalineado con el objetivo.`
-        : 'El paquete no conserva alineacion semantica suficiente con el objetivo original.',
+        ? `[Alineación] El paquete pierde señales críticas del intake (${blockingMissingSignals.map((usage) => usage.signal).join(', ')}) y queda desalineado con el objetivo.`
+        : '[Alineación] El paquete no conserva alineación semántica suficiente con el objetivo original.',
       evidence: goalMismatchEvidence,
     });
   }
@@ -653,7 +653,7 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
     issues.push({
       code: 'domain_mismatch',
       severity: 'warn',
-      message: `El paquete activa señales del dominio "${packageDomain}" aunque el overlay pedido era "${requestDomain}".`,
+      message: `[Dominio] El paquete activa señales del dominio "${packageDomain}" aunque el overlay pedido era "${requestDomain}".`,
       evidence: [requestDomain, packageDomain],
     });
   }
@@ -668,7 +668,7 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
       issues.push({
         code: 'semantic_nonsense',
         severity: 'block',
-        message: 'Hay un evento de calendario con una etiqueta estructural en vez de una tarea concreta.',
+        message: '[Calidad] Hay un evento de calendario con una etiqueta estructural en vez de una tarea concreta.',
         evidence: [title],
       });
       continue;
@@ -678,7 +678,7 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
       issues.push({
         code: 'calendar_phase_leak',
         severity: 'block',
-        message: 'Un evento de calendario repite o copia el nombre de una fase en vez de describir una accion concreta.',
+        message: '[Estructura] Un evento de calendario repite o copia el nombre de una fase en vez de describir una acción concreta.',
         evidence: [title, ...phaseTitles],
       });
     }
@@ -689,7 +689,7 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
       issues.push({
         code: 'semantic_nonsense',
         severity: 'block',
-        message: 'Hay una fase con texto semanticamente invalido en vez de una descripcion concreta.',
+        message: '[Calidad] Hay una fase con texto semánticamente inválido en vez de una descripción concreta.',
         evidence: [phase.title],
       });
     }
@@ -731,7 +731,7 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
       issues.push({
         code: 'health_safety_gap',
         severity: 'block',
-        message: 'Para una meta de salud de alto riesgo hace falta una referencia clara a supervision profesional o seguimiento medico.',
+        message: '[Seguridad] Para una meta de salud de alto riesgo hace falta una referencia clara a supervisión profesional o seguimiento médico.',
         evidence: uniqueNonEmpty([
           input.goalText,
           healthSignals.support ?? '',
@@ -745,7 +745,7 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
     issues.push({
       code: 'low_concreteness',
       severity: 'warn',
-      message: 'No quedaron acciones semanales concretas suficientes; la agenda sigue demasiado estructural.',
+      message: '[Estructura] No quedaron acciones semanales concretas suficientes; la agenda sigue demasiado estructural.',
       evidence: scheduledEventTitles.slice(0, 3),
     });
   }
@@ -759,8 +759,8 @@ export function evaluatePackageValidation(input: PackageValidationInput): Packag
         code: 'intake_signals_missing',
         severity: degradedSkip ? 'warn' : 'block',
         message: degradedSkip
-          ? `El plan avanza con degraded_skip y deja señales incompletas o poco visibles: ${intakeCoverage?.missingSignals.join(', ')}.`
-          : `El plan no reutiliza señales criticas del intake: ${missingBlockingSignals.join(', ')}.`,
+          ? `[Intake] El plan avanza con degraded_skip y deja señales incompletas o poco visibles: ${intakeCoverage?.missingSignals.join(', ')}.`
+          : `[Intake] El plan no reutiliza señales críticas del intake: ${missingBlockingSignals.join(', ')}.`,
         evidence: intakeCoverage?.missingSignals ?? [],
       });
     }

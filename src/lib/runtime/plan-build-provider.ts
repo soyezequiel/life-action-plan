@@ -24,10 +24,13 @@ export interface ProviderTrace {
   blockReasonDetail: string | null
 }
 
+import { type QuotaInfo, formatQuotaMessage } from './quota-parser'
+
 export interface ProviderFailure {
   code: ProviderFailureCode
   message: string
   trace: ProviderTrace
+  quota?: QuotaInfo | null
 }
 
 export function resolveRequestedBuildMode(input: {
@@ -184,6 +187,7 @@ function isAvailabilityError(message: string): boolean {
 export function createRuntimeProviderFailure(input: {
   rawMessage: string
   trace: ProviderTrace
+  quota?: QuotaInfo | null
 }): ProviderFailure {
   const rawMessage = input.rawMessage.trim() || 'Unknown provider runtime error.'
   const code = isQuotaError(rawMessage)
@@ -200,10 +204,14 @@ export function createRuntimeProviderFailure(input: {
       ? 'La autenticacion del provider fallo o no esta lista para esta ruta.'
       : 'El provider pedido no estuvo disponible para este intento.'
 
+  const quotaMessage = formatQuotaMessage(input.quota)
+  const finalGuidance = quotaMessage ? `${guidance} ${quotaMessage}` : guidance
+
   return {
     code,
     trace: input.trace,
-    message: `Provider error [${code}]. ${guidance} Raw: ${rawMessage}. Trace: ${formatProviderTrace(input.trace)}.`,
+    quota: input.quota,
+    message: `Provider error [${code}]. ${finalGuidance} Raw: ${rawMessage}. Trace: ${formatProviderTrace(input.trace)}.`,
   }
 }
 

@@ -12,7 +12,7 @@ export interface PlanStreamCallbacks {
   onDegraded?: (data: PlanDegradedEvent) => void
   onDebug?: (event: unknown) => void
   onComplete: (planId: string, score: number, iterations: number) => void
-  onError: (message: string) => void
+  onError: (message: string, debug?: any) => void
 }
 
 interface SseEnvelope {
@@ -133,7 +133,11 @@ function dispatchSsePayload(payloadText: string, explicitEventType: string | nul
         && 'success' in result
         && (result as { success?: unknown }).success === false
       ) {
-        callbacks.onError(toStringValue((result as { error?: unknown }).error, 'No pudimos continuar en este momento.'))
+        const resultObj = result as { error?: unknown; debug?: unknown }
+        callbacks.onError(
+          toStringValue(resultObj.error, 'No pudimos continuar en este momento.'),
+          resultObj.debug
+        )
       }
       return
     }
@@ -157,6 +161,26 @@ function dispatchSsePayload(payloadText: string, explicitEventType: string | nul
       callbacks.onNeedsInput(
         toStringValue(value.sessionId),
         (value.questions ?? null) as ClarificationRound
+      )
+      return
+    }
+
+    if (eventType === 'v6:blocked' && data && typeof data === 'object') {
+      const value = data as { message?: unknown; debug?: unknown; agentOutcomes?: unknown; blockingAgents?: unknown; qualityIssues?: unknown; warnings?: unknown; package?: unknown; failureCode?: unknown; degraded?: unknown }
+      callbacks.onError(
+        toStringValue(value.message, 'El plan fue bloqueado por políticas de seguridad o calidad.'),
+        {
+          structured: value.debug,
+          raw: {
+            failureCode: value.failureCode,
+            degraded: value.degraded,
+            agentOutcomes: value.agentOutcomes,
+            blockingAgents: value.blockingAgents,
+            qualityIssues: value.qualityIssues,
+            warnings: value.warnings,
+            package: value.package,
+          },
+        }
       )
       return
     }

@@ -14,6 +14,7 @@ import { SuccessPaymentAnimation } from '../midnight-mint/SuccessPaymentAnimatio
 import { fetchWalletStatus, chargePlanBuild, startPlanBuild, resumePlanBuild } from '@/src/lib/client/plan-client'
 import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 import type { ClarificationRound, ClarificationQuestion } from '@/src/lib/pipeline/v6/types'
+import { GenerationErrorDetails } from '../flow/GenerationErrorDetails'
 
 interface IntakeMockupProps {
   onComplete?: (profileId: string, planId: string) => void
@@ -46,6 +47,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [pendingGoal, setPendingGoal] = useState<string | null>(null)
   const [generationError, setGenerationError] = useState<string | null>(null)
+  const [debugData, setDebugData] = useState<any>(null)
 
   // Rehidratar perfil existente al montar para evitar duplicación
   useEffect(() => {
@@ -139,6 +141,7 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
     setIsGenerating(true)
     setShowPaymentQuote(false)
     setGenerationError(null)
+    setDebugData(null)
     
     try {
       // Reutilizar profileId si ya lo tenemos
@@ -173,10 +176,11 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
             setIsGenerating(false)
             setIsCompletedLocal(true)
           },
-          onError: (msg: string) => { 
+          onError: (msg: string, debug?: any) => { 
             logPlanificadorDebug(`[Intake] Error en el stream SSE: ${msg}`)
             pCallbacks.onError(msg)
             setGenerationError(msg)
+            setDebugData(debug)
             setIsGenerating(false) 
           }
         })
@@ -212,9 +216,10 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
           setIsResuming(false)
           setIsCompletedLocal(true)
         },
-        onError: (msg: string) => { 
+        onError: (msg: string, debug?: any) => { 
           pCallbacks.onError(msg)
           setGenerationError(msg)
+          setDebugData(debug)
           setIsGenerating(false)
           setIsResuming(false) 
         }
@@ -574,17 +579,13 @@ export default function IntakeMockup({ onComplete, onCancel }: IntakeMockupProps
             ) : (
               <>
                 {generationError && (
-                  <motion.div 
-                    className="mb-6 rounded-[16px] border border-red-100 bg-red-50 p-4 text-red-600 shadow-sm flex items-start gap-3"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <MaterialIcon name="error_outline" className="text-[20px] shrink-0 mt-0.5" />
-                    <div className="flex flex-col">
-                      <span className="font-bold text-[14px]">Problema con el asistente</span>
-                      <span className="text-[14px]">{generationError}</span>
-                    </div>
-                  </motion.div>
+                  <div className="mb-6">
+                    <GenerationErrorDetails 
+                      message={generationError}
+                      debug={debugData}
+                      onRetry={() => handleComplete(pendingGoal || value, true)}
+                    />
+                  </div>
                 )}
                 <textarea
                   value={value}
