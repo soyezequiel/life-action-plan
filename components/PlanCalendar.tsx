@@ -328,15 +328,17 @@ export default function PlanCalendar({
                     <strong className={styles.agendaTime}>{timeText}</strong>
                     <span className={styles.agendaDuration}>{durationText || categoryText}</span>
                   </div>
-                  <div className={styles.agendaTaskCopy}>
-                    <strong className={styles.agendaTaskTitle}>{task.descripcion}</strong>
-                    <span className={styles.agendaTaskMeta}>
-                      {durationText ? `${durationText} / ${categoryText}` : categoryText}
+                  <div className={styles.agendaInfo}>
+                    <div className={styles.agendaTaskCopy}>
+                      <strong className={styles.agendaTaskTitle}>{task.descripcion}</strong>
+                      <span className={styles.agendaTaskMeta}>
+                        {durationText ? `${durationText} / ${categoryText}` : categoryText}
+                      </span>
+                    </div>
+                    <span className={`${styles.agendaStatus} ${task.completado ? styles.agendaStatusDone : ''}`}>
+                      {task.completado ? t('dashboard.completed') : t('dashboard.pending')}
                     </span>
                   </div>
-                  <span className={`${styles.agendaStatus} ${task.completado ? styles.agendaStatusDone : ''}`}>
-                    {task.completado ? t('dashboard.completed') : t('dashboard.pending')}
-                  </span>
                 </li>
               )
             })}
