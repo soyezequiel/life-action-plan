@@ -8,7 +8,7 @@ import { AppShell } from '../components/layout/AppShell'
 import { t } from '../src/i18n'
 
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/plan/v5',
+  usePathname: () => '/plan',
   useRouter: () => ({
     replace: vi.fn(),
     refresh: vi.fn()
@@ -26,7 +26,7 @@ describe('app shell navigation', () => {
 
     expect(screen.queryByRole('link', { name: t('dashboard.shell_nav.plan') })).toBeNull()
     expect(screen.getByRole('link', { name: t('dashboard.shell_nav.calendar') }).getAttribute('href')).toBe(
-      '/plan/v5?tab=calendar&view=week'
+      '/plan?tab=calendar&view=week'
     )
   })
 })

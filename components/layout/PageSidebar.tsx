@@ -21,8 +21,8 @@ const NAV_ITEMS: SidebarNavItem[] = [
   { href: '/', label: t('dashboard.shell_nav.dashboard'), icon: 'dashboard', exact: true },
   { href: '/intake', label: t('dashboard.shell_nav.flow'), icon: 'account_tree' },
   {
-    href: '/plan/v5?tab=calendar&view=week',
-    matchPath: '/plan/v5',
+    href: '/plan?tab=calendar&view=week',
+    matchPath: '/plan',
     label: t('dashboard.shell_nav.calendar'),
     icon: 'calendar_month'
   },

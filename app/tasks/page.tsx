@@ -1,6 +1,7 @@
+import React from 'react'
 import { redirect } from 'next/navigation'
 
-import TaskManagementMockup from '../../components/mockups/TaskManagementMockup'
+import { WorkspaceOrchestrator } from '../../components/workspace/WorkspaceOrchestrator'
 import { getCurrentSession, getTasksInitialData } from '../../src/lib/server/request-context'
 
 type SearchParams = Record<string, string | string[] | undefined>
@@ -36,5 +37,10 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   const requestedPlanId = readParam(params.planId)
   const initialTasks = await getTasksInitialData(session.user?.id ?? null, requestedPlanId)
 
-  return <TaskManagementMockup initialTasks={initialTasks} />
+  return (
+    <WorkspaceOrchestrator
+      viewKey="tasks"
+      viewProps={{ initialTasks }}
+    />
+  )
 }

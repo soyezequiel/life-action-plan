@@ -43,7 +43,7 @@ function renderTopTab(tab: WorkspaceTopTab, mobile = false) {
 export function WorkspaceOrchestrator<K extends keyof import('./types').WorkspaceViewPropsMap>({
   viewKey,
   viewProps,
-  sidebarLabel = t('mockups.common.digital_sanctuary'),
+  sidebarLabel = t('workspace.shell.label'),
   topLeft,
   topTabs,
   topRight,

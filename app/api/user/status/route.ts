@@ -1,7 +1,8 @@
 import { findCredentialConfiguration } from '../../../../src/lib/auth/credential-config'
 import { isSecretStorageAvailable } from '../../../../src/lib/auth/secret-storage'
+import { isCodexDebugMode } from '../../../../src/lib/dev/codex-debug'
 import type { UserStatusSnapshotResult } from '../../../../src/shared/types/lap-api'
-import { getLatestProfileIdForUser, getPlansByProfile } from '../../_db'
+import { getLatestProfileIdForUser, getLatestProfileIdWithPlans, getPlansByProfile } from '../../_db'
 import { jsonResponse } from '../../_shared'
 import { getApiKeySettingKey, resolveAuthenticatedUserId, resolveUserId } from '../../_user-settings'
 import { getWalletStatus } from '../../_wallet'
@@ -52,6 +53,17 @@ async function resolveHasPlan(userId: string | null, storedProfileId: string | n
     }
   }
 
+  if (isCodexDebugMode()) {
+    const fallbackProfileId = await getLatestProfileIdWithPlans()
+
+    if (fallbackProfileId) {
+      return {
+        hasPlan: true,
+        latestProfileId: latestProfileId ?? fallbackProfileId,
+      }
+    }
+  }
+
   return {
     hasPlan: false,
     latestProfileId,
@@ -60,8 +72,9 @@ async function resolveHasPlan(userId: string | null, storedProfileId: string | n
 
 export async function GET(request: Request): Promise<Response> {
   const authenticatedUserId = resolveAuthenticatedUserId(request)
+  const allowCodexFallback = isCodexDebugMode()
 
-  if (!authenticatedUserId) {
+  if (!authenticatedUserId && !allowCodexFallback) {
     return jsonResponse<UserStatusSnapshotResult>({
       hasWallet: false,
       hasApiKey: false,
@@ -73,7 +86,7 @@ export async function GET(request: Request): Promise<Response> {
   const storedProfileId = readStoredProfileId(request)
   const [walletStatus, hasApiKey, planStatus] = await Promise.all([
     getWalletStatus(resolveUserId(request)),
-    hasActiveApiKey(authenticatedUserId),
+    authenticatedUserId ? hasActiveApiKey(authenticatedUserId) : Promise.resolve(false),
     resolveHasPlan(authenticatedUserId, storedProfileId),
   ])
 

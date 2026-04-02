@@ -257,10 +257,10 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
       <div className="mx-auto flex w-full max-w-[1040px] flex-col items-center px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <div className="mb-5 text-center sm:mb-6">
           <p className="font-display text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 sm:text-[11px] sm:tracking-[0.32em]">
-            {t('mockups.intake.eyebrow')}
+            {t('intake.workspace_eyebrow')}
           </p>
           <h1 className="mt-3 font-display text-[28px] font-bold tracking-tight text-[#1f2937] sm:mt-4 sm:text-[32px]">
-            {t('mockups.intake.title')}
+            {t('intake.workspace_title')}
           </h1>
         </div>
 
@@ -597,13 +597,13 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                   <textarea
                     value={value}
                     onChange={(event) => setValue(event.target.value)}
-                    placeholder={t('mockups.intake.placeholder')}
+                    placeholder={t('intake.workspace_placeholder')}
                     disabled={isGenerating}
                     className="min-h-[220px] w-full resize-none rounded-[20px] border border-transparent bg-[rgba(255,252,247,0.96)] p-5 text-[18px] leading-[1.5] text-slate-500 outline-none placeholder:text-slate-400 focus:border-[#0f766e]/10 focus:bg-white focus:text-[#334155] disabled:opacity-50 sm:min-h-[240px] sm:p-6 sm:pb-24 sm:text-[22px] md:text-[24px]"
                   />
                   <div className="flex w-full items-center justify-between gap-3 sm:absolute sm:bottom-6 sm:right-6 sm:w-auto sm:justify-end">
                     <span className="rounded-full bg-white/80 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] sm:text-[10px] sm:tracking-[0.2em]">
-                      {t('mockups.intake.submit_hint')}
+                      {t('intake.workspace_submit_hint')}
                     </span>
                     <button
                       type="button"
@@ -612,7 +612,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                       className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white transition hover:-translate-y-0.5 ${
                         isGenerating || isCheckingCost ? 'cursor-not-allowed bg-slate-400' : 'bg-[#1f2937]'
                       }`}
-                      aria-label={t('mockups.intake.continue')}
+                      aria-label={t('intake.workspace_continue')}
                     >
                       {isGenerating || isCheckingCost ? (
                         <MaterialIcon name="hourglass_empty" className="animate-spin text-[20px]" />

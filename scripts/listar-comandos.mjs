@@ -7,7 +7,9 @@ const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
 const descriptions = {
   comandos: 'Muestra todos los comandos disponibles del proyecto con una explicacion breve.',
   dev: 'Inicia el servidor de desarrollo de Next.js.',
+  'dev:codex': 'Inicia el servidor de desarrollo con bypass de onboarding y acceso completo para debug.',
   'dev:turbo': 'Inicia el servidor de desarrollo usando Turbopack.',
+  'dev:codex:turbo': 'Inicia Turbopack con bypass de onboarding y acceso completo para debug.',
   build: 'Genera la build de produccion.',
   start: 'Levanta la app en modo produccion.',
   'codex:login': 'Inicia el flujo de login de Codex para este workspace.',
@@ -58,31 +60,33 @@ const categoryDefinitions = [
 const commandPriorities = {
   comandos: 0,
   dev: 1,
-  'db:push': 2,
-  typecheck: 3,
+  'dev:codex': 2,
+  'db:push': 3,
+  typecheck: 4,
   test: 4,
   lint: 5,
   'smoke:local': 6,
   build: 7,
   'dev:turbo': 8,
-  start: 9,
-  'test:watch': 10,
-  'db:generate': 11,
-  'db:migrate': 12,
-  'doctor:local': 13,
-  'doctor:local:charge': 14,
-  'doctor:deploy': 15,
-  'smoke:local:charge': 16,
-  'smoke:local:resource': 17,
-  'smoke:resource:policy': 18,
-  'smoke:deploy': 19,
-  'lap:inspect': 20,
-  'lap:flow:viewer': 21,
-  'codex:login': 22,
-  'credential:bootstrap:backend': 23,
-  'charge:report': 24,
-  'resource:report': 25,
-  'resource:report:canonical': 26
+  'dev:codex:turbo': 9,
+  start: 10,
+  'test:watch': 11,
+  'db:generate': 12,
+  'db:migrate': 13,
+  'doctor:local': 14,
+  'doctor:local:charge': 15,
+  'doctor:deploy': 16,
+  'smoke:local:charge': 17,
+  'smoke:local:resource': 18,
+  'smoke:resource:policy': 19,
+  'smoke:deploy': 20,
+  'lap:inspect': 21,
+  'lap:flow:viewer': 22,
+  'codex:login': 23,
+  'credential:bootstrap:backend': 24,
+  'charge:report': 25,
+  'resource:report': 26,
+  'resource:report:canonical': 27
 }
 
 function resolveCategory(scriptName) {
@@ -90,7 +94,12 @@ function resolveCategory(scriptName) {
     return 'frecuentes'
   }
 
-  if (scriptName === 'dev:turbo' || scriptName === 'start') {
+  if (
+    scriptName === 'dev:turbo' ||
+    scriptName === 'dev:codex' ||
+    scriptName === 'dev:codex:turbo' ||
+    scriptName === 'start'
+  ) {
     return 'desarrollo'
   }
 

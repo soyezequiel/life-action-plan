@@ -15,15 +15,47 @@ if (!command) {
   process.exit(1)
 }
 
+function isTruthyFlag(value) {
+  const normalized = value?.trim().toLowerCase() ?? ''
+  return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on'
+}
+
+function resolveDevArgs(rawArgs, env) {
+  let codexMode = isTruthyFlag(env.npm_config_codex)
+  const nextArgs = []
+
+  for (const arg of rawArgs) {
+    if (arg === '--codex' || arg === '-codex') {
+      codexMode = true
+      continue
+    }
+
+    nextArgs.push(arg)
+  }
+
+  return {
+    codexMode,
+    nextArgs,
+  }
+}
+
 const nextBin = require.resolve('next/dist/bin/next')
 const env = { ...process.env }
+const { codexMode, nextArgs } = command === 'dev'
+  ? resolveDevArgs(args, env)
+  : { codexMode: false, nextArgs: args }
+
+if (codexMode) {
+  env.LAP_CODEX_DEV_MODE = '1'
+  env.NEXT_PUBLIC_LAP_CODEX_DEV_MODE = '1'
+}
 
 if (command === 'build' || command === 'start') {
   const isVercel = env.VERCEL === '1' || env.NODE_ENV === 'production'
   env.NEXT_DIST_DIR = isVercel ? '.next' : '.next-build'
 }
 
-const child = spawn(process.execPath, [nextBin, command, ...args], {
+const child = spawn(process.execPath, [nextBin, command, ...nextArgs], {
   stdio: 'inherit',
   env,
 })

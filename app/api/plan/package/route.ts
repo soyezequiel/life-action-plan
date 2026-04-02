@@ -1,8 +1,9 @@
 import { z } from 'zod';
 
-import { getLatestProfileIdForUser, getPlan, getPlansByProfile } from '../../_db';
+import { getLatestProfileIdForUser, getLatestProfileIdWithPlans, getPlan, getPlansByProfile } from '../../_db';
 import { jsonResponse } from '../../_shared';
 import { resolveUserId } from '../../_user-settings';
+import { isCodexDebugMode } from '../../../../src/lib/dev/codex-debug';
 import { t } from '../../../../src/i18n';
 import { readPlanV5Manifest, safeParseJsonRecord } from '../../../../src/lib/domain/plan-helpers';
 import {
@@ -37,11 +38,14 @@ async function resolvePlanId(request: Request, explicitPlanId?: string): Promise
   }
 
   const latestProfileId = await getLatestProfileIdForUser(resolveUserId(request));
-  if (!latestProfileId) {
+  const resolvedProfileId = latestProfileId
+    ?? (isCodexDebugMode() ? await getLatestProfileIdWithPlans() : null);
+
+  if (!resolvedProfileId) {
     return null;
   }
 
-  const plans = await getPlansByProfile(latestProfileId);
+  const plans = await getPlansByProfile(resolvedProfileId);
   const latestPlan = plans
     .slice()
     .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0];

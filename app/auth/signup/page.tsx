@@ -1,17 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, MotionConfig } from 'framer-motion'
-import { t } from '@/src/i18n'
+
 import { MaterialIcon } from '@/components/midnight-mint/MaterialIcon'
 import PulsoLogoAnimated from '@/components/ui/PulsoLogoAnimated'
-import Link from 'next/link'
+import { t } from '@/src/i18n'
 import { MIN_PASSWORD_LENGTH } from '@/src/shared/auth-constants'
 
 export default function SignUpPage() {
   const router = useRouter()
-  
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,26 +20,26 @@ export default function SignUpPage() {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error' | 'success'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
-  // Map backend error codes to i18n keys
   const getErrorMessage = (code: string) => {
     const errorMap: Record<string, string> = {
-      'PASSWORD_TOO_SHORT': t('auth.password_too_short'),
-      'PASSWORD_TOO_LONG': t('auth.password_too_long'),
-      'PASSWORD_NEEDS_LETTER': t('auth.password_needs_letter'),
-      'PASSWORD_NEEDS_NUMBER': t('auth.password_needs_number'),
-      'PASSWORD_TOO_SIMILAR': t('auth.password_too_similar'),
-      'PASSWORD_TOO_SIMPLE': t('auth.password_too_simple'),
-      'ACCOUNT_ALREADY_EXISTS': t('auth.account_exists'),
-      'ACCOUNT_EMAIL_INVALID': t('auth.email_invalid'),
-      'ACCOUNT_USERNAME_TOO_SHORT': t('auth.username_too_short'),
-      'ACCOUNT_IDENTIFIER_REQUIRED': t('auth.identifier_required'),
+      PASSWORD_TOO_SHORT: t('auth.password_too_short'),
+      PASSWORD_TOO_LONG: t('auth.password_too_long'),
+      PASSWORD_NEEDS_LETTER: t('auth.password_needs_letter'),
+      PASSWORD_NEEDS_NUMBER: t('auth.password_needs_number'),
+      PASSWORD_TOO_SIMILAR: t('auth.password_too_similar'),
+      PASSWORD_TOO_SIMPLE: t('auth.password_too_simple'),
+      ACCOUNT_ALREADY_EXISTS: t('auth.account_exists'),
+      ACCOUNT_EMAIL_INVALID: t('auth.email_invalid'),
+      ACCOUNT_USERNAME_TOO_SHORT: t('auth.username_too_short'),
+      ACCOUNT_IDENTIFIER_REQUIRED: t('auth.identifier_required')
     }
+
     return errorMap[code] || t('intake.error')
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+
     if (password.length < MIN_PASSWORD_LENGTH) {
       setStatus('error')
       setErrorMsg(t('auth.password_too_short'))
@@ -47,26 +48,27 @@ export default function SignUpPage() {
 
     setStatus('submitting')
     setErrorMsg('')
-    
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: email, password, email, name })
       })
-      
+
       const data = await response.json()
-      
+
       if (data.authenticated) {
         setStatus('success')
         setTimeout(() => {
           router.push('/auth/signin?registered=true')
         }, 2000)
-      } else {
-        setStatus('error')
-        setErrorMsg(getErrorMessage(data.error))
+        return
       }
-    } catch (err) {
+
+      setStatus('error')
+      setErrorMsg(getErrorMessage(data.error))
+    } catch {
       setStatus('error')
       setErrorMsg(t('errors.network_unavailable'))
     }
@@ -75,7 +77,6 @@ export default function SignUpPage() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="relative min-h-screen overflow-hidden bg-transparent px-6 py-8 text-[#334155]">
-        {/* Background Gradients */}
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-[12%] top-[8%] h-[420px] w-[420px] rounded-full bg-[#C8B6FF]/18 blur-[120px]" />
           <div className="absolute bottom-[6%] right-[12%] h-[420px] w-[420px] rounded-full bg-[#A7F3D0]/16 blur-[120px]" />
@@ -96,7 +97,7 @@ export default function SignUpPage() {
                 {t('auth.register_title')}
               </h1>
               <p className="mt-1 font-display text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                {t('mockups.auth.edition')}
+                {t('auth.page_edition')}
               </p>
             </div>
 
@@ -106,16 +107,16 @@ export default function SignUpPage() {
                   <MaterialIcon name="check_circle" className="text-[32px]" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-800">{t('auth.register_success')}</h2>
-                <p className="mt-2 text-slate-500">Redirigiendo al inicio de sesión...</p>
+                <p className="mt-2 text-slate-500">{t('auth.redirecting_to_signin')}</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <label className="block space-y-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <span className="ml-0.5 font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
-                      Nombre Completo
+                      {t('auth.full_name_label')}
                     </span>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Requerido</span>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-300">{t('ui.required')}</span>
                   </div>
                   <div className="relative">
                     <MaterialIcon name="person" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
@@ -123,20 +124,20 @@ export default function SignUpPage() {
                       className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[rgba(255,252,247,0.96)] pl-11 pr-4 text-[14px] text-[#334155] outline-none transition focus:border-[#0f766e]/30 focus:ring-2 focus:ring-[#0f766e]/8 disabled:opacity-50"
                       type="text"
                       required
-                      placeholder="Tu nombre"
+                      placeholder={t('auth.full_name_placeholder')}
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(event) => setName(event.target.value)}
                       disabled={status === 'submitting'}
                     />
                   </div>
                 </label>
 
                 <label className="block space-y-2">
-                   <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <span className="ml-0.5 font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
-                      {t('mockups.auth.email_label')}
+                      {t('auth.email_label')}
                     </span>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Requerido</span>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-300">{t('ui.required')}</span>
                   </div>
                   <div className="relative">
                     <MaterialIcon name="mail" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
@@ -144,33 +145,33 @@ export default function SignUpPage() {
                       className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[rgba(255,252,247,0.96)] pl-11 pr-4 text-[14px] text-[#334155] outline-none transition focus:border-[#0f766e]/30 focus:ring-2 focus:ring-[#0f766e]/8 disabled:opacity-50"
                       type="email"
                       required
-                      placeholder={t('mockups.auth.email_placeholder')}
+                      placeholder={t('auth.email_placeholder')}
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(event) => setEmail(event.target.value)}
                       disabled={status === 'submitting'}
                     />
                   </div>
                 </label>
 
                 <label className="block space-y-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <span className="ml-0.5 font-display text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
-                      {t('mockups.auth.password_label')}
+                      {t('auth.password_label')}
                     </span>
                     <span className={`text-[9px] font-bold uppercase tracking-wider transition-colors ${password.length > 0 && password.length < MIN_PASSWORD_LENGTH ? 'text-amber-500' : 'text-slate-300'}`}>
-                      Mín. {MIN_PASSWORD_LENGTH} caracteres
+                      {t('auth.password_min_hint', { count: MIN_PASSWORD_LENGTH })}
                     </span>
                   </div>
                   <div className="relative">
                     <MaterialIcon name="lock" className="absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400" />
                     <input
                       className="h-14 w-full rounded-[16px] border border-slate-200/80 bg-[rgba(255,252,247,0.96)] pl-11 pr-11 text-[14px] text-[#334155] outline-none transition focus:border-[#0f766e]/30 focus:ring-2 focus:ring-[#0f766e]/8 disabled:opacity-50"
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       required
                       minLength={MIN_PASSWORD_LENGTH}
-                      placeholder={t('mockups.auth.password_placeholder')}
+                      placeholder={t('auth.password_placeholder')}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(event) => setPassword(event.target.value)}
                       disabled={status === 'submitting'}
                     />
                     <button
@@ -178,7 +179,7 @@ export default function SignUpPage() {
                       className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 transition hover:text-[#334155]"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      <MaterialIcon name={showPassword ? "visibility_off" : "visibility"} className="text-[18px]" />
+                      <MaterialIcon name={showPassword ? 'visibility_off' : 'visibility'} className="text-[18px]" />
                     </button>
                   </div>
                 </label>
@@ -188,35 +189,30 @@ export default function SignUpPage() {
                   className="group flex h-14 w-full items-center justify-center gap-2 rounded-[16px] bg-[#1f2937] font-display text-[14px] font-semibold tracking-wide text-white transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0"
                   disabled={status === 'submitting' || !email || !password || !name}
                 >
-                  <span>
-                    {status === 'submitting' ? 'Creando cuenta...' : t('auth.register_button')}
-                  </span>
-                  {status !== 'submitting' && (
+                  <span>{status === 'submitting' ? t('auth.signing_up') : t('auth.register_button')}</span>
+                  {status !== 'submitting' ? (
                     <MaterialIcon name="person_add" className="text-[18px] transition-transform group-hover:translate-x-1" />
-                  )}
+                  ) : null}
                 </button>
 
-                {status === 'error' && (
-                  <motion.div 
+                {status === 'error' ? (
+                  <motion.div
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-4 rounded-xl bg-red-50/50 p-4 text-center text-[13px] text-red-600 border border-red-100/50 flex items-center justify-center gap-2"
+                    className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-red-100/50 bg-red-50/50 p-4 text-center text-[13px] text-red-600"
                   >
                     <MaterialIcon name="error_outline" className="text-[16px]" />
                     <span className="font-medium">{errorMsg}</span>
                   </motion.div>
-                )}
+                ) : null}
               </form>
             )}
 
             <div className="mt-8 border-t border-slate-200/40 pt-8 text-center">
               <p className="text-[13px] text-slate-500">
-                ¿Ya tienes una cuenta?
-                <Link
-                  href="/auth/signin"
-                  className="ml-1 font-semibold text-[#334155] transition hover:underline"
-                >
-                  {t('mockups.auth.login')}
+                {t('auth.already_have_account')}
+                <Link href="/auth/signin" className="ml-1 font-semibold text-[#334155] transition hover:underline">
+                  {t('auth.login_button')}
                 </Link>
               </p>
             </div>
@@ -226,11 +222,13 @@ export default function SignUpPage() {
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-[#A7F3D0] shadow-[0_0_8px_rgba(167,243,208,0.85)]" />
               <span className="font-display text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                {t('mockups.auth.system_status')}
+                {t('auth.system_status')}
               </span>
             </div>
             <div className="flex gap-6 italic">
-              <span className="font-display text-[9px] uppercase tracking-[0.18em] text-slate-400">Editorial Edition</span>
+              <span className="font-display text-[9px] uppercase tracking-[0.18em] text-slate-400">
+                {t('auth.page_footer_label')}
+              </span>
             </div>
           </div>
         </main>

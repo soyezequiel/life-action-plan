@@ -18,7 +18,7 @@ type ShellNavItem = {
 const NAV_ITEMS: ShellNavItem[] = [
   { href: '/', label: t('dashboard.shell_nav.dashboard'), exact: true },
   { href: '/intake', label: t('dashboard.shell_nav.flow') },
-  { href: '/plan/v5?tab=calendar&view=week', matchPath: '/plan/v5', label: t('dashboard.shell_nav.calendar') },
+  { href: '/plan?tab=calendar&view=week', matchPath: '/plan', label: t('dashboard.shell_nav.calendar') },
   { href: '/settings', label: t('dashboard.shell_nav.system') },
 ]
 

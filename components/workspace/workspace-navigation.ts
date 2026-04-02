@@ -6,35 +6,35 @@ import type { WorkspaceNavItem, WorkspaceRouteSpec, WorkspaceViewKey } from './t
 const WORKSPACE_ROUTE_SPECS: WorkspaceRouteSpec[] = [
   {
     key: 'dashboard',
-    label: t('mockups.common.nav.dashboard'),
+    label: t('workspace.nav.dashboard'),
     icon: 'dashboard',
     href: '/',
     visibleIn: ['READY']
   },
   {
     key: 'planner',
-    label: t('mockups.common.nav.planificador'),
+    label: t('workspace.nav.planner'),
     icon: 'calendar_today',
     href: '/plan',
     visibleIn: ['READY']
   },
   {
     key: 'tasks',
-    label: t('mockups.common.nav.tareas'),
+    label: t('workspace.nav.tasks'),
     icon: 'check_circle',
     href: '/tasks',
     visibleIn: ['READY']
   },
   {
     key: 'intake',
-    label: t('mockups.common.nav.intake'),
+    label: t('workspace.nav.intake'),
     icon: 'flag',
     href: '/intake',
     visibleIn: ['PLAN', 'READY']
   },
   {
     key: 'settings',
-    label: t('mockups.common.nav.settings'),
+    label: t('workspace.nav.settings'),
     icon: 'settings',
     href: '/settings',
     visibleIn: ['SETUP', 'PLAN', 'READY']
@@ -45,12 +45,10 @@ export function resolveWorkspaceNavigation(
   onboardingStep: OnboardingStep,
   activeViewKey: WorkspaceViewKey
 ): WorkspaceNavItem[] {
-  if (onboardingStep === 'LOADING') {
-    return []
-  }
+  const visibleOnStep = onboardingStep === 'LOADING' ? 'READY' : onboardingStep
 
   return WORKSPACE_ROUTE_SPECS
-    .filter((route) => route.visibleIn.includes(onboardingStep))
+    .filter((route) => route.visibleIn.includes(visibleOnStep))
     .map((route) => ({
       key: route.key,
       label: route.label,

@@ -417,6 +417,19 @@ export async function getLatestProfileIdForUser(userId: string | null): Promise<
   return rows[0]?.id ?? null
 }
 
+export async function getLatestProfileIdWithPlans(): Promise<string | null> {
+  const rows = await db()
+    .select({
+      profileId: plans.profileId,
+    })
+    .from(plans)
+    .where(isNull(plans.deletedAt))
+    .orderBy(desc(plans.updatedAt), desc(plans.createdAt))
+    .limit(1)
+
+  return rows[0]?.profileId ?? null
+}
+
 
 export async function createUser(input: CreateUserInput) {
   const timestamp = now()

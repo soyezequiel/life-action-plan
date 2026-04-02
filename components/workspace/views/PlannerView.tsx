@@ -1,33 +1,52 @@
 'use client'
 
 import React from 'react'
-import { useEffect, useMemo, useState, startTransition } from 'react'
+import { startTransition, useEffect, useMemo, useState } from 'react'
 import { DateTime } from 'luxon'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import PlanCalendar, { type CalendarView } from '@/components/PlanCalendar'
 import { browserLapClient } from '@/src/lib/client/browser-http-client'
+import { usePlanPackage } from '@/src/lib/client/use-plan-package'
 import { t } from '@/src/i18n'
 import type { PlanRow, ProgressRow } from '@/src/shared/types/lap-api'
 
 import type { PlannerViewProps } from '../types'
+import { PlannerProgressView } from './PlannerProgressView'
 
 const LOCAL_PROFILE_ID_STORAGE_KEY = 'lap_profile_id'
 
-const VIEW_TABS: Array<{ labelKey: string, view: CalendarView }> = [
-  { labelKey: 'dashboard.calendar_panel.view_annual', view: 'multiMonthYear' },
-  { labelKey: 'dashboard.calendar_panel.view_monthly', view: 'dayGridMonth' },
-  { labelKey: 'dashboard.calendar_panel.view_weekly', view: 'timeGridWeek' },
-  { labelKey: 'dashboard.calendar_panel.view_daily', view: 'timeGridDay' }
+type PlannerTab = 'calendar' | 'progress'
+
+type PlannerQueryView = 'year' | 'month' | 'week' | 'day'
+
+const VIEW_TABS: Array<{ labelKey: string, view: CalendarView, queryValue: PlannerQueryView }> = [
+  { labelKey: 'dashboard.calendar_panel.view_annual', view: 'multiMonthYear', queryValue: 'year' },
+  { labelKey: 'dashboard.calendar_panel.view_monthly', view: 'dayGridMonth', queryValue: 'month' },
+  { labelKey: 'dashboard.calendar_panel.view_weekly', view: 'timeGridWeek', queryValue: 'week' },
+  { labelKey: 'dashboard.calendar_panel.view_daily', view: 'timeGridDay', queryValue: 'day' }
 ]
 
 export default function PlannerView({
   initialView = 'dayGridMonth',
   initialData = null
 }: PlannerViewProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [tasks, setTasks] = useState<ProgressRow[]>(initialData?.tasks ?? [])
   const [activePlan, setActivePlan] = useState<PlanRow | null>(initialData?.activePlan ?? null)
   const [isLoading, setIsLoading] = useState(initialData === null)
   const [currentView, setCurrentView] = useState<CalendarView>(initialView)
+  const activeTab: PlannerTab = searchParams?.get('tab') === 'progress' ? 'progress' : 'calendar'
+  const {
+    package: planPackage,
+    loading: isPackageLoading,
+    error: packageError
+  } = usePlanPackage(activeTab === 'progress' ? (activePlan?.id ?? undefined) : undefined)
+
+  useEffect(() => {
+    setCurrentView(initialView)
+  }, [initialView])
 
   useEffect(() => {
     if (initialData) {
@@ -74,10 +93,26 @@ export default function PlannerView({
     void loadData()
   }, [initialData])
 
+  const updatePlanQuery = (nextTab: PlannerTab, nextView?: CalendarView) => {
+    const params = new URLSearchParams(searchParams?.toString() ?? '')
+    params.set('tab', nextTab)
+
+    if (nextTab === 'calendar') {
+      const resolvedView = VIEW_TABS.find((tab) => tab.view === (nextView ?? currentView))
+      params.set('view', resolvedView?.queryValue ?? 'week')
+    } else {
+      params.delete('view')
+    }
+
+    const query = params.toString()
+    router.replace(query ? `/plan?${query}` : '/plan')
+  }
+
   const handleViewChange = (view: CalendarView) => {
     startTransition(() => {
       setCurrentView(view)
     })
+    updatePlanQuery('calendar', view)
   }
 
   const taskCount = tasks.length
@@ -115,26 +150,51 @@ export default function PlannerView({
           </div>
         </div>
 
-        <nav className="mt-5 flex flex-wrap items-center gap-2">
-          {VIEW_TABS.map((tab) => {
-            const active = currentView === tab.view
+        <div className="mt-5 flex flex-col gap-4">
+          <nav className="flex flex-wrap items-center gap-2">
+            {(['calendar', 'progress'] as PlannerTab[]).map((tab) => {
+              const active = activeTab === tab
 
-            return (
-              <button
-                key={tab.view}
-                type="button"
-                onClick={() => handleViewChange(tab.view)}
-                className={`inline-flex items-center rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] transition ${
-                  active
-                    ? 'bg-[#1f2937] text-white shadow-[0_20px_40px_-10px_rgba(17,24,39,0.18)]'
-                    : 'bg-[rgba(255,253,249,0.86)] text-slate-500 hover:bg-white hover:text-slate-700'
-                }`}
-              >
-                {t(tab.labelKey)}
-              </button>
-            )
-          })}
-        </nav>
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => updatePlanQuery(tab)}
+                  className={`inline-flex items-center rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] transition ${
+                    active
+                      ? 'bg-[#1f2937] text-white shadow-[0_20px_40px_-10px_rgba(17,24,39,0.18)]'
+                      : 'bg-[rgba(255,253,249,0.86)] text-slate-500 hover:bg-white hover:text-slate-700'
+                  }`}
+                >
+                  {t(`planner.tabs.${tab}`)}
+                </button>
+              )
+            })}
+          </nav>
+
+          {activeTab === 'calendar' ? (
+            <nav className="flex flex-wrap items-center gap-2">
+              {VIEW_TABS.map((tab) => {
+                const active = currentView === tab.view
+
+                return (
+                  <button
+                    key={tab.view}
+                    type="button"
+                    onClick={() => handleViewChange(tab.view)}
+                    className={`inline-flex items-center rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] transition ${
+                      active
+                        ? 'bg-[#1f2937] text-white shadow-[0_20px_40px_-10px_rgba(17,24,39,0.18)]'
+                        : 'bg-[rgba(255,253,249,0.86)] text-slate-500 hover:bg-white hover:text-slate-700'
+                    }`}
+                  >
+                    {t(tab.labelKey)}
+                  </button>
+                )
+              })}
+            </nav>
+          ) : null}
+        </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-[18px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.92)] px-4 py-3 sm:px-5 sm:py-4">
@@ -173,7 +233,24 @@ export default function PlannerView({
         <div className="flex h-[520px] items-center justify-center rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:h-[600px] sm:rounded-[32px]">
           <p className="font-display text-slate-400 animate-pulse">{t('ui.loading')}</p>
         </div>
-      ) : activePlan ? (
+      ) : !activePlan ? (
+        <div className="flex flex-col items-center justify-center rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] py-16 text-center shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:rounded-[32px] sm:py-20">
+          <p className="text-lg font-bold text-slate-500">{t('dashboard.calendar_panel.empty_title')}</p>
+          <p className="mt-2 text-slate-400">{t('dashboard.calendar_panel.empty_copy')}</p>
+        </div>
+      ) : activeTab === 'progress' ? (
+        packageError ? (
+          <div className="rounded-[24px] border border-amber-200 bg-amber-50/80 p-6 text-amber-900 shadow-[0_22px_46px_-24px_rgba(17,24,39,0.14)] backdrop-blur-2xl sm:rounded-[32px]">
+            <p className="font-display text-lg font-bold">{packageError}</p>
+          </div>
+        ) : isPackageLoading || !planPackage ? (
+          <div className="flex h-[420px] items-center justify-center rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:rounded-[32px]">
+            <p className="font-display text-slate-400 animate-pulse">{t('ui.loading')}</p>
+          </div>
+        ) : (
+          <PlannerProgressView package={planPackage} />
+        )
+      ) : (
         <div className="overflow-hidden rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:rounded-[32px]">
           <PlanCalendar
             tasks={tasks}
@@ -182,11 +259,6 @@ export default function PlannerView({
             variant="light"
             showHeader={false}
           />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] py-16 text-center shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:rounded-[32px] sm:py-20">
-          <p className="text-lg font-bold text-slate-500">{t('dashboard.calendar_panel.empty_title')}</p>
-          <p className="mt-2 text-slate-400">{t('dashboard.calendar_panel.empty_copy')}</p>
         </div>
       )}
     </div>

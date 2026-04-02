@@ -31,4 +31,17 @@ describe('workspace navigation', () => {
     expect(navItems.filter((item) => item.active)).toHaveLength(1)
     expect(navItems.find((item) => item.key === 'tasks')?.active).toBe(true)
   })
+
+  it('mantiene la estructura completa durante loading para evitar hydration mismatch', () => {
+    const navItems = resolveWorkspaceNavigation('LOADING', 'dashboard')
+
+    expect(navItems.map((item) => item.key)).toEqual([
+      'dashboard',
+      'planner',
+      'tasks',
+      'intake',
+      'settings'
+    ])
+    expect(navItems.find((item) => item.key === 'dashboard')?.active).toBe(true)
+  })
 })

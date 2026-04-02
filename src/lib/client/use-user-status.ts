@@ -3,6 +3,8 @@
 import { startTransition, useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 
+import { isCodexDebugMode } from '../dev/codex-debug'
+import { DEFAULT_USER_ID } from '../auth/user-settings'
 import type { UserStatusSnapshotResult } from '../../shared/types/lap-api'
 
 import { useLapClient } from './app-services'
@@ -91,6 +93,8 @@ function clearCachedSnapshot(): void {
 export function useUserStatus(): UserStatus {
   const lapClient = useLapClient()
   const { data: session, status: sessionStatus } = useSession()
+  const codexDebugMode = isCodexDebugMode()
+  const isCodexDebugSession = session?.user?.id === DEFAULT_USER_ID || session?.user?.email === 'codex-debug@lap.local'
   const userId = session?.user?.id ?? null
   const [cachedSnapshot, setCachedSnapshot] = useState<UserStatusSnapshotResult | null>(null)
 
@@ -190,11 +194,12 @@ export function useUserStatus(): UserStatus {
   const isConfigured = hasWallet || hasApiKey
 
   const onboardingStep = useMemo((): OnboardingStep => {
+    if (isCodexDebugSession || (codexDebugMode && sessionStatus !== 'loading')) return 'READY'
     if (loading || sessionStatus === 'loading') return 'LOADING'
     if (!isConfigured) return 'SETUP'
     if (!hasPlan) return 'PLAN'
     return 'READY'
-  }, [loading, sessionStatus, isConfigured, hasPlan])
+  }, [codexDebugMode, hasPlan, isCodexDebugSession, isConfigured, loading, sessionStatus])
 
   return {
     hasWallet,

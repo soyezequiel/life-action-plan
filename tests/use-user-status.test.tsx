@@ -28,16 +28,23 @@ function createLapClientStub() {
 
 describe('useUserStatus', () => {
   const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  const originalCodexFlag = process.env.NEXT_PUBLIC_LAP_CODEX_DEV_MODE
 
   beforeEach(() => {
     mockUseSession.mockReturnValue({
       data: { user: { id: 'user-1' } },
       status: 'authenticated',
     })
+    delete process.env.NEXT_PUBLIC_LAP_CODEX_DEV_MODE
     window.localStorage.clear()
   })
 
   afterEach(() => {
+    if (typeof originalCodexFlag === 'string') {
+      process.env.NEXT_PUBLIC_LAP_CODEX_DEV_MODE = originalCodexFlag
+    } else {
+      delete process.env.NEXT_PUBLIC_LAP_CODEX_DEV_MODE
+    }
     consoleErrorSpy.mockClear()
   })
 
@@ -145,6 +152,57 @@ describe('useUserStatus', () => {
     expect(result.current.hasApiKey).toBe(true)
     expect(result.current.hasPlan).toBe(true)
     expect(result.current.latestProfileId).toBe('profile-cached')
+    expect(result.current.onboardingStep).toBe('READY')
+  })
+
+  it('fuerza READY en modo codex aunque el snapshot no tenga configuracion ni plan', async () => {
+    process.env.NEXT_PUBLIC_LAP_CODEX_DEV_MODE = '1'
+
+    const lapClient = createLapClientStub()
+    lapClient.user.status.mockResolvedValue({
+      hasWallet: false,
+      hasApiKey: false,
+      hasPlan: false,
+      latestProfileId: null,
+    })
+
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <AppServicesProvider services={{ lapClient }}>
+        {children}
+      </AppServicesProvider>
+    )
+
+    const { result } = renderHook(() => useUserStatus(), { wrapper })
+
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    expect(result.current.hasPlan).toBe(false)
+    expect(result.current.isConfigured).toBe(false)
+    expect(result.current.onboardingStep).toBe('READY')
+  })
+
+  it('mantiene READY cuando la sesion debug viene del server aunque no exista flag publico', async () => {
+    const lapClient = createLapClientStub()
+    lapClient.user.status.mockResolvedValue({
+      hasWallet: false,
+      hasApiKey: false,
+      hasPlan: false,
+      latestProfileId: null,
+    })
+
+    mockUseSession.mockReturnValue({
+      data: { user: { id: 'local-user', email: 'codex-debug@lap.local' } },
+      status: 'authenticated',
+    })
+
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <AppServicesProvider services={{ lapClient }}>
+        {children}
+      </AppServicesProvider>
+    )
+
+    const { result } = renderHook(() => useUserStatus(), { wrapper })
+
     expect(result.current.onboardingStep).toBe('READY')
   })
 })

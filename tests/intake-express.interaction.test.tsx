@@ -4,6 +4,7 @@ import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+
 import IntakeExpress from '../components/IntakeExpress'
 import { AppServicesProvider } from '../src/lib/client/app-services'
 import { t } from '../src/i18n'
@@ -144,7 +145,7 @@ describe('intake express interaction', () => {
       </AppServicesProvider>
     )
 
-    const objectiveField = await screen.findByPlaceholderText('Escribe tu objetivo aquí...')
+    const objectiveField = await screen.findByPlaceholderText(t('intake.workspace_placeholder'))
     expect(objectiveField).toBeTruthy()
 
     await user.type(objectiveField, 'Aprender Rust')
