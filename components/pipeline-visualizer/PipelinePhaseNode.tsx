@@ -13,6 +13,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+function resolveLabel(labelKey: string, fallbackLabel?: string): string {
+  const translated = t(labelKey);
+  if (translated !== labelKey) {
+    return translated;
+  }
+
+  return fallbackLabel ?? labelKey;
+}
+
 interface PipelinePhaseNodeProps {
   data: PhaseNodeData;
   isCurrent: boolean;
@@ -73,7 +82,7 @@ export const PipelinePhaseNode: React.FC<PipelinePhaseNodeProps> = ({ data, isCu
       layout
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       role="status"
-      aria-label={`${t(data.labelKey)}: ${t(`visualizer.status.${data.status}`)}`}
+      aria-label={`${resolveLabel(data.labelKey, data.fallbackLabel)}: ${t(`visualizer.status.${data.status}`)}`}
     >
       <div className={styles.nodeHeader}>
         <span className={styles.nodeIcon}>{config.icon}</span>
@@ -81,7 +90,7 @@ export const PipelinePhaseNode: React.FC<PipelinePhaseNodeProps> = ({ data, isCu
       </div>
       
       <div className={styles.nodeContent}>
-        <h4 className={styles.nodeTitle}>{t(data.labelKey)}</h4>
+        <h4 className={styles.nodeTitle}>{resolveLabel(data.labelKey, data.fallbackLabel)}</h4>
         {loopText && (
           <span className={styles.nodeLoop}>{loopText}</span>
         )}

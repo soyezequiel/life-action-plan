@@ -18,6 +18,7 @@ import type {
   WalletBuildQuote,
   WalletStatus,
   CostSummary,
+  UserStatusSnapshotResult,
   DebugSnapshotResult,
   DebugStatusResult,
 } from '../../shared/types/lap-api'
@@ -536,6 +537,17 @@ export const browserLapClient: LapAPI = {
   cost: {
     async summary(planId: string) {
       return fetchJson<CostSummary>(`/api/cost?planId=${encodeURIComponent(planId)}`)
+    }
+  },
+  user: {
+    async status(storedProfileId?: string | null) {
+      const params = new URLSearchParams()
+      if (storedProfileId?.trim()) {
+        params.set('storedProfileId', storedProfileId.trim())
+      }
+
+      const query = params.toString()
+      return fetchJson<UserStatusSnapshotResult>(`/api/user/status${query ? `?${query}` : ''}`)
     }
   },
   settings: {

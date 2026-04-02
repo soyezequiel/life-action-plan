@@ -1,8 +1,7 @@
-import { auth } from '@/src/auth'
 import { redirect } from 'next/navigation'
 
 import TaskManagementMockup from '../../components/mockups/TaskManagementMockup'
-import { getLatestProfileIdForUser, getPlansByProfile, getProgressByPlan } from '../../src/lib/db/db-helpers'
+import { getCurrentSession, getTasksInitialData } from '../../src/lib/server/request-context'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -27,7 +26,7 @@ async function resolveSearchParams(searchParams: Promise<SearchParams> | undefin
 }
 
 export default async function TasksPage({ searchParams }: TasksPageProps) {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect('/auth/signin?callbackUrl=/tasks')
@@ -35,20 +34,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
 
   const params = await resolveSearchParams(searchParams)
   const requestedPlanId = readParam(params.planId)
-  const latestProfileId = session.user?.id
-    ? await getLatestProfileIdForUser(session.user.id)
-    : null
-
-  let initialTasks = undefined
-
-  if (latestProfileId) {
-    const plans = await getPlansByProfile(latestProfileId)
-    const activePlan = (requestedPlanId ? plans.find((plan) => plan.id === requestedPlanId) : null) ?? plans[0] ?? null
-
-    if (activePlan) {
-      initialTasks = await getProgressByPlan(activePlan.id)
-    }
-  }
+  const initialTasks = await getTasksInitialData(session.user?.id ?? null, requestedPlanId)
 
   return <TaskManagementMockup initialTasks={initialTasks} />
 }

@@ -389,6 +389,13 @@ export interface BuildUsagePreviewResult {
   usage: ResourceUsageSummary
 }
 
+export interface UserStatusSnapshotResult {
+  hasWallet: boolean
+  hasApiKey: boolean
+  hasPlan: boolean
+  latestProfileId: string | null
+}
+
 export interface LapAPI {
   intake: {
     save: (data: IntakeExpressData) => Promise<IntakeSaveResult>
@@ -432,6 +439,9 @@ export interface LapAPI {
   }
   cost: {
     summary: (planId: string) => Promise<CostSummary>
+  }
+  user: {
+    status: (storedProfileId?: string | null) => Promise<UserStatusSnapshotResult>
   }
   settings: {
     apiKeyStatus: (provider: 'openai' | 'openrouter') => Promise<{ configured: boolean }>

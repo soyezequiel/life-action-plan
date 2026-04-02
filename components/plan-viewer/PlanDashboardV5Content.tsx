@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import type { MilestoneItem } from '../../src/lib/domain/plan-item';
 import type { AdaptiveOutput, AdaptiveStatus, PlanPackage } from '../../src/lib/pipeline/shared/phase-io';
@@ -40,7 +40,7 @@ export function PlanDashboardV5Content({
   const [tradeoffOpen, setTradeoffOpen] = useState(false);
   const [showAdaptive, setShowAdaptive] = useState(false);
 
-  const milestones = pkg.items.filter((item): item is MilestoneItem => item.kind === 'milestone');
+  const milestones = useMemo(() => pkg.items.filter((item): item is MilestoneItem => item.kind === 'milestone'), [pkg.items]);
 
   return (
     <section className={styles.dashboard}>

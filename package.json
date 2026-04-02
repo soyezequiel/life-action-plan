@@ -2,6 +2,9 @@
   "name": "lap",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "description": "LAP - Life Action Plan",
   "author": "LAP Team <lap@lacrypta.ar>",
   "scripts": {

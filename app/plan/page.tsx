@@ -1,9 +1,9 @@
-import { auth } from '@/src/auth'
+import React from 'react'
 import { redirect } from 'next/navigation'
 
 import PlanificadorPage from '../../components/plan-viewer/PlanificadorPage'
-import { getLatestProfileIdForUser, getPlansByProfile, getProgressByPlan } from '../../src/lib/db/db-helpers'
 import type { PlannerViewProps } from '../../components/workspace/types'
+import { getCurrentSession, getPlannerInitialData } from '../../src/lib/server/request-context'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -43,7 +43,7 @@ function resolveInitialView(view: string | null): PlannerViewProps['initialView'
 }
 
 export default async function PlanPage({ searchParams }: PlanPageProps) {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect('/auth/signin?callbackUrl=/plan')
@@ -51,23 +51,7 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
 
   const params = await resolveSearchParams(searchParams)
   const requestedPlanId = readParam(params.planId)
-  const latestProfileId = session.user?.id
-    ? await getLatestProfileIdForUser(session.user.id)
-    : null
-
-  let initialData: PlannerViewProps['initialData'] = null
-
-  if (latestProfileId) {
-    const plans = await getPlansByProfile(latestProfileId)
-    const activePlan = (requestedPlanId ? plans.find((plan) => plan.id === requestedPlanId) : null) ?? plans[0] ?? null
-
-    if (activePlan) {
-      initialData = {
-        activePlan,
-        tasks: await getProgressByPlan(activePlan.id)
-      }
-    }
-  }
+  const initialData: PlannerViewProps['initialData'] = await getPlannerInitialData(session.user?.id ?? null, requestedPlanId)
 
   return (
     <PlanificadorPage

@@ -1,11 +1,9 @@
 import { Suspense } from 'react'
-import { auth } from '@/src/auth'
 import { t } from '@/src/i18n'
 import { redirect } from 'next/navigation'
 import Dashboard from '../components/Dashboard'
 import { getDeploymentMode } from '../src/lib/env/deployment'
-import { buildDashboardSummary } from '../src/lib/domain/dashboard-summary'
-import { getLatestProfileIdForUser, getPlansByProfile, getProgressByPlan } from '../src/lib/db/db-helpers'
+import { getCurrentSession, getDashboardInitialData } from '../src/lib/server/request-context'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -30,7 +28,7 @@ async function resolveSearchParams(searchParams: Promise<SearchParams> | undefin
 }
 
 export default async function Page({ searchParams }: PageProps) {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect('/auth/signin')
@@ -38,23 +36,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   const params = await resolveSearchParams(searchParams)
   const requestedPlanId = readParam(params.planId)
-  const latestProfileId = session.user?.id
-    ? await getLatestProfileIdForUser(session.user.id)
-    : null
-
-  let initialData = null
-
-  if (latestProfileId) {
-    const plans = await getPlansByProfile(latestProfileId)
-    const activePlan = (requestedPlanId ? plans.find((plan) => plan.id === requestedPlanId) : null) ?? plans[0] ?? null
-
-    if (activePlan) {
-      initialData = await buildDashboardSummary({
-        plan: activePlan,
-        progressRows: await getProgressByPlan(activePlan.id)
-      })
-    }
-  }
+  const initialData = await getDashboardInitialData(session.user?.id ?? null, requestedPlanId)
 
   return (
     <Suspense fallback={<div>{t('ui.loading')}</div>}>

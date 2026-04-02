@@ -12,7 +12,7 @@
  *  - IDs de eventos: `${activityId}_s${slot}` para ser deterministas.
  */
 
-import highs from 'highs';
+import { createRequire } from 'node:module';
 import { DateTime } from 'luxon';
 import { randomUUID } from 'crypto';
 import { existsSync } from 'fs';
@@ -25,6 +25,33 @@ import type { SchedulerInput, SchedulerOutput } from './types';
 import type { TimeEventItem } from '../domain/plan-item';
 
 const HIGHS_WASM_FILENAME = 'highs.wasm';
+const require = createRequire(import.meta.url);
+
+type HighsSolveResult = {
+  Status: string
+  Columns?: Record<string, { Primal?: number }>
+};
+
+type HighsInstance = {
+  solve: (lpModel: string, options: Record<string, unknown>) => HighsSolveResult
+};
+
+type HighsFactory = (options?: {
+  locateFile?: (file: string) => string
+}) => Promise<HighsInstance>;
+
+function loadHighsFactory(): HighsFactory {
+  const highsModule = require('highs') as HighsFactory | { default?: HighsFactory };
+  const highsFactory = typeof highsModule === 'function'
+    ? highsModule
+    : highsModule.default;
+
+  if (!highsFactory) {
+    throw new Error('No se pudo cargar highs en runtime.');
+  }
+
+  return highsFactory;
+}
 
 export function resolveHighsWasmPath(cwd = process.cwd()): string {
   const nodeModulesCandidate = resolve(cwd, 'node_modules', 'highs', 'build', HIGHS_WASM_FILENAME);
@@ -49,6 +76,7 @@ export async function solveSchedule(
   const lpModel = buildMilpModel(params);
 
   // 2. Invoke HiGHS solver with a 3-second wall-clock limit
+  const highs = loadHighsFactory();
   const solver = await highs({
     locateFile: (file: string) => (
       file === HIGHS_WASM_FILENAME

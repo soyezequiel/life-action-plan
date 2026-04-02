@@ -1117,14 +1117,17 @@ export async function getCostSummary(planId: string): Promise<CostSummary> {
 
 export async function seedProgressFromEvents(
   planId: string,
-  eventos: Array<{ semana: number; dia: string; hora: string; duracion: number; actividad: string; categoria: string; objetivoId: string }>,
+  eventos: Array<{ semana: number; dia: string; fecha?: string; hora: string; duracion: number; actividad: string; categoria: string; objetivoId: string }>,
   zonaHoraria: string
 ): Promise<number> {
   let seeded = 0
   const today = DateTime.now().setZone(zonaHoraria).startOf('day')
 
   for (const ev of eventos) {
-    const fecha = resolveProgressSeedDate(ev.semana, ev.dia, zonaHoraria, today.toISODate()!)
+    const explicitDate = DateTime.fromISO(ev.fecha ?? '', { zone: zonaHoraria })
+    const fecha = explicitDate.isValid
+      ? explicitDate.toISODate()!
+      : resolveProgressSeedDate(ev.semana, ev.dia, zonaHoraria, today.toISODate()!)
 
     await db().insert(planProgress).values({
       id: generateId(),

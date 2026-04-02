@@ -1,10 +1,10 @@
-import { auth } from '@/src/auth'
 import { redirect } from 'next/navigation'
 import SettingsMockupPage from '../../components/settings/SettingsMockupPage'
 import { getWalletStatus } from '../api/_wallet'
 import { findCredentialConfiguration } from '../../src/lib/auth/credential-config'
 import { isSecretStorageAvailable } from '../../src/lib/auth/secret-storage'
 import { getApiKeySettingKey } from '../../src/lib/auth/user-settings'
+import { getCurrentSession } from '@/src/lib/server/request-context'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -29,7 +29,7 @@ async function resolveSearchParams(searchParams: Promise<SearchParams> | undefin
 }
 
 export default async function SettingsPage({ searchParams }: SettingsPageProps) {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect('/auth/signin?callbackUrl=/settings')

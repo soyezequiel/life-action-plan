@@ -14,6 +14,12 @@ type CalendarViewMode = 'day' | 'week' | 'month' | 'year';
 type CalendarCategory = 'estudio' | 'ejercicio' | 'trabajo' | 'habito' | 'descanso' | 'otro';
 
 const CATEGORY_ROTATION: CalendarCategory[] = ['estudio', 'trabajo', 'habito', 'ejercicio', 'descanso', 'otro'];
+const VIEW_OPTIONS: Array<{ key: CalendarViewMode; labelKey: string }> = [
+  { key: 'year', labelKey: 'dashboard.calendar_panel.view_annual' },
+  { key: 'month', labelKey: 'dashboard.calendar_panel.view_monthly' },
+  { key: 'week', labelKey: 'dashboard.calendar_panel.view_weekly' },
+  { key: 'day', labelKey: 'dashboard.calendar_panel.view_daily' }
+];
 
 interface CalendarViewProps {
   detail?: V5Detail | null;
@@ -89,13 +95,6 @@ function buildProgressRows(detail: V5Detail | null | undefined, timezone: string
 export function CalendarView({ detail, goalIds, timezone, activeView, onViewChange }: CalendarViewProps) {
   const tasks = useMemo(() => buildProgressRows(detail, timezone, goalIds), [detail, goalIds, timezone]);
 
-  const viewOptions: Array<{ key: CalendarViewMode; label: string }> = [
-    { key: 'year', label: t('dashboard.calendar_panel.view_annual') },
-    { key: 'month', label: t('dashboard.calendar_panel.view_monthly') },
-    { key: 'week', label: t('dashboard.calendar_panel.view_weekly') },
-    { key: 'day', label: t('dashboard.calendar_panel.view_daily') }
-  ];
-
   return (
     <section className={styles.section}>
       <div className={styles.header}>
@@ -105,7 +104,7 @@ export function CalendarView({ detail, goalIds, timezone, activeView, onViewChan
         </div>
 
         <div className={styles.viewSwitcher} role="tablist" aria-label={t('dashboard.calendar_panel.view_selector_label')}>
-          {viewOptions.map((option) => (
+          {VIEW_OPTIONS.map((option) => (
             <button
               key={option.key}
               type="button"
@@ -114,7 +113,7 @@ export function CalendarView({ detail, goalIds, timezone, activeView, onViewChan
               className={`${styles.viewButton} ${activeView === option.key ? styles.viewButtonActive : ''}`}
               onClick={() => onViewChange?.(option.key)}
             >
-              {option.label}
+              {t(option.labelKey)}
             </button>
           ))}
         </div>

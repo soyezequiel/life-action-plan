@@ -71,6 +71,12 @@ export const v6GenerationMachine = setup({
   }),
   states: {
     boot: {
+      meta: {
+        visual: {
+          hidden: true,
+          orderHint: 0,
+        },
+      },
       always: [
         { guard: 'startsAtPaused', target: 'paused_for_input' },
         { guard: 'startsAtPlan', target: 'plan' },
@@ -87,6 +93,16 @@ export const v6GenerationMachine = setup({
       ],
     },
     interpret: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.interpret',
+          fallbackLabel: 'Interpretar meta',
+          progressTarget: 10,
+          agentName: 'goal-interpreter',
+          orderHint: 10,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       on: {
         FORCE_PACKAGE: { target: 'package', actions: 'syncRuntime' },
         INTERPRET_COMPLETED: { target: 'clarify', actions: 'syncRuntime' },
@@ -94,6 +110,16 @@ export const v6GenerationMachine = setup({
       },
     },
     clarify: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.clarify',
+          fallbackLabel: 'Clarificar',
+          progressTarget: 25,
+          agentName: 'clarifier',
+          orderHint: 20,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       on: {
         FORCE_PACKAGE: { target: 'package', actions: 'syncRuntime' },
         CLARIFY_COMPLETED: [
@@ -105,6 +131,16 @@ export const v6GenerationMachine = setup({
       },
     },
     paused_for_input: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.paused_for_input',
+          fallbackLabel: 'Esperando respuestas',
+          progressTarget: 25,
+          agentName: null,
+          orderHint: 25,
+          visibleIn: ['analyst'],
+        },
+      },
       on: {
         ANSWERS_SUBMITTED: { target: 'clarify', actions: 'syncRuntime' },
         INPUT_SKIPPED: { target: 'plan', actions: 'syncRuntime' },
@@ -113,6 +149,16 @@ export const v6GenerationMachine = setup({
       },
     },
     plan: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.plan',
+          fallbackLabel: 'Planificar estrategia',
+          progressTarget: 40,
+          agentName: 'planner',
+          orderHint: 30,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       on: {
         FORCE_PACKAGE: { target: 'package', actions: 'syncRuntime' },
         PLAN_COMPLETED: { target: 'check', actions: 'syncRuntime' },
@@ -120,6 +166,16 @@ export const v6GenerationMachine = setup({
       },
     },
     check: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.check',
+          fallbackLabel: 'Verificar viabilidad',
+          progressTarget: 50,
+          agentName: 'feasibility-checker',
+          orderHint: 40,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       on: {
         FORCE_PACKAGE: { target: 'package', actions: 'syncRuntime' },
         CHECK_COMPLETED: [
@@ -131,6 +187,16 @@ export const v6GenerationMachine = setup({
       },
     },
     schedule: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.schedule',
+          fallbackLabel: 'Armar agenda semanal',
+          progressTarget: 65,
+          agentName: 'scheduler',
+          orderHint: 50,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       on: {
         FORCE_PACKAGE: { target: 'package', actions: 'syncRuntime' },
         SCHEDULE_COMPLETED: { target: 'critique', actions: 'syncRuntime' },
@@ -138,6 +204,16 @@ export const v6GenerationMachine = setup({
       },
     },
     critique: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.critique',
+          fallbackLabel: 'Criticar el plan',
+          progressTarget: 80,
+          agentName: 'critic',
+          orderHint: 60,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       on: {
         FORCE_PACKAGE: { target: 'package', actions: 'syncRuntime' },
         CRITIQUE_COMPLETED: [
@@ -150,6 +226,16 @@ export const v6GenerationMachine = setup({
       },
     },
     revise: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.revise',
+          fallbackLabel: 'Revisar y mejorar',
+          progressTarget: 70,
+          agentName: 'planner',
+          orderHint: 70,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       on: {
         FORCE_PACKAGE: { target: 'package', actions: 'syncRuntime' },
         REVISE_COMPLETED: { target: 'critique', actions: 'syncRuntime' },
@@ -157,6 +243,16 @@ export const v6GenerationMachine = setup({
       },
     },
     package: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.package',
+          fallbackLabel: 'Empaquetar resultado',
+          progressTarget: 95,
+          agentName: 'packager',
+          orderHint: 80,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       on: {
         PACKAGE_COMPLETED: [
           { guard: 'packageBlocked', target: 'blocked', actions: 'syncRuntime' },
@@ -167,12 +263,42 @@ export const v6GenerationMachine = setup({
       },
     },
     done: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.done',
+          fallbackLabel: 'Listo',
+          progressTarget: 100,
+          agentName: null,
+          orderHint: 90,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       type: 'final',
     },
     blocked: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.blocked',
+          fallbackLabel: 'Bloqueado',
+          progressTarget: 100,
+          agentName: null,
+          orderHint: 95,
+          visibleIn: ['analyst'],
+        },
+      },
       type: 'final',
     },
     failed: {
+      meta: {
+        visual: {
+          labelKey: 'visualizer.phase.failed',
+          fallbackLabel: 'Fallo',
+          progressTarget: 0,
+          agentName: null,
+          orderHint: 100,
+          visibleIn: ['standard', 'analyst'],
+        },
+      },
       type: 'final',
     },
   },

@@ -1,8 +1,11 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { useLapClient } from './app-services'
+import { startTransition, useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
+
+import type { UserStatusSnapshotResult } from '../../shared/types/lap-api'
+
+import { useLapClient } from './app-services'
 import { LOCAL_PROFILE_ID_STORAGE_KEY } from './storage-keys'
 
 export type OnboardingStep = 'LOADING' | 'SETUP' | 'PLAN' | 'READY'
@@ -11,11 +14,21 @@ export interface UserStatus {
   hasWallet: boolean
   hasApiKey: boolean
   hasPlan: boolean
+  latestProfileId: string | null
   onboardingStep: OnboardingStep
   isConfigured: boolean
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
+}
+
+const USER_STATUS_CACHE_STORAGE_KEY = 'lap.user-status.v1'
+const USER_STATUS_CACHE_TTL_MS = 60_000
+
+interface CachedUserStatusSnapshot {
+  userId: string
+  timestamp: number
+  snapshot: UserStatusSnapshotResult
 }
 
 function readStoredProfileId(): string | null {
@@ -27,15 +40,81 @@ function readStoredProfileId(): string | null {
   return storedValue || null
 }
 
+function readCachedSnapshot(userId: string | null): UserStatusSnapshotResult | null {
+  if (typeof window === 'undefined' || !userId) {
+    return null
+  }
+
+  try {
+    const rawValue = window.localStorage.getItem(USER_STATUS_CACHE_STORAGE_KEY)
+    if (!rawValue) {
+      return null
+    }
+
+    const parsed = JSON.parse(rawValue) as CachedUserStatusSnapshot
+    if (
+      parsed.userId !== userId
+      || typeof parsed.timestamp !== 'number'
+      || Date.now() - parsed.timestamp > USER_STATUS_CACHE_TTL_MS
+    ) {
+      return null
+    }
+
+    return parsed.snapshot
+  } catch {
+    return null
+  }
+}
+
+function writeCachedSnapshot(userId: string, snapshot: UserStatusSnapshotResult): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const payload: CachedUserStatusSnapshot = {
+    userId,
+    timestamp: Date.now(),
+    snapshot,
+  }
+
+  window.localStorage.setItem(USER_STATUS_CACHE_STORAGE_KEY, JSON.stringify(payload))
+}
+
+function clearCachedSnapshot(): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.removeItem(USER_STATUS_CACHE_STORAGE_KEY)
+}
+
 export function useUserStatus(): UserStatus {
   const lapClient = useLapClient()
   const { data: session, status: sessionStatus } = useSession()
-  
+  const userId = session?.user?.id ?? null
+  const [cachedSnapshot, setCachedSnapshot] = useState<UserStatusSnapshotResult | null>(null)
+
   const [hasWallet, setHasWallet] = useState(false)
   const [hasApiKey, setHasApiKey] = useState(false)
   const [hasPlan, setHasPlan] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [latestProfileId, setLatestProfileId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(() => {
+    if (sessionStatus === 'loading') {
+      return true
+    }
+
+    return sessionStatus === 'authenticated'
+  })
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (sessionStatus !== 'authenticated') {
+      setCachedSnapshot(null)
+      return
+    }
+
+    setCachedSnapshot(readCachedSnapshot(userId))
+  }, [sessionStatus, userId])
 
   const refresh = async () => {
     if (sessionStatus !== 'authenticated') {
@@ -43,71 +122,28 @@ export function useUserStatus(): UserStatus {
       return
     }
 
+    if (typeof lapClient.user?.status !== 'function') {
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
-      const configChecks = await Promise.allSettled([
-        lapClient.wallet.status(),
-        lapClient.settings.apiKeyStatus('openai'),
-        lapClient.settings.apiKeyStatus('openrouter')
-      ])
+      const snapshot = await lapClient.user.status(readStoredProfileId())
+      setHasWallet(snapshot.hasWallet)
+      setHasApiKey(snapshot.hasApiKey)
+      setHasPlan(snapshot.hasPlan)
+      setLatestProfileId(snapshot.latestProfileId)
 
-      const [walletStatus, openaiStatus, openrouterStatus] = configChecks
-      const refreshErrors: string[] = []
-
-      if (walletStatus.status === 'fulfilled') {
-        setHasWallet(walletStatus.value.configured)
-      } else {
-        console.error('Failed to fetch wallet status:', walletStatus.reason)
-        refreshErrors.push(walletStatus.reason instanceof Error ? walletStatus.reason.message : 'wallet_status_failed')
+      if (userId) {
+        writeCachedSnapshot(userId, snapshot)
       }
 
-      const apiStatuses = [openaiStatus, openrouterStatus].filter((result) => result.status === 'fulfilled')
-      if (apiStatuses.length > 0) {
-        setHasApiKey(apiStatuses.some((result) => result.value.configured))
-      } else {
-        console.error('Failed to fetch API key status:', {
-          openai: openaiStatus.status === 'rejected' ? openaiStatus.reason : null,
-          openrouter: openrouterStatus.status === 'rejected' ? openrouterStatus.reason : null
-        })
-        const apiFailure = openaiStatus.status === 'rejected'
-          ? openaiStatus.reason
-          : openrouterStatus.status === 'rejected'
-            ? openrouterStatus.reason
-            : null
-        refreshErrors.push(apiFailure instanceof Error ? apiFailure.message : 'api_key_status_failed')
+      if (snapshot.latestProfileId && typeof window !== 'undefined') {
+        window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, snapshot.latestProfileId)
       }
 
-      let latestProfileId: string | null = null
-
-      try {
-        latestProfileId = await lapClient.profile.latest()
-      } catch (err) {
-        console.error('Failed to resolve latest profile id:', err)
-        refreshErrors.push(err instanceof Error ? err.message : 'latest_profile_failed')
-      }
-
-      const candidateProfileIds = Array.from(new Set([
-        latestProfileId,
-        readStoredProfileId(),
-      ].filter((value): value is string => Boolean(value))))
-
-      let nextHasPlan = false
-
-      for (const profileId of candidateProfileIds) {
-        try {
-          const plans = await lapClient.plan.list(profileId)
-          if (plans.length > 0) {
-            nextHasPlan = true
-            break
-          }
-        } catch (err) {
-          console.error(`Failed to fetch plans for profile ${profileId}:`, err)
-          refreshErrors.push(err instanceof Error ? err.message : 'plan_list_failed')
-        }
-      }
-
-      setHasPlan(nextHasPlan)
-      setError(refreshErrors[0] ?? null)
+      setError(null)
     } catch (err) {
       console.error('Failed to fetch user status:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -118,16 +154,41 @@ export function useUserStatus(): UserStatus {
 
   useEffect(() => {
     if (sessionStatus === 'authenticated') {
-      refresh().catch(err => {
+      if (cachedSnapshot) {
+        setHasWallet(cachedSnapshot.hasWallet)
+        setHasApiKey(cachedSnapshot.hasApiKey)
+        setHasPlan(cachedSnapshot.hasPlan)
+        setLatestProfileId(cachedSnapshot.latestProfileId)
+        setLoading(false)
+        setError(null)
+        return
+      }
+
+      refresh().catch((err) => {
         console.error('[LAP] Unhandled error in useUserStatus refresh:', err)
       })
     } else if (sessionStatus === 'unauthenticated') {
+      clearCachedSnapshot()
+      setHasWallet(false)
+      setHasApiKey(false)
+      setHasPlan(false)
+      setLatestProfileId(null)
       setLoading(false)
     }
-  }, [sessionStatus])
+  }, [cachedSnapshot, sessionStatus, userId])
+
+  useEffect(() => {
+    if (sessionStatus !== 'authenticated' || !cachedSnapshot) {
+      return
+    }
+
+    startTransition(() => {
+      void refresh()
+    })
+  }, [cachedSnapshot, sessionStatus])
 
   const isConfigured = hasWallet || hasApiKey
-  
+
   const onboardingStep = useMemo((): OnboardingStep => {
     if (loading || sessionStatus === 'loading') return 'LOADING'
     if (!isConfigured) return 'SETUP'
@@ -139,6 +200,7 @@ export function useUserStatus(): UserStatus {
     hasWallet,
     hasApiKey,
     hasPlan,
+    latestProfileId,
     onboardingStep,
     isConfigured,
     loading: loading || sessionStatus === 'loading',

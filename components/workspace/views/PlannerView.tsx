@@ -1,8 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import type { CalendarApi } from '@fullcalendar/core'
+import { useEffect, useMemo, useState, startTransition } from 'react'
 import { DateTime } from 'luxon'
 
 import PlanCalendar, { type CalendarView } from '@/components/PlanCalendar'
@@ -14,6 +13,13 @@ import type { PlannerViewProps } from '../types'
 
 const LOCAL_PROFILE_ID_STORAGE_KEY = 'lap_profile_id'
 
+const VIEW_TABS: Array<{ labelKey: string, view: CalendarView }> = [
+  { labelKey: 'dashboard.calendar_panel.view_annual', view: 'multiMonthYear' },
+  { labelKey: 'dashboard.calendar_panel.view_monthly', view: 'dayGridMonth' },
+  { labelKey: 'dashboard.calendar_panel.view_weekly', view: 'timeGridWeek' },
+  { labelKey: 'dashboard.calendar_panel.view_daily', view: 'timeGridDay' }
+]
+
 export default function PlannerView({
   initialView = 'dayGridMonth',
   initialData = null
@@ -22,10 +28,11 @@ export default function PlannerView({
   const [activePlan, setActivePlan] = useState<PlanRow | null>(initialData?.activePlan ?? null)
   const [isLoading, setIsLoading] = useState(initialData === null)
   const [currentView, setCurrentView] = useState<CalendarView>(initialView)
-  const calendarRef = useRef<CalendarApi | null>(null)
 
   useEffect(() => {
     if (initialData) {
+      setTasks(initialData.tasks)
+      setActivePlan(initialData.activePlan)
       setIsLoading(false)
       return
     }
@@ -68,19 +75,10 @@ export default function PlannerView({
   }, [initialData])
 
   const handleViewChange = (view: CalendarView) => {
-    setCurrentView(view)
-
-    if (calendarRef.current) {
-      calendarRef.current.changeView(view)
-    }
+    startTransition(() => {
+      setCurrentView(view)
+    })
   }
-
-  const viewTabs = [
-    { label: t('dashboard.calendar_panel.view_annual'), view: 'multiMonthYear' as const },
-    { label: t('dashboard.calendar_panel.view_monthly'), view: 'dayGridMonth' as const },
-    { label: t('dashboard.calendar_panel.view_weekly'), view: 'timeGridWeek' as const },
-    { label: t('dashboard.calendar_panel.view_daily'), view: 'timeGridDay' as const }
-  ]
 
   const taskCount = tasks.length
   const completedCount = useMemo(() => tasks.filter((task) => task.completado).length, [tasks])
@@ -118,7 +116,7 @@ export default function PlannerView({
         </div>
 
         <nav className="mt-5 flex flex-wrap items-center gap-2">
-          {viewTabs.map((tab) => {
+          {VIEW_TABS.map((tab) => {
             const active = currentView === tab.view
 
             return (
@@ -132,7 +130,7 @@ export default function PlannerView({
                     : 'bg-[rgba(255,253,249,0.86)] text-slate-500 hover:bg-white hover:text-slate-700'
                 }`}
               >
-                {tab.label}
+                {t(tab.labelKey)}
               </button>
             )
           })}
@@ -178,7 +176,6 @@ export default function PlannerView({
       ) : activePlan ? (
         <div className="overflow-hidden rounded-[24px] border border-[rgba(31,41,55,0.08)] bg-[rgba(255,253,249,0.88)] shadow-[0_22px_46px_-24px_rgba(17,24,39,0.18)] backdrop-blur-2xl sm:rounded-[32px]">
           <PlanCalendar
-            calendarRef={calendarRef}
             tasks={tasks}
             timezone={DateTime.local().zoneName ?? 'UTC'}
             defaultView={currentView}

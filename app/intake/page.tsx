@@ -1,10 +1,10 @@
 import { Suspense } from 'react'
-import { auth } from '@/src/auth'
 import { redirect } from 'next/navigation'
 import IntakePageContent from '../../components/IntakePageContent'
+import { getCurrentSession } from '@/src/lib/server/request-context'
 
 export default async function IntakePage() {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect('/auth/signin?callbackUrl=/intake')

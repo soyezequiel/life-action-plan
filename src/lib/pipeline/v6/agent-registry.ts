@@ -1,11 +1,8 @@
-import { createRequire } from 'node:module';
-
 import type { AgentRuntime } from '../../runtime/types';
 import { clarifierAgent } from './agents/clarifier-agent';
 import { domainExpertAgent } from './agents/domain-expert';
 import { goalInterpreterAgent } from './agents/goal-interpreter';
 import { packagerAgent } from './agents/packager-agent';
-import { schedulerAgent } from './agents/scheduler-agent';
 import type { V6Agent, V6AgentName } from './types';
 
 import { criticAgent } from './agents/critic-agent';
@@ -48,7 +45,6 @@ export function createDefaultRegistry(): AgentRegistry {
 
   registry.register(goalInterpreterAgent)
   registry.register(clarifierAgent)
-  registry.register(schedulerAgent)
   registry.register(packagerAgent)
   registry.register(domainExpertAgent)
 

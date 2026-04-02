@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Geist_Mono, Manrope, Fraunces } from 'next/font/google'
 import ClientProviders from '../src/lib/client/providers'
 import esAR from '../src/i18n/locales/es-AR.json'
+import { getCurrentSession } from '@/src/lib/server/request-context'
 import './globals.css'
 
 const manrope = Manrope({
@@ -39,11 +40,13 @@ export const metadata: Metadata = {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: ReactNode
 }>) {
+  const session = await getCurrentSession()
+
   return (
     <html lang="es-AR" className={`${manrope.variable} ${fraunces.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
@@ -55,7 +58,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ClientProviders>{children}</ClientProviders>
+        <ClientProviders session={session}>{children}</ClientProviders>
       </body>
     </html>
   )

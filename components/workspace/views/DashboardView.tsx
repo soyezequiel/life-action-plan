@@ -2,13 +2,14 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { startTransition, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DateTime } from 'luxon'
 
 import { t } from '@/src/i18n'
 import { useLapClient } from '@/src/lib/client/app-services'
 import type { DashboardSummaryResult } from '@/src/shared/types/lap-api'
+import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 
 import { MaterialIcon } from '../../midnight-mint/MaterialIcon'
 import type { DashboardViewProps } from '../types'
@@ -39,10 +40,45 @@ function getFocusCopy(summary: DashboardSummaryResult): string {
   return t('dashboard.focus.after')
 }
 
+function applyTaskToggle(summary: DashboardSummaryResult, taskId: string, completado: boolean): DashboardSummaryResult {
+  const tasks = summary.tasks.map((task) => (
+    task.id === taskId ? { ...task, completado } : task
+  ))
+  const tasksCompleted = tasks.filter((task) => task.completado).length
+  const tasksTotal = tasks.length
+  const progressPercentage = tasksTotal > 0 ? Math.round((tasksCompleted / tasksTotal) * 100) : 0
+  const todayIso = summary.date
+  const week = {
+    days: summary.week.days.map((day) => {
+      if (day.date !== todayIso) {
+        return day
+      }
+
+      return {
+        ...day,
+        completedCount: tasksCompleted,
+        totalCount: tasksTotal,
+        percentage: progressPercentage,
+      }
+    })
+  }
+
+  return {
+    ...summary,
+    tasks,
+    tasksCompleted,
+    tasksTotal,
+    tasksActive: Math.max(0, tasksTotal - tasksCompleted),
+    progressPercentage,
+    week,
+  }
+}
+
 export default function DashboardView({ initialData = null }: DashboardViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const lapClient = useLapClient()
+  const { latestProfileId: latestProfileIdFromStatus } = useUserStatusContext()
   const requestedPlanId = searchParams?.get('planId') ?? null
   const [summary, setSummary] = useState<DashboardSummaryResult | null>(initialData)
   const [isLoading, setIsLoading] = useState(initialData === null)
@@ -52,27 +88,31 @@ export default function DashboardView({ initialData = null }: DashboardViewProps
   const shouldResolveFromServer = !summary || (requestedPlanId !== null && requestedPlanId !== summary.planId)
 
   const resolvePlanId = async (): Promise<string | null> => {
-    let profileId = await lapClient.profile.latest()
-    if (profileId) {
-      window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, profileId)
-    } else {
+    let profileId = latestProfileIdFromStatus
+
+    if (!profileId) {
       profileId = window.localStorage.getItem(LOCAL_PROFILE_ID_STORAGE_KEY)
     }
+
     if (!profileId) return null
     const plans = await lapClient.plan.list(profileId)
     const selected = requestedPlanId ? plans.find((plan) => plan.id === requestedPlanId) ?? plans[0] ?? null : plans[0] ?? null
     return selected?.id ?? null
   }
 
-  const loadSummary = async (planId: string): Promise<void> => {
-    setIsLoading(true)
+  const loadSummary = async (planId: string, showLoader = true): Promise<void> => {
+    if (showLoader) {
+      setIsLoading(true)
+    }
     setError(null)
     try {
       setSummary(await lapClient.dashboard.summary(planId))
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : t('dashboard.error'))
     } finally {
-      setIsLoading(false)
+      if (showLoader) {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -101,15 +141,25 @@ export default function DashboardView({ initialData = null }: DashboardViewProps
     }
     void bootstrap()
     return () => { isMounted = false }
-  }, [requestedPlanId, shouldResolveFromServer])
+  }, [requestedPlanId, shouldResolveFromServer, latestProfileIdFromStatus])
 
   const handleToggleTask = async (taskId: string): Promise<void> => {
     if (!summary) return
     setBusyTaskId(taskId)
+    const currentTask = summary.tasks.find((task) => task.id === taskId)
+    const nextCompleted = currentTask ? !currentTask.completado : false
+
+    if (currentTask) {
+      setSummary((current) => (current ? applyTaskToggle(current, taskId, nextCompleted) : current))
+    }
+
     try {
       await lapClient.progress.toggle(taskId)
-      await loadSummary(summary.planId)
+      startTransition(() => {
+        void loadSummary(summary.planId, false)
+      })
     } catch (nextError) {
+      setSummary(summary)
       setError(nextError instanceof Error ? nextError.message : t('dashboard.error'))
     } finally {
       setBusyTaskId(null)

@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+
 import { WorkspaceOrchestrator } from '../workspace/WorkspaceOrchestrator'
 import type { IntakeViewProps } from '../workspace/types'
 

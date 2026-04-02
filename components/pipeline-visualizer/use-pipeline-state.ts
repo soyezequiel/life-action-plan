@@ -1,23 +1,26 @@
 import { useState, useCallback, useRef } from 'react';
 import type { PlanStreamCallbacks, PlanDegradedEvent } from '../../src/lib/client/plan-client';
-import type { ClarificationRound, OrchestratorPhase } from '../../src/lib/pipeline/v6/types';
+import type { ClarificationRound, V6MachineStateValue } from '../../src/lib/pipeline/v6/types';
+import { getV6MachineVisualNodes } from '../../src/lib/pipeline/v6/xstate/visualization';
 import {
   PhaseNodeData,
   PhaseNodeStatus,
   PipelineVisualizerState,
-  PHASE_ORDER,
   VisualizerNotification
 } from './pipeline-visualizer-types';
 
 function createInitialState(): PipelineVisualizerState {
+  const machineNodes = getV6MachineVisualNodes('analyst');
+
   return {
-    phases: PHASE_ORDER.map(p => ({
-      phase: p.phase,
-      labelKey: p.labelKey,
-      targetProgress: p.targetProgress,
+    phases: machineNodes.map((node) => ({
+      phase: node.stateId,
+      labelKey: node.labelKey,
+      fallbackLabel: node.fallbackLabel,
+      targetProgress: node.progressTarget,
       status: 'pending',
-      agentName: p.agentName,
-      maxIterations: p.phase === 'clarify' ? 3 : p.phase === 'revise' ? 2 : undefined
+      agentName: node.agentName,
+      maxIterations: node.stateId === 'clarify' ? 3 : node.stateId === 'revise' ? 2 : undefined
     })),
     currentPhase: null,
     progressScore: 0,
@@ -62,13 +65,9 @@ export function usePipelineState(): {
   }, []);
 
   const onPhase = useCallback((phaseStr: string, iteration: number) => {
-    const phase = phaseStr as OrchestratorPhase;
+    const phase = phaseStr as V6MachineStateValue;
     setState(prev => {
       const nextPhases = prev.phases.map(p => {
-        // Find index logic to properly mark completed
-        const prevPhaseIndex = PHASE_ORDER.findIndex(o => o.phase === prev.currentPhase);
-        const thisPhaseIndex = PHASE_ORDER.findIndex(o => o.phase === p.phase);
-
         if (p.phase === phase) {
           return {
             ...p,
@@ -76,10 +75,9 @@ export function usePipelineState(): {
             iteration: iteration > 0 ? iteration : undefined
           };
         }
-        
-        // Mark past phases as completed unless degraded
-        if (p.status === 'active' || (prevPhaseIndex >= 0 && thisPhaseIndex <= prevPhaseIndex && p.status !== 'degraded' && p.status !== 'failed')) {
-           return { ...p, status: 'completed' as PhaseNodeStatus };
+
+        if (p.status === 'active') {
+          return { ...p, status: 'completed' as PhaseNodeStatus };
         }
         return p;
       });
@@ -108,7 +106,22 @@ export function usePipelineState(): {
   const onNeedsInput = useCallback((sessionId: string, _questions: ClarificationRound) => {
     setState(prev => ({
       ...prev,
-      phases: prev.phases.map(p => p.phase === 'clarify' ? { ...p, status: 'waiting' as PhaseNodeStatus } : p),
+      currentPhase: 'paused_for_input',
+      phases: prev.phases.map((p) => {
+        if (p.phase === 'clarify') {
+          return { ...p, status: 'waiting' as PhaseNodeStatus };
+        }
+
+        if (p.phase === 'paused_for_input') {
+          return { ...p, status: 'active' as PhaseNodeStatus };
+        }
+
+        if (p.status === 'active') {
+          return { ...p, status: 'completed' as PhaseNodeStatus };
+        }
+
+        return p;
+      }),
       lifecycle: 'paused_for_input',
       sessionId,
       storage: { ...prev.storage, sessionSaved: true }
@@ -136,11 +149,13 @@ export function usePipelineState(): {
       const isFailed = prev.lifecycle === 'failed';
        return {
         ...prev,
+        currentPhase: isFailed ? prev.currentPhase : 'done',
         lifecycle: isFailed ? 'failed' : 'completed',
         storage: { ...prev.storage, planSaved: true },
         phases: prev.phases.map(p => {
           if (p.phase === 'done') return { ...p, status: 'completed' as PhaseNodeStatus };
           if (p.phase === 'failed') return p;
+          if (p.status === 'active') return { ...p, status: 'completed' as PhaseNodeStatus };
           if (p.status === 'pending') return { ...p, status: 'skipped' as PhaseNodeStatus };
           return p;
         })
@@ -152,9 +167,10 @@ export function usePipelineState(): {
   const onError = useCallback((message: string) => {
     setState(prev => ({
       ...prev,
+      currentPhase: prev.currentPhase === 'blocked' ? 'blocked' : prev.currentPhase ?? 'failed',
       lifecycle: 'failed',
       phases: prev.phases.map(p => {
-          if (p.phase === prev.currentPhase || p.phase === 'failed') {
+          if (p.phase === prev.currentPhase || p.phase === 'failed' || p.phase === 'blocked') {
             return { ...p, status: 'failed' as PhaseNodeStatus }
           }
           return p;

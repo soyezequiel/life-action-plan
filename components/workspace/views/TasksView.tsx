@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 
 import { MaterialIcon } from '@/components/midnight-mint/MaterialIcon'
 import { browserLapClient } from '@/src/lib/client/browser-http-client'
+import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 import { t } from '@/src/i18n'
 import type { ProgressRow } from '@/src/shared/types/lap-api'
 
@@ -16,6 +17,7 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
   const [loading, setLoading] = useState(initialTasks === undefined)
   const [togglingId, setTogglingId] = useState<string | null>(null)
   const router = useRouter()
+  const { latestProfileId } = useUserStatusContext()
 
   useEffect(() => {
     if (initialTasks !== undefined) {
@@ -23,29 +25,27 @@ export default function TasksView({ initialTasks }: TasksViewProps) {
       return
     }
 
-    browserLapClient.profile.latest()
-      .then((profileId) => {
-        if (!profileId) {
+    if (!latestProfileId) {
+      setLoading(false)
+      return
+    }
+
+    browserLapClient.plan.list(latestProfileId)
+      .then((plans) => {
+        const activePlan = plans[0]
+
+        if (!activePlan) {
           setLoading(false)
           return null
         }
 
-        return browserLapClient.plan.list(profileId).then((plans) => {
-          const activePlan = plans[0]
-
-          if (!activePlan) {
-            setLoading(false)
-            return null
-          }
-
-          return browserLapClient.progress.list(activePlan.id).then((progressRows) => {
-            setTasks(progressRows)
-            setLoading(false)
-          })
+        return browserLapClient.progress.list(activePlan.id).then((progressRows) => {
+          setTasks(progressRows)
+          setLoading(false)
         })
       })
       .catch(() => setLoading(false))
-  }, [initialTasks])
+  }, [initialTasks, latestProfileId])
 
   const handleToggle = async (taskId: string) => {
     if (togglingId) {

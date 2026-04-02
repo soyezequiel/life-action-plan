@@ -18,23 +18,11 @@ vi.mock('next-auth/react', () => ({
 
 function createLapClientStub() {
   return {
-    wallet: {
+    user: {
       status: vi.fn(),
     },
-    settings: {
-      apiKeyStatus: vi.fn(),
-    },
-    profile: {
-      latest: vi.fn(),
-    },
-    plan: {
-      list: vi.fn(),
-    },
   } as unknown as LapAPI & {
-    wallet: { status: ReturnType<typeof vi.fn> }
-    settings: { apiKeyStatus: ReturnType<typeof vi.fn> }
-    profile: { latest: ReturnType<typeof vi.fn> }
-    plan: { list: ReturnType<typeof vi.fn> }
+    user: { status: ReturnType<typeof vi.fn> }
   }
 }
 
@@ -55,10 +43,12 @@ describe('useUserStatus', () => {
 
   it('usa el profileId guardado localmente para detectar planes cuando latest devuelve null', async () => {
     const lapClient = createLapClientStub()
-    lapClient.wallet.status.mockResolvedValue({ configured: true })
-    lapClient.settings.apiKeyStatus.mockResolvedValue({ configured: true })
-    lapClient.profile.latest.mockResolvedValue(null)
-    lapClient.plan.list.mockResolvedValue([{ id: 'plan-1' }])
+    lapClient.user.status.mockResolvedValue({
+      hasWallet: true,
+      hasApiKey: true,
+      hasPlan: true,
+      latestProfileId: null,
+    })
 
     window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, 'profile-local')
 
@@ -72,17 +62,20 @@ describe('useUserStatus', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(lapClient.plan.list).toHaveBeenCalledWith('profile-local')
+    expect(lapClient.user.status).toHaveBeenCalledWith('profile-local')
+    expect(result.current.latestProfileId).toBeNull()
     expect(result.current.hasPlan).toBe(true)
     expect(result.current.onboardingStep).toBe('READY')
   })
 
-  it('preserva la configuracion previa si fallan chequeos secundarios y aun asi detecta el plan nuevo', async () => {
+  it('preserva el estado previo cuando falla el snapshot agregado durante un refresh', async () => {
     const lapClient = createLapClientStub()
-    lapClient.wallet.status.mockResolvedValue({ configured: true })
-    lapClient.settings.apiKeyStatus.mockResolvedValue({ configured: true })
-    lapClient.profile.latest.mockResolvedValue('profile-1')
-    lapClient.plan.list.mockResolvedValue([])
+    lapClient.user.status.mockResolvedValue({
+      hasWallet: true,
+      hasApiKey: true,
+      hasPlan: false,
+      latestProfileId: 'profile-1',
+    })
 
     const wrapper = ({ children }: PropsWithChildren) => (
       <AppServicesProvider services={{ lapClient }}>
@@ -97,22 +90,61 @@ describe('useUserStatus', () => {
     expect(result.current.hasApiKey).toBe(true)
     expect(result.current.hasWallet).toBe(true)
     expect(result.current.hasPlan).toBe(false)
+    expect(result.current.latestProfileId).toBe('profile-1')
     expect(result.current.onboardingStep).toBe('PLAN')
 
     window.localStorage.setItem(LOCAL_PROFILE_ID_STORAGE_KEY, 'profile-1')
-    lapClient.wallet.status.mockRejectedValue(new Error('wallet temporarily unavailable'))
-    lapClient.settings.apiKeyStatus.mockRejectedValue(new Error('api status unavailable'))
-    lapClient.profile.latest.mockResolvedValue(null)
-    lapClient.plan.list.mockResolvedValue([{ id: 'plan-1' }])
+    lapClient.user.status.mockRejectedValue(new Error('wallet temporarily unavailable'))
 
     await act(async () => {
       await result.current.refresh()
     })
 
+    expect(lapClient.user.status).toHaveBeenLastCalledWith('profile-1')
+    expect(result.current.hasWallet).toBe(true)
+    expect(result.current.hasApiKey).toBe(true)
+    expect(result.current.hasPlan).toBe(false)
+    expect(result.current.onboardingStep).toBe('PLAN')
+    expect(result.current.error).toBe('wallet temporarily unavailable')
+  })
+
+  it('mantiene el primer render en loading aunque exista cache local y aplica el snapshot despues de montar', async () => {
+    const lapClient = createLapClientStub()
+    lapClient.user.status.mockResolvedValue({
+      hasWallet: true,
+      hasApiKey: true,
+      hasPlan: true,
+      latestProfileId: 'profile-cached',
+    })
+
+    window.localStorage.setItem('lap.user-status.v1', JSON.stringify({
+      userId: 'user-1',
+      timestamp: Date.now(),
+      snapshot: {
+        hasWallet: true,
+        hasApiKey: true,
+        hasPlan: true,
+        latestProfileId: 'profile-cached',
+      },
+    }))
+
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <AppServicesProvider services={{ lapClient }}>
+        {children}
+      </AppServicesProvider>
+    )
+
+    const { result } = renderHook(() => useUserStatus(), { wrapper })
+
+    expect(result.current.loading).toBe(true)
+    expect(result.current.onboardingStep).toBe('LOADING')
+
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
     expect(result.current.hasWallet).toBe(true)
     expect(result.current.hasApiKey).toBe(true)
     expect(result.current.hasPlan).toBe(true)
+    expect(result.current.latestProfileId).toBe('profile-cached')
     expect(result.current.onboardingStep).toBe('READY')
-    expect(result.current.error).toBe('wallet temporarily unavailable')
   })
 })

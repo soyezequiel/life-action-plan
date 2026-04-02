@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { useState } from 'react'
 import { MotionConfig, motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
@@ -26,9 +27,9 @@ function renderTopTab(tab: WorkspaceTopTab, mobile = false) {
 
   if (tab.href) {
     return (
-      <a key={tab.label} href={tab.href} aria-current={tab.active ? 'page' : undefined} className={className}>
+      <Link key={tab.label} href={tab.href} aria-current={tab.active ? 'page' : undefined} className={className}>
         {tab.label}
-      </a>
+      </Link>
     )
   }
 

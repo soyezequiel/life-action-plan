@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { startTransition } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -34,12 +35,49 @@ export default function SettingsView({
   }, [section])
 
   useEffect(() => {
-    if (initialWalletStatus === null) {
-      fetchWallet()
+    const shouldFetchWallet = initialWalletStatus === null
+    const shouldFetchApiStatus = !initialApiConfigured
+
+    if (!shouldFetchWallet && !shouldFetchApiStatus) {
+      return
     }
 
-    if (!initialApiConfigured) {
-      fetchApiStatus()
+    let isMounted = true
+
+    const bootstrapRemoteState = async (): Promise<void> => {
+      try {
+        const [nextWallet, nextApiConfigured] = await Promise.all([
+          shouldFetchWallet ? browserLapClient.wallet.status() : Promise.resolve(null),
+          shouldFetchApiStatus
+            ? fetch('/api/settings/api-key?provider=openai').then((res) => res.json()).then((data) => Boolean(data.configured))
+            : Promise.resolve(false)
+        ])
+
+        if (!isMounted) {
+          return
+        }
+
+        if (nextWallet) {
+          setWallet(nextWallet)
+        }
+
+        if (nextApiConfigured) {
+          setApiConfigured(true)
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        if (isMounted && shouldFetchWallet) {
+          setIsWalletLoading(false)
+        }
+      }
+    }
+
+    setIsWalletLoading(shouldFetchWallet)
+    void bootstrapRemoteState()
+
+    return () => {
+      isMounted = false
     }
   }, [initialApiConfigured, initialWalletStatus])
 
@@ -49,17 +87,6 @@ export default function SettingsView({
       .then(setWallet)
       .catch(console.error)
       .finally(() => setIsWalletLoading(false))
-  }
-
-  const fetchApiStatus = () => {
-    fetch('/api/settings/api-key?provider=openai')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.configured) {
-          setApiConfigured(true)
-        }
-      })
-      .catch(console.error)
   }
 
   const handleWalletConnect = async () => {
@@ -74,7 +101,9 @@ export default function SettingsView({
       setWalletStatus('success')
       setRelayUrl('')
       fetchWallet()
-      await refreshStatus()
+      startTransition(() => {
+        void refreshStatus()
+      })
       setTimeout(() => setWalletStatus('idle'), 2000)
     } catch {
       setWalletStatus('error')
@@ -102,7 +131,9 @@ export default function SettingsView({
         setApiStatus('success')
         setApiConfigured(true)
         setApiKey('')
-        await refreshStatus()
+        startTransition(() => {
+          void refreshStatus()
+        })
         setTimeout(() => setApiStatus('idle'), 3000)
         return
       }

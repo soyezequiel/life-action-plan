@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect } from 'react'
 import type { PropsWithChildren } from 'react'
 import type { LapAPI } from '../../shared/types/lap-api'
+import type { Session } from 'next-auth'
 import { browserLapClient } from './browser-http-client'
 import { setLocale } from '../../i18n'
 import { UserStatusProvider } from './UserStatusProvider'
@@ -64,9 +65,13 @@ function I18nBootstrap(): null {
   return null
 }
 
-export function AppProviders({ children }: PropsWithChildren) {
+interface AppProvidersProps extends PropsWithChildren {
+  session?: Session | null
+}
+
+export function AppProviders({ children, session = null }: AppProvidersProps) {
   return (
-    <SessionProvider>
+    <SessionProvider session={session}>
       <AppServicesProvider>
         <UserStatusProvider>
           <UserStatusGuard>

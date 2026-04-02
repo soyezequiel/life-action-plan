@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { auth } from '@/src/auth'
 import { t } from '@/src/i18n'
 import { redirect } from 'next/navigation'
 import { PageFrame } from '../../components/layout/PageFrame'
+import { getCurrentSession } from '@/src/lib/server/request-context'
 
 const HELP_TOPICS = [
   {
@@ -24,7 +24,7 @@ const HELP_TOPICS = [
 ] as const
 
 export default async function HelpPage() {
-  const session = await auth()
+  const session = await getCurrentSession()
 
   if (!session) {
     redirect('/auth/signin?callbackUrl=/help')

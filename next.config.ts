@@ -1,8 +1,11 @@
 import type { NextConfig } from 'next'
 import { execSync } from 'node:child_process'
 
-// Ejecutar Doctor en fase de build si estamos en Vercel
-if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
+const shouldRunDeployDoctor = process.env.VERCEL === '1'
+  || process.env.LAP_RUN_DEPLOY_DOCTOR === '1'
+
+// Ejecutar el doctor de deploy solo cuando realmente validamos entorno Vercel.
+if (shouldRunDeployDoctor) {
   try {
     console.log('[NextConfig] Ejecutando chequeo de pre-vuelo...');
     execSync('node scripts/deploy-doctor.mjs', { stdio: 'inherit' });
@@ -12,7 +15,8 @@ if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
 }
 
 const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
-const nextDistDir = isVercel ? '.next' : '.next-build'
+const nextDistDir = process.env.NEXT_DIST_DIR
+  || (isVercel ? '.next' : '.next-build')
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -23,7 +27,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  serverExternalPackages: ['highs'],
 }
 
 export default nextConfig

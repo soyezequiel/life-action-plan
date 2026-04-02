@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { DateTime } from 'luxon';
 
 import type { MetricItem, MilestoneItem } from '../../src/lib/domain/plan-item';
@@ -52,8 +52,8 @@ function getDirectionLabel(metric: MetricItem): string {
 }
 
 export function ProgressView({ package: pkg }: ProgressViewProps) {
-  const milestones = pkg.items.filter((item): item is MilestoneItem => item.kind === 'milestone');
-  const metrics = pkg.items.filter((item): item is MetricItem => item.kind === 'metric');
+  const milestones = useMemo(() => pkg.items.filter((item): item is MilestoneItem => item.kind === 'milestone'), [pkg.items]);
+  const metrics = useMemo(() => pkg.items.filter((item): item is MetricItem => item.kind === 'metric'), [pkg.items]);
   const currentPhaseIndex = resolveCurrentPhaseIndex(pkg);
   const qualityWidth = `${Math.max(8, pkg.qualityScore)}%`;
 

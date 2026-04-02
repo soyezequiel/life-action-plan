@@ -1,215 +1,354 @@
 'use client';
 
-import React, { useMemo, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
-  ReactFlow,
-  useNodesState,
-  useEdgesState,
   Background,
   Controls,
-  ConnectionMode,
-  NodeProps,
+  ControlButton,
   Edge,
-  Node,
-  Panel,
-  ReactFlowProvider,
-  useReactFlow,
   Handle,
+  MiniMap,
+  Node,
+  NodeProps,
+  Panel,
   Position,
+  ReactFlow,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { t } from '@/src/i18n';
-import styles from './AdvancedFlowVisualizer.module.css';
-import { motion, AnimatePresence } from 'framer-motion';
-import { PipelineVisualizerState, PHASE_ORDER } from './pipeline-visualizer-types';
-import { getTopologyNodes, getTopologyEdges } from '@lib/client/topology-layout';
-import { MaterialIcon } from '@/components/midnight-mint/MaterialIcon';
 
-// Custom Node Component
-const CustomWorkflowNode = ({ data, selected }: NodeProps<Node<any>>) => {
-  const { labelKey, phase, agentName, status, progress, iteration } = data;
-  
-  const isCompleted = status === 'completed';
-  const isActive = status === 'active';
-  const isFailed = status === 'failed';
-  const isWaiting = status === 'waiting';
+import { motion } from 'framer-motion';
+
+import { MaterialIcon } from '@/components/midnight-mint/MaterialIcon';
+import { t } from '@/src/i18n';
+import {
+  getV6MachineVisualEdges,
+  getV6MachineVisualNodes,
+} from '@/src/lib/pipeline/v6/xstate/visualization';
+
+import {
+  type AnalystCanvasNodeData,
+  type AnalystCanvasNodeStatus,
+  type AnalystPipelineNodeData,
+  type AnalystSupportNodeData,
+  type AnalystZoneNodeData,
+  buildAnalystCanvasTopology,
+  mergeAnalystCanvasNodes,
+} from './analyst-canvas-layout';
+import type { PipelineVisualizerState } from './pipeline-visualizer-types';
+import styles from './AdvancedFlowVisualizer.module.css';
+
+function resolveLabel(labelKey: string, fallbackLabel: string): string {
+  const translated = t(labelKey);
+  return translated === labelKey ? fallbackLabel : translated;
+}
+
+function getStatusLabel(status: AnalystCanvasNodeStatus): string {
+  switch (status) {
+    case 'active':
+      return 'activo';
+    case 'completed':
+      return 'resuelto';
+    case 'failed':
+      return 'fallo';
+    case 'waiting':
+      return 'espera';
+    case 'degraded':
+      return 'degradado';
+    case 'blocked':
+      return 'bloqueado';
+    case 'info':
+      return 'info';
+    default:
+      return 'pendiente';
+  }
+}
+
+function getStatusIcon(status: AnalystCanvasNodeStatus): string {
+  switch (status) {
+    case 'active':
+      return 'sync';
+    case 'completed':
+      return 'check_circle';
+    case 'failed':
+      return 'error';
+    case 'waiting':
+      return 'hourglass_bottom';
+    case 'degraded':
+      return 'warning';
+    case 'blocked':
+      return 'gpp_bad';
+    case 'info':
+      return 'info';
+    default:
+      return 'radio_button_unchecked';
+  }
+}
+
+function nodeStatusClass(status: AnalystCanvasNodeStatus): string {
+  switch (status) {
+    case 'active':
+      return styles.nodeActive;
+    case 'completed':
+      return styles.nodeCompleted;
+    case 'failed':
+      return styles.nodeFailed;
+    case 'waiting':
+      return styles.nodeWaiting;
+    case 'degraded':
+      return styles.nodeDegraded;
+    case 'blocked':
+      return styles.nodeBlocked;
+    case 'info':
+      return styles.nodeInfo;
+    default:
+      return styles.nodePending;
+  }
+}
+
+function laneClass(lane: AnalystSupportNodeData['lane'] | AnalystZoneNodeData['tone']): string {
+  switch (lane) {
+    case 'user':
+      return styles.laneUser;
+    case 'server':
+      return styles.laneServer;
+    case 'storage':
+      return styles.laneStorage;
+    case 'notifications':
+      return styles.laneNotifications;
+    default:
+      return styles.lanePipeline;
+  }
+}
+
+const hiddenHandleStyle = { opacity: 0, width: 10, height: 10 };
+
+const PipelineNode = ({ data }: NodeProps<Node<AnalystPipelineNodeData>>) => {
+  const label = resolveLabel(data.labelKey, data.fallbackLabel);
 
   return (
-    <div className={`${styles.customNode} ${isActive ? styles.customNodeActive : ''} ${isCompleted ? styles.customNodeCompleted : ''}`}>
-      <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
-      
+    <div className={`${styles.pipelineNode} ${nodeStatusClass(data.status)}`}>
+      <Handle id="top" type="target" position={Position.Top} style={hiddenHandleStyle} />
+      <Handle id="right" type="source" position={Position.Right} style={hiddenHandleStyle} />
+      <Handle id="bottom" type="source" position={Position.Bottom} style={hiddenHandleStyle} />
+      <Handle id="left" type="target" position={Position.Left} style={hiddenHandleStyle} />
+
+      <div className={styles.nodeToolbar}>
+        <span className={styles.nodeIndex}>{String(data.orderIndex).padStart(2, '0')}</span>
+        <span className={styles.nodeChip}>
+          <MaterialIcon
+            name={getStatusIcon(data.status)}
+            className={`${styles.nodeIcon} ${data.status === 'active' ? `animate-spin ${styles.nodeIconActive}` : ''}`}
+          />
+          {getStatusLabel(data.status)}
+        </span>
+      </div>
+
       <div className={styles.nodeHeader}>
-        <MaterialIcon 
-          name={isCompleted ? 'check_circle' : isActive ? 'sync' : isFailed ? 'error' : isWaiting ? 'hourglass_bottom' : 'radio_button_unchecked'} 
-          className={`${styles.nodeIcon} ${isActive ? 'animate-spin ' + styles.activeIcon : ''} ${isCompleted ? styles.activeIcon : ''}`}
-        />
-        <span className={styles.nodeProgress}>{progress}%</span>
+        <div>
+          <span className={styles.nodeEyebrow}>motor</span>
+          <h4 className={styles.nodeTitle}>{label}</h4>
+          <span className={styles.nodeMeta}>{data.agentName ?? 'estado terminal'}</span>
+        </div>
+        <span className={styles.nodeProgress}>{data.progress}%</span>
       </div>
 
-      <div className={styles.nodeContent}>
-        <h4 className={styles.nodeTitle}>{t(labelKey)}</h4>
-        {agentName && <span className={styles.agentName}>{agentName}</span>}
-        {iteration && iteration > 1 && (
-          <span className="text-[9px] text-amber-500 font-bold uppercase mt-1">Iteración {iteration}</span>
-        )}
-      </div>
+      {data.iteration && data.iteration > 1 ? (
+        <span className={styles.nodeIteration}>iteracion {data.iteration}</span>
+      ) : null}
 
-      <Handle type="source" position={Position.Bottom} style={{ visibility: 'hidden' }} />
+      <div className={styles.nodeMeter}>
+        <div className={styles.nodeMeterFill} style={{ width: `${Math.max(12, data.progress)}%` }} />
+      </div>
     </div>
   );
 };
 
-// Simplified User/Storage nodes
-const UserNode = ({ data }: NodeProps<Node<any>>) => (
-  <div className="px-4 py-3 rounded-xl bg-white/5 border border-purple-500/20 backdrop-blur-md text-xs font-bold text-purple-300 uppercase tracking-widest text-center shadow-lg relative">
-    <Handle type="source" position={Position.Right} style={{ visibility: 'hidden' }} />
-    <Handle type="target" position={Position.Right} style={{ visibility: 'hidden' }} />
-    {t(data.labelKey)}
-  </div>
-);
+const SupportNode = ({ data }: NodeProps<Node<AnalystSupportNodeData>>) => {
+  const label = resolveLabel(data.labelKey, data.fallbackLabel);
 
-const StorageNode = ({ data }: NodeProps<Node<any>>) => (
-  <div className="px-4 py-3 rounded-xl bg-white/5 border border-emerald-500/20 backdrop-blur-md text-xs font-bold text-emerald-300 uppercase tracking-widest text-center shadow-lg relative">
-    <Handle type="target" position={Position.Left} style={{ visibility: 'hidden' }} />
-    {t(data.labelKey)}
+  return (
+    <div className={`${styles.supportNode} ${laneClass(data.lane)} ${nodeStatusClass(data.status)}`}>
+      <Handle id="top" type="target" position={Position.Top} style={hiddenHandleStyle} />
+      <Handle id="right" type="source" position={Position.Right} style={hiddenHandleStyle} />
+      <Handle id="bottom" type="source" position={Position.Bottom} style={hiddenHandleStyle} />
+      <Handle id="left" type="target" position={Position.Left} style={hiddenHandleStyle} />
+
+      <div className={styles.supportNodeHeader}>
+        <span className={styles.supportEyebrow}>{data.eyebrow}</span>
+        <span className={styles.supportBadge}>
+          <MaterialIcon name={getStatusIcon(data.status)} className={styles.supportBadgeIcon} />
+          {getStatusLabel(data.status)}
+        </span>
+      </div>
+
+      <strong className={styles.supportTitle}>{label}</strong>
+      {data.note ? <span className={styles.supportNote}>{data.note}</span> : null}
+    </div>
+  );
+};
+
+const ZoneNode = ({ data }: NodeProps<Node<AnalystZoneNodeData>>) => (
+  <div className={`${styles.zoneNode} ${laneClass(data.tone)}`}>
+    <div className={styles.zoneHeader}>
+      <span className={styles.zoneTitle}>{data.title}</span>
+      <span className={styles.zoneSubtitle}>{data.subtitle}</span>
+    </div>
   </div>
 );
 
 const nodeTypes = {
-  pipeline: CustomWorkflowNode,
-  user: UserNode,
-  storage: StorageNode,
+  pipeline: PipelineNode,
+  support: SupportNode,
+  zone: ZoneNode,
 };
 
 interface AdvancedFlowVisualizerProps {
   state: PipelineVisualizerState;
 }
 
+function minimapColor(node: Node<AnalystCanvasNodeData>): string {
+  const data = node.data;
+
+  if (!data || data.kind === 'zone') {
+    return 'rgba(148, 163, 184, 0.18)';
+  }
+
+  switch (data.status) {
+    case 'active':
+      return '#38bdf8';
+    case 'completed':
+      return '#a7f3d0';
+    case 'failed':
+      return '#ef4444';
+    case 'waiting':
+      return '#c4b5fd';
+    case 'degraded':
+      return '#e9d5ff';
+    case 'blocked':
+      return '#f59e0b';
+    default:
+      return '#64748b';
+  }
+}
+
 const Flow = ({ state }: AdvancedFlowVisualizerProps) => {
-  const { setCenter } = useReactFlow();
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const { fitView } = useReactFlow();
+  const machineNodes = useMemo(() => getV6MachineVisualNodes('analyst'), []);
+  const machineEdges = useMemo(() => getV6MachineVisualEdges('analyst'), []);
+  const initialTopology = useMemo(
+    () => buildAnalystCanvasTopology(machineNodes, machineEdges, state),
+    [machineEdges, machineNodes, state],
+  );
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<AnalystCanvasNodeData>>(initialTopology.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialTopology.edges);
+  const nodesRef = useRef(nodes);
 
-  // Initialize nodes and edges
   useEffect(() => {
-    const initialNodes = getTopologyNodes();
-    const initialEdges = getTopologyEdges();
-    setNodes(initialNodes);
-    setEdges(initialEdges);
-  }, [setNodes, setEdges]);
+    nodesRef.current = nodes;
+  }, [nodes]);
 
-  const fitViewOptions = useMemo(() => ({ padding: 0.2 }), []);
-  const lastSyncRef = useRef<string>('');
-
-  // Sincronizar solo cuando los datos relevantes cambien realmente
   useEffect(() => {
-    const currentSyncKey = JSON.stringify(state.phases.map(p => ({ 
-      p: p.phase, 
-      s: p.status, 
-      i: p.iteration,
-      d: p.statusDetail 
-    })));
-    
-    if (currentSyncKey === lastSyncRef.current) return;
-    lastSyncRef.current = currentSyncKey;
+    const topology = buildAnalystCanvasTopology(machineNodes, machineEdges, state, nodesRef.current);
+    setNodes((prevNodes) => mergeAnalystCanvasNodes(prevNodes, topology.nodes));
+    setEdges(topology.edges);
+  }, [machineEdges, machineNodes, setEdges, setNodes, state]);
 
-    // Sync state.phases -> nodes.data
-    setNodes((nds: Node[]) => 
-      nds.map((node) => {
-        if (node.type === 'pipeline' && node.data?.phase) {
-          const phaseData = state.phases.find(p => p.phase === node.data.phase);
-          if (phaseData) {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                status: phaseData.status,
-                iteration: phaseData.iteration,
-              }
-            };
-          }
-        }
-        return node;
-      })
-    );
-
-    // Sync state.phases -> edges.animated
-    setEdges((eds: Edge[]) => 
-      eds.map((edge) => {
-        const sourcePhase = edge.source.replace('node-', '') as any;
-        const targetPhase = edge.target.replace('node-', '') as any;
-        
-        const sourceData = state.phases.find(p => p.phase === sourcePhase);
-        const targetData = state.phases.find(p => p.phase === targetPhase);
-        
-        if (sourceData?.status === 'active' || targetData?.status === 'active') {
-          return { ...edge, animated: true, style: { stroke: '#10b981', strokeWidth: 2 } };
-        }
-        if (sourceData?.status === 'completed' && targetData?.status === 'completed') {
-           return { ...edge, animated: false, style: { stroke: 'rgba(16, 185, 129, 0.4)', strokeWidth: 2 } };
-        }
-        return { ...edge, animated: false, style: { stroke: '#334155', strokeWidth: 1.5 } };
-      })
-    );
-  }, [state.phases, setNodes, setEdges]);
-
-  // Auto-focus on active phase change - manual control
-  useEffect(() => {
-    if (!state.currentPhase) return;
-    
-    const phaseIndex = PHASE_ORDER.findIndex(p => p.phase === state.currentPhase);
-    if (phaseIndex !== -1) {
-      // Current active node center
-      const nodeX = 350 + 150; // Engine group x + half width
-      const nodeY = 50 + (phaseIndex * 110) + 40; // Vertical pos + half height
-      
-      // Target a point that keeps the diagram generally centered
-      // We center on X=475 (midpoint of the whole layout) 
-      // but keep vertical focus on the active node
-      setCenter(475, nodeY, { zoom: 0.9, duration: 800 });
-    }
-  }, [state.currentPhase, setCenter]);
+  const resetLayout = () => {
+    const topology = buildAnalystCanvasTopology(machineNodes, machineEdges, state);
+    setNodes(topology.nodes);
+    setEdges(topology.edges);
+    fitView({ duration: 420, padding: 0.16 });
+  };
 
   return (
     <div className={styles.visualizerWrapper}>
-      <ReactFlow
+      <ReactFlow<Node<AnalystCanvasNodeData>, Edge>
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
-        connectionMode={ConnectionMode.Loose}
-        fitViewOptions={fitViewOptions}
-        minZoom={0.2}
-        maxZoom={2}
-        className={styles.graphContainer}
+        fitView
+        fitViewOptions={{ padding: 0.18, minZoom: 0.35 }}
+        minZoom={0.28}
+        maxZoom={1.9}
+        nodesConnectable={false}
+        elementsSelectable
+        className={styles.graphCanvas}
+        proOptions={{ hideAttribution: true }}
       >
-        <Background color="#334155" gap={20} />
-        <Controls showInteractive={false} className="!bg-slate-900 !border-slate-800" />
-        
-        <Panel position="top-left" className="p-4">
-          <div className="flex flex-col gap-1">
-             <h3 className="text-white font-bold text-sm uppercase tracking-widest bg-slate-900/80 px-3 py-1 rounded-lg backdrop-blur-md border border-white/5">
-               {t('visualizer.title')}
-             </h3>
-             <p className="text-[10px] text-slate-400 font-medium">
-               {t('dashboard.resource_usage.mode.backend-cloud')}
-             </p>
+        <Background color="rgba(148, 163, 184, 0.18)" gap={30} size={1.2} />
+        <MiniMap<Node<AnalystCanvasNodeData>>
+          nodeStrokeWidth={3}
+          pannable
+          zoomable
+          position="bottom-left"
+          className={styles.minimap}
+          maskColor="rgba(15, 23, 42, 0.82)"
+          nodeColor={minimapColor}
+        />
+
+        <Controls showInteractive={false} className={styles.controls}>
+          <ControlButton onClick={resetLayout} title="Resetear layout">
+            <MaterialIcon name="frame_inspect" />
+          </ControlButton>
+        </Controls>
+
+        <Panel position="top-left" className={styles.panelWrap}>
+          <div className={styles.panelCard}>
+            <span className={styles.panelEyebrow}>modo analista</span>
+            <h3 className={styles.panelTitle}>{t('visualizer.title')}</h3>
+            <p className={styles.panelCopy}>
+              Canvas draggable por tarjetas, distribuido en cinco zonas: usuario, servidor, maquina, almacenamiento y
+              notificaciones.
+            </p>
+            <button type="button" className={styles.panelButton} onClick={resetLayout}>
+              reacomodar canvas
+            </button>
           </div>
         </Panel>
 
-        <Panel position="bottom-right" className="p-4">
-           <div className="flex gap-4 items-center bg-slate-900/80 p-3 rounded-2xl border border-white/5 backdrop-blur-md">
-              <div className="flex flex-col">
-                <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Progreso</span>
-                <span className="text-emerald-400 font-mono font-bold text-xl">{state.progressScore}%</span>
+        <Panel position="top-right" className={styles.panelWrap}>
+          <div className={styles.summaryCard}>
+            <div className={styles.summaryRow}>
+              <div>
+                <span className={styles.summaryLabel}>fase actual</span>
+                <strong className={styles.summaryValue}>{state.currentPhase ?? 'boot'}</strong>
               </div>
-              <div className="h-8 w-[1px] bg-white/5" />
-              <div className="flex flex-col">
-                <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Última Acción</span>
-                <span className="text-slate-300 text-xs font-medium max-w-[200px] truncate">{state.lastAction || 'Validando entrada...'}</span>
+              <div>
+                <span className={styles.summaryLabel}>lifecycle</span>
+                <strong className={styles.summaryValue}>{state.lifecycle}</strong>
               </div>
-           </div>
+              <div>
+                <span className={styles.summaryLabel}>sesion</span>
+                <strong className={styles.summaryValue}>{state.sessionId ? 'pausable' : 'directa'}</strong>
+              </div>
+            </div>
+            <div className={styles.legendRow}>
+              <span className={styles.legendItem}><i className={styles.legendDotActive} /> Activo</span>
+              <span className={styles.legendItem}><i className={styles.legendDotComplete} /> Resuelto</span>
+              <span className={styles.legendItem}><i className={styles.legendDotBlocked} /> Bloqueado</span>
+              <span className={styles.legendItem}><i className={styles.legendDotWaiting} /> Espera</span>
+            </div>
+          </div>
+        </Panel>
+
+        <Panel position="bottom-right" className={styles.panelWrap}>
+          <div className={styles.bottomCard}>
+            <div className={styles.bottomMetric}>
+              <span className={styles.summaryLabel}>progreso</span>
+              <span className={styles.bottomMetricValue}>{state.progressScore}%</span>
+            </div>
+            <div className={styles.bottomDivider} />
+            <div className={styles.bottomMetricCopy}>
+              <span className={styles.summaryLabel}>ultima accion</span>
+              <span className={styles.bottomAction}>{state.lastAction || 'esperando actividad del motor'}</span>
+            </div>
+          </div>
         </Panel>
       </ReactFlow>
     </div>
@@ -218,6 +357,8 @@ const Flow = ({ state }: AdvancedFlowVisualizerProps) => {
 
 export const AdvancedFlowVisualizer = (props: AdvancedFlowVisualizerProps) => (
   <ReactFlowProvider>
-    <Flow {...props} />
+    <motion.div initial={{ opacity: 0.98 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+      <Flow {...props} />
+    </motion.div>
   </ReactFlowProvider>
 );

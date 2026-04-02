@@ -1,5 +1,6 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { SessionProvider } from 'next-auth/react'
 import { describe, expect, it } from 'vitest'
 import { t } from '../src/i18n'
 import IntakeExpress from '../components/IntakeExpress'
@@ -34,11 +35,17 @@ describe('app services render', () => {
       createElement(
         AppServicesProvider,
         { services: { lapClient: mockLapApi } },
-        createElement(UserStatusProvider, null, createElement(IntakeExpress, { onComplete: () => {} }))
+        createElement(
+          SessionProvider,
+          {
+            session: null,
+            children: createElement(UserStatusProvider, null, createElement(IntakeExpress, { onComplete: () => {} }))
+          }
+        )
       )
     )
 
-    expect(html).toContain(t('mockups.intake.placeholder'))
-    expect(html).toContain(t('mockups.intake.button_next'))
+    expect(html).toContain('Pulso')
+    expect(html).toContain(t('ui.loading'))
   })
 })

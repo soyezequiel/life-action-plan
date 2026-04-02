@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useId, useRef, useState, useMemo } from 'react'
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { JSX } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -9,13 +9,18 @@ import scrollGridPlugin from '@fullcalendar/scrollgrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import multiMonthPlugin from '@fullcalendar/multimonth'
 import esLocale from '@fullcalendar/core/locales/es'
-import type { CalendarApi, EventContentArg, EventInput, EventMountArg } from '@fullcalendar/core'
+import type { CalendarApi, DatesSetArg, EventContentArg, EventInput, EventMountArg } from '@fullcalendar/core'
 import { DateTime } from 'luxon'
 import { getCurrentLocale, t } from '../src/i18n'
 import type { ProgressRow } from '../src/shared/types/lap-api'
 import styles from './PlanCalendar.module.css'
 
 export type CalendarView = 'multiMonthYear' | 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay'
+
+const DEFAULT_TIME_GRID_MIN = '06:00:00'
+const DEFAULT_TIME_GRID_MAX = '23:00:00'
+const TIME_GRID_STEP_MINUTES = 30
+const MINUTES_PER_DAY = 24 * 60
 
 interface TaskMeta {
   hora?: string
@@ -37,6 +42,20 @@ interface EventDetail {
 interface CalendarEventModel {
   event: EventInput
   detail: EventDetail
+  localStart: DateTime
+  localEnd: DateTime
+}
+
+interface CalendarEventClassNamesArg {
+  event: {
+    id: string
+  }
+}
+
+interface VisibleCalendarWindow {
+  viewType: CalendarView
+  activeStartIso: string
+  activeEndIso: string
 }
 
 export interface PlanCalendarProps {
@@ -77,7 +96,78 @@ function getEventAccentClass(category: string): string {
   }
 }
 
-function buildEventModel(task: ProgressRow, timezone: string, selectedEventId: string | null): CalendarEventModel | null {
+function minutesToSlotTime(totalMinutes: number): string {
+  const boundedMinutes = Math.max(0, Math.min(totalMinutes, MINUTES_PER_DAY))
+  const hours = Math.floor(boundedMinutes / 60)
+  const minutes = boundedMinutes % 60
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
+}
+
+function snapMinutesToSlot(totalMinutes: number, mode: 'floor' | 'ceil'): number {
+  if (mode === 'floor') {
+    return Math.floor(totalMinutes / TIME_GRID_STEP_MINUTES) * TIME_GRID_STEP_MINUTES
+  }
+
+  return Math.ceil(totalMinutes / TIME_GRID_STEP_MINUTES) * TIME_GRID_STEP_MINUTES
+}
+
+function buildTimeGridBoundary(candidate: DateTime, referenceDateIso: string, mode: 'floor' | 'ceil'): number {
+  const referenceDay = DateTime.fromISO(referenceDateIso, { zone: candidate.zoneName ?? 'utc' }).startOf('day')
+  const minutesFromReference = candidate.diff(referenceDay, 'minutes').minutes ?? 0
+  const boundedMinutes = Math.max(0, Math.min(minutesFromReference, MINUTES_PER_DAY))
+
+  return Math.max(0, Math.min(snapMinutesToSlot(boundedMinutes, mode), MINUTES_PER_DAY))
+}
+
+function buildTimeGridBounds(
+  eventModels: CalendarEventModel[],
+  timezone: string,
+  visibleWindow: VisibleCalendarWindow | null
+): { slotMinTime: string; slotMaxTime: string } {
+  if (!visibleWindow || (visibleWindow.viewType !== 'timeGridDay' && visibleWindow.viewType !== 'timeGridWeek')) {
+    return {
+      slotMinTime: DEFAULT_TIME_GRID_MIN,
+      slotMaxTime: DEFAULT_TIME_GRID_MAX
+    }
+  }
+
+  const windowStart = DateTime.fromISO(visibleWindow.activeStartIso, { zone: timezone })
+  const windowEnd = DateTime.fromISO(visibleWindow.activeEndIso, { zone: timezone })
+
+  if (!windowStart.isValid || !windowEnd.isValid) {
+    return {
+      slotMinTime: DEFAULT_TIME_GRID_MIN,
+      slotMaxTime: DEFAULT_TIME_GRID_MAX
+    }
+  }
+
+  const visibleEvents = eventModels.filter((model) => model.localStart < windowEnd && model.localEnd > windowStart)
+
+  if (visibleEvents.length === 0) {
+    return {
+      slotMinTime: DEFAULT_TIME_GRID_MIN,
+      slotMaxTime: DEFAULT_TIME_GRID_MAX
+    }
+  }
+
+  const slotMinMinutes = visibleEvents.reduce((earliest, model) => {
+    const candidate = buildTimeGridBoundary(model.localStart.minus({ minutes: TIME_GRID_STEP_MINUTES }), model.localStart.toISODate() ?? '', 'floor')
+    return Math.min(earliest, candidate)
+  }, MINUTES_PER_DAY)
+
+  const slotMaxMinutes = visibleEvents.reduce((latest, model) => {
+    const candidate = buildTimeGridBoundary(model.localEnd.plus({ minutes: TIME_GRID_STEP_MINUTES }), model.localStart.toISODate() ?? '', 'ceil')
+    return Math.max(latest, candidate)
+  }, 0)
+
+  return {
+    slotMinTime: minutesToSlotTime(slotMinMinutes),
+    slotMaxTime: minutesToSlotTime(slotMaxMinutes)
+  }
+}
+
+function buildEventModel(task: ProgressRow, timezone: string): CalendarEventModel | null {
   const meta = parseTaskMeta(task.notas)
   const category = meta.categoria || 'otro'
   const hour = meta.hora || '09:00'
@@ -108,8 +198,7 @@ function buildEventModel(task: ProgressRow, timezone: string, selectedEventId: s
       classNames: [
         styles.event,
         getEventAccentClass(category),
-        task.completado ? styles.eventCompleted : '',
-        selectedEventId === task.id ? styles.eventSelected : ''
+        task.completado ? styles.eventCompleted : ''
       ].filter(Boolean),
       extendedProps: {
         categoryLabel,
@@ -129,7 +218,9 @@ function buildEventModel(task: ProgressRow, timezone: string, selectedEventId: s
       durationLabel,
       categoryLabel,
       statusLabel
-    }
+    },
+    localStart: start,
+    localEnd: end
   }
 }
 
@@ -183,45 +274,35 @@ function PlanCalendar({
   variant = 'dark',
   showHeader = true
 }: PlanCalendarProps): JSX.Element {
-  const [initialView, setInitialView] = useState<CalendarView>(defaultView ?? 'dayGridMonth')
+  const initialView = defaultView ?? 'dayGridMonth'
   const [isCompactLayout, setIsCompactLayout] = useState(false)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
-  const [selectedEventDetail, setSelectedEventDetail] = useState<EventDetail | null>(null)
+  const [visibleWindow, setVisibleWindow] = useState<VisibleCalendarWindow | null>(null)
   const internalRef = useRef<FullCalendar>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const pendingVisibleWindowRef = useRef<VisibleCalendarWindow | null>(null)
+  const visibleWindowUpdateQueuedRef = useRef(false)
   const detailTitleId = useId()
   const detailDescriptionId = useId()
+  const currentLocale = getCurrentLocale()
 
   // Expose the FullCalendar API via the provided ref so the parent can imperatively switch views
   useEffect(() => {
     if (calendarRef && internalRef.current) {
       (calendarRef as React.MutableRefObject<CalendarApi | null>).current = internalRef.current.getApi()
     }
-  })
+  }, [calendarRef])
 
   useEffect(() => {
     if (!defaultView) {
       return
     }
 
-    setInitialView(defaultView)
-
     const api = internalRef.current?.getApi()
     if (api && api.view.type !== defaultView) {
       api.changeView(defaultView)
     }
   }, [defaultView])
-
-  useEffect(() => {
-    if (defaultView) {
-      return
-    }
-
-    const api = internalRef.current?.getApi()
-    if (api && api.view.type !== initialView) {
-      api.changeView(initialView)
-    }
-  }, [defaultView, initialView])
 
   const todayIso = DateTime.now().setZone(timezone).toISODate() ?? ''
   const [selectedDateIso, setSelectedDateIso] = useState(todayIso)
@@ -236,10 +317,13 @@ function PlanCalendar({
       setIsCompactLayout(e.matches)
 
       // Only override with mobile default if no explicit defaultView was provided
-      if (!defaultView && e.matches) {
-        setInitialView('timeGridDay')
-      } else if (!defaultView && !e.matches) {
-        setInitialView('dayGridMonth')
+      if (!defaultView) {
+        const nextView = e.matches ? 'timeGridDay' : 'dayGridMonth'
+        const api = internalRef.current?.getApi()
+
+        if (api && api.view.type !== nextView) {
+          api.changeView(nextView)
+        }
       }
     }
 
@@ -267,7 +351,6 @@ function PlanCalendar({
     if (tasks.length === 0) {
       setSelectedDateIso(todayIso)
       setSelectedEventId(null)
-      setSelectedEventDetail(null)
       return
     }
 
@@ -281,29 +364,74 @@ function PlanCalendar({
 
   const eventModels = useMemo(() => {
     return tasks
-      .map((task) => buildEventModel(task, timezone, selectedEventId))
+      .map((task) => buildEventModel(task, timezone))
       .filter((model): model is CalendarEventModel => model !== null)
-  }, [selectedEventId, tasks, timezone])
+  }, [tasks, timezone])
+
+  useEffect(() => {
+    return () => {
+      pendingVisibleWindowRef.current = null
+      visibleWindowUpdateQueuedRef.current = false
+    }
+  }, [])
+
+  const handleDatesSet = useCallback((info: DatesSetArg) => {
+    const activeStartIso = DateTime.fromJSDate(info.start, { zone: timezone }).toISO()
+    const activeEndIso = DateTime.fromJSDate(info.end, { zone: timezone }).toISO()
+
+    if (!activeStartIso || !activeEndIso) {
+      return
+    }
+
+    const nextWindow: VisibleCalendarWindow = {
+      viewType: info.view.type as CalendarView,
+      activeStartIso,
+      activeEndIso
+    }
+
+    pendingVisibleWindowRef.current = nextWindow
+
+    if (visibleWindowUpdateQueuedRef.current) {
+      return
+    }
+
+    visibleWindowUpdateQueuedRef.current = true
+
+    queueMicrotask(() => {
+      visibleWindowUpdateQueuedRef.current = false
+
+      const pendingWindow = pendingVisibleWindowRef.current
+      pendingVisibleWindowRef.current = null
+
+      if (!pendingWindow) {
+        return
+      }
+
+      setVisibleWindow((current) => {
+        if (
+          current?.viewType === pendingWindow.viewType &&
+          current.activeStartIso === pendingWindow.activeStartIso &&
+          current.activeEndIso === pendingWindow.activeEndIso
+        ) {
+          return current
+        }
+
+        return pendingWindow
+      })
+    })
+  }, [timezone])
 
   const eventDetailsById = useMemo(() => {
     return new Map(eventModels.map((model) => [model.detail.id, model.detail]))
   }, [eventModels])
 
   useEffect(() => {
-    if (!selectedEventId) {
-      setSelectedEventDetail(null)
-      return
-    }
-
-    const detail = eventDetailsById.get(selectedEventId) ?? null
-    if (!detail) {
+    if (selectedEventId && !eventDetailsById.has(selectedEventId)) {
       setSelectedEventId(null)
-      setSelectedEventDetail(null)
-      return
     }
-
-    setSelectedEventDetail(detail)
   }, [eventDetailsById, selectedEventId])
+
+  const selectedEventDetail = selectedEventId ? eventDetailsById.get(selectedEventId) ?? null : null
 
   useEffect(() => {
     if (!selectedEventDetail) {
@@ -346,13 +474,22 @@ function PlanCalendar({
     }
   }, [selectedEventDetail])
 
-  const countFormatter = new Intl.NumberFormat(getCurrentLocale())
+  const countFormatter = useMemo(() => new Intl.NumberFormat(currentLocale), [currentLocale])
   const completedCount = tasks.filter((task) => task.completado).length
   const pendingCount = Math.max(tasks.length - completedCount, 0)
   const todayCount = tasks.filter((task) => task.fecha === todayIso).length
   const events = useMemo(() => {
     return eventModels.map((model) => model.event)
   }, [eventModels])
+
+  const timeGridBounds = useMemo(() => buildTimeGridBounds(eventModels, timezone, visibleWindow), [eventModels, timezone, visibleWindow])
+
+  const eventClassNames = useCallback((info: CalendarEventClassNamesArg) => {
+    return [
+      styles.event,
+      selectedEventId === info.event.id ? styles.eventSelected : ''
+    ].filter(Boolean)
+  }, [selectedEventId])
 
   const selectedTasks = useMemo(() => {
     return tasks
@@ -363,37 +500,54 @@ function PlanCalendar({
   }, [tasks, selectedDateIso])
 
   const selectedDateLabel = DateTime.fromISO(selectedDateIso, { zone: timezone })
-    .setLocale(getCurrentLocale())
+    .setLocale(currentLocale)
     .toFormat('cccc d LLL')
   const selectedPendingCount = selectedTasks.filter((task) => !task.completado).length
-  const toolbarConfig = isCompactLayout
-    ? {
-        left: 'title',
-        center: '',
-        right: 'prev,next today'
-      }
-    : {
-        left: 'prev,next today',
-        center: 'title',
-        right: variant === 'light' && !showHeader ? '' : 'multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay'
-      }
 
   const shellClass = `${styles.calendarShell} ${variant === 'light' ? styles.calendarShellLight : ''} ${!showHeader ? styles.noHeader : ''}`
+  const views = useMemo(() => ({
+    multiMonthYear: {
+      buttonText: t('dashboard.calendar_panel.toolbar.year')
+    },
+    dayGridMonth: {
+      buttonText: t('dashboard.calendar_panel.toolbar.month')
+    },
+    timeGridWeek: {
+      buttonText: t('dashboard.calendar_panel.toolbar.week')
+    },
+    timeGridDay: {
+      buttonText: t('dashboard.calendar_panel.toolbar.day')
+    }
+  }), [currentLocale])
+  const buttonText = useMemo(() => ({
+    today: t('dashboard.calendar_panel.toolbar.today')
+  }), [currentLocale])
+  const toolbarConfig = useMemo(() => (
+    isCompactLayout
+      ? {
+          left: 'title',
+          center: '',
+          right: 'prev,next today'
+        }
+      : {
+          left: 'prev,next today',
+          center: 'title',
+          right: variant === 'light' && !showHeader ? '' : 'multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay'
+        }
+  ), [isCompactLayout, showHeader, variant])
 
   const openEventDetail = (eventId: string): void => {
-    const detail = eventDetailsById.get(eventId)
-    if (!detail) {
+    if (!eventDetailsById.has(eventId)) {
       return
     }
 
+    const detail = eventDetailsById.get(eventId)!
     setSelectedDateIso(detail.dateIso)
     setSelectedEventId(eventId)
-    setSelectedEventDetail(detail)
   }
 
   const closeEventDetail = (): void => {
     setSelectedEventId(null)
-    setSelectedEventDetail(null)
   }
 
   return (
@@ -431,29 +585,14 @@ function PlanCalendar({
           <p>{t('dashboard.calendar_panel.empty_copy')}</p>
         </div>
       ) : (
-          <FullCalendar
+        <FullCalendar
           ref={internalRef}
           plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin, interactionPlugin, scrollGridPlugin]}
           locale={esLocale}
           initialView={initialView}
           headerToolbar={toolbarConfig}
-          buttonText={{
-            today: t('dashboard.calendar_panel.toolbar.today')
-          }}
-          views={{
-            multiMonthYear: {
-              buttonText: t('dashboard.calendar_panel.toolbar.year')
-            },
-            dayGridMonth: {
-              buttonText: t('dashboard.calendar_panel.toolbar.month')
-            },
-            timeGridWeek: {
-              buttonText: t('dashboard.calendar_panel.toolbar.week')
-            },
-            timeGridDay: {
-              buttonText: t('dashboard.calendar_panel.toolbar.day')
-            }
-          }}
+          buttonText={buttonText}
+          views={views}
           firstDay={1}
           weekends
           nowIndicator
@@ -461,8 +600,8 @@ function PlanCalendar({
           height="auto"
           dayMaxEventRows={isCompactLayout ? 2 : 3}
           stickyHeaderDates
-          slotMinTime="06:00:00"
-          slotMaxTime="23:00:00"
+          slotMinTime={timeGridBounds.slotMinTime}
+          slotMaxTime={timeGridBounds.slotMaxTime}
           dayMinWidth={isCompactLayout ? 84 : undefined}
           multiMonthMaxColumns={isCompactLayout ? 1 : 4}
           multiMonthMinWidth={isCompactLayout ? 260 : 180}
@@ -479,6 +618,8 @@ function PlanCalendar({
           }}
           events={events}
           eventContent={renderEventContent}
+          eventClassNames={eventClassNames}
+          datesSet={handleDatesSet}
           dateClick={(info) => {
             closeEventDetail()
             setSelectedDateIso(info.dateStr)

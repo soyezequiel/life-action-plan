@@ -49,7 +49,7 @@ export function convertV5PackageToPlanEvents(input: {
   goalId: string
   goalText: string
   timezone: string
-}): PlanEvent[] {
+}): Array<PlanEvent & { fecha: string }> {
   const defaultCategory = inferLegacyCategory(input.goalText)
 
   return input.package.plan.detail.weeks.flatMap((week) =>
@@ -59,12 +59,13 @@ export function convertV5PackageToPlanEvents(input: {
       return {
         semana: week.weekIndex,
         dia: normalizeDayLabel(localStart.setLocale('es').toFormat('cccc')),
+        fecha: localStart.toISODate() ?? localStart.toFormat('yyyy-MM-dd'),
         hora: localStart.toFormat('HH:mm'),
         duracion: event.durationMin,
         actividad: event.title,
         categoria: defaultCategory,
         objetivoId: event.goalIds[0] || input.goalId
-      } satisfies PlanEvent
+      } satisfies PlanEvent & { fecha: string }
     })
   )
 }

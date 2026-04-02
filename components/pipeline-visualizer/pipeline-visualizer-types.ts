@@ -1,4 +1,4 @@
-import type { OrchestratorPhase, V6AgentName } from '../../src/lib/pipeline/v6/types';
+import type { OrchestratorPhase, V6AgentName, V6MachineStateValue } from '../../src/lib/pipeline/v6/types';
 
 export type PhaseNodeStatus =
   | 'pending'
@@ -10,8 +10,9 @@ export type PhaseNodeStatus =
   | 'degraded';
 
 export interface PhaseNodeData {
-  phase: OrchestratorPhase;
+  phase: V6MachineStateValue;
   labelKey: string;
+  fallbackLabel?: string;
   targetProgress: number;
   status: PhaseNodeStatus;
   agentName: V6AgentName | null;
@@ -30,7 +31,7 @@ export interface VisualizerNotification {
 
 export interface PipelineVisualizerState {
   phases: PhaseNodeData[];
-  currentPhase: OrchestratorPhase | null;
+  currentPhase: V6MachineStateValue | null;
   progressScore: number;
   lastAction: string;
   lifecycle: 'idle' | 'running' | 'paused_for_input' | 'completed' | 'failed';
