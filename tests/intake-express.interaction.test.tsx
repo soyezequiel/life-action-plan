@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import IntakeExpress from '../components/IntakeExpress'
@@ -9,6 +9,8 @@ import { AppServicesProvider } from '../src/lib/client/app-services'
 import { t } from '../src/i18n'
 import type { LapAPI } from '../src/shared/types/lap-api'
 import { UserStatusProvider } from '../src/lib/client/UserStatusProvider'
+
+const fetchMock = vi.fn()
 
 vi.mock('framer-motion', async () => {
   const ReactModule = await import('react')
@@ -62,17 +64,77 @@ vi.mock('../src/lib/client/UserStatusProvider', () => ({
   })
 }))
 
+vi.mock('next-auth/react', () => ({
+  useSession: () => ({
+    data: {
+      user: {
+        id: 'user-1'
+      }
+    },
+    status: 'authenticated'
+  })
+}))
+
+vi.mock('../components/midnight-mint/SuccessPaymentAnimation', () => ({
+  SuccessPaymentAnimation: () => null
+}))
+
 function createLapClientStub(): LapAPI {
   return {
     intake: {
       save: vi.fn(async () => ({ success: true, profileId: 'profile-1' }))
+    },
+    profile: {
+      latest: vi.fn(async () => 'profile-1')
+    },
+    wallet: {
+      status: vi.fn(async () => ({
+        configured: false,
+        connected: false,
+        canUseSecureStorage: true
+      }))
     }
   } as unknown as LapAPI
 }
 
 describe('intake express interaction', () => {
-  it('permite avanzar con Enter en preguntas de una sola linea', async () => {
+  it('permite avanzar con Enter usando el flujo real de intake', async () => {
     const user = userEvent.setup()
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+
+      if (url === '/api/profile/latest') {
+        return new Response(JSON.stringify('profile-1'), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url === '/api/wallet/status') {
+        return new Response(JSON.stringify({
+          configured: false,
+          connected: false,
+          canUseSecureStorage: true
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (url === '/api/wallet/quote') {
+        return new Response(JSON.stringify({
+          planBuildChargeSats: 0,
+          planBuildChargeReady: true,
+          planBuildChargeReasonCode: null
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+
+      throw new Error(`Unexpected fetch: ${url}`)
+    })
+    vi.stubGlobal('fetch', fetchMock)
 
     render(
       <AppServicesProvider services={{ lapClient: createLapClientStub() }}>
@@ -82,10 +144,14 @@ describe('intake express interaction', () => {
       </AppServicesProvider>
     )
 
-    await user.type(screen.getByPlaceholderText(t('mockups.intake.placeholder')), 'Aprender Rust')
+    const objectiveField = await screen.findByPlaceholderText('Escribe tu objetivo aquí...')
+    expect(objectiveField).toBeTruthy()
+
+    await user.type(objectiveField, 'Aprender Rust')
     await user.keyboard('{Enter}')
 
-    // Debería mostrar verificando acceso o el quote de pago
-    expect(screen.queryByText(t('planFlow.preflight.checking')) || screen.queryByText(t('mockups.intake.placeholder'))).toBeTruthy()
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith('/api/profile/latest', expect.anything())
+    })
   })
 })

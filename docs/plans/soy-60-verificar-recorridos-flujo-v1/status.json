@@ -1,0 +1,22 @@
+{
+  "plan_id": "soy-60-verificar-recorridos-flujo-v1",
+  "series_id": "soy-60-verificar-recorridos-flujo",
+  "version": 1,
+  "status": "ready",
+  "lifecycle": "active",
+  "latest_in_series": true,
+  "supersedes": [],
+  "superseded_by": null,
+  "canonical_plan_file": "docs/plans/soy-60-verificar-recorridos-flujo-v1/PLAN.md",
+  "created_by": "claude-code",
+  "created_at": "2026-04-02T10:00:00-03:00",
+  "updated_at": "2026-04-02T10:00:00-03:00",
+  "updated_by": "claude-code",
+  "metadata_normalized_at": "2026-04-02T10:00:00-03:00",
+  "metadata_normalized_by": "claude-code",
+  "assigned_to": null,
+  "priority": "low",
+  "tags": ["frontend", "smoke-test", "integration", "ux"],
+  "blockers": ["soy-59-estado-minimo-flow-build-v1"],
+  "notes": "Stage 5: smoke test de los 4 recorridos del usuario una vez integradas todas las superficies."
+}

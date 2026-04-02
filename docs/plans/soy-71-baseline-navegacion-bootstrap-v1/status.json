@@ -1,0 +1,22 @@
+{
+  "plan_id": "soy-71-baseline-navegacion-bootstrap-v1",
+  "series_id": "soy-71-baseline-navegacion-bootstrap",
+  "version": 1,
+  "status": "ready",
+  "lifecycle": "active",
+  "latest_in_series": true,
+  "supersedes": [],
+  "superseded_by": null,
+  "canonical_plan_file": "docs/plans/soy-71-baseline-navegacion-bootstrap-v1/PLAN.md",
+  "created_by": "claude-code",
+  "created_at": "2026-04-02T10:00:00-03:00",
+  "updated_at": "2026-04-02T10:00:00-03:00",
+  "updated_by": "claude-code",
+  "metadata_normalized_at": "2026-04-02T10:00:00-03:00",
+  "metadata_normalized_by": "claude-code",
+  "assigned_to": null,
+  "priority": "medium",
+  "tags": ["performance", "navigation", "baseline", "measurement"],
+  "blockers": [],
+  "notes": "Stage 1: medir tiempos de navegación y bootstrap actuales antes de cualquier optimización."
+}

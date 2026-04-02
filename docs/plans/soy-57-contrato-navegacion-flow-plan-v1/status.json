@@ -1,0 +1,22 @@
+{
+  "plan_id": "soy-57-contrato-navegacion-flow-plan-v1",
+  "series_id": "soy-57-contrato-navegacion-flow-plan",
+  "version": 1,
+  "status": "ready",
+  "lifecycle": "active",
+  "latest_in_series": true,
+  "supersedes": [],
+  "superseded_by": null,
+  "canonical_plan_file": "docs/plans/soy-57-contrato-navegacion-flow-plan-v1/PLAN.md",
+  "created_by": "claude-code",
+  "created_at": "2026-04-02T10:00:00-03:00",
+  "updated_at": "2026-04-02T10:00:00-03:00",
+  "updated_by": "claude-code",
+  "metadata_normalized_at": "2026-04-02T10:00:00-03:00",
+  "metadata_normalized_by": "claude-code",
+  "assigned_to": null,
+  "priority": "high",
+  "tags": ["frontend", "navigation", "contracts", "ux"],
+  "blockers": ["soy-56-dashboard-entrada-plan-v1"],
+  "notes": "Stages 2+2.1: definir y implementar el contrato de handoff entre /flow, /plan y /plan/v5."
+}

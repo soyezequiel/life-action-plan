@@ -1,0 +1,22 @@
+{
+  "plan_id": "soy-81-adaptador-plan-orchestrator-v1",
+  "series_id": "soy-81-adaptador-plan-orchestrator",
+  "version": 1,
+  "status": "ready",
+  "lifecycle": "active",
+  "latest_in_series": true,
+  "supersedes": [],
+  "superseded_by": null,
+  "canonical_plan_file": "docs/plans/soy-81-adaptador-plan-orchestrator-v1/PLAN.md",
+  "created_by": "claude-code",
+  "created_at": "2026-04-02T10:00:00-03:00",
+  "updated_at": "2026-04-02T10:00:00-03:00",
+  "updated_by": "claude-code",
+  "metadata_normalized_at": "2026-04-02T10:00:00-03:00",
+  "metadata_normalized_by": "claude-code",
+  "assigned_to": null,
+  "priority": "high",
+  "tags": ["xstate", "pipeline-v6", "adapter", "orchestrator"],
+  "blockers": ["soy-80-extraer-side-effects-actores-v1"],
+  "notes": "Stage 5: adapter pattern entre máquina XState y la API pública del orchestrator."
+}

@@ -1,0 +1,22 @@
+{
+  "plan_id": "soy-69-wallet-alias-pluralizacion-v1",
+  "series_id": "soy-69-wallet-alias-pluralizacion",
+  "version": 1,
+  "status": "ready",
+  "lifecycle": "active",
+  "latest_in_series": true,
+  "supersedes": [],
+  "superseded_by": null,
+  "canonical_plan_file": "docs/plans/soy-69-wallet-alias-pluralizacion-v1/PLAN.md",
+  "created_by": "claude-code",
+  "created_at": "2026-04-02T10:00:00-03:00",
+  "updated_at": "2026-04-02T10:00:00-03:00",
+  "updated_by": "claude-code",
+  "metadata_normalized_at": "2026-04-02T10:00:00-03:00",
+  "metadata_normalized_by": "claude-code",
+  "assigned_to": null,
+  "priority": "low",
+  "tags": ["ui", "dashboard", "i18n", "wallet"],
+  "blockers": [],
+  "notes": "Tasks 5-6: ocultar alias técnico de wallet y corregir pluralización de today_summary."
+}
