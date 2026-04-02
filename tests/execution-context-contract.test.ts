@@ -89,9 +89,9 @@ describe('execution context contract', () => {
       mode: 'backend-local',
       credentialSource: 'none',
       provider: {
-        providerId: 'openai',
-        modelId: 'openai:gpt-4o-mini',
-        providerKind: 'cloud'
+        providerId: 'local',
+        modelId: 'local:default',
+        providerKind: 'local'
       }
     })
 
@@ -104,9 +104,9 @@ describe('execution context contract', () => {
       mode: 'user-local',
       credentialSource: 'none',
       provider: {
-        providerId: 'openai',
-        modelId: 'openai:gpt-4o-mini',
-        providerKind: 'cloud'
+        providerId: 'local',
+        modelId: 'local:default',
+        providerKind: 'local'
       }
     })
 

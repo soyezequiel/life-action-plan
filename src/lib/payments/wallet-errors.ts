@@ -20,5 +20,15 @@ export function normalizeWalletConnectionError(error: unknown): string {
     return 'WALLET_NWC_INFO_UNAVAILABLE'
   }
 
+  if (
+    normalized.includes('reply timeout') ||
+    normalized.includes('wallet_status_timeout') ||
+    normalized.includes('wallet_nwc_info_unavailable') ||
+    normalized.includes('wallet_nwc_balance_unavailable') ||
+    normalized.includes('wallet_nwc_budget_unavailable')
+  ) {
+    return 'WALLET_NWC_INFO_UNAVAILABLE'
+  }
+
   return message
 }

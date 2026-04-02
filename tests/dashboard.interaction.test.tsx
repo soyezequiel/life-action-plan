@@ -28,6 +28,7 @@ vi.mock('next-auth/react', () => ({
   useSession: () => ({
     data: {
       user: {
+        id: 'user-1',
         name: 'naranja',
         email: 'naranja@example.com'
       }
@@ -153,6 +154,14 @@ function createLapClientStub(summaryOverrides?: Partial<DashboardSummaryResult>)
     profile: {
       get: vi.fn(async () => null),
       latest: vi.fn(async () => 'profile-1')
+    },
+    user: {
+      status: vi.fn(async () => ({
+        hasWallet: true,
+        hasApiKey: true,
+        hasPlan: true,
+        latestProfileId: 'profile-1',
+      }))
     },
     progress: {
       list: vi.fn(async () => summary.tasks),

@@ -2,7 +2,7 @@
   "plan_id": "soy-61-clasificar-carpetas-runtime-v1",
   "series_id": "soy-61-clasificar-carpetas-runtime",
   "version": 1,
-  "status": "ready",
+  "status": "completed",
   "lifecycle": "active",
   "latest_in_series": true,
   "supersedes": [],
@@ -10,13 +10,13 @@
   "canonical_plan_file": "docs/plans/soy-61-clasificar-carpetas-runtime-v1/PLAN.md",
   "created_by": "claude-code",
   "created_at": "2026-04-02T10:00:00-03:00",
-  "updated_at": "2026-04-02T10:00:00-03:00",
+  "updated_at": "2026-04-02T17:50:00-03:00",
   "updated_by": "claude-code",
-  "metadata_normalized_at": "2026-04-02T10:00:00-03:00",
+  "metadata_normalized_at": "2026-04-02T17:50:00-03:00",
   "metadata_normalized_by": "claude-code",
   "assigned_to": null,
   "priority": "high",
   "tags": ["cleanup", "repo", "classification", "docs"],
   "blockers": [],
-  "notes": "Stage 1 de repo-cleanup: inventario y tabla de decisión por carpeta antes de borrar o mover nada."
+  "notes": "Stage 1 completado: inventario y tabla de decisión por carpeta documentados en decision-table.md."
 }

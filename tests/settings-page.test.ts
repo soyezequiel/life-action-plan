@@ -34,10 +34,10 @@ vi.mock('@/src/lib/server/request-context', () => ({
   getCurrentSession: getCurrentSessionMock
 }))
 
-vi.mock('../components/workspace/WorkspaceOrchestrator', () => ({
-  WorkspaceOrchestrator: ({ viewKey, viewProps }: { viewKey: string, viewProps: unknown }) => ({
-    viewKey,
-    viewProps
+vi.mock('../components/SettingsPageContent', () => ({
+  default: (props: unknown) => ({
+    component: 'SettingsPageContent',
+    props
   })
 }))
 
@@ -80,12 +80,9 @@ describe('settings page', () => {
 
     expect(getWalletStatusMock).toHaveBeenCalledWith('user-1')
     expect(result.props).toEqual({
-      viewKey: 'settings',
-      viewProps: {
-        section: 'wallet',
-        initialWalletStatus: { connected: true, balanceSats: 1200 },
-        initialApiConfigured: true
-      }
+      section: 'wallet',
+      initialWalletStatus: { connected: true, balanceSats: 1200 },
+      initialApiConfigured: true
     })
   })
 })

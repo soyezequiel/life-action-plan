@@ -19,8 +19,27 @@ import {
 } from '../../src/lib/auth/credential-config'
 import type { WalletBuildQuote, WalletStatus } from '../../src/shared/types/lap-api'
 
+const WALLET_STATUS_TIMEOUT_MS = 6_500
+
 function toSats(valueMsats: number | null): number | undefined {
   return typeof valueMsats === 'number' ? Math.floor(valueMsats / 1000) : undefined
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
+      })
+    ])
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+  }
 }
 
 function toWalletStatus(
@@ -111,7 +130,11 @@ export async function getWalletStatus(userId?: string): Promise<WalletStatus> {
 
   try {
     provider = getPaymentProvider('nwc', { connectionUrl })
-    const snapshot = await provider.getStatus()
+    const snapshot = await withTimeout(
+      provider.getStatus(),
+      WALLET_STATUS_TIMEOUT_MS,
+      'WALLET_STATUS_TIMEOUT'
+    )
     return toWalletStatus(snapshot, {
       configured: true,
       connected: true
@@ -144,7 +167,14 @@ export async function connectWallet(connectionUrl: string, userId?: string) {
 
   try {
     provider = getPaymentProvider('nwc', { connectionUrl })
-    const snapshot = await provider.getStatus()
+    const snapshot = await withTimeout(
+      provider.getStatus({
+        includeBalance: false,
+        includeBudget: false
+      }),
+      WALLET_STATUS_TIMEOUT_MS,
+      'WALLET_STATUS_TIMEOUT'
+    )
     await saveWalletConnectionUrl(connectionUrl, userId)
     await trackEvent('WALLET_CONNECTED', {
       alias: snapshot.alias,

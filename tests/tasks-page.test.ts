@@ -16,10 +16,10 @@ vi.mock('../src/lib/server/request-context', () => ({
   getTasksInitialData: getTasksInitialDataMock
 }))
 
-vi.mock('../components/workspace/WorkspaceOrchestrator', () => ({
-  WorkspaceOrchestrator: ({ viewKey, viewProps }: { viewKey: string, viewProps: unknown }) => ({
-    viewKey,
-    viewProps
+vi.mock('../components/TasksPageContent', () => ({
+  default: (props: unknown) => ({
+    component: 'TasksPageContent',
+    props
   })
 }))
 
@@ -57,10 +57,7 @@ describe('tasks page', () => {
 
     expect(getTasksInitialDataMock).toHaveBeenCalledWith('user-1', 'plan-1')
     expect(result.props).toEqual({
-      viewKey: 'tasks',
-      viewProps: {
-        initialTasks
-      }
+      initialTasks
     })
   })
 })

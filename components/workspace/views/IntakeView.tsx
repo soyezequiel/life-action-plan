@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
+import { DateTime } from 'luxon'
 import { useEffect, useState } from 'react'
 
 import { GenerationErrorDetails } from '@/components/flow/GenerationErrorDetails'
@@ -35,6 +36,8 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
   const [completionData, setCompletionData] = useState<{ planId: string, score: number, iterations: number } | null>(null)
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
   const [isCheckingCost, setIsCheckingCost] = useState(false)
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
+  const [startDate, setStartDate] = useState(() => DateTime.local().toISODate() ?? '')
   const [showPaymentQuote, setShowPaymentQuote] = useState(false)
   const [isPaying, setIsPaying] = useState(false)
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false)
@@ -105,7 +108,7 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
           setDebugData(debug)
           setIsGenerating(false)
         }
-      })
+      }, startDate.trim() || undefined)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       logPlanificadorDebug(`[Intake] Excepción en processGeneration: ${errorMessage}`)
@@ -601,6 +604,47 @@ export default function IntakeView({ onComplete, onCancel }: IntakeViewProps) {
                     disabled={isGenerating}
                     className="min-h-[220px] w-full resize-none rounded-[20px] border border-transparent bg-[rgba(255,252,247,0.96)] p-5 text-[18px] leading-[1.5] text-slate-500 outline-none placeholder:text-slate-400 focus:border-[#0f766e]/10 focus:bg-white focus:text-[#334155] disabled:opacity-50 sm:min-h-[240px] sm:p-6 sm:pb-24 sm:text-[22px] md:text-[24px]"
                   />
+                  <div className="rounded-[20px] border border-[rgba(31,41,55,0.08)] bg-white/70 p-4 shadow-[0_18px_38px_-28px_rgba(15,23,42,0.4)]">
+                    <button
+                      type="button"
+                      onClick={() => setShowAdvancedOptions((current) => !current)}
+                      className="flex w-full items-center justify-between gap-4 text-left"
+                    >
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">
+                          {showAdvancedOptions ? t('intake.workspace_advanced_close') : t('intake.workspace_advanced_open')}
+                        </p>
+                        <p className="mt-1 font-display text-[18px] font-semibold text-[#1f2937]">
+                          {t('intake.workspace_advanced_title')}
+                        </p>
+                        <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
+                          {t('intake.workspace_advanced_copy')}
+                        </p>
+                      </div>
+                      <MaterialIcon
+                        name={showAdvancedOptions ? 'expand_less' : 'expand_more'}
+                        className="text-[24px] text-slate-400"
+                      />
+                    </button>
+
+                    {showAdvancedOptions ? (
+                      <div className="mt-4 rounded-[16px] border border-[rgba(15,23,42,0.06)] bg-[rgba(248,250,252,0.85)] p-4">
+                        <label className="block text-[12px] font-bold uppercase tracking-[0.18em] text-slate-500" htmlFor="plan-start-date">
+                          {t('intake.workspace_start_date_label')}
+                        </label>
+                        <input
+                          id="plan-start-date"
+                          type="date"
+                          value={startDate}
+                          onChange={(event) => setStartDate(event.target.value)}
+                          className="mt-3 h-12 w-full rounded-[14px] border border-[rgba(15,23,42,0.08)] bg-white px-4 text-[15px] text-slate-600 outline-none transition focus:border-[#0f766e]/20 focus:ring-2 focus:ring-[#0f766e]/10"
+                        />
+                        <p className="mt-2 text-[12px] leading-relaxed text-slate-500">
+                          {t('intake.workspace_start_date_hint')}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
                   <div className="flex w-full items-center justify-between gap-3 sm:absolute sm:bottom-6 sm:right-6 sm:w-auto sm:justify-end">
                     <span className="rounded-full bg-white/80 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.03)] sm:text-[10px] sm:tracking-[0.2em]">
                       {t('intake.workspace_submit_hint')}

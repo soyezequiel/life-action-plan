@@ -5,11 +5,16 @@ export interface PaymentProviderStatus {
   network: string | null
   pubkey: string | null
   methods: string[]
-  balanceMsats: number
+  balanceMsats: number | null
   budgetTotalMsats: number | null
   budgetUsedMsats: number | null
   budgetRenewal: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never' | null
   budgetRenewsAt: number | null
+}
+
+export interface PaymentProviderStatusOptions {
+  includeBalance?: boolean
+  includeBudget?: boolean
 }
 
 export interface CreateInvoiceParams {
@@ -33,7 +38,7 @@ export interface PayInvoiceResult {
 }
 
 export interface PaymentProvider {
-  getStatus: () => Promise<PaymentProviderStatus>
+  getStatus: (options?: PaymentProviderStatusOptions) => Promise<PaymentProviderStatus>
   createInvoice: (params: CreateInvoiceParams) => Promise<CreateInvoiceResult>
   payInvoice: (params: PayInvoiceParams) => Promise<PayInvoiceResult>
   close: () => void

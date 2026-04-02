@@ -39,10 +39,11 @@ Para Vercel:
 - usar PostgreSQL cloud en `DATABASE_URL`
 - configurar `SESSION_SECRET` y `API_KEY_ENCRYPTION_SECRET`
 - configurar `OPENAI_API_KEY` o `OPENROUTER_API_KEY`
-- configurar `NEXTAUTH_URL`
+- configurar `NEXTAUTH_URL` para produccion
 - no depender de Ollama en preview o produccion
+- ver `docs/deployment/VERCEL.md` para el contrato completo
 
-`npm run vercel-build` es el alias de build usado por Vercel y dispara el flujo de postbuild definido en `package.json`.
+`npm run vercel-build` es el alias de build usado por Vercel. El `postbuild` corre `scripts/vercel-prepare.mjs --postbuild` y solo toca DB si se habilita de forma explicita.
 
 ## Docs
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
 
-import { WorkspaceOrchestrator } from '../../components/workspace/WorkspaceOrchestrator'
+import TasksPageContent from '../../components/TasksPageContent'
 import { getCurrentSession, getTasksInitialData } from '../../src/lib/server/request-context'
 
 type SearchParams = Record<string, string | string[] | undefined>
@@ -38,9 +38,6 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   const initialTasks = await getTasksInitialData(session.user?.id ?? null, requestedPlanId)
 
   return (
-    <WorkspaceOrchestrator
-      viewKey="tasks"
-      viewProps={{ initialTasks }}
-    />
+    <TasksPageContent initialTasks={initialTasks} />
   )
 }

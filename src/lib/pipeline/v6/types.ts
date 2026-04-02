@@ -391,6 +391,9 @@ export const ScheduleExecutionResultSchema = z.object({
   tradeoffs: z.array(z.string()),
   qualityScore: z.number().min(0).max(100),
   unscheduledCount: z.number().int().min(0),
+  timezone: z.string().optional(),
+  planningStartAt: z.string().optional(),
+  weekStartDate: z.string().optional(),
 }).strict();
 export type ScheduleExecutionResult = z.infer<typeof ScheduleExecutionResultSchema>;
 
@@ -431,6 +434,9 @@ export const OrchestratorContextSchema = z.object({
   interpretation: GoalInterpretationSchema.nullable(),
   clarificationRounds: z.array(ClarificationRoundSchema),
   userAnswers: z.record(z.string()),
+  timezone: z.string().optional(),
+  planningStartAt: z.string().optional(),
+  weekStartDate: z.string().optional(),
   goalSignalsSnapshot: GoalSignalsSnapshotSchema.optional(),
   userProfile: UserProfileV5Schema.nullable(),
   domainCard: DomainKnowledgeCardSchema.nullable(),
@@ -490,6 +496,7 @@ export const V6BuildSessionRequestSchema = z.object({
   apiKey: z.string().trim().min(1).nullable(),
   backendCredentialId: z.string().trim().min(1).nullable(),
   thinkingMode: z.enum(['enabled', 'disabled']).nullable(),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional().default(null),
 }).strict();
 export type V6BuildSessionRequest = z.infer<typeof V6BuildSessionRequestSchema>;
 

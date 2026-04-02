@@ -6,6 +6,7 @@ import type { AvailabilityWindow, BlockedSlot } from '../../scheduler/types';
 const DEFAULT_TIMEZONE = 'America/Argentina/Buenos_Aires';
 const DEFAULT_WAKE_TIME = '07:00';
 const DEFAULT_SLEEP_TIME = '22:00';
+const SCHEDULER_SLOT_MINUTES = 30;
 const WORKDAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'] as const;
 const WEEK_DAYS = [...WORKDAY_NAMES, 'saturday', 'sunday'] as const;
 const DAY_ALIASES: Record<string, typeof WEEK_DAYS[number]> = {
@@ -29,6 +30,7 @@ const DAY_ALIASES: Record<string, typeof WEEK_DAYS[number]> = {
 
 export interface SchedulingContext {
   timezone: string;
+  planningStartAt: string;
   weekStartDate: string;
   availability: AvailabilityWindow[];
   blocked: BlockedSlot[];
@@ -151,17 +153,54 @@ export function getLocalDateKey(isoUtc: string, timezone: string): string {
   return DateTime.fromISO(isoUtc, { zone: 'utc' }).setZone(timezone).toISODate() ?? '';
 }
 
+function roundToNextSchedulerSlot(value: DateTime): DateTime {
+  const normalized = value.startOf('minute');
+  const remainder = normalized.minute % SCHEDULER_SLOT_MINUTES;
+
+  if (remainder === 0 && normalized.second === 0 && normalized.millisecond === 0) {
+    return normalized;
+  }
+
+  return normalized
+    .plus({ minutes: remainder === 0 ? SCHEDULER_SLOT_MINUTES : SCHEDULER_SLOT_MINUTES - remainder })
+    .startOf('minute');
+}
+
+export function resolvePlanningStartAt(timezone: string, startDate?: string): string {
+  const zone = normalizeTimezone(timezone);
+  const nowLocal = DateTime.now().setZone(zone);
+  const planningLocal = startDate
+    ? DateTime.fromISO(startDate, { zone }).startOf('day')
+    : roundToNextSchedulerSlot(nowLocal);
+  const normalized = planningLocal.isValid ? planningLocal : roundToNextSchedulerSlot(nowLocal);
+  return normalized.toUTC().toISO() ?? DateTime.now().toUTC().toISO() ?? '';
+}
+
+export function isStartDateInPast(timezone: string, startDate?: string): boolean {
+  if (!startDate) {
+    return false;
+  }
+
+  const zone = normalizeTimezone(timezone);
+  const selectedDate = DateTime.fromISO(startDate, { zone }).startOf('day');
+  const todayLocal = DateTime.now().setZone(zone).startOf('day');
+  return selectedDate.isValid ? selectedDate < todayLocal : false;
+}
+
 export function buildSchedulingContextFromRunnerConfig(config: {
   timezone: string;
+  planningStartAt?: string;
   weekStartDate?: string;
   availability: AvailabilityWindow[];
   blocked?: BlockedSlot[];
 }): SchedulingContext {
   const timezone = normalizeTimezone(config.timezone);
+  const planningStartAt = config.planningStartAt ?? resolvePlanningStartAt(timezone);
 
   return {
     timezone,
-    weekStartDate: config.weekStartDate ?? resolveWeekStartDate(timezone),
+    planningStartAt,
+    weekStartDate: config.weekStartDate ?? resolveWeekStartDate(timezone, planningStartAt),
     availability: config.availability,
     blocked: dedupeBlockedSlots(config.blocked ?? []),
   };
@@ -170,6 +209,8 @@ export function buildSchedulingContextFromRunnerConfig(config: {
 export function buildSchedulingContextFromProfile(
   profile: Perfil,
   config: {
+    startDate?: string;
+    planningStartAt?: string;
     weekStartDate?: string;
     blocked?: BlockedSlot[];
     availability?: AvailabilityWindow[];
@@ -179,6 +220,7 @@ export function buildSchedulingContextFromProfile(
   const routine = participant?.rutinaDiaria?.porDefecto;
   const timezone = normalizeTimezone(participant?.datosPersonales?.ubicacion?.zonaHoraria);
   const availability = config.availability ?? buildAvailabilityWindows(routine?.despertar, routine?.dormir);
+  const planningStartAt = config.planningStartAt ?? resolvePlanningStartAt(timezone, config.startDate);
   const blocked = dedupeBlockedSlots([
     ...buildWorkBlockedSlots(routine?.trabajoInicio, routine?.trabajoFin),
     ...(participant?.calendario?.eventosInamovibles ?? []).flatMap((event) =>
@@ -189,7 +231,8 @@ export function buildSchedulingContextFromProfile(
 
   return {
     timezone,
-    weekStartDate: config.weekStartDate ?? resolveWeekStartDate(timezone),
+    planningStartAt,
+    weekStartDate: config.weekStartDate ?? resolveWeekStartDate(timezone, planningStartAt),
     availability,
     blocked,
   };

@@ -7,6 +7,7 @@ import Link from 'next/link'
 
 import { MaterialIcon } from '@/components/midnight-mint/MaterialIcon'
 import { browserLapClient } from '@/src/lib/client/browser-http-client'
+import { toUserFacingErrorMessage } from '@/src/lib/client/error-utils'
 import { useUserStatusContext } from '@/src/lib/client/UserStatusProvider'
 import { t } from '@/src/i18n'
 import type { WalletStatus } from '@/src/shared/types/lap-api'
@@ -25,6 +26,7 @@ export default function SettingsView({
   const [isWalletLoading, setIsWalletLoading] = useState(initialWalletStatus === null)
   const [relayUrl, setRelayUrl] = useState('')
   const [walletStatus, setWalletStatus] = useState<'idle' | 'connecting' | 'success' | 'error'>('idle')
+  const [walletErrorMsg, setWalletErrorMsg] = useState('')
   const [apiKey, setApiKey] = useState('')
   const [apiConfigured, setApiConfigured] = useState(initialApiConfigured)
   const [apiStatus, setApiStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
@@ -97,9 +99,16 @@ export default function SettingsView({
     }
 
     setWalletStatus('connecting')
+    setWalletErrorMsg('')
 
     try {
-      await browserLapClient.wallet.connect(relayUrl)
+      const result = await browserLapClient.wallet.connect(relayUrl)
+
+      if (!result.success) {
+        throw new Error(result.error ?? 'WALLET_CONNECT_FAILED')
+      }
+
+      setWallet(result.status)
       setWalletStatus('success')
       setRelayUrl('')
       fetchWallet()
@@ -107,8 +116,9 @@ export default function SettingsView({
         void refreshStatus()
       })
       setTimeout(() => setWalletStatus('idle'), 2000)
-    } catch {
+    } catch (error) {
       setWalletStatus('error')
+      setWalletErrorMsg(toUserFacingErrorMessage(error, 'settings.wallet_error'))
       setTimeout(() => setWalletStatus('idle'), 3000)
     }
   }
@@ -316,7 +326,7 @@ export default function SettingsView({
                   ) : null}
                 </div>
                 {walletStatus === 'success' ? <p className="text-sm font-bold text-emerald-600">{t('settings.wallet_success')}</p> : null}
-                {walletStatus === 'error' ? <p className="text-sm font-bold text-red-600">{t('settings.wallet_error')}</p> : null}
+                {walletStatus === 'error' ? <p className="text-sm font-bold text-red-600">{walletErrorMsg || t('settings.wallet_error')}</p> : null}
               </div>
             </div>
           </motion.section>

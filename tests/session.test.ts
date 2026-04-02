@@ -26,10 +26,21 @@ vi.mock('../src/lib/db/db-helpers', () => ({
     sessionStore.rows.push(row)
     return row
   }),
-  getSessionRecordByTokenHash: vi.fn(async (tokenHash: string) => (
-    sessionStore.rows.find((row) => row.tokenHash === tokenHash) ?? null
-  )),
-  deleteSessionRecordByTokenHash: vi.fn(async (tokenHash: string) => {
+  getSessionRecordByToken: vi.fn(async (token: string) => {
+    const { hashSessionToken } = await import('../src/lib/auth/session-token')
+    const tokenHash = await hashSessionToken(token)
+    const row = sessionStore.rows.find((entry) => entry.tokenHash === tokenHash) ?? null
+    return row
+      ? {
+          ...row,
+          sessionToken: token,
+          expires: new Date(row.expiresAt)
+        }
+      : null
+  }),
+  deleteSessionRecordByToken: vi.fn(async (token: string) => {
+    const { hashSessionToken } = await import('../src/lib/auth/session-token')
+    const tokenHash = await hashSessionToken(token)
     sessionStore.rows = sessionStore.rows.filter((row) => row.tokenHash !== tokenHash)
   }),
   deleteSessionRecordsByUserId: vi.fn(async (userId: string) => {

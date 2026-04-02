@@ -7,6 +7,17 @@
     "title": "Contame sobre vos",
     "headline": "Te hago 5 preguntas cortitas y arrancamos",
     "subtitle": "Con esto ya puedo ordenar una primera version de tu plan.",
+    "workspace_eyebrow": "Objetivos",
+    "workspace_title": "Contame que quieres lograr",
+    "workspace_placeholder": "Escribe tu objetivo aqui...",
+    "workspace_submit_hint": "Enter para seguir",
+    "workspace_continue": "Continuar",
+    "workspace_advanced_open": "Mostrar opciones avanzadas",
+    "workspace_advanced_close": "Ocultar opciones avanzadas",
+    "workspace_advanced_title": "Fecha de inicio",
+    "workspace_advanced_copy": "Si quieres, puedes decir desde que dia debe empezar el plan.",
+    "workspace_start_date_label": "Empezar desde",
+    "workspace_start_date_hint": "Si no la cambias, Pulso usa hoy en tu zona horaria.",
     "limit_copy": "Son solo 5 pasos. El resto lo inferimos por ahora y despues lo ajustamos con vos.",
     "caption": "Paso actual",
     "questions": {
@@ -908,13 +919,13 @@
       "page": {
         "eyebrow": "Debug V5",
         "title": "Vista previa del runner real",
-        "subtitle": "Esta pantalla carga el ultimo JSON generado por `scripts/lap-runner-v5-real.ts` y te deja recorrer todas las vistas del dashboard.",
+        "subtitle": "Esta pantalla carga el ultimo JSON de diagnostico generado por `npm run plan:run -- --debug` y te deja recorrer todas las vistas del dashboard.",
         "openFlow": "Abrir Flow Viewer",
         "openData": "Ver todos los datos",
         "outputFile": "Archivo de salida"
       },
       "empty": "Todavia no encuentro un resultado del runner real para mostrar.",
-      "hint": "Corre `npx tsx scripts/lap-runner-v5-real.ts` y luego vuelve a esta pantalla."
+      "hint": "Corre `npm run plan:run -- --debug` y luego vuelve a esta pantalla."
     },
     "data": {
       "eyebrow": "Inspector completo",

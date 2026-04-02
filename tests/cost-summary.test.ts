@@ -130,10 +130,10 @@ describe('getCostSummary', () => {
     })
   })
 
-  it('trackea costo cero para modelos gratuitos y conserva el insert', async () => {
+  it('trackea costo estimado para modelos openai y conserva el insert', async () => {
     const result = await trackCost('plan-3', 'plan_build', 'openai:gpt-4o-mini', 4000, 1200, 'charge-1')
 
-    expect(result).toEqual({ costUsd: 0, costSats: 0 })
+    expect(result).toEqual({ costUsd: 0.00132, costSats: 2 })
     expect(insert).toHaveBeenCalled()
     expect(values).toHaveBeenCalledWith(expect.objectContaining({
       chargeId: 'charge-1',
@@ -141,7 +141,7 @@ describe('getCostSummary', () => {
       model: 'openai:gpt-4o-mini',
       tokensInput: 4000,
       tokensOutput: 1200,
-      costUsd: 0
+      costUsd: 0.00132
     }))
   })
 

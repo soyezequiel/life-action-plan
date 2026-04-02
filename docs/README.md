@@ -21,6 +21,8 @@ docs/
   qa/                    Artefactos de canary y verificacion
 ```
 
+`docs/.obsidian/` contiene estado del editor y no forma parte de la fuente de verdad documental.
+
 ## architecture/
 
 | Archivo | Descripcion |
@@ -83,3 +85,4 @@ Artefactos de verificacion y canary.
 | `.cursorrules` | Convencion para Cursor |
 | `.windsurfrules` | Convencion para Windsurf |
 | `README.md` | Entrada principal del repo |
+| `.obsidian/` | Estado del editor versionado; no usar como referencia documental |

@@ -1,6 +1,6 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
-import { WorkspaceOrchestrator } from '../../components/workspace/WorkspaceOrchestrator'
+import SettingsPageContent from '../../components/SettingsPageContent'
 import { getWalletStatus } from '../api/_wallet'
 import { findCredentialConfiguration } from '../../src/lib/auth/credential-config'
 import { isSecretStorageAvailable } from '../../src/lib/auth/secret-storage'
@@ -67,13 +67,10 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
     && (initialOpenAiCredential?.status === 'active' || initialOpenRouterCredential?.status === 'active')
 
   return (
-    <WorkspaceOrchestrator
-      viewKey="settings"
-      viewProps={{
-        section: section as 'backend' | 'wallet',
-        initialWalletStatus,
-        initialApiConfigured
-      }}
+    <SettingsPageContent
+      section={section as 'backend' | 'wallet'}
+      initialWalletStatus={initialWalletStatus}
+      initialApiConfigured={initialApiConfigured}
     />
   )
 }

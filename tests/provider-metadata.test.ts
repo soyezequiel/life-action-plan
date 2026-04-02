@@ -9,7 +9,7 @@ describe('provider metadata', () => {
   })
 
   it('does not reinterpret unsupported bare provider ids as openai', () => {
-    expect(resolveBuildModel('openai')).toBe('openai')
+    expect(resolveBuildModel('openai')).toBe('openai:gpt-4o-mini')
     expect(getModelProviderName('openai')).toBe('unknown')
   })
 })

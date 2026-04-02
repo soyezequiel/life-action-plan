@@ -22,6 +22,7 @@ const runtimeFallbacks: Record<string, string> = {
   'errors.dev_missing_env': 'Falta {{name}} en el servidor local. Revisalo y volve a intentar.',
   'errors.save_failed': 'No pude guardar ese dato. Intenta de nuevo.',
   'errors.invalid_request': 'No pude entender ese pedido. Revisalo e intenta de nuevo.',
+  'errors.plan_start_date_past': 'La fecha de inicio tiene que ser hoy o un dia futuro.',
   'errors.codex_auth_required': 'Primero inicia sesion en Codex en esta maquina y vuelve a intentar.',
   'errors.profile_not_found': 'No encontre tu perfil guardado.',
   'errors.plan_not_found': 'No encontre ese plan.',
@@ -874,7 +875,13 @@ const runtimeFallbacks: Record<string, string> = {
   'intake.workspace_title': 'Contame que quieres lograr',
   'intake.workspace_placeholder': 'Escribe tu objetivo aqui...',
   'intake.workspace_submit_hint': 'Enter para seguir',
-  'intake.workspace_continue': 'Continuar'
+  'intake.workspace_continue': 'Continuar',
+  'intake.workspace_advanced_open': 'Mostrar opciones avanzadas',
+  'intake.workspace_advanced_close': 'Ocultar opciones avanzadas',
+  'intake.workspace_advanced_title': 'Fecha de inicio',
+  'intake.workspace_advanced_copy': 'Si quieres, puedes decir desde que dia debe empezar el plan.',
+  'intake.workspace_start_date_label': 'Empezar desde',
+  'intake.workspace_start_date_hint': 'Si lo dejas vacio, Pulso usa hoy en tu zona horaria.'
 }
 
 let currentLocale = 'es-AR'

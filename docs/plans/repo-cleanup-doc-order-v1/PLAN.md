@@ -21,6 +21,19 @@ El problema no es solo estetico. Hoy hay drift entre source of truth, naming vis
 
 ## Hallazgos que motivan este plan
 
+### Estado real relevado el 2026-04-02
+
+El analisis actual del repo muestra que una parte del diagnostico original ya fue absorbida por cambios posteriores y por subplanes separados:
+
+- `app/plan/page.tsx` ya monta `components/plan-viewer/PlanificadorPage.tsx`, no `PlanMockupPage`
+- `app/settings/page.tsx` ya monta `components/workspace/WorkspaceOrchestrator`, no `SettingsMockupPage`
+- `app/auth/page.tsx` hoy solo redirige a `/auth/signin`
+- `components/Dashboard.tsx` y `components/IntakeExpress.tsx` ya montan `WorkspaceOrchestrator`
+- `package.json` ya no expone `lap:run:v5-real`, `lap:run:v5-example` ni `pulse:input`
+- `docs/README.md` ya refleja el arbol real de `docs/`
+
+Eso no cierra SOY-43. Cambia la forma correcta de implementarlo: este plan pasa a ser un **plan orquestador** que debe apoyarse en subplanes concretos y cerrar solo la deuda que sigue viva.
+
 ### 1. La frontera producto vs mockup no es explicita
 
 - `app/plan/page.tsx` monta `components/plan-viewer/PlanMockupPage.tsx`
@@ -40,9 +53,19 @@ Esto no prueba que la UI este rota, pero si que el repo comunica una historia eq
 
 Esto convierte el naming legacy en deuda funcional real.
 
+### Deuda real que sigue abierta al 2026-04-02
+
+- `src/i18n/locales/es-AR.json` y tests activos siguen mencionando `scripts/lap-runner-v5-real.ts`
+- `app/plan/v5/page.tsx` sigue existiendo como alias/redirect de la superficie persistida
+- `docs/architecture/PIPELINE_V6_SPEC.md` y varios planes activos todavia documentan `/plan/v5` como salida canonica
+- `docs/plans/pipeline-visualizer-v1/` ya fue normalizado en `docs/plans/REGISTRY.json`
+- siguen existiendo otros planes legacy en `docs/plans/` que conviene revisar contra el registro
+- `docs/deployment/VERCEL.md` afirma que `postbuild` ejecuta `db:push` "cuando corresponda", pero `scripts/vercel-prepare.mjs` solo ejecuta DB si hay flags explicitas
+- `next.config.ts` corre `deploy-doctor` solo en ciertos entornos y tolera su fallo; ademas el build ignora errores de TypeScript y ESLint
+
 ### 3. El sistema de planes tiene al menos un plan huerfano
 
-- `docs/plans/pipeline-visualizer-v1/plan.md` existe fuera de la convencion canónica
+- `docs/plans/pipeline-visualizer-v1/plan.md` existia fuera de la convencion canonica y ya fue registrado
 - su `status.json` no incluye `series_id`, `version`, `lifecycle`, `latest_in_series` ni `canonical_plan_file`
 - el plan no figura en `docs/plans/REGISTRY.json`
 
@@ -150,7 +173,7 @@ Hallazgos de estructura:
 **Objetivo**: que `docs/plans/` vuelva a ser canonico de verdad.
 
 **Tareas**:
-- regularizar o archivar `docs/plans/pipeline-visualizer-v1`
+- registrar o archivar el resto de planes legacy que sigan fuera de `REGISTRY.json`
 - revisar carpetas con nombres fuera de la convencion o metadata incompleta
 - asegurar que todo plan vigente este en `REGISTRY.json`
 - mover planes no elegibles a `historical`, `superseded` u `obsolete` segun corresponda
@@ -200,16 +223,305 @@ Hallazgos de estructura:
 - `npm run build` o evidencia equivalente si el build requiere timeout mayor
 - smoke visible de rutas principales: `/`, `/intake`, `/plan`, `/settings`, `/auth/signin`
 
+## Plan ejecutable por subagentes
+
+La implementacion de `SOY-43` ya esta descompuesta en subtareas hijas de Linear. La forma pragmatica de ejecutarla es usar un subagente por issue y tratar `docs/plans/repo-cleanup-doc-order-v1/PLAN.md` como coordinador, no como lugar para hacer toda la limpieza manualmente desde un solo agente.
+
+### Regla de seleccion de modelo
+
+- Usar como source of truth el modelo indicado en la **etiqueta** de Linear
+- Si la descripcion del issue menciona otro modelo, tratarlo como drift editorial
+- Mantener el nivel de razonamiento indicado en la descripcion del issue, salvo limitacion del runner
+
+### Mapa de delegacion
+
+| Linear | Stage | Objetivo | Modelo por etiqueta | Razonamiento | Depende de |
+| --- | --- | --- | --- | --- | --- |
+| `SOY-61` | 1 | Clasificar carpetas runtime/historico/tooling/delete | `Gemini 3 Pro` | alto | - |
+| `SOY-62` | 2 | Separar producto vivo de mockups y demos | `GPT 5.4 Mini` | bajo | `SOY-61` |
+| `SOY-63` | 3 | Eliminar scripts muertos y deuda nominal v5 | `Sonnet 4.6` | bajo | - |
+| `SOY-64` | 4 | Regularizar el sistema canonico de planes | `GPT 5.4 Mini` | bajo | `SOY-61` |
+| `SOY-65` | 5 | Reordenar docs por dominio | `Haiku 4.5` | bajo | `SOY-64` |
+| `SOY-66` | 6 | Endurecer deploy/readiness Vercel | `GPT 5.4 Mini` | medio | `SOY-63` |
+
+### Orden y paralelismo recomendados
+
+1. Lanzar `SOY-61` y `SOY-63` en paralelo
+2. Cuando cierre `SOY-61`, lanzar `SOY-62` y `SOY-64`
+3. Cuando cierre `SOY-64`, lanzar `SOY-65`
+4. Cuando cierre `SOY-63`, lanzar `SOY-66`
+5. Cerrar `SOY-43` solo despues de una pasada final de validacion automatica y smoke visible
+
+### Entregables por subagente
+
+- `SOY-61`: `docs/plans/soy-61-clasificar-carpetas-runtime-v1/decision-table.md`
+- `SOY-62`: renames y moves mecanicos sin tocar logica de negocio
+- `SOY-63`: scripts/documentacion/tests/i18n sin referencias muertas a v5
+- `SOY-64`: `docs/plans/REGISTRY.json` y `status.json` consistentes
+- `SOY-65`: `docs/README.md` y `docs/progress/PROGRESS.md` alineados con el arbol real
+- `SOY-66`: `docs/deployment/VERCEL.md` como contrato unico y `README.md` sincronizado
+
+## Prompts operativos para subagentes
+
+Los bloques siguientes estan preparados para pegarse en un agente de codigo. Mantienen el alcance chico, stop conditions explicitas y criterio de cierre observable.
+
+### Prompt 1 - SOY-61
+
+```text
+Objective:
+Execute SOY-61 for F:\proyectos\planificador-vida: classify runtime, historical-doc, tooling, and delete candidates for repo cleanup.
+
+Starting State:
+- Parent issue: SOY-43
+- Canonical parent plan: docs/plans/repo-cleanup-doc-order-v1/PLAN.md
+- Child plan: docs/plans/soy-61-clasificar-carpetas-runtime-v1/PLAN.md
+- Architecture source of truth: docs/architecture/REGISTRY.json
+- Plans source of truth: docs/plans/REGISTRY.json
+
+Target State:
+- docs/plans/soy-61-clasificar-carpetas-runtime-v1/decision-table.md exists
+- Each target folder is classified with rationale, active consumers, and recommended action
+- Safe deletes and required renames are explicitly listed
+
+Scope:
+Only inspect and update:
+- docs/plans/soy-61-clasificar-carpetas-runtime-v1/
+- app/
+- components/
+- src/lib/
+- docs/
+
+Do Not:
+- Do not delete or move files
+- Do not edit product code
+- Do not add dependencies
+- Do not revert unrelated changes
+
+Stop and Ask Before:
+- changing public routes
+- marking a folder as deletable when active imports are ambiguous
+- archiving large documentation folders
+
+Done When:
+- decision-table.md is created
+- components/mockups, components/plan-viewer, components/pipeline-visualizer, app/debug, docs/maqueta, docs/prompts, and src/lib/skills are all classified
+- no code outside the SOY-61 plan folder is modified
+```
+
+### Prompt 2 - SOY-62
+
+```text
+Objective:
+Execute SOY-62 for F:\proyectos\planificador-vida: remove mockup naming from active product routes and move real mockups out of the operational path.
+
+Starting State:
+- Parent issue: SOY-43
+- Depends on SOY-61 decision-table.md
+- Child plan: docs/plans/soy-62-separar-producto-mockups-v1/PLAN.md
+
+Target State:
+- No active product route mounts components named Mockup*
+- Runtime naming reflects product, not prototype
+- Imports are updated without changing behavior
+
+Scope:
+Only work in:
+- app/auth/
+- app/plan/
+- app/settings/
+- components/
+- docs/plans/soy-62-separar-producto-mockups-v1/
+
+Do Not:
+- Do not change business logic
+- Do not touch app/api/
+- Do not add dependencies
+- Do not revert unrelated changes
+
+Stop and Ask Before:
+- deleting files
+- moving shared components with unclear consumers
+- changing route semantics or URLs
+
+Done When:
+- typecheck passes
+- build passes
+- active routes no longer import Mockup* components
+```
+
+### Prompt 3 - SOY-63
+
+```text
+Objective:
+Execute SOY-63 for F:\proyectos\planificador-vida: remove dead scripts and stale v5 naming references.
+
+Starting State:
+- Parent issue: SOY-43
+- Child plan: docs/plans/soy-63-eliminar-scripts-muertos-v5-v1/PLAN.md
+
+Target State:
+- package.json exposes no scripts pointing to missing files
+- Active docs, tests, and i18n no longer reference lap-runner-v5-* when the runner does not exist
+- Ambiguous duplicate scripts are either consolidated or documented for follow-up
+
+Scope:
+Only work in:
+- package.json
+- scripts/
+- src/i18n/
+- tests/
+- docs/
+- docs/plans/soy-63-eliminar-scripts-muertos-v5-v1/
+
+Do Not:
+- Do not change production runtime logic unless required by a broken script reference
+- Do not add dependencies
+- Do not revert unrelated changes
+
+Stop and Ask Before:
+- deleting scripts that may still be used outside package.json
+- changing test intent instead of removing stale references
+- touching external CI/CD configuration
+
+Done When:
+- typecheck passes
+- build passes
+- no active references remain to missing lap-runner-v5 scripts
+```
+
+### Prompt 4 - SOY-64
+
+```text
+Objective:
+Execute SOY-64 for F:\proyectos\planificador-vida: regularize the canonical plan system so every active plan is represented in the registry with complete metadata.
+
+Starting State:
+- Parent issue: SOY-43
+- Depends on SOY-61 for classification context
+- Child plan: docs/plans/soy-64-regularizar-sistema-planes-v1/PLAN.md
+
+Target State:
+- docs/plans/REGISTRY.json matches the filesystem for active plans
+- status.json files have complete metadata
+- pipeline-visualizer-v1 is either registered correctly or marked non-active with justification
+
+Scope:
+Only work in:
+- docs/plans/
+
+Do Not:
+- Do not edit plan content except metadata files
+- Do not touch runtime code
+- Do not revert unrelated changes
+
+Stop and Ask Before:
+- changing lifecycle of a plan whose status is not inferable from repo context
+- deleting historical plan folders
+
+Done When:
+- no active plan remains outside REGISTRY.json
+- all touched status.json files are complete and internally consistent
+```
+
+### Prompt 5 - SOY-65
+
+```text
+Objective:
+Execute SOY-65 for F:\proyectos\planificador-vida: reorder documentation by domain and align the docs index with the real tree.
+
+Starting State:
+- Parent issue: SOY-43
+- Depends on SOY-64
+- Child plan: docs/plans/soy-65-reordenar-docs-dominio-v1/PLAN.md
+
+Target State:
+- docs/README.md reflects the real docs tree
+- archive policy for docs/maqueta and docs/assets is documented
+- docs/progress/PROGRESS.md no longer points to obsolete references as if they were current
+
+Scope:
+Only work in:
+- docs/README.md
+- docs/progress/PROGRESS.md
+- docs/deployment/
+- docs/plans/soy-65-reordenar-docs-dominio-v1/
+- .gitignore if docs/.obsidian handling requires it
+
+Do Not:
+- Do not rewrite technical content beyond structural cleanup
+- Do not touch app/ or src/
+- Do not revert unrelated changes
+
+Stop and Ask Before:
+- removing docs/.obsidian from version control
+- moving large doc folders
+
+Done When:
+- docs index matches the real tree
+- archive policy is explicit
+- stale references in PROGRESS.md are corrected
+```
+
+### Prompt 6 - SOY-66
+
+```text
+Objective:
+Execute SOY-66 for F:\proyectos\planificador-vida: harden Vercel readiness and unify deploy documentation.
+
+Starting State:
+- Parent issue: SOY-43
+- Depends on SOY-63
+- Child plan: docs/plans/soy-66-endurecer-deploy-vercel-v1/PLAN.md
+- Current deploy docs are split across README.md, docs/deployment/VERCEL.md, scripts/deploy-doctor.mjs, next.config.ts, and package.json
+
+Target State:
+- docs/deployment/VERCEL.md is the single deploy contract
+- README.md references that contract without duplicating it
+- local-only assumptions are clearly marked
+- deploy-doctor expectations match the documented contract
+
+Scope:
+Only work in:
+- README.md
+- docs/deployment/VERCEL.md
+- scripts/deploy-doctor.mjs
+- next.config.ts
+- package.json
+- docs/plans/soy-66-endurecer-deploy-vercel-v1/
+
+Do Not:
+- Do not change deploy secrets or external service accounts
+- Do not add dependencies
+- Do not revert unrelated changes
+
+Stop and Ask Before:
+- changing build behavior
+- changing auth or provider runtime semantics
+- touching Vercel project linkage
+
+Done When:
+- doctor:deploy matches the documented contract
+- README.md no longer duplicates deploy guidance
+- local-only options are not presented as production defaults
+```
+
+## Notas de coordinacion
+
+- `SOY-61` y `SOY-63` son las dos entradas con mejor retorno temprano: una aclara que mover y la otra saca ruido funcional inmediato
+- En el estado actual del repo, `app/plan/page.tsx` ya monta `PlanificadorPage` y `app/settings/page.tsx` ya monta `WorkspaceOrchestrator`; la deuda de mockup visible parece concentrarse mas en documentacion/historia y nombres residuales que en esas rutas activas
+- `docs/plans/pipeline-visualizer-v1/status.json` ya quedo normalizado respecto del contrato canónico
+- `docs/.obsidian/` sigue versionado y `docs/progress/PROGRESS.md` todavia mezcla estado vigente con referencias historicas, por lo que `SOY-65` no deberia tratarse como solo un retoque de README
+
 ## Prioridad sugerida
 
 1. Etapa 3
-2. Etapa 2
-3. Etapa 4
-4. Etapa 5
-5. Etapa 6
+2. Etapa 4
+3. Etapa 6
+4. Etapa 2
+5. Etapa 5
 6. Etapa 7
 
-La razon es simple: primero conviene sacar comandos muertos y naming enganoso, despues mover el arbol, y recien al final reescribir indices y docs.
+La razon es simple: primero conviene sacar referencias muertas que ya generan deuda visible, despues regularizar el sistema canonico de planes y el contrato de deploy, y recien entonces ajustar naming y documentacion restante.
 
 ## Riesgos y mitigaciones
 

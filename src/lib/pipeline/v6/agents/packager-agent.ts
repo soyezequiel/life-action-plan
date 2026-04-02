@@ -1,5 +1,3 @@
-import { DateTime } from 'luxon';
-
 import type { GoalClassification } from '../../../domain/goal-taxonomy';
 import { packagePlan } from '../../shared/packager';
 import type { PackageInput } from '../../shared/phase-io';
@@ -37,17 +35,8 @@ function buildClassification(context: OrchestratorContext): GoalClassification |
   };
 }
 
-function nextWeekStartDate(): string {
-  const today = DateTime.utc().startOf('day');
-  const nextMonday = today.weekday === 1
-    ? today
-    : today.plus({ weeks: 1 }).startOf('week');
-
-  return nextMonday.toISO() ?? '2026-03-30T00:00:00.000Z';
-}
-
 function inferTimezone(context: OrchestratorContext): string {
-  return context.finalPackage?.timezone ?? 'UTC';
+  return context.timezone ?? context.finalPackage?.timezone ?? 'UTC';
 }
 
 function buildEmptySchedule(): SchedulerOutput {
@@ -63,17 +52,25 @@ function buildEmptySchedule(): SchedulerOutput {
 }
 
 function buildPackageInput(context: OrchestratorContext): PackageInput {
-  const scheduleResult = context.scheduleResult?.solverOutput ?? buildEmptySchedule();
-  const weekStartDate = scheduleResult.events[0]?.startAt ?? nextWeekStartDate();
+  const scheduleResult = context.scheduleResult;
+  const finalSchedule = scheduleResult?.solverOutput ?? buildEmptySchedule();
+  const weekStartDate = scheduleResult?.weekStartDate
+    ?? context.weekStartDate
+    ?? finalSchedule.events[0]?.startAt
+    ?? context.planningStartAt;
+  const planningStartAt = scheduleResult?.planningStartAt
+    ?? context.planningStartAt
+    ?? weekStartDate;
 
   return {
-    finalSchedule: scheduleResult,
+    finalSchedule,
     classification: buildClassification(context),
     roadmap: context.strategicDraft ?? undefined,
     goalText: context.goalText,
-    goalId: scheduleResult.events[0]?.goalIds[0] ?? 'goal-v6',
+    goalId: finalSchedule.events[0]?.goalIds[0] ?? 'goal-v6',
     requestedDomain: context.interpretation?.suggestedDomain ?? null,
     clarificationAnswers: context.userAnswers,
+    planningStartAt,
     weekStartDate,
     profile: context.userProfile ?? undefined,
     timezone: inferTimezone(context),

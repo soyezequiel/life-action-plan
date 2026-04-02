@@ -916,9 +916,9 @@ describe('generateStrategyWithSource validation', () => {
       cookingCard,
     );
 
-    expect(result.source).toBe('fallback');
-    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
-    expect(result.fallbackMessage).toContain('cooking.level');
+    expect(result.source).toBe('llm');
+    expect(result.failedCheck).toBe('cooking.level');
+    expect(result.validationSummaryEs).toContain('nivel');
   });
 
   it('acepta la salida reasoning cuando titulo y resumen incluyen pizza y principiante', async () => {
@@ -969,9 +969,9 @@ describe('generateStrategyWithSource validation', () => {
       cookingCard,
     );
 
-    expect(result.source).toBe('fallback');
-    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
-    expect(result.fallbackMessage).toContain('cooking.domain_scope');
+    expect(result.source).toBe('llm');
+    expect(result.failedCheck).toBe('cooking.domain_scope');
+    expect(result.validationSummaryEs).toContain('cocina italiana');
   });
 
   it('acepta cocina italiana amplia cuando el plan mantiene pizza como foco e incluye base de pastas', async () => {
@@ -1065,9 +1065,9 @@ describe('generateStrategyWithSource validation', () => {
     );
 
     // Phases span months 1-5 (20 weeks), far exceeding the "2 meses" (8 weeks) target.
-    expect(result.source).toBe('fallback');
-    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
-    expect(result.fallbackMessage).toContain('cooking.horizon');
+    expect(result.source).toBe('llm');
+    expect(result.failedCheck).toBe('cooking.horizon');
+    expect(result.validationSummaryEs).toContain('horizonte');
   });
 
   it('no bloquea salidas financieras solo porque ignoran anclas incidentales del intake', async () => {
@@ -1287,10 +1287,10 @@ describe('generateStrategyWithSource validation', () => {
       createFinanceSavingsInput(),
     );
 
-    expect(result.source).toBe('fallback');
-    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
-    expect(result.fallbackMessage).toContain('intake.cadence_horizon');
-    expect(result.output.milestones.join(' ').toLowerCase()).not.toContain('seis transferencias');
+    expect(result.source).toBe('llm');
+    expect(result.failedCheck).toBe('intake.cadence_horizon');
+    expect(result.validationSummaryEs).toContain('cadencia mensual');
+    expect(result.output.milestones.join(' ').toLowerCase()).toContain('seis transferencias');
   });
 
   it('acepta salidas cuando preservan metrica, plazo y anclas del intake', async () => {
@@ -1469,7 +1469,11 @@ describe('isStructuralPhaseTitle - specificity gate', () => {
     });
   }
 
-  async function evaluateTitle(title: string): Promise<{ source: string; fallbackCode?: string; fallbackMessage?: string }> {
+  async function evaluateTitle(title: string): Promise<{
+    source: string;
+    failedCheck?: string | null;
+    validationSummaryEs?: string | null;
+  }> {
     const result = await generateStrategyWithSource(
       createReasoningRuntime(createReasoningPayload([
         {
@@ -1486,8 +1490,8 @@ describe('isStructuralPhaseTitle - specificity gate', () => {
 
     return {
       source: result.source,
-      fallbackCode: result.fallbackCode,
-      fallbackMessage: result.fallbackMessage,
+      failedCheck: result.failedCheck,
+      validationSummaryEs: result.validationSummaryEs,
     };
   }
 
@@ -1503,9 +1507,9 @@ describe('isStructuralPhaseTitle - specificity gate', () => {
   ])('bloquea titulos genericos: %s', async (title) => {
     const result = await evaluateTitle(title);
 
-    expect(result.source).toBe('fallback');
-    expect(result.fallbackCode).toBe('STRATEGY_VALIDATION_FAILED');
-    expect(result.fallbackMessage).toContain('output.structural_phase_title');
+    expect(result.source).toBe('llm');
+    expect(result.failedCheck).toBe('output.structural_phase_title');
+    expect(result.validationSummaryEs).toContain('fase');
   });
 
   it.each([
@@ -1520,8 +1524,8 @@ describe('isStructuralPhaseTitle - specificity gate', () => {
     const result = await evaluateTitle(title);
 
     expect(result.source).toBe('llm');
-    expect(result.fallbackCode).toBeUndefined();
-    expect(result.fallbackMessage).toBeUndefined();
+    expect(result.failedCheck).toBeUndefined();
+    expect(result.validationSummaryEs).toBeUndefined();
   });
 });
 

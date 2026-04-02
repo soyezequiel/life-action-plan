@@ -3,6 +3,7 @@ import type {
   CreateInvoiceParams,
   CreateInvoiceResult,
   PaymentProvider,
+  PaymentProviderStatusOptions,
   PaymentProviderStatus,
   PayInvoiceParams,
   PayInvoiceResult
@@ -18,6 +19,8 @@ type SupportedNwcVersion = '1.0' | '0.0'
 
 let nwcModulePromise: Promise<NwcModule> | null = null
 const supportedVersionCache = new Map<string, SupportedNwcVersion>()
+const NWC_INFO_TIMEOUT_MS = 4_500
+const NWC_STATUS_TIMEOUT_MS = 1_500
 
 async function loadNwcModule(): Promise<NwcModule> {
   if (!nwcModulePromise) {
@@ -50,6 +53,31 @@ function normalizeBudget(budget: nwc.Nip47GetBudgetResponse): Pick<
 
 function toMilliSats(amountSats: number): number {
   return Math.max(1, Math.round(amountSats * 1000))
+}
+
+async function withTimeout<T>(
+  promiseFactory: () => Promise<T>,
+  timeoutMs: number,
+  errorCode: string,
+  onTimeout: () => void,
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+  try {
+    return await Promise.race([
+      promiseFactory(),
+      new Promise<T>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          onTimeout()
+          reject(new Error(errorCode))
+        }, timeoutMs)
+      }),
+    ])
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+  }
 }
 
 function isSupportedVersion(value: string | undefined): value is SupportedNwcVersion {
@@ -104,6 +132,22 @@ export class NwcPaymentProvider implements PaymentProvider {
     return this.clientPromise
   }
 
+  private async runClientRequest<T>(
+    client: NwcClient,
+    request: () => Promise<T>,
+    errorCode: string,
+    timeoutMs: number,
+  ): Promise<T> {
+    return withTimeout(
+      request,
+      timeoutMs,
+      errorCode,
+      () => {
+        this.close()
+      },
+    )
+  }
+
   private async ensureCompatibleVersion(client: NwcClient): Promise<void> {
     if (isSupportedVersion(client.version)) {
       supportedVersionCache.set(this.connectionUrl, client.version)
@@ -117,7 +161,12 @@ export class NwcPaymentProvider implements PaymentProvider {
       return
     }
 
-    const serviceInfo = await client.getWalletServiceInfo()
+    const serviceInfo = await this.runClientRequest(
+      client,
+      () => client.getWalletServiceInfo(),
+      'WALLET_NWC_INFO_UNAVAILABLE',
+      NWC_INFO_TIMEOUT_MS,
+    )
     const compatibleVersion = selectCompatibleVersion(serviceInfo.versions)
 
     if (!compatibleVersion) {
@@ -128,20 +177,43 @@ export class NwcPaymentProvider implements PaymentProvider {
     supportedVersionCache.set(this.connectionUrl, compatibleVersion)
   }
 
-  async getStatus(): Promise<PaymentProviderStatus> {
+  async getStatus(options: PaymentProviderStatusOptions = {}): Promise<PaymentProviderStatus> {
     const client = await this.getClient()
-    const [info, balance, budget] = await Promise.all([
-      client.getInfo(),
-      client.getBalance(),
-      client.getBudget().catch(() => ({}))
-    ])
+    const shouldIncludeBalance = options.includeBalance ?? true
+    const shouldIncludeBudget = options.includeBudget ?? true
+    const info = await this.runClientRequest(
+      client,
+      () => client.getInfo(),
+      'WALLET_NWC_INFO_UNAVAILABLE',
+      NWC_INFO_TIMEOUT_MS,
+    )
+
+    const balancePromise = shouldIncludeBalance && info.methods.includes('get_balance')
+      ? this.runClientRequest(
+        client,
+        () => client.getBalance(),
+        'WALLET_NWC_BALANCE_UNAVAILABLE',
+        NWC_STATUS_TIMEOUT_MS,
+      ).catch(() => ({ balance: null }))
+      : Promise.resolve({ balance: null })
+
+    const budgetPromise = shouldIncludeBudget && info.methods.includes('get_budget')
+      ? this.runClientRequest(
+        client,
+        () => client.getBudget(),
+        'WALLET_NWC_BUDGET_UNAVAILABLE',
+        NWC_STATUS_TIMEOUT_MS,
+      ).catch(() => ({}))
+      : Promise.resolve({})
+
+    const [balance, budget] = await Promise.all([balancePromise, budgetPromise])
 
     return {
       alias: info.alias || null,
       network: info.network || null,
       pubkey: info.pubkey || null,
       methods: info.methods,
-      balanceMsats: balance.balance,
+      balanceMsats: typeof balance.balance === 'number' ? balance.balance : null,
       ...normalizeBudget(budget)
     }
   }

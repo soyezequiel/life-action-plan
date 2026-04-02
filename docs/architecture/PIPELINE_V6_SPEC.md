@@ -36,6 +36,7 @@ El request operativo de `build` se valida con `v6RequestSchema` (extension de `p
 | `apiKey` | `string?` | API key provista por el usuario |
 | `backendCredentialId` | `string?` | ID de credencial almacenada en backend |
 | `thinkingMode` | `'enabled' \| 'disabled' \| null` | Modo de razonamiento extendido |
+| `startDate` | `string (YYYY-MM-DD)?` | Fecha opcional para arrancar el plan; si no viene, se usa hoy local del perfil |
 | `debug` | `boolean?` | Activa eventos `v6:debug` y `v6:heartbeat` |
 
 El request de `resume` se valida con `resumeRequestSchema`:
@@ -50,6 +51,26 @@ Fuentes:
 - `app/api/plan/build/route.ts`
 - `app/api/plan/build/resume/route.ts`
 - `src/lib/pipeline/v6/types.ts`
+
+## 2.1 Anclas temporales vigentes
+
+El pipeline distingue dos conceptos distintos:
+
+- `planningStartAt`: ancla real de inicio del plan en UTC. Define desde que fecha y hora el usuario puede empezar a ejecutar el plan.
+- `weekStartDate`: inicio tecnico de la semana local, tambien serializado en UTC. Se usa solo para solver, buckets semanales y offsets internos.
+
+Reglas operativas:
+
+- si el request incluye `startDate`, `planningStartAt` se resuelve al inicio local de ese dia en la timezone del perfil
+- si el request no incluye `startDate`, `planningStartAt` se resuelve a "ahora" local redondeado al proximo slot de 30 minutos
+- si `startDate` cae antes de hoy local, la route corta el build con error amigable
+- `weekStartDate` siempre se deriva desde la semana local que contiene `planningStartAt`
+
+Impacto esperado:
+
+- scheduler: usa `weekStartDate` como referencia semanal, pero no puede ubicar eventos antes de `planningStartAt`
+- packager: usa `planningStartAt` para todas las fechas visibles del plan (`skeleton`, `detail`, `operational`, milestones y deferred tasks)
+- snapshots: pueden traer ambos campos; si faltan por compatibilidad historica, se derivan en runtime
 
 ## 3. Arquitectura actual
 

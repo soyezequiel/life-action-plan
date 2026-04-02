@@ -10,13 +10,23 @@ import type {
   SchedulerInput as MilpSchedulerInput,
 } from '../../../scheduler/types';
 import type { AgentRuntime } from '../../../runtime/types';
+import { formatMinutesAsTime } from '../../shared/scheduling-context';
 import { buildTemplate } from '../../shared/template-builder';
-import type { V6Agent, StrategicDraft, UserProfileV5, DomainKnowledgeCard, SchedulerOutput } from '../types';
+import type {
+  V6Agent,
+  StrategicDraft,
+  UserProfileV5,
+  DomainKnowledgeCard,
+  SchedulerOutput,
+} from '../types';
 import type { TimeEventItem } from '../../../domain/plan-item';
 
 export interface SchedulerInput {
   strategicDraft: StrategicDraft
   userProfile: UserProfileV5
+  timezone: string
+  planningStartAt: string
+  weekStartDate: string
   availability: AvailabilityWindow[]
   blocked: BlockedSlot[]
   domainCard: DomainKnowledgeCard | null
@@ -27,9 +37,13 @@ export interface ScheduleResult {
   tradeoffs: string[]
   qualityScore: number
   unscheduledCount: number
+  timezone: string
+  planningStartAt: string
+  weekStartDate: string
 }
 
 const scheduleCache = new Map<string, ScheduleResult>();
+const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
 function inferGoalType(
   strategicDraft: StrategicDraft,
@@ -77,15 +91,6 @@ function inferGoalText(strategicDraft: StrategicDraft): string {
     ?? strategicDraft.phases[0]?.focus_esAR
     ?? strategicDraft.phases[0]?.name
     ?? 'Objetivo principal';
-}
-
-function nextWeekStartDate(): string {
-  const today = DateTime.utc().startOf('day');
-  const nextMonday = today.weekday === 1
-    ? today
-    : today.plus({ weeks: 1 }).startOf('week');
-
-  return nextMonday.toISO() ?? '2026-03-30T00:00:00.000Z';
 }
 
 function clampScore(value: number): number {
@@ -155,14 +160,69 @@ function buildActivityRequests(
   }));
 }
 
+function buildPreAnchorBlockedSlots(input: SchedulerInput): BlockedSlot[] {
+  const weekStartLocal = DateTime.fromISO(input.weekStartDate, { zone: 'utc' }).setZone(input.timezone).startOf('day');
+  const planningStartLocal = DateTime.fromISO(input.planningStartAt, { zone: 'utc' }).setZone(input.timezone);
+
+  if (!weekStartLocal.isValid || !planningStartLocal.isValid || planningStartLocal <= weekStartLocal) {
+    return [];
+  }
+
+  const dayOffset = Math.floor(planningStartLocal.startOf('day').diff(weekStartLocal, 'days').days);
+  if (dayOffset < 0) {
+    return [];
+  }
+
+  const blocked: BlockedSlot[] = [];
+
+  for (let index = 0; index < Math.min(dayOffset, DAY_NAMES.length); index += 1) {
+    blocked.push({
+      day: DAY_NAMES[index],
+      startTime: '00:00',
+      endTime: '24:00',
+      reason: 'Antes de la fecha de inicio',
+    });
+  }
+
+  if (dayOffset < DAY_NAMES.length) {
+    const startOfAnchorDay = planningStartLocal.startOf('day');
+    const minutesIntoDay = Math.max(
+      0,
+      Math.min(24 * 60, Math.floor(planningStartLocal.diff(startOfAnchorDay, 'minutes').minutes)),
+    );
+
+    if (minutesIntoDay > 0) {
+      blocked.push({
+        day: DAY_NAMES[dayOffset],
+        startTime: '00:00',
+        endTime: formatMinutesAsTime(minutesIntoDay),
+        reason: 'Antes de la fecha de inicio',
+      });
+    }
+  }
+
+  return blocked;
+}
+
 function buildSolverInput(input: SchedulerInput): MilpSchedulerInput {
   return {
     activities: buildActivityRequests(input.strategicDraft, input.userProfile, input.domainCard),
     availability: input.availability,
-    blocked: input.blocked,
+    blocked: [
+      ...input.blocked,
+      ...buildPreAnchorBlockedSlots(input),
+    ],
     preferences: [],
-    timezone: 'UTC',
-    weekStartDate: nextWeekStartDate(),
+    timezone: input.timezone,
+    weekStartDate: input.weekStartDate,
+  };
+}
+
+function buildResultMetadata(input: SchedulerInput) {
+  return {
+    timezone: input.timezone,
+    planningStartAt: input.planningStartAt,
+    weekStartDate: input.weekStartDate,
   };
 }
 
@@ -174,6 +234,7 @@ async function runSolver(input: SchedulerInput): Promise<ScheduleResult> {
     tradeoffs: [],
     qualityScore: computeQualityScore(solverOutput),
     unscheduledCount: solverOutput.unscheduled.length,
+    ...buildResultMetadata(input),
   };
 }
 
@@ -199,6 +260,7 @@ function buildUnavailableResult(input: SchedulerInput): ScheduleResult {
       tradeoffs: [],
       qualityScore: 0,
       unscheduledCount: unscheduled.length,
+      ...buildResultMetadata(input),
     };
   } catch {
     return {
@@ -214,6 +276,7 @@ function buildUnavailableResult(input: SchedulerInput): ScheduleResult {
       tradeoffs: [],
       qualityScore: 0,
       unscheduledCount: 0,
+      ...buildResultMetadata(input),
     };
   }
 }
@@ -259,129 +322,167 @@ async function explainTradeoffs(
     );
   }
 }
- 
- async function llmScheduleFallback(
-   runtime: AgentRuntime,
-   input: SchedulerInput,
- ): Promise<ScheduleResult> {
-   const startPos = Date.now();
-   const activityList = buildActivityRequests(input.strategicDraft, input.userProfile, input.domainCard);
-   const weekStart = nextWeekStartDate();
- 
-   const response = await runtime.chat([{
-     role: 'system',
-     content: `Eres un Experto en Gestión del Tiempo y Optimización de Calendarios. Tu objetivo es convertir un Roadmap estratégico en una rutina ejecutable para un usuario con disponibilidad muy limitada.
 
-Identifica los "bloques de oro" (mayor impacto) y asegúrate de que queden agendados SI O SI.
+function validateFallbackEvents(
+  parsedEvents: Array<Record<string, unknown>>,
+  activityList: ActivityRequest[],
+  input: SchedulerInput,
+): { events: TimeEventItem[]; rejected: Array<{ activityId: string; reason: string; suggestion_esAR: string }> } {
+  const now = DateTime.utc().toISO() ?? '2026-03-30T00:00:00.000Z';
+  const planningStart = DateTime.fromISO(input.planningStartAt, { zone: 'utc' });
+  const events: TimeEventItem[] = [];
+  const rejected = new Map<string, { activityId: string; reason: string; suggestion_esAR: string }>();
+
+  for (const item of parsedEvents) {
+    const activityId = typeof item.activityId === 'string' ? item.activityId : null;
+    const startAt = typeof item.startAt === 'string' ? item.startAt : null;
+    if (!activityId || !startAt) {
+      continue;
+    }
+
+    const start = DateTime.fromISO(startAt, { zone: 'utc' });
+    if (!start.isValid || start < planningStart) {
+      rejected.set(activityId, {
+        activityId,
+        reason: 'conflicto_bloqueo',
+        suggestion_esAR: 'El plan no puede arrancar antes de la fecha de inicio elegida.',
+      });
+      continue;
+    }
+
+    const activity = activityList.find((candidate) => candidate.id === activityId);
+    events.push({
+      id: `${activityId}_llm_${Math.random().toString(36).substring(2, 7)}`,
+      kind: 'time_event',
+      title: activity?.label || 'Actividad',
+      status: 'active',
+      goalIds: activity ? [activity.goalId] : [],
+      startAt,
+      durationMin: typeof item.durationMin === 'number' ? item.durationMin : (activity?.durationMin || 60),
+      rigidity: (activity?.constraintTier === 'hard' ? 'hard' : 'soft') as 'hard' | 'soft',
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  return {
+    events,
+    rejected: Array.from(rejected.values()),
+  };
+}
+
+async function llmScheduleFallback(
+  runtime: AgentRuntime,
+  input: SchedulerInput,
+): Promise<ScheduleResult> {
+  const startPos = Date.now();
+  const activityList = buildActivityRequests(input.strategicDraft, input.userProfile, input.domainCard);
+
+  const response = await runtime.chat([{
+    role: 'system',
+    content: `Eres un experto en gestion del tiempo y optimizacion de calendarios. Tu objetivo es convertir un roadmap estrategico en una rutina ejecutable para un usuario con disponibilidad limitada.
+
+Identifica los bloques de mayor impacto y asegurate de que queden agendados.
 
 REGLAS DE AGENDAMIENTO:
-1. PRIORIDAD: Si el tiempo no alcanza, descarta actividades marcadas como 'soft_weak' antes que las 'soft_strong'.
-2. SQUEEZING: No dejes huecos de menos de 15 min entre actividades si puedes pegarlas para ganar eficiencia.
-3. REALISMO: No agendes sesiones de estudio de 2h si el usuario solo tiene un bloque de 2h total; deja 15 min para transición.
-4. ESTRICTO: Devuelve un JSON con "events" y "unscheduled". Si algo se queda fuera, explica el motivo específico en "suggestion_esAR".
+1. Si el tiempo no alcanza, descarta actividades soft_weak antes que soft_strong.
+2. No dejes huecos inutiles de menos de 15 minutos si puedes agrupar bloques.
+3. No agendes sesiones irreales para la disponibilidad dada.
+4. Devuelve un JSON con "events" y "unscheduled". Si algo queda fuera, explica el motivo en "suggestion_esAR".
 
-FORMATO DE SALIDA (JSON):
+FORMATO DE SALIDA:
 {
-  "events": [{"activityId": "id", "startAt": "ISO8601 (UTC)", "durationMin": number}],
+  "events": [{"activityId": "id", "startAt": "ISO8601 (UTC)", "durationMin": 60}],
   "unscheduled": [{"activityId": "id", "reason": "exceso_carga|conflicto_bloqueo", "suggestion_esAR": "sugerencia concreta"}]
 }
 
 Restricciones adicionales:
-- Fecha de inicio de la semana: ${weekStart}.
+- Fecha de inicio tecnica de la semana: ${input.weekStartDate}.
+- Zona horaria local del usuario: ${input.timezone}.
+- No agendes nada antes de ${input.planningStartAt}.
 - No solapes actividades.
-- Respeta la duración mínima de cada actividad solicitada.`,
-   }, {
-     role: 'user',
-     content: `DATOS DE ENTRADA:
-- Disponibilidad: 
-${input.availability.map((v) => `- ${v.day}: ${v.startTime} a ${v.endTime}`).join('\n')}
-- Bloqueos: 
-${input.blocked.map((v) => `- ${v.day}: ${v.startTime} a ${v.endTime}`).join('\n')}
-- Actividades: 
-${activityList.map((a) => `- ${a.label} (${a.id}): ${a.frequencyPerWeek} veces/semana, ${a.durationMin} min, tier: ${a.constraintTier}`).join('\n')}
-- Perfil: ${input.userProfile.freeHoursWeekday}h/día L-V, ${input.userProfile.freeHoursWeekend}h finde, Energía: ${input.userProfile.energyLevel}.`,
-   }]);
- 
-   try {
-     const raw = extractFirstJsonObject(response.content);
-     const parsed = JSON.parse(raw) as { events: any[], unscheduled: any[] };
-     
-     const events: TimeEventItem[] = (parsed.events || []).map((e: any) => {
-       const act = activityList.find(a => a.id === e.activityId);
-       const now = DateTime.utc().toISO()!;
-       return {
-         id: `${e.activityId}_llm_${Math.random().toString(36).substring(2, 7)}`,
-         kind: 'time_event',
-         title: act?.label || 'Actividad',
-         status: 'active',
-         goalIds: act ? [act.goalId] : [],
-         startAt: e.startAt,
-         durationMin: e.durationMin || act?.durationMin || 60,
-         rigidity: (act?.constraintTier === 'hard' ? 'hard' : 'soft') as 'hard' | 'soft',
-         createdAt: now,
-         updatedAt: now,
-       };
-     });
- 
-     const fillRate = activityList.length > 0 ? (events.length / activityList.reduce((acc, a) => acc + a.frequencyPerWeek, 0)) : 1;
- 
-     return {
-       solverOutput: {
-         events,
-         unscheduled: parsed.unscheduled || [],
-         metrics: {
-           fillRate,
-           solverTimeMs: Date.now() - startPos,
-           solverStatus: 'llm_fallback',
-         },
-       },
-       tradeoffs: [],
-       qualityScore: clampScore(Math.round(fillRate * 100)),
-       unscheduledCount: parsed.unscheduled?.length || 0,
-     };
-   } catch (err) {
-     console.error('[Scheduler] LLM Fallback failed:', err);
-     return buildUnavailableResult(input);
-   }
- }
+- Respeta la duracion minima de cada actividad solicitada.`,
+  }, {
+    role: 'user',
+    content: `DATOS DE ENTRADA:
+- Disponibilidad:
+${input.availability.map((value) => `- ${value.day}: ${value.startTime} a ${value.endTime}`).join('\n')}
+- Bloqueos:
+${input.blocked.map((value) => `- ${value.day}: ${value.startTime} a ${value.endTime}`).join('\n')}
+- Actividades:
+${activityList.map((activity) => `- ${activity.label} (${activity.id}): ${activity.frequencyPerWeek} veces/semana, ${activity.durationMin} min, tier: ${activity.constraintTier}`).join('\n')}
+- Perfil: ${input.userProfile.freeHoursWeekday}h/dia L-V, ${input.userProfile.freeHoursWeekend}h finde, energia: ${input.userProfile.energyLevel}.`,
+  }]);
 
+  try {
+    const raw = extractFirstJsonObject(response.content);
+    const parsed = JSON.parse(raw) as { events?: Array<Record<string, unknown>>; unscheduled?: Array<{ activityId: string; reason: string; suggestion_esAR: string }> };
+    const validated = validateFallbackEvents(parsed.events ?? [], activityList, input);
+    const unscheduled = [
+      ...(Array.isArray(parsed.unscheduled) ? parsed.unscheduled : []),
+      ...validated.rejected,
+    ];
+    const totalRequested = activityList.reduce((accumulator, activity) => accumulator + activity.frequencyPerWeek, 0);
+    const fillRate = totalRequested > 0 ? validated.events.length / totalRequested : 1;
+
+    return {
+      solverOutput: {
+        events: validated.events,
+        unscheduled,
+        metrics: {
+          fillRate,
+          solverTimeMs: Date.now() - startPos,
+          solverStatus: 'llm_fallback',
+        },
+      },
+      tradeoffs: [],
+      qualityScore: clampScore(Math.round(fillRate * 100)),
+      unscheduledCount: unscheduled.length,
+      ...buildResultMetadata(input),
+    };
+  } catch (error) {
+    console.error('[Scheduler] LLM fallback failed:', error);
+    return buildUnavailableResult(input);
+  }
+}
 
 export const schedulerAgent: V6Agent<SchedulerInput, ScheduleResult> = {
   name: 'scheduler',
 
   async execute(input: SchedulerInput, runtime: AgentRuntime): Promise<ScheduleResult> {
-     try {
-       const deterministicResult = await runSolver(input);
-       
-       // Si el solver matemático falló miserablemente o está en modo fallback vacío
-       if (deterministicResult.solverOutput.metrics.solverStatus === 'fallback_unavailable' || 
-           deterministicResult.solverOutput.metrics.fillRate < 0.05) {
-         console.log('[Scheduler] Solver matemático insuficiente, activando LLM Fallback...');
-         return await llmScheduleFallback(runtime, input);
-       }
- 
-       scheduleCache.set(serializeInput(input), deterministicResult);
- 
-       if (deterministicResult.unscheduledCount === 0) {
-         return deterministicResult;
-       }
- 
-       try {
-         const tradeoffs = await explainTradeoffs(runtime, input, deterministicResult.solverOutput);
-         const enrichedResult: ScheduleResult = {
-           ...deterministicResult,
-           tradeoffs,
-         };
-         scheduleCache.set(serializeInput(input), enrichedResult);
-         return enrichedResult;
-       } catch {
-         return deterministicResult;
-       }
-     } catch (err) {
-       console.error('[Scheduler] Excepción en execute, intentando LLM Fallback...', err);
-       return await llmScheduleFallback(runtime, input);
-     }
-   },
+    try {
+      const deterministicResult = await runSolver(input);
+
+      if (
+        deterministicResult.solverOutput.metrics.solverStatus === 'fallback_unavailable'
+        || deterministicResult.solverOutput.metrics.fillRate < 0.05
+      ) {
+        console.log('[Scheduler] Solver insuficiente, activando LLM fallback...');
+        return await llmScheduleFallback(runtime, input);
+      }
+
+      scheduleCache.set(serializeInput(input), deterministicResult);
+
+      if (deterministicResult.unscheduledCount === 0) {
+        return deterministicResult;
+      }
+
+      try {
+        const tradeoffs = await explainTradeoffs(runtime, input, deterministicResult.solverOutput);
+        const enrichedResult: ScheduleResult = {
+          ...deterministicResult,
+          tradeoffs,
+        };
+        scheduleCache.set(serializeInput(input), enrichedResult);
+        return enrichedResult;
+      } catch {
+        return deterministicResult;
+      }
+    } catch (error) {
+      console.error('[Scheduler] Excepcion en execute, intentando LLM fallback...', error);
+      return await llmScheduleFallback(runtime, input);
+    }
+  },
 
   fallback(input: SchedulerInput): ScheduleResult {
     return scheduleCache.get(serializeInput(input)) ?? buildUnavailableResult(input);

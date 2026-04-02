@@ -37,7 +37,8 @@ export const planBuildRequestSchema = z.object({
   provider: z.string().trim().min(1).optional(),
   backendCredentialId: z.string().trim().min(1).optional(),
   resourceMode: buildResourceModeSchema.optional(),
-  thinkingMode: thinkingModeSchema.optional()
+  thinkingMode: thinkingModeSchema.optional(),
+  startDate: dateSchema.optional()
 }).passthrough()
 
 export const planListQuerySchema = z.object({

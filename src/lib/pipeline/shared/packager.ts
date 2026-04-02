@@ -1942,7 +1942,8 @@ export function packagePlan(input: PackageInput): PlanPackage {
   if (goalIds.length === 0) {
     goalIds.push(goalId);
   }
-  const weekStartDate = input.weekStartDate ?? input.finalSchedule.events[0]?.startAt ?? createdAt;
+  const planningStartAt = input.planningStartAt ?? input.weekStartDate ?? input.finalSchedule.events[0]?.startAt ?? createdAt;
+  const weekStartDate = input.weekStartDate ?? planningStartAt;
   const hardFindings = input.hardFindings ?? [];
   const softFindings = input.softFindings ?? [];
   const coveFindings = input.coveFindings ?? [];
@@ -1957,9 +1958,9 @@ export function packagePlan(input: PackageInput): PlanPackage {
 
   const implementationIntentions = buildImplementationIntentions(timeEvents, input.timezone);
   const warnings = buildWarnings(input);
-  const milestones = buildMilestones(input.roadmap, goalId, weekStartDate, input.timezone, createdAt);
+  const milestones = buildMilestones(input.roadmap, goalId, planningStartAt, input.timezone, createdAt);
   const deferredPhaseTasks = timeEvents.length === 0 && (input.finalSchedule.unscheduled?.length ?? 0) === 0
-    ? buildDeferredPhaseTasks(input.roadmap, goalId, weekStartDate, input.timezone, createdAt)
+    ? buildDeferredPhaseTasks(input.roadmap, goalId, planningStartAt, input.timezone, createdAt)
     : [];
   const baseItems: PlanItem[] = [
     ...timeEvents,
@@ -1969,7 +1970,7 @@ export function packagePlan(input: PackageInput): PlanPackage {
     ...buildTriggerRuleItems(goalId, createdAt),
   ];
   const habitStates = buildHabitStates(input, timeEvents);
-  const plan = buildPlan(input, goalIds, milestones, timeEvents, createdAt, updatedAt, weekStartDate, slackPolicy);
+  const plan = buildPlan(input, goalIds, milestones, timeEvents, createdAt, updatedAt, planningStartAt, slackPolicy);
   const provisionalPackage: PlanPackage = {
     plan,
     items: baseItems,

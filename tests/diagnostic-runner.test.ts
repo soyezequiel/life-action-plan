@@ -140,7 +140,7 @@ describe('DiagnosticCollector', () => {
       authMode: 'API key',
       outputFile: 'tmp/test.json',
       startedAt: '2026-03-26T10:00:00.000Z',
-      command: 'npx tsx scripts/lap-runner-v5-real.ts --diagnostic',
+      command: 'npm run plan:run -- --debug',
     });
     return c;
   }
@@ -270,7 +270,7 @@ describe('diagnostic-renderer', () => {
       authMode: 'API key',
       outputFile: 'tmp/test.json',
       startedAt: '2026-03-26T10:00:00.000Z',
-      command: 'npx tsx scripts/lap-runner-v5-real.ts --diagnostic',
+      command: 'npm run plan:run -- --debug',
     });
     c.recordPhaseSuccess('classify', {
       input: { text: 'test' },

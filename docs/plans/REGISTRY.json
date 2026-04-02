@@ -51,6 +51,16 @@
       "canonical_plan_file": "docs/plans/flow-viewer-data-v1/PLAN.md"
     },
     {
+      "plan_id": "pipeline-visualizer-v1",
+      "series_id": "pipeline-visualizer",
+      "version": 1,
+      "title": "Pipeline Visualizer",
+      "status": "implemented",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/pipeline-visualizer-v1/plan.md"
+    },
+    {
       "plan_id": "frontend-system-integration-v1",
       "series_id": "frontend-system-integration",
       "version": 1,
@@ -155,10 +165,70 @@
       "series_id": "repo-cleanup-doc-order",
       "version": 1,
       "title": "Plan: Limpieza de repo y orden documental",
+      "status": "implemented",
+      "lifecycle": "historical",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/repo-cleanup-doc-order-v1/PLAN.md"
+    },
+    {
+      "plan_id": "soy-61-clasificar-carpetas-runtime-v1",
+      "series_id": "soy-61-clasificar-carpetas-runtime",
+      "version": 1,
+      "title": "Clasificar carpetas: runtime, historico, tooling y borrables",
       "status": "ready",
       "lifecycle": "active",
       "latest_in_series": true,
-      "canonical_plan_file": "docs/plans/repo-cleanup-doc-order-v1/PLAN.md"
+      "canonical_plan_file": "docs/plans/soy-61-clasificar-carpetas-runtime-v1/PLAN.md"
+    },
+    {
+      "plan_id": "soy-62-separar-producto-mockups-v1",
+      "series_id": "soy-62-separar-producto-mockups",
+      "version": 1,
+      "title": "Separar producto vivo de mockups y demos",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/soy-62-separar-producto-mockups-v1/PLAN.md"
+    },
+    {
+      "plan_id": "soy-63-eliminar-scripts-muertos-v5-v1",
+      "series_id": "soy-63-eliminar-scripts-muertos-v5",
+      "version": 1,
+      "title": "Eliminar scripts muertos y deuda nominal de v5",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/soy-63-eliminar-scripts-muertos-v5-v1/PLAN.md"
+    },
+    {
+      "plan_id": "soy-64-regularizar-sistema-planes-v1",
+      "series_id": "soy-64-regularizar-sistema-planes",
+      "version": 1,
+      "title": "Regularizar el sistema canonico de planes",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/soy-64-regularizar-sistema-planes-v1/PLAN.md"
+    },
+    {
+      "plan_id": "soy-65-reordenar-docs-dominio-v1",
+      "series_id": "soy-65-reordenar-docs-dominio",
+      "version": 1,
+      "title": "Reordenar la documentacion por dominio",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/soy-65-reordenar-docs-dominio-v1/PLAN.md"
+    },
+    {
+      "plan_id": "soy-66-endurecer-deploy-vercel-v1",
+      "series_id": "soy-66-endurecer-deploy-vercel",
+      "version": 1,
+      "title": "Endurecer readiness y narrativa de deploy en Vercel",
+      "status": "ready",
+      "lifecycle": "active",
+      "latest_in_series": true,
+      "canonical_plan_file": "docs/plans/soy-66-endurecer-deploy-vercel-v1/PLAN.md"
     },
     {
       "plan_id": "sim-export-v1",

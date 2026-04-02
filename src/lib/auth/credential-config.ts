@@ -221,7 +221,10 @@ async function validateWalletConnection(secretValue: string): Promise<ValidatorO
 
   try {
     provider = getPaymentProvider('nwc', { connectionUrl: secretValue })
-    const snapshot = await provider.getStatus()
+    const snapshot = await provider.getStatus({
+      includeBalance: false,
+      includeBudget: false
+    })
 
     return {
       kind: 'valid',

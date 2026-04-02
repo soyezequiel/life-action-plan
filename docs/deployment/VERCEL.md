@@ -17,8 +17,10 @@ LAP esta pensado para Vercel como preview y produccion. El deploy correcto requi
 
 1. Ejecutar `npm run doctor:deploy` antes de empujar cambios.
 2. Linkear el repo a Vercel.
-3. Usar `npm run vercel-build` como build command.
-4. Dejar que el `postbuild` ejecute `db:push` cuando corresponda.
+3. Usar `npm run vercel-build` como build command. Es un alias de `npm run build`.
+4. Dejar que el `postbuild` ejecute `node scripts/vercel-prepare.mjs --postbuild`.
+5. Si hace falta una accion explicita sobre DB, usar `LAP_POSTBUILD_DB_ACTION=migrate` o `LAP_POSTBUILD_DB_ACTION=push`.
+6. `db:push` queda bloqueado por seguridad salvo que se habilite `LAP_POSTBUILD_DB_PUSH_ALLOW_DESTRUCTIVE=1`.
 
 ## Comandos
 
@@ -31,4 +33,5 @@ npm run vercel-build
 
 - No depender de Ollama en preview o produccion.
 - No usar `AUTH_SECRET`; el proyecto valida `SESSION_SECRET`.
+- `NEXTAUTH_URL` es recomendable para produccion y el doctor lo reporta como aviso si falta.
 - Si `doctor:deploy` falla, corregir la configuracion antes de desplegar.

@@ -211,6 +211,9 @@ function createScheduleOutput() {
 function createPackagerContext() {
   return OrchestratorContextSchema.parse({
     goalText: 'Aprender guitarra',
+    timezone: 'UTC',
+    planningStartAt: '2026-03-30T00:00:00.000Z',
+    weekStartDate: '2026-03-30T00:00:00.000Z',
     interpretation: createInterpretation(),
     clarificationRounds: [],
     userAnswers: {},
@@ -235,6 +238,9 @@ function createPackagerContext() {
       tradeoffs: [],
       qualityScore: 88,
       unscheduledCount: 0,
+      timezone: 'UTC',
+      planningStartAt: '2026-03-30T00:00:00.000Z',
+      weekStartDate: '2026-03-30T00:00:00.000Z',
     },
     criticReport: CriticReportSchema.parse({
       overallScore: 88,
@@ -318,14 +324,14 @@ describe('agent fallbacks (no LLM)', () => {
   });
 
   describe('clarifierAgent.fallback', () => {
-    it('returns readyToAdvance true with confidence 0.6', () => {
+    it('returns readyToAdvance true with confidence 0.75 when the snapshot is already sufficient', () => {
       const input = createClarifierInput();
 
       const result = clarifierAgent.fallback(input);
 
       expect(ClarificationRoundSchema.parse(result)).toEqual(result);
       expect(result.readyToAdvance).toBe(true);
-      expect(result.confidence).toBe(0.6);
+      expect(result.confidence).toBe(0.75);
     });
 
     it('returns empty questions array', () => {
@@ -343,7 +349,14 @@ describe('agent fallbacks (no LLM)', () => {
     });
 
     it('does not advance when there are still valid clarification questions even if the model reports high confidence', async () => {
-      const input = createClarifierInput();
+      const input = createClarifierInput({
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          ...createClarifierInput().goalSignalsSnapshot!,
+          informationGaps: ['hours_reales_por_semana'],
+          missingCriticalSignals: ['constraints'],
+          hasSufficientSignalsForPlanning: false,
+        }),
+      });
 
       const result = await clarifierAgent.execute(input, createJsonRuntime({
         questions: [{
@@ -364,15 +377,20 @@ describe('agent fallbacks (no LLM)', () => {
       expect(result.questions).toHaveLength(1);
       expect(result.questions[0]).toMatchObject({
         id: 'q1',
-        type: 'number',
-        min: 1,
-        max: 20,
+        type: 'text',
       });
-      expect(result.informationGaps).toEqual(['horas_reales_por_semana']);
+      expect(result.informationGaps).toEqual(['constraints']);
     });
 
     it('normalizes ids sequentially and keeps stable snake_case gap keys', async () => {
-      const input = createClarifierInput();
+      const input = createClarifierInput({
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          ...createClarifierInput().goalSignalsSnapshot!,
+          informationGaps: ['disponibilidad_semanal_real', 'fecha_limite_concreta'],
+          missingCriticalSignals: ['constraints', 'timeframe'],
+          hasSufficientSignalsForPlanning: false,
+        }),
+      });
 
       const result = await clarifierAgent.execute(input, createJsonRuntime({
         questions: [
@@ -398,8 +416,8 @@ describe('agent fallbacks (no LLM)', () => {
       expect(result.readyToAdvance).toBe(false);
       expect(result.questions.map((question) => question.id)).toEqual(['q1', 'q2']);
       expect(result.informationGaps).toEqual([
-        'disponibilidad_semanal_real',
-        'fecha_limite_concreta',
+        'constraints',
+        'timeframe',
       ]);
     });
 
@@ -435,6 +453,12 @@ describe('agent fallbacks (no LLM)', () => {
         interpretation: createInterpretation(),
         previousAnswers: {},
         profileSummary: null,
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          ...createClarifierInput().goalSignalsSnapshot!,
+          informationGaps: ['learning_format', 'target_months'],
+          missingCriticalSignals: ['modality', 'timeframe'],
+          hasSufficientSignalsForPlanning: false,
+        }),
       };
 
       const result = await clarifierAgent.execute(input, createJsonRuntime({
@@ -466,17 +490,12 @@ describe('agent fallbacks (no LLM)', () => {
       }));
 
       expect(result.readyToAdvance).toBe(false);
-      expect(result.questions).toHaveLength(2);
+      expect(result.questions).toHaveLength(1);
       expect(result.questions[0]).toMatchObject({
         id: 'q1',
-        type: 'select',
-        options: ['Clases', 'Videos'],
-      });
-      expect(result.questions[1]).toMatchObject({
-        id: 'q2',
         type: 'text',
       });
-      expect(result.informationGaps).toEqual(['learning_format', 'target_months']);
+      expect(result.informationGaps).toEqual(['timeframe']);
     });
 
     it('deduplicates repeated questions and derives fallback gap keys when the model omits them', async () => {
@@ -484,6 +503,12 @@ describe('agent fallbacks (no LLM)', () => {
         interpretation: createInterpretation(),
         previousAnswers: {},
         profileSummary: null,
+        goalSignalsSnapshot: GoalSignalsSnapshotSchema.parse({
+          ...createClarifierInput().goalSignalsSnapshot!,
+          informationGaps: ['fecha_limite_concreta', 'horas_semanales_reales_dedicarle'],
+          missingCriticalSignals: ['timeframe', 'constraints'],
+          hasSufficientSignalsForPlanning: false,
+        }),
       };
 
       const result = await clarifierAgent.execute(input, createJsonRuntime({
@@ -520,8 +545,8 @@ describe('agent fallbacks (no LLM)', () => {
         '¿Cuántas horas semanales reales podés dedicarle?',
       ]);
       expect(result.informationGaps).toEqual([
-        'fecha_limite_concreta',
-        'horas_semanales_reales_dedicarle',
+        'timeframe',
+        'constraints',
       ]);
     });
   });
@@ -835,6 +860,9 @@ describe('agent fallbacks (no LLM)', () => {
           fixedCommitments: [],
           scheduleConstraints: [],
         },
+        timezone: 'UTC',
+        planningStartAt: '2026-03-30T00:00:00.000Z',
+        weekStartDate: '2026-03-30T00:00:00.000Z',
         availability: [{
           day: 'monday',
           startTime: '18:00',

@@ -223,11 +223,19 @@ function handleV6Build(
 
         send({ type: 'v6:phase', data: { phase: 'interpret', iteration: 0 } })
 
-        const { buildSchedulingContextFromProfile } = await import(
+        const { buildSchedulingContextFromProfile, isStartDateInPast } = await import(
           '../../../../src/lib/pipeline/shared/scheduling-context'
         )
 
         const timezone = getProfileTimezone(profile)
+        if (isStartDateInPast(timezone, data.startDate)) {
+          send({
+            type: 'result',
+            result: { success: false, error: apiErrorMessages.startDatePast() },
+          })
+          return
+        }
+
         const participant = profile.participantes?.[0]
         const hours = participant?.calendario?.horasLibresEstimadas
         const commitments = participant?.calendario?.eventosInamovibles ?? []
@@ -239,7 +247,9 @@ function handleV6Build(
           scheduleConstraints: [] as string[],
         }
 
-        const schedulingCtx = buildSchedulingContextFromProfile(profile)
+        const schedulingCtx = buildSchedulingContextFromProfile(profile, {
+          startDate: data.startDate,
+        })
 
         const orchestrator = new PlanOrchestrator(
           {},
@@ -292,6 +302,8 @@ function handleV6Build(
           profile: userProfile,
           timezone,
           locale: 'es-AR',
+          planningStartAt: schedulingCtx.planningStartAt,
+          weekStartDate: schedulingCtx.weekStartDate,
           availability: schedulingCtx.availability,
           blocked: schedulingCtx.blocked,
         })
@@ -326,6 +338,7 @@ function handleV6Build(
                 apiKey: apiKey || null,
                 backendCredentialId: backendCredentialId ?? null,
                 thinkingMode: thinkingMode ?? null,
+                startDate: data.startDate ?? null,
               },
               orchestrator: orchestrator.getSnapshot(),
             }),

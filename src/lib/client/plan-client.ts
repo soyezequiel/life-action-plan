@@ -427,9 +427,10 @@ export async function startPlanBuild(
   goal: string,
   profileId: string,
   resourceMode: string,
-  callbacks: PlanStreamCallbacks
+  callbacks: PlanStreamCallbacks,
+  startDate?: string
 ): Promise<void> {
-  const body = { goalText: goal, profileId, resourceMode, debug: true }
+  const body = { goalText: goal, profileId, resourceMode, debug: true, startDate }
   await postV6Stream('/api/plan/build', body, callbacks)
 }
 

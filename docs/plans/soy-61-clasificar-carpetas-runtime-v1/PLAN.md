@@ -1,7 +1,7 @@
 # Clasificar carpetas: runtime, histórico, tooling y borrables
 
 > **Linear:** SOY-61
-> **Status:** `pending`
+> **Status:** `completed`
 > **Plan:** `docs/plans/soy-61-clasificar-carpetas-runtime-v1/PLAN.md`
 > **Padre:** SOY-43 — stage 1 de `repo-cleanup-doc-order-v1`
 
@@ -25,6 +25,11 @@ Clasificar: `components/mockups/`, `components/plan-viewer/`, `components/pipeli
 - Lista de borrados seguros documentada
 - Lista de renames requeridos documentada
 - Cero cambios en archivos de código
+
+## Resultado
+
+La tabla de decisión ya quedó escrita en `docs/plans/soy-61-clasificar-carpetas-runtime-v1/decision-table.md`.
+El inventario no requiere cambios de código en este stage.
 
 ## No tocar
 - Ningún archivo fuera de `docs/plans/soy-61-clasificar-carpetas-runtime-v1/` en este stage

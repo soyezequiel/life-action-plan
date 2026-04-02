@@ -141,4 +141,40 @@ describe('plan-client stream handling', () => {
       })
     )
   })
+
+  it('envia startDate cuando se define un inicio explicito', async () => {
+    const fetchMock = vi.fn(async () => createSseResponse([
+      createSseEvent({
+        type: 'v6:complete',
+        data: {
+          planId: 'plan-1',
+          score: 91,
+          iterations: 4,
+        },
+      }, 'v6:complete'),
+    ]))
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    await startPlanBuild('Aprender piano', 'profile-1', 'codex', {
+      onPhase: vi.fn(),
+      onProgress: vi.fn(),
+      onNeedsInput: vi.fn(),
+      onComplete: vi.fn(),
+      onError: vi.fn(),
+    }, '2026-04-10')
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/plan/build', expect.objectContaining({
+      method: 'POST',
+    }))
+
+    const requestInit = fetchMock.mock.calls[0]?.[1]
+    expect(JSON.parse(String(requestInit?.body))).toEqual(expect.objectContaining({
+      goalText: 'Aprender piano',
+      profileId: 'profile-1',
+      resourceMode: 'codex',
+      debug: true,
+      startDate: '2026-04-10',
+    }))
+  })
 })

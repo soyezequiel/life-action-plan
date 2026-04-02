@@ -22,9 +22,11 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   distDir: nextDistDir,
   eslint: {
+    // local-only: dejamos el lint fuera del build mientras el repositorio cierra deuda historica.
     ignoreDuringBuilds: true,
   },
   typescript: {
+    // local-only: el build no bloquea por errores heredados mientras SOY-43 cierra la limpieza.
     ignoreBuildErrors: true,
   },
 }

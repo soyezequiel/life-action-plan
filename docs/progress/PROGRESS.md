@@ -1,13 +1,14 @@
 # Progreso del Plan LAP
 
-> Ultima actualizacion: 2026-03-21
-> Referencia vigente: `../architecture/REGISTRY.json`
+> Ultima actualizacion: 2026-04-02
+> Referencias vigentes: `../architecture/REGISTRY.json`, `../plans/REGISTRY.json`
 
 ## Fase 0 - Estabilizacion post-migracion
 
 | Item | Estado | Evidencia |
 |------|--------|-----------|
 | Limpiar docs y source of truth | OK | `AGENTS.md` y los registries canonicos marcan la fuente de verdad |
+| Alinear indice de docs y registro de planes | OK | `docs/README.md` y `docs/plans/REGISTRY.json` reflejan la estructura vigente |
 | Eliminar residuos legacy | OK | Cero imports Electron/SQLite en codigo fuente |
 | Smoke local repetible | OK | `smoke:local`, `smoke:deploy`, `doctor:local`, `doctor:deploy` |
 | typecheck, test y build | OK | Scripts configurados en `package.json` |

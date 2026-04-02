@@ -8,7 +8,10 @@ const mocks = vi.hoisted(() => ({
   getProfileMock: vi.fn(),
   parseStoredProfileMock: vi.fn(),
   getProfileTimezoneMock: vi.fn(() => 'UTC'),
+  isStartDateInPastMock: vi.fn(() => false),
   buildSchedulingContextFromProfileMock: vi.fn(() => ({
+    planningStartAt: '2026-03-30T00:00:00.000Z',
+    weekStartDate: '2026-03-30T00:00:00.000Z',
     availability: [],
     blocked: [],
   })),
@@ -73,6 +76,7 @@ vi.mock('../src/lib/domain/plan-helpers', () => ({
 }))
 
 vi.mock('../src/lib/pipeline/shared/scheduling-context', () => ({
+  isStartDateInPast: mocks.isStartDateInPastMock,
   buildSchedulingContextFromProfile: mocks.buildSchedulingContextFromProfileMock,
 }))
 
@@ -143,7 +147,10 @@ describe('plan build route failure surfacing', () => {
       participantes: [],
     })
     mocks.getProfileTimezoneMock.mockReturnValue('UTC')
+    mocks.isStartDateInPastMock.mockReturnValue(false)
     mocks.buildSchedulingContextFromProfileMock.mockReturnValue({
+      planningStartAt: '2026-03-30T00:00:00.000Z',
+      weekStartDate: '2026-03-30T00:00:00.000Z',
       availability: [],
       blocked: [],
     })
@@ -379,6 +386,33 @@ describe('plan build route failure surfacing', () => {
         failureCode: 'failed_for_quality_review',
       }))
     }
+  })
+
+  it('returns a friendly error when startDate is in the past for the profile timezone', async () => {
+    mocks.isStartDateInPastMock.mockReturnValueOnce(true)
+
+    const response = await POST(new Request('http://localhost/api/plan/build', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        goalText: 'Quiero aprender a cocinar platos italianos',
+        profileId: 'c2567794-35f8-45b0-8eea-f0b1b7a86f60',
+        provider: 'openai:gpt-5-codex',
+        resourceMode: 'codex',
+        startDate: '2026-03-01',
+      }),
+    }))
+
+    const payloads = extractSsePayloads(await response.text())
+    const resultPayload = payloads.find((payload) => payload.type === 'result')
+
+    expect(resultPayload?.result).toEqual(expect.objectContaining({
+      success: false,
+      error: 'La fecha de inicio tiene que ser hoy o un dia futuro.',
+    }))
+    expect(mocks.runMock).not.toHaveBeenCalled()
   })
 
   it('persists the plan when health supervision is only a warning', async () => {

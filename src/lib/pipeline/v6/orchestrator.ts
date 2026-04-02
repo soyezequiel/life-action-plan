@@ -51,6 +51,7 @@ import { getPublicPhaseFromMachineState, inferLegacyMachineState, parseMachineSn
 import type { V6MachineEvent } from './xstate/events';
 import { extractQuotaFromError, formatQuotaMessage } from '../../runtime/quota-parser';
 import { type QuotaInfo } from '../../runtime/quota-parser';
+import { resolvePlanningStartAt, resolveWeekStartDate } from '../shared/scheduling-context';
 
 // ─── Public interfaces ──────────────────────────────────────────────────────
 
@@ -58,6 +59,8 @@ export interface UserContext {
   profile: UserProfileV5 | null;
   timezone: string;
   locale: string;
+  planningStartAt?: string;
+  weekStartDate?: string;
   availability?: AvailabilityWindow[];
   blocked?: BlockedSlot[];
 }
@@ -1026,10 +1029,17 @@ export class PlanOrchestrator {
   // ─── Initialization ─────────────────────────────────────────────────────
 
   private initializeContext(goalText: string, userCtx: UserContext): void {
+    const timezone = userCtx.timezone;
+    const planningStartAt = userCtx.planningStartAt ?? resolvePlanningStartAt(timezone);
+    const weekStartDate = userCtx.weekStartDate ?? resolveWeekStartDate(timezone, planningStartAt);
+
     this.context.goalText = goalText;
     this.context.interpretation = null;
     this.context.clarificationRounds = [];
     this.context.userAnswers = {};
+    this.context.timezone = timezone;
+    this.context.planningStartAt = planningStartAt;
+    this.context.weekStartDate = weekStartDate;
     this.context.goalSignalsSnapshot = undefined;
     this.context.userProfile = userCtx.profile;
     this.context.domainCard = null;
@@ -2161,6 +2171,12 @@ export class PlanOrchestrator {
     const input = {
       strategicDraft: this.context.strategicDraft!,
       userProfile: profile,
+      timezone: this.context.timezone ?? 'UTC',
+      planningStartAt: this.context.planningStartAt ?? resolvePlanningStartAt(this.context.timezone ?? 'UTC'),
+      weekStartDate: this.context.weekStartDate ?? resolveWeekStartDate(
+        this.context.timezone ?? 'UTC',
+        this.context.planningStartAt,
+      ),
       availability: this.context.availability ?? this.buildDefaultAvailability(),
       blocked: this.context.blocked ?? [],
       domainCard: this.context.domainCard,

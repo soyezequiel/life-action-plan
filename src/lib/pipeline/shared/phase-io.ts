@@ -233,6 +233,7 @@ export interface PlanPackage {
 export interface PackageInput {
   finalSchedule: SchedulerOutput;
   timezone: string;
+  planningStartAt?: string;
   classification?: GoalClassification;
   roadmap?: StrategicRoadmap;
   goalText?: string;

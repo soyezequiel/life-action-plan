@@ -37,6 +37,7 @@ export interface PlanBuildRequest {
   backendCredentialId?: string
   resourceMode?: 'auto' | 'backend' | 'user' | 'codex'
   thinkingMode?: 'enabled' | 'disabled'
+  startDate?: string
 }
 
 export interface PlanBuildResult {
@@ -407,7 +408,8 @@ export interface LapAPI {
       provider?: string,
       backendCredentialId?: string,
       resourceMode?: 'auto' | 'backend' | 'user' | 'codex',
-      thinkingMode?: 'enabled' | 'disabled'
+      thinkingMode?: 'enabled' | 'disabled',
+      startDate?: string
     ) => Promise<PlanBuildResult>
     onBuildProgress: (listener: (progress: PlanBuildProgress) => void) => () => void
     list: (profileId: string) => Promise<PlanRow[]>
