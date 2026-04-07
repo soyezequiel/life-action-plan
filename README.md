@@ -2,6 +2,8 @@
 
 LAP es una web app Next.js 15 para crear, simular y ejecutar planes de accion personales con asistencia de LLM.
 
+**Live Demo:** [https://life-action-plan.vercel.app/](https://life-action-plan.vercel.app/)
+
 ## Requisitos
 
 - Node.js 20 o superior
